@@ -4,8 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+numpy = "*"
+scipy = "*"
+pyscf = "*"
 
 [dev-packages]
+pytest = "*"
+black = "*"
 
 [requires]
 python_version = "3.10"
