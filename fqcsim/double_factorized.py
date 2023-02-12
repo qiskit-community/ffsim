@@ -108,8 +108,6 @@ def double_factorized_decomposition(
 ) -> DoubleFactorizedHamiltonian:
     r"""Double factorized decomposition of a molecular Hamiltonian."""
     one_body_tensor = one_body_tensor - 0.5 * np.einsum("prqr", two_body_tensor)
-    # TODO get constant from ElectronicEnergy
-    constant = 0.0
 
     core_tensors, leaf_tensors = double_factorized(
         two_body_tensor, max_rank=max_rank, error_threshold=error_threshold
@@ -118,7 +116,6 @@ def double_factorized_decomposition(
         one_body_tensor=one_body_tensor,
         core_tensors=core_tensors,
         leaf_tensors=leaf_tensors,
-        constant=constant,
     )
 
     if z_representation:
