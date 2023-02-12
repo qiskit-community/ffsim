@@ -154,20 +154,12 @@ def apply_num_op_sum_evolution(
     if copy:
         vec = vec.copy()
     for i, coeff in enumerate(coeffs):
-        vec = apply_phase_shift(
-            np.exp(-1j * coeff * time),
+        vec = apply_num_interaction(
+            -coeff * time,
             vec,
-            ((i,), ()),
-            n_orbitals,
-            n_electrons,
-            copy=False,
-        )
-        vec = apply_phase_shift(
-            np.exp(-1j * coeff * time),
-            vec,
-            ((), (i,)),
-            n_orbitals,
-            n_electrons,
+            i,
+            n_orbitals=n_orbitals,
+            n_electrons=n_electrons,
             copy=False,
         )
     return vec
@@ -192,38 +184,23 @@ def apply_core_tensor_evolution(
         core_tensor_alpha_beta = core_tensor
     for i, j in itertools.combinations_with_replacement(range(n_orbitals), 2):
         coeff = 0.5 if i == j else 1.0
-        vec = apply_phase_shift(
-            np.exp(-1j * coeff * time * core_tensor[i, j]),
-            vec,
-            ((i,) if i == j else (i, j), ()),
-            n_orbitals=n_orbitals,
-            n_electrons=n_electrons,
-            copy=False,
-        )
-        vec = apply_phase_shift(
-            np.exp(-1j * coeff * time * core_tensor[i, j]),
-            vec,
-            ((), (i,) if i == j else (i, j)),
-            n_orbitals=n_orbitals,
-            n_electrons=n_electrons,
-            copy=False,
-        )
-        vec = apply_phase_shift(
-            np.exp(-1j * coeff * time * core_tensor_alpha_beta[i, j]),
-            vec,
-            ((i,), (j,)),
-            n_orbitals=n_orbitals,
-            n_electrons=n_electrons,
-            copy=False,
-        )
-        vec = apply_phase_shift(
-            np.exp(-1j * coeff * time * core_tensor_alpha_beta[i, j]),
-            vec,
-            ((j,), (i,)),
-            n_orbitals=n_orbitals,
-            n_electrons=n_electrons,
-            copy=False,
-        )
+        for sigma in range(2):
+            vec = apply_num_num_interaction(
+                -coeff * time * core_tensor[i, j],
+                vec,
+                ((i, sigma), (j, sigma)),
+                n_orbitals=n_orbitals,
+                n_electrons=n_electrons,
+                copy=False,
+            )
+            vec = apply_num_num_interaction(
+                -coeff * time * core_tensor_alpha_beta[i, j],
+                vec,
+                ((i, sigma), (j, 1 - sigma)),
+                n_orbitals=n_orbitals,
+                n_electrons=n_electrons,
+                copy=False,
+            )
     return vec
 
 
