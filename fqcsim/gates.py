@@ -25,12 +25,21 @@ from fqcsim.linalg import (
 def apply_orbital_rotation(
     mat: np.ndarray, vec: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> np.ndarray:
-    """Apply an orbital rotation to a vector.
+    r"""Apply an orbital rotation to a vector.
 
-    An orbital rotation is also known as a single-particle basis change.
+    An orbital rotation maps creation operators as
+
+    .. math::
+        a^\dagger_i \mapsto \sum_{j} U_{ji} a^\dagger_j
+
+    where :math:`U` is a unitary matrix. This is equivalent to applying the
+    transformation given by
+
+    .. math::
+        \exp(\sum_{ij} log(U)_{ij} a^\dagger{i} a_j)
 
     Args:
-        mat: Unitary matrix describing the orbital rotation.
+        mat: Unitary matrix :math:`U` describing the orbital rotation.
         vec: Vector to be transformed.
         norb: Number of spatial orbitals.
         nelec: Number of alpha and beta electrons.
@@ -186,8 +195,18 @@ def apply_core_tensor_evolution(
     core_tensor_alpha_beta: np.ndarray | None = None,
     copy: bool = True,
 ) -> np.ndarray:
-    # TODO norb does not need to be input here and some other places
-    """Apply time evolution by a core tensor."""
+    r"""Apply time evolution by a core tensor.
+
+    Applies
+
+    .. math::
+        \exp(-i t \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
+
+    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    and spin :math:`\sigma`, and :math:`Z` is the matrix input as ``core_tensor``.
+    If ``core_tensor_alpha_beta`` is also given, then it is used in place of :math:`Z`
+    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
+    """
     if copy:
         vec = vec.copy()
     if core_tensor_alpha_beta is None:
