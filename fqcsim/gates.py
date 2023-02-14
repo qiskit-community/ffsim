@@ -216,16 +216,14 @@ def apply_core_tensor_evolution(
     return vec
 
 
-def apply_givens_rotation_adjacent(
+def apply_givens_rotation(
     theta: float,
     vec: np.ndarray,
     target_orbitals: tuple[int, int],
     n_orbitals: int,
     n_electrons: tuple[int, int],
-    *,
-    out: np.ndarray | None = None,
 ):
-    r"""Apply a Givens rotation gate to adjacent orbitals.
+    r"""Apply a Givens rotation gate.
 
     The Givens rotation gate is
 
@@ -235,33 +233,31 @@ def apply_givens_rotation_adjacent(
     Args:
         theta: The rotation angle.
         vec: Vector to be transformed.
-        target_orbitals: The orbitals (i, j) to transform.
+        target_orbitals: The orbitals (i, j) to rotate.
         n_orbitals: Number of spatial orbitals.
         n_electrons: Number of alpha and beta electrons.
     """
-    i, j = target_orbitals
-    assert i == j + 1 or i == j - 1, "Target orbitals must be adjacent."
+    if len(set(target_orbitals)) == 1:
+        raise ValueError(
+            f"The orbitals to rotate must be distinct. Got {target_orbitals}."
+        )
     c = np.cos(theta)
     s = np.sin(theta)
-    mat = np.array([[c, s], [-s, c]])
-    return apply_orbital_rotation_adjacent(
-        mat,
-        vec,
-        target_orbitals,
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
-        out=out,
+    mat = np.eye(n_orbitals)
+    mat[np.ix_(target_orbitals, target_orbitals)] = [[c, s], [-s, c]]
+    return apply_orbital_rotation(
+        mat, vec, n_orbitals=n_orbitals, n_electrons=n_electrons
     )
 
 
-def apply_tunneling_interaction_adjacent(
+def apply_tunneling_interaction(
     theta: float,
     vec: np.ndarray,
     target_orbitals: tuple[int, int],
     n_orbitals: int,
     n_electrons: tuple[int, int],
 ):
-    r"""Apply a tunneling interaction gate to adjacent orbitals.
+    r"""Apply a tunneling interaction gate.
 
     The tunneling interaction gate is
 
@@ -275,14 +271,29 @@ def apply_tunneling_interaction_adjacent(
         n_orbitals: Number of spatial orbitals.
         n_electrons: Number of alpha and beta electrons.
     """
-    i, j = target_orbitals
-    assert i == j + 1 or i == j - 1, "Target orbitals must be adjacent."
-    c = np.cos(theta)
-    s = np.sin(theta)
-    mat = np.array([[c, 1j * s], [1j * s, c]])
-    return apply_orbital_rotation_adjacent(
-        mat, vec, target_orbitals, n_orbitals=n_orbitals, n_electrons=n_electrons
+    if len(set(target_orbitals)) == 1:
+        raise ValueError(
+            f"The orbitals to rotate must be distinct. Got {target_orbitals}."
+        )
+    vec = apply_num_interaction(
+        -np.pi / 2,
+        vec,
+        target_orbitals[0],
+        n_orbitals=n_orbitals,
+        n_electrons=n_electrons,
     )
+    vec = apply_givens_rotation(
+        theta, vec, target_orbitals, n_orbitals=n_orbitals, n_electrons=n_electrons
+    )
+    vec = apply_num_interaction(
+        np.pi / 2,
+        vec,
+        target_orbitals[0],
+        n_orbitals=n_orbitals,
+        n_electrons=n_electrons,
+        copy=False,
+    )
+    return vec
 
 
 def apply_num_interaction(
