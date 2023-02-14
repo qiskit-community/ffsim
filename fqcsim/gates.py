@@ -108,6 +108,7 @@ def apply_phase_shift(
     target_orbs: tuple[tuple[int], tuple[int]],
     norb: int,
     nelec: tuple[int, int],
+    *,
     copy: bool = True,
 ):
     if copy:
@@ -152,6 +153,7 @@ def apply_num_op_sum_evolution(
     time: float,
     norb: int,
     nelec: tuple[int, int],
+    *,
     copy: bool = True,
 ):
     """Apply a sum of number operators to a vector."""
@@ -183,7 +185,6 @@ def apply_core_tensor_evolution(
     """Apply core tensor evolution."""
     if copy:
         vec = vec.copy()
-    norb, _ = core_tensor.shape
     if core_tensor_alpha_beta is None:
         core_tensor_alpha_beta = core_tensor
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
@@ -286,6 +287,7 @@ def apply_num_interaction(
     target_orb: int,
     norb: int,
     nelec: tuple[int, int],
+    *,
     copy: bool = True,
 ):
     r"""Apply a number interaction gate.
@@ -331,6 +333,7 @@ def apply_num_num_interaction(
     target_orbs: tuple[tuple[int, bool], tuple[int, bool]],
     norb: int,
     nelec: tuple[int, int],
+    *,
     copy: bool = True,
 ):
     r"""Apply a number-number interaction gate.
