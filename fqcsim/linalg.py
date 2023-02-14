@@ -136,7 +136,11 @@ def givens_decomposition(  # pylint: disable=invalid-name
 
 
 def apply_matrix_to_slices(
-    mat: np.ndarray, target: np.ndarray, slices: Sequence[_Slice]
+    mat: np.ndarray,
+    target: np.ndarray,
+    slices: Sequence[_Slice],
+    *,
+    out: np.ndarray | None = None,
 ) -> np.ndarray:
     """Apply a matrix to slices of a target tensor.
 
@@ -148,13 +152,18 @@ def apply_matrix_to_slices(
     Returns:
         The resulting tensor.
     """
-    result = target.copy()
+    if out is target:
+        raise ValueError("Output buffer cannot be the same as the input")
+    if out is None:
+        out = target.copy()
+    else:
+        out[...] = target[...]
     for i, slice_i in enumerate(slices):
-        result[slice_i] *= mat[i, i]
+        out[slice_i] *= mat[i, i]
         for j, slice_j in enumerate(slices):
             if j != i:
-                result[slice_i] += mat[i, j] * target[slice_j]
-    return result
+                out[slice_i] += mat[i, j] * target[slice_j]
+    return out
 
 
 def modified_cholesky(
