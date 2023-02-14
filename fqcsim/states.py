@@ -16,24 +16,24 @@ from scipy.special import comb
 
 
 def slater_determinant(
-    n_orbitals: int,
+    norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
     dtype: type = complex,
 ) -> np.ndarray:
     alpha_orbitals, beta_orbitals = occupied_orbitals
     n_alpha = len(alpha_orbitals)
     n_beta = len(beta_orbitals)
-    dim1 = comb(n_orbitals, n_alpha, exact=True)
-    dim2 = comb(n_orbitals, n_beta, exact=True)
+    dim1 = comb(norb, n_alpha, exact=True)
+    dim2 = comb(norb, n_beta, exact=True)
     slater = np.zeros((dim1, dim2), dtype=dtype)
-    alpha_bits = np.zeros(n_orbitals, dtype=bool)
+    alpha_bits = np.zeros(norb, dtype=bool)
     alpha_bits[list(alpha_orbitals)] = 1
     alpha_string = int("".join("1" if b else "0" for b in alpha_bits[::-1]), base=2)
-    alpha_index = cistring.str2addr(n_orbitals, n_alpha, alpha_string)
-    beta_bits = np.zeros(n_orbitals, dtype=bool)
+    alpha_index = cistring.str2addr(norb, n_alpha, alpha_string)
+    beta_bits = np.zeros(norb, dtype=bool)
     beta_bits[list(beta_orbitals)] = 1
     beta_string = int("".join("1" if b else "0" for b in beta_bits[::-1]), base=2)
-    beta_index = cistring.str2addr(n_orbitals, n_beta, beta_string)
+    beta_index = cistring.str2addr(norb, n_beta, beta_string)
     slater[alpha_index, beta_index] = 1
     return slater.reshape(-1)
 

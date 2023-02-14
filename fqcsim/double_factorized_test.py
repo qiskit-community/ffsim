@@ -33,46 +33,40 @@ from fqcsim.random_utils import (
 
 def test_double_factorized_decomposition():
     # set parameters
-    n_orbitals = 4
-    n_electrons = (2, 2)
+    norb = 4
+    nelec = (2, 2)
 
     # generate random Hamiltonian
-    dim = get_dimension(n_orbitals, n_electrons)
+    dim = get_dimension(norb, nelec)
     # TODO test with complex one-body tensor
-    one_body_tensor = np.real(np.array(random_hermitian(n_orbitals, seed=2474)))
-    two_body_tensor = random_two_body_tensor_real(n_orbitals, seed=7054)
-    hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, n_electrons)
+    one_body_tensor = np.real(np.array(random_hermitian(norb, seed=2474)))
+    two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
+    hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, nelec)
 
     # perform double factorization
     df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
 
     # generate random state
-    dim = get_dimension(n_orbitals, n_electrons)
+    dim = get_dimension(norb, nelec)
     state = np.array(random_statevector(dim, seed=1360))
 
     # apply Hamiltonian terms
     result = np.zeros_like(state)
 
     eigs, vecs = np.linalg.eigh(df_hamiltonian.one_body_tensor)
-    tmp = apply_orbital_rotation(
-        vecs.T.conj(), state, n_orbitals=n_orbitals, n_electrons=n_electrons
-    )
-    tmp = contract_num_op_sum(eigs, tmp, n_electrons)
-    tmp = apply_orbital_rotation(
-        vecs, tmp, n_orbitals=n_orbitals, n_electrons=n_electrons
-    )
+    tmp = apply_orbital_rotation(vecs.T.conj(), state, norb=norb, nelec=nelec)
+    tmp = contract_num_op_sum(eigs, tmp, nelec)
+    tmp = apply_orbital_rotation(vecs, tmp, norb=norb, nelec=nelec)
     result += tmp
 
     for core_tensor, leaf_tensor in zip(
         df_hamiltonian.core_tensors, df_hamiltonian.leaf_tensors
     ):
         tmp = apply_orbital_rotation(
-            leaf_tensor.T.conj(), state, n_orbitals=n_orbitals, n_electrons=n_electrons
+            leaf_tensor.T.conj(), state, norb=norb, nelec=nelec
         )
-        tmp = contract_core_tensor(core_tensor, tmp, n_electrons)
-        tmp = apply_orbital_rotation(
-            leaf_tensor, tmp, n_orbitals=n_orbitals, n_electrons=n_electrons
-        )
+        tmp = contract_core_tensor(core_tensor, tmp, nelec)
+        tmp = apply_orbital_rotation(leaf_tensor, tmp, norb=norb, nelec=nelec)
         result += tmp
 
     # apply Hamiltonian directly

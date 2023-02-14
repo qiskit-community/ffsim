@@ -26,22 +26,22 @@ from fqcsim.states import slater_determinant
 
 def test_contract_core_tensor():
     """Test contracting core tensor."""
-    n_orbitals = 5
+    norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, n_orbitals + 1)
-    n_beta = rng.integers(1, n_orbitals + 1)
+    n_alpha = rng.integers(1, norb + 1)
+    n_beta = rng.integers(1, norb + 1)
     occupied_orbitals = (
-        rng.choice(n_orbitals, n_alpha, replace=False),
-        rng.choice(n_orbitals, n_beta, replace=False),
+        rng.choice(norb, n_alpha, replace=False),
+        rng.choice(norb, n_beta, replace=False),
     )
-    n_electrons = tuple(len(orbs) for orbs in occupied_orbitals)
-    state = slater_determinant(n_orbitals, occupied_orbitals)
+    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+    state = slater_determinant(norb, occupied_orbitals)
 
-    core_tensor = np.real(np.array(random_hermitian(n_orbitals, seed=rng)))
-    result = contract_core_tensor(core_tensor, state, n_electrons)
+    core_tensor = np.real(np.array(random_hermitian(norb, seed=rng)))
+    result = contract_core_tensor(core_tensor, state, nelec)
 
     eig = 0
-    for i, j in itertools.product(range(n_orbitals), repeat=2):
+    for i, j in itertools.product(range(norb), repeat=2):
         for sigma, tau in itertools.product(range(2), repeat=2):
             if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
                 eig += 0.5 * core_tensor[i, j]
@@ -52,22 +52,22 @@ def test_contract_core_tensor():
 
 def test_contract_num_op_sum():
     """Test contracting sum of number operators."""
-    n_orbitals = 5
+    norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, n_orbitals + 1)
-    n_beta = rng.integers(1, n_orbitals + 1)
+    n_alpha = rng.integers(1, norb + 1)
+    n_beta = rng.integers(1, norb + 1)
     occupied_orbitals = (
-        rng.choice(n_orbitals, n_alpha, replace=False),
-        rng.choice(n_orbitals, n_beta, replace=False),
+        rng.choice(norb, n_alpha, replace=False),
+        rng.choice(norb, n_beta, replace=False),
     )
-    n_electrons = tuple(len(orbs) for orbs in occupied_orbitals)
-    state = slater_determinant(n_orbitals, occupied_orbitals)
+    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+    state = slater_determinant(norb, occupied_orbitals)
 
-    coeffs = rng.standard_normal(n_orbitals)
-    result = contract_num_op_sum(coeffs, state, n_electrons)
+    coeffs = rng.standard_normal(norb)
+    result = contract_num_op_sum(coeffs, state, nelec)
 
     eig = 0
-    for i in range(n_orbitals):
+    for i in range(norb):
         for sigma in range(2):
             if i in occupied_orbitals[sigma]:
                 eig += coeffs[i]

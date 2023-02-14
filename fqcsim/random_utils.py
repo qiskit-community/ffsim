@@ -84,7 +84,7 @@ def random_two_body_tensor_real(
         dim: The dimension of the tensor. The shape of the returned tensor will be
             (dim, dim, dim, dim).
         rank: Rank of the sampled tensor. The default behavior is to use
-            the maximum rank, which is `n_orbitals * (n_orbitals + 1) // 2`.
+            the maximum rank, which is `norb * (norb + 1) // 2`.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dype: The data type to use for the result.

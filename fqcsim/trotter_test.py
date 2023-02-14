@@ -31,7 +31,7 @@ from fqcsim.trotter import simulate_trotter_suzuki_double_factorized
 
 
 @pytest.mark.parametrize(
-    "n_orbitals, n_electrons, time, n_steps, order, target_fidelity",
+    "norb, nelec, time, n_steps, order, target_fidelity",
     [
         (3, (1, 1), 0.1, 10, 0, 0.99),
         (3, (1, 1), 0.1, 3, 1, 0.99),
@@ -41,25 +41,25 @@ from fqcsim.trotter import simulate_trotter_suzuki_double_factorized
     ],
 )
 def test_simulate_trotter_suzuki_double_factorized_random(
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
     time: float,
     n_steps: int,
     order: int,
     target_fidelity: float,
 ):
     # generate random Hamiltonian
-    dim = get_dimension(n_orbitals, n_electrons)
-    one_body_tensor = np.real(np.array(random_hermitian(n_orbitals, seed=2474)))
-    two_body_tensor = random_two_body_tensor_real(n_orbitals, seed=7054)
-    hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, n_electrons)
-    trace = get_trace(one_body_tensor, two_body_tensor, n_electrons)
+    dim = get_dimension(norb, nelec)
+    one_body_tensor = np.real(np.array(random_hermitian(norb, seed=2474)))
+    two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
+    hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, nelec)
+    trace = get_trace(one_body_tensor, two_body_tensor, nelec)
 
     # perform double factorization
     df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
 
     # generate initial state
-    dim = get_dimension(n_orbitals, n_electrons)
+    dim = get_dimension(norb, nelec)
     initial_state = np.array(random_statevector(dim, seed=1360))
     original_state = initial_state.copy()
 
@@ -78,7 +78,7 @@ def test_simulate_trotter_suzuki_double_factorized_random(
         df_hamiltonian.leaf_tensors,
         time,
         initial_state,
-        n_electrons,
+        nelec,
         n_steps=n_steps,
         order=order,
     )

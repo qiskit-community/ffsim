@@ -58,7 +58,7 @@ def simulate_trotter_suzuki_double_factorized(
     leaf_tensors: np.ndarray,
     time: float,
     initial_state: np.ndarray,
-    n_electrons: tuple[int, int],
+    nelec: tuple[int, int],
     n_steps: int = 1,
     order: int = 0,
 ) -> np.ndarray:
@@ -70,7 +70,7 @@ def simulate_trotter_suzuki_double_factorized(
         leaf_tensors: The leaf tensors of the double-factorized Hamiltonian.
         time: The evolution time.
         initial_state: The initial state.
-        n_electrons: The number of alpha and beta electrons.
+        nelec: The number of alpha and beta electrons.
         n_steps: The number of Trotter steps.
         order: The order of the Trotter decomposition.
 
@@ -82,13 +82,10 @@ def simulate_trotter_suzuki_double_factorized(
     one_body_energies, one_body_basis_change = np.linalg.eigh(one_body_tensor)
     step_time = time / n_steps
     final_state = initial_state.copy()
-    n_orbitals, _ = one_body_tensor.shape
-    current_basis_change = np.eye(n_orbitals)
+    norb, _ = one_body_tensor.shape
+    current_basis_change = np.eye(norb)
     for _ in range(n_steps):
-        (
-            final_state,
-            current_basis_change,
-        ) = _simulate_trotter_step_double_factorized(
+        final_state, current_basis_change = _simulate_trotter_step_double_factorized(
             current_basis_change,
             one_body_energies,
             one_body_basis_change,
@@ -96,12 +93,10 @@ def simulate_trotter_suzuki_double_factorized(
             leaf_tensors,
             step_time,
             final_state,
-            n_electrons,
+            nelec,
             order,
         )
-    final_state = apply_orbital_rotation(
-        current_basis_change, final_state, n_orbitals, n_electrons
-    )
+    final_state = apply_orbital_rotation(current_basis_change, final_state, norb, nelec)
     return final_state
 
 
@@ -113,7 +108,7 @@ def _simulate_trotter_step_double_factorized(
     leaf_tensors: np.ndarray,
     time: float,
     initial_state: np.ndarray,
-    n_electrons: tuple[int, int],
+    nelec: tuple[int, int],
     order: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     final_state = initial_state
@@ -127,7 +122,7 @@ def _simulate_trotter_step_double_factorized(
                 one_body_basis_change,
                 final_state,
                 time,
-                n_electrons,
+                nelec,
             )
         else:
             final_state, current_basis_change = _apply_two_body_term_evolution(
@@ -136,7 +131,7 @@ def _simulate_trotter_step_double_factorized(
                 leaf_tensors[term_index - 1],
                 final_state,
                 time,
-                n_electrons,
+                nelec,
             )
     return final_state, current_basis_change
 
@@ -147,21 +142,21 @@ def _apply_one_body_evolution(
     one_body_basis_change: np.ndarray,
     vec: np.ndarray,
     time: float,
-    n_electrons: tuple[int, int],
+    nelec: tuple[int, int],
 ) -> tuple[np.ndarray, np.ndarray]:
-    n_orbitals, _ = current_basis_change.shape
+    norb, _ = current_basis_change.shape
     vec = apply_orbital_rotation(
         one_body_basis_change.T.conj() @ current_basis_change,
         vec,
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        norb=norb,
+        nelec=nelec,
     )
     vec = apply_num_op_sum_evolution(
         one_body_energies,
         vec,
         time,
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        norb=norb,
+        nelec=nelec,
         copy=False,
     )
     return vec, one_body_basis_change
@@ -173,21 +168,21 @@ def _apply_two_body_term_evolution(
     leaf_tensor: np.ndarray,
     vec: np.ndarray,
     time: float,
-    n_electrons: tuple[int, int],
+    nelec: tuple[int, int],
 ) -> tuple[np.ndarray, np.ndarray]:
-    n_orbitals, _ = current_basis_change.shape
+    norb, _ = current_basis_change.shape
     vec = apply_orbital_rotation(
         leaf_tensor.T.conj() @ current_basis_change,
         vec,
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        norb=norb,
+        nelec=nelec,
     )
     vec = apply_core_tensor_evolution(
         core_tensor,
         vec,
         time,
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        norb=norb,
+        nelec=nelec,
         copy=False,
     )
     return vec, leaf_tensor
