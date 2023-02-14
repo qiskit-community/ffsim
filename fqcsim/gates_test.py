@@ -19,12 +19,12 @@ import scipy.sparse.linalg
 from fqcsim.fci import contract_1e, get_dimension, one_body_tensor_to_linop
 from fqcsim.gates import (
     apply_core_tensor_evolution,
-    apply_givens_rotation_adjacent,
+    apply_givens_rotation,
     apply_num_interaction,
     apply_num_num_interaction,
     apply_num_op_sum_evolution,
     apply_orbital_rotation,
-    apply_tunneling_interaction_adjacent,
+    apply_tunneling_interaction,
 )
 from fqcsim.random_utils import random_hermitian, random_statevector, random_unitary
 from fqcsim.states import slater_determinant
@@ -138,8 +138,8 @@ def test_apply_num_op_sum_evolution():
     np.testing.assert_allclose(state, original_state)
 
 
-def test_apply_givens_rotation_adjacent():
-    """Test applying Givens rotation to adjacent orbitals."""
+def test_apply_givens_rotation():
+    """Test applying Givens rotation."""
     n_orbitals = 5
     n_alpha = 3
     n_beta = 2
@@ -150,27 +150,27 @@ def test_apply_givens_rotation_adjacent():
     vec = np.array(random_statevector(dim, seed=rng))
     original_vec = vec.copy()
     theta = rng.standard_normal()
-    for i in range(n_orbitals - 1):
-        for target_orbitals in [(i, i + 1), (i + 1, i)]:
-            result = apply_givens_rotation_adjacent(
-                theta,
-                vec,
-                target_orbitals,
-                n_orbitals=n_orbitals,
-                n_electrons=n_electrons,
-            )
-            generator = np.zeros((n_orbitals, n_orbitals))
-            j, k = target_orbitals
-            generator[j, k] = theta
-            generator[k, j] = -theta
-            linop = one_body_tensor_to_linop(generator, n_electrons=n_electrons)
-            expected = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=theta)
-            np.testing.assert_allclose(result, expected, atol=1e-8)
+    for i, j in itertools.product(range(n_orbitals), repeat=2):
+        if i == j:
+            continue
+        result = apply_givens_rotation(
+            theta,
+            vec,
+            (i, j),
+            n_orbitals=n_orbitals,
+            n_electrons=n_electrons,
+        )
+        generator = np.zeros((n_orbitals, n_orbitals))
+        generator[i, j] = theta
+        generator[j, i] = -theta
+        linop = one_body_tensor_to_linop(generator, n_electrons=n_electrons)
+        expected = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=theta)
+        np.testing.assert_allclose(result, expected, atol=1e-8)
     np.testing.assert_allclose(vec, original_vec)
 
 
 def test_apply_tunneling_interaction():
-    """Test applying tunneling interaction to adjacent orbitals."""
+    """Test applying tunneling interaction."""
     n_orbitals = 5
     n_alpha = 3
     n_beta = 2
@@ -180,22 +180,22 @@ def test_apply_tunneling_interaction():
     rng = np.random.default_rng()
     vec = np.array(random_statevector(dim, seed=rng))
     theta = rng.standard_normal()
-    for i in range(n_orbitals - 1):
-        for target_orbitals in [(i, i + 1), (i + 1, i)]:
-            result = apply_tunneling_interaction_adjacent(
-                theta,
-                vec,
-                target_orbitals,
-                n_orbitals=n_orbitals,
-                n_electrons=n_electrons,
-            )
-            generator = np.zeros((n_orbitals, n_orbitals))
-            j, k = target_orbitals
-            generator[j, k] = theta
-            generator[k, j] = theta
-            linop = one_body_tensor_to_linop(generator, n_electrons=n_electrons)
-            expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
-            np.testing.assert_allclose(result, expected, atol=1e-8)
+    for i, j in itertools.product(range(n_orbitals), repeat=2):
+        if i == j:
+            continue
+        result = apply_tunneling_interaction(
+            theta,
+            vec,
+            (i, j),
+            n_orbitals=n_orbitals,
+            n_electrons=n_electrons,
+        )
+        generator = np.zeros((n_orbitals, n_orbitals))
+        generator[i, j] = theta
+        generator[j, i] = theta
+        linop = one_body_tensor_to_linop(generator, n_electrons=n_electrons)
+        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
 def test_apply_num_interaction():
