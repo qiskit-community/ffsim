@@ -36,7 +36,7 @@ class DoubleFactorizedHamiltonian:
     z_representation: bool = False
 
     @property
-    def n_orbitals(self):
+    def norb(self):
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
 
