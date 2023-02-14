@@ -13,7 +13,7 @@
 import itertools
 
 import numpy as np
-import pytest
+import scipy.linalg
 import scipy.sparse.linalg
 
 from fqcsim.fci import contract_1e, get_dimension, one_body_tensor_to_linop
@@ -32,6 +32,24 @@ from fqcsim.states import slater_determinant
 
 def test_apply_orbital_rotation():
     """Test applying orbital basis change."""
+    norb = 5
+    rng = np.random.default_rng()
+    n_alpha = rng.integers(1, norb + 1)
+    n_beta = rng.integers(1, norb + 1)
+    nelec = (n_alpha, n_beta)
+    dim = get_dimension(norb, nelec)
+    vec = np.array(random_statevector(dim, seed=rng))
+
+    one_body_tensor = random_hermitian(norb, seed=rng)
+    eigs, vecs = np.linalg.eigh(one_body_tensor)
+    result = apply_orbital_rotation(vecs, vec, norb, nelec)
+    op = one_body_tensor_to_linop(scipy.linalg.logm(vecs), nelec=nelec)
+    expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=np.sum(eigs))
+    np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
+def test_apply_orbital_rotation_eigenstates():
+    """Test applying orbital basis change prepares eigenstates of one-body tensor."""
     norb = 5
     rng = np.random.default_rng()
     n_alpha = rng.integers(1, norb + 1)
@@ -63,7 +81,9 @@ def test_apply_orbital_rotation_compose():
     basis_change_1 = np.array(random_unitary(norb, seed=rng))
     basis_change_2 = np.array(random_unitary(norb, seed=rng))
 
-    nelec = (3, 2)
+    n_alpha = rng.integers(1, norb + 1)
+    n_beta = rng.integers(1, norb + 1)
+    nelec = (n_alpha, n_beta)
     dim = get_dimension(norb, nelec)
     state = np.array(random_statevector(dim, seed=rng))
 
