@@ -23,7 +23,7 @@ from fqcsim.linalg import (
 
 
 def apply_orbital_rotation(
-    mat: np.ndarray, vec: np.ndarray, n_orbitals: int, n_electrons: tuple[int, int]
+    mat: np.ndarray, vec: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> np.ndarray:
     """Apply an orbital rotation to a vector.
 
@@ -32,34 +32,30 @@ def apply_orbital_rotation(
     Args:
         mat: Unitary matrix describing the orbital rotation.
         vec: Vector to be transformed.
-        n_orbitals: Number of spatial orbitals.
-        n_electrons: Number of alpha and beta electrons.
+        norb: Number of spatial orbitals.
+        nelec: Number of alpha and beta electrons.
     """
     givens_rotations, phase_shifts = givens_decomposition(mat)
     buf1 = np.empty_like(vec)
     buf2 = np.empty_like(vec)
     buf1[...] = vec[...]
-    for givens_mat, target_orbitals in givens_rotations:
+    for givens_mat, target_orbs in givens_rotations:
         vec = apply_orbital_rotation_adjacent(
-            givens_mat.conj(), buf1, target_orbitals, n_orbitals, n_electrons, out=buf2
+            givens_mat.conj(), buf1, target_orbs, norb, nelec, out=buf2
         )
         buf1, buf2 = buf2, buf1
     for i, phase_shift in enumerate(phase_shifts):
-        apply_phase_shift(
-            phase_shift, vec, ((i,), ()), n_orbitals, n_electrons, copy=False
-        )
-        apply_phase_shift(
-            phase_shift, vec, ((), (i,)), n_orbitals, n_electrons, copy=False
-        )
+        apply_phase_shift(phase_shift, vec, ((i,), ()), norb, nelec, copy=False)
+        apply_phase_shift(phase_shift, vec, ((), (i,)), norb, nelec, copy=False)
     return vec
 
 
 def apply_orbital_rotation_adjacent(
     mat: np.ndarray,
     vec: np.ndarray,
-    target_orbitals: tuple[int, int],
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
     *,
     out: np.ndarray | None = None,
 ):
@@ -68,27 +64,27 @@ def apply_orbital_rotation_adjacent(
     Args:
         mat: A 2x2 unitary matrix describing the orbital rotation.
         vec: Vector to be transformed.
-        target_orbitals: The orbitals to transform.
-        n_orbitals: Number of spatial orbitals.
-        n_electrons: Number of alpha and beta electrons.
+        target_orbs: The orbitals to transform.
+        norb: Number of spatial orbitals.
+        nelec: Number of alpha and beta electrons.
     """
     if out is vec:
         raise ValueError("Output buffer cannot be the same as the input")
     if out is None:
         out = np.empty_like(vec)
-    i, j = target_orbitals
+    i, j = target_orbs
     assert i == j + 1 or i == j - 1, "Target orbitals must be adjacent."
-    n_alpha, n_beta = n_electrons
-    dim_a = comb(n_orbitals, n_alpha, exact=True)
-    dim_b = comb(n_orbitals, n_beta, exact=True)
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
     out = out.reshape((dim_a, dim_b))
-    indices = _zero_one_subspace_indices(n_orbitals, n_alpha, target_orbitals)
+    indices = _zero_one_subspace_indices(norb, n_alpha, target_orbs)
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
     buf = np.empty_like(vec)
     apply_matrix_to_slices(mat, vec, [slice1, slice2], out=buf)
-    indices = _zero_one_subspace_indices(n_orbitals, n_beta, target_orbitals)
+    indices = _zero_one_subspace_indices(norb, n_beta, target_orbs)
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
     apply_matrix_to_slices(mat, buf, [(Ellipsis, slice1), (Ellipsis, slice2)], out=out)
@@ -96,59 +92,55 @@ def apply_orbital_rotation_adjacent(
 
 
 @lru_cache(maxsize=None)
-def _zero_one_subspace_indices(
-    n_orbitals: int, n_occ: int, target_orbitals: tuple[int, int]
-):
+def _zero_one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int, int]):
     """Return the indices where the target orbitals are 01 or 10."""
-    orbitals = _shifted_orbitals(n_orbitals, target_orbitals)
-    strings = cistring.make_strings(orbitals, n_occ)
+    orbitals = _shifted_orbitals(norb, target_orbs)
+    strings = cistring.make_strings(orbitals, nocc)
     indices = np.argsort(strings)
-    n00 = comb(n_orbitals - 2, n_occ, exact=True)
-    n11 = comb(n_orbitals - 2, n_occ - 2, exact=True)
+    n00 = comb(norb - 2, nocc, exact=True)
+    n11 = comb(norb - 2, nocc - 2, exact=True)
     return indices[n00 : len(indices) - n11]
 
 
 def apply_phase_shift(
     phase: complex,
     vec: np.ndarray,
-    target_orbitals: tuple[tuple[int], tuple[int]],
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    target_orbs: tuple[tuple[int], tuple[int]],
+    norb: int,
+    nelec: tuple[int, int],
     copy: bool = True,
 ):
     if copy:
         vec = vec.copy()
-    n_alpha, n_beta = n_electrons
-    dim_a = comb(n_orbitals, n_alpha, exact=True)
-    dim_b = comb(n_orbitals, n_beta, exact=True)
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
-    target_orbitals_a, target_orbitals_b = target_orbitals
-    indices_a = _one_subspace_indices(n_orbitals, n_alpha, target_orbitals_a)
-    indices_b = _one_subspace_indices(n_orbitals, n_beta, target_orbitals_b)
+    target_orbs_a, target_orbs_b = target_orbs
+    indices_a = _one_subspace_indices(norb, n_alpha, target_orbs_a)
+    indices_b = _one_subspace_indices(norb, n_beta, target_orbs_b)
     vec[np.ix_(indices_a, indices_b)] *= phase
     return vec.reshape((dim_a * dim_b,))
 
 
 @lru_cache(maxsize=None)
 def _one_subspace_indices(
-    n_orbitals: int, n_occ: int, target_orbitals: tuple[tuple[int], tuple[int]]
+    norb: int, nocc: int, target_orbs: tuple[tuple[int], tuple[int]]
 ):
     """Return the indices where the target orbitals are 1."""
-    orbitals = _shifted_orbitals(n_orbitals, target_orbitals)
-    strings = cistring.make_strings(orbitals, n_occ)
+    orbitals = _shifted_orbitals(norb, target_orbs)
+    strings = cistring.make_strings(orbitals, nocc)
     indices = np.argsort(strings)
-    n0 = comb(n_orbitals, n_occ, exact=True) - comb(
-        n_orbitals - len(target_orbitals), n_occ - len(target_orbitals), exact=True
+    n0 = comb(norb, nocc, exact=True) - comb(
+        norb - len(target_orbs), nocc - len(target_orbs), exact=True
     )
     return indices[n0:]
 
 
-def _shifted_orbitals(n_orbitals: int, target_orbitals: tuple[int]):
+def _shifted_orbitals(norb: int, target_orbs: tuple[int]):
     """Return orbital list with targeted orbitals shifted to the end."""
-    orbitals = np.arange(n_orbitals - len(target_orbitals))
-    values = sorted(
-        zip(target_orbitals, range(n_orbitals - len(target_orbitals), n_orbitals))
-    )
+    orbitals = np.arange(norb - len(target_orbs))
+    values = sorted(zip(target_orbs, range(norb - len(target_orbs), norb)))
     for index, val in values:
         orbitals = np.insert(orbitals, index, val)
     return orbitals
@@ -158,8 +150,8 @@ def apply_num_op_sum_evolution(
     coeffs: np.ndarray,
     vec: np.ndarray,
     time: float,
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
     copy: bool = True,
 ):
     """Apply a sum of number operators to a vector."""
@@ -170,8 +162,8 @@ def apply_num_op_sum_evolution(
             -coeff * time,
             vec,
             i,
-            n_orbitals=n_orbitals,
-            n_electrons=n_electrons,
+            norb=norb,
+            nelec=nelec,
             copy=False,
         )
     return vec
@@ -181,36 +173,36 @@ def apply_core_tensor_evolution(
     core_tensor: np.ndarray,
     vec: np.ndarray,
     time: float,
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
     *,
     core_tensor_alpha_beta: np.ndarray | None = None,
     copy: bool = True,
 ) -> np.ndarray:
-    # TODO n_orbitals does not need to be input here and some other places
+    # TODO norb does not need to be input here and some other places
     """Apply core tensor evolution."""
     if copy:
         vec = vec.copy()
-    n_orbitals, _ = core_tensor.shape
+    norb, _ = core_tensor.shape
     if core_tensor_alpha_beta is None:
         core_tensor_alpha_beta = core_tensor
-    for i, j in itertools.combinations_with_replacement(range(n_orbitals), 2):
+    for i, j in itertools.combinations_with_replacement(range(norb), 2):
         coeff = 0.5 if i == j else 1.0
         for sigma in range(2):
             vec = apply_num_num_interaction(
                 -coeff * time * core_tensor[i, j],
                 vec,
                 ((i, sigma), (j, sigma)),
-                n_orbitals=n_orbitals,
-                n_electrons=n_electrons,
+                norb=norb,
+                nelec=nelec,
                 copy=False,
             )
             vec = apply_num_num_interaction(
                 -coeff * time * core_tensor_alpha_beta[i, j],
                 vec,
                 ((i, sigma), (j, 1 - sigma)),
-                n_orbitals=n_orbitals,
-                n_electrons=n_electrons,
+                norb=norb,
+                nelec=nelec,
                 copy=False,
             )
     return vec
@@ -219,9 +211,9 @@ def apply_core_tensor_evolution(
 def apply_givens_rotation(
     theta: float,
     vec: np.ndarray,
-    target_orbitals: tuple[int, int],
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
 ):
     r"""Apply a Givens rotation gate.
 
@@ -233,29 +225,25 @@ def apply_givens_rotation(
     Args:
         theta: The rotation angle.
         vec: Vector to be transformed.
-        target_orbitals: The orbitals (i, j) to rotate.
-        n_orbitals: Number of spatial orbitals.
-        n_electrons: Number of alpha and beta electrons.
+        target_orbs: The orbitals (i, j) to rotate.
+        norb: Number of spatial orbitals.
+        nelec: Number of alpha and beta electrons.
     """
-    if len(set(target_orbitals)) == 1:
-        raise ValueError(
-            f"The orbitals to rotate must be distinct. Got {target_orbitals}."
-        )
+    if len(set(target_orbs)) == 1:
+        raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
     c = np.cos(theta)
     s = np.sin(theta)
-    mat = np.eye(n_orbitals)
-    mat[np.ix_(target_orbitals, target_orbitals)] = [[c, s], [-s, c]]
-    return apply_orbital_rotation(
-        mat, vec, n_orbitals=n_orbitals, n_electrons=n_electrons
-    )
+    mat = np.eye(norb)
+    mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
+    return apply_orbital_rotation(mat, vec, norb=norb, nelec=nelec)
 
 
 def apply_tunneling_interaction(
     theta: float,
     vec: np.ndarray,
-    target_orbitals: tuple[int, int],
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
 ):
     r"""Apply a tunneling interaction gate.
 
@@ -267,30 +255,26 @@ def apply_tunneling_interaction(
     Args:
         theta: The rotation angle.
         vec: Vector to be transformed.
-        target_orbitals: The orbitals (i, j) on which to apply the interaction.
-        n_orbitals: Number of spatial orbitals.
-        n_electrons: Number of alpha and beta electrons.
+        target_orbs: The orbitals (i, j) on which to apply the interaction.
+        norb: Number of spatial orbitals.
+        nelec: Number of alpha and beta electrons.
     """
-    if len(set(target_orbitals)) == 1:
-        raise ValueError(
-            f"The orbitals to rotate must be distinct. Got {target_orbitals}."
-        )
+    if len(set(target_orbs)) == 1:
+        raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
     vec = apply_num_interaction(
         -np.pi / 2,
         vec,
-        target_orbitals[0],
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        target_orbs[0],
+        norb=norb,
+        nelec=nelec,
     )
-    vec = apply_givens_rotation(
-        theta, vec, target_orbitals, n_orbitals=n_orbitals, n_electrons=n_electrons
-    )
+    vec = apply_givens_rotation(theta, vec, target_orbs, norb=norb, nelec=nelec)
     vec = apply_num_interaction(
         np.pi / 2,
         vec,
-        target_orbitals[0],
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        target_orbs[0],
+        norb=norb,
+        nelec=nelec,
         copy=False,
     )
     return vec
@@ -299,9 +283,9 @@ def apply_tunneling_interaction(
 def apply_num_interaction(
     theta: float,
     vec: np.ndarray,
-    target_orbital: int,
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    target_orb: int,
+    norb: int,
+    nelec: tuple[int, int],
     copy: bool = True,
 ):
     r"""Apply a number interaction gate.
@@ -314,9 +298,9 @@ def apply_num_interaction(
     Args:
         theta: The rotation angle.
         vec: Vector to be transformed.
-        target_orbital: The orbital on which to apply the interaction.
-        n_orbitals: Number of spatial orbitals.
-        n_electrons: Number of alpha and beta electrons.
+        target_orb: The orbital on which to apply the interaction.
+        norb: Number of spatial orbitals.
+        nelec: Number of alpha and beta electrons.
         copy: Whether to copy the input vector. If False, the operation is applied
             in-place.
     """
@@ -325,17 +309,17 @@ def apply_num_interaction(
     vec = apply_phase_shift(
         np.exp(1j * theta),
         vec,
-        ((target_orbital,), ()),
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        ((target_orb,), ()),
+        norb=norb,
+        nelec=nelec,
         copy=False,
     )
     vec = apply_phase_shift(
         np.exp(1j * theta),
         vec,
-        ((), (target_orbital,)),
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        ((), (target_orb,)),
+        norb=norb,
+        nelec=nelec,
         copy=False,
     )
     return vec
@@ -344,9 +328,9 @@ def apply_num_interaction(
 def apply_num_num_interaction(
     theta: float,
     vec: np.ndarray,
-    target_orbitals: tuple[tuple[int, bool], tuple[int, bool]],
-    n_orbitals: int,
-    n_electrons: tuple[int, int],
+    target_orbs: tuple[tuple[int, bool], tuple[int, bool]],
+    norb: int,
+    nelec: tuple[int, int],
     copy: bool = True,
 ):
     r"""Apply a number-number interaction gate.
@@ -359,16 +343,16 @@ def apply_num_num_interaction(
     Args:
         theta: The rotation angle.
         vec: Vector to be transformed.
-        target_orbitals: The orbitals on which to apply the interaction. This should
+        target_orbs: The orbitals on which to apply the interaction. This should
             be a pair of (orbital, spin) pairs.
-        n_orbitals: Number of spatial orbitals.
-        n_electrons: Number of alpha and beta electrons.
+        norb: Number of spatial orbitals.
+        nelec: Number of alpha and beta electrons.
         copy: Whether to copy the input vector. If False, the operation is applied
             in-place.
     """
     if copy:
         vec = vec.copy()
-    (i, spin_i), (j, spin_j) = target_orbitals
+    (i, spin_i), (j, spin_j) = target_orbs
     orbitals = (set(), set())
     orbitals[spin_i].add(i)
     orbitals[spin_j].add(j)
@@ -376,8 +360,8 @@ def apply_num_num_interaction(
         np.exp(1j * theta),
         vec,
         tuple(tuple(orbs) for orbs in orbitals),
-        n_orbitals=n_orbitals,
-        n_electrons=n_electrons,
+        norb=norb,
+        nelec=nelec,
         copy=False,
     )
     return vec
