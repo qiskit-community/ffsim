@@ -148,6 +148,7 @@ def test_apply_givens_rotation_adjacent():
     dim = get_dimension(n_orbitals, n_electrons)
     rng = np.random.default_rng()
     vec = np.array(random_statevector(dim, seed=rng))
+    original_vec = vec.copy()
     theta = rng.standard_normal()
     for i in range(n_orbitals - 1):
         for target_orbitals in [(i, i + 1), (i + 1, i)]:
@@ -165,6 +166,7 @@ def test_apply_givens_rotation_adjacent():
             linop = one_body_tensor_to_linop(generator, n_electrons=n_electrons)
             expected = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=theta)
             np.testing.assert_allclose(result, expected, atol=1e-8)
+    np.testing.assert_allclose(vec, original_vec)
 
 
 def test_apply_tunneling_interaction():

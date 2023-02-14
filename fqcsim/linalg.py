@@ -155,9 +155,8 @@ def apply_matrix_to_slices(
     if out is target:
         raise ValueError("Output buffer cannot be the same as the input")
     if out is None:
-        out = target.copy()
-    else:
-        out[...] = target[...]
+        out = np.empty_like(target)
+    out[...] = target[...]
     for i, slice_i in enumerate(slices):
         out[slice_i] *= mat[i, i]
         for j, slice_j in enumerate(slices):
