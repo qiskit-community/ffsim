@@ -111,6 +111,11 @@ def apply_phase_shift(
     *,
     copy: bool = True,
 ):
+    """Apply a phase shift controlled on target orbitals.
+
+    The phase is applied to all strings in which the target orbitals are
+    all 1 (occupied).
+    """
     if copy:
         vec = vec.copy()
     n_alpha, n_beta = nelec
@@ -156,7 +161,7 @@ def apply_num_op_sum_evolution(
     *,
     copy: bool = True,
 ):
-    """Apply a sum of number operators to a vector."""
+    """Apply time evolution by a linear combination of number operators."""
     if copy:
         vec = vec.copy()
     for i, coeff in enumerate(coeffs):
@@ -182,7 +187,7 @@ def apply_core_tensor_evolution(
     copy: bool = True,
 ) -> np.ndarray:
     # TODO norb does not need to be input here and some other places
-    """Apply core tensor evolution."""
+    """Apply time evolution by a core tensor."""
     if copy:
         vec = vec.copy()
     if core_tensor_alpha_beta is None:
@@ -355,10 +360,9 @@ def apply_num_num_interaction(
     """
     if copy:
         vec = vec.copy()
-    (i, spin_i), (j, spin_j) = target_orbs
-    orbitals = (set(), set())
-    orbitals[spin_i].add(i)
-    orbitals[spin_j].add(j)
+    orbitals = [set() for _ in range(len(target_orbs))]
+    for i, spin_i in target_orbs:
+        orbitals[spin_i].add(i)
     vec = apply_phase_shift(
         np.exp(1j * theta),
         vec,
