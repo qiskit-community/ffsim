@@ -215,7 +215,7 @@ def test_apply_num_interaction():
 
 
 def test_apply_num_num_interaction():
-    """Test applying number interaction."""
+    """Test applying number-number interaction."""
     norb = 5
 
     rng = np.random.default_rng()
