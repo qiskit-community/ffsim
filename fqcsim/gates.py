@@ -36,15 +36,19 @@ def apply_orbital_rotation(
         n_electrons: Number of alpha and beta electrons.
     """
     givens_rotations, phase_shifts = givens_decomposition(mat)
+    buf1 = np.empty_like(vec)
+    buf2 = np.empty_like(vec)
+    buf1[...] = vec[...]
     for givens_mat, target_orbitals in givens_rotations:
         vec = apply_orbital_rotation_adjacent(
-            givens_mat.conj(), vec, target_orbitals, n_orbitals, n_electrons
+            givens_mat.conj(), buf1, target_orbitals, n_orbitals, n_electrons, out=buf2
         )
+        buf1, buf2 = buf2, buf1
     for i, phase_shift in enumerate(phase_shifts):
-        vec = apply_phase_shift(
+        apply_phase_shift(
             phase_shift, vec, ((i,), ()), n_orbitals, n_electrons, copy=False
         )
-        vec = apply_phase_shift(
+        apply_phase_shift(
             phase_shift, vec, ((), (i,)), n_orbitals, n_electrons, copy=False
         )
     return vec
@@ -56,6 +60,8 @@ def apply_orbital_rotation_adjacent(
     target_orbitals: tuple[int, int],
     n_orbitals: int,
     n_electrons: tuple[int, int],
+    *,
+    out: np.ndarray | None = None,
 ):
     """Apply an orbital rotation to adjacent orbitals.
 
@@ -66,21 +72,27 @@ def apply_orbital_rotation_adjacent(
         n_orbitals: Number of spatial orbitals.
         n_electrons: Number of alpha and beta electrons.
     """
+    if out is vec:
+        raise ValueError("Output buffer cannot be the same as the input")
+    if out is None:
+        out = np.empty_like(vec)
     i, j = target_orbitals
     assert i == j + 1 or i == j - 1, "Target orbitals must be adjacent."
     n_alpha, n_beta = n_electrons
     dim_a = comb(n_orbitals, n_alpha, exact=True)
     dim_b = comb(n_orbitals, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
+    out = out.reshape((dim_a, dim_b))
     indices = _zero_one_subspace_indices(n_orbitals, n_alpha, target_orbitals)
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
-    vec = apply_matrix_to_slices(mat, vec, [slice1, slice2])
+    buf = np.empty_like(vec)
+    apply_matrix_to_slices(mat, vec, [slice1, slice2], out=buf)
     indices = _zero_one_subspace_indices(n_orbitals, n_beta, target_orbitals)
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
-    vec = apply_matrix_to_slices(mat, vec, [(Ellipsis, slice1), (Ellipsis, slice2)])
-    return vec.reshape((dim_a * dim_b,))
+    apply_matrix_to_slices(mat, buf, [(Ellipsis, slice1), (Ellipsis, slice2)], out=out)
+    return out.reshape((dim_a * dim_b,))
 
 
 @lru_cache(maxsize=None)
@@ -210,6 +222,8 @@ def apply_givens_rotation_adjacent(
     target_orbitals: tuple[int, int],
     n_orbitals: int,
     n_electrons: tuple[int, int],
+    *,
+    out: np.ndarray | None = None,
 ):
     r"""Apply a Givens rotation gate to adjacent orbitals.
 
@@ -231,7 +245,12 @@ def apply_givens_rotation_adjacent(
     s = np.sin(theta)
     mat = np.array([[c, s], [-s, c]])
     return apply_orbital_rotation_adjacent(
-        mat, vec, target_orbitals, n_orbitals=n_orbitals, n_electrons=n_electrons
+        mat,
+        vec,
+        target_orbitals,
+        n_orbitals=n_orbitals,
+        n_electrons=n_electrons,
+        out=out,
     )
 
 
