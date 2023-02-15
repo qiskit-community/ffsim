@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Tuple, Union
 
 import numpy as np
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 else:
     _SliceAtom = Union[int, slice, type(Ellipsis)]
 
-_Slice = Union[_SliceAtom, tuple[_SliceAtom, ...]]
+_Slice = Union[_SliceAtom, Tuple[_SliceAtom, ...]]
 
 
 def givens_matrix(a: complex, b: complex) -> np.ndarray:
