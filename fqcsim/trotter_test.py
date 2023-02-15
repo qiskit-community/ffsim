@@ -14,11 +14,10 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-import scipy.linalg
-import scipy.sparse
 
 from fqcsim.double_factorized import double_factorized_decomposition
 from fqcsim.fci import get_dimension, get_hamiltonian_linop, get_trace
+from fqcsim.linalg import expm_multiply_taylor
 from fqcsim.random_utils import (
     random_hermitian,
     random_statevector,
@@ -61,9 +60,7 @@ def test_simulate_trotter_suzuki_double_factorized_random(
     original_state = initial_state.copy()
 
     # compute exact state
-    exact_state = scipy.sparse.linalg.expm_multiply(
-        -1j * time * hamiltonian, initial_state, traceA=trace
-    )
+    exact_state = expm_multiply_taylor(-1j * time * hamiltonian, initial_state)
 
     # make sure time is not too small
     assert abs(np.vdot(exact_state, initial_state)) < 0.98

@@ -14,6 +14,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Tuple, Union
 
 import numpy as np
+import scipy.sparse.linalg
 
 # HACK: Sphinx fails to handle "ellipsis"
 # See https://github.com/python/typing/issues/684
@@ -23,6 +24,21 @@ else:
     _SliceAtom = Union[int, slice, type(Ellipsis)]
 
 _Slice = Union[_SliceAtom, Tuple[_SliceAtom, ...]]
+
+
+# TODO use scipy.sparse.linalg.expm_multiply instead after dropping Python 3.7 support
+def expm_multiply_taylor(
+    mat: scipy.sparse.linalg.LinearOperator, vec: np.ndarray, tol: float = 1e-12
+) -> np.ndarray:
+    """Compute expm(mat) @ vec using a Taylor series expansion."""
+    result = vec.copy()
+    term = vec
+    denominator = 1
+    while np.linalg.norm(term) > tol:
+        term = mat @ term / denominator
+        result += term
+        denominator += 1
+    return result
 
 
 def givens_matrix(a: complex, b: complex) -> np.ndarray:
