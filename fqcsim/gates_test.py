@@ -45,7 +45,7 @@ def test_apply_orbital_rotation():
     original_vec = vec.copy()
 
     one_body_tensor = random_hermitian(norb, seed=rng)
-    eigs, vecs = np.linalg.eigh(one_body_tensor)
+    _, vecs = np.linalg.eigh(one_body_tensor)
     result = apply_orbital_rotation(vecs, vec, norb, nelec)
     op = one_body_tensor_to_linop(scipy.linalg.logm(vecs), nelec=nelec)
     expected = expm_multiply_taylor(op, vec)
