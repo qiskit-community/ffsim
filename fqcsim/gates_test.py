@@ -28,6 +28,7 @@ from fqcsim.gates import (
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
+from fqcsim.linalg import expm_multiply_taylor
 from fqcsim.random_utils import random_hermitian, random_statevector, random_unitary
 from fqcsim.states import slater_determinant
 
@@ -46,7 +47,7 @@ def test_apply_orbital_rotation():
     eigs, vecs = np.linalg.eigh(one_body_tensor)
     result = apply_orbital_rotation(vecs, vec, norb, nelec)
     op = one_body_tensor_to_linop(scipy.linalg.logm(vecs), nelec=nelec)
-    expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=np.sum(eigs))
+    expected = expm_multiply_taylor(op, vec)
     np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
@@ -182,7 +183,7 @@ def test_apply_givens_rotation():
         generator[i, j] = theta
         generator[j, i] = -theta
         linop = one_body_tensor_to_linop(generator, nelec=nelec)
-        expected = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=theta)
+        expected = expm_multiply_taylor(linop, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
     np.testing.assert_allclose(vec, original_vec)
 
@@ -212,7 +213,7 @@ def test_apply_tunneling_interaction():
         generator[i, j] = theta
         generator[j, i] = theta
         linop = one_body_tensor_to_linop(generator, nelec=nelec)
-        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        expected = expm_multiply_taylor(1j * linop, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
@@ -232,7 +233,10 @@ def test_apply_num_interaction():
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
         linop = one_body_tensor_to_linop(generator, nelec=nelec)
-        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        expected = expm_multiply_taylor(
+            1j * linop,
+            vec,
+        )
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
