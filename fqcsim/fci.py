@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from __future__ import annotations
+
 import itertools
 from functools import lru_cache
 
@@ -18,6 +20,7 @@ from pyscf.fci import cistring
 from pyscf.fci.direct_spin1 import make_hdiag
 from pyscf.fci.fci_slow import absorb_h1e
 from scipy.special import comb
+
 from fqcsim.states import one_hot
 
 

@@ -10,6 +10,7 @@
 
 """Tests for Trotter simulation."""
 
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -17,11 +18,7 @@ import scipy.linalg
 import scipy.sparse
 
 from fqcsim.double_factorized import double_factorized_decomposition
-from fqcsim.fci import (
-    get_dimension,
-    get_hamiltonian_linop,
-    get_trace,
-)
+from fqcsim.fci import get_dimension, get_hamiltonian_linop, get_trace
 from fqcsim.random_utils import (
     random_hermitian,
     random_statevector,

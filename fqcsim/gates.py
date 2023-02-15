@@ -10,16 +10,16 @@
 
 """Fermionic quantum computation gates."""
 
+from __future__ import annotations
+
 import itertools
 from functools import lru_cache
 
 import numpy as np
 from pyscf.fci import cistring
 from scipy.special import comb
-from fqcsim.linalg import (
-    givens_decomposition,
-    apply_matrix_to_slices,
-)
+
+from fqcsim.linalg import apply_matrix_to_slices, givens_decomposition
 
 
 def apply_orbital_rotation(

@@ -8,13 +8,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from __future__ import annotations
+
 from collections.abc import Iterator
 
 import numpy as np
+
 from fqcsim.gates import (
-    apply_orbital_rotation,
-    apply_num_op_sum_evolution,
     apply_core_tensor_evolution,
+    apply_num_op_sum_evolution,
+    apply_orbital_rotation,
 )
 
 

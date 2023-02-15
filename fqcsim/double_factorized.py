@@ -8,12 +8,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from __future__ import annotations
+
 import dataclasses
 
 import numpy as np
-from fqcsim.linalg import (
-    double_factorized,
-)
+
+from fqcsim.linalg import double_factorized
 
 
 @dataclasses.dataclass
