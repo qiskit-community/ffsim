@@ -42,6 +42,7 @@ def test_apply_orbital_rotation():
     nelec = (n_alpha, n_beta)
     dim = get_dimension(norb, nelec)
     vec = np.array(random_statevector(dim, seed=rng))
+    original_vec = vec.copy()
 
     one_body_tensor = random_hermitian(norb, seed=rng)
     eigs, vecs = np.linalg.eigh(one_body_tensor)
@@ -49,6 +50,8 @@ def test_apply_orbital_rotation():
     op = one_body_tensor_to_linop(scipy.linalg.logm(vecs), nelec=nelec)
     expected = expm_multiply_taylor(op, vec)
     np.testing.assert_allclose(result, expected, atol=1e-8)
+    # check that the state was not modified
+    np.testing.assert_allclose(vec, original_vec)
 
 
 def test_apply_orbital_rotation_eigenstates():
