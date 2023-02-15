@@ -11,6 +11,8 @@
 """Tests for double factorization utils."""
 
 
+from __future__ import annotations
+
 import numpy as np
 
 from fqcsim.double_factorized import double_factorized_decomposition
@@ -20,10 +22,7 @@ from fqcsim.fci import (
     get_dimension,
     get_hamiltonian_linop,
 )
-
-from fqcsim.gates import (
-    apply_orbital_rotation,
-)
+from fqcsim.gates import apply_orbital_rotation
 from fqcsim.random_utils import (
     random_hermitian,
     random_statevector,

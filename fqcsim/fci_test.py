@@ -10,17 +10,14 @@
 
 """Tests for FCI utils."""
 
+from __future__ import annotations
+
 import itertools
 
 import numpy as np
 
-from fqcsim.fci import (
-    contract_core_tensor,
-    contract_num_op_sum,
-)
-from fqcsim.random_utils import (
-    random_hermitian,
-)
+from fqcsim.fci import contract_core_tensor, contract_num_op_sum
+from fqcsim.random_utils import random_hermitian
 from fqcsim.states import slater_determinant
 
 

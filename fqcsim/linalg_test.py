@@ -10,11 +10,12 @@
 
 """Tests for linear algebra utilities."""
 
+from __future__ import annotations
 
 import numpy as np
 
+from fqcsim.linalg import apply_matrix_to_slices, givens_decomposition
 from fqcsim.random_utils import random_unitary
-from fqcsim.linalg import givens_decomposition, apply_matrix_to_slices
 
 
 def test_givens_decomposition():
