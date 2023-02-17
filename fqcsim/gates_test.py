@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pytest
 import scipy.linalg
 import scipy.sparse.linalg
 
@@ -33,7 +34,14 @@ from fqcsim.random_utils import random_hermitian, random_statevector, random_uni
 from fqcsim.states import slater_determinant
 
 
-def test_apply_orbital_rotation():
+@pytest.mark.parametrize(
+    "dtype, atol",
+    [
+        (np.complex64, 1e-5),
+        (np.complex128, 1e-12),
+    ],
+)
+def test_apply_orbital_rotation(dtype: type, atol: float):
     """Test applying orbital basis change."""
     norb = 5
     rng = np.random.default_rng()
@@ -41,15 +49,15 @@ def test_apply_orbital_rotation():
     n_beta = rng.integers(1, norb + 1)
     nelec = (n_alpha, n_beta)
     dim = get_dimension(norb, nelec)
-    vec = np.array(random_statevector(dim, seed=rng))
+    vec = np.array(random_statevector(dim, seed=rng, dtype=dtype))
     original_vec = vec.copy()
 
-    one_body_tensor = random_hermitian(norb, seed=rng)
+    one_body_tensor = random_hermitian(norb, seed=rng, dtype=dtype)
     _, vecs = np.linalg.eigh(one_body_tensor)
     result = apply_orbital_rotation(vecs, vec, norb, nelec)
     op = one_body_tensor_to_linop(scipy.linalg.logm(vecs), nelec=nelec)
     expected = expm_multiply_taylor(op, vec)
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+    np.testing.assert_allclose(result, expected, atol=atol)
     # check that the state was not modified
     np.testing.assert_allclose(vec, original_vec)
 
