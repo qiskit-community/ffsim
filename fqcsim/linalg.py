@@ -301,8 +301,8 @@ def double_factorized(
     )
 
     _, rank = cholesky_vecs.shape
-    core_tensors = np.zeros((rank, n_modes, n_modes))
-    leaf_tensors = np.zeros((rank, n_modes, n_modes))
+    core_tensors = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
+    leaf_tensors = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
     for i in range(rank):
         mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
         eigs, vecs = np.linalg.eigh(mat)
