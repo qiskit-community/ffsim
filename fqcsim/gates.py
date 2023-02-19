@@ -214,7 +214,7 @@ def apply_core_tensor_evolution(
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         coeff = 0.5 if i == j else 1.0
         for sigma in range(2):
-            vec = apply_num_num_interaction(
+            vec = apply_num_op_prod_interaction(
                 -coeff * time * core_tensor[i, j],
                 vec,
                 ((i, sigma), (j, sigma)),
@@ -222,7 +222,7 @@ def apply_core_tensor_evolution(
                 nelec=nelec,
                 copy=False,
             )
-            vec = apply_num_num_interaction(
+            vec = apply_num_op_prod_interaction(
                 -coeff * time * core_tensor_alpha_beta[i, j],
                 vec,
                 ((i, sigma), (j, 1 - sigma)),
@@ -332,46 +332,39 @@ def apply_num_interaction(
     """
     if copy:
         vec = vec.copy()
-    vec = apply_phase_shift(
-        np.exp(1j * theta),
-        vec,
-        ((target_orb,), ()),
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
-    vec = apply_phase_shift(
-        np.exp(1j * theta),
-        vec,
-        ((), (target_orb,)),
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
+    for sigma in range(2):
+        vec = apply_num_op_prod_interaction(
+            theta,
+            vec,
+            ((target_orb, sigma),),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
     return vec
 
 
-def apply_num_num_interaction(
+def apply_num_op_prod_interaction(
     theta: float,
     vec: np.ndarray,
-    target_orbs: tuple[tuple[int, bool], tuple[int, bool]],
+    target_orbs: tuple[tuple[int, bool], ...],
     norb: int,
     nelec: tuple[int, int],
     *,
     copy: bool = True,
 ):
-    r"""Apply a number-number interaction gate.
+    r"""Apply interaction gate for product of number operators.
 
-    The number-number interaction gate is
+    The gate is
 
     .. math::
-        NN(\theta) = \exp(i \theta a^\dagger_{i, \sigma} a_{i, \sigma} a^\dagger_{j, \tau} a_{j, \tau})
+        NP(\theta) = \exp(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma})
 
     Args:
         theta: The rotation angle.
         vec: Vector to be transformed.
         target_orbs: The orbitals on which to apply the interaction. This should
-            be a pair of (orbital, spin) pairs.
+            be a tuple of (orbital, spin) pairs.
         norb: Number of spatial orbitals.
         nelec: Number of alpha and beta electrons.
         copy: Whether to copy the input vector. If False, the operation is applied
@@ -379,7 +372,7 @@ def apply_num_num_interaction(
     """
     if copy:
         vec = vec.copy()
-    orbitals = [set() for _ in range(len(target_orbs))]
+    orbitals = [set() for _ in range(2)]
     for i, spin_i in target_orbs:
         orbitals[spin_i].add(i)
     vec = apply_phase_shift(

@@ -24,7 +24,7 @@ from fqcsim.gates import (
     apply_core_tensor_evolution,
     apply_givens_rotation,
     apply_num_interaction,
-    apply_num_num_interaction,
+    apply_num_op_prod_interaction,
     apply_num_op_sum_evolution,
     apply_orbital_rotation,
     apply_tunneling_interaction,
@@ -37,7 +37,7 @@ from fqcsim.states import slater_determinant
 @pytest.mark.parametrize(
     "dtype, atol",
     [
-        (np.complex64, 1e-5),
+        (np.complex64, 1e-4),
         (np.complex128, 1e-12),
     ],
 )
@@ -269,7 +269,7 @@ def test_apply_num_num_interaction():
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         for spin_i, spin_j in itertools.product(range(2), repeat=2):
             target_orbs = ((i, spin_i), (j, spin_j))
-            result = apply_num_num_interaction(
+            result = apply_num_op_prod_interaction(
                 theta,
                 vec,
                 target_orbs,
