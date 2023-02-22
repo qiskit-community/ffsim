@@ -21,7 +21,7 @@ import scipy.sparse.linalg
 
 from fqcsim.fci import contract_1e, get_dimension, one_body_tensor_to_linop
 from fqcsim.gates import (
-    apply_core_tensor_evolution,
+    apply_diag_coulomb_evolution,
     apply_givens_rotation,
     apply_num_interaction,
     apply_num_op_prod_interaction,
@@ -110,7 +110,7 @@ def test_apply_orbital_rotation_compose():
     np.testing.assert_allclose(result, expected_state, atol=1e-8)
 
 
-def test_apply_core_tensor_evolution():
+def test_apply_diag_coulomb_evolution():
     """Test applying time evolution of core tensor."""
     norb = 5
     rng = np.random.default_rng()
@@ -126,7 +126,7 @@ def test_apply_core_tensor_evolution():
 
     core_tensor = np.real(np.array(random_hermitian(norb, seed=rng)))
     time = 0.5
-    result = apply_core_tensor_evolution(core_tensor, state, time, norb, nelec)
+    result = apply_diag_coulomb_evolution(core_tensor, state, time, norb, nelec)
 
     eig = 0
     for i, j in itertools.product(range(norb), repeat=2):

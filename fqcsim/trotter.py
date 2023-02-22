@@ -15,7 +15,7 @@ from collections.abc import Iterator
 import numpy as np
 
 from fqcsim.gates import (
-    apply_core_tensor_evolution,
+    apply_diag_coulomb_evolution,
     apply_num_op_sum_evolution,
     apply_orbital_rotation,
 )
@@ -180,7 +180,7 @@ def _apply_two_body_term_evolution(
         norb=norb,
         nelec=nelec,
     )
-    vec = apply_core_tensor_evolution(
+    vec = apply_diag_coulomb_evolution(
         core_tensor,
         vec,
         time,

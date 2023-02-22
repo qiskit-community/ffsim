@@ -185,7 +185,7 @@ def apply_num_op_sum_evolution(
     return vec
 
 
-def apply_core_tensor_evolution(
+def apply_diag_coulomb_evolution(
     core_tensor: np.ndarray,
     vec: np.ndarray,
     time: float,
@@ -195,7 +195,7 @@ def apply_core_tensor_evolution(
     core_tensor_alpha_beta: np.ndarray | None = None,
     copy: bool = True,
 ) -> np.ndarray:
-    r"""Apply time evolution by a core tensor.
+    r"""Apply time evolution by a diagonal Coulomb operator.
 
     Applies
 
