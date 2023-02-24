@@ -97,7 +97,7 @@ def apply_orbital_rotation_adjacent(
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
     apply_matrix_to_slices(mat, buf, [(Ellipsis, slice1), (Ellipsis, slice2)], out=out)
-    return out.reshape((dim_a * dim_b,))
+    return out.reshape(-1)
 
 
 @lru_cache(maxsize=None)
@@ -135,7 +135,7 @@ def apply_phase_shift(
     indices_a = _one_subspace_indices(norb, n_alpha, target_orbs_a)
     indices_b = _one_subspace_indices(norb, n_beta, target_orbs_b)
     vec[np.ix_(indices_a, indices_b)] *= phase
-    return vec.reshape((dim_a * dim_b,))
+    return vec.reshape(-1)
 
 
 @lru_cache(maxsize=None)
