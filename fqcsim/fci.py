@@ -196,18 +196,18 @@ def num_op_sum_to_linop(
     return scipy.sparse.linalg.LinearOperator((dim, dim), matvec=matvec, rmatvec=matvec)
 
 
-def contract_core_tensor(
-    core_tensor: np.ndarray,
+def contract_diag_coulomb(
+    mat: np.ndarray,
     vec: np.ndarray,
     nelec: tuple[int, int],
     *,
-    core_tensor_alpha_beta: np.ndarray | None = None,
+    mat_alpha_beta: np.ndarray | None = None,
     num_map: np.ndarray | None = None,
 ):
-    """Contract a core tensor with a vector."""
-    norb, _ = core_tensor.shape
-    if core_tensor_alpha_beta is None:
-        core_tensor_alpha_beta = core_tensor
+    """Contract a diagonal Coulomb operator with a vector."""
+    norb, _ = mat.shape
+    if mat_alpha_beta is None:
+        mat_alpha_beta = mat
     if num_map is None:
         num_map = generate_num_map(norb, nelec)
     result = np.zeros_like(vec)
@@ -215,35 +215,33 @@ def contract_core_tensor(
         coeff = 0.5 if p == q else 1.0
         for sigma in range(2):
             result += (
-                coeff
-                * core_tensor[p, q]
-                * (num_map[p, sigma] @ (num_map[q, sigma] @ vec))
+                coeff * mat[p, q] * (num_map[p, sigma] @ (num_map[q, sigma] @ vec))
             )
             result += (
                 coeff
-                * core_tensor_alpha_beta[p, q]
+                * mat_alpha_beta[p, q]
                 * (num_map[p, sigma] @ (num_map[q, 1 - sigma] @ vec))
             )
     return result
 
 
-def core_tensor_to_linop(
-    core_tensor: np.ndarray,
+def diag_coulomb_to_linop(
+    mat: np.ndarray,
     nelec: tuple[int, int],
     *,
-    core_tensor_alpha_beta: np.ndarray | None = None,
+    mat_alpha_beta: np.ndarray | None = None,
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert a core tensor to a linear operator."""
-    norb, _ = core_tensor.shape
+    norb, _ = mat.shape
     dim = get_dimension(norb, nelec)
     num_map = generate_num_map(norb, nelec)
 
     def matvec(vec):
-        return contract_core_tensor(
-            core_tensor,
+        return contract_diag_coulomb(
+            mat,
             vec,
             nelec,
-            core_tensor_alpha_beta=core_tensor_alpha_beta,
+            mat_alpha_beta=mat_alpha_beta,
             num_map=num_map,
         )
 

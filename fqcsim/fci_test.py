@@ -16,12 +16,12 @@ import itertools
 
 import numpy as np
 
-from fqcsim.fci import contract_core_tensor, contract_num_op_sum
+from fqcsim.fci import contract_diag_coulomb, contract_num_op_sum
 from fqcsim.random_utils import random_hermitian
 from fqcsim.states import slater_determinant
 
 
-def test_contract_core_tensor():
+def test_contract_diag_coulomb():
     """Test contracting core tensor."""
     norb = 5
     rng = np.random.default_rng()
@@ -35,7 +35,7 @@ def test_contract_core_tensor():
     state = slater_determinant(norb, occupied_orbitals)
 
     core_tensor = np.real(np.array(random_hermitian(norb, seed=rng)))
-    result = contract_core_tensor(core_tensor, state, nelec)
+    result = contract_diag_coulomb(core_tensor, state, nelec)
 
     eig = 0
     for i, j in itertools.product(range(norb), repeat=2):

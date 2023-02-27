@@ -186,13 +186,13 @@ def apply_num_op_sum_evolution(
 
 
 def apply_diag_coulomb_evolution(
-    core_tensor: np.ndarray,
+    mat: np.ndarray,
     vec: np.ndarray,
     time: float,
     norb: int,
     nelec: tuple[int, int],
     *,
-    core_tensor_alpha_beta: np.ndarray | None = None,
+    mat_alpha_beta: np.ndarray | None = None,
     copy: bool = True,
 ) -> np.ndarray:
     r"""Apply time evolution by a diagonal Coulomb operator.
@@ -203,19 +203,19 @@ def apply_diag_coulomb_evolution(
         \exp(-i t \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
 
     where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
-    and spin :math:`\sigma`, and :math:`Z` is the matrix input as ``core_tensor``.
-    If ``core_tensor_alpha_beta`` is also given, then it is used in place of :math:`Z`
+    and spin :math:`\sigma`, and :math:`Z` is the matrix input as ``mat``.
+    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
     for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
     """
     if copy:
         vec = vec.copy()
-    if core_tensor_alpha_beta is None:
-        core_tensor_alpha_beta = core_tensor
+    if mat_alpha_beta is None:
+        mat_alpha_beta = mat
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         coeff = 0.5 if i == j else 1.0
         for sigma in range(2):
             vec = apply_num_op_prod_interaction(
-                -coeff * time * core_tensor[i, j],
+                -coeff * time * mat[i, j],
                 vec,
                 ((i, sigma), (j, sigma)),
                 norb=norb,
@@ -223,7 +223,7 @@ def apply_diag_coulomb_evolution(
                 copy=False,
             )
             vec = apply_num_op_prod_interaction(
-                -coeff * time * core_tensor_alpha_beta[i, j],
+                -coeff * time * mat_alpha_beta[i, j],
                 vec,
                 ((i, sigma), (j, 1 - sigma)),
                 norb=norb,
