@@ -17,7 +17,7 @@ import numpy as np
 
 from fqcsim.double_factorized import double_factorized_decomposition
 from fqcsim.fci import (
-    contract_core_tensor,
+    contract_diag_coulomb,
     contract_num_op_sum,
     get_dimension,
     get_hamiltonian_linop,
@@ -64,7 +64,7 @@ def test_double_factorized_decomposition():
         tmp = apply_orbital_rotation(
             leaf_tensor.T.conj(), state, norb=norb, nelec=nelec
         )
-        tmp = contract_core_tensor(core_tensor, tmp, nelec)
+        tmp = contract_diag_coulomb(core_tensor, tmp, nelec)
         tmp = apply_orbital_rotation(leaf_tensor, tmp, norb=norb, nelec=nelec)
         result += tmp
 
