@@ -1,24 +1,20 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["maturin>=0.14,<0.15"]
+build-backend = "maturin"
 
 [project]
 name = "fqc-sim"
+requires-python = ">=3.7"
 version = "0.0.1"
 description = "Faster simulations of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = [
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
-    "Natural Language :: English",
-    "Operating System :: MacOS",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python",
-    "Topic :: Scientific/Engineering :: Physics",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
-requires-python = ">=3.7"
 
-[tool.flit.module]
-name = "fqcsim"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]

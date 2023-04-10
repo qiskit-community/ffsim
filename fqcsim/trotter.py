@@ -14,11 +14,7 @@ from collections.abc import Iterator
 
 import numpy as np
 
-from fqcsim.gates import (
-    apply_diag_coulomb_evolution,
-    apply_num_op_sum_evolution,
-    apply_orbital_rotation,
-)
+from fqcsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 
 
 def _simulate_trotter_step_iterator(
@@ -64,6 +60,8 @@ def simulate_trotter_suzuki_double_factorized(
     nelec: tuple[int, int],
     n_steps: int = 1,
     order: int = 0,
+    *,
+    copy: bool = True,
 ) -> np.ndarray:
     """Double-factorized Hamiltonian simulation using Trotter-Suzuki formula.
 
@@ -84,12 +82,10 @@ def simulate_trotter_suzuki_double_factorized(
         raise ValueError(f"order must be non-negative, got {order}.")
     one_body_energies, one_body_basis_change = np.linalg.eigh(one_body_tensor)
     step_time = time / n_steps
-    final_state = initial_state.copy()
-    norb, _ = one_body_tensor.shape
-    current_basis_change = np.eye(norb)
+    if copy:
+        final_state = initial_state.copy()
     for _ in range(n_steps):
-        final_state, current_basis_change = _simulate_trotter_step_double_factorized(
-            current_basis_change,
+        final_state = _simulate_trotter_step_double_factorized(
             one_body_energies,
             one_body_basis_change,
             core_tensors,
@@ -99,12 +95,10 @@ def simulate_trotter_suzuki_double_factorized(
             nelec,
             order,
         )
-    final_state = apply_orbital_rotation(current_basis_change, final_state, norb, nelec)
     return final_state
 
 
 def _simulate_trotter_step_double_factorized(
-    current_basis_change: np.ndarray,
     one_body_energies: np.ndarray,
     one_body_basis_change: np.ndarray,
     core_tensors: np.ndarray,
@@ -115,77 +109,28 @@ def _simulate_trotter_step_double_factorized(
     order: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     final_state = initial_state
+    norb = len(one_body_energies)
     for term_index, time in _simulate_trotter_step_iterator(
         1 + len(core_tensors), time, order
     ):
         if term_index == 0:
-            final_state, current_basis_change = _apply_one_body_evolution(
-                current_basis_change,
+            final_state = apply_num_op_sum_evolution(
                 one_body_energies,
-                one_body_basis_change,
                 final_state,
                 time,
-                nelec,
+                norb=norb,
+                nelec=nelec,
+                orbital_rotation=one_body_basis_change,
+                copy=False,
             )
         else:
-            final_state, current_basis_change = _apply_two_body_term_evolution(
-                current_basis_change,
+            final_state = apply_diag_coulomb_evolution(
                 core_tensors[term_index - 1],
-                leaf_tensors[term_index - 1],
                 final_state,
                 time,
-                nelec,
+                norb=norb,
+                nelec=nelec,
+                orbital_rotation=leaf_tensors[term_index - 1],
+                copy=False,
             )
-    return final_state, current_basis_change
-
-
-def _apply_one_body_evolution(
-    current_basis_change: np.ndarray,
-    one_body_energies: np.ndarray,
-    one_body_basis_change: np.ndarray,
-    vec: np.ndarray,
-    time: float,
-    nelec: tuple[int, int],
-) -> tuple[np.ndarray, np.ndarray]:
-    norb, _ = current_basis_change.shape
-    vec = apply_orbital_rotation(
-        one_body_basis_change.T.conj() @ current_basis_change,
-        vec,
-        norb=norb,
-        nelec=nelec,
-    )
-    vec = apply_num_op_sum_evolution(
-        one_body_energies,
-        vec,
-        time,
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
-    return vec, one_body_basis_change
-
-
-def _apply_two_body_term_evolution(
-    current_basis_change: np.ndarray,
-    core_tensor: np.ndarray,
-    leaf_tensor: np.ndarray,
-    vec: np.ndarray,
-    time: float,
-    nelec: tuple[int, int],
-) -> tuple[np.ndarray, np.ndarray]:
-    norb, _ = current_basis_change.shape
-    vec = apply_orbital_rotation(
-        leaf_tensor.T.conj() @ current_basis_change,
-        vec,
-        norb=norb,
-        nelec=nelec,
-    )
-    vec = apply_diag_coulomb_evolution(
-        core_tensor,
-        vec,
-        time,
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
-    return vec, leaf_tensor
+    return final_state

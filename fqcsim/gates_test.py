@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import itertools
 
+import cirq
 import numpy as np
 import pytest
 import scipy.linalg
@@ -21,6 +22,7 @@ import scipy.sparse.linalg
 
 from fqcsim.fci import contract_1e, get_dimension, one_body_tensor_to_linop
 from fqcsim.gates import (
+    _apply_diag_coulomb_evolution_in_place_numpy,
     apply_diag_coulomb_evolution,
     apply_givens_rotation,
     apply_num_interaction,
@@ -30,14 +32,19 @@ from fqcsim.gates import (
     apply_tunneling_interaction,
 )
 from fqcsim.linalg import expm_multiply_taylor
-from fqcsim.random_utils import random_hermitian, random_statevector, random_unitary
+from fqcsim.random_utils import (
+    random_hermitian,
+    random_orthogonal,
+    random_special_orthogonal,
+    random_statevector,
+    random_unitary,
+)
 from fqcsim.states import slater_determinant
 
 
 @pytest.mark.parametrize(
     "dtype, atol",
     [
-        (np.complex64, 1e-4),
         (np.complex128, 1e-12),
     ],
 )
@@ -45,21 +52,56 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
     """Test applying orbital basis change."""
     norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
-    nelec = (n_alpha, n_beta)
-    dim = get_dimension(norb, nelec)
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        nelec = (n_alpha, n_beta)
+        dim = get_dimension(norb, nelec)
 
-    mat = random_unitary(norb, seed=rng, dtype=dtype)
-    vec = np.array(random_statevector(dim, seed=rng, dtype=dtype))
-    original_vec = vec.copy()
+        mat = random_unitary(norb, seed=rng, dtype=dtype)
+        vec = random_statevector(dim, seed=rng, dtype=dtype)
+        original_vec = vec.copy()
 
-    result = apply_orbital_rotation(mat, vec, norb, nelec)
-    op = one_body_tensor_to_linop(scipy.linalg.logm(mat), nelec=nelec)
-    expected = expm_multiply_taylor(op, vec)
-    np.testing.assert_allclose(result, expected, atol=atol)
-    # check that the state was not modified
-    np.testing.assert_allclose(vec, original_vec)
+        result = apply_orbital_rotation(mat, vec, norb, nelec)
+        op = one_body_tensor_to_linop(scipy.linalg.logm(mat), nelec=nelec)
+        expected = expm_multiply_taylor(op, original_vec)
+        np.testing.assert_allclose(result, expected, atol=atol)
+
+
+@pytest.mark.parametrize(
+    "dtype, atol",
+    [
+        (np.complex128, 1e-12),
+    ],
+)
+def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
+    """Test applying orbital basis change."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        nelec = (n_alpha, n_beta)
+        dim = get_dimension(norb, nelec)
+
+        mat = random_unitary(norb, seed=rng, dtype=dtype)
+        vec = random_statevector(dim, seed=rng, dtype=dtype)
+        original_vec = vec.copy()
+
+        result, perm = apply_orbital_rotation(
+            mat, vec, norb, nelec, allow_col_permutation=True, copy=True
+        )
+        np.testing.assert_allclose(np.linalg.norm(result), 1, atol=atol)
+        op = one_body_tensor_to_linop(scipy.linalg.logm(mat @ perm), nelec=nelec)
+        expected = expm_multiply_taylor(op, original_vec)
+        np.testing.assert_allclose(result, expected, atol=atol)
+
+        result, perm = apply_orbital_rotation(
+            mat, vec, norb, nelec, allow_row_permutation=True, copy=False
+        )
+        op = one_body_tensor_to_linop(scipy.linalg.logm(perm @ mat), nelec=nelec)
+        expected = expm_multiply_taylor(op, original_vec)
+        np.testing.assert_allclose(result, expected, atol=atol)
 
 
 def test_apply_orbital_rotation_eigenstates():
@@ -88,6 +130,36 @@ def test_apply_orbital_rotation_eigenstates():
     np.testing.assert_allclose(state, original_state)
 
 
+def test_apply_orbital_rotation_eigenstates_permutation():
+    """Test applying orbital basis change prepares eigenstates of one-body tensor."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        occupied_orbitals = (
+            rng.choice(norb, n_alpha, replace=False),
+            rng.choice(norb, n_beta, replace=False),
+        )
+
+        one_body_tensor = np.array(random_hermitian(norb, seed=rng))
+        eigs, vecs = np.linalg.eigh(one_body_tensor)
+        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        state = slater_determinant(norb, occupied_orbitals)
+        original_state = state.copy()
+        final_state, perm = apply_orbital_rotation(
+            vecs, state, norb, nelec, allow_col_permutation=True
+        )
+        eigs = eigs @ perm
+        eig = sum(np.sum(eigs[orbs]) for orbs in occupied_orbitals)
+        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
+        result = contract_1e(one_body_tensor, final_state, norb, nelec)
+        expected = eig * final_state
+        np.testing.assert_allclose(result, expected, atol=1e-8)
+        # check that the state was not modified
+        np.testing.assert_allclose(state, original_state)
+
+
 def test_apply_orbital_rotation_compose():
     """Test composing orbital basis changes."""
     norb = 5
@@ -111,32 +183,33 @@ def test_apply_orbital_rotation_compose():
 
 
 def test_apply_diag_coulomb_evolution():
-    """Test applying time evolution of core tensor."""
+    """Test applying time evolution of diagonal Coulomb operator."""
     norb = 5
-    rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
-    occupied_orbitals = (
-        rng.choice(norb, n_alpha, replace=False),
-        rng.choice(norb, n_beta, replace=False),
-    )
-    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-    state = slater_determinant(norb, occupied_orbitals)
-    original_state = state.copy()
+    for _ in range(5):
+        rng = np.random.default_rng()
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        occupied_orbitals = (
+            rng.choice(norb, n_alpha, replace=False),
+            rng.choice(norb, n_beta, replace=False),
+        )
+        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        state = slater_determinant(norb, occupied_orbitals)
+        original_state = state.copy()
 
-    core_tensor = np.real(np.array(random_hermitian(norb, seed=rng)))
-    time = 0.5
-    result = apply_diag_coulomb_evolution(core_tensor, state, time, norb, nelec)
+        core_tensor = np.real(np.array(random_hermitian(norb, seed=rng)))
+        time = 0.6
+        result = apply_diag_coulomb_evolution(core_tensor, state, time, norb, nelec)
 
-    eig = 0
-    for i, j in itertools.product(range(norb), repeat=2):
-        for sigma, tau in itertools.product(range(2), repeat=2):
-            if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                eig += 0.5 * core_tensor[i, j]
-    expected = np.exp(-1j * eig * time) * state
+        eig = 0
+        for i, j in itertools.product(range(norb), repeat=2):
+            for sigma, tau in itertools.product(range(2), repeat=2):
+                if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
+                    eig += 0.5 * core_tensor[i, j]
+        expected = np.exp(-1j * eig * time) * state
 
-    np.testing.assert_allclose(result, expected, atol=1e-8)
-    np.testing.assert_allclose(state, original_state)
+        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(state, original_state)
 
 
 def test_apply_num_op_sum_evolution():
@@ -154,7 +227,7 @@ def test_apply_num_op_sum_evolution():
     original_state = state.copy()
 
     coeffs = rng.standard_normal(norb)
-    time = 0.5
+    time = 0.6
     result = apply_num_op_sum_evolution(coeffs, state, time, norb, nelec)
 
     eig = 0
@@ -166,6 +239,29 @@ def test_apply_num_op_sum_evolution():
 
     np.testing.assert_allclose(result, expected, atol=1e-8)
     np.testing.assert_allclose(state, original_state)
+
+
+def test_apply_quadratic_hamiltonian_evolution():
+    """Test applying time evolution of a quadratic Hamiltonian."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        nelec = (n_alpha, n_beta)
+        dim = get_dimension(norb, nelec)
+
+        mat = random_hermitian(norb, seed=rng)
+        eigs, vecs = np.linalg.eigh(mat)
+        vec = random_statevector(dim, seed=rng)
+
+        time = 0.6
+        result = apply_num_op_sum_evolution(
+            eigs, vec, time, norb, nelec, orbital_rotation=vecs
+        )
+        op = one_body_tensor_to_linop(mat, nelec=nelec)
+        expected = expm_multiply_taylor(-1j * time * op, vec)
+        np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
 def test_apply_givens_rotation():

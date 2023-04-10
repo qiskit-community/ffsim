@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from fqcsim.linalg import apply_matrix_to_slices, givens_decomposition
+from fqcsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
 from fqcsim.random_utils import random_unitary
 
 
@@ -30,3 +30,12 @@ def test_givens_decomposition():
             givens_mat.conj(), reconstructed, ((Ellipsis, j), (Ellipsis, i))
         )
     np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
+
+
+def test_lup():
+    dim = 5
+    rng = np.random.default_rng()
+    mat = rng.standard_normal((dim, dim)) + 1j * rng.standard_normal((dim, dim))
+    ell, u, p = lup(mat)
+    np.testing.assert_allclose(ell @ u @ p, mat)
+    np.testing.assert_allclose(np.diagonal(ell), np.ones(dim))
