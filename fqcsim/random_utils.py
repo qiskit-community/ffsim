@@ -58,6 +58,48 @@ def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     return q * (d / np.abs(d))
 
 
+def random_orthogonal(dim: int, seed: Any = None) -> np.ndarray:
+    """Return a random orthogonal matrix distributed with Haar measure.
+
+    Args:
+        dim: The width and height of the matrix.
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`.
+
+    Returns:
+        The sampled orthogonal matrix.
+
+    References:
+        - `arXiv:math-ph/0609050`_
+
+    .. _arXiv:math-ph/0609050: https://arxiv.org/abs/math-ph/0609050
+    """
+    rng = np.random.default_rng(seed)
+    m = rng.standard_normal((dim, dim))
+    q, r = np.linalg.qr(m)
+    d = np.diagonal(r)
+    return q * (d / np.abs(d))
+
+
+def random_special_orthogonal(dim: int, seed: Any = None) -> np.ndarray:
+    """Return a random special orthogonal matrix distributed with Haar measure.
+
+    Args:
+        dim: The width and height of the matrix.
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`.
+
+    Returns:
+        The sampled special orthogonal matrix.
+    """
+    mat = random_orthogonal(dim, seed=seed)
+    if np.linalg.det(mat) < 0:
+        mat[0] *= -1
+    return mat
+
+
 def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     """Return a random Hermitian matrix.
 

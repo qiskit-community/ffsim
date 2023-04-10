@@ -310,3 +310,21 @@ def double_factorized(
         leaf_tensors[i] = vecs
 
     return core_tensors, leaf_tensors
+
+
+def lup(mat: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Column-pivoted LU decomposition of a matrix.
+
+    The decomposition is:
+
+    .. math::
+        A = L U P
+
+    where L is a lower triangular matrix with unit diagonal elements,
+    U is upper triangular, and P is a permutation matrix.
+    """
+    p, ell, u = scipy.linalg.lu(mat.T)
+    d = np.diagonal(u)
+    ell *= d
+    u /= d[:, None]
+    return u.T, ell.T, p.T

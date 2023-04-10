@@ -81,5 +81,6 @@ def test_simulate_trotter_suzuki_double_factorized_random(
     np.testing.assert_allclose(initial_state, original_state)
 
     # check agreement
+    np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
     fidelity = np.abs(np.vdot(final_state, exact_state))
     assert fidelity >= target_fidelity
