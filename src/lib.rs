@@ -1,3 +1,7 @@
+extern crate blas_src;
+
+use blas::zaxpy;
+use blas::zscal;
 use ndarray::s;
 use ndarray::Array;
 use ndarray::Axis;
@@ -89,6 +93,10 @@ fn _apply_single_column_transformation_in_place(
     let off_diag_strings = off_diag_strings.as_array();
     let off_diag_index = off_diag_index.as_array();
 
+    let shape = vec.shape();
+    let dim_a = shape[0] as i32;
+    let dim_b = shape[1] as i32;
+
     // TODO parallelize this
     Zip::from(&off_diag_strings)
         .and(off_diag_index.axis_iter(Axis(0)))
@@ -98,14 +106,27 @@ fn _apply_single_column_transformation_in_place(
                 let str1 = row[1] as usize;
                 let sign = Complex64::new(row[2] as f64, 0.0);
                 let (source, mut target) = vec.multi_slice_mut((s![str1, ..], s![str0, ..]));
-                target += &(sign * column[orb] * &source);
+                match source.as_slice() {
+                    Some(source) => match target.as_slice_mut() {
+                        Some(target) => unsafe {
+                            zaxpy(dim_b, sign * column[orb], source, 1, target, 1);
+                        },
+                        None => (),
+                    },
+                    None => (),
+                };
             }
         });
 
+    // TODO parallelize this
     diag_strings.for_each(|&str0| {
-        // TODO see if map is faster, or some other higher-order function
         let mut target = vec.row_mut(str0);
-        target *= diag_val;
+        match target.as_slice_mut() {
+            Some(target) => unsafe {
+                zscal(dim_b, diag_val, target, 1);
+            },
+            None => (),
+        };
     })
 }
 
