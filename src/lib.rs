@@ -94,7 +94,6 @@ fn _apply_single_column_transformation_in_place(
     let off_diag_index = off_diag_index.as_array();
 
     let shape = vec.shape();
-    let dim_a = shape[0] as i32;
     let dim_b = shape[1] as i32;
 
     // TODO parallelize this
@@ -128,6 +127,26 @@ fn _apply_single_column_transformation_in_place(
             None => (),
         };
     })
+}
+
+/// Apply time evolution by a sum of number operators in-place.
+#[pyfunction]
+fn _apply_num_op_sum_evolution_in_place(
+    phases: PyReadonlyArray1<Complex64>,
+    mut vec: PyReadwriteArray2<Complex64>,
+    occupations: PyReadonlyArray2<usize>,
+) {
+    let phases = phases.as_array();
+    let mut vec = vec.as_array_mut();
+    let occupations = occupations.as_array();
+
+    Zip::from(vec.rows_mut())
+        .and(occupations.rows())
+        .par_for_each(|mut row, orbs| {
+            let mut phase = Complex64::new(1.0, 0.0);
+            orbs.for_each(|&orb| phase *= phases[orb]);
+            row *= phase;
+        });
 }
 
 /// Apply time evolution by a diagonal Coulomb operator in-place.
@@ -209,6 +228,7 @@ fn _fqcsim(_py: Python, m: &PyModule) -> PyResult<()> {
         _apply_single_column_transformation_in_place,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(_apply_num_op_sum_evolution_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(_apply_diag_coulomb_evolution_in_place, m)?)?;
     Ok(())
 }
