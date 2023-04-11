@@ -13,20 +13,21 @@
 from __future__ import annotations
 
 import itertools
-from functools import lru_cache
 import math
+from functools import lru_cache
 
 import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
 from scipy.special import comb
 
-from fqcsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
 from fqcsim._fqcsim import (
     _apply_diag_coulomb_evolution_in_place,
+    _apply_num_op_sum_evolution_in_place,
     _apply_single_column_transformation_in_place,
     _gen_orbital_rotation_index_in_place,
 )
+from fqcsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
 
 
 def apply_orbital_rotation(
@@ -329,6 +330,17 @@ def apply_num_op_sum_evolution(
     """Apply time evolution by a linear combination of number operators."""
     if copy:
         vec = vec.copy()
+
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
+    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        np.uint, copy=False
+    )
+    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        np.uint, copy=False
+    )
+
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(
             orbital_rotation.T.conj(),
@@ -339,21 +351,36 @@ def apply_num_op_sum_evolution(
             copy=False,
         )
         coeffs = coeffs @ perm0.T
-    for i, coeff in enumerate(coeffs):
-        vec = apply_num_interaction(
-            -coeff * time,
-            vec,
-            i,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
+
+    phases = np.exp(-1j * time * coeffs)
+    vec = vec.reshape((dim_a, dim_b))
+    # apply alpha
+    _apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_a)
+    # apply beta
+    # TODO try copying the transpose to align memory layout
+    vec = vec.T
+    _apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_b)
+    vec = vec.T.reshape(-1)
+
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
             orbital_rotation, vec, norb, nelec, allow_col_permutation=True, copy=False
         )
         np.testing.assert_allclose(perm0, perm1.T)
+
     return vec
+
+
+def _apply_num_op_sum_evolution_in_place_slow(
+    phases: np.ndarray,
+    vec: np.ndarray,
+    occupations: np.ndarray,
+):
+    for row, orbs in zip(vec, occupations):
+        phase = 1
+        for orb in orbs:
+            phase *= phases[orb]
+        row *= phase
 
 
 def _apply_diag_coulomb_evolution_in_place_numpy(
