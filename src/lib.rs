@@ -110,9 +110,13 @@ fn _apply_single_column_transformation_in_place(
                         Some(target) => unsafe {
                             zaxpy(dim_b, sign * column[orb], source, 1, target, 1);
                         },
-                        None => (),
+                        None => panic!(
+                            "Failed to convert ndarray to slice. Data was not contiguous and in standard order."
+                        ),
                     },
-                    None => (),
+                    None => panic!(
+                        "Failed to convert ndarray to slice. Data was not contiguous and in standard order."
+                    ),
                 };
             }
         });
@@ -124,7 +128,9 @@ fn _apply_single_column_transformation_in_place(
             Some(target) => unsafe {
                 zscal(dim_b, diag_val, target, 1);
             },
-            None => (),
+            None => panic!(
+                "Failed to convert ndarray to slice. Data was not contiguous and in standard order."
+            ),
         };
     })
 }
