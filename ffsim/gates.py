@@ -20,10 +20,10 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 from ffsim._ffsim import (
-    _apply_diag_coulomb_evolution_in_place,
-    _apply_num_op_sum_evolution_in_place,
-    _apply_single_column_transformation_in_place,
-    _gen_orbital_rotation_index_in_place,
+    apply_diag_coulomb_evolution_in_place,
+    apply_num_op_sum_evolution_in_place,
+    apply_single_column_transformation_in_place,
+    gen_orbital_rotation_index_in_place,
 )
 from ffsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
 
@@ -120,7 +120,7 @@ def _apply_orbital_rotation_spin_in_place(
     # TODO should this be int64? pyscf uses int32 for linkstr_index though
     off_diag_index = np.empty((norb, dim_off_diag, nocc, 3), dtype=np.int32)
     off_diag_strings_index = np.empty((norb, dim), dtype=np.uint)
-    _gen_orbital_rotation_index_in_place(
+    gen_orbital_rotation_index_in_place(
         norb=norb,
         nocc=nocc,
         linkstr_index=linkstr_index,
@@ -130,7 +130,7 @@ def _apply_orbital_rotation_spin_in_place(
         off_diag_index=off_diag_index,
     )
     for i in range(norb):
-        _apply_single_column_transformation_in_place(
+        apply_single_column_transformation_in_place(
             transformation_mat[:, i],
             vec,
             diag_val=transformation_mat[i, i],
@@ -306,10 +306,10 @@ def apply_num_op_sum_evolution(
     phases = np.exp(-1j * time * coeffs)
     vec = vec.reshape((dim_a, dim_b))
     # apply alpha
-    _apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_a)
+    apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_a)
     # apply beta
     vec = vec.T
-    _apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_b)
+    apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_b)
     vec = vec.T.reshape(-1)
 
     if orbital_rotation is not None:
@@ -376,7 +376,7 @@ def apply_diag_coulomb_evolution(
     mat_exp = np.exp(-1j * time * mat_exp)
     mat_alpha_beta_exp = np.exp(-1j * time * mat_alpha_beta)
     vec = vec.reshape((dim_a, dim_b))
-    _apply_diag_coulomb_evolution_in_place(
+    apply_diag_coulomb_evolution_in_place(
         mat_exp,
         vec,
         norb=norb,

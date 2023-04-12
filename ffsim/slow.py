@@ -17,7 +17,7 @@ import itertools
 import numpy as np
 
 
-def _gen_orbital_rotation_index_in_place_slow(
+def gen_orbital_rotation_index_in_place_slow(
     norb: int,
     nocc: int,
     linkstr_index: np.ndarray,
@@ -49,7 +49,7 @@ def _gen_orbital_rotation_index_in_place_slow(
             index_counter[orb_d, index] += 1
 
 
-def _apply_single_column_transformation_in_place_slow(
+def apply_single_column_transformation_in_place_slow(
     column: np.ndarray,
     vec: np.ndarray,
     diag_val: complex,
@@ -64,7 +64,7 @@ def _apply_single_column_transformation_in_place_slow(
         vec[str0] *= diag_val
 
 
-def _apply_num_op_sum_evolution_in_place_slow(
+def apply_num_op_sum_evolution_in_place_slow(
     phases: np.ndarray,
     vec: np.ndarray,
     occupations: np.ndarray,
@@ -76,7 +76,7 @@ def _apply_num_op_sum_evolution_in_place_slow(
         row *= phase
 
 
-def _apply_diag_coulomb_evolution_in_place_slow(
+def apply_diag_coulomb_evolution_in_place_slow(
     mat_exp: np.ndarray,
     vec: np.ndarray,
     norb: int,
@@ -113,7 +113,7 @@ def _apply_diag_coulomb_evolution_in_place_slow(
             row[j] *= phase
 
 
-def _apply_diag_coulomb_evolution_in_place_numpy(
+def apply_diag_coulomb_evolution_in_place_numpy(
     mat_exp: np.ndarray,
     vec: np.ndarray,
     norb: int,
