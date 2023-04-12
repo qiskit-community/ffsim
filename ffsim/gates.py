@@ -67,6 +67,10 @@ def apply_orbital_rotation(
     Returns:
         The transformed vector. If a row or column permutation was allowed,
         the permutation matrix is returned as well.
+
+    Raises:
+        ValueError: If both ``allow_row_permutation`` and ``allow_col_permutation``
+        are set to True. Only one of these is allowed to be set to True at a time.
     """
     if allow_row_permutation and allow_col_permutation:
         raise ValueError(
