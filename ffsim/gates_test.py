@@ -19,8 +19,8 @@ import pytest
 import scipy.linalg
 import scipy.sparse.linalg
 
-from fqcsim.fci import contract_1e, get_dimension, one_body_tensor_to_linop
-from fqcsim.gates import (
+from ffsim.fci import contract_1e, get_dimension, one_body_tensor_to_linop
+from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_givens_rotation,
     apply_num_interaction,
@@ -29,9 +29,9 @@ from fqcsim.gates import (
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
-from fqcsim.linalg import expm_multiply_taylor
-from fqcsim.random_utils import random_hermitian, random_statevector, random_unitary
-from fqcsim.states import slater_determinant
+from ffsim.linalg import expm_multiply_taylor
+from ffsim.random_utils import random_hermitian, random_statevector, random_unitary
+from ffsim.states import slater_determinant
 
 
 @pytest.mark.parametrize(

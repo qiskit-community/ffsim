@@ -14,7 +14,7 @@ from collections.abc import Iterator
 
 import numpy as np
 
-from fqcsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
+from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 
 
 def _simulate_trotter_step_iterator(

@@ -15,15 +15,15 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from fqcsim.double_factorized import double_factorized_decomposition
-from fqcsim.fci import get_dimension, get_hamiltonian_linop, get_trace
-from fqcsim.linalg import expm_multiply_taylor
-from fqcsim.random_utils import (
+from ffsim.double_factorized import double_factorized_decomposition
+from ffsim.fci import get_dimension, get_hamiltonian_linop, get_trace
+from ffsim.linalg import expm_multiply_taylor
+from ffsim.random_utils import (
     random_hermitian,
     random_statevector,
     random_two_body_tensor_real,
 )
-from fqcsim.trotter import simulate_trotter_suzuki_double_factorized
+from ffsim.trotter import simulate_trotter_suzuki_double_factorized
 
 
 @pytest.mark.parametrize(

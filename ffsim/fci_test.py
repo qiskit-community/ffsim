@@ -16,9 +16,9 @@ import itertools
 
 import numpy as np
 
-from fqcsim.fci import contract_diag_coulomb, contract_num_op_sum
-from fqcsim.random_utils import random_hermitian
-from fqcsim.states import slater_determinant
+from ffsim.fci import contract_diag_coulomb, contract_num_op_sum
+from ffsim.random_utils import random_hermitian
+from ffsim.states import slater_determinant
 
 
 def test_contract_diag_coulomb():

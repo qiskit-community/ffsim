@@ -15,15 +15,15 @@ from __future__ import annotations
 
 import numpy as np
 
-from fqcsim.double_factorized import double_factorized_decomposition
-from fqcsim.fci import (
+from ffsim.double_factorized import double_factorized_decomposition
+from ffsim.fci import (
     contract_diag_coulomb,
     contract_num_op_sum,
     get_dimension,
     get_hamiltonian_linop,
 )
-from fqcsim.gates import apply_orbital_rotation
-from fqcsim.random_utils import (
+from ffsim.gates import apply_orbital_rotation
+from ffsim.random_utils import (
     random_hermitian,
     random_statevector,
     random_two_body_tensor_real,

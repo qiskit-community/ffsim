@@ -14,7 +14,7 @@ import dataclasses
 
 import numpy as np
 
-from fqcsim.linalg import double_factorized
+from ffsim.linalg import double_factorized
 
 
 @dataclasses.dataclass

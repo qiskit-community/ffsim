@@ -222,7 +222,7 @@ fn _apply_diag_coulomb_evolution_in_place(
 
 /// Python module exposing Rust extensions.
 #[pymodule]
-fn _fqcsim(_py: Python, m: &PyModule) -> PyResult<()> {
+fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(_gen_orbital_rotation_index_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(
         _apply_single_column_transformation_in_place,
