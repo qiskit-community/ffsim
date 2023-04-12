@@ -104,14 +104,14 @@ def double_factorized_decomposition(
     two_body_tensor: np.ndarray,
     *,
     error_threshold: float = 1e-8,
-    max_rank: int | None = None,
+    max_vecs: int | None = None,
     z_representation: bool = False,
 ) -> DoubleFactorizedHamiltonian:
     r"""Double factorized decomposition of a molecular Hamiltonian."""
     one_body_tensor = one_body_tensor - 0.5 * np.einsum("prqr", two_body_tensor)
 
     core_tensors, leaf_tensors = double_factorized(
-        two_body_tensor, max_rank=max_rank, error_threshold=error_threshold
+        two_body_tensor, max_vecs=max_vecs, error_threshold=error_threshold
     )
     df_hamiltonian = DoubleFactorizedHamiltonian(
         one_body_tensor=one_body_tensor,
