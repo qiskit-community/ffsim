@@ -155,10 +155,6 @@ fn _apply_diag_coulomb_evolution_in_place(
     mat_exp: PyReadonlyArray2<Complex64>,
     mut vec: PyReadwriteArray2<Complex64>,
     norb: usize,
-    n_alpha: usize,
-    n_beta: usize,
-    dim_a: usize,
-    dim_b: usize,
     mat_alpha_beta_exp: PyReadonlyArray2<Complex64>,
     occupations_a: PyReadonlyArray2<usize>,
     occupations_b: PyReadonlyArray2<usize>,
@@ -168,6 +164,12 @@ fn _apply_diag_coulomb_evolution_in_place(
     let mat_alpha_beta_exp = mat_alpha_beta_exp.as_array();
     let occupations_a = occupations_a.as_array();
     let occupations_b = occupations_b.as_array();
+
+    let shape = vec.shape();
+    let dim_a = shape[0];
+    let dim_b = shape[1];
+    let n_alpha = occupations_a.shape()[1];
+    let n_beta = occupations_b.shape()[1];
 
     let mut alpha_phases = Array::zeros(dim_a);
     let mut beta_phases = Array::zeros(dim_b);

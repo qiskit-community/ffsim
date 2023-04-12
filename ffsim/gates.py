@@ -491,10 +491,6 @@ def apply_diag_coulomb_evolution(
         mat_exp,
         vec,
         norb=norb,
-        n_alpha=n_alpha,
-        n_beta=n_beta,
-        dim_a=dim_a,
-        dim_b=dim_b,
         mat_alpha_beta_exp=mat_alpha_beta_exp,
         occupations_a=occupations_a,
         occupations_b=occupations_b,
@@ -514,14 +510,11 @@ def _apply_diag_coulomb_evolution_in_place_slow(
     mat_exp: np.ndarray,
     vec: np.ndarray,
     norb: int,
-    n_alpha: int,
-    n_beta: int,
-    dim_a: int,
-    dim_b: int,
     mat_alpha_beta_exp: np.ndarray,
     occupations_a: np.ndarray,
     occupations_b: np.ndarray,
 ) -> None:
+    dim_a, dim_b = vec.shape
     alpha_phases = np.empty((dim_a,), dtype=complex)
     beta_phases = np.empty((dim_b,), dtype=complex)
     phase_map = np.ones((dim_a, norb), dtype=complex)
