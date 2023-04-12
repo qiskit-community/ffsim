@@ -37,7 +37,6 @@ def apply_orbital_rotation(
     *,
     allow_row_permutation: bool = False,
     allow_col_permutation: bool = False,
-    # TODO rename "copy" to "overwrite_vec"
     overwrite_vec: bool = False,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     r"""Apply an orbital rotation to a vector.
@@ -317,7 +316,12 @@ def apply_num_op_sum_evolution(
 
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
-            orbital_rotation, vec, norb, nelec, allow_col_permutation=True, overwrite_vec=False
+            orbital_rotation,
+            vec,
+            norb,
+            nelec,
+            allow_col_permutation=True,
+            overwrite_vec=False,
         )
         np.testing.assert_allclose(perm0, perm1.T)
 
@@ -391,7 +395,12 @@ def apply_diag_coulomb_evolution(
 
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
-            orbital_rotation, vec, norb, nelec, allow_col_permutation=True, overwrite_vec=False
+            orbital_rotation,
+            vec,
+            norb,
+            nelec,
+            allow_col_permutation=True,
+            overwrite_vec=False,
         )
         np.testing.assert_allclose(perm0, perm1.T)
 
