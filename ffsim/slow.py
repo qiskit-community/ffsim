@@ -16,6 +16,8 @@ import itertools
 
 import numpy as np
 
+from ffsim.gates import apply_phase_shift
+
 
 def gen_orbital_rotation_index_in_place_slow(
     norb: int,
