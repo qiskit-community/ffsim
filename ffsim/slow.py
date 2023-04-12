@@ -27,7 +27,7 @@ def gen_orbital_rotation_index_in_place_slow(
     off_diag_strings: np.ndarray,
     off_diag_strings_index: np.ndarray,
     off_diag_index: np.ndarray,
-):
+) -> None:
     diag_counter = np.zeros(norb, dtype=np.uint)
     off_diag_counter = np.zeros(norb, dtype=np.uint)
     for str0, tab in enumerate(linkstr_index[:, :, 0]):
@@ -70,7 +70,7 @@ def apply_num_op_sum_evolution_in_place_slow(
     phases: np.ndarray,
     vec: np.ndarray,
     occupations: np.ndarray,
-):
+) -> None:
     for row, orbs in zip(vec, occupations):
         phase = 1
         for orb in orbs:
@@ -122,7 +122,7 @@ def apply_diag_coulomb_evolution_in_place_numpy(
     n_alpha: int,
     n_beta: int,
     *,
-    mat_alpha_beta_exp: np.ndarray | None = None,
+    mat_alpha_beta_exp: np.ndarray,
     **kwargs,
 ) -> None:
     r"""Apply time evolution by a diagonal Coulomb operator.
@@ -142,13 +142,13 @@ def apply_diag_coulomb_evolution_in_place_numpy(
     nelec = (n_alpha, n_beta)
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         for sigma in range(2):
-            orbitals = [set() for _ in range(2)]
+            orbitals: list[set[int]] = [set(), set()]
             orbitals[sigma].add(i)
             orbitals[sigma].add(j)
             apply_phase_shift(
                 mat_exp[i, j],
                 vec,
-                tuple(tuple(orbs) for orbs in orbitals),
+                (tuple(orbitals[0]), tuple(orbitals[1])),
                 norb=norb,
                 nelec=nelec,
                 copy=False,
@@ -159,7 +159,7 @@ def apply_diag_coulomb_evolution_in_place_numpy(
             apply_phase_shift(
                 mat_alpha_beta_exp[i, j],
                 vec,
-                tuple(tuple(orbs) for orbs in orbitals),
+                (tuple(orbitals[0]), tuple(orbitals[1])),
                 norb=norb,
                 nelec=nelec,
                 copy=False,

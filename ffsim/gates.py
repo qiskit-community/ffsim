@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import cast
 
 import numpy as np
 import scipy.linalg
@@ -81,7 +82,7 @@ def _apply_orbital_rotation_lu(
     nelec: tuple[int, int],
     permute_rows: bool = False,
     copy: bool = True,
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     if copy:
         vec = vec.copy()
     if permute_rows:
@@ -166,7 +167,7 @@ def _apply_orbital_rotation_adjacent(
     nelec: tuple[int, int],
     *,
     out: np.ndarray | None = None,
-):
+) -> np.ndarray:
     """Apply an orbital rotation to adjacent orbitals.
 
     Args:
@@ -200,7 +201,9 @@ def _apply_orbital_rotation_adjacent(
 
 
 @lru_cache(maxsize=None)
-def _zero_one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int, int]):
+def _zero_one_subspace_indices(
+    norb: int, nocc: int, target_orbs: tuple[int, int]
+) -> np.ndarray:
     """Return the indices where the target orbitals are 01 or 10."""
     orbitals = _shifted_orbitals(norb, target_orbs)
     strings = cistring.make_strings(orbitals, nocc)
@@ -213,12 +216,12 @@ def _zero_one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int, int
 def apply_phase_shift(
     phase: complex,
     vec: np.ndarray,
-    target_orbs: tuple[tuple[int], tuple[int]],
+    target_orbs: tuple[tuple[int, ...], tuple[int, ...]],
     norb: int,
     nelec: tuple[int, int],
     *,
     copy: bool = True,
-):
+) -> np.ndarray:
     """Apply a phase shift controlled on target orbitals.
 
     The phase is applied to all strings in which the target orbitals are
@@ -238,7 +241,7 @@ def apply_phase_shift(
 
 
 @lru_cache(maxsize=None)
-def _one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int]):
+def _one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int]) -> np.ndarray:
     """Return the indices where the target orbitals are 1."""
     orbitals = _shifted_orbitals(norb, target_orbs)
     strings = cistring.make_strings(orbitals, nocc)
@@ -249,7 +252,7 @@ def _one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int]):
     return indices[n0:]
 
 
-def _shifted_orbitals(norb: int, target_orbs: tuple[int]):
+def _shifted_orbitals(norb: int, target_orbs: tuple[int, ...]) -> np.ndarray:
     """Return orbital list with targeted orbitals shifted to the end."""
     orbitals = np.arange(norb - len(target_orbs))
     values = sorted(zip(target_orbs, range(norb - len(target_orbs), norb)))
@@ -364,7 +367,7 @@ def apply_diag_coulomb_evolution(
     mat_exp = mat.copy()
     mat_exp[np.diag_indices(norb)] *= 0.5
     mat_exp = np.exp(-1j * time * mat_exp)
-    mat_alpha_beta_exp = np.exp(-1j * time * mat_alpha_beta)
+    mat_alpha_beta_exp = np.exp(-1j * time * cast(np.ndarray, mat_alpha_beta))
     vec = vec.reshape((dim_a, dim_b))
     apply_diag_coulomb_evolution_in_place(
         mat_exp,
@@ -499,7 +502,7 @@ def apply_num_interaction(
 def apply_num_op_prod_interaction(
     theta: float,
     vec: np.ndarray,
-    target_orbs: tuple[tuple[int, bool], ...],
+    target_orbs: tuple[tuple[int, int], ...],
     norb: int,
     nelec: tuple[int, int],
     *,
@@ -524,13 +527,13 @@ def apply_num_op_prod_interaction(
     """
     if copy:
         vec = vec.copy()
-    orbitals = [set() for _ in range(2)]
+    orbitals: list[set[int]] = [set(), set()]
     for i, spin_i in target_orbs:
         orbitals[spin_i].add(i)
     vec = apply_phase_shift(
         np.exp(1j * theta),
         vec,
-        tuple(tuple(orbs) for orbs in orbitals),
+        (tuple(orbitals[0]), tuple(orbitals[1])),
         norb=norb,
         nelec=nelec,
         copy=False,

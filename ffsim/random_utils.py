@@ -58,7 +58,7 @@ def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     return q * (d / np.abs(d))
 
 
-def random_orthogonal(dim: int, seed: Any = None) -> np.ndarray:
+def random_orthogonal(dim: int, seed=None) -> np.ndarray:
     """Return a random orthogonal matrix distributed with Haar measure.
 
     Args:
@@ -82,7 +82,7 @@ def random_orthogonal(dim: int, seed: Any = None) -> np.ndarray:
     return q * (d / np.abs(d))
 
 
-def random_special_orthogonal(dim: int, seed: Any = None) -> np.ndarray:
+def random_special_orthogonal(dim: int, seed=None) -> np.ndarray:
     """Return a random special orthogonal matrix distributed with Haar measure.
 
     Args:

@@ -107,7 +107,7 @@ def _simulate_trotter_step_double_factorized(
     initial_state: np.ndarray,
     nelec: tuple[int, int],
     order: int,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> np.ndarray:
     final_state = initial_state
     norb = len(one_body_energies)
     for term_index, time in _simulate_trotter_step_iterator(

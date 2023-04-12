@@ -19,9 +19,9 @@ import scipy.sparse.linalg
 # HACK: Sphinx fails to handle "ellipsis"
 # See https://github.com/python/typing/issues/684
 if TYPE_CHECKING:
-    _SliceAtom = Union[int, slice, "ellipsis"]
+    _SliceAtom = Union[int, slice, np.ndarray, "ellipsis"]
 else:
-    _SliceAtom = Union[int, slice, type(Ellipsis)]
+    _SliceAtom = Union[int, slice, np.ndarray, type(Ellipsis)]
 
 _Slice = Union[_SliceAtom, Tuple[_SliceAtom, ...]]
 
