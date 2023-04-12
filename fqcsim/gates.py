@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import itertools
-import math
 from functools import lru_cache
 
 import numpy as np
@@ -357,7 +356,6 @@ def apply_num_op_sum_evolution(
     # apply alpha
     _apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_a)
     # apply beta
-    # TODO try copying the transpose to align memory layout
     vec = vec.T
     _apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_b)
     vec = vec.T.reshape(-1)
