@@ -16,7 +16,7 @@ use pyo3::prelude::*;
 
 /// Generate orbital rotation index.
 #[pyfunction]
-fn _gen_orbital_rotation_index_in_place(
+fn gen_orbital_rotation_index_in_place(
     norb: usize,
     nocc: usize,
     linkstr_index: PyReadonlyArray3<i32>,
@@ -79,7 +79,7 @@ fn _gen_orbital_rotation_index_in_place(
 
 /// Apply a single-column orbital rotation.
 #[pyfunction]
-fn _apply_single_column_transformation_in_place(
+fn apply_single_column_transformation_in_place(
     column: PyReadonlyArray1<Complex64>,
     mut vec: PyReadwriteArray2<Complex64>,
     diag_val: Complex64,
@@ -137,7 +137,7 @@ fn _apply_single_column_transformation_in_place(
 
 /// Apply time evolution by a sum of number operators in-place.
 #[pyfunction]
-fn _apply_num_op_sum_evolution_in_place(
+fn apply_num_op_sum_evolution_in_place(
     phases: PyReadonlyArray1<Complex64>,
     mut vec: PyReadwriteArray2<Complex64>,
     occupations: PyReadonlyArray2<usize>,
@@ -157,7 +157,7 @@ fn _apply_num_op_sum_evolution_in_place(
 
 /// Apply time evolution by a diagonal Coulomb operator in-place.
 #[pyfunction]
-fn _apply_diag_coulomb_evolution_in_place(
+fn apply_diag_coulomb_evolution_in_place(
     mat_exp: PyReadonlyArray2<Complex64>,
     mut vec: PyReadwriteArray2<Complex64>,
     norb: usize,
@@ -231,12 +231,12 @@ fn _apply_diag_coulomb_evolution_in_place(
 /// Python module exposing Rust extensions.
 #[pymodule]
 fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(_gen_orbital_rotation_index_in_place, m)?)?;
+    m.add_function(wrap_pyfunction!(gen_orbital_rotation_index_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(
-        _apply_single_column_transformation_in_place,
+        apply_single_column_transformation_in_place,
         m
     )?)?;
-    m.add_function(wrap_pyfunction!(_apply_num_op_sum_evolution_in_place, m)?)?;
-    m.add_function(wrap_pyfunction!(_apply_diag_coulomb_evolution_in_place, m)?)?;
+    m.add_function(wrap_pyfunction!(apply_num_op_sum_evolution_in_place, m)?)?;
+    m.add_function(wrap_pyfunction!(apply_diag_coulomb_evolution_in_place, m)?)?;
     Ok(())
 }
