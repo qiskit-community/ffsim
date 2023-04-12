@@ -81,7 +81,7 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         original_vec = vec.copy()
 
         result, perm = apply_orbital_rotation(
-            mat, vec, norb, nelec, allow_col_permutation=True, copy=True
+            mat, vec, norb, nelec, allow_col_permutation=True, overwrite_vec=False
         )
         np.testing.assert_allclose(np.linalg.norm(result), 1, atol=atol)
         op = one_body_tensor_to_linop(scipy.linalg.logm(mat @ perm), nelec=nelec)
@@ -89,7 +89,7 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         np.testing.assert_allclose(result, expected, atol=atol)
 
         result, perm = apply_orbital_rotation(
-            mat, vec, norb, nelec, allow_row_permutation=True, copy=False
+            mat, vec, norb, nelec, allow_row_permutation=True, overwrite_vec=True
         )
         op = one_body_tensor_to_linop(scipy.linalg.logm(perm @ mat), nelec=nelec)
         expected = expm_multiply_taylor(op, original_vec)
