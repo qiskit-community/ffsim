@@ -14,11 +14,14 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["numpy", "scipy", "pyscf"]
+dependencies = ["numpy", "pyscf", "scipy"]
 
 [project.optional-dependencies]
-dev = ["maturin[patchelf]", "pytest"]
+dev = ["black", "maturin[patchelf]", "mypy", "pytest"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
 module-name = "ffsim._ffsim"
+
+[tool.mypy]
+ignore_missing_imports = true
