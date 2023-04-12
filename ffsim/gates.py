@@ -238,16 +238,6 @@ def apply_phase_shift(
 
 
 @lru_cache(maxsize=None)
-def _zero_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int]):
-    """Return the indices where the target orbitals are 0."""
-    orbitals = _shifted_orbitals(norb, target_orbs)
-    strings = cistring.make_strings(orbitals, nocc)
-    indices = np.argsort(strings)
-    n0 = comb(norb - len(target_orbs), nocc, exact=True)
-    return indices[:n0]
-
-
-@lru_cache(maxsize=None)
 def _one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int]):
     """Return the indices where the target orbitals are 1."""
     orbitals = _shifted_orbitals(norb, target_orbs)
