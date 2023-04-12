@@ -21,7 +21,7 @@ from pyscf.fci.direct_spin1 import make_hdiag
 from pyscf.fci.fci_slow import absorb_h1e
 from scipy.special import comb
 
-from fqcsim.states import one_hot
+from ffsim.states import one_hot
 
 
 def contract_1e(f1e, fcivec, norb, nelec):

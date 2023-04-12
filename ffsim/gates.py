@@ -20,13 +20,13 @@ import scipy.linalg
 from pyscf.fci import cistring
 from scipy.special import comb
 
-from fqcsim._fqcsim import (
+from ffsim._ffsim import (
     _apply_diag_coulomb_evolution_in_place,
     _apply_num_op_sum_evolution_in_place,
     _apply_single_column_transformation_in_place,
     _gen_orbital_rotation_index_in_place,
 )
-from fqcsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
+from ffsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
 
 
 def apply_orbital_rotation(

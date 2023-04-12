@@ -1,11 +1,11 @@
 [package]
-name = "fqc-sim"
+name = "ffsim"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "fqcsim"
+name = "ffsim"
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -16,4 +16,4 @@ numpy = "0.18.0"
 pyo3 = { version = "0.18.1", features = ["num-complex"] }
 
 [package.metadata.maturin]
-name = "fqcsim._fqcsim"
+name = "ffsim._ffsim"

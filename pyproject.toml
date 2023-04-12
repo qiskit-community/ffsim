@@ -3,7 +3,7 @@ requires = ["maturin>=0.14,<0.15"]
 build-backend = "maturin"
 
 [project]
-name = "fqc-sim"
+name = "ffsim"
 requires-python = ">=3.7"
 version = "0.0.1"
 description = "Faster simulations of fermionic quantum circuits."
