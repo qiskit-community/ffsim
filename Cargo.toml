@@ -14,6 +14,3 @@ blas-src = { version = "0.8", features = ["openblas"] }
 ndarray = { version = "0.15.6", features = ["rayon"] }
 numpy = "0.18.0"
 pyo3 = { version = "0.18.1", features = ["num-complex"] }
-
-[package.metadata.maturin]
-name = "ffsim._ffsim"
