@@ -38,7 +38,7 @@ def apply_orbital_rotation(
     allow_row_permutation: bool = False,
     allow_col_permutation: bool = False,
     # TODO rename "copy" to "overwrite_vec"
-    copy: bool = True,
+    overwrite_vec: bool = False,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     r"""Apply an orbital rotation to a vector.
 
@@ -58,6 +58,16 @@ def apply_orbital_rotation(
         vec: Vector to be transformed.
         norb: Number of spatial orbitals.
         nelec: Number of alpha and beta electrons.
+        allow_row_permutation: Whether to allow a permutation of the rows
+            of the orbital rotation matrix.
+        allow_col_permutation: Whether to allow a permutation of the columns
+            of the orbital rotation matrix.
+        overwrite_vec: Whether to allow the original vector to be overwritten.
+            Setting this to True may improve performance.
+
+    Returns:
+        The transformed vector. If a row or column permutation was allowed,
+        the permutation matrix is returned as well.
     """
     if allow_row_permutation and allow_col_permutation:
         raise ValueError(
@@ -70,7 +80,7 @@ def apply_orbital_rotation(
             norb,
             nelec,
             permute_rows=allow_row_permutation,
-            copy=copy,
+            overwrite_vec=overwrite_vec,
         )
     return _apply_orbital_rotation_givens(mat, vec, norb, nelec)
 
@@ -81,9 +91,9 @@ def _apply_orbital_rotation_lu(
     norb: int,
     nelec: tuple[int, int],
     permute_rows: bool = False,
-    copy: bool = True,
+    overwrite_vec: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
-    if copy:
+    if not overwrite_vec:
         vec = vec.copy()
     if permute_rows:
         lower, upper, perm = lup(mat.T.conj())
@@ -292,7 +302,7 @@ def apply_num_op_sum_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
-            copy=False,
+            overwrite_vec=False,
         )
         coeffs = coeffs @ perm0.T
 
@@ -307,7 +317,7 @@ def apply_num_op_sum_evolution(
 
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
-            orbital_rotation, vec, norb, nelec, allow_col_permutation=True, copy=False
+            orbital_rotation, vec, norb, nelec, allow_col_permutation=True, overwrite_vec=False
         )
         np.testing.assert_allclose(perm0, perm1.T)
 
@@ -359,7 +369,7 @@ def apply_diag_coulomb_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
-            copy=False,
+            overwrite_vec=False,
         )
         mat = perm0 @ mat @ perm0.T
         mat_alpha_beta = perm0 @ mat_alpha_beta @ perm0.T
@@ -381,7 +391,7 @@ def apply_diag_coulomb_evolution(
 
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
-            orbital_rotation, vec, norb, nelec, allow_col_permutation=True, copy=False
+            orbital_rotation, vec, norb, nelec, allow_col_permutation=True, overwrite_vec=False
         )
         np.testing.assert_allclose(perm0, perm1.T)
 
