@@ -21,3 +21,4 @@ dev = ["maturin[patchelf]", "pytest"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+module-name = "ffsim._ffsim"
