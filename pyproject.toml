@@ -14,7 +14,10 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
+dependencies = ["numpy", "scipy", "pyscf"]
 
+[project.optional-dependencies]
+dev = ["maturin[patchelf]", "pytest"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
