@@ -37,7 +37,7 @@ def apply_orbital_rotation(
     *,
     allow_row_permutation: bool = False,
     allow_col_permutation: bool = False,
-    overwrite_vec: bool = False,
+    copy: bool = True,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     r"""Apply an orbital rotation to a vector.
 
@@ -53,20 +53,28 @@ def apply_orbital_rotation(
         \exp(\sum_{ij} log(U)_{ij} a^\dagger{i} a_j)
 
     Args:
-        mat: Unitary matrix :math:`U` describing the orbital rotation.
-        vec: Vector to be transformed.
-        norb: Number of spatial orbitals.
-        nelec: Number of alpha and beta electrons.
+        mat: The unitary matrix :math:`U` describing the orbital rotation.
+        vec: The state vector to be transformed.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
         allow_row_permutation: Whether to allow a permutation of the rows
             of the orbital rotation matrix.
         allow_col_permutation: Whether to allow a permutation of the columns
             of the orbital rotation matrix.
-        overwrite_vec: Whether to allow the original vector to be overwritten.
-            Setting this to True may improve performance.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
 
     Returns:
         The transformed vector. If a row or column permutation was allowed,
-        the permutation matrix is returned as well.
+        the permutation matrix ``P`` is returned as well.
+        If a row transformation was allowed, then the transformation
+        actually effected is given by the matrix ``P @ mat``. If a column
+        transformation was allowed, then it is ``mat @ P``.
 
     Raises:
         ValueError: If both ``allow_row_permutation`` and ``allow_col_permutation``
@@ -83,9 +91,9 @@ def apply_orbital_rotation(
             norb,
             nelec,
             permute_rows=allow_row_permutation,
-            overwrite_vec=overwrite_vec,
+            copy=copy,
         )
-    return _apply_orbital_rotation_givens(mat, vec, norb, nelec)
+    return _apply_orbital_rotation_givens(mat, vec, norb, nelec, copy=copy)
 
 
 def _apply_orbital_rotation_lu(
@@ -93,10 +101,10 @@ def _apply_orbital_rotation_lu(
     vec: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
-    permute_rows: bool = False,
-    overwrite_vec: bool = False,
+    permute_rows: bool,
+    copy: bool,
 ) -> tuple[np.ndarray, np.ndarray]:
-    if not overwrite_vec:
+    if copy:
         vec = vec.copy()
     if permute_rows:
         lower, upper, perm = lup(mat.T.conj())
@@ -155,8 +163,10 @@ def _apply_orbital_rotation_spin_in_place(
 
 
 def _apply_orbital_rotation_givens(
-    mat: np.ndarray, vec: np.ndarray, norb: int, nelec: tuple[int, int]
+    mat: np.ndarray, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
 ) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
     givens_rotations, phase_shifts = givens_decomposition(mat)
     buf1 = np.empty_like(vec)
     buf2 = np.empty_like(vec)
@@ -237,8 +247,8 @@ def apply_phase_shift(
 ) -> np.ndarray:
     """Apply a phase shift controlled on target orbitals.
 
-    The phase is applied to all strings in which the target orbitals are
-    all 1 (occupied).
+    Multiplies by the phase each coefficient corresponding to a string in which
+    the target orbitals are all 1 (occupied).
     """
     if copy:
         vec = vec.copy()
@@ -284,7 +294,23 @@ def apply_num_op_sum_evolution(
     *,
     copy: bool = True,
 ):
-    """Apply time evolution by a linear combination of number operators."""
+    """Apply time evolution by a linear combination of number operators.
+
+    Args:
+        coeffs: The coefficients of the linear combination.
+        vec: The state vector to be transformed.
+        time: The evolution time.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        orbital_rotation: An orbital rotation representing a basis change to apply.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
+    """
     if copy:
         vec = vec.copy()
 
@@ -305,7 +331,7 @@ def apply_num_op_sum_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
-            overwrite_vec=False,
+            copy=False,
         )
         coeffs = coeffs @ perm0.T
 
@@ -325,7 +351,7 @@ def apply_num_op_sum_evolution(
             norb,
             nelec,
             allow_col_permutation=True,
-            overwrite_vec=False,
+            copy=False,
         )
         np.testing.assert_allclose(perm0, perm1.T)
 
@@ -377,7 +403,7 @@ def apply_diag_coulomb_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
-            overwrite_vec=False,
+            copy=False,
         )
         mat = perm0 @ mat @ perm0.T
         mat_alpha_beta = perm0 @ mat_alpha_beta @ perm0.T
@@ -404,7 +430,7 @@ def apply_diag_coulomb_evolution(
             norb,
             nelec,
             allow_col_permutation=True,
-            overwrite_vec=False,
+            copy=False,
         )
         np.testing.assert_allclose(perm0, perm1.T)
 
@@ -417,6 +443,8 @@ def apply_givens_rotation(
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
+    *,
+    copy: bool = True,
 ):
     r"""Apply a Givens rotation gate.
 
@@ -427,10 +455,17 @@ def apply_givens_rotation(
 
     Args:
         theta: The rotation angle.
-        vec: Vector to be transformed.
+        vec: The state vector to be transformed.
         target_orbs: The orbitals (i, j) to rotate.
-        norb: Number of spatial orbitals.
-        nelec: Number of alpha and beta electrons.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
@@ -438,7 +473,7 @@ def apply_givens_rotation(
     s = np.sin(theta)
     mat = np.eye(norb)
     mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
-    return apply_orbital_rotation(mat, vec, norb=norb, nelec=nelec)
+    return apply_orbital_rotation(mat, vec, norb=norb, nelec=nelec, copy=copy)
 
 
 def apply_tunneling_interaction(
@@ -447,6 +482,8 @@ def apply_tunneling_interaction(
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
+    *,
+    copy: bool = True,
 ):
     r"""Apply a tunneling interaction gate.
 
@@ -465,13 +502,11 @@ def apply_tunneling_interaction(
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
     vec = apply_num_interaction(
-        -np.pi / 2,
-        vec,
-        target_orbs[0],
-        norb=norb,
-        nelec=nelec,
+        -np.pi / 2, vec, target_orbs[0], norb=norb, nelec=nelec, copy=copy
     )
-    vec = apply_givens_rotation(theta, vec, target_orbs, norb=norb, nelec=nelec)
+    vec = apply_givens_rotation(
+        theta, vec, target_orbs, norb=norb, nelec=nelec, copy=False
+    )
     vec = apply_num_interaction(
         np.pi / 2,
         vec,
