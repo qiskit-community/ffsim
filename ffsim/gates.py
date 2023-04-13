@@ -177,8 +177,8 @@ def _apply_orbital_rotation_givens(
         )
         buf1, buf2 = buf2, buf1
     for i, phase_shift in enumerate(phase_shifts):
-        apply_phase_shift(phase_shift, vec, ((i,), ()), norb, nelec, copy=False)
-        apply_phase_shift(phase_shift, vec, ((), (i,)), norb, nelec, copy=False)
+        _apply_phase_shift(phase_shift, vec, ((i,), ()), norb, nelec, copy=False)
+        _apply_phase_shift(phase_shift, vec, ((), (i,)), norb, nelec, copy=False)
     return vec
 
 
@@ -236,7 +236,7 @@ def _zero_one_subspace_indices(
     return indices[n00 : len(indices) - n11]
 
 
-def apply_phase_shift(
+def _apply_phase_shift(
     phase: complex,
     vec: np.ndarray,
     target_orbs: tuple[tuple[int, ...], tuple[int, ...]],
@@ -636,7 +636,7 @@ def apply_num_op_prod_interaction(
     orbitals: list[set[int]] = [set(), set()]
     for i, spin_i in target_orbs:
         orbitals[spin_i].add(i)
-    vec = apply_phase_shift(
+    vec = _apply_phase_shift(
         np.exp(1j * theta),
         vec,
         (tuple(orbitals[0]), tuple(orbitals[1])),
