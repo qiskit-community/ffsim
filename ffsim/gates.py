@@ -296,13 +296,24 @@ def apply_num_op_sum_evolution(
 ):
     """Apply time evolution by a linear combination of number operators.
 
+    Applies
+
+    .. math::
+        \mathcal{U}
+        \exp(-i t \sum_{i, \sigma} \lambda_i n_{i, \sigma})
+        \mathcal{U}^\dagger
+
+    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    with spin :math:`\sigma`, the :math:`\lambda_i` are real numbers, and
+    :math:`\mathcal{U}` is an optional orbital rotation.
+
     Args:
         coeffs: The coefficients of the linear combination.
         vec: The state vector to be transformed.
         time: The evolution time.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        orbital_rotation: An orbital rotation representing a basis change to apply.
+        orbital_rotation: A unitary matrix describing the optional orbital rotation.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
@@ -374,12 +385,32 @@ def apply_diag_coulomb_evolution(
     Applies
 
     .. math::
+        \mathcal{U}
         \exp(-i t \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
+        \mathcal{U}^\dagger
 
     where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
-    and spin :math:`\sigma`, and :math:`Z` is the matrix input as ``mat``.
+    with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,
+    and :math:`\mathcal{U}` is an optional orbital rotation.
     If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
     for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
+
+    Args:
+        mat: The real symmetric matrix :math:`Z`.
+        vec: The state vector to be transformed.
+        time: The evolution time.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        orbital_rotation: A unitary matrix describing the optional orbital rotation.
+        mat_alpha_beta: A matrix of coefficients to use for interactions between
+            orbitals with differing spin.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
@@ -494,10 +525,17 @@ def apply_tunneling_interaction(
 
     Args:
         theta: The rotation angle.
-        vec: Vector to be transformed.
+        vec: The state vector to be transformed.
         target_orbs: The orbitals (i, j) on which to apply the interaction.
-        norb: Number of spatial orbitals.
-        nelec: Number of alpha and beta electrons.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
@@ -536,12 +574,17 @@ def apply_num_interaction(
 
     Args:
         theta: The rotation angle.
-        vec: Vector to be transformed.
+        vec: The state vector to be transformed.
         target_orb: The orbital on which to apply the interaction.
-        norb: Number of spatial orbitals.
-        nelec: Number of alpha and beta electrons.
-        copy: Whether to copy the input vector. If False, the operation is applied
-            in-place.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
@@ -575,13 +618,18 @@ def apply_num_op_prod_interaction(
 
     Args:
         theta: The rotation angle.
-        vec: Vector to be transformed.
+        vec: The state vector to be transformed.
         target_orbs: The orbitals on which to apply the interaction. This should
             be a tuple of (orbital, spin) pairs.
-        norb: Number of spatial orbitals.
-        nelec: Number of alpha and beta electrons.
-        copy: Whether to copy the input vector. If False, the operation is applied
-            in-place.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
