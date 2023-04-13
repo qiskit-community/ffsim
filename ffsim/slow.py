@@ -125,18 +125,6 @@ def apply_diag_coulomb_evolution_in_place_numpy(
     mat_alpha_beta_exp: np.ndarray,
     **kwargs,
 ) -> None:
-    r"""Apply time evolution by a diagonal Coulomb operator.
-
-    Applies
-
-    .. math::
-        \exp(-i t \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
-
-    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
-    and spin :math:`\sigma`, and :math:`Z` is the matrix input as ``mat``.
-    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
-    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
-    """
     mat_alpha_beta_exp = mat_alpha_beta_exp.copy()
     mat_alpha_beta_exp[np.diag_indices(norb)] **= 0.5
     nelec = (n_alpha, n_beta)
