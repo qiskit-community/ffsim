@@ -16,7 +16,7 @@ import itertools
 
 import numpy as np
 
-from ffsim.gates import apply_phase_shift
+from ffsim.gates import _apply_phase_shift
 
 
 def gen_orbital_rotation_index_in_place_slow(
@@ -145,7 +145,7 @@ def apply_diag_coulomb_evolution_in_place_numpy(
             orbitals: list[set[int]] = [set(), set()]
             orbitals[sigma].add(i)
             orbitals[sigma].add(j)
-            apply_phase_shift(
+            _apply_phase_shift(
                 mat_exp[i, j],
                 vec,
                 (tuple(orbitals[0]), tuple(orbitals[1])),
@@ -156,7 +156,7 @@ def apply_diag_coulomb_evolution_in_place_numpy(
             orbitals = [set() for _ in range(2)]
             orbitals[sigma].add(i)
             orbitals[1 - sigma].add(j)
-            apply_phase_shift(
+            _apply_phase_shift(
                 mat_alpha_beta_exp[i, j],
                 vec,
                 (tuple(orbitals[0]), tuple(orbitals[1])),

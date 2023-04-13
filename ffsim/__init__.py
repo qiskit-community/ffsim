@@ -21,7 +21,6 @@ from ffsim.gates import (
     apply_num_op_prod_interaction,
     apply_num_op_sum_evolution,
     apply_orbital_rotation,
-    apply_phase_shift,
     apply_tunneling_interaction,
 )
 
