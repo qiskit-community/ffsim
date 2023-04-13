@@ -60,6 +60,24 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
         np.testing.assert_allclose(result, expected, atol=atol)
 
 
+def test_apply_orbital_rotation_no_side_effects():
+    """Test applying orbital basis change doesn't modify the original vector."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        nelec = (n_alpha, n_beta)
+        dim = get_dimension(norb, nelec)
+
+        mat = -np.eye(norb)
+        vec = random_statevector(dim, seed=rng)
+        original_vec = vec.copy()
+
+        _ = apply_orbital_rotation(mat, vec, norb, nelec)
+        np.testing.assert_allclose(vec, original_vec, atol=1e-12)
+
+
 @pytest.mark.parametrize(
     "dtype, atol",
     [
@@ -81,7 +99,7 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         original_vec = vec.copy()
 
         result, perm = apply_orbital_rotation(
-            mat, vec, norb, nelec, allow_col_permutation=True, overwrite_vec=False
+            mat, vec, norb, nelec, allow_col_permutation=True, copy=True
         )
         np.testing.assert_allclose(np.linalg.norm(result), 1, atol=atol)
         op = one_body_tensor_to_linop(scipy.linalg.logm(mat @ perm), nelec=nelec)
@@ -89,7 +107,7 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         np.testing.assert_allclose(result, expected, atol=atol)
 
         result, perm = apply_orbital_rotation(
-            mat, vec, norb, nelec, allow_row_permutation=True, overwrite_vec=True
+            mat, vec, norb, nelec, allow_row_permutation=True, copy=False
         )
         op = one_body_tensor_to_linop(scipy.linalg.logm(perm @ mat), nelec=nelec)
         expected = expm_multiply_taylor(op, original_vec)
