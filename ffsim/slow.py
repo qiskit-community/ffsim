@@ -28,6 +28,7 @@ def gen_orbital_rotation_index_in_place_slow(
     off_diag_strings_index: np.ndarray,
     off_diag_index: np.ndarray,
 ) -> None:
+    """Generate orbital rotation index."""
     diag_counter = np.zeros(norb, dtype=np.uint)
     off_diag_counter = np.zeros(norb, dtype=np.uint)
     for str0, tab in enumerate(linkstr_index[:, :, 0]):
@@ -59,6 +60,7 @@ def apply_single_column_transformation_in_place_slow(
     off_diag_strings: np.ndarray,
     off_diag_index: np.ndarray,
 ) -> None:
+    """Apply a single-column orbital rotation."""
     for str0, tab in zip(off_diag_strings, off_diag_index):
         for orb, str1, sign in tab:
             vec[str0] += sign * column[orb] * vec[str1]
@@ -71,6 +73,7 @@ def apply_num_op_sum_evolution_in_place_slow(
     vec: np.ndarray,
     occupations: np.ndarray,
 ) -> None:
+    """Apply time evolution by a sum of number operators in-place."""
     for row, orbs in zip(vec, occupations):
         phase = 1
         for orb in orbs:
@@ -86,6 +89,7 @@ def apply_diag_coulomb_evolution_in_place_slow(
     occupations_a: np.ndarray,
     occupations_b: np.ndarray,
 ) -> None:
+    """Apply time evolution by a diagonal Coulomb operator in-place."""
     dim_a, dim_b = vec.shape
     alpha_phases = np.empty((dim_a,), dtype=complex)
     beta_phases = np.empty((dim_b,), dtype=complex)
@@ -125,6 +129,7 @@ def apply_diag_coulomb_evolution_in_place_numpy(
     mat_alpha_beta_exp: np.ndarray,
     **kwargs,
 ) -> None:
+    """Apply time evolution by a diagonal Coulomb operator in-place."""
     mat_alpha_beta_exp = mat_alpha_beta_exp.copy()
     mat_alpha_beta_exp[np.diag_indices(norb)] **= 0.5
     nelec = (n_alpha, n_beta)
