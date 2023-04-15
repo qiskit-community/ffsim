@@ -56,7 +56,7 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
         original_vec = vec.copy()
 
         result = apply_orbital_rotation(mat, vec, norb, nelec)
-        op = one_body_tensor_to_linop(scipy.linalg.logm(mat), nelec=nelec)
+        op = one_body_tensor_to_linop(scipy.linalg.logm(mat), norb=norb, nelec=nelec)
         expected = expm_multiply_taylor(op, original_vec)
         np.testing.assert_allclose(result, expected, atol=atol)
 
@@ -103,14 +103,18 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
             mat, vec, norb, nelec, allow_col_permutation=True, copy=True
         )
         np.testing.assert_allclose(np.linalg.norm(result), 1, atol=atol)
-        op = one_body_tensor_to_linop(scipy.linalg.logm(mat @ perm), nelec=nelec)
+        op = one_body_tensor_to_linop(
+            scipy.linalg.logm(mat @ perm), norb=norb, nelec=nelec
+        )
         expected = expm_multiply_taylor(op, original_vec)
         np.testing.assert_allclose(result, expected, atol=atol)
 
         result, perm = apply_orbital_rotation(
             mat, vec, norb, nelec, allow_row_permutation=True, copy=False
         )
-        op = one_body_tensor_to_linop(scipy.linalg.logm(perm @ mat), nelec=nelec)
+        op = one_body_tensor_to_linop(
+            scipy.linalg.logm(perm @ mat), norb=norb, nelec=nelec
+        )
         expected = expm_multiply_taylor(op, original_vec)
         np.testing.assert_allclose(result, expected, atol=atol)
 
@@ -304,7 +308,7 @@ def test_apply_quadratic_hamiltonian_evolution():
         result = apply_num_op_sum_evolution(
             eigs, vec, time, norb, nelec, orbital_rotation=vecs
         )
-        op = one_body_tensor_to_linop(mat, nelec=nelec)
+        op = one_body_tensor_to_linop(mat, norb=norb, nelec=nelec)
         expected = expm_multiply_taylor(-1j * time * op, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
@@ -334,7 +338,7 @@ def test_apply_givens_rotation():
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = -theta
-        linop = one_body_tensor_to_linop(generator, nelec=nelec)
+        linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
         expected = expm_multiply_taylor(linop, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
     np.testing.assert_allclose(vec, original_vec)
@@ -364,7 +368,7 @@ def test_apply_tunneling_interaction():
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = theta
-        linop = one_body_tensor_to_linop(generator, nelec=nelec)
+        linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
         expected = expm_multiply_taylor(1j * linop, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
@@ -384,7 +388,7 @@ def test_apply_num_interaction():
         result = apply_num_interaction(theta, vec, target_orb, norb=norb, nelec=nelec)
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
-        linop = one_body_tensor_to_linop(generator, nelec=nelec)
+        linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
         expected = expm_multiply_taylor(
             1j * linop,
             vec,

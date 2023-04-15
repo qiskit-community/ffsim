@@ -16,8 +16,14 @@ import itertools
 
 import numpy as np
 
-from ffsim.fci import contract_diag_coulomb, contract_num_op_sum
-from ffsim.random_utils import random_hermitian
+from ffsim.fci import (
+    contract_diag_coulomb,
+    contract_num_op_sum,
+    diag_coulomb_to_linop,
+    get_dimension,
+    num_op_sum_to_linop,
+)
+from ffsim.random_utils import random_hermitian, random_statevector
 from ffsim.states import slater_determinant
 
 
@@ -35,7 +41,7 @@ def test_contract_diag_coulomb():
     state = slater_determinant(norb, occupied_orbitals)
 
     mat = np.real(random_hermitian(norb, seed=rng))
-    result = contract_diag_coulomb(mat, state, nelec)
+    result = contract_diag_coulomb(mat, state, norb=norb, nelec=nelec)
 
     eig = 0
     for i, j in itertools.product(range(norb), repeat=2):
@@ -61,7 +67,7 @@ def test_contract_num_op_sum():
     state = slater_determinant(norb, occupied_orbitals)
 
     coeffs = rng.standard_normal(norb)
-    result = contract_num_op_sum(coeffs, state, nelec)
+    result = contract_num_op_sum(coeffs, state, norb=norb, nelec=nelec)
 
     eig = 0
     for i in range(norb):
@@ -69,5 +75,43 @@ def test_contract_num_op_sum():
             if i in occupied_orbitals[sigma]:
                 eig += coeffs[i]
     expected = eig * state
+
+    np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
+def test_diag_coulomb_to_linop():
+    """Test converting a diagonal Coulomb matrix to a linear operator."""
+    norb = 5
+    rng = np.random.default_rng()
+    n_alpha = rng.integers(1, norb + 1)
+    n_beta = rng.integers(1, norb + 1)
+    nelec = (n_alpha, n_beta)
+    dim = get_dimension(norb, nelec)
+
+    mat = np.real(random_hermitian(norb, seed=rng))
+    vec = random_statevector(dim, seed=rng)
+
+    linop = diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
+    result = linop @ vec
+    expected = contract_diag_coulomb(mat, vec, norb=norb, nelec=nelec)
+
+    np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
+def test_num_op_sum_to_linop():
+    """Test converting a diagonal Coulomb matrix to a linear operator."""
+    norb = 5
+    rng = np.random.default_rng()
+    n_alpha = rng.integers(1, norb + 1)
+    n_beta = rng.integers(1, norb + 1)
+    nelec = (n_alpha, n_beta)
+    dim = get_dimension(norb, nelec)
+
+    coeffs = rng.standard_normal(norb)
+    vec = random_statevector(dim, seed=rng)
+
+    linop = num_op_sum_to_linop(coeffs, norb=norb, nelec=nelec)
+    result = linop @ vec
+    expected = contract_num_op_sum(coeffs, vec, norb=norb, nelec=nelec)
 
     np.testing.assert_allclose(result, expected, atol=1e-8)

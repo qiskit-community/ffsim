@@ -16,6 +16,7 @@ from functools import lru_cache
 import numpy as np
 import scipy.sparse.linalg
 from pyscf import fci
+from pyscf.fci import cistring
 from pyscf.fci.direct_spin1 import make_hdiag
 from pyscf.fci.fci_slow import absorb_h1e, contract_1e, contract_2e
 from scipy.special import comb
@@ -34,11 +35,11 @@ def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
 def get_hamiltonian_linop(
     one_body_tensor: np.ndarray,
     two_body_tensor: np.ndarray,
+    norb: int,
     nelec: tuple[int, int],
 ) -> scipy.sparse.linalg.LinearOperator:
     """Get the Hamiltonian in the FCI basis."""
     # TODO use cached link_indexa and link_indexb
-    norb, _ = one_body_tensor.shape
     two_body = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
     dim = get_dimension(norb, nelec)
 
@@ -53,40 +54,18 @@ def get_hamiltonian_linop(
 def get_trace(
     one_body_tensor: np.ndarray,
     two_body_tensor: np.ndarray,
+    norb: int,
     nelec: tuple[int, int],
 ) -> float:
     """Get the trace of the Hamiltonian in the FCI basis."""
-    norb, _ = one_body_tensor.shape
-    hdiag = make_hdiag(one_body_tensor, two_body_tensor, norb, nelec)
-    return np.sum(hdiag)
-
-
-@lru_cache(maxsize=None)
-def generate_num_map(norb: int, nelec: tuple[int, int]):
-    """Tabulates n_p |x) for all orbitals p and determinants |x)"""
-    dim = get_dimension(norb, nelec)
-    n_alpha, n_beta = nelec
-    num = np.zeros((norb, 2, dim, dim))
-    for i in range(dim):
-        vec = one_hot(dim, i)
-        for p in range(norb):
-            tmp = fci.addons.des_a(vec, norb, (n_alpha, n_beta), p)
-            num[p, 0, :, i] = fci.addons.cre_a(
-                tmp, norb, (n_alpha - 1, n_beta), p
-            ).ravel()
-            tmp = fci.addons.des_b(vec, norb, (n_alpha, n_beta), p)
-            num[p, 1, :, i] = fci.addons.cre_b(
-                tmp, norb, (n_alpha, n_beta - 1), p
-            ).ravel()
-    return num
+    return np.sum(make_hdiag(one_body_tensor, two_body_tensor, norb, nelec))
 
 
 def one_body_tensor_to_linop(
-    one_body_tensor: np.ndarray, nelec: tuple[int, int]
+    one_body_tensor: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert the one-body tensor to a matrix in the FCI basis."""
     # TODO use cached link_indexa and link_indexb
-    norb, _ = one_body_tensor.shape
     dim = get_dimension(norb, nelec)
 
     def matvec(vec: np.ndarray):
@@ -103,31 +82,73 @@ def one_body_tensor_to_linop(
 def contract_num_op_sum(
     coeffs: np.ndarray,
     vec: np.ndarray,
+    norb: int,
     nelec: tuple[int, int],
     *,
-    num_map: np.ndarray | None = None,
+    occupations_a: np.ndarray | None = None,
+    occupations_b: np.ndarray | None = None,
 ):
     """Contract a sum of number operators with a vector."""
-    norb = len(coeffs)
-    if num_map is None:
-        num_map = generate_num_map(norb, nelec)
-    result = np.zeros_like(vec)
-    for p in range(norb):
-        for sigma in range(2):
-            result += coeffs[p] * num_map[p, sigma] @ vec
-    return result
+    n_alpha, n_beta = nelec
+
+    if occupations_a is None:
+        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+            np.uint, copy=False
+        )
+    if occupations_b is None:
+        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+            np.uint, copy=False
+        )
+
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
+    vec = vec.reshape((dim_a, dim_b))
+    out = np.zeros_like(vec)
+    # apply alpha
+    _contract_num_op_sum_spin(coeffs, vec, occupations=occupations_a, out=out)
+    # apply beta
+    vec = vec.T
+    out = out.T
+    _contract_num_op_sum_spin(coeffs, vec, occupations=occupations_b, out=out)
+
+    return out.T.reshape(-1)
+
+
+def _contract_num_op_sum_spin(
+    coeffs: np.ndarray,
+    vec: np.ndarray,
+    occupations: np.ndarray,
+    out: np.ndarray,
+) -> None:
+    for source_row, target_row, orbs in zip(vec, out, occupations):
+        coeff = 0
+        for orb in orbs:
+            coeff += coeffs[orb]
+        target_row += coeff * source_row
 
 
 def num_op_sum_to_linop(
-    coeffs: np.ndarray, nelec: tuple[int, int]
+    coeffs: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert a sum of number operators to a linear operator."""
-    norb = len(coeffs)
+    n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
-    num_map = generate_num_map(norb, nelec)
+    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        np.uint, copy=False
+    )
+    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        np.uint, copy=False
+    )
 
     def matvec(vec):
-        return contract_num_op_sum(coeffs, vec, nelec, num_map=num_map)
+        return contract_num_op_sum(
+            coeffs,
+            vec,
+            norb=norb,
+            nelec=nelec,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
+        )
 
     return scipy.sparse.linalg.LinearOperator(
         (dim, dim), matvec=matvec, rmatvec=matvec, dtype=coeffs.dtype
@@ -137,50 +158,112 @@ def num_op_sum_to_linop(
 def contract_diag_coulomb(
     mat: np.ndarray,
     vec: np.ndarray,
+    norb: int,
     nelec: tuple[int, int],
     *,
     mat_alpha_beta: np.ndarray | None = None,
-    num_map: np.ndarray | None = None,
-):
+    occupations_a: np.ndarray | None = None,
+    occupations_b: np.ndarray | None = None,
+) -> np.ndarray:
     """Contract a diagonal Coulomb operator with a vector."""
-    norb, _ = mat.shape
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
-    if num_map is None:
-        num_map = generate_num_map(norb, nelec)
-    result = np.zeros_like(vec)
-    for p, q in itertools.combinations_with_replacement(range(norb), 2):
-        coeff = 0.5 if p == q else 1.0
-        for sigma in range(2):
-            result += (
-                coeff * mat[p, q] * (num_map[p, sigma] @ (num_map[q, sigma] @ vec))
-            )
-            result += (
-                coeff
-                * mat_alpha_beta[p, q]
-                * (num_map[p, sigma] @ (num_map[q, 1 - sigma] @ vec))
-            )
-    return result
+
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
+    if occupations_a is None:
+        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+            np.uint, copy=False
+        )
+    if occupations_b is None:
+        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+            np.uint, copy=False
+        )
+
+    mat = mat.copy()
+    mat[np.diag_indices(norb)] *= 0.5
+    vec = vec.reshape((dim_a, dim_b))
+    out = np.zeros_like(vec)
+    _contract_diag_coulomb(
+        mat,
+        vec,
+        norb=norb,
+        mat_alpha_beta=mat_alpha_beta,
+        occupations_a=occupations_a,
+        occupations_b=occupations_b,
+        out=out,
+    )
+
+    return out.reshape(-1)
+
+
+def _contract_diag_coulomb(
+    mat: np.ndarray,
+    vec: np.ndarray,
+    norb: int,
+    mat_alpha_beta: np.ndarray,
+    occupations_a: np.ndarray,
+    occupations_b: np.ndarray,
+    out: np.ndarray | None = None,
+) -> None:
+    dim_a, dim_b = vec.shape
+    alpha_coeffs = np.empty((dim_a,), dtype=complex)
+    beta_coeffs = np.empty((dim_b,), dtype=complex)
+    coeff_map = np.zeros((dim_a, norb), dtype=complex)
+
+    for i, occ in enumerate(occupations_a):
+        coeff = 0
+        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
+            coeff += mat[orb_1, orb_2]
+        alpha_coeffs[i] = coeff
+
+    for i, occ in enumerate(occupations_b):
+        coeff = 0
+        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
+            coeff += mat[orb_1, orb_2]
+        beta_coeffs[i] = coeff
+
+    for row, orbs in zip(coeff_map, occupations_a):
+        for orb in orbs:
+            row += mat_alpha_beta[orb]
+
+    for source, target, alpha_coeff, coeff_map in zip(
+        vec, out, alpha_coeffs, coeff_map
+    ):
+        for j, occ_b in enumerate(occupations_b):
+            coeff = alpha_coeff + beta_coeffs[j]
+            for orb_b in occ_b:
+                coeff += coeff_map[orb_b]
+            target[j] += coeff * source[j]
 
 
 def diag_coulomb_to_linop(
     mat: np.ndarray,
+    norb: int,
     nelec: tuple[int, int],
     *,
     mat_alpha_beta: np.ndarray | None = None,
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert a diagonal Coulomb matrix to a linear operator."""
-    norb, _ = mat.shape
+    n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
-    num_map = generate_num_map(norb, nelec)
+    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        np.uint, copy=False
+    )
+    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        np.uint, copy=False
+    )
 
     def matvec(vec):
         return contract_diag_coulomb(
             mat,
             vec,
-            nelec,
+            norb=norb,
+            nelec=nelec,
             mat_alpha_beta=mat_alpha_beta,
-            num_map=num_map,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
         )
 
     return scipy.sparse.linalg.LinearOperator(

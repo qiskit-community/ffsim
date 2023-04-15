@@ -49,7 +49,9 @@ def test_simulate_trotter_suzuki_double_factorized_random(
     # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
     one_body_tensor = np.real(np.array(random_hermitian(norb, seed=2474)))
     two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
-    hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, nelec)
+    hamiltonian = get_hamiltonian_linop(
+        one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
+    )
 
     # perform double factorization
     df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
