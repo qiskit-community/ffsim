@@ -72,9 +72,9 @@ def apply_orbital_rotation(
     Returns:
         The transformed vector. If a row or column permutation was allowed,
         the permutation matrix ``P`` is returned as well.
-        If a row transformation was allowed, then the transformation
+        If a row permutation was allowed, then the transformation
         actually effected is given by the matrix ``P @ mat``. If a column
-        transformation was allowed, then it is ``mat @ P``.
+        permutation was allowed, then it is ``mat @ P``.
 
     Raises:
         ValueError: If both ``allow_row_permutation`` and ``allow_col_permutation``
