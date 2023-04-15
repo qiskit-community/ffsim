@@ -22,7 +22,7 @@ from ffsim.states import slater_determinant
 
 
 def test_contract_diag_coulomb():
-    """Test contracting core tensor."""
+    """Test contracting a diagonal Coulomb matrix."""
     norb = 5
     rng = np.random.default_rng()
     n_alpha = rng.integers(1, norb + 1)
@@ -34,14 +34,14 @@ def test_contract_diag_coulomb():
     nelec = tuple(len(orbs) for orbs in occupied_orbitals)
     state = slater_determinant(norb, occupied_orbitals)
 
-    core_tensor = np.real(np.array(random_hermitian(norb, seed=rng)))
-    result = contract_diag_coulomb(core_tensor, state, nelec)
+    mat = np.real(random_hermitian(norb, seed=rng))
+    result = contract_diag_coulomb(mat, state, nelec)
 
     eig = 0
     for i, j in itertools.product(range(norb), repeat=2):
         for sigma, tau in itertools.product(range(2), repeat=2):
             if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                eig += 0.5 * core_tensor[i, j]
+                eig += 0.5 * mat[i, j]
     expected = eig * state
 
     np.testing.assert_allclose(result, expected, atol=1e-8)

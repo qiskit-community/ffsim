@@ -169,7 +169,7 @@ def diag_coulomb_to_linop(
     *,
     mat_alpha_beta: np.ndarray | None = None,
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert a core tensor to a linear operator."""
+    """Convert a diagonal Coulomb matrix to a linear operator."""
     norb, _ = mat.shape
     dim = get_dimension(norb, nelec)
     num_map = generate_num_map(norb, nelec)
