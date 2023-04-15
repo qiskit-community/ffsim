@@ -26,6 +26,7 @@ else:
     _SliceAtom = Union[int, slice, np.ndarray, type(Ellipsis)]
 
 _Slice = Union[_SliceAtom, Tuple[_SliceAtom, ...]]
+_bool = Union[bool, np.bool_]
 
 
 # TODO use scipy.sparse.linalg.expm_multiply instead after dropping Python 3.7 support
@@ -350,7 +351,7 @@ def is_hermitian(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> 
 
 def is_real_symmetric(
     mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8
-) -> bool:
+) -> _bool:
     """Determine if a matrix is real and approximately symmetric.
 
     Args:
@@ -369,7 +370,7 @@ def is_real_symmetric(
     )
 
 
-def is_unitary(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+def is_unitary(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> _bool:
     """Determine if a matrix is approximately unitary.
 
     Args:
@@ -384,7 +385,7 @@ def is_unitary(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> bo
     return m == n and np.allclose(mat @ mat.T.conj(), np.eye(m), rtol=rtol, atol=atol)
 
 
-def is_orthogonal(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+def is_orthogonal(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> _bool:
     """Determine if a matrix is approximately orthogonal.
 
     Args:
@@ -405,7 +406,7 @@ def is_orthogonal(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) ->
 
 def is_special_orthogonal(
     mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8
-) -> bool:
+) -> _bool:
     """Determine if a matrix is approximately special orthogonal.
 
     Args:

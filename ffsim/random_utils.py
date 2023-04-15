@@ -120,7 +120,7 @@ def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
 
 def random_real_symmetric_matrix(
-    dim: int, *, rank: int = None, seed=None, dtype=float
+    dim: int, *, rank: int | None = None, seed=None, dtype=float
 ) -> np.ndarray:
     """Return a random real symmetric matrix.
 

@@ -205,7 +205,7 @@ def _contract_diag_coulomb(
     mat_alpha_beta: np.ndarray,
     occupations_a: np.ndarray,
     occupations_b: np.ndarray,
-    out: np.ndarray | None = None,
+    out: np.ndarray,
 ) -> None:
     dim_a, dim_b = vec.shape
     alpha_coeffs = np.empty((dim_a,), dtype=complex)
