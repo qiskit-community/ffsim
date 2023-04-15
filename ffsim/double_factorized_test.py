@@ -38,7 +38,7 @@ def test_double_factorized_decomposition():
     # generate random Hamiltonian
     dim = get_dimension(norb, nelec)
     # TODO test with complex one-body tensor
-    one_body_tensor = np.real(np.array(random_hermitian(norb, seed=2474)))
+    one_body_tensor = np.real(random_hermitian(norb, seed=2474))
     two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
     hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, nelec)
 
@@ -47,7 +47,7 @@ def test_double_factorized_decomposition():
 
     # generate random state
     dim = get_dimension(norb, nelec)
-    state = np.array(random_statevector(dim, seed=1360))
+    state = random_statevector(dim, seed=1360)
 
     # apply Hamiltonian terms
     result = np.zeros_like(state)
