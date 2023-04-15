@@ -11,17 +11,13 @@
 from __future__ import annotations
 
 import itertools
-from functools import lru_cache
 
 import numpy as np
 import scipy.sparse.linalg
-from pyscf import fci
 from pyscf.fci import cistring
 from pyscf.fci.direct_spin1 import make_hdiag
 from pyscf.fci.fci_slow import absorb_h1e, contract_1e, contract_2e
 from scipy.special import comb
-
-from ffsim.states import one_hot
 
 
 def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
