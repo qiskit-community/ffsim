@@ -18,8 +18,9 @@ import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
+from pyscf.fci.fci_slow import contract_1e
 
-from ffsim.fci import contract_1e, get_dimension, one_body_tensor_to_linop
+from ffsim.fci import get_dimension, one_body_tensor_to_linop
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_givens_rotation,

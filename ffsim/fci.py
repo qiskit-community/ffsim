@@ -15,75 +15,12 @@ from functools import lru_cache
 
 import numpy as np
 import scipy.sparse.linalg
-from pyscf import fci, lib
-from pyscf.fci import cistring
+from pyscf import fci
 from pyscf.fci.direct_spin1 import make_hdiag
-from pyscf.fci.fci_slow import absorb_h1e
+from pyscf.fci.fci_slow import absorb_h1e, contract_1e, contract_2e
 from scipy.special import comb
 
 from ffsim.states import one_hot
-
-
-def contract_1e(f1e, fcivec, norb, nelec):
-    # source: pyscf/fci/fci_slow.py
-    # modified to support complex dtypes
-    # TODO contribute dtype modification back to pyscf
-    # TODO use cached link_indexa and link_indexb
-    if isinstance(nelec, (int, np.integer)):
-        nelecb = nelec // 2
-        neleca = nelec - nelecb
-    else:
-        neleca, nelecb = nelec
-    link_indexa = cistring.gen_linkstr_index(range(norb), neleca)
-    link_indexb = cistring.gen_linkstr_index(range(norb), nelecb)
-    na = cistring.num_strings(norb, neleca)
-    nb = cistring.num_strings(norb, nelecb)
-    ci0 = fcivec.reshape(na, nb)
-    t1 = np.zeros((norb, norb, na, nb), dtype=fcivec.dtype)
-    for str0, tab in enumerate(link_indexa):
-        for a, i, str1, sign in tab:
-            t1[a, i, str1] += sign * ci0[str0]
-    for str0, tab in enumerate(link_indexb):
-        for a, i, str1, sign in tab:
-            t1[a, i, :, str1] += sign * ci0[:, str0]
-    fcinew = np.dot(f1e.reshape(-1), t1.reshape(-1, na * nb))
-    return fcinew.reshape(fcivec.shape)
-
-
-def contract_2e(eri, fcivec, norb, nelec):
-    # source: pyscf/fci/fci_slow.py
-    # modified to support complex dtypes
-    # TODO contribute dtype modification back to pyscf
-    # TODO use cached link_indexa and link_indexb
-    """Compute E_{pq}E_{rs}|CI>"""
-    if isinstance(nelec, (int, np.integer)):
-        nelecb = nelec // 2
-        neleca = nelec - nelecb
-    else:
-        neleca, nelecb = nelec
-    link_indexa = cistring.gen_linkstr_index(range(norb), neleca)
-    link_indexb = cistring.gen_linkstr_index(range(norb), nelecb)
-    na = cistring.num_strings(norb, neleca)
-    nb = cistring.num_strings(norb, nelecb)
-    ci0 = fcivec.reshape(na, nb)
-    t1 = np.zeros((norb, norb, na, nb), dtype=fcivec.dtype)
-    for str0, tab in enumerate(link_indexa):
-        for a, i, str1, sign in tab:
-            t1[a, i, str1] += sign * ci0[str0]
-    for str0, tab in enumerate(link_indexb):
-        for a, i, str1, sign in tab:
-            t1[a, i, :, str1] += sign * ci0[:, str0]
-
-    t1 = lib.einsum("bjai,aiAB->bjAB", eri.reshape([norb] * 4), t1)
-
-    fcinew = np.zeros_like(ci0, dtype=fcivec.dtype)
-    for str0, tab in enumerate(link_indexa):
-        for a, i, str1, sign in tab:
-            fcinew[str1] += sign * t1[a, i, str0]
-    for str0, tab in enumerate(link_indexb):
-        for a, i, str1, sign in tab:
-            fcinew[:, str1] += sign * t1[a, i, :, str0]
-    return fcinew.reshape(fcivec.shape)
 
 
 def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
