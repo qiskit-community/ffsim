@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Linear algebra utilities."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -263,8 +265,8 @@ def double_factorized(
 
     The number of terms :math:`N` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
-    Furthermore, the `max_vecs` parameter specifies an optional upper bound
-    on :math:`N`. The `max_vecs` parameter is always respected, so if it is
+    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
+    on :math:`N`. The ``max_vecs`` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
