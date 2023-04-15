@@ -14,6 +14,7 @@ from collections.abc import Iterator
 
 import numpy as np
 
+from ffsim.double_factorized import DoubleFactorizedHamiltonian
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 
 
@@ -52,11 +53,10 @@ def _simulate_trotter_step_iterator_symmetric(
 
 
 def simulate_trotter_suzuki_double_factorized(
-    one_body_tensor: np.ndarray,
-    diag_coulomb_mats: np.ndarray,
-    orbital_rotations: np.ndarray,
+    hamiltonian: DoubleFactorizedHamiltonian,
     time: float,
     initial_state: np.ndarray,
+    norb: int,
     nelec: tuple[int, int],
     n_steps: int = 1,
     order: int = 0,
@@ -81,7 +81,9 @@ def simulate_trotter_suzuki_double_factorized(
     """
     if order < 0:
         raise ValueError(f"order must be non-negative, got {order}.")
-    one_body_energies, one_body_basis_change = np.linalg.eigh(one_body_tensor)
+    one_body_energies, one_body_basis_change = np.linalg.eigh(
+        hamiltonian.one_body_tensor
+    )
     step_time = time / n_steps
     if copy:
         final_state = initial_state.copy()
@@ -89,10 +91,11 @@ def simulate_trotter_suzuki_double_factorized(
         final_state = _simulate_trotter_step_double_factorized(
             one_body_energies,
             one_body_basis_change,
-            diag_coulomb_mats,
-            orbital_rotations,
+            hamiltonian.diag_coulomb_mats,
+            hamiltonian.orbital_rotations,
             step_time,
             final_state,
+            norb,
             nelec,
             order,
         )
@@ -106,11 +109,11 @@ def _simulate_trotter_step_double_factorized(
     orbital_rotations: np.ndarray,
     time: float,
     initial_state: np.ndarray,
+    norb: int,
     nelec: tuple[int, int],
     order: int,
 ) -> np.ndarray:
     final_state = initial_state
-    norb = len(one_body_energies)
     for term_index, time in _simulate_trotter_step_iterator(
         1 + len(diag_coulomb_mats), time, order
     ):
