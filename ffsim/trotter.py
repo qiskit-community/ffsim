@@ -53,8 +53,8 @@ def _simulate_trotter_step_iterator_symmetric(
 
 def simulate_trotter_suzuki_double_factorized(
     one_body_tensor: np.ndarray,
-    core_tensors: np.ndarray,
-    leaf_tensors: np.ndarray,
+    diag_coulomb_mats: np.ndarray,
+    orbital_rotations: np.ndarray,
     time: float,
     initial_state: np.ndarray,
     nelec: tuple[int, int],
@@ -67,8 +67,9 @@ def simulate_trotter_suzuki_double_factorized(
 
     Args:
         one_body_tensor: The one-body tensor of the double-factorized Hamiltonian.
-        core_tensors: The core tensors of the double-factorized Hamiltonian.
-        leaf_tensors: The leaf tensors of the double-factorized Hamiltonian.
+        diag_coulomb_mats: The diagonal Coulomb matrices of the double-factorized
+            Hamiltonian.
+        orbital_rotations: The orbital rotations of the double-factorized Hamiltonian.
         time: The evolution time.
         initial_state: The initial state.
         nelec: The number of alpha and beta electrons.
@@ -88,8 +89,8 @@ def simulate_trotter_suzuki_double_factorized(
         final_state = _simulate_trotter_step_double_factorized(
             one_body_energies,
             one_body_basis_change,
-            core_tensors,
-            leaf_tensors,
+            diag_coulomb_mats,
+            orbital_rotations,
             step_time,
             final_state,
             nelec,
@@ -101,8 +102,8 @@ def simulate_trotter_suzuki_double_factorized(
 def _simulate_trotter_step_double_factorized(
     one_body_energies: np.ndarray,
     one_body_basis_change: np.ndarray,
-    core_tensors: np.ndarray,
-    leaf_tensors: np.ndarray,
+    diag_coulomb_mats: np.ndarray,
+    orbital_rotations: np.ndarray,
     time: float,
     initial_state: np.ndarray,
     nelec: tuple[int, int],
@@ -111,7 +112,7 @@ def _simulate_trotter_step_double_factorized(
     final_state = initial_state
     norb = len(one_body_energies)
     for term_index, time in _simulate_trotter_step_iterator(
-        1 + len(core_tensors), time, order
+        1 + len(diag_coulomb_mats), time, order
     ):
         if term_index == 0:
             final_state = apply_num_op_sum_evolution(
@@ -125,12 +126,12 @@ def _simulate_trotter_step_double_factorized(
             )
         else:
             final_state = apply_diag_coulomb_evolution(
-                core_tensors[term_index - 1],
+                diag_coulomb_mats[term_index - 1],
                 final_state,
                 time,
                 norb=norb,
                 nelec=nelec,
-                orbital_rotation=leaf_tensors[term_index - 1],
+                orbital_rotation=orbital_rotations[term_index - 1],
                 copy=False,
             )
     return final_state

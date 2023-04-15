@@ -68,8 +68,8 @@ def test_simulate_trotter_suzuki_double_factorized_random(
     # simulate
     final_state = simulate_trotter_suzuki_double_factorized(
         df_hamiltonian.one_body_tensor,
-        df_hamiltonian.core_tensors,
-        df_hamiltonian.leaf_tensors,
+        df_hamiltonian.diag_coulomb_mats,
+        df_hamiltonian.orbital_rotations,
         time,
         initial_state,
         nelec,

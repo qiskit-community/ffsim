@@ -58,14 +58,14 @@ def test_double_factorized_decomposition():
     tmp = apply_orbital_rotation(vecs, tmp, norb=norb, nelec=nelec)
     result += tmp
 
-    for core_tensor, leaf_tensor in zip(
-        df_hamiltonian.core_tensors, df_hamiltonian.leaf_tensors
+    for diag_coulomb_mat, orbital_rotation in zip(
+        df_hamiltonian.diag_coulomb_mats, df_hamiltonian.orbital_rotations
     ):
         tmp = apply_orbital_rotation(
-            leaf_tensor.T.conj(), state, norb=norb, nelec=nelec
+            orbital_rotation.T.conj(), state, norb=norb, nelec=nelec
         )
-        tmp = contract_diag_coulomb(core_tensor, tmp, nelec)
-        tmp = apply_orbital_rotation(leaf_tensor, tmp, norb=norb, nelec=nelec)
+        tmp = contract_diag_coulomb(diag_coulomb_mat, tmp, nelec)
+        tmp = apply_orbital_rotation(orbital_rotation, tmp, norb=norb, nelec=nelec)
         result += tmp
 
     # apply Hamiltonian directly

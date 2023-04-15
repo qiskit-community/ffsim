@@ -23,16 +23,16 @@ class DoubleFactorizedHamiltonian:
 
     Attributes:
         one_body_tensor: The one-body tensor.
-        core_tensors: The core tensors.
-        leaf_tensors: The leaf tensors.
+        diag_coulomb_mats: The diagonal Coulomb matrices.
+        orbital_rotations: The orbital rotations.
         constant: The constant.
         z_representation: Whether the Hamiltonian is in the "Z" representation rather
             than the "number" representation.
     """
 
     one_body_tensor: np.ndarray
-    core_tensors: np.ndarray
-    leaf_tensors: np.ndarray
+    diag_coulomb_mats: np.ndarray
+    orbital_rotations: np.ndarray
     constant: float = 0.0
     z_representation: bool = False
 
@@ -46,11 +46,11 @@ class DoubleFactorizedHamiltonian:
         """The two-body tensor."""
         return np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
-            self.leaf_tensors,
-            self.leaf_tensors,
-            self.core_tensors,
-            self.leaf_tensors,
-            self.leaf_tensors,
+            self.orbital_rotations,
+            self.orbital_rotations,
+            self.diag_coulomb_mats,
+            self.orbital_rotations,
+            self.orbital_rotations,
         )
 
     def to_z_representation(self) -> "DoubleFactorizedHamiltonian":
@@ -59,12 +59,12 @@ class DoubleFactorizedHamiltonian:
             return self
 
         one_body_correction, constant_correction = _df_z_representation(
-            self.core_tensors, self.leaf_tensors
+            self.diag_coulomb_mats, self.orbital_rotations
         )
         return DoubleFactorizedHamiltonian(
             one_body_tensor=self.one_body_tensor + one_body_correction,
-            core_tensors=self.core_tensors,
-            leaf_tensors=self.leaf_tensors,
+            diag_coulomb_mats=self.diag_coulomb_mats,
+            orbital_rotations=self.orbital_rotations,
             constant=self.constant + constant_correction,
             z_representation=True,
         )
@@ -75,26 +75,36 @@ class DoubleFactorizedHamiltonian:
             return self
 
         one_body_correction, constant_correction = _df_z_representation(
-            self.core_tensors, self.leaf_tensors
+            self.diag_coulomb_mats, self.orbital_rotations
         )
         return DoubleFactorizedHamiltonian(
             one_body_tensor=self.one_body_tensor - one_body_correction,
-            core_tensors=self.core_tensors,
-            leaf_tensors=self.leaf_tensors,
+            diag_coulomb_mats=self.diag_coulomb_mats,
+            orbital_rotations=self.orbital_rotations,
             constant=self.constant - constant_correction,
             z_representation=False,
         )
 
 
 def _df_z_representation(
-    core_tensors: np.ndarray, leaf_tensors: np.ndarray
+    diag_coulomb_mats: np.ndarray, orbital_rotations: np.ndarray
 ) -> tuple[np.ndarray, float]:
     one_body_correction = 0.5 * (
-        np.einsum("tij,tpi,tqi->pq", core_tensors, leaf_tensors, leaf_tensors.conj())
-        + np.einsum("tij,tpj,tqj->pq", core_tensors, leaf_tensors, leaf_tensors.conj())
+        np.einsum(
+            "tij,tpi,tqi->pq",
+            diag_coulomb_mats,
+            orbital_rotations,
+            orbital_rotations.conj(),
+        )
+        + np.einsum(
+            "tij,tpj,tqj->pq",
+            diag_coulomb_mats,
+            orbital_rotations,
+            orbital_rotations.conj(),
+        )
     )
-    constant_correction = 0.25 * np.einsum("ijj->", core_tensors) - 0.5 * np.sum(
-        core_tensors
+    constant_correction = 0.25 * np.einsum("ijj->", diag_coulomb_mats) - 0.5 * np.sum(
+        diag_coulomb_mats
     )
     return one_body_correction, constant_correction
 
@@ -110,13 +120,13 @@ def double_factorized_decomposition(
     r"""Double factorized decomposition of a molecular Hamiltonian."""
     one_body_tensor = one_body_tensor - 0.5 * np.einsum("prqr", two_body_tensor)
 
-    core_tensors, leaf_tensors = double_factorized(
+    diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=max_vecs, error_threshold=error_threshold
     )
     df_hamiltonian = DoubleFactorizedHamiltonian(
         one_body_tensor=one_body_tensor,
-        core_tensors=core_tensors,
-        leaf_tensors=leaf_tensors,
+        diag_coulomb_mats=diag_coulomb_mats,
+        orbital_rotations=orbital_rotations,
     )
 
     if z_representation:
