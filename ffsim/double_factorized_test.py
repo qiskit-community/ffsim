@@ -40,7 +40,9 @@ def test_double_factorized_decomposition():
     # TODO test with complex one-body tensor
     one_body_tensor = np.real(random_hermitian(norb, seed=2474))
     two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
-    hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, nelec)
+    hamiltonian = get_hamiltonian_linop(
+        one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
+    )
 
     # perform double factorization
     df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
@@ -54,7 +56,7 @@ def test_double_factorized_decomposition():
 
     eigs, vecs = np.linalg.eigh(df_hamiltonian.one_body_tensor)
     tmp = apply_orbital_rotation(vecs.T.conj(), state, norb=norb, nelec=nelec)
-    tmp = contract_num_op_sum(eigs, tmp, nelec)
+    tmp = contract_num_op_sum(eigs, tmp, norb=norb, nelec=nelec)
     tmp = apply_orbital_rotation(vecs, tmp, norb=norb, nelec=nelec)
     result += tmp
 
@@ -64,7 +66,7 @@ def test_double_factorized_decomposition():
         tmp = apply_orbital_rotation(
             orbital_rotation.T.conj(), state, norb=norb, nelec=nelec
         )
-        tmp = contract_diag_coulomb(diag_coulomb_mat, tmp, nelec)
+        tmp = contract_diag_coulomb(diag_coulomb_mat, tmp, norb=norb, nelec=nelec)
         tmp = apply_orbital_rotation(orbital_rotation, tmp, norb=norb, nelec=nelec)
         result += tmp
 
