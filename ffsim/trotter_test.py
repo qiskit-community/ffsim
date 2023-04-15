@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from ffsim.double_factorized import double_factorized_decomposition
-from ffsim.fci import get_dimension, get_hamiltonian_linop, get_trace
+from ffsim.fci import get_dimension, get_hamiltonian_linop
 from ffsim.linalg import expm_multiply_taylor
 from ffsim.random_utils import (
     random_hermitian,
@@ -46,17 +46,17 @@ def test_simulate_trotter_suzuki_double_factorized_random(
 ):
     # generate random Hamiltonian
     dim = get_dimension(norb, nelec)
+    # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
     one_body_tensor = np.real(np.array(random_hermitian(norb, seed=2474)))
     two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
     hamiltonian = get_hamiltonian_linop(one_body_tensor, two_body_tensor, nelec)
-    trace = get_trace(one_body_tensor, two_body_tensor, nelec)
 
     # perform double factorization
     df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
 
     # generate initial state
     dim = get_dimension(norb, nelec)
-    initial_state = np.array(random_statevector(dim, seed=1360))
+    initial_state = random_statevector(dim, seed=1360)
     original_state = initial_state.copy()
 
     # compute exact state
