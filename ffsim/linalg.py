@@ -91,7 +91,7 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
     return np.array([[cosine, sine], [-sine.conjugate(), cosine]])
 
 
-def givens_decomposition(  # pylint: disable=invalid-name
+def givens_decomposition(
     mat: np.ndarray,
 ) -> tuple[list[tuple[np.ndarray, tuple[int, int]]], np.ndarray]:
     """Givens rotation decomposition of a unitary matrix."""
@@ -331,3 +331,95 @@ def lup(mat: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     ell *= d
     u /= d[:, None]
     return u.T, ell.T, p.T
+
+
+def is_hermitian(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    """Determine if a matrix is approximately Hermitian.
+
+    Args:
+        mat: The matrix.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Returns:
+        Whether the matrix is Hermitian within the given tolerance.
+    """
+    m, n = mat.shape
+    return m == n and np.allclose(mat, mat.T.conj(), rtol=rtol, atol=atol)
+
+
+def is_real_symmetric(
+    mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8
+) -> bool:
+    """Determine if a matrix is real and approximately symmetric.
+
+    Args:
+        mat: The matrix.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Returns:
+        Whether the matrix is real and symmetric within the given tolerance.
+    """
+    m, n = mat.shape
+    return (
+        m == n
+        and np.all(np.isreal(mat))
+        and np.allclose(mat, mat.T, rtol=rtol, atol=atol)
+    )
+
+
+def is_unitary(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    """Determine if a matrix is approximately unitary.
+
+    Args:
+        mat: The matrix.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Returns:
+        Whether the matrix is unitary within the given tolerance.
+    """
+    m, n = mat.shape
+    return m == n and np.allclose(mat @ mat.T.conj(), np.eye(m), rtol=rtol, atol=atol)
+
+
+def is_orthogonal(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    """Determine if a matrix is approximately orthogonal.
+
+    Args:
+        mat: The matrix.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Returns:
+        Whether the matrix is orthogonal within the given tolerance.
+    """
+    m, n = mat.shape
+    return (
+        m == n
+        and np.all(np.isreal(mat))
+        and np.allclose(mat @ mat.T, np.eye(m), rtol=rtol, atol=atol)
+    )
+
+
+def is_special_orthogonal(
+    mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8
+) -> bool:
+    """Determine if a matrix is approximately special orthogonal.
+
+    Args:
+        mat: The matrix.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Returns:
+        Whether the matrix is special orthogonal within the given tolerance.
+    """
+    m, n = mat.shape
+    return (
+        m == n
+        and np.all(np.isreal(mat))
+        and np.allclose(mat @ mat.T, np.eye(m), rtol=rtol, atol=atol)
+        and (m == 0 or np.allclose(np.linalg.det(mat), 1, rtol=rtol, atol=atol))
+    )

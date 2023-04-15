@@ -26,9 +26,9 @@ def random_statevector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         The sampled state vector.
     """
     rng = np.random.default_rng(seed)
-    vec = rng.standard_normal(dim).astype(dtype)
+    vec = rng.standard_normal(dim).astype(dtype, copy=False)
     if np.iscomplexobj(dtype):
-        vec += 1j * rng.standard_normal(dim).astype(dtype)
+        vec += 1j * rng.standard_normal(dim).astype(dtype, copy=False)
     vec /= np.linalg.norm(vec)
     return vec
 
@@ -51,14 +51,14 @@ def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     .. _arXiv:math-ph/0609050: https://arxiv.org/abs/math-ph/0609050
     """
     rng = np.random.default_rng(seed)
-    z = rng.standard_normal((dim, dim)).astype(dtype)
-    z += 1j * rng.standard_normal((dim, dim)).astype(dtype)
+    z = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
+    z += 1j * rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     q, r = np.linalg.qr(z)
     d = np.diagonal(r)
     return q * (d / np.abs(d))
 
 
-def random_orthogonal(dim: int, seed=None) -> np.ndarray:
+def random_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
     """Return a random orthogonal matrix distributed with Haar measure.
 
     Args:
@@ -76,13 +76,13 @@ def random_orthogonal(dim: int, seed=None) -> np.ndarray:
     .. _arXiv:math-ph/0609050: https://arxiv.org/abs/math-ph/0609050
     """
     rng = np.random.default_rng(seed)
-    m = rng.standard_normal((dim, dim))
+    m = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     q, r = np.linalg.qr(m)
     d = np.diagonal(r)
     return q * (d / np.abs(d))
 
 
-def random_special_orthogonal(dim: int, seed=None) -> np.ndarray:
+def random_special_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
     """Return a random special orthogonal matrix distributed with Haar measure.
 
     Args:
@@ -94,7 +94,7 @@ def random_special_orthogonal(dim: int, seed=None) -> np.ndarray:
     Returns:
         The sampled special orthogonal matrix.
     """
-    mat = random_orthogonal(dim, seed=seed)
+    mat = random_orthogonal(dim, seed=seed, dtype=dtype)
     if np.linalg.det(mat) < 0:
         mat[0] *= -1
     return mat
@@ -114,9 +114,31 @@ def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         The sampled Hermitian matrix.
     """
     rng = np.random.default_rng(seed)
-    mat = rng.standard_normal((dim, dim)).astype(dtype)
-    mat += 1j * rng.standard_normal((dim, dim)).astype(dtype)
+    mat = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
+    mat += 1j * rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     return mat + mat.T.conj()
+
+
+def random_real_symmetric_matrix(
+    dim: int, *, rank: int = None, seed=None, dtype=float
+) -> np.ndarray:
+    """Return a random real symmetric matrix.
+
+    Args:
+        dim: The width and height of the matrix.
+        rank: The rank of the matrix. If `None`, the maximum rank is used.
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`.
+
+    Returns:
+        The sampled real symmetric matrix.
+    """
+    rng = np.random.default_rng(seed)
+    if rank is None:
+        rank = dim
+    mat = rng.standard_normal((dim, rank)).astype(dtype, copy=False)
+    return mat @ mat.T
 
 
 def random_two_body_tensor_real(
@@ -139,6 +161,6 @@ def random_two_body_tensor_real(
     rng = np.random.default_rng(seed)
     if rank is None:
         rank = dim * (dim + 1) // 2
-    cholesky_vecs = rng.standard_normal((rank, dim, dim)).astype(dtype)
+    cholesky_vecs = rng.standard_normal((rank, dim, dim)).astype(dtype, copy=False)
     cholesky_vecs += cholesky_vecs.transpose((0, 2, 1))
     return np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
