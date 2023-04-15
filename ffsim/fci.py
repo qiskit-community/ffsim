@@ -38,7 +38,6 @@ def get_hamiltonian_linop(
 ) -> scipy.sparse.linalg.LinearOperator:
     """Get the Hamiltonian in the FCI basis."""
     # TODO use cached link_indexa and link_indexb
-    # TODO support complex one-body tensor
     norb, _ = one_body_tensor.shape
     two_body = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
     dim = get_dimension(norb, nelec)
@@ -47,7 +46,7 @@ def get_hamiltonian_linop(
         return contract_2e(two_body, vec, norb, nelec)
 
     return scipy.sparse.linalg.LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=matvec
+        shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=one_body_tensor.dtype
     )
 
 
@@ -97,7 +96,7 @@ def one_body_tensor_to_linop(
         return contract_1e(one_body_tensor.T.conj(), vec, norb, nelec)
 
     return scipy.sparse.linalg.LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=rmatvec
+        shape=(dim, dim), matvec=matvec, rmatvec=rmatvec, dtype=one_body_tensor.dtype
     )
 
 
@@ -130,7 +129,9 @@ def num_op_sum_to_linop(
     def matvec(vec):
         return contract_num_op_sum(coeffs, vec, nelec, num_map=num_map)
 
-    return scipy.sparse.linalg.LinearOperator((dim, dim), matvec=matvec, rmatvec=matvec)
+    return scipy.sparse.linalg.LinearOperator(
+        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=coeffs.dtype
+    )
 
 
 def contract_diag_coulomb(
@@ -182,4 +183,6 @@ def diag_coulomb_to_linop(
             num_map=num_map,
         )
 
-    return scipy.sparse.linalg.LinearOperator((dim, dim), matvec=matvec, rmatvec=matvec)
+    return scipy.sparse.linalg.LinearOperator(
+        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=mat.dtype
+    )
