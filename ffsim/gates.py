@@ -294,7 +294,7 @@ def apply_num_op_sum_evolution(
     *,
     copy: bool = True,
 ):
-    """Apply time evolution by a linear combination of number operators.
+    """Apply time evolution by a (rotated) linear combination of number operators.
 
     Applies
 
@@ -380,7 +380,7 @@ def apply_diag_coulomb_evolution(
     mat_alpha_beta: np.ndarray | None = None,
     copy: bool = True,
 ) -> np.ndarray:
-    r"""Apply time evolution by a diagonal Coulomb operator.
+    r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
 
     Applies
 
