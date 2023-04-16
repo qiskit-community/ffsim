@@ -114,10 +114,10 @@ fn apply_single_column_transformation_in_place(
                 let orb = row[0] as usize;
                 let str1 = row[1] as usize;
                 let sign = Complex64::new(row[2] as f64, 0.0);
-                let (source, mut target) = vec.multi_slice_mut((s![str1, ..], s![str0, ..]));
-                match source.as_slice() {
-                    Some(source) => match target.as_slice_mut() {
-                        Some(target) => unsafe {
+                let (mut target, source) = vec.multi_slice_mut((s![str0, ..], s![str1, ..]));
+                match target.as_slice_mut() {
+                    Some(target) => match source.as_slice() {
+                        Some(source) => unsafe {
                             zaxpy(dim_b, sign * column[orb], source, 1, target, 1);
                         },
                         None => panic!(
