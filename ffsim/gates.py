@@ -174,17 +174,25 @@ def _apply_orbital_rotation_givens(
     dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
     # transform alpha
+    buf1 = np.empty_like(vec)
+    buf2 = np.empty_like(vec)
+    buf1[...] = vec[...]
     for givens_mat, target_orbs in givens_rotations:
         vec = _apply_orbital_rotation_adjacent_spin(
-            givens_mat.conj(), vec, target_orbs, norb, n_alpha
+            givens_mat.conj(), buf1, target_orbs, norb, n_alpha, out=buf2
         )
+        buf1, buf2 = buf2, buf1
     # transform beta
     # transpose vector to align memory layout
     vec = vec.T.copy()
+    buf1 = np.empty_like(vec)
+    buf2 = np.empty_like(vec)
+    buf1[...] = vec[...]
     for givens_mat, target_orbs in givens_rotations:
         vec = _apply_orbital_rotation_adjacent_spin(
-            givens_mat.conj(), vec, target_orbs, norb, n_beta
+            givens_mat.conj(), buf1, target_orbs, norb, n_beta, out=buf2
         )
+        buf1, buf2 = buf2, buf1
     vec = vec.T.copy().reshape(-1)
 
     for i, phase_shift in enumerate(phase_shifts):
