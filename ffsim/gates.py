@@ -26,6 +26,7 @@ from ffsim._ffsim import (
     apply_single_column_transformation_in_place,
     gen_orbital_rotation_index_in_place,
 )
+from ffsim.fci import gen_orbital_rotation_index
 from ffsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
 
 
@@ -37,6 +38,8 @@ def apply_orbital_rotation(
     *,
     allow_row_permutation: bool = False,
     allow_col_permutation: bool = False,
+    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
+    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     r"""Apply an orbital rotation to a vector.
@@ -61,6 +64,8 @@ def apply_orbital_rotation(
             of the orbital rotation matrix.
         allow_col_permutation: Whether to allow a permutation of the columns
             of the orbital rotation matrix.
+        orbital_rotation_index_a: The orbital rotation index for alpha strings.
+        orbital_rotation_index_b: The orbital rotation index for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
@@ -85,12 +90,19 @@ def apply_orbital_rotation(
             "You can choose to allow either row or column permutations, but not both."
         )
     if allow_row_permutation or allow_col_permutation:
+        n_alpha, n_beta = nelec
+        if orbital_rotation_index_a is None:
+            orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
+        if orbital_rotation_index_b is None:
+            orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
         return _apply_orbital_rotation_lu(
             mat,
             vec,
             norb,
             nelec,
             permute_rows=allow_row_permutation,
+            orbital_rotation_index_a=orbital_rotation_index_a,
+            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=copy,
         )
     return _apply_orbital_rotation_givens(mat, vec, norb, nelec, copy=copy)
@@ -102,6 +114,8 @@ def _apply_orbital_rotation_lu(
     norb: int,
     nelec: tuple[int, int],
     permute_rows: bool,
+    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
+    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
     copy: bool,
 ) -> tuple[np.ndarray, np.ndarray]:
     if copy:
@@ -113,20 +127,26 @@ def _apply_orbital_rotation_lu(
     eye = np.eye(norb, dtype=complex)
     transformation_mat = eye - lower + scipy.linalg.solve_triangular(upper, eye)
     n_alpha, n_beta = nelec
-    linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
-    linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
     # transform alpha
     _apply_orbital_rotation_spin_in_place(
-        transformation_mat, vec, norb=norb, nocc=n_alpha, linkstr_index=linkstr_index_a
+        transformation_mat,
+        vec,
+        norb=norb,
+        nocc=n_alpha,
+        orbital_rotation_index=orbital_rotation_index_a,
     )
     # transform beta
     # transpose vector to align memory layout
     vec = vec.T.copy()
     _apply_orbital_rotation_spin_in_place(
-        transformation_mat, vec, norb=norb, nocc=n_beta, linkstr_index=linkstr_index_b
+        transformation_mat,
+        vec,
+        norb=norb,
+        nocc=n_beta,
+        orbital_rotation_index=orbital_rotation_index_b,
     )
     return vec.T.copy().reshape(-1), perm
 
@@ -136,26 +156,12 @@ def _apply_orbital_rotation_spin_in_place(
     vec: np.ndarray,
     norb: int,
     nocc: int,
-    linkstr_index: np.ndarray,
+    orbital_rotation_index=tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> None:
     dim_diag = comb(norb - 1, nocc - 1, exact=True)
     dim_off_diag = comb(norb - 1, nocc, exact=True)
     dim = dim_diag + dim_off_diag
-    # TODO double check dtypes
-    diag_strings = np.empty((norb, dim_diag), dtype=np.uint)
-    off_diag_strings = np.empty((norb, dim_off_diag), dtype=np.uint)
-    # TODO should this be int64? pyscf uses int32 for linkstr_index though
-    off_diag_index = np.empty((norb, dim_off_diag, nocc, 3), dtype=np.int32)
-    off_diag_strings_index = np.empty((norb, dim), dtype=np.uint)
-    gen_orbital_rotation_index_in_place(
-        norb=norb,
-        nocc=nocc,
-        linkstr_index=linkstr_index,
-        diag_strings=diag_strings,
-        off_diag_strings=off_diag_strings,
-        off_diag_strings_index=off_diag_strings_index,
-        off_diag_index=off_diag_index,
-    )
+    diag_strings, off_diag_strings, off_diag_index = orbital_rotation_index
     for i in range(norb):
         apply_single_column_transformation_in_place(
             transformation_mat[:, i],
@@ -309,6 +315,8 @@ def apply_num_op_sum_evolution(
     *,
     occupations_a: np.ndarray | None = None,
     occupations_b: np.ndarray | None = None,
+    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
+    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ):
     """Apply time evolution by a (rotated) linear combination of number operators.
@@ -333,6 +341,8 @@ def apply_num_op_sum_evolution(
         orbital_rotation: A unitary matrix describing the optional orbital rotation.
         occupations_a: List of occupied orbital lists for alpha strings.
         occupations_b: List of occupied orbital lists for beta strings.
+        orbital_rotation_index_a: The orbital rotation index for alpha strings.
+        orbital_rotation_index_b: The orbital rotation index for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
@@ -361,6 +371,8 @@ def apply_num_op_sum_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
+            orbital_rotation_index_a=orbital_rotation_index_a,
+            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         coeffs = coeffs @ perm0.T
@@ -381,6 +393,8 @@ def apply_num_op_sum_evolution(
             norb,
             nelec,
             allow_col_permutation=True,
+            orbital_rotation_index_a=orbital_rotation_index_a,
+            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         np.testing.assert_allclose(perm0, perm1.T)
@@ -399,6 +413,8 @@ def apply_diag_coulomb_evolution(
     mat_alpha_beta: np.ndarray | None = None,
     occupations_a: np.ndarray | None = None,
     occupations_b: np.ndarray | None = None,
+    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
+    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ) -> np.ndarray:
     r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
@@ -427,6 +443,8 @@ def apply_diag_coulomb_evolution(
             orbitals with differing spin.
         occupations_a: List of occupied orbital lists for alpha strings.
         occupations_b: List of occupied orbital lists for beta strings.
+        orbital_rotation_index_a: The orbital rotation index for alpha strings.
+        orbital_rotation_index_b: The orbital rotation index for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
@@ -457,6 +475,8 @@ def apply_diag_coulomb_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
+            orbital_rotation_index_a=orbital_rotation_index_a,
+            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         mat = perm0 @ mat @ perm0.T
@@ -484,6 +504,8 @@ def apply_diag_coulomb_evolution(
             norb,
             nelec,
             allow_col_permutation=True,
+            orbital_rotation_index_a=orbital_rotation_index_a,
+            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         np.testing.assert_allclose(perm0, perm1.T)

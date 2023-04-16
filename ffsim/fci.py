@@ -19,6 +19,8 @@ from pyscf.fci.direct_spin1 import make_hdiag
 from pyscf.fci.fci_slow import absorb_h1e, contract_1e, contract_2e
 from scipy.special import comb
 
+from ffsim._ffsim import gen_orbital_rotation_index_in_place
+
 
 def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
     """Get the dimension of the FCI space."""
@@ -265,3 +267,30 @@ def diag_coulomb_to_linop(
     return scipy.sparse.linalg.LinearOperator(
         (dim, dim), matvec=matvec, rmatvec=matvec, dtype=mat.dtype
     )
+
+
+def gen_orbital_rotation_index(
+    norb: int, nocc: int, linkstr_index: np.ndarray | None = None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generate string index for performing orbital rotation."""
+    if linkstr_index is None:
+        linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
+    dim_diag = comb(norb - 1, nocc - 1, exact=True)
+    dim_off_diag = comb(norb - 1, nocc, exact=True)
+    dim = dim_diag + dim_off_diag
+    # TODO double check dtypes
+    diag_strings = np.empty((norb, dim_diag), dtype=np.uint)
+    off_diag_strings = np.empty((norb, dim_off_diag), dtype=np.uint)
+    # TODO should this be int64? pyscf uses int32 for linkstr_index though
+    off_diag_index = np.empty((norb, dim_off_diag, nocc, 3), dtype=np.int32)
+    off_diag_strings_index = np.empty((norb, dim), dtype=np.uint)
+    gen_orbital_rotation_index_in_place(
+        norb=norb,
+        nocc=nocc,
+        linkstr_index=linkstr_index,
+        diag_strings=diag_strings,
+        off_diag_strings=off_diag_strings,
+        off_diag_strings_index=off_diag_strings_index,
+        off_diag_index=off_diag_index,
+    )
+    return diag_strings, off_diag_strings, off_diag_index

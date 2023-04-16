@@ -13,8 +13,10 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 import numpy as np
+from pyscf.fci import cistring
 
 from ffsim.double_factorized import DoubleFactorizedHamiltonian
+from ffsim.fci import gen_orbital_rotation_index
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 
 
@@ -85,8 +87,19 @@ def simulate_trotter_suzuki_double_factorized(
         hamiltonian.one_body_tensor
     )
     step_time = time / n_steps
+    n_alpha, n_beta = nelec
+    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        np.uint, copy=False
+    )
+    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        np.uint, copy=False
+    )
+    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
+    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
     if copy:
         final_state = initial_state.copy()
+    else:
+        final_state = initial_state
     for _ in range(n_steps):
         final_state = _simulate_trotter_step_double_factorized(
             one_body_energies,
@@ -95,9 +108,13 @@ def simulate_trotter_suzuki_double_factorized(
             hamiltonian.orbital_rotations,
             step_time,
             final_state,
-            norb,
-            nelec,
-            order,
+            norb=norb,
+            nelec=nelec,
+            order=order,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
+            orbital_rotation_index_a=orbital_rotation_index_a,
+            orbital_rotation_index_b=orbital_rotation_index_b,
         )
     return final_state
 
@@ -112,6 +129,10 @@ def _simulate_trotter_step_double_factorized(
     norb: int,
     nelec: tuple[int, int],
     order: int,
+    occupations_a: np.ndarray,
+    occupations_b: np.ndarray,
+    orbital_rotation_index_a: np.ndarray,
+    orbital_rotation_index_b: np.ndarray,
 ) -> np.ndarray:
     final_state = initial_state
     for term_index, time in _simulate_trotter_step_iterator(
@@ -125,6 +146,8 @@ def _simulate_trotter_step_double_factorized(
                 norb=norb,
                 nelec=nelec,
                 orbital_rotation=one_body_basis_change,
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
         else:
@@ -135,6 +158,8 @@ def _simulate_trotter_step_double_factorized(
                 norb=norb,
                 nelec=nelec,
                 orbital_rotation=orbital_rotations[term_index - 1],
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
     return final_state
