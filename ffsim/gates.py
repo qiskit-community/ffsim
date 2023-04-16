@@ -168,26 +168,38 @@ def _apply_orbital_rotation_givens(
     if copy:
         vec = vec.copy()
     givens_rotations, phase_shifts = givens_decomposition(mat)
-    buf1 = np.empty_like(vec)
-    buf2 = np.empty_like(vec)
-    buf1[...] = vec[...]
+
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
+    vec = vec.reshape((dim_a, dim_b))
+    # transform alpha
     for givens_mat, target_orbs in givens_rotations:
-        vec = _apply_orbital_rotation_adjacent(
-            givens_mat.conj(), buf1, target_orbs, norb, nelec, out=buf2
+        vec = _apply_orbital_rotation_adjacent_spin(
+            givens_mat.conj(), vec, target_orbs, norb, n_alpha
         )
-        buf1, buf2 = buf2, buf1
+    # transform beta
+    # transpose vector to align memory layout
+    vec = vec.T.copy()
+    for givens_mat, target_orbs in givens_rotations:
+        vec = _apply_orbital_rotation_adjacent_spin(
+            givens_mat.conj(), vec, target_orbs, norb, n_beta
+        )
+    vec = vec.T.copy().reshape(-1)
+
     for i, phase_shift in enumerate(phase_shifts):
         _apply_phase_shift(phase_shift, vec, ((i,), ()), norb, nelec, copy=False)
         _apply_phase_shift(phase_shift, vec, ((), (i,)), norb, nelec, copy=False)
+
     return vec
 
 
-def _apply_orbital_rotation_adjacent(
+def _apply_orbital_rotation_adjacent_spin(
     mat: np.ndarray,
     vec: np.ndarray,
     target_orbs: tuple[int, int],
     norb: int,
-    nelec: tuple[int, int],
+    nocc: int,
     *,
     out: np.ndarray | None = None,
 ) -> np.ndarray:
@@ -206,21 +218,11 @@ def _apply_orbital_rotation_adjacent(
         out = np.empty_like(vec)
     i, j = target_orbs
     assert i == j + 1 or i == j - 1, "Target orbitals must be adjacent."
-    n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
-    vec = vec.reshape((dim_a, dim_b))
-    out = out.reshape((dim_a, dim_b))
-    indices = _zero_one_subspace_indices(norb, n_alpha, target_orbs)
+    indices = _zero_one_subspace_indices(norb, nocc, target_orbs)
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
-    buf = np.empty_like(vec)
-    apply_matrix_to_slices(mat, vec, [slice1, slice2], out=buf)
-    indices = _zero_one_subspace_indices(norb, n_beta, target_orbs)
-    slice1 = indices[: len(indices) // 2]
-    slice2 = indices[len(indices) // 2 :]
-    apply_matrix_to_slices(mat, buf, [(Ellipsis, slice1), (Ellipsis, slice2)], out=out)
-    return out.reshape(-1)
+    apply_matrix_to_slices(mat, vec, [slice1, slice2], out=out)
+    return out
 
 
 @lru_cache(maxsize=None)
