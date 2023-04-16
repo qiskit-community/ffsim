@@ -113,26 +113,31 @@ def _apply_orbital_rotation_lu(
     eye = np.eye(norb, dtype=complex)
     transformation_mat = eye - lower + scipy.linalg.solve_triangular(upper, eye)
     n_alpha, n_beta = nelec
+    linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
+    linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
     # transform alpha
     _apply_orbital_rotation_spin_in_place(
-        transformation_mat, vec, norb=norb, nocc=n_alpha
+        transformation_mat, vec, norb=norb, nocc=n_alpha, linkstr_index=linkstr_index_a
     )
     # transform beta
     # transpose vector to align memory layout
     vec = vec.T.copy()
     _apply_orbital_rotation_spin_in_place(
-        transformation_mat, vec, norb=norb, nocc=n_beta
+        transformation_mat, vec, norb=norb, nocc=n_beta, linkstr_index=linkstr_index_b
     )
     return vec.T.copy().reshape(-1), perm
 
 
 def _apply_orbital_rotation_spin_in_place(
-    transformation_mat: np.ndarray, vec: np.ndarray, norb: int, nocc: int
+    transformation_mat: np.ndarray,
+    vec: np.ndarray,
+    norb: int,
+    nocc: int,
+    linkstr_index: np.ndarray,
 ) -> None:
-    linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
     dim_diag = comb(norb - 1, nocc - 1, exact=True)
     dim_off_diag = comb(norb - 1, nocc, exact=True)
     dim = dim_diag + dim_off_diag
@@ -302,6 +307,8 @@ def apply_num_op_sum_evolution(
     nelec: tuple[int, int],
     orbital_rotation: np.ndarray | None = None,
     *,
+    occupations_a: np.ndarray | None = None,
+    occupations_b: np.ndarray | None = None,
     copy: bool = True,
 ):
     """Apply time evolution by a (rotated) linear combination of number operators.
@@ -324,6 +331,8 @@ def apply_num_op_sum_evolution(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         orbital_rotation: A unitary matrix describing the optional orbital rotation.
+        occupations_a: List of occupied orbital lists for alpha strings.
+        occupations_b: List of occupied orbital lists for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
@@ -338,12 +347,12 @@ def apply_num_op_sum_evolution(
     n_alpha, n_beta = nelec
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
-    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
-        np.uint, copy=False
-    )
-    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
-        np.uint, copy=False
-    )
+    if occupations_a is None:
+        occupations_a = cistring._gen_occslst(range(norb), n_alpha)
+    if occupations_b is None:
+        occupations_b = cistring._gen_occslst(range(norb), n_beta)
+    occupations_a = occupations_a.astype(np.uint, copy=False)
+    occupations_b = occupations_b.astype(np.uint, copy=False)
 
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(
