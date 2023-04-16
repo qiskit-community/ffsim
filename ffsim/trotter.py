@@ -131,8 +131,8 @@ def _simulate_trotter_step_double_factorized(
     order: int,
     occupations_a: np.ndarray,
     occupations_b: np.ndarray,
-    orbital_rotation_index_a: np.ndarray,
-    orbital_rotation_index_b: np.ndarray,
+    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
+    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
     final_state = initial_state
     for term_index, time in _simulate_trotter_step_iterator(
@@ -146,6 +146,8 @@ def _simulate_trotter_step_double_factorized(
                 norb=norb,
                 nelec=nelec,
                 orbital_rotation=one_body_basis_change,
+                occupations_a=occupations_a,
+                occupations_b=occupations_b,
                 orbital_rotation_index_a=orbital_rotation_index_a,
                 orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
@@ -158,6 +160,8 @@ def _simulate_trotter_step_double_factorized(
                 norb=norb,
                 nelec=nelec,
                 orbital_rotation=orbital_rotations[term_index - 1],
+                occupations_a=occupations_a,
+                occupations_b=occupations_b,
                 orbital_rotation_index_a=orbital_rotation_index_a,
                 orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
