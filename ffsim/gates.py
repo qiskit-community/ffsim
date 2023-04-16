@@ -388,6 +388,8 @@ def apply_diag_coulomb_evolution(
     orbital_rotation: np.ndarray | None = None,
     *,
     mat_alpha_beta: np.ndarray | None = None,
+    occupations_a: np.ndarray | None = None,
+    occupations_b: np.ndarray | None = None,
     copy: bool = True,
 ) -> np.ndarray:
     r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
@@ -414,6 +416,8 @@ def apply_diag_coulomb_evolution(
         orbital_rotation: A unitary matrix describing the optional orbital rotation.
         mat_alpha_beta: A matrix of coefficients to use for interactions between
             orbitals with differing spin.
+        occupations_a: List of occupied orbital lists for alpha strings.
+        occupations_b: List of occupied orbital lists for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
@@ -430,12 +434,12 @@ def apply_diag_coulomb_evolution(
     n_alpha, n_beta = nelec
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
-    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
-        np.uint, copy=False
-    )
-    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
-        np.uint, copy=False
-    )
+    if occupations_a is None:
+        occupations_a = cistring._gen_occslst(range(norb), n_alpha)
+    if occupations_b is None:
+        occupations_b = cistring._gen_occslst(range(norb), n_beta)
+    occupations_a = occupations_a.astype(np.uint, copy=False)
+    occupations_b = occupations_b.astype(np.uint, copy=False)
 
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(
