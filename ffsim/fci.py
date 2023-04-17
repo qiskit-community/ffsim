@@ -15,8 +15,8 @@ import itertools
 import numpy as np
 import scipy.sparse.linalg
 from pyscf.fci import cistring
-from pyscf.fci.direct_spin1 import make_hdiag
-from pyscf.fci.fci_slow import absorb_h1e, contract_1e, contract_2e
+from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, make_hdiag
+from pyscf.fci.fci_slow import contract_2e
 from scipy.special import comb
 
 from ffsim._ffsim import gen_orbital_rotation_index_in_place
@@ -67,13 +67,26 @@ def one_body_tensor_to_linop(
     dim = get_dimension(norb, nelec)
 
     def matvec(vec: np.ndarray):
-        return contract_1e(one_body_tensor, vec, norb, nelec)
+        result = contract_1e(one_body_tensor.real, vec.real, norb, nelec).astype(
+            complex
+        )
+        result += 1j * contract_1e(one_body_tensor.imag, vec.real, norb, nelec)
+        result += 1j * contract_1e(one_body_tensor.real, vec.imag, norb, nelec)
+        result -= contract_1e(one_body_tensor.imag, vec.imag, norb, nelec)
+        return result
 
     def rmatvec(vec: np.ndarray):
-        return contract_1e(one_body_tensor.T.conj(), vec, norb, nelec)
+        one_body_tensor_H = one_body_tensor.T.conj()
+        result = contract_1e(one_body_tensor_H.real, vec.real, norb, nelec).astype(
+            complex
+        )
+        result += 1j * contract_1e(one_body_tensor_H.imag, vec.real, norb, nelec)
+        result += 1j * contract_1e(one_body_tensor_H.real, vec.imag, norb, nelec)
+        result -= contract_1e(one_body_tensor_H.imag, vec.imag, norb, nelec)
+        return result
 
     return scipy.sparse.linalg.LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=rmatvec, dtype=one_body_tensor.dtype
+        shape=(dim, dim), matvec=matvec, rmatvec=rmatvec, dtype=complex
     )
 
 
