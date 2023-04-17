@@ -24,7 +24,6 @@ from ffsim._ffsim import (
     apply_diag_coulomb_evolution_in_place,
     apply_num_op_sum_evolution_in_place,
     apply_single_column_transformation_in_place,
-    gen_orbital_rotation_index_in_place,
 )
 from ffsim.fci import gen_orbital_rotation_index
 from ffsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
@@ -690,3 +689,43 @@ def apply_num_op_prod_interaction(
         copy=False,
     )
     return vec
+
+
+def apply_diag_coulomb_evolution_in_place_numpy(
+    mat_exp: np.ndarray,
+    vec: np.ndarray,
+    norb: int,
+    n_alpha: int,
+    n_beta: int,
+    *,
+    mat_alpha_beta_exp: np.ndarray,
+    **kwargs,
+) -> None:
+    """Apply time evolution by a diagonal Coulomb operator in-place."""
+    mat_alpha_beta_exp = mat_alpha_beta_exp.copy()
+    mat_alpha_beta_exp[np.diag_indices(norb)] **= 0.5
+    nelec = (n_alpha, n_beta)
+    for i, j in itertools.combinations_with_replacement(range(norb), 2):
+        for sigma in range(2):
+            orbitals: list[set[int]] = [set(), set()]
+            orbitals[sigma].add(i)
+            orbitals[sigma].add(j)
+            _apply_phase_shift(
+                mat_exp[i, j],
+                vec,
+                (tuple(orbitals[0]), tuple(orbitals[1])),
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
+            orbitals = [set() for _ in range(2)]
+            orbitals[sigma].add(i)
+            orbitals[1 - sigma].add(j)
+            _apply_phase_shift(
+                mat_alpha_beta_exp[i, j],
+                vec,
+                (tuple(orbitals[0]), tuple(orbitals[1])),
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )

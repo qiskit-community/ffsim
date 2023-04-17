@@ -191,20 +191,6 @@ fn apply_diag_coulomb_evolution_in_place(
     let mut beta_phases = Array::zeros(dim_b);
     let mut phase_map = Array::ones((dim_a, norb));
 
-    Zip::from(&mut alpha_phases)
-        .and(occupations_a.rows())
-        .par_for_each(|val, orbs| {
-            let mut phase = Complex64::new(1.0, 0.0);
-            for j in 0..n_alpha {
-                let orb_1 = orbs[j];
-                for k in j..n_alpha {
-                    let orb_2 = orbs[k];
-                    phase *= mat_exp[(orb_1, orb_2)];
-                }
-            }
-            *val = phase;
-        });
-
     Zip::from(&mut beta_phases)
         .and(occupations_b.rows())
         .par_for_each(|val, orbs| {
@@ -219,9 +205,21 @@ fn apply_diag_coulomb_evolution_in_place(
             *val = phase;
         });
 
-    Zip::from(phase_map.rows_mut())
+    Zip::from(&mut alpha_phases)
         .and(occupations_a.rows())
-        .par_for_each(|mut row, orbs| orbs.for_each(|&orb| row *= &mat_alpha_beta_exp.row(orb)));
+        .and(phase_map.rows_mut())
+        .par_for_each(|val, orbs, mut row| {
+            let mut phase = Complex64::new(1.0, 0.0);
+            for j in 0..n_alpha {
+                let orb_1 = orbs[j];
+                row *= &mat_alpha_beta_exp.row(orb_1);
+                for k in j..n_alpha {
+                    let orb_2 = orbs[k];
+                    phase *= mat_exp[(orb_1, orb_2)];
+                }
+            }
+            *val = phase;
+        });
 
     Zip::from(vec.rows_mut())
         .and(&alpha_phases)

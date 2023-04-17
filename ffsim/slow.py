@@ -16,8 +16,6 @@ import itertools
 
 import numpy as np
 
-from ffsim.gates import _apply_phase_shift
-
 
 def gen_orbital_rotation_index_in_place_slow(
     norb: int,
@@ -95,21 +93,19 @@ def apply_diag_coulomb_evolution_in_place_slow(
     beta_phases = np.empty((dim_b,), dtype=complex)
     phase_map = np.ones((dim_a, norb), dtype=complex)
 
-    for i, occ in enumerate(occupations_a):
+    for i, (row, orbs) in enumerate(zip(phase_map, occupations_a)):
         phase = 1
-        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
-            phase *= mat_exp[orb_1, orb_2]
+        for j in range(len(orbs)):
+            row *= mat_alpha_beta_exp[orbs[j]]
+            for k in range(j, len(orbs)):
+                phase *= mat_exp[orbs[j], orbs[k]]
         alpha_phases[i] = phase
 
-    for i, occ in enumerate(occupations_b):
+    for i, orbs in enumerate(occupations_b):
         phase = 1
-        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
+        for orb_1, orb_2 in itertools.combinations_with_replacement(orbs, 2):
             phase *= mat_exp[orb_1, orb_2]
         beta_phases[i] = phase
-
-    for row, orbs in zip(phase_map, occupations_a):
-        for orb in orbs:
-            row *= mat_alpha_beta_exp[orb]
 
     for row, alpha_phase, phase_map in zip(vec, alpha_phases, phase_map):
         for j, occ_b in enumerate(occupations_b):
@@ -117,43 +113,3 @@ def apply_diag_coulomb_evolution_in_place_slow(
             for orb_b in occ_b:
                 phase *= phase_map[orb_b]
             row[j] *= phase
-
-
-def apply_diag_coulomb_evolution_in_place_numpy(
-    mat_exp: np.ndarray,
-    vec: np.ndarray,
-    norb: int,
-    n_alpha: int,
-    n_beta: int,
-    *,
-    mat_alpha_beta_exp: np.ndarray,
-    **kwargs,
-) -> None:
-    """Apply time evolution by a diagonal Coulomb operator in-place."""
-    mat_alpha_beta_exp = mat_alpha_beta_exp.copy()
-    mat_alpha_beta_exp[np.diag_indices(norb)] **= 0.5
-    nelec = (n_alpha, n_beta)
-    for i, j in itertools.combinations_with_replacement(range(norb), 2):
-        for sigma in range(2):
-            orbitals: list[set[int]] = [set(), set()]
-            orbitals[sigma].add(i)
-            orbitals[sigma].add(j)
-            _apply_phase_shift(
-                mat_exp[i, j],
-                vec,
-                (tuple(orbitals[0]), tuple(orbitals[1])),
-                norb=norb,
-                nelec=nelec,
-                copy=False,
-            )
-            orbitals = [set() for _ in range(2)]
-            orbitals[sigma].add(i)
-            orbitals[1 - sigma].add(j)
-            _apply_phase_shift(
-                mat_alpha_beta_exp[i, j],
-                vec,
-                (tuple(orbitals[0]), tuple(orbitals[1])),
-                norb=norb,
-                nelec=nelec,
-                copy=False,
-            )
