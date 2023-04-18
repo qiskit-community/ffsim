@@ -285,7 +285,24 @@ def diag_coulomb_to_linop(
 def gen_orbital_rotation_index(
     norb: int, nocc: int, linkstr_index: np.ndarray | None = None
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generate string index for performing orbital rotation."""
+    """Generate string index used for performing orbital rotations.
+
+    Returns a tuple (diag_strings, off_diag_strings, off_diag_index)
+    of three Numpy arrays.
+
+    diag_strings is a norb x binom(norb - 1, nocc - 1) array.
+    The i-th row of this array contains all the strings with orbital i occupied.
+
+    off_diag_strings is a norb x binom(norb - 1, nocc) array.
+    The i-th row of this array contains all the strings with orbital i unoccupied.
+
+    off_diag_index is a norb x binom(norb - 1, nocc) x nocc x 3 array.
+    The first two axes of this array are in one-to-one correspondence with
+    off_diag_strings. For a fixed choice (i, str0) for the first two axes,
+    the last two axes form a nocc x 3 array. Each row of this array is a tuple
+    (j, str1, sign) where str1 is formed by annihilating orbital j in str0 and creating
+    orbital i, with sign giving the fermionic parity of this operation.
+    """
     if linkstr_index is None:
         linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
     dim_diag = comb(norb - 1, nocc - 1, exact=True)
