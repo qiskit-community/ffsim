@@ -44,10 +44,10 @@ def gen_orbital_rotation_index_in_place_slow(
     for str0, tab in enumerate(linkstr_index):
         for orb_c, orb_d, str1, sign in tab[nocc:]:
             # str0 -> annihilate orb_d -> create orb_c -> str1
-            index = off_diag_strings_index[orb_d, str1]
-            count = index_counter[orb_d, index]
-            off_diag_index[orb_d, index, count] = orb_c, str0, sign
-            index_counter[orb_d, index] += 1
+            index = off_diag_strings_index[orb_c, str0]
+            count = index_counter[orb_c, index]
+            off_diag_index[orb_c, index, count] = orb_d, str1, sign
+            index_counter[orb_c, index] += 1
 
 
 def apply_single_column_transformation_in_place_slow(

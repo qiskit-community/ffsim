@@ -73,16 +73,16 @@ fn gen_orbital_rotation_index_in_place(
         .enumerate()
         .for_each(|(str0, tab)| {
             for row in tab.slice(s![nocc.., ..]).rows() {
-                let orb_c = row[0];
-                let orb_d = row[1] as usize;
+                let orb_c = row[0] as usize;
+                let orb_d = row[1];
                 let str1 = row[2] as usize;
                 let sign = row[3];
-                let index = off_diag_strings_index[(orb_d, str1)];
-                let count = index_counter[(orb_d, index)];
-                off_diag_index[(orb_d, index, count, 0)] = orb_c;
-                off_diag_index[(orb_d, index, count, 1)] = str0 as i32;
-                off_diag_index[(orb_d, index, count, 2)] = sign;
-                index_counter[(orb_d, index)] += 1;
+                let index = off_diag_strings_index[(orb_c, str0)];
+                let count = index_counter[(orb_c, index)];
+                off_diag_index[(orb_c, index, count, 0)] = orb_d;
+                off_diag_index[(orb_c, index, count, 1)] = str1 as i32;
+                off_diag_index[(orb_c, index, count, 2)] = sign;
+                index_counter[(orb_c, index)] += 1;
             }
         });
 }
