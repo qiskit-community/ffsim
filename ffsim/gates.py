@@ -21,12 +21,13 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 from ffsim._ffsim import (
+    apply_givens_rotation_in_place,
     apply_diag_coulomb_evolution_in_place,
     apply_num_op_sum_evolution_in_place,
     apply_single_column_transformation_in_place,
 )
 from ffsim.fci import gen_orbital_rotation_index
-from ffsim.linalg import apply_matrix_to_slices, givens_decomposition, lup
+from ffsim.linalg import givens_decomposition, lup
 
 
 def apply_orbital_rotation(
@@ -184,25 +185,17 @@ def _apply_orbital_rotation_givens(
     dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
     # transform alpha
-    buf1 = np.empty_like(vec)
-    buf2 = np.empty_like(vec)
-    buf1[...] = vec[...]
     for givens_mat, target_orbs in givens_rotations:
-        vec = _apply_orbital_rotation_adjacent_spin(
-            givens_mat.conj(), buf1, target_orbs, norb, n_alpha, out=buf2
+        _apply_orbital_rotation_adjacent_spin_in_place(
+            givens_mat.conj(), vec, target_orbs, norb, n_alpha
         )
-        buf1, buf2 = buf2, buf1
     # transform beta
     # transpose vector to align memory layout
     vec = vec.T.copy()
-    buf1 = np.empty_like(vec)
-    buf2 = np.empty_like(vec)
-    buf1[...] = vec[...]
     for givens_mat, target_orbs in givens_rotations:
-        vec = _apply_orbital_rotation_adjacent_spin(
-            givens_mat.conj(), buf1, target_orbs, norb, n_beta, out=buf2
+        _apply_orbital_rotation_adjacent_spin_in_place(
+            givens_mat.conj(), vec, target_orbs, norb, n_beta
         )
-        buf1, buf2 = buf2, buf1
     vec = vec.T.copy().reshape(-1)
 
     for i, phase_shift in enumerate(phase_shifts):
@@ -212,14 +205,12 @@ def _apply_orbital_rotation_givens(
     return vec
 
 
-def _apply_orbital_rotation_adjacent_spin(
+def _apply_orbital_rotation_adjacent_spin_in_place(
     mat: np.ndarray,
     vec: np.ndarray,
     target_orbs: tuple[int, int],
     norb: int,
     nocc: int,
-    *,
-    out: np.ndarray | None = None,
 ) -> np.ndarray:
     """Apply an orbital rotation to adjacent orbitals.
 
@@ -230,17 +221,13 @@ def _apply_orbital_rotation_adjacent_spin(
         norb: Number of spatial orbitals.
         nelec: Number of alpha and beta electrons.
     """
-    if out is vec:
-        raise ValueError("Output buffer cannot be the same as the input")
-    if out is None:
-        out = np.empty_like(vec)
     i, j = target_orbs
     assert i == j + 1 or i == j - 1, "Target orbitals must be adjacent."
     indices = _zero_one_subspace_indices(norb, nocc, target_orbs)
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
-    apply_matrix_to_slices(mat, vec, [slice1, slice2], out=out)
-    return out
+    c, s = mat[0]
+    apply_givens_rotation_in_place(vec, c.real, abs(s), s / abs(s), slice1, slice2)
 
 
 @lru_cache(maxsize=None)
@@ -253,7 +240,7 @@ def _zero_one_subspace_indices(
     indices = np.argsort(strings)
     n00 = comb(norb - 2, nocc, exact=True)
     n11 = comb(norb - 2, nocc - 2, exact=True)
-    return indices[n00 : len(indices) - n11]
+    return indices[n00 : len(indices) - n11].astype(np.uint, copy=False)
 
 
 def _apply_phase_shift(

@@ -11,6 +11,7 @@
 extern crate blas_src;
 
 use blas::zaxpy;
+use blas::zdrot;
 use blas::zscal;
 use ndarray::s;
 use ndarray::Array;
@@ -23,6 +24,44 @@ use numpy::PyReadonlyArray3;
 use numpy::PyReadwriteArray2;
 use numpy::PyReadwriteArray4;
 use pyo3::prelude::*;
+
+/// Apply a matrix to slices of a matrix.
+#[pyfunction]
+fn apply_givens_rotation_in_place(
+    mut vec: PyReadwriteArray2<Complex64>,
+    c: f64,
+    s: f64,
+    phase: Complex64,
+    slice1: PyReadonlyArray1<usize>,
+    slice2: PyReadonlyArray1<usize>,
+) {
+    let mut vec = vec.as_array_mut();
+    let slice1 = slice1.as_array();
+    let slice2 = slice2.as_array();
+    let shape = vec.shape();
+    let dim_b = shape[1] as i32;
+    let phase_conj = phase.conj();
+
+    // TODO parallelize this
+    Zip::from(&slice1).and(&slice2).for_each(|&i, &j| {
+        let (mut row_i, mut row_j) = vec.multi_slice_mut((s![i, ..], s![j, ..]));
+        match row_i.as_slice_mut() {
+            Some(row_i) => match row_j.as_slice_mut() {
+                Some(row_j) => unsafe {
+                    zscal(dim_b, phase_conj, row_i, 1);
+                    zdrot(dim_b, row_i, 1, row_j, 1, c, s);
+                    zscal(dim_b, phase, row_i, 1);
+                },
+                None => panic!(
+                    "Failed to convert ArrayBase to slice, possibly because the data was not contiguous and in standard order."
+                ),
+            },
+            None => panic!(
+                "Failed to convert ArrayBase to slice, possibly because the data was not contiguous and in standard order."
+            ),
+        };
+    });
+}
 
 /// Generate orbital rotation index.
 #[pyfunction]
@@ -239,6 +278,7 @@ fn apply_diag_coulomb_evolution_in_place(
 /// Python module exposing Rust extensions.
 #[pymodule]
 fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(apply_givens_rotation_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(gen_orbital_rotation_index_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(
         apply_single_column_transformation_in_place,
