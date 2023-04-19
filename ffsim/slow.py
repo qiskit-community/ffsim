@@ -17,6 +17,24 @@ import itertools
 import numpy as np
 
 
+def apply_givens_rotation_in_place_slow(
+    vec: np.ndarray,
+    c: float,
+    s: float,
+    phase: complex,
+    slice1: np.ndarray,
+    slice2: np.ndarray,
+) -> None:
+    """Apply a Givens rotation to slices of a state vector."""
+    phase_conj = phase.conjugate()
+    for i, j in zip(slice1, slice2):
+        vec[i] *= phase_conj
+        tmp = c * vec[i] + s * vec[j]
+        vec[j] = c * vec[j] - s * vec[i]
+        vec[i] = tmp
+        vec[i] *= phase
+
+
 def gen_orbital_rotation_index_in_place_slow(
     norb: int,
     nocc: int,
