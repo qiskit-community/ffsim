@@ -55,9 +55,9 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
         vec = random_statevector(dim, seed=rng, dtype=dtype)
         original_vec = vec.copy()
 
-        result = apply_orbital_rotation(mat, vec, norb, nelec)
+        result = apply_orbital_rotation(vec, mat, norb, nelec)
         op = one_body_tensor_to_linop(scipy.linalg.logm(mat), norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(op, original_vec)
+        expected = expm_multiply_taylor(original_vec, op)
         np.testing.assert_allclose(result, expected, atol=atol)
 
 
@@ -75,7 +75,7 @@ def test_apply_orbital_rotation_no_side_effects():
         vec = random_statevector(dim, seed=rng)
         original_vec = vec.copy()
 
-        _ = apply_orbital_rotation(mat, vec, norb, nelec)
+        _ = apply_orbital_rotation(vec, mat, norb, nelec)
         np.testing.assert_allclose(vec, original_vec, atol=1e-12)
 
 
@@ -100,22 +100,22 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         original_vec = vec.copy()
 
         result, perm = apply_orbital_rotation(
-            mat, vec, norb, nelec, allow_col_permutation=True, copy=True
+            vec, mat, norb, nelec, allow_col_permutation=True, copy=True
         )
         np.testing.assert_allclose(np.linalg.norm(result), 1, atol=atol)
         op = one_body_tensor_to_linop(
             scipy.linalg.logm(mat @ perm), norb=norb, nelec=nelec
         )
-        expected = expm_multiply_taylor(op, original_vec)
+        expected = expm_multiply_taylor(original_vec, op)
         np.testing.assert_allclose(result, expected, atol=atol)
 
         result, perm = apply_orbital_rotation(
-            mat, vec, norb, nelec, allow_row_permutation=True, copy=False
+            vec, mat, norb, nelec, allow_row_permutation=True, copy=False
         )
         op = one_body_tensor_to_linop(
             scipy.linalg.logm(perm @ mat), norb=norb, nelec=nelec
         )
-        expected = expm_multiply_taylor(op, original_vec)
+        expected = expm_multiply_taylor(original_vec, op)
         np.testing.assert_allclose(result, expected, atol=atol)
 
 
@@ -136,7 +136,7 @@ def test_apply_orbital_rotation_eigenstates():
     nelec = tuple(len(orbs) for orbs in occupied_orbitals)
     state = slater_determinant(norb, occupied_orbitals)
     original_state = state.copy()
-    final_state = apply_orbital_rotation(vecs, state, norb, nelec)
+    final_state = apply_orbital_rotation(state, vecs, norb, nelec)
     np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
     result = contract_1e(one_body_tensor, final_state, norb, nelec)
     expected = eig * final_state
@@ -163,7 +163,7 @@ def test_apply_orbital_rotation_eigenstates_permutation():
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
         final_state, perm = apply_orbital_rotation(
-            vecs, state, norb, nelec, allow_col_permutation=True
+            state, vecs, norb, nelec, allow_col_permutation=True
         )
         eigs = eigs @ perm
         eig = sum(np.sum(eigs[orbs]) for orbs in occupied_orbitals)
@@ -188,11 +188,11 @@ def test_apply_orbital_rotation_compose():
     dim = get_dimension(norb, nelec)
     state = np.array(random_statevector(dim, seed=rng))
 
-    result = apply_orbital_rotation(basis_change_1, state, norb, nelec)
+    result = apply_orbital_rotation(state, basis_change_1, norb, nelec)
     result = apply_orbital_rotation(
-        basis_change_2 @ basis_change_1.T.conj(), result, norb, nelec
+        result, basis_change_2 @ basis_change_1.T.conj(), norb, nelec
     )
-    expected_state = apply_orbital_rotation(basis_change_2, state, norb, nelec)
+    expected_state = apply_orbital_rotation(state, basis_change_2, norb, nelec)
 
     np.testing.assert_allclose(result, expected_state, atol=1e-8)
 
@@ -214,7 +214,7 @@ def test_apply_diag_coulomb_evolution():
 
         mat = np.real(np.array(random_hermitian(norb, seed=rng)))
         time = 0.6
-        result = apply_diag_coulomb_evolution(mat, state, time, norb, nelec)
+        result = apply_diag_coulomb_evolution(state, mat, time, norb, nelec)
 
         eig = 0
         for i, j in itertools.product(range(norb), repeat=2):
@@ -246,7 +246,7 @@ def test_apply_diag_coulomb_evolution_alpha_beta():
         mat_alpha_beta = np.real(np.array(random_hermitian(norb, seed=rng)))
         time = 0.6
         result = apply_diag_coulomb_evolution(
-            mat, state, time, norb, nelec, mat_alpha_beta=mat_alpha_beta
+            state, mat, time, norb, nelec, mat_alpha_beta=mat_alpha_beta
         )
 
         eig = 0
@@ -277,7 +277,7 @@ def test_apply_num_op_sum_evolution():
 
     coeffs = rng.standard_normal(norb)
     time = 0.6
-    result = apply_num_op_sum_evolution(coeffs, state, time, norb, nelec)
+    result = apply_num_op_sum_evolution(state, coeffs, time, norb, nelec)
 
     eig = 0
     for i in range(norb):
@@ -306,10 +306,10 @@ def test_apply_quadratic_hamiltonian_evolution():
 
         time = 0.6
         result = apply_num_op_sum_evolution(
-            eigs, vec, time, norb, nelec, orbital_rotation=vecs
+            vec, eigs, time, norb, nelec, orbital_rotation=vecs
         )
         op = one_body_tensor_to_linop(mat, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(-1j * time * op, vec)
+        expected = expm_multiply_taylor(vec, -1j * time * op)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
@@ -328,18 +328,12 @@ def test_apply_givens_rotation():
     for i, j in itertools.product(range(norb), repeat=2):
         if i == j:
             continue
-        result = apply_givens_rotation(
-            theta,
-            vec,
-            (i, j),
-            norb=norb,
-            nelec=nelec,
-        )
+        result = apply_givens_rotation(vec, theta, (i, j), norb=norb, nelec=nelec)
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = -theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(linop, vec)
+        expected = expm_multiply_taylor(vec, linop)
         np.testing.assert_allclose(result, expected, atol=1e-8)
     np.testing.assert_allclose(vec, original_vec)
 
@@ -358,18 +352,12 @@ def test_apply_tunneling_interaction():
     for i, j in itertools.product(range(norb), repeat=2):
         if i == j:
             continue
-        result = apply_tunneling_interaction(
-            theta,
-            vec,
-            (i, j),
-            norb=norb,
-            nelec=nelec,
-        )
+        result = apply_tunneling_interaction(vec, theta, (i, j), norb=norb, nelec=nelec)
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(1j * linop, vec)
+        expected = expm_multiply_taylor(vec, 1j * linop)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
@@ -385,14 +373,11 @@ def test_apply_num_interaction():
     vec = np.array(random_statevector(dim, seed=rng))
     theta = rng.standard_normal()
     for target_orb in range(norb):
-        result = apply_num_interaction(theta, vec, target_orb, norb=norb, nelec=nelec)
+        result = apply_num_interaction(vec, theta, target_orb, norb=norb, nelec=nelec)
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(
-            1j * linop,
-            vec,
-        )
+        expected = expm_multiply_taylor(vec, 1j * linop)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
@@ -415,11 +400,7 @@ def test_apply_num_num_interaction():
         for spin_i, spin_j in itertools.product(range(2), repeat=2):
             target_orbs = ((i, spin_i), (j, spin_j))
             result = apply_num_op_prod_interaction(
-                theta,
-                vec,
-                target_orbs,
-                norb=norb,
-                nelec=nelec,
+                vec, theta, target_orbs, norb=norb, nelec=nelec
             )
             if i in occupied_orbitals[spin_i] and j in occupied_orbitals[spin_j]:
                 eig = theta

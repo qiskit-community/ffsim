@@ -31,7 +31,7 @@ _bool = Union[bool, np.bool_]
 
 # TODO use scipy.sparse.linalg.expm_multiply instead after dropping Python 3.7 support
 def expm_multiply_taylor(
-    mat: scipy.sparse.linalg.LinearOperator, vec: np.ndarray, tol: float = 1e-12
+    vec: np.ndarray, mat: scipy.sparse.linalg.LinearOperator, tol: float = 1e-12
 ) -> np.ndarray:
     """Compute expm(mat) @ vec using a Taylor series expansion."""
     result = vec.copy()
@@ -118,8 +118,8 @@ def givens_decomposition(
                         (givens_mat, (target_index + 1, target_index))
                     )
                     current_matrix = apply_matrix_to_slices(
-                        givens_mat,
                         current_matrix,
+                        givens_mat,
                         [(Ellipsis, target_index + 1), (Ellipsis, target_index)],
                     )
         else:
@@ -137,7 +137,7 @@ def givens_decomposition(
                         (givens_mat, (target_index - 1, target_index))
                     )
                     current_matrix = apply_matrix_to_slices(
-                        givens_mat, current_matrix, [target_index - 1, target_index]
+                        current_matrix, givens_mat, [target_index - 1, target_index]
                     )
 
     # convert left rotations to right rotations
@@ -156,8 +156,8 @@ def givens_decomposition(
 
 
 def apply_matrix_to_slices(
-    mat: np.ndarray,
     target: np.ndarray,
+    mat: np.ndarray,
     slices: Sequence[_Slice],
     *,
     out: np.ndarray | None = None,
@@ -165,8 +165,8 @@ def apply_matrix_to_slices(
     """Apply a matrix to slices of a target tensor.
 
     Args:
-        mat: The matrix to apply to slices of the target tensor.
         target: The tensor containing the slices on which to apply the matrix.
+        mat: The matrix to apply to slices of the target tensor.
         slices: The slices of the target tensor on which to apply the matrix.
 
     Returns:

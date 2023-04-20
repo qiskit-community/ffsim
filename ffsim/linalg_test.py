@@ -35,7 +35,7 @@ def test_givens_decomposition():
         reconstructed[i] *= phase_shift
     for givens_mat, (i, j) in givens_rotations[::-1]:
         reconstructed = apply_matrix_to_slices(
-            givens_mat.conj(), reconstructed, ((Ellipsis, j), (Ellipsis, i))
+            reconstructed, givens_mat.conj(), ((Ellipsis, j), (Ellipsis, i))
         )
     np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
 

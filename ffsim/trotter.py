@@ -55,9 +55,9 @@ def _simulate_trotter_step_iterator_symmetric(
 
 
 def simulate_trotter_suzuki_double_factorized(
+    vec: np.ndarray,
     hamiltonian: DoubleFactorizedHamiltonian,
     time: float,
-    initial_state: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
     n_steps: int = 1,
@@ -68,12 +68,9 @@ def simulate_trotter_suzuki_double_factorized(
     """Double-factorized Hamiltonian simulation using Trotter-Suzuki formula.
 
     Args:
-        one_body_tensor: The one-body tensor of the double-factorized Hamiltonian.
-        diag_coulomb_mats: The diagonal Coulomb matrices of the double-factorized
-            Hamiltonian.
-        orbital_rotations: The orbital rotations of the double-factorized Hamiltonian.
+        vec: The state vector to evolve.
+        hamiltonian: The Hamiltonian.
         time: The evolution time.
-        initial_state: The initial state.
         nelec: The number of alpha and beta electrons.
         n_steps: The number of Trotter steps.
         order: The order of the Trotter decomposition.
@@ -97,9 +94,9 @@ def simulate_trotter_suzuki_double_factorized(
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
     orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
     if copy:
-        final_state = initial_state.copy()
+        final_state = vec.copy()
     else:
-        final_state = initial_state
+        final_state = vec
     for _ in range(n_steps):
         final_state = _simulate_trotter_step_double_factorized(
             one_body_energies,
@@ -140,8 +137,8 @@ def _simulate_trotter_step_double_factorized(
     ):
         if term_index == 0:
             final_state = apply_num_op_sum_evolution(
-                one_body_energies,
                 final_state,
+                one_body_energies,
                 time,
                 norb=norb,
                 nelec=nelec,
@@ -154,8 +151,8 @@ def _simulate_trotter_step_double_factorized(
             )
         else:
             final_state = apply_diag_coulomb_evolution(
-                diag_coulomb_mats[term_index - 1],
                 final_state,
+                diag_coulomb_mats[term_index - 1],
                 time,
                 norb=norb,
                 nelec=nelec,

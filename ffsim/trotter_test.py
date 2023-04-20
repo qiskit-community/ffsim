@@ -62,16 +62,16 @@ def test_simulate_trotter_suzuki_double_factorized_random(
     original_state = initial_state.copy()
 
     # compute exact state
-    exact_state = expm_multiply_taylor(-1j * time * hamiltonian, initial_state)
+    exact_state = expm_multiply_taylor(initial_state, -1j * time * hamiltonian)
 
     # make sure time is not too small
     assert abs(np.vdot(exact_state, initial_state)) < 0.98
 
     # simulate
     final_state = simulate_trotter_suzuki_double_factorized(
+        initial_state,
         df_hamiltonian,
         time,
-        initial_state,
         norb=norb,
         nelec=nelec,
         n_steps=n_steps,

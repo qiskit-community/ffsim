@@ -32,8 +32,8 @@ from ffsim.linalg import givens_decomposition, lup
 
 
 def apply_orbital_rotation(
-    mat: np.ndarray,
     vec: np.ndarray,
+    mat: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
     *,
@@ -57,8 +57,8 @@ def apply_orbital_rotation(
         \exp(\sum_{ij} log(U)_{ij} a^\dagger{i} a_j)
 
     Args:
-        mat: The unitary matrix :math:`U` describing the orbital rotation.
         vec: The state vector to be transformed.
+        mat: The unitary matrix :math:`U` describing the orbital rotation.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         allow_row_permutation: Whether to allow a permutation of the rows
@@ -97,8 +97,8 @@ def apply_orbital_rotation(
         if orbital_rotation_index_b is None:
             orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
         return _apply_orbital_rotation_lu(
-            mat,
             vec,
+            mat,
             norb,
             nelec,
             permute_rows=allow_row_permutation,
@@ -106,12 +106,12 @@ def apply_orbital_rotation(
             orbital_rotation_index_b=orbital_rotation_index_b,
             copy=copy,
         )
-    return _apply_orbital_rotation_givens(mat, vec, norb, nelec, copy=copy)
+    return _apply_orbital_rotation_givens(vec, mat, norb, nelec, copy=copy)
 
 
 def _apply_orbital_rotation_lu(
-    mat: np.ndarray,
     vec: np.ndarray,
+    mat: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
     permute_rows: bool,
@@ -133,8 +133,8 @@ def _apply_orbital_rotation_lu(
     vec = vec.reshape((dim_a, dim_b))
     # transform alpha
     _apply_orbital_rotation_spin_in_place(
-        transformation_mat,
         vec,
+        transformation_mat,
         norb=norb,
         nocc=n_alpha,
         orbital_rotation_index=orbital_rotation_index_a,
@@ -143,8 +143,8 @@ def _apply_orbital_rotation_lu(
     # transpose vector to align memory layout
     vec = vec.T.copy()
     _apply_orbital_rotation_spin_in_place(
-        transformation_mat,
         vec,
+        transformation_mat,
         norb=norb,
         nocc=n_beta,
         orbital_rotation_index=orbital_rotation_index_b,
@@ -153,8 +153,8 @@ def _apply_orbital_rotation_lu(
 
 
 def _apply_orbital_rotation_spin_in_place(
-    transformation_mat: np.ndarray,
     vec: np.ndarray,
+    transformation_mat: np.ndarray,
     norb: int,
     nocc: int,
     orbital_rotation_index=tuple[np.ndarray, np.ndarray, np.ndarray],
@@ -175,7 +175,7 @@ def _apply_orbital_rotation_spin_in_place(
 
 
 def _apply_orbital_rotation_givens(
-    mat: np.ndarray, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+    vec: np.ndarray, mat: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
 ) -> np.ndarray:
     if copy:
         vec = vec.copy()
@@ -188,7 +188,7 @@ def _apply_orbital_rotation_givens(
     # transform alpha
     for givens_mat, target_orbs in givens_rotations:
         _apply_orbital_rotation_adjacent_spin_in_place(
-            givens_mat.conj(), vec, target_orbs, norb, n_alpha
+            vec, givens_mat.conj(), target_orbs, norb, n_alpha
         )
     for i, phase_shift in enumerate(phase_shifts):
         indices = _one_subspace_indices(norb, n_alpha, (i,))
@@ -199,7 +199,7 @@ def _apply_orbital_rotation_givens(
     vec = vec.T.copy()
     for givens_mat, target_orbs in givens_rotations:
         _apply_orbital_rotation_adjacent_spin_in_place(
-            givens_mat.conj(), vec, target_orbs, norb, n_beta
+            vec, givens_mat.conj(), target_orbs, norb, n_beta
         )
     for i, phase_shift in enumerate(phase_shifts):
         indices = _one_subspace_indices(norb, n_beta, (i,))
@@ -209,17 +209,13 @@ def _apply_orbital_rotation_givens(
 
 
 def _apply_orbital_rotation_adjacent_spin_in_place(
-    mat: np.ndarray,
-    vec: np.ndarray,
-    target_orbs: tuple[int, int],
-    norb: int,
-    nocc: int,
+    vec: np.ndarray, mat: np.ndarray, target_orbs: tuple[int, int], norb: int, nocc: int
 ) -> np.ndarray:
     """Apply an orbital rotation to adjacent orbitals.
 
     Args:
-        mat: A 2x2 unitary matrix describing the orbital rotation.
         vec: Vector to be transformed.
+        mat: A 2x2 unitary matrix describing the orbital rotation.
         target_orbs: The orbitals to transform.
         norb: Number of spatial orbitals.
         nelec: Number of alpha and beta electrons.
@@ -247,8 +243,8 @@ def _zero_one_subspace_indices(
 
 
 def _apply_phase_shift(
-    phase: complex,
     vec: np.ndarray,
+    phase: complex,
     target_orbs: tuple[tuple[int, ...], tuple[int, ...]],
     norb: int,
     nelec: tuple[int, int],
@@ -297,8 +293,8 @@ def _shifted_orbitals(norb: int, target_orbs: tuple[int, ...]) -> np.ndarray:
 
 
 def apply_num_op_sum_evolution(
-    coeffs: np.ndarray,
     vec: np.ndarray,
+    coeffs: np.ndarray,
     time: float,
     norb: int,
     nelec: tuple[int, int],
@@ -324,8 +320,8 @@ def apply_num_op_sum_evolution(
     :math:`\mathcal{U}` is an optional orbital rotation.
 
     Args:
-        coeffs: The coefficients of the linear combination.
         vec: The state vector to be transformed.
+        coeffs: The coefficients of the linear combination.
         time: The evolution time.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
@@ -357,8 +353,8 @@ def apply_num_op_sum_evolution(
 
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(
-            orbital_rotation.T.conj(),
             vec,
+            orbital_rotation.T.conj(),
             norb,
             nelec,
             allow_row_permutation=True,
@@ -379,8 +375,8 @@ def apply_num_op_sum_evolution(
 
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
-            orbital_rotation,
             vec,
+            orbital_rotation,
             norb,
             nelec,
             allow_col_permutation=True,
@@ -394,8 +390,8 @@ def apply_num_op_sum_evolution(
 
 
 def apply_diag_coulomb_evolution(
-    mat: np.ndarray,
     vec: np.ndarray,
+    mat: np.ndarray,
     time: float,
     norb: int,
     nelec: tuple[int, int],
@@ -424,8 +420,8 @@ def apply_diag_coulomb_evolution(
     for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
 
     Args:
-        mat: The real symmetric matrix :math:`Z`.
         vec: The state vector to be transformed.
+        mat: The real symmetric matrix :math:`Z`.
         time: The evolution time.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
@@ -461,8 +457,8 @@ def apply_diag_coulomb_evolution(
 
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(
-            orbital_rotation.T.conj(),
             vec,
+            orbital_rotation.T.conj(),
             norb,
             nelec,
             allow_row_permutation=True,
@@ -490,8 +486,8 @@ def apply_diag_coulomb_evolution(
 
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
-            orbital_rotation,
             vec,
+            orbital_rotation,
             norb,
             nelec,
             allow_col_permutation=True,
@@ -505,8 +501,8 @@ def apply_diag_coulomb_evolution(
 
 
 def apply_givens_rotation(
-    theta: float,
     vec: np.ndarray,
+    theta: float,
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
@@ -521,8 +517,8 @@ def apply_givens_rotation(
         G(\theta) = \exp(\theta (a^\dagger_i a_j - a\dagger_j a_i))
 
     Args:
-        theta: The rotation angle.
         vec: The state vector to be transformed.
+        theta: The rotation angle.
         target_orbs: The orbitals (i, j) to rotate.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
@@ -540,12 +536,12 @@ def apply_givens_rotation(
     s = np.sin(theta)
     mat = np.eye(norb)
     mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
-    return apply_orbital_rotation(mat, vec, norb=norb, nelec=nelec, copy=copy)
+    return apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=copy)
 
 
 def apply_tunneling_interaction(
-    theta: float,
     vec: np.ndarray,
+    theta: float,
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
@@ -560,8 +556,8 @@ def apply_tunneling_interaction(
         T(\theta) = \exp(i \theta (a^\dagger_i a_j + a\dagger_j a_i))
 
     Args:
-        theta: The rotation angle.
         vec: The state vector to be transformed.
+        theta: The rotation angle.
         target_orbs: The orbitals (i, j) on which to apply the interaction.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
@@ -576,25 +572,20 @@ def apply_tunneling_interaction(
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
     vec = apply_num_interaction(
-        -np.pi / 2, vec, target_orbs[0], norb=norb, nelec=nelec, copy=copy
+        vec, -np.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=copy
     )
     vec = apply_givens_rotation(
-        theta, vec, target_orbs, norb=norb, nelec=nelec, copy=False
+        vec, theta, target_orbs, norb=norb, nelec=nelec, copy=False
     )
     vec = apply_num_interaction(
-        np.pi / 2,
-        vec,
-        target_orbs[0],
-        norb=norb,
-        nelec=nelec,
-        copy=False,
+        vec, np.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=False
     )
     return vec
 
 
 def apply_num_interaction(
-    theta: float,
     vec: np.ndarray,
+    theta: float,
     target_orb: int,
     norb: int,
     nelec: tuple[int, int],
@@ -609,8 +600,8 @@ def apply_num_interaction(
         N(\theta) = \exp(i \theta a^\dagger_i a_i)
 
     Args:
-        theta: The rotation angle.
         vec: The state vector to be transformed.
+        theta: The rotation angle.
         target_orb: The orbital on which to apply the interaction.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
@@ -626,19 +617,14 @@ def apply_num_interaction(
         vec = vec.copy()
     for sigma in range(2):
         vec = apply_num_op_prod_interaction(
-            theta,
-            vec,
-            ((target_orb, sigma),),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, ((target_orb, sigma),), norb=norb, nelec=nelec, copy=False
         )
     return vec
 
 
 def apply_num_op_prod_interaction(
-    theta: float,
     vec: np.ndarray,
+    theta: float,
     target_orbs: tuple[tuple[int, int], ...],
     norb: int,
     nelec: tuple[int, int],
@@ -653,8 +639,8 @@ def apply_num_op_prod_interaction(
         NP(\theta) = \exp(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma})
 
     Args:
-        theta: The rotation angle.
         vec: The state vector to be transformed.
+        theta: The rotation angle.
         target_orbs: The orbitals on which to apply the interaction. This should
             be a tuple of (orbital, spin) pairs.
         norb: The number of spatial orbitals.
@@ -673,8 +659,8 @@ def apply_num_op_prod_interaction(
     for i, spin_i in target_orbs:
         orbitals[spin_i].add(i)
     vec = _apply_phase_shift(
-        np.exp(1j * theta),
         vec,
+        np.exp(1j * theta),
         (tuple(orbitals[0]), tuple(orbitals[1])),
         norb=norb,
         nelec=nelec,
@@ -684,8 +670,8 @@ def apply_num_op_prod_interaction(
 
 
 def apply_diag_coulomb_evolution_in_place_numpy(
-    mat_exp: np.ndarray,
     vec: np.ndarray,
+    mat_exp: np.ndarray,
     norb: int,
     n_alpha: int,
     n_beta: int,
@@ -703,8 +689,8 @@ def apply_diag_coulomb_evolution_in_place_numpy(
             orbitals[sigma].add(i)
             orbitals[sigma].add(j)
             _apply_phase_shift(
-                mat_exp[i, j],
                 vec,
+                mat_exp[i, j],
                 (tuple(orbitals[0]), tuple(orbitals[1])),
                 norb=norb,
                 nelec=nelec,
@@ -714,8 +700,8 @@ def apply_diag_coulomb_evolution_in_place_numpy(
             orbitals[sigma].add(i)
             orbitals[1 - sigma].add(j)
             _apply_phase_shift(
-                mat_alpha_beta_exp[i, j],
                 vec,
+                mat_alpha_beta_exp[i, j],
                 (tuple(orbitals[0]), tuple(orbitals[1])),
                 norb=norb,
                 nelec=nelec,

@@ -41,7 +41,7 @@ def test_contract_diag_coulomb():
     state = slater_determinant(norb, occupied_orbitals)
 
     mat = np.real(random_hermitian(norb, seed=rng))
-    result = contract_diag_coulomb(mat, state, norb=norb, nelec=nelec)
+    result = contract_diag_coulomb(state, mat, norb=norb, nelec=nelec)
 
     eig = 0
     for i, j in itertools.product(range(norb), repeat=2):
@@ -67,7 +67,7 @@ def test_contract_num_op_sum():
     state = slater_determinant(norb, occupied_orbitals)
 
     coeffs = rng.standard_normal(norb)
-    result = contract_num_op_sum(coeffs, state, norb=norb, nelec=nelec)
+    result = contract_num_op_sum(state, coeffs, norb=norb, nelec=nelec)
 
     eig = 0
     for i in range(norb):
@@ -93,7 +93,7 @@ def test_diag_coulomb_to_linop():
 
     linop = diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
     result = linop @ vec
-    expected = contract_diag_coulomb(mat, vec, norb=norb, nelec=nelec)
+    expected = contract_diag_coulomb(vec, mat, norb=norb, nelec=nelec)
 
     np.testing.assert_allclose(result, expected, atol=1e-8)
 
@@ -112,6 +112,6 @@ def test_num_op_sum_to_linop():
 
     linop = num_op_sum_to_linop(coeffs, norb=norb, nelec=nelec)
     result = linop @ vec
-    expected = contract_num_op_sum(coeffs, vec, norb=norb, nelec=nelec)
+    expected = contract_num_op_sum(vec, coeffs, norb=norb, nelec=nelec)
 
     np.testing.assert_allclose(result, expected, atol=1e-8)
