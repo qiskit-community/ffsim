@@ -25,6 +25,32 @@ use numpy::PyReadwriteArray2;
 use numpy::PyReadwriteArray4;
 use pyo3::prelude::*;
 
+/// Apply a phase shift to slices of a state vector.
+#[pyfunction]
+fn apply_phase_shift_in_place(
+    mut vec: PyReadwriteArray2<Complex64>,
+    phase: Complex64,
+    indices: PyReadonlyArray1<usize>,
+) {
+    let mut vec = vec.as_array_mut();
+    let indices = indices.as_array();
+    let shape = vec.shape();
+    let dim_b = shape[1] as i32;
+
+    // TODO parallelize this
+    indices.for_each(|&str0| {
+        let mut target = vec.row_mut(str0);
+        match target.as_slice_mut() {
+            Some(target) => unsafe {
+                zscal(dim_b, phase, target, 1);
+            },
+            None => panic!(
+                "Failed to convert ArrayBase to slice, possibly because the data was not contiguous and in standard order."
+            ),
+        };
+    })
+}
+
 /// Apply a matrix to slices of a matrix.
 #[pyfunction]
 fn apply_givens_rotation_in_place(
@@ -278,6 +304,7 @@ fn apply_diag_coulomb_evolution_in_place(
 /// Python module exposing Rust extensions.
 #[pymodule]
 fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(apply_phase_shift_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(apply_givens_rotation_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(gen_orbital_rotation_index_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(
