@@ -55,19 +55,19 @@ def test_double_factorized_decomposition():
     result = np.zeros_like(state)
 
     eigs, vecs = np.linalg.eigh(df_hamiltonian.one_body_tensor)
-    tmp = apply_orbital_rotation(vecs.T.conj(), state, norb=norb, nelec=nelec)
-    tmp = contract_num_op_sum(eigs, tmp, norb=norb, nelec=nelec)
-    tmp = apply_orbital_rotation(vecs, tmp, norb=norb, nelec=nelec)
+    tmp = apply_orbital_rotation(state, vecs.T.conj(), norb=norb, nelec=nelec)
+    tmp = contract_num_op_sum(tmp, eigs, norb=norb, nelec=nelec)
+    tmp = apply_orbital_rotation(tmp, vecs, norb=norb, nelec=nelec)
     result += tmp
 
     for diag_coulomb_mat, orbital_rotation in zip(
         df_hamiltonian.diag_coulomb_mats, df_hamiltonian.orbital_rotations
     ):
         tmp = apply_orbital_rotation(
-            orbital_rotation.T.conj(), state, norb=norb, nelec=nelec
+            state, orbital_rotation.T.conj(), norb=norb, nelec=nelec
         )
-        tmp = contract_diag_coulomb(diag_coulomb_mat, tmp, norb=norb, nelec=nelec)
-        tmp = apply_orbital_rotation(orbital_rotation, tmp, norb=norb, nelec=nelec)
+        tmp = contract_diag_coulomb(tmp, diag_coulomb_mat, norb=norb, nelec=nelec)
+        tmp = apply_orbital_rotation(tmp, orbital_rotation, norb=norb, nelec=nelec)
         result += tmp
 
     # apply Hamiltonian directly

@@ -91,8 +91,8 @@ def one_body_tensor_to_linop(
 
 
 def contract_num_op_sum(
-    coeffs: np.ndarray,
     vec: np.ndarray,
+    coeffs: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
     *,
@@ -116,20 +116,17 @@ def contract_num_op_sum(
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
     # apply alpha
-    _contract_num_op_sum_spin(coeffs, vec, occupations=occupations_a, out=out)
+    _contract_num_op_sum_spin(vec, coeffs, occupations=occupations_a, out=out)
     # apply beta
     vec = vec.T
     out = out.T
-    _contract_num_op_sum_spin(coeffs, vec, occupations=occupations_b, out=out)
+    _contract_num_op_sum_spin(vec, coeffs, occupations=occupations_b, out=out)
 
     return out.T.reshape(-1)
 
 
 def _contract_num_op_sum_spin(
-    coeffs: np.ndarray,
-    vec: np.ndarray,
-    occupations: np.ndarray,
-    out: np.ndarray,
+    vec: np.ndarray, coeffs: np.ndarray, occupations: np.ndarray, out: np.ndarray
 ) -> None:
     for source_row, target_row, orbs in zip(vec, out, occupations):
         coeff = 0
@@ -153,8 +150,8 @@ def num_op_sum_to_linop(
 
     def matvec(vec):
         return contract_num_op_sum(
-            coeffs,
             vec,
+            coeffs,
             norb=norb,
             nelec=nelec,
             occupations_a=occupations_a,
@@ -167,8 +164,8 @@ def num_op_sum_to_linop(
 
 
 def contract_diag_coulomb(
-    mat: np.ndarray,
     vec: np.ndarray,
+    mat: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
     *,
@@ -197,8 +194,8 @@ def contract_diag_coulomb(
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
     _contract_diag_coulomb(
-        mat,
         vec,
+        mat,
         norb=norb,
         mat_alpha_beta=mat_alpha_beta,
         occupations_a=occupations_a,
@@ -210,8 +207,8 @@ def contract_diag_coulomb(
 
 
 def _contract_diag_coulomb(
-    mat: np.ndarray,
     vec: np.ndarray,
+    mat: np.ndarray,
     norb: int,
     mat_alpha_beta: np.ndarray,
     occupations_a: np.ndarray,
@@ -268,8 +265,8 @@ def diag_coulomb_to_linop(
 
     def matvec(vec):
         return contract_diag_coulomb(
-            mat,
             vec,
+            mat,
             norb=norb,
             nelec=nelec,
             mat_alpha_beta=mat_alpha_beta,
