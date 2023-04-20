@@ -189,6 +189,10 @@ def _apply_orbital_rotation_givens(
         _apply_orbital_rotation_adjacent_spin_in_place(
             givens_mat.conj(), vec, target_orbs, norb, n_alpha
         )
+    for i, phase_shift in enumerate(phase_shifts):
+        indices = _one_subspace_indices(norb, n_alpha, (i,))
+        vec[indices] *= phase_shift
+
     # transform beta
     # transpose vector to align memory layout
     vec = vec.T.copy()
@@ -196,13 +200,11 @@ def _apply_orbital_rotation_givens(
         _apply_orbital_rotation_adjacent_spin_in_place(
             givens_mat.conj(), vec, target_orbs, norb, n_beta
         )
-    vec = vec.T.copy().reshape(-1)
-
     for i, phase_shift in enumerate(phase_shifts):
-        _apply_phase_shift(phase_shift, vec, ((i,), ()), norb, nelec, copy=False)
-        _apply_phase_shift(phase_shift, vec, ((), (i,)), norb, nelec, copy=False)
+        indices = _one_subspace_indices(norb, n_beta, (i,))
+        vec[indices] *= phase_shift
 
-    return vec
+    return vec.T.copy().reshape(-1)
 
 
 def _apply_orbital_rotation_adjacent_spin_in_place(
@@ -271,7 +273,9 @@ def _apply_phase_shift(
 
 
 @lru_cache(maxsize=None)
-def _one_subspace_indices(norb: int, nocc: int, target_orbs: tuple[int]) -> np.ndarray:
+def _one_subspace_indices(
+    norb: int, nocc: int, target_orbs: tuple[int, ...]
+) -> np.ndarray:
     """Return the indices where the target orbitals are 1."""
     orbitals = _shifted_orbitals(norb, target_orbs)
     strings = cistring.make_strings(orbitals, nocc)
