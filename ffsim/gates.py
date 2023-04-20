@@ -21,9 +21,10 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 from ffsim._ffsim import (
-    apply_givens_rotation_in_place,
     apply_diag_coulomb_evolution_in_place,
+    apply_givens_rotation_in_place,
     apply_num_op_sum_evolution_in_place,
+    apply_phase_shift_in_place,
     apply_single_column_transformation_in_place,
 )
 from ffsim.fci import gen_orbital_rotation_index
@@ -191,7 +192,7 @@ def _apply_orbital_rotation_givens(
         )
     for i, phase_shift in enumerate(phase_shifts):
         indices = _one_subspace_indices(norb, n_alpha, (i,))
-        vec[indices] *= phase_shift
+        apply_phase_shift_in_place(vec, phase_shift, indices)
 
     # transform beta
     # transpose vector to align memory layout
@@ -202,7 +203,7 @@ def _apply_orbital_rotation_givens(
         )
     for i, phase_shift in enumerate(phase_shifts):
         indices = _one_subspace_indices(norb, n_beta, (i,))
-        vec[indices] *= phase_shift
+        apply_phase_shift_in_place(vec, phase_shift, indices)
 
     return vec.T.copy().reshape(-1)
 
@@ -283,7 +284,7 @@ def _one_subspace_indices(
     n0 = comb(norb, nocc, exact=True) - comb(
         norb - len(target_orbs), nocc - len(target_orbs), exact=True
     )
-    return indices[n0:]
+    return indices[n0:].astype(np.uint, copy=False)
 
 
 def _shifted_orbitals(norb: int, target_orbs: tuple[int, ...]) -> np.ndarray:
