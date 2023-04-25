@@ -116,12 +116,24 @@ def double_factorized_decomposition(
     error_threshold: float = 1e-8,
     max_vecs: int | None = None,
     z_representation: bool = False,
+    optimize: bool = False,
+    method: str = "L-BFGS-B",
+    options: dict | None = None,
+    diag_coulomb_mask: np.ndarray | None = None,
+    seed=None,
 ) -> DoubleFactorizedHamiltonian:
-    r"""Double factorized decomposition of a molecular Hamiltonian."""
+    """Double factorized decomposition of a molecular Hamiltonian."""
     one_body_tensor = one_body_tensor - 0.5 * np.einsum("prqr", two_body_tensor)
 
     diag_coulomb_mats, orbital_rotations = double_factorized(
-        two_body_tensor, max_vecs=max_vecs, error_threshold=error_threshold
+        two_body_tensor,
+        error_threshold=error_threshold,
+        max_vecs=max_vecs,
+        optimize=optimize,
+        method=method,
+        options=options,
+        diag_coulomb_mask=diag_coulomb_mask,
+        seed=seed,
     )
     df_hamiltonian = DoubleFactorizedHamiltonian(
         one_body_tensor=one_body_tensor,
