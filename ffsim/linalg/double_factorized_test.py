@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for linear algebra utilities."""
+"""Tests for double factorization utilities."""
 
 from __future__ import annotations
 
@@ -17,36 +17,10 @@ import pytest
 from pyscf import ao2mo, gto, mcscf, scf
 
 from ffsim.linalg import (
-    apply_matrix_to_slices,
     double_factorized,
-    givens_decomposition,
-    lup,
     modified_cholesky,
 )
 from ffsim.random_utils import random_two_body_tensor_real, random_unitary
-
-
-def test_givens_decomposition():
-    dim = 5
-    mat = random_unitary(dim)
-    givens_rotations, phase_shifts = givens_decomposition(mat)
-    reconstructed = np.eye(dim, dtype=complex)
-    for i, phase_shift in enumerate(phase_shifts):
-        reconstructed[i] *= phase_shift
-    for givens_mat, (i, j) in givens_rotations[::-1]:
-        reconstructed = apply_matrix_to_slices(
-            reconstructed, givens_mat.conj(), ((Ellipsis, j), (Ellipsis, i))
-        )
-    np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
-
-
-def test_lup():
-    dim = 5
-    rng = np.random.default_rng()
-    mat = rng.standard_normal((dim, dim)) + 1j * rng.standard_normal((dim, dim))
-    ell, u, p = lup(mat)
-    np.testing.assert_allclose(ell @ u @ p, mat)
-    np.testing.assert_allclose(np.diagonal(ell), np.ones(dim))
 
 
 @pytest.mark.parametrize("dim", [4, 5])
