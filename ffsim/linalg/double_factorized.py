@@ -207,14 +207,15 @@ def optimal_diag_coulomb_mats(
         orbital_rotations,
         orbital_rotations,
         orbital_rotations,
+        optimize="greedy",
     )
     target = np.reshape(target, (dim,))
     coeffs = np.zeros((n_tensors, n_modes, n_modes, n_tensors, n_modes, n_modes))
     for i in range(n_tensors):
         for j in range(i, n_tensors):
             metric = (orbital_rotations[i].T @ orbital_rotations[j]) ** 2
-            coeffs[i, :, :, j, :, :] = contract("kl,mn->kmln", metric, metric)
-            coeffs[j, :, :, i, :, :] = contract("kl,mn->kmln", metric.T, metric.T)
+            coeffs[i, :, :, j, :, :] = np.einsum("kl,mn->kmln", metric, metric)
+            coeffs[j, :, :, i, :, :] = np.einsum("kl,mn->kmln", metric.T, metric.T)
     coeffs = np.reshape(coeffs, (dim, dim))
 
     eigs, vecs = np.linalg.eigh(coeffs)
@@ -256,6 +257,7 @@ def _double_factorized_compressed(
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
+            optimize="greedy",
         )
         return 0.5 * np.sum(diff**2)
 
@@ -270,6 +272,7 @@ def _double_factorized_compressed(
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
+            optimize="greedy",
         )
         grad_leaf = -4 * contract(
             "pqrs,tqk,tkl,trl,tsl->tpk",
@@ -278,6 +281,7 @@ def _double_factorized_compressed(
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
+            optimize="greedy",
         )
         leaf_logs = _params_to_leaf_logs(x, n_tensors, n_modes)
         grad_leaf_log = np.ravel(
@@ -290,6 +294,7 @@ def _double_factorized_compressed(
             orbital_rotations,
             orbital_rotations,
             orbital_rotations,
+            optimize="greedy",
         )
         grad_core[:, range(n_modes), range(n_modes)] /= 2
         param_indices = np.nonzero(diag_coulomb_mask)
