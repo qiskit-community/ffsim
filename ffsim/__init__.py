@@ -10,10 +10,8 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim.double_factorized import (
-    double_factorized_decomposition,
-)
-
+from ffsim import linalg
+from ffsim.double_factorized import double_factorized_decomposition
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_givens_rotation,
@@ -23,12 +21,5 @@ from ffsim.gates import (
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
-
-from ffsim.states import (
-    one_hot,
-    slater_determinant,
-)
-
-from ffsim.trotter import (
-    simulate_trotter_suzuki_double_factorized,
-)
+from ffsim.states import one_hot, slater_determinant
+from ffsim.trotter import simulate_trotter_suzuki_double_factorized
