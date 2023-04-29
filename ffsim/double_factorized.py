@@ -120,7 +120,6 @@ def double_factorized_decomposition(
     method: str = "L-BFGS-B",
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
-    seed=None,
 ) -> DoubleFactorizedHamiltonian:
     """Double factorized decomposition of a molecular Hamiltonian."""
     one_body_tensor = one_body_tensor - 0.5 * np.einsum("prqr", two_body_tensor)
@@ -133,7 +132,6 @@ def double_factorized_decomposition(
         method=method,
         options=options,
         diag_coulomb_mask=diag_coulomb_mask,
-        seed=seed,
     )
     df_hamiltonian = DoubleFactorizedHamiltonian(
         one_body_tensor=one_body_tensor,
