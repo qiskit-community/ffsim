@@ -83,6 +83,7 @@ def double_factorized(
     max_vecs: int | None = None,
     optimize: bool = False,
     method: str = "L-BFGS-B",
+    callback=None,
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
     seed=None,
@@ -122,6 +123,8 @@ def double_factorized(
         optimize: Whether to optimize the tensors returned by the decomposition.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
+        callback: Callback function for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
         diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.
@@ -148,6 +151,7 @@ def double_factorized(
             error_threshold=error_threshold,
             max_vecs=max_vecs,
             method=method,
+            callback=callback,
             options=options,
             diag_coulomb_mask=diag_coulomb_mask,
             seed=seed,
@@ -202,6 +206,7 @@ def optimal_diag_coulomb_mats(
         orbital_rotations,
         orbital_rotations,
         orbital_rotations,
+        optimize=True,
     )
     target = np.reshape(target, (dim,))
     coeffs = np.zeros((n_tensors, n_modes, n_modes, n_tensors, n_modes, n_modes))
@@ -226,6 +231,7 @@ def _double_factorized_compressed(
     error_threshold: float = 1e-8,
     max_vecs: int | None = None,
     method="L-BFGS-B",
+    callback=None,
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
     seed=None,
@@ -250,6 +256,7 @@ def _double_factorized_compressed(
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
+            optimize=True,
         )
         return 0.5 * np.sum(diff**2)
 
@@ -264,6 +271,7 @@ def _double_factorized_compressed(
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
+            optimize=True,
         )
         grad_leaf = -4 * np.einsum(
             "pqrs,tqk,tkl,trl,tsl->tpk",
@@ -272,6 +280,7 @@ def _double_factorized_compressed(
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
+            optimize=True,
         )
         leaf_logs = _params_to_leaf_logs(x, n_tensors, n_modes)
         grad_leaf_log = np.ravel(
@@ -284,6 +293,7 @@ def _double_factorized_compressed(
             orbital_rotations,
             orbital_rotations,
             orbital_rotations,
+            optimize=True,
         )
         grad_core[:, range(n_modes), range(n_modes)] /= 2
         param_indices = np.nonzero(diag_coulomb_mask)
@@ -293,7 +303,9 @@ def _double_factorized_compressed(
     diag_coulomb_mats = optimal_diag_coulomb_mats(two_body_tensor, orbital_rotations)
     x0 = _df_tensors_to_params(diag_coulomb_mats, orbital_rotations, diag_coulomb_mask)
     x0 += 1e-2 * rng.standard_normal(size=x0.shape)
-    result = scipy.optimize.minimize(fun, x0, method=method, jac=jac, options=options)
+    result = scipy.optimize.minimize(
+        fun, x0, method=method, jac=jac, callback=callback, options=options
+    )
     diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
         result.x, n_tensors, n_modes, diag_coulomb_mask
     )
