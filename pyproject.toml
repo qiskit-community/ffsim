@@ -14,7 +14,7 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["numpy", "pyscf >= 2.2.1", "scipy"]
+dependencies = ["numpy", "opt_einsum >= 3.3", "pyscf >= 2.2.1", "scipy"]
 
 [project.optional-dependencies]
 dev = ["black", "maturin[patchelf]", "mypy", "pytest"]
