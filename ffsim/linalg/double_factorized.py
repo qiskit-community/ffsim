@@ -87,7 +87,6 @@ def double_factorized(
     callback=None,
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
-    seed=None,
 ) -> tuple[np.ndarray, np.ndarray]:
     r"""Double-factorized decomposition of a two-body tensor.
 
@@ -133,8 +132,6 @@ def double_factorized(
             the core tensors returned by optimization are allowed to be nonzero.
             This parameter is only used if `optimize` is set to `True`, and only the
             upper triangular part of the matrix is used.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
@@ -155,7 +152,6 @@ def double_factorized(
             callback=callback,
             options=options,
             diag_coulomb_mask=diag_coulomb_mask,
-            seed=seed,
         )
     return _double_factorized_explicit(
         two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
@@ -235,9 +231,7 @@ def _double_factorized_compressed(
     callback=None,
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
-    seed=None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    rng = np.random.default_rng(seed)
     _, orbital_rotations = _double_factorized_explicit(
         two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
     )
@@ -303,6 +297,7 @@ def _double_factorized_compressed(
 
     diag_coulomb_mats = optimal_diag_coulomb_mats(two_body_tensor, orbital_rotations)
     x0 = _df_tensors_to_params(diag_coulomb_mats, orbital_rotations, diag_coulomb_mask)
+    rng = np.random.default_rng()
     x0 += 1e-2 * rng.standard_normal(size=x0.shape)
     result = scipy.optimize.minimize(
         fun, x0, method=method, jac=jac, callback=callback, options=options
