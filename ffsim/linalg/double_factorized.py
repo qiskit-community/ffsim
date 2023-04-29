@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import scipy.optimize
+from opt_einsum import contract
 
 
 def modified_cholesky(
@@ -199,22 +200,21 @@ def optimal_diag_coulomb_mats(
     n_tensors, _, _ = orbital_rotations.shape
 
     dim = n_tensors * n_modes**2
-    target = np.einsum(
+    target = contract(
         "pqrs,tpk,tqk,trl,tsl->tkl",
         two_body_tensor,
         orbital_rotations,
         orbital_rotations,
         orbital_rotations,
         orbital_rotations,
-        optimize=True,
     )
     target = np.reshape(target, (dim,))
     coeffs = np.zeros((n_tensors, n_modes, n_modes, n_tensors, n_modes, n_modes))
     for i in range(n_tensors):
         for j in range(i, n_tensors):
             metric = (orbital_rotations[i].T @ orbital_rotations[j]) ** 2
-            coeffs[i, :, :, j, :, :] = np.einsum("kl,mn->kmln", metric, metric)
-            coeffs[j, :, :, i, :, :] = np.einsum("kl,mn->kmln", metric.T, metric.T)
+            coeffs[i, :, :, j, :, :] = contract("kl,mn->kmln", metric, metric)
+            coeffs[j, :, :, i, :, :] = contract("kl,mn->kmln", metric.T, metric.T)
     coeffs = np.reshape(coeffs, (dim, dim))
 
     eigs, vecs = np.linalg.eigh(coeffs)
@@ -249,14 +249,13 @@ def _double_factorized_compressed(
         diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
             x, n_tensors, n_modes, diag_coulomb_mask
         )
-        diff = two_body_tensor - np.einsum(
+        diff = two_body_tensor - contract(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             orbital_rotations,
             orbital_rotations,
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
-            optimize=True,
         )
         return 0.5 * np.sum(diff**2)
 
@@ -264,36 +263,33 @@ def _double_factorized_compressed(
         diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
             x, n_tensors, n_modes, diag_coulomb_mask
         )
-        diff = two_body_tensor - np.einsum(
+        diff = two_body_tensor - contract(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             orbital_rotations,
             orbital_rotations,
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
-            optimize=True,
         )
-        grad_leaf = -4 * np.einsum(
+        grad_leaf = -4 * contract(
             "pqrs,tqk,tkl,trl,tsl->tpk",
             diff,
             orbital_rotations,
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations,
-            optimize=True,
         )
         leaf_logs = _params_to_leaf_logs(x, n_tensors, n_modes)
         grad_leaf_log = np.ravel(
             [_grad_leaf_log(log, grad) for log, grad in zip(leaf_logs, grad_leaf)]
         )
-        grad_core = -2 * np.einsum(
+        grad_core = -2 * contract(
             "pqrs,tpk,tqk,trl,tsl->tkl",
             diff,
             orbital_rotations,
             orbital_rotations,
             orbital_rotations,
             orbital_rotations,
-            optimize=True,
         )
         grad_core[:, range(n_modes), range(n_modes)] /= 2
         param_indices = np.nonzero(diag_coulomb_mask)
