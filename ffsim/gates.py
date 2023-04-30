@@ -165,8 +165,8 @@ def _apply_orbital_rotation_spin_in_place(
     diag_strings, off_diag_strings, off_diag_index = orbital_rotation_index
     for i in range(norb):
         apply_single_column_transformation_in_place(
-            transformation_mat[:, i],
             vec,
+            transformation_mat[:, i],
             diag_val=transformation_mat[i, i],
             diag_strings=diag_strings[i],
             off_diag_strings=off_diag_strings[i],
@@ -367,10 +367,10 @@ def apply_num_op_sum_evolution(
     phases = np.exp(-1j * time * coeffs)
     vec = vec.reshape((dim_a, dim_b))
     # apply alpha
-    apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_a)
+    apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_a)
     # apply beta
     vec = vec.T
-    apply_num_op_sum_evolution_in_place(phases, vec, occupations=occupations_b)
+    apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_b)
     vec = vec.T.reshape(-1)
 
     if orbital_rotation is not None:
@@ -475,8 +475,8 @@ def apply_diag_coulomb_evolution(
     mat_alpha_beta_exp = np.exp(-1j * time * cast(np.ndarray, mat_alpha_beta))
     vec = vec.reshape((dim_a, dim_b))
     apply_diag_coulomb_evolution_in_place(
-        mat_exp,
         vec,
+        mat_exp,
         norb=norb,
         mat_alpha_beta_exp=mat_alpha_beta_exp,
         occupations_a=occupations_a,

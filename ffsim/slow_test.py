@@ -123,7 +123,7 @@ def test_apply_single_column_transformation_in_place_slow():
         apply_single_column_transformation_in_place_slow(
             vec_slow, column, diag_val, *index
         )
-        apply_single_column_transformation_in_place(column, vec_fast, diag_val, *index)
+        apply_single_column_transformation_in_place(vec_fast, column, diag_val, *index)
         np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
 
 
@@ -147,8 +147,8 @@ def test_apply_num_op_sum_evolution_in_place_slow():
             vec_slow, phases, occupations=occupations
         )
         apply_num_op_sum_evolution_in_place(
-            phases,
             vec_fast,
+            phases,
             occupations=occupations,
         )
         np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
@@ -185,8 +185,8 @@ def test_apply_diag_coulomb_evolution_slow():
             occupations_b=occupations_b,
         )
         apply_diag_coulomb_evolution_in_place(
-            mat_exp,
             vec_fast,
+            mat_exp,
             norb=norb,
             mat_alpha_beta_exp=mat_alpha_beta_exp,
             occupations_a=occupations_a,

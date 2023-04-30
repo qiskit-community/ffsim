@@ -155,8 +155,8 @@ fn gen_orbital_rotation_index_in_place(
 /// Apply a single-column orbital rotation.
 #[pyfunction]
 fn apply_single_column_transformation_in_place(
-    column: PyReadonlyArray1<Complex64>,
     mut vec: PyReadwriteArray2<Complex64>,
+    column: PyReadonlyArray1<Complex64>,
     diag_val: Complex64,
     diag_strings: PyReadonlyArray1<usize>,
     off_diag_strings: PyReadonlyArray1<usize>,
@@ -213,8 +213,8 @@ fn apply_single_column_transformation_in_place(
 /// Apply time evolution by a sum of number operators in-place.
 #[pyfunction]
 fn apply_num_op_sum_evolution_in_place(
-    phases: PyReadonlyArray1<Complex64>,
     mut vec: PyReadwriteArray2<Complex64>,
+    phases: PyReadonlyArray1<Complex64>,
     occupations: PyReadonlyArray2<usize>,
 ) {
     let phases = phases.as_array();
@@ -233,8 +233,8 @@ fn apply_num_op_sum_evolution_in_place(
 /// Apply time evolution by a diagonal Coulomb operator in-place.
 #[pyfunction]
 fn apply_diag_coulomb_evolution_in_place(
-    mat_exp: PyReadonlyArray2<Complex64>,
     mut vec: PyReadwriteArray2<Complex64>,
+    mat_exp: PyReadonlyArray2<Complex64>,
     norb: usize,
     mat_alpha_beta_exp: PyReadonlyArray2<Complex64>,
     occupations_a: PyReadonlyArray2<usize>,
