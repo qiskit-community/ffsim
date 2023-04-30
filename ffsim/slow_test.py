@@ -12,9 +12,9 @@
 
 from __future__ import annotations
 
-
 import numpy as np
 from pyscf.fci import cistring
+from scipy.special import comb
 
 from ffsim._ffsim import (
     apply_diag_coulomb_evolution_in_place,
@@ -23,19 +23,17 @@ from ffsim._ffsim import (
     apply_single_column_transformation_in_place,
     gen_orbital_rotation_index_in_place,
 )
-from ffsim.fci import (
-    gen_orbital_rotation_index,
-)
+from ffsim.fci import gen_orbital_rotation_index
+from ffsim.gates import _zero_one_subspace_indices
 from ffsim.random_utils import random_hermitian, random_statevector, random_unitary
 from ffsim.slow import (
+    apply_diag_coulomb_evolution_in_place_numpy,
     apply_diag_coulomb_evolution_in_place_slow,
     apply_givens_rotation_in_place_slow,
     apply_num_op_sum_evolution_in_place_slow,
     apply_single_column_transformation_in_place_slow,
     gen_orbital_rotation_index_in_place_slow,
 )
-from ffsim.gates import _zero_one_subspace_indices
-from scipy.special import comb
 
 
 def test_apply_givens_rotation_in_place_slow():
@@ -183,6 +181,46 @@ def test_apply_diag_coulomb_evolution_slow():
             mat_alpha_beta_exp=mat_alpha_beta_exp,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
+        )
+        apply_diag_coulomb_evolution_in_place(
+            vec_fast,
+            mat_exp,
+            norb=norb,
+            mat_alpha_beta_exp=mat_alpha_beta_exp,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
+        )
+        np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
+
+
+def test_apply_diag_coulomb_evolution_numpy():
+    """Test applying time evolution of diag Coulomb operator, numpy implementation."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        dim_a = comb(norb, n_alpha, exact=True)
+        dim_b = comb(norb, n_beta, exact=True)
+        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+            np.uint, copy=False
+        )
+        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+            np.uint, copy=False
+        )
+        time = 0.6
+        mat = np.real(random_hermitian(norb, seed=rng))
+        mat_exp = np.exp(-1j * time * mat)
+        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
+        mat_alpha_beta_exp = np.exp(-1j * time * mat_alpha_beta)
+        vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec_fast = vec_slow.copy()
+        apply_diag_coulomb_evolution_in_place_numpy(
+            vec_slow,
+            mat_exp,
+            norb=norb,
+            nelec=(n_alpha, n_beta),
+            mat_alpha_beta_exp=mat_alpha_beta_exp,
         )
         apply_diag_coulomb_evolution_in_place(
             vec_fast,
