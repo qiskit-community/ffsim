@@ -305,7 +305,6 @@ def gen_orbital_rotation_index(
     dim_diag = comb(norb - 1, nocc - 1, exact=True)
     dim_off_diag = comb(norb - 1, nocc, exact=True)
     dim = dim_diag + dim_off_diag
-    # TODO double check dtypes
     diag_strings = np.empty((norb, dim_diag), dtype=np.uint)
     off_diag_strings = np.empty((norb, dim_off_diag), dtype=np.uint)
     # TODO should this be int64? pyscf uses int32 for linkstr_index though
