@@ -12,29 +12,20 @@
 
 from __future__ import annotations
 
-import itertools
 
 import numpy as np
-import pytest
-import scipy.linalg
-import scipy.sparse.linalg
 from pyscf.fci import cistring
-from pyscf.fci.fci_slow import contract_1e
 
 from ffsim._ffsim import (
     apply_diag_coulomb_evolution_in_place,
     apply_givens_rotation_in_place,
     apply_num_op_sum_evolution_in_place,
-    apply_phase_shift_in_place,
     apply_single_column_transformation_in_place,
     gen_orbital_rotation_index_in_place,
 )
 from ffsim.fci import (
-    get_dimension,
-    one_body_tensor_to_linop,
     gen_orbital_rotation_index,
 )
-from ffsim.linalg import expm_multiply_taylor
 from ffsim.random_utils import random_hermitian, random_statevector, random_unitary
 from ffsim.slow import (
     apply_diag_coulomb_evolution_in_place_slow,
@@ -44,7 +35,6 @@ from ffsim.slow import (
     gen_orbital_rotation_index_in_place_slow,
 )
 from ffsim.gates import _zero_one_subspace_indices
-from ffsim.states import slater_determinant
 from scipy.special import comb
 
 
