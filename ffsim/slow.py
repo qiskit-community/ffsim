@@ -111,6 +111,12 @@ def apply_diag_coulomb_evolution_in_place_slow(
     beta_phases = np.empty((dim_b,), dtype=complex)
     phase_map = np.ones((dim_a, norb), dtype=complex)
 
+    for i, orbs in enumerate(occupations_b):
+        phase = 1
+        for orb_1, orb_2 in itertools.combinations_with_replacement(orbs, 2):
+            phase *= mat_exp[orb_1, orb_2]
+        beta_phases[i] = phase
+
     for i, (row, orbs) in enumerate(zip(phase_map, occupations_a)):
         phase = 1
         for j in range(len(orbs)):
@@ -118,12 +124,6 @@ def apply_diag_coulomb_evolution_in_place_slow(
             for k in range(j, len(orbs)):
                 phase *= mat_exp[orbs[j], orbs[k]]
         alpha_phases[i] = phase
-
-    for i, orbs in enumerate(occupations_b):
-        phase = 1
-        for orb_1, orb_2 in itertools.combinations_with_replacement(orbs, 2):
-            phase *= mat_exp[orb_1, orb_2]
-        beta_phases[i] = phase
 
     for row, alpha_phase, phase_map in zip(vec, alpha_phases, phase_map):
         for j, occ_b in enumerate(occupations_b):
@@ -168,3 +168,41 @@ def apply_diag_coulomb_evolution_in_place_numpy(
                 nelec=nelec,
                 copy=False,
             )
+
+
+def contract_diag_coulomb_into_buffer_slow(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    mat_alpha_beta: np.ndarray,
+    occupations_a: np.ndarray,
+    occupations_b: np.ndarray,
+    out: np.ndarray,
+) -> None:
+    dim_a, dim_b = vec.shape
+    alpha_coeffs = np.empty((dim_a,), dtype=complex)
+    beta_coeffs = np.empty((dim_b,), dtype=complex)
+    coeff_map = np.zeros((dim_a, norb), dtype=complex)
+
+    for i, occ in enumerate(occupations_b):
+        coeff = 0
+        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
+            coeff += mat[orb_1, orb_2]
+        beta_coeffs[i] = coeff
+
+    for i, (row, orbs) in enumerate(zip(coeff_map, occupations_a)):
+        coeff = 0
+        for j in range(len(orbs)):
+            row += mat_alpha_beta[orbs[j]]
+            for k in range(j, len(orbs)):
+                coeff += mat[orbs[j], orbs[k]]
+        alpha_coeffs[i] = coeff
+
+    for source, target, alpha_coeff, coeff_map in zip(
+        vec, out, alpha_coeffs, coeff_map
+    ):
+        for j, occ_b in enumerate(occupations_b):
+            coeff = alpha_coeff + beta_coeffs[j]
+            for orb_b in occ_b:
+                coeff += coeff_map[orb_b]
+            target[j] += coeff * source[j]

@@ -19,7 +19,10 @@ from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, make_hdiag
 from pyscf.fci.fci_slow import contract_2e
 from scipy.special import comb
 
-from ffsim._ffsim import gen_orbital_rotation_index_in_place
+from ffsim._ffsim import (
+    gen_orbital_rotation_index_in_place,
+    contract_diag_coulomb_into_buffer,
+)
 
 
 def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
@@ -193,7 +196,7 @@ def contract_diag_coulomb(
     mat[np.diag_indices(norb)] *= 0.5
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
-    _contract_diag_coulomb(
+    contract_diag_coulomb_into_buffer(
         vec,
         mat,
         norb=norb,
@@ -204,46 +207,6 @@ def contract_diag_coulomb(
     )
 
     return out.reshape(-1)
-
-
-def _contract_diag_coulomb(
-    vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    mat_alpha_beta: np.ndarray,
-    occupations_a: np.ndarray,
-    occupations_b: np.ndarray,
-    out: np.ndarray,
-) -> None:
-    dim_a, dim_b = vec.shape
-    alpha_coeffs = np.empty((dim_a,), dtype=complex)
-    beta_coeffs = np.empty((dim_b,), dtype=complex)
-    coeff_map = np.zeros((dim_a, norb), dtype=complex)
-
-    for i, occ in enumerate(occupations_a):
-        coeff = 0
-        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
-            coeff += mat[orb_1, orb_2]
-        alpha_coeffs[i] = coeff
-
-    for i, occ in enumerate(occupations_b):
-        coeff = 0
-        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
-            coeff += mat[orb_1, orb_2]
-        beta_coeffs[i] = coeff
-
-    for row, orbs in zip(coeff_map, occupations_a):
-        for orb in orbs:
-            row += mat_alpha_beta[orb]
-
-    for source, target, alpha_coeff, coeff_map in zip(
-        vec, out, alpha_coeffs, coeff_map
-    ):
-        for j, occ_b in enumerate(occupations_b):
-            coeff = alpha_coeff + beta_coeffs[j]
-            for orb_b in occ_b:
-                coeff += coeff_map[orb_b]
-            target[j] += coeff * source[j]
 
 
 def diag_coulomb_to_linop(

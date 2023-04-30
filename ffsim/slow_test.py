@@ -21,6 +21,7 @@ from ffsim._ffsim import (
     apply_givens_rotation_in_place,
     apply_num_op_sum_evolution_in_place,
     apply_single_column_transformation_in_place,
+    contract_diag_coulomb_into_buffer,
     gen_orbital_rotation_index_in_place,
 )
 from ffsim.fci import gen_orbital_rotation_index
@@ -32,6 +33,7 @@ from ffsim.slow import (
     apply_givens_rotation_in_place_slow,
     apply_num_op_sum_evolution_in_place_slow,
     apply_single_column_transformation_in_place_slow,
+    contract_diag_coulomb_into_buffer_slow,
     gen_orbital_rotation_index_in_place_slow,
 )
 
@@ -231,3 +233,45 @@ def test_apply_diag_coulomb_evolution_numpy():
             occupations_b=occupations_b,
         )
         np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
+
+
+def test_contract_diag_coulomb_into_buffer_slow():
+    """Test contracting diag Coulomb operator."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        dim_a = comb(norb, n_alpha, exact=True)
+        dim_b = comb(norb, n_beta, exact=True)
+        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+            np.uint, copy=False
+        )
+        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+            np.uint, copy=False
+        )
+        time = 0.6
+        mat = np.real(random_hermitian(norb, seed=rng))
+        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
+        vec = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        out_slow = np.zeros_like(vec)
+        out_fast = np.zeros_like(vec)
+        contract_diag_coulomb_into_buffer_slow(
+            vec,
+            mat,
+            norb=norb,
+            mat_alpha_beta=mat_alpha_beta,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
+            out=out_slow,
+        )
+        contract_diag_coulomb_into_buffer(
+            vec,
+            mat,
+            norb=norb,
+            mat_alpha_beta=mat_alpha_beta,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
+            out=out_fast,
+        )
+        np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)

@@ -301,6 +301,81 @@ fn apply_diag_coulomb_evolution_in_place(
         });
 }
 
+/// Contract a diagonal Coulomb operator into a buffer.
+#[pyfunction]
+fn contract_diag_coulomb_into_buffer(
+    vec: PyReadonlyArray2<Complex64>,
+    mat: PyReadonlyArray2<f64>,
+    norb: usize,
+    mat_alpha_beta: PyReadonlyArray2<f64>,
+    occupations_a: PyReadonlyArray2<usize>,
+    occupations_b: PyReadonlyArray2<usize>,
+    mut out: PyReadwriteArray2<Complex64>,
+) {
+    let vec = vec.as_array();
+    let mat = mat.as_array();
+    let mat_alpha_beta = mat_alpha_beta.as_array();
+    let occupations_a = occupations_a.as_array();
+    let occupations_b = occupations_b.as_array();
+    let mut out = out.as_array_mut();
+
+    let shape = vec.shape();
+    let dim_a = shape[0];
+    let dim_b = shape[1];
+    let n_alpha = occupations_a.shape()[1];
+    let n_beta = occupations_b.shape()[1];
+
+    let mut alpha_coeffs = Array::zeros(dim_a);
+    let mut beta_coeffs = Array::zeros(dim_b);
+    let mut coeff_map = Array::zeros((dim_a, norb));
+
+    Zip::from(&mut beta_coeffs)
+        .and(occupations_b.rows())
+        .par_for_each(|val, orbs| {
+            let mut coeff = Complex64::new(0.0, 0.0);
+            for j in 0..n_beta {
+                let orb_1 = orbs[j];
+                for k in j..n_beta {
+                    let orb_2 = orbs[k];
+                    coeff += mat[(orb_1, orb_2)];
+                }
+            }
+            *val = coeff;
+        });
+
+    Zip::from(&mut alpha_coeffs)
+        .and(occupations_a.rows())
+        .and(coeff_map.rows_mut())
+        .par_for_each(|val, orbs, mut row| {
+            let mut coeff = Complex64::new(0.0, 0.0);
+            for j in 0..n_alpha {
+                let orb_1 = orbs[j];
+                row += &mat_alpha_beta.row(orb_1);
+                for k in j..n_alpha {
+                    let orb_2 = orbs[k];
+                    coeff += mat[(orb_1, orb_2)];
+                }
+            }
+            *val = coeff;
+        });
+
+    Zip::from(vec.rows())
+        .and(out.rows_mut())
+        .and(&alpha_coeffs)
+        .and(coeff_map.rows())
+        .par_for_each(|source, target, alpha_coeff, coeff_map| {
+            Zip::from(source)
+                .and(target)
+                .and(&beta_coeffs)
+                .and(occupations_b.rows())
+                .for_each(|source, target, beta_coeff, orbs| {
+                    let mut coeff = *alpha_coeff + *beta_coeff;
+                    orbs.for_each(|&orb| coeff += coeff_map[orb]);
+                    *target += coeff * source;
+                })
+        });
+}
+
 /// Python module exposing Rust extensions.
 #[pymodule]
 fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -313,5 +388,6 @@ fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(apply_num_op_sum_evolution_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(apply_diag_coulomb_evolution_in_place, m)?)?;
+    m.add_function(wrap_pyfunction!(contract_diag_coulomb_into_buffer, m)?)?;
     Ok(())
 }
