@@ -376,6 +376,29 @@ fn contract_diag_coulomb_into_buffer(
         });
 }
 
+/// Contract a sum of number operators into a buffer.
+#[pyfunction]
+fn contract_num_op_sum_spin_into_buffer(
+    vec: PyReadonlyArray2<Complex64>,
+    coeffs: PyReadonlyArray1<f64>,
+    occupations: PyReadonlyArray2<usize>,
+    mut out: PyReadwriteArray2<Complex64>,
+) {
+    let vec = vec.as_array();
+    let coeffs = coeffs.as_array();
+    let occupations = occupations.as_array();
+    let mut out = out.as_array_mut();
+
+    Zip::from(vec.rows())
+        .and(out.rows_mut())
+        .and(occupations.rows())
+        .par_for_each(|source, mut target, orbs| {
+            let mut coeff = Complex64::new(0.0, 0.0);
+            orbs.for_each(|&orb| coeff += coeffs[orb]);
+            target += &(coeff * &source);
+        });
+}
+
 /// Python module exposing Rust extensions.
 #[pymodule]
 fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -389,5 +412,6 @@ fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(apply_num_op_sum_evolution_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(apply_diag_coulomb_evolution_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(contract_diag_coulomb_into_buffer, m)?)?;
+    m.add_function(wrap_pyfunction!(contract_num_op_sum_spin_into_buffer, m)?)?;
     Ok(())
 }

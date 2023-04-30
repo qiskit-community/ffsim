@@ -206,3 +206,13 @@ def contract_diag_coulomb_into_buffer_slow(
             for orb_b in occ_b:
                 coeff += coeff_map[orb_b]
             target[j] += coeff * source[j]
+
+
+def contract_num_op_sum_spin_into_buffer_slow(
+    vec: np.ndarray, coeffs: np.ndarray, occupations: np.ndarray, out: np.ndarray
+) -> None:
+    for source_row, target_row, orbs in zip(vec, out, occupations):
+        coeff = 0
+        for orb in orbs:
+            coeff += coeffs[orb]
+        target_row += coeff * source_row

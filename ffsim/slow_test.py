@@ -22,6 +22,7 @@ from ffsim._ffsim import (
     apply_num_op_sum_evolution_in_place,
     apply_single_column_transformation_in_place,
     contract_diag_coulomb_into_buffer,
+    contract_num_op_sum_spin_into_buffer,
     gen_orbital_rotation_index_in_place,
 )
 from ffsim.fci import gen_orbital_rotation_index
@@ -34,6 +35,7 @@ from ffsim.slow import (
     apply_num_op_sum_evolution_in_place_slow,
     apply_single_column_transformation_in_place_slow,
     contract_diag_coulomb_into_buffer_slow,
+    contract_num_op_sum_spin_into_buffer_slow,
     gen_orbital_rotation_index_in_place_slow,
 )
 
@@ -273,5 +275,30 @@ def test_contract_diag_coulomb_into_buffer_slow():
             occupations_a=occupations_a,
             occupations_b=occupations_b,
             out=out_fast,
+        )
+        np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
+
+
+def test_contract():
+    """Test applying num op sum evolution."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        dim_a = comb(norb, n_alpha, exact=True)
+        dim_b = comb(norb, n_beta, exact=True)
+        occupations = cistring._gen_occslst(range(norb), n_alpha).astype(
+            np.uint, copy=False
+        )
+        coeffs = np.random.uniform(size=norb)
+        vec = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        out_slow = np.zeros_like(vec)
+        out_fast = np.zeros_like(vec)
+        contract_num_op_sum_spin_into_buffer_slow(
+            vec, coeffs, occupations=occupations, out=out_slow
+        )
+        contract_num_op_sum_spin_into_buffer(
+            vec, coeffs, occupations=occupations, out=out_fast
         )
         np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
