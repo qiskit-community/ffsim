@@ -22,6 +22,7 @@ from scipy.special import comb
 from ffsim._ffsim import (
     gen_orbital_rotation_index_in_place,
     contract_diag_coulomb_into_buffer,
+    contract_num_op_sum_spin_into_buffer,
 )
 
 
@@ -119,23 +120,17 @@ def contract_num_op_sum(
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
     # apply alpha
-    _contract_num_op_sum_spin(vec, coeffs, occupations=occupations_a, out=out)
+    contract_num_op_sum_spin_into_buffer(
+        vec, coeffs, occupations=occupations_a, out=out
+    )
     # apply beta
     vec = vec.T
     out = out.T
-    _contract_num_op_sum_spin(vec, coeffs, occupations=occupations_b, out=out)
+    contract_num_op_sum_spin_into_buffer(
+        vec, coeffs, occupations=occupations_b, out=out
+    )
 
     return out.T.reshape(-1)
-
-
-def _contract_num_op_sum_spin(
-    vec: np.ndarray, coeffs: np.ndarray, occupations: np.ndarray, out: np.ndarray
-) -> None:
-    for source_row, target_row, orbs in zip(vec, out, occupations):
-        coeff = 0
-        for orb in orbs:
-            coeff += coeffs[orb]
-        target_row += coeff * source_row
 
 
 def num_op_sum_to_linop(
