@@ -69,8 +69,8 @@ def gen_orbital_rotation_index_in_place_slow(
 
 
 def apply_single_column_transformation_in_place_slow(
-    column: np.ndarray,
     vec: np.ndarray,
+    column: np.ndarray,
     diag_val: complex,
     diag_strings: np.ndarray,
     off_diag_strings: np.ndarray,
@@ -85,9 +85,7 @@ def apply_single_column_transformation_in_place_slow(
 
 
 def apply_num_op_sum_evolution_in_place_slow(
-    phases: np.ndarray,
-    vec: np.ndarray,
-    occupations: np.ndarray,
+    vec: np.ndarray, phases: np.ndarray, occupations: np.ndarray
 ) -> None:
     """Apply time evolution by a sum of number operators in-place."""
     for row, orbs in zip(vec, occupations):
@@ -98,8 +96,8 @@ def apply_num_op_sum_evolution_in_place_slow(
 
 
 def apply_diag_coulomb_evolution_in_place_slow(
-    mat_exp: np.ndarray,
     vec: np.ndarray,
+    mat_exp: np.ndarray,
     norb: int,
     mat_alpha_beta_exp: np.ndarray,
     occupations_a: np.ndarray,
