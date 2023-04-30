@@ -119,12 +119,11 @@ def test_apply_single_column_transformation_in_place_slow():
         diag_val = rng.uniform() + 1j * rng.uniform()
         vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
         vec_fast = vec_slow.copy()
+        index = [a[0] for a in orbital_rotation_index]
         apply_single_column_transformation_in_place_slow(
-            column, vec_slow, diag_val, *[a[0] for a in orbital_rotation_index]
+            vec_slow, column, diag_val, *index
         )
-        apply_single_column_transformation_in_place(
-            column, vec_fast, diag_val, *[a[0] for a in orbital_rotation_index]
-        )
+        apply_single_column_transformation_in_place(column, vec_fast, diag_val, *index)
         np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
 
 
@@ -145,9 +144,7 @@ def test_apply_num_op_sum_evolution_in_place_slow():
         vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
         vec_fast = vec_slow.copy()
         apply_num_op_sum_evolution_in_place_slow(
-            phases,
-            vec_slow,
-            occupations=occupations,
+            vec_slow, phases, occupations=occupations
         )
         apply_num_op_sum_evolution_in_place(
             phases,
@@ -180,8 +177,8 @@ def test_apply_diag_coulomb_evolution_slow():
         vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
         vec_fast = vec_slow.copy()
         apply_diag_coulomb_evolution_in_place_slow(
-            mat_exp,
             vec_slow,
+            mat_exp,
             norb=norb,
             mat_alpha_beta_exp=mat_alpha_beta_exp,
             occupations_a=occupations_a,
