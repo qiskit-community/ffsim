@@ -67,26 +67,41 @@ def one_body_tensor_to_linop(
     one_body_tensor: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert the one-body tensor to a matrix in the FCI basis."""
-    # TODO use cached link_indexa and link_indexb
     dim = get_dimension(norb, nelec)
+    n_alpha, n_beta = nelec
+    linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
+    linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
+    link_index = (linkstr_index_a, linkstr_index_b)
 
     def matvec(vec: np.ndarray):
-        result = contract_1e(one_body_tensor.real, vec.real, norb, nelec).astype(
-            complex
+        result = contract_1e(
+            one_body_tensor.real, vec.real, norb, nelec, link_index=link_index
+        ).astype(complex)
+        result += 1j * contract_1e(
+            one_body_tensor.imag, vec.real, norb, nelec, link_index=link_index
         )
-        result += 1j * contract_1e(one_body_tensor.imag, vec.real, norb, nelec)
-        result += 1j * contract_1e(one_body_tensor.real, vec.imag, norb, nelec)
-        result -= contract_1e(one_body_tensor.imag, vec.imag, norb, nelec)
+        result += 1j * contract_1e(
+            one_body_tensor.real, vec.imag, norb, nelec, link_index=link_index
+        )
+        result -= contract_1e(
+            one_body_tensor.imag, vec.imag, norb, nelec, link_index=link_index
+        )
         return result
 
     def rmatvec(vec: np.ndarray):
         one_body_tensor_H = one_body_tensor.T.conj()
-        result = contract_1e(one_body_tensor_H.real, vec.real, norb, nelec).astype(
-            complex
+        result = contract_1e(
+            one_body_tensor_H.real, vec.real, norb, nelec, link_index=link_index
+        ).astype(complex)
+        result += 1j * contract_1e(
+            one_body_tensor_H.imag, vec.real, norb, nelec, link_index=link_index
         )
-        result += 1j * contract_1e(one_body_tensor_H.imag, vec.real, norb, nelec)
-        result += 1j * contract_1e(one_body_tensor_H.real, vec.imag, norb, nelec)
-        result -= contract_1e(one_body_tensor_H.imag, vec.imag, norb, nelec)
+        result += 1j * contract_1e(
+            one_body_tensor_H.real, vec.imag, norb, nelec, link_index=link_index
+        )
+        result -= contract_1e(
+            one_body_tensor_H.imag, vec.imag, norb, nelec, link_index=link_index
+        )
         return result
 
     return scipy.sparse.linalg.LinearOperator(
