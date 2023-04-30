@@ -16,6 +16,8 @@ import itertools
 
 import numpy as np
 
+from ffsim.gates import _apply_phase_shift
+
 
 def apply_givens_rotation_in_place_slow(
     vec: np.ndarray,
@@ -129,3 +131,40 @@ def apply_diag_coulomb_evolution_in_place_slow(
             for orb_b in occ_b:
                 phase *= phase_map[orb_b]
             row[j] *= phase
+
+
+def apply_diag_coulomb_evolution_in_place_numpy(
+    vec: np.ndarray,
+    mat_exp: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    mat_alpha_beta_exp: np.ndarray,
+) -> None:
+    """Apply time evolution by a diagonal Coulomb operator in-place."""
+    mat_alpha_beta_exp = mat_alpha_beta_exp.copy()
+    mat_alpha_beta_exp[np.diag_indices(norb)] **= 0.5
+    for i, j in itertools.combinations_with_replacement(range(norb), 2):
+        for sigma in range(2):
+            orbitals: list[set[int]] = [set(), set()]
+            orbitals[sigma].add(i)
+            orbitals[sigma].add(j)
+            _apply_phase_shift(
+                vec,
+                mat_exp[i, j],
+                (tuple(orbitals[0]), tuple(orbitals[1])),
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
+            orbitals = [set() for _ in range(2)]
+            orbitals[sigma].add(i)
+            orbitals[1 - sigma].add(j)
+            _apply_phase_shift(
+                vec,
+                mat_alpha_beta_exp[i, j],
+                (tuple(orbitals[0]), tuple(orbitals[1])),
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
