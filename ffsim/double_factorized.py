@@ -13,6 +13,7 @@ from __future__ import annotations
 import dataclasses
 
 import numpy as np
+from opt_einsum import contract
 
 from ffsim.linalg import double_factorized
 
@@ -44,13 +45,14 @@ class DoubleFactorizedHamiltonian:
     @property
     def two_body_tensor(self):
         """The two-body tensor."""
-        return np.einsum(
+        return contract(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             self.orbital_rotations,
             self.orbital_rotations,
             self.diag_coulomb_mats,
             self.orbital_rotations,
             self.orbital_rotations,
+            optimize="greedy",
         )
 
     def to_z_representation(self) -> "DoubleFactorizedHamiltonian":
