@@ -180,7 +180,7 @@ def _double_factorized_explicit(
     for i in range(rank):
         mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
         eigs, vecs = np.linalg.eigh(mat)
-        diag_coulomb_mats[i] = np.outer(eigs, eigs.conj())
+        diag_coulomb_mats[i] = np.outer(eigs, eigs)
         orbital_rotations[i] = vecs
 
     return diag_coulomb_mats, orbital_rotations
