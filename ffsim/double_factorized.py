@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import dataclasses
+from functools import cached_property
 
 import numpy as np
 from opt_einsum import contract
@@ -42,7 +43,7 @@ class DoubleFactorizedHamiltonian:
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
 
-    @property
+    @cached_property
     def two_body_tensor(self):
         """The two-body tensor."""
         return contract(
