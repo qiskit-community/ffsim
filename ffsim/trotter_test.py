@@ -23,7 +23,7 @@ from ffsim.random_utils import (
     random_statevector,
     random_two_body_tensor_real,
 )
-from ffsim.trotter import simulate_trotter_suzuki_double_factorized
+from ffsim.trotter import simulate_trotter_double_factorized
 
 
 @pytest.mark.parametrize(
@@ -36,7 +36,7 @@ from ffsim.trotter import simulate_trotter_suzuki_double_factorized
         (4, (2, 2), 0.1, 8, 1, 0.99),
     ],
 )
-def test_simulate_trotter_suzuki_double_factorized_random(
+def test_simulate_trotter_double_factorized_random(
     norb: int,
     nelec: tuple[int, int],
     time: float,
@@ -68,7 +68,7 @@ def test_simulate_trotter_suzuki_double_factorized_random(
     assert abs(np.vdot(exact_state, initial_state)) < 0.98
 
     # simulate
-    final_state = simulate_trotter_suzuki_double_factorized(
+    final_state = simulate_trotter_double_factorized(
         initial_state,
         df_hamiltonian,
         time,

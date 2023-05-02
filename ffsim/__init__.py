@@ -22,4 +22,4 @@ from ffsim.gates import (
     apply_tunneling_interaction,
 )
 from ffsim.states import one_hot, slater_determinant
-from ffsim.trotter import simulate_trotter_suzuki_double_factorized
+from ffsim.trotter import simulate_trotter_double_factorized

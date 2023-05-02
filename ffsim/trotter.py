@@ -54,7 +54,7 @@ def _simulate_trotter_step_iterator_symmetric(
             )
 
 
-def simulate_trotter_suzuki_double_factorized(
+def simulate_trotter_double_factorized(
     vec: np.ndarray,
     hamiltonian: DoubleFactorizedHamiltonian,
     time: float,
