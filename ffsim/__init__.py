@@ -21,5 +21,8 @@ from ffsim.gates import (
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
-from ffsim.states import one_hot, slater_determinant
-from ffsim.trotter import simulate_trotter_double_factorized
+from ffsim.states import one_hot, slater_determinant_one_rdm, slater_determinant
+from ffsim.trotter import (
+    simulate_qdrift_double_factorized,
+    simulate_trotter_double_factorized,
+)
