@@ -16,8 +16,11 @@ import numpy as np
 from pyscf.fci import cistring
 
 from ffsim.double_factorized import DoubleFactorizedHamiltonian
-from ffsim.fci import gen_orbital_rotation_index
-from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
+from ffsim.gates import (
+    apply_diag_coulomb_evolution,
+    apply_num_op_sum_evolution,
+    gen_orbital_rotation_index,
+)
 
 
 def _simulate_trotter_step_iterator(
@@ -80,6 +83,13 @@ def simulate_trotter_double_factorized(
     """
     if order < 0:
         raise ValueError(f"order must be non-negative, got {order}.")
+    if n_steps < 0:
+        raise ValueError(f"n_steps must be non-negative, got {n_steps}.")
+    if copy:
+        vec = vec.copy()
+    if n_steps == 0:
+        return vec
+
     one_body_energies, one_body_basis_change = np.linalg.eigh(
         hamiltonian.one_body_tensor
     )
@@ -93,18 +103,15 @@ def simulate_trotter_double_factorized(
     )
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
     orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
-    if copy:
-        final_state = vec.copy()
-    else:
-        final_state = vec
+
     for _ in range(n_steps):
-        final_state = _simulate_trotter_step_double_factorized(
+        vec = _simulate_trotter_step_double_factorized(
+            vec,
             one_body_energies,
             one_body_basis_change,
             hamiltonian.diag_coulomb_mats,
             hamiltonian.orbital_rotations,
             step_time,
-            final_state,
             norb=norb,
             nelec=nelec,
             order=order,
@@ -113,16 +120,17 @@ def simulate_trotter_double_factorized(
             orbital_rotation_index_a=orbital_rotation_index_a,
             orbital_rotation_index_b=orbital_rotation_index_b,
         )
-    return final_state
+
+    return vec
 
 
 def _simulate_trotter_step_double_factorized(
+    vec: np.ndarray,
     one_body_energies: np.ndarray,
     one_body_basis_change: np.ndarray,
     diag_coulomb_mats: np.ndarray,
     orbital_rotations: np.ndarray,
     time: float,
-    initial_state: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
     order: int,
@@ -131,13 +139,12 @@ def _simulate_trotter_step_double_factorized(
     orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
     orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
-    final_state = initial_state
     for term_index, time in _simulate_trotter_step_iterator(
         1 + len(diag_coulomb_mats), time, order
     ):
         if term_index == 0:
-            final_state = apply_num_op_sum_evolution(
-                final_state,
+            vec = apply_num_op_sum_evolution(
+                vec,
                 one_body_energies,
                 time,
                 norb=norb,
@@ -150,8 +157,8 @@ def _simulate_trotter_step_double_factorized(
                 copy=False,
             )
         else:
-            final_state = apply_diag_coulomb_evolution(
-                final_state,
+            vec = apply_diag_coulomb_evolution(
+                vec,
                 diag_coulomb_mats[term_index - 1],
                 time,
                 norb=norb,
@@ -163,4 +170,4 @@ def _simulate_trotter_step_double_factorized(
                 orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
-    return final_state
+    return vec

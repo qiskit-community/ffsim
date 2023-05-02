@@ -10,8 +10,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 import numpy as np
 import scipy.sparse.linalg
 from pyscf import lib
@@ -20,10 +18,10 @@ from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, make_hdiag
 from scipy.special import comb
 
 from ffsim._ffsim import (
-    gen_orbital_rotation_index_in_place,
     contract_diag_coulomb_into_buffer,
     contract_num_op_sum_spin_into_buffer,
 )
+from ffsim.gates import apply_orbital_rotation, gen_orbital_rotation_index
 
 
 def contract_2e(eri, fcivec, norb, nelec, link_index=None):
@@ -263,11 +261,14 @@ def diag_coulomb_to_linop(
     mat: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
+    orbital_rotation: np.ndarray | None = None,
     *,
     mat_alpha_beta: np.ndarray | None = None,
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert a diagonal Coulomb matrix to a linear operator."""
     # TODO add Z representation
+    if mat_alpha_beta is None:
+        mat_alpha_beta = mat
     n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
     occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
@@ -276,61 +277,47 @@ def diag_coulomb_to_linop(
     occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
         np.uint, copy=False
     )
+    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
+    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
     def matvec(vec):
-        return contract_diag_coulomb(
+        this_mat = mat
+        this_mat_alpha_beta = mat_alpha_beta
+        if orbital_rotation is not None:
+            vec, perm0 = apply_orbital_rotation(
+                vec,
+                orbital_rotation.T.conj(),
+                norb,
+                nelec,
+                allow_row_permutation=True,
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
+            )
+            this_mat = perm0 @ mat @ perm0.T
+            this_mat_alpha_beta = perm0 @ mat_alpha_beta @ perm0.T
+        vec = contract_diag_coulomb(
             vec,
-            mat,
+            this_mat,
             norb=norb,
             nelec=nelec,
-            mat_alpha_beta=mat_alpha_beta,
+            mat_alpha_beta=this_mat_alpha_beta,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
         )
+        if orbital_rotation is not None:
+            vec, perm1 = apply_orbital_rotation(
+                vec,
+                orbital_rotation,
+                norb,
+                nelec,
+                allow_col_permutation=True,
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
+                copy=False,
+            )
+            np.testing.assert_allclose(perm0, perm1.T)
+        return vec
 
     return scipy.sparse.linalg.LinearOperator(
         (dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
     )
-
-
-def gen_orbital_rotation_index(
-    norb: int, nocc: int, linkstr_index: np.ndarray | None = None
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generate string index used for performing orbital rotations.
-
-    Returns a tuple (diag_strings, off_diag_strings, off_diag_index)
-    of three Numpy arrays.
-
-    diag_strings is a norb x binom(norb - 1, nocc - 1) array.
-    The i-th row of this array contains all the strings with orbital i occupied.
-
-    off_diag_strings is a norb x binom(norb - 1, nocc) array.
-    The i-th row of this array contains all the strings with orbital i unoccupied.
-
-    off_diag_index is a norb x binom(norb - 1, nocc) x nocc x 3 array.
-    The first two axes of this array are in one-to-one correspondence with
-    off_diag_strings. For a fixed choice (i, str0) for the first two axes,
-    the last two axes form a nocc x 3 array. Each row of this array is a tuple
-    (j, str1, sign) where str1 is formed by annihilating orbital j in str0 and creating
-    orbital i, with sign giving the fermionic parity of this operation.
-    """
-    if linkstr_index is None:
-        linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
-    dim_diag = comb(norb - 1, nocc - 1, exact=True)
-    dim_off_diag = comb(norb - 1, nocc, exact=True)
-    dim = dim_diag + dim_off_diag
-    diag_strings = np.empty((norb, dim_diag), dtype=np.uint)
-    off_diag_strings = np.empty((norb, dim_off_diag), dtype=np.uint)
-    # TODO should this be int64? pyscf uses int32 for linkstr_index though
-    off_diag_index = np.empty((norb, dim_off_diag, nocc, 3), dtype=np.int32)
-    off_diag_strings_index = np.empty((norb, dim), dtype=np.uint)
-    gen_orbital_rotation_index_in_place(
-        norb=norb,
-        nocc=nocc,
-        linkstr_index=linkstr_index,
-        diag_strings=diag_strings,
-        off_diag_strings=off_diag_strings,
-        off_diag_strings_index=off_diag_strings_index,
-        off_diag_index=off_diag_index,
-    )
-    return diag_strings, off_diag_strings, off_diag_index

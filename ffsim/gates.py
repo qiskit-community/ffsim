@@ -26,9 +26,52 @@ from ffsim._ffsim import (
     apply_num_op_sum_evolution_in_place,
     apply_phase_shift_in_place,
     apply_single_column_transformation_in_place,
+    gen_orbital_rotation_index_in_place,
 )
-from ffsim.fci import gen_orbital_rotation_index
 from ffsim.linalg import givens_decomposition, lup
+
+
+def gen_orbital_rotation_index(
+    norb: int, nocc: int, linkstr_index: np.ndarray | None = None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generate string index used for performing orbital rotations.
+
+    Returns a tuple (diag_strings, off_diag_strings, off_diag_index)
+    of three Numpy arrays.
+
+    diag_strings is a norb x binom(norb - 1, nocc - 1) array.
+    The i-th row of this array contains all the strings with orbital i occupied.
+
+    off_diag_strings is a norb x binom(norb - 1, nocc) array.
+    The i-th row of this array contains all the strings with orbital i unoccupied.
+
+    off_diag_index is a norb x binom(norb - 1, nocc) x nocc x 3 array.
+    The first two axes of this array are in one-to-one correspondence with
+    off_diag_strings. For a fixed choice (i, str0) for the first two axes,
+    the last two axes form a nocc x 3 array. Each row of this array is a tuple
+    (j, str1, sign) where str1 is formed by annihilating orbital j in str0 and creating
+    orbital i, with sign giving the fermionic parity of this operation.
+    """
+    if linkstr_index is None:
+        linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
+    dim_diag = comb(norb - 1, nocc - 1, exact=True)
+    dim_off_diag = comb(norb - 1, nocc, exact=True)
+    dim = dim_diag + dim_off_diag
+    diag_strings = np.empty((norb, dim_diag), dtype=np.uint)
+    off_diag_strings = np.empty((norb, dim_off_diag), dtype=np.uint)
+    # TODO should this be int64? pyscf uses int32 for linkstr_index though
+    off_diag_index = np.empty((norb, dim_off_diag, nocc, 3), dtype=np.int32)
+    off_diag_strings_index = np.empty((norb, dim), dtype=np.uint)
+    gen_orbital_rotation_index_in_place(
+        norb=norb,
+        nocc=nocc,
+        linkstr_index=linkstr_index,
+        diag_strings=diag_strings,
+        off_diag_strings=off_diag_strings,
+        off_diag_strings_index=off_diag_strings_index,
+        off_diag_index=off_diag_index,
+    )
+    return diag_strings, off_diag_strings, off_diag_index
 
 
 def apply_orbital_rotation(
