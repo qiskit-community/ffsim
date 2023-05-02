@@ -89,7 +89,7 @@ def get_hamiltonian_linop(
         return contract_2e(two_body, vec, norb, nelec, link_index=link_index)
 
     return scipy.sparse.linalg.LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=one_body_tensor.dtype
+        shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
     )
 
 
@@ -212,7 +212,7 @@ def num_op_sum_to_linop(
         )
 
     return scipy.sparse.linalg.LinearOperator(
-        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=coeffs.dtype
+        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
     )
 
 
@@ -267,6 +267,7 @@ def diag_coulomb_to_linop(
     mat_alpha_beta: np.ndarray | None = None,
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert a diagonal Coulomb matrix to a linear operator."""
+    # TODO add Z representation
     n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
     occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
@@ -288,7 +289,7 @@ def diag_coulomb_to_linop(
         )
 
     return scipy.sparse.linalg.LinearOperator(
-        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=mat.dtype
+        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
     )
 
 
