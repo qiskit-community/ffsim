@@ -129,9 +129,9 @@ def double_factorized(
             `scipy.optimize.minimize`_ for usage.
         diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.
             This is a matrix of boolean values where the nonzero elements indicate where
-            the core tensors returned by optimization are allowed to be nonzero.
-            This parameter is only used if `optimize` is set to `True`, and only the
-            upper triangular part of the matrix is used.
+            the diagonal coulomb matrices returned by optimization are allowed to be
+            nonzero. This parameter is only used if `optimize` is set to `True`, and
+            only the upper triangular part of the matrix is used.
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
