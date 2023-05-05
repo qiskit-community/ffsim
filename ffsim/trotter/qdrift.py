@@ -36,8 +36,8 @@ def simulate_qdrift_double_factorized(
     symmetric: bool = False,
     probabilities: str | np.ndarray = "norm",
     one_rdm: np.ndarray | None = None,
+    n_samples: int = 1,
     seed=None,
-    copy: bool = True,
 ) -> np.ndarray:
     """Double-factorized Hamiltonian simulation via qDRIFT.
 
@@ -58,25 +58,29 @@ def simulate_qdrift_double_factorized(
             the initial state is completely characterized by this reduced density
             matrix, i.e., it is a Slater determinant.
         one_rdm: The one-body reduced density matrix of the initial state.
+        n_samples: The number of qDRIFT trajectories to sample.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
-        copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-              vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-              vector, but the original vector may have its data overwritten.
-              It is also possible that the original vector is returned,
-              modified in-place.
 
     Returns:
-        The final state of the simulation.
+        A Numpy array representing the final state of the simulation. The shape of the
+        array depends on the ``n_samples`` argument. If ``n_samples=1`` then it is
+        just a statevector, a one-dimensional array. Otherwise, it is a two-dimensional
+        array of shape ``(n_samples, dim)`` where ``dim`` is the dimension of the
+        statevector.
     """
     if n_steps < 0:
         raise ValueError(f"n_steps must be non-negative, got {n_steps}.")
-    if copy:
-        vec = vec.copy()
+    if n_samples < 1:
+        raise ValueError(f"n_samples must be positive, got {n_samples}.")
+
+    initial_state = vec.copy()
+
     if n_steps == 0:
-        return vec
+        if n_samples == 1:
+            return initial_state
+        return np.tile(initial_state, (n_samples, 1))
+
     if isinstance(probabilities, str):
         probabilities = qdrift_probabilities(
             hamiltonian, sampling_method=probabilities, nelec=nelec, one_rdm=one_rdm
@@ -101,45 +105,52 @@ def simulate_qdrift_double_factorized(
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
     orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
-    term_indices = rng.choice(
-        len(probabilities), size=n_steps, replace=True, p=probabilities
-    )
-    if symmetric:
-        vec = _simulate_qdrift_step_double_factorized_symmetric(
-            vec,
-            one_body_energies,
-            one_body_basis_change,
-            hamiltonian.diag_coulomb_mats,
-            hamiltonian.orbital_rotations,
-            step_time,
-            norb=norb,
-            nelec=nelec,
-            probabilities=probabilities,
-            term_indices=term_indices,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
+    results = []
+    for _ in range(n_samples):
+        # TODO cache trajectories
+        vec = initial_state.copy()
+        term_indices = rng.choice(
+            len(probabilities), size=n_steps, replace=True, p=probabilities
         )
-    else:
-        vec = _simulate_qdrift_step_double_factorized(
-            vec,
-            one_body_energies,
-            one_body_basis_change,
-            hamiltonian.diag_coulomb_mats,
-            hamiltonian.orbital_rotations,
-            step_time,
-            norb=norb,
-            nelec=nelec,
-            probabilities=probabilities,
-            term_indices=term_indices,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
-        )
+        if symmetric:
+            vec = _simulate_qdrift_step_double_factorized_symmetric(
+                vec,
+                one_body_energies,
+                one_body_basis_change,
+                hamiltonian.diag_coulomb_mats,
+                hamiltonian.orbital_rotations,
+                step_time,
+                norb=norb,
+                nelec=nelec,
+                probabilities=probabilities,
+                term_indices=term_indices,
+                occupations_a=occupations_a,
+                occupations_b=occupations_b,
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
+            )
+        else:
+            vec = _simulate_qdrift_step_double_factorized(
+                vec,
+                one_body_energies,
+                one_body_basis_change,
+                hamiltonian.diag_coulomb_mats,
+                hamiltonian.orbital_rotations,
+                step_time,
+                norb=norb,
+                nelec=nelec,
+                probabilities=probabilities,
+                term_indices=term_indices,
+                occupations_a=occupations_a,
+                occupations_b=occupations_b,
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
+            )
+        results.append(vec)
 
-    return vec
+    if n_samples == 1:
+        return results[0]
+    return np.stack(results)
 
 
 def _simulate_qdrift_step_double_factorized(

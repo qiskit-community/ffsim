@@ -234,7 +234,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     symmetric,
     target_fidelity: float,
 ):
-    rng = np.random.default_rng(1732)
+    rng = np.random.default_rng(1733)
     mol = gto.Mole()
     mol.build(
         verbose=0,
@@ -295,6 +295,27 @@ def test_simulate_qdrift_double_factorized_h_chain(
     np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
     fidelity = np.abs(np.vdot(final_state, exact_state))
     assert fidelity >= target_fidelity
+
+    # simulate
+    final_states = ffsim.simulate_qdrift_double_factorized(
+        initial_state,
+        df_hamiltonian,
+        time,
+        norb=norb,
+        nelec=nelec,
+        n_steps=n_steps,
+        symmetric=symmetric,
+        probabilities="optimal",
+        one_rdm=one_rdm,
+        n_samples=2,
+        seed=rng,
+    )
+
+    # check agreement
+    for final_state in final_states:
+        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
+        fidelity = np.abs(np.vdot(final_state, exact_state))
+        assert fidelity >= target_fidelity
 
 
 @pytest.mark.skip()
