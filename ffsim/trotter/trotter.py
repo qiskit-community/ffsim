@@ -61,11 +61,11 @@ def simulate_trotter_double_factorized(
     vec: np.ndarray,
     hamiltonian: DoubleFactorizedHamiltonian,
     time: float,
+    *,
     norb: int,
     nelec: tuple[int, int],
     n_steps: int = 1,
     order: int = 0,
-    *,
     copy: bool = True,
 ) -> np.ndarray:
     """Double-factorized Hamiltonian simulation using Trotter-Suzuki formula.
@@ -77,6 +77,13 @@ def simulate_trotter_double_factorized(
         nelec: The number of alpha and beta electrons.
         n_steps: The number of Trotter steps.
         order: The order of the Trotter decomposition.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
 
     Returns:
         The final state of the simulation.

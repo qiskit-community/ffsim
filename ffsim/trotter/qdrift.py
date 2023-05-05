@@ -27,13 +27,13 @@ def simulate_qdrift_double_factorized(
     vec: np.ndarray,
     hamiltonian: DoubleFactorizedHamiltonian,
     time: float,
+    *,
     norb: int,
     nelec: tuple[int, int],
     n_steps: int = 1,
     symmetric: bool = False,
     probabilities: str | np.ndarray = "norm",
     one_rdm: np.ndarray | None = None,
-    *,
     seed=None,
     copy: bool = True,
 ) -> np.ndarray:
@@ -56,6 +56,15 @@ def simulate_qdrift_double_factorized(
             the initial state is completely characterized by this reduced density
             matrix, i.e., it is a Slater determinant.
         one_rdm: The one-body reduced density matrix of the initial state.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
 
     Returns:
         The final state of the simulation.
