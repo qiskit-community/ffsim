@@ -195,11 +195,41 @@ def _simulate_qdrift_step_double_factorized_symmetric(
     orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
     orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
-    for term_index in term_indices:
+    # simulate the one-body term for half the time
+    vec = apply_num_op_sum_evolution(
+        vec,
+        one_body_energies,
+        0.5 * time,
+        norb=norb,
+        nelec=nelec,
+        orbital_rotation=one_body_basis_change,
+        occupations_a=occupations_a,
+        occupations_b=occupations_b,
+        orbital_rotation_index_a=orbital_rotation_index_a,
+        orbital_rotation_index_b=orbital_rotation_index_b,
+        copy=False,
+    )
+    # simulate the first sampled term
+    term_index = term_indices[0]
+    vec = apply_diag_coulomb_evolution(
+        vec,
+        diag_coulomb_mats[term_index - 1],
+        time / probabilities[term_index],
+        norb=norb,
+        nelec=nelec,
+        orbital_rotation=orbital_rotations[term_index - 1],
+        occupations_a=occupations_a,
+        occupations_b=occupations_b,
+        orbital_rotation_index_a=orbital_rotation_index_a,
+        orbital_rotation_index_b=orbital_rotation_index_b,
+        copy=False,
+    )
+    # simulate the remaining sampled terms
+    for term_index in term_indices[1:]:
         vec = apply_num_op_sum_evolution(
             vec,
             one_body_energies,
-            0.5 * time,
+            time,
             norb=norb,
             nelec=nelec,
             orbital_rotation=one_body_basis_change,
@@ -222,19 +252,21 @@ def _simulate_qdrift_step_double_factorized_symmetric(
             orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
-        vec = apply_num_op_sum_evolution(
-            vec,
-            one_body_energies,
-            0.5 * time,
-            norb=norb,
-            nelec=nelec,
-            orbital_rotation=one_body_basis_change,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
-            copy=False,
-        )
+    # simulate the one-body term for half the time
+    vec = apply_num_op_sum_evolution(
+        vec,
+        one_body_energies,
+        0.5 * time,
+        norb=norb,
+        nelec=nelec,
+        orbital_rotation=one_body_basis_change,
+        occupations_a=occupations_a,
+        occupations_b=occupations_b,
+        orbital_rotation_index_a=orbital_rotation_index_a,
+        orbital_rotation_index_b=orbital_rotation_index_b,
+        copy=False,
+    )
+
     return vec
 
 
