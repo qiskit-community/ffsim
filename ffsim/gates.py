@@ -405,7 +405,7 @@ def apply_num_op_sum_evolution(
             orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
-        coeffs = coeffs @ perm0.T
+        coeffs = perm0 @ coeffs
 
     phases = np.exp(-1j * time * coeffs)
     vec = vec.reshape((dim_a, dim_b))
@@ -427,7 +427,7 @@ def apply_num_op_sum_evolution(
             orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
-        np.testing.assert_allclose(perm0, perm1.T)
+        np.testing.assert_allclose(perm1.T, perm0)
 
     return vec
 
