@@ -446,7 +446,6 @@ def variance_one_body_tensor(one_rdm: np.ndarray, one_body_tensor: np.ndarray) -
         - abs(expectation_power(one_body_tensor, one_rdm, 1)) ** 2
     ).real
     # value may be negative due to floating point error
-    # TODO use more numerically robust method
     return max(0, variance)
 
 
@@ -518,5 +517,4 @@ def variance_diag_coulomb(
 
     variance = (expectation_squared - abs(expectation) ** 2).real
     # value may be negative due to floating point error
-    # TODO use more numerically robust method
     return max(0, variance)
