@@ -10,6 +10,8 @@
 
 """Tests for qDRIFT simulation."""
 
+from __future__ import annotations
+
 import numpy as np
 import pytest
 import scipy.linalg
