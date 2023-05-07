@@ -200,7 +200,7 @@ def _apply_orbital_rotation_spin_in_place(
     transformation_mat: np.ndarray,
     norb: int,
     nocc: int,
-    orbital_rotation_index=tuple[np.ndarray, np.ndarray, np.ndarray],
+    orbital_rotation_index: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> None:
     dim_diag = comb(norb - 1, nocc - 1, exact=True)
     dim_off_diag = comb(norb - 1, nocc, exact=True)
