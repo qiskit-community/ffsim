@@ -76,7 +76,7 @@ def simulate_qdrift_double_factorized(
 
     initial_state = vec.copy()
 
-    if n_steps == 0:
+    if n_steps == 0 or time == 0:
         if n_samples == 1:
             return initial_state
         return np.tile(initial_state, (n_samples, 1))
@@ -105,8 +105,8 @@ def simulate_qdrift_double_factorized(
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
     orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
-    results = []
-    for _ in range(n_samples):
+    results = np.empty((n_samples, initial_state.shape[0]), dtype=complex)
+    for i in range(n_samples):
         # TODO cache trajectories
         vec = initial_state.copy()
         term_indices = rng.choice(
@@ -146,11 +146,11 @@ def simulate_qdrift_double_factorized(
                 orbital_rotation_index_a=orbital_rotation_index_a,
                 orbital_rotation_index_b=orbital_rotation_index_b,
             )
-        results.append(vec)
+        results[i] = vec
 
     if n_samples == 1:
         return results[0]
-    return np.stack(results)
+    return results
 
 
 def _simulate_qdrift_step_double_factorized(
