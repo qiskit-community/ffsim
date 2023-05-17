@@ -231,7 +231,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     basis: str,
     time: float,
     n_steps: int,
-    symmetric,
+    symmetric: bool,
     target_fidelity: float,
 ):
     rng = np.random.default_rng(1733)
