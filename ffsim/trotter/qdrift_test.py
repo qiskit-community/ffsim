@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from pyscf import ao2mo, gto, mcscf, scf, symm
+from pyscf import ao2mo, gto, mcscf, scf
 
 import ffsim
 from ffsim.fci import (

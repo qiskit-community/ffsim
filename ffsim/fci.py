@@ -21,7 +21,8 @@ from ffsim._ffsim import (
     contract_diag_coulomb_into_buffer,
     contract_num_op_sum_spin_into_buffer,
 )
-from ffsim.gates import apply_orbital_rotation, gen_orbital_rotation_index
+from ffsim.gates import apply_orbital_rotation
+from ffsim.gates.orbital_rotation import gen_orbital_rotation_index
 
 
 def contract_2e(eri, fcivec, norb, nelec, link_index=None):
