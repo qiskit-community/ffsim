@@ -16,7 +16,7 @@ import itertools
 
 import numpy as np
 
-from ffsim.gates import _apply_phase_shift
+from ffsim.gates.gates import _apply_phase_shift
 
 
 def apply_givens_rotation_in_place_slow(
