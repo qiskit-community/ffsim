@@ -376,6 +376,82 @@ fn contract_diag_coulomb_into_buffer_num_rep(
         });
 }
 
+/// Contract a diagonal Coulomb operator into a buffer, Z representation.
+#[pyfunction]
+fn contract_diag_coulomb_into_buffer_z_rep(
+    vec: PyReadonlyArray2<Complex64>,
+    mat: PyReadonlyArray2<f64>,
+    norb: usize,
+    mat_alpha_beta: PyReadonlyArray2<f64>,
+    strings_a: PyReadonlyArray1<i64>,
+    strings_b: PyReadonlyArray1<i64>,
+    mut out: PyReadwriteArray2<Complex64>,
+) {
+    let vec = vec.as_array();
+    let mat = mat.as_array();
+    let mat_alpha_beta = mat_alpha_beta.as_array();
+    let strings_a = strings_a.as_array();
+    let strings_b = strings_b.as_array();
+    let mut out = out.as_array_mut();
+
+    let shape = vec.shape();
+    let dim_a = shape[0];
+    let dim_b = shape[1];
+
+    let mut alpha_coeffs = Array::zeros(dim_a);
+    let mut beta_coeffs = Array::zeros(dim_b);
+    let mut coeff_map = Array::zeros((dim_a, norb));
+
+    Zip::from(&mut beta_coeffs)
+        .and(strings_b)
+        .par_for_each(|val, str0| {
+            let mut coeff = Complex64::new(0.0, 0.0);
+            for j in 0..norb {
+                let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
+                for k in j + 1..norb {
+                    let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 } as f64;
+                    coeff += sign_j * sign_k * mat[(j, k)];
+                }
+            }
+            *val = coeff;
+        });
+
+    Zip::from(&mut alpha_coeffs)
+        .and(strings_a)
+        .and(coeff_map.rows_mut())
+        .par_for_each(|val, str0, mut row| {
+            let mut coeff = Complex64::new(0.0, 0.0);
+            for j in 0..norb {
+                let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
+                row += &(sign_j * &mat_alpha_beta.row(j));
+                for k in j + 1..norb {
+                    let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 } as f64;
+                    coeff += sign_j * sign_k * mat[(j, k)];
+                }
+            }
+            *val = coeff;
+        });
+
+    Zip::from(vec.rows())
+        .and(out.rows_mut())
+        .and(&alpha_coeffs)
+        .and(coeff_map.rows())
+        .par_for_each(|source, target, alpha_coeff, coeff_map| {
+            Zip::from(source)
+                .and(target)
+                .and(&beta_coeffs)
+                .and(strings_b)
+                .for_each(|source, target, beta_coeff, str0| {
+                    let mut coeff = *alpha_coeff + *beta_coeff;
+                    for j in 0..norb {
+                        let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
+                        coeff += sign_j * coeff_map[j];
+                    }
+                    *target += 0.25 * coeff * source;
+                })
+        });
+}
+
 /// Contract a sum of number operators into a buffer.
 #[pyfunction]
 fn contract_num_op_sum_spin_into_buffer(
@@ -413,6 +489,10 @@ fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(apply_diag_coulomb_evolution_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(
         contract_diag_coulomb_into_buffer_num_rep,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        contract_diag_coulomb_into_buffer_z_rep,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(contract_num_op_sum_spin_into_buffer, m)?)?;

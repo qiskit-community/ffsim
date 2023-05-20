@@ -22,6 +22,7 @@ from ffsim._ffsim import (
     apply_num_op_sum_evolution_in_place,
     apply_single_column_transformation_in_place,
     contract_diag_coulomb_into_buffer_num_rep,
+    contract_diag_coulomb_into_buffer_z_rep,
     contract_num_op_sum_spin_into_buffer,
     gen_orbital_rotation_index_in_place,
 )
@@ -35,6 +36,7 @@ from ffsim.slow import (
     apply_num_op_sum_evolution_in_place_slow,
     apply_single_column_transformation_in_place_slow,
     contract_diag_coulomb_into_buffer_num_rep_slow,
+    contract_diag_coulomb_into_buffer_z_rep_slow,
     contract_num_op_sum_spin_into_buffer_slow,
     gen_orbital_rotation_index_in_place_slow,
 )
@@ -237,7 +239,7 @@ def test_apply_diag_coulomb_evolution_numpy():
         np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
 
 
-def test_contract_diag_coulomb_into_buffer_slow():
+def test_contract_diag_coulomb_into_buffer_num_rep_slow():
     """Test contracting diag Coulomb operator."""
     norb = 5
     rng = np.random.default_rng()
@@ -278,7 +280,44 @@ def test_contract_diag_coulomb_into_buffer_slow():
         np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
 
 
-def test_contract():
+def test_contract_diag_coulomb_into_buffer_z_rep_slow():
+    """Test contracting diag Coulomb operator."""
+    norb = 5
+    rng = np.random.default_rng()
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        dim_a = comb(norb, n_alpha, exact=True)
+        dim_b = comb(norb, n_beta, exact=True)
+        strings_a = cistring.make_strings(range(norb), n_alpha)
+        strings_b = cistring.make_strings(range(norb), n_beta)
+        mat = np.real(random_hermitian(norb, seed=rng))
+        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
+        vec = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        out_slow = np.zeros_like(vec)
+        out_fast = np.zeros_like(vec)
+        contract_diag_coulomb_into_buffer_z_rep_slow(
+            vec,
+            mat,
+            norb=norb,
+            mat_alpha_beta=mat_alpha_beta,
+            strings_a=strings_a,
+            strings_b=strings_b,
+            out=out_slow,
+        )
+        contract_diag_coulomb_into_buffer_z_rep(
+            vec,
+            mat,
+            norb=norb,
+            mat_alpha_beta=mat_alpha_beta,
+            strings_a=strings_a,
+            strings_b=strings_b,
+            out=out_fast,
+        )
+        np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
+
+
+def test_contract_num_op_sum_spin_into_buffer_slow():
     """Test applying num op sum evolution."""
     norb = 5
     rng = np.random.default_rng()
