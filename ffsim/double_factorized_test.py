@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 from ffsim.double_factorized import double_factorized_decomposition
 from ffsim.fci import (
@@ -30,7 +31,8 @@ from ffsim.random_utils import (
 )
 
 
-def test_double_factorized_decomposition():
+@pytest.mark.parametrize("z_representation", [False, True])
+def test_double_factorized_decomposition(z_representation: bool):
     # set parameters
     norb = 4
     nelec = (2, 2)
@@ -45,14 +47,16 @@ def test_double_factorized_decomposition():
     )
 
     # perform double factorization
-    df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
+    df_hamiltonian = double_factorized_decomposition(
+        one_body_tensor, two_body_tensor, z_representation=z_representation
+    )
 
     # generate random state
     dim = get_dimension(norb, nelec)
     state = random_statevector(dim, seed=1360)
 
     # apply Hamiltonian terms
-    result = np.zeros_like(state)
+    result = df_hamiltonian.constant * state
 
     eigs, vecs = np.linalg.eigh(df_hamiltonian.one_body_tensor)
     tmp = apply_orbital_rotation(state, vecs.T.conj(), norb=norb, nelec=nelec)
@@ -66,7 +70,13 @@ def test_double_factorized_decomposition():
         tmp = apply_orbital_rotation(
             state, orbital_rotation.T.conj(), norb=norb, nelec=nelec
         )
-        tmp = contract_diag_coulomb(tmp, diag_coulomb_mat, norb=norb, nelec=nelec)
+        tmp = contract_diag_coulomb(
+            tmp,
+            diag_coulomb_mat,
+            norb=norb,
+            nelec=nelec,
+            z_representation=z_representation,
+        )
         tmp = apply_orbital_rotation(tmp, orbital_rotation, norb=norb, nelec=nelec)
         result += tmp
 
