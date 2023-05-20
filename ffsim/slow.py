@@ -152,22 +152,22 @@ def apply_diag_coulomb_evolution_in_place_z_rep_slow(
     for i, str0 in enumerate(strings_b):
         phase = 1
         for j in range(norb):
-            sign_j = -1 if str0 >> j & 1 else 1
+            sign_j = str0 >> j & 1
             for k in range(j + 1, norb):
-                sign_k = -1 if str0 >> k & 1 else 1
-                mat = mat_exp_conj if sign_j + sign_k == 0 else mat_exp
+                sign_k = str0 >> k & 1
+                mat = mat_exp_conj if sign_j ^ sign_k else mat_exp
                 phase *= mat[j, k]
         beta_phases[i] = phase
 
     for i, (row, str0) in enumerate(zip(phase_map, strings_a)):
         phase = 1
         for j in range(norb):
-            sign_j = -1 if str0 >> j & 1 else 1
-            mat = mat_alpha_beta_exp_conj if sign_j == -1 else mat_alpha_beta_exp
+            sign_j = str0 >> j & 1
+            mat = mat_alpha_beta_exp_conj if sign_j else mat_alpha_beta_exp
             row *= mat[j]
             for k in range(j + 1, norb):
-                sign_k = -1 if str0 >> k & 1 else 1
-                mat = mat_exp_conj if sign_j + sign_k == 0 else mat_exp
+                sign_k = str0 >> k & 1
+                mat = mat_exp_conj if sign_j ^ sign_k else mat_exp
                 phase *= mat[j, k]
         alpha_phases[i] = phase
 

@@ -334,11 +334,10 @@ fn apply_diag_coulomb_evolution_in_place_z_rep(
         .par_for_each(|val, str0| {
             let mut phase = Complex64::new(1.0, 0.0);
             for j in 0..norb {
-                // TODO use bool instead of integer sign
-                let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 };
+                let sign_j = str0 >> j & 1 == 1;
                 for k in j + 1..norb {
-                    let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 };
-                    let this_phase = if sign_j + sign_k == 0 {
+                    let sign_k = str0 >> k & 1 == 1;
+                    let this_phase = if sign_j ^ sign_k {
                         mat_exp_conj[(j, k)]
                     } else {
                         mat_exp[(j, k)]
@@ -355,16 +354,16 @@ fn apply_diag_coulomb_evolution_in_place_z_rep(
         .par_for_each(|val, str0, mut row| {
             let mut phase = Complex64::new(1.0, 0.0);
             for j in 0..norb {
-                let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 };
-                let this_row = if sign_j == -1 {
+                let sign_j = str0 >> j & 1 == 1;
+                let this_row = if sign_j {
                     mat_alpha_beta_exp_conj.row(j)
                 } else {
                     mat_alpha_beta_exp.row(j)
                 };
                 row *= &this_row;
                 for k in j + 1..norb {
-                    let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 };
-                    let this_phase = if sign_j + sign_k == 0 {
+                    let sign_k = str0 >> k & 1 == 1;
+                    let this_phase = if sign_j ^ sign_k {
                         mat_exp_conj[(j, k)]
                     } else {
                         mat_exp[(j, k)]
