@@ -101,9 +101,13 @@ def apply_diag_coulomb_evolution(
         mat_alpha_beta = perm0 @ mat_alpha_beta @ perm0.T
 
     mat_exp = mat.copy()
+    mat_alpha_beta_exp = mat_alpha_beta.copy()
     mat_exp[np.diag_indices(norb)] *= 0.5
+    if z_representation:
+        mat_exp *= 0.25
+        mat_alpha_beta_exp *= 0.25
     mat_exp = np.exp(-1j * time * mat_exp)
-    mat_alpha_beta_exp = np.exp(-1j * time * cast(np.ndarray, mat_alpha_beta))
+    mat_alpha_beta_exp = np.exp(-1j * time * cast(np.ndarray, mat_alpha_beta_exp))
     vec = vec.reshape((dim_a, dim_b))
 
     if z_representation:
@@ -111,8 +115,6 @@ def apply_diag_coulomb_evolution(
             strings_a = cistring.make_strings(range(norb), n_alpha)
         if strings_b is None:
             strings_b = cistring.make_strings(range(norb), n_beta)
-        mat_exp = mat_exp**0.25
-        mat_alpha_beta_exp = mat_alpha_beta_exp**0.25
         apply_diag_coulomb_evolution_in_place_z_rep_slow(
             vec,
             mat_exp,
