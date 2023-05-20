@@ -159,6 +159,7 @@ def contract_num_op_sum(
     occupations_b: np.ndarray | None = None,
 ):
     """Contract a sum of number operators with a vector."""
+    vec = vec.astype(complex, copy=False)
     n_alpha, n_beta = nelec
 
     if occupations_a is None:
@@ -230,6 +231,7 @@ def contract_diag_coulomb(
     strings_b: np.ndarray | None = None,
 ) -> np.ndarray:
     """Contract a diagonal Coulomb operator with a vector."""
+    vec = vec.astype(complex, copy=False)
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
 

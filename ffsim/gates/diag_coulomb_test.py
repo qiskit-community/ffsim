@@ -15,17 +15,100 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import scipy.linalg
+import scipy.sparse.linalg
 
+import ffsim
+from ffsim.fci import diag_coulomb_to_linop, get_dimension, one_body_tensor_to_linop
 from ffsim.gates import apply_diag_coulomb_evolution
-from ffsim.random_utils import random_hermitian
+from ffsim.random_utils import random_hermitian, random_unitary
 from ffsim.states import slater_determinant
 
 
 def test_apply_diag_coulomb_evolution():
     """Test applying time evolution of diagonal Coulomb operator."""
+    rng = np.random.default_rng()
     norb = 5
     for _ in range(5):
-        rng = np.random.default_rng()
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        nelec = (n_alpha, n_beta)
+        dim = get_dimension(norb, nelec)
+
+        mat = np.real(np.array(random_hermitian(norb, seed=rng)))
+        orbital_rotation = random_unitary(norb, seed=rng)
+        vec = ffsim.random_utils.random_statevector(dim, seed=rng)
+        time = rng.uniform()
+        result = apply_diag_coulomb_evolution(
+            vec, mat, time, norb, nelec, orbital_rotation=orbital_rotation
+        )
+
+        op = diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
+        orbital_op = one_body_tensor_to_linop(
+            scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
+        )
+        expected = scipy.sparse.linalg.expm_multiply(
+            -orbital_op, vec, traceA=np.sum(np.abs(orbital_rotation))
+        )
+        expected = scipy.sparse.linalg.expm_multiply(
+            -1j * time * op, expected, traceA=np.sum(np.abs(mat))
+        )
+        expected = scipy.sparse.linalg.expm_multiply(
+            orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
+        )
+
+        np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
+def test_apply_diag_coulomb_evolution_alpha_beta():
+    """Test applying time evolution of diagonal Coulomb operator with alpha beta mat."""
+    rng = np.random.default_rng()
+    norb = 5
+    for _ in range(5):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        nelec = (n_alpha, n_beta)
+        dim = get_dimension(norb, nelec)
+
+        mat = np.real(np.array(random_hermitian(norb, seed=rng)))
+        mat_alpha_beta = np.real(np.array(random_hermitian(norb, seed=rng)))
+        orbital_rotation = random_unitary(norb, seed=rng)
+        vec = ffsim.random_utils.random_statevector(dim, seed=rng)
+        time = rng.uniform()
+        result = apply_diag_coulomb_evolution(
+            vec,
+            mat,
+            time,
+            norb,
+            nelec,
+            mat_alpha_beta=mat_alpha_beta,
+            orbital_rotation=orbital_rotation,
+        )
+
+        op = diag_coulomb_to_linop(
+            mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
+        )
+        orbital_op = one_body_tensor_to_linop(
+            scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
+        )
+        expected = scipy.sparse.linalg.expm_multiply(
+            -orbital_op, vec, traceA=np.sum(np.abs(orbital_rotation))
+        )
+        expected = scipy.sparse.linalg.expm_multiply(
+            -1j * time * op, expected, traceA=np.sum(np.abs(mat))
+        )
+        expected = scipy.sparse.linalg.expm_multiply(
+            orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
+        )
+
+        np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
+def test_apply_diag_coulomb_evolution_eigenvalue():
+    """Test applying time evolution of diagonal Coulomb operator to eigenvector."""
+    rng = np.random.default_rng()
+    norb = 5
+    for _ in range(5):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         occupied_orbitals = (
@@ -51,11 +134,11 @@ def test_apply_diag_coulomb_evolution():
         np.testing.assert_allclose(state, original_state)
 
 
-def test_apply_diag_coulomb_evolution_alpha_beta():
-    """Test applying time evolution of diagonal Coulomb operator with alpha beta mat."""
+def test_apply_diag_coulomb_evolution_alpha_beta_eigenvalue():
+    """Test applying diagonal Coulomb evolution with alpha beta mat to eigenvector."""
+    rng = np.random.default_rng()
     norb = 5
     for _ in range(5):
-        rng = np.random.default_rng()
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         occupied_orbitals = (
