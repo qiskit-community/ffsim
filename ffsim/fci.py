@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import scipy.sparse.linalg
 from pyscf import lib
@@ -18,7 +20,7 @@ from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, make_hdiag
 from scipy.special import comb
 
 from ffsim._ffsim import (
-    contract_diag_coulomb_into_buffer,
+    contract_diag_coulomb_into_buffer_num_rep,
     contract_num_op_sum_spin_into_buffer,
 )
 from ffsim.gates import apply_orbital_rotation
@@ -222,6 +224,7 @@ def contract_diag_coulomb(
     nelec: tuple[int, int],
     *,
     mat_alpha_beta: np.ndarray | None = None,
+    z_representation: bool = False,
     occupations_a: np.ndarray | None = None,
     occupations_b: np.ndarray | None = None,
 ) -> np.ndarray:
@@ -230,8 +233,6 @@ def contract_diag_coulomb(
         mat_alpha_beta = mat
 
     n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
     if occupations_a is None:
         occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
@@ -241,11 +242,47 @@ def contract_diag_coulomb(
             np.uint, copy=False
         )
 
+    if z_representation:
+        return _contract_diag_coulomb_z_rep(
+            vec,
+            mat,
+            norb=norb,
+            nelec=nelec,
+            mat_alpha_beta=mat_alpha_beta,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
+        )
+
+    return _contract_diag_coulomb_num_rep(
+        vec,
+        mat,
+        norb=norb,
+        nelec=nelec,
+        mat_alpha_beta=mat_alpha_beta,
+        occupations_a=occupations_a,
+        occupations_b=occupations_b,
+    )
+
+
+def _contract_diag_coulomb_num_rep(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    mat_alpha_beta: np.ndarray,
+    occupations_a: np.ndarray,
+    occupations_b: np.ndarray,
+) -> np.ndarray:
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
+
     mat = mat.copy()
     mat[np.diag_indices(norb)] *= 0.5
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
-    contract_diag_coulomb_into_buffer(
+    contract_diag_coulomb_into_buffer_num_rep(
         vec,
         mat,
         norb=norb,
@@ -258,6 +295,80 @@ def contract_diag_coulomb(
     return out.reshape(-1)
 
 
+def _contract_diag_coulomb_z_rep(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    mat_alpha_beta: np.ndarray,
+    occupations_a: np.ndarray,
+    occupations_b: np.ndarray,
+) -> np.ndarray:
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
+
+    mat = mat.copy()
+    mat[np.diag_indices(norb)] *= 0.5
+    vec = vec.reshape((dim_a, dim_b))
+    out = np.zeros_like(vec)
+    contract_diag_coulomb_into_buffer_z_rep_slow(
+        vec,
+        mat,
+        norb=norb,
+        mat_alpha_beta=mat_alpha_beta,
+        occupations_a=occupations_a,
+        occupations_b=occupations_b,
+        out=out,
+    )
+
+    return out.reshape(-1)
+
+
+def contract_diag_coulomb_into_buffer_z_rep_slow(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    mat_alpha_beta: np.ndarray,
+    occupations_a: np.ndarray,
+    occupations_b: np.ndarray,
+    out: np.ndarray,
+) -> None:
+    dim_a, dim_b = vec.shape
+    alpha_coeffs = np.empty((dim_a,), dtype=complex)
+    beta_coeffs = np.empty((dim_b,), dtype=complex)
+    coeff_map = np.zeros((dim_a, norb), dtype=complex)
+
+    for i, occ in enumerate(occupations_b):
+        coeff = 0
+        for j, k in itertools.combinations(range(norb), 2):
+            sign_j = -1 if j in occ else 1
+            sign_k = -1 if k in occ else 1
+            coeff += sign_j * sign_k * mat[j, k]
+        beta_coeffs[i] = coeff
+
+    for i, (row, occ) in enumerate(zip(coeff_map, occupations_a)):
+        coeff = 0
+        for j in range(norb):
+            sign_j = -1 if j in occ else 1
+            row += sign_j * mat_alpha_beta[j]
+            for k in range(j + 1, norb):
+                sign_k = -1 if k in occ else 1
+                coeff += sign_j * sign_k * mat[j, k]
+        alpha_coeffs[i] = coeff
+
+    for source, target, alpha_coeff, coeff_map in zip(
+        vec, out, alpha_coeffs, coeff_map
+    ):
+        for i, occ in enumerate(occupations_b):
+            coeff = alpha_coeff + beta_coeffs[i]
+            for j in range(norb):
+                sign_j = -1 if j in occ else 1
+                coeff += sign_j * coeff_map[j]
+            target[i] += 0.25 * coeff * source[i]
+
+
 def diag_coulomb_to_linop(
     mat: np.ndarray,
     norb: int,
@@ -265,9 +376,9 @@ def diag_coulomb_to_linop(
     orbital_rotation: np.ndarray | None = None,
     *,
     mat_alpha_beta: np.ndarray | None = None,
+    z_representation: bool = False,
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert a diagonal Coulomb matrix to a linear operator."""
-    # TODO add Z representation
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
     n_alpha, n_beta = nelec
@@ -302,6 +413,7 @@ def diag_coulomb_to_linop(
             norb=norb,
             nelec=nelec,
             mat_alpha_beta=this_mat_alpha_beta,
+            z_representation=z_representation,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
         )
