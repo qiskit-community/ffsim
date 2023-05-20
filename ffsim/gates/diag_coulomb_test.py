@@ -70,7 +70,8 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
-def test_apply_diag_coulomb_evolution_alpha_beta():
+@pytest.mark.parametrize("z_representation", [False, True])
+def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
     """Test applying time evolution of diagonal Coulomb operator with alpha beta mat."""
     rng = np.random.default_rng()
     norb = 5
@@ -93,10 +94,15 @@ def test_apply_diag_coulomb_evolution_alpha_beta():
             nelec,
             mat_alpha_beta=mat_alpha_beta,
             orbital_rotation=orbital_rotation,
+            z_representation=z_representation,
         )
 
         op = diag_coulomb_to_linop(
-            mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
+            mat,
+            norb=norb,
+            nelec=nelec,
+            mat_alpha_beta=mat_alpha_beta,
+            z_representation=z_representation,
         )
         orbital_op = one_body_tensor_to_linop(
             scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
