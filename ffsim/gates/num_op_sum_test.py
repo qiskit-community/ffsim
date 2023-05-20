@@ -17,7 +17,7 @@ import numpy as np
 from ffsim.fci import get_dimension, one_body_tensor_to_linop
 from ffsim.gates import apply_num_op_sum_evolution
 from ffsim.linalg import expm_multiply_taylor
-from ffsim.random_utils import random_hermitian, random_statevector
+from ffsim.random import random_hermitian, random_statevector
 from ffsim.states import slater_determinant
 
 

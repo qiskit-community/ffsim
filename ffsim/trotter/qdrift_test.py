@@ -27,7 +27,7 @@ from ffsim.fci import (
     one_body_tensor_to_linop,
 )
 from ffsim.linalg import double_factorized
-from ffsim.random_utils import (
+from ffsim.random import (
     random_hermitian,
     random_real_symmetric_matrix,
     random_statevector,

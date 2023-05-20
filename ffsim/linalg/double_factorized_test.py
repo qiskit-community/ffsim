@@ -21,7 +21,7 @@ from ffsim.linalg import (
     modified_cholesky,
 )
 from ffsim.linalg.double_factorized import optimal_diag_coulomb_mats
-from ffsim.random_utils import random_two_body_tensor_real, random_unitary
+from ffsim.random import random_two_body_tensor_real, random_unitary
 
 
 @pytest.mark.parametrize("dim", [4, 5])

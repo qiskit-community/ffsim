@@ -10,7 +10,7 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import linalg, random_utils
+from ffsim import linalg, random
 from ffsim.double_factorized import double_factorized_decomposition
 from ffsim.gates import (
     apply_diag_coulomb_evolution,

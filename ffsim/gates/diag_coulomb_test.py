@@ -22,7 +22,7 @@ import scipy.sparse.linalg
 import ffsim
 from ffsim.fci import diag_coulomb_to_linop, get_dimension, one_body_tensor_to_linop
 from ffsim.gates import apply_diag_coulomb_evolution
-from ffsim.random_utils import random_hermitian, random_unitary
+from ffsim.random import random_hermitian, random_unitary
 from ffsim.states import slater_determinant
 
 
@@ -39,7 +39,7 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
 
         mat = np.real(np.array(random_hermitian(norb, seed=rng)))
         orbital_rotation = random_unitary(norb, seed=rng)
-        vec = ffsim.random_utils.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
         time = rng.uniform()
         result = apply_diag_coulomb_evolution(
             vec,
@@ -84,7 +84,7 @@ def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
         mat = np.real(np.array(random_hermitian(norb, seed=rng)))
         mat_alpha_beta = np.real(np.array(random_hermitian(norb, seed=rng)))
         orbital_rotation = random_unitary(norb, seed=rng)
-        vec = ffsim.random_utils.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
         time = rng.uniform()
         result = apply_diag_coulomb_evolution(
             vec,

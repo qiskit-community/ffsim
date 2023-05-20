@@ -24,7 +24,7 @@ from ffsim.fci import (
     get_hamiltonian_linop,
 )
 from ffsim.gates import apply_orbital_rotation
-from ffsim.random_utils import (
+from ffsim.random import (
     random_hermitian,
     random_statevector,
     random_two_body_tensor_real,
