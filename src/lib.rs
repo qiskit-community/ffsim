@@ -303,7 +303,7 @@ fn apply_diag_coulomb_evolution_in_place(
 
 /// Contract a diagonal Coulomb operator into a buffer.
 #[pyfunction]
-fn contract_diag_coulomb_into_buffer(
+fn contract_diag_coulomb_into_buffer_num_rep(
     vec: PyReadonlyArray2<Complex64>,
     mat: PyReadonlyArray2<f64>,
     norb: usize,
@@ -411,7 +411,10 @@ fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(apply_num_op_sum_evolution_in_place, m)?)?;
     m.add_function(wrap_pyfunction!(apply_diag_coulomb_evolution_in_place, m)?)?;
-    m.add_function(wrap_pyfunction!(contract_diag_coulomb_into_buffer, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        contract_diag_coulomb_into_buffer_num_rep,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(contract_num_op_sum_spin_into_buffer, m)?)?;
     Ok(())
 }

@@ -170,7 +170,7 @@ def apply_diag_coulomb_evolution_in_place_numpy(
             )
 
 
-def contract_diag_coulomb_into_buffer_slow(
+def contract_diag_coulomb_into_buffer_num_rep_slow(
     vec: np.ndarray,
     mat: np.ndarray,
     norb: int,

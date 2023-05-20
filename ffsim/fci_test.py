@@ -53,6 +53,36 @@ def test_contract_diag_coulomb():
     np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
+def test_contract_diag_coulomb_z_representation():
+    """Test contracting a diagonal Coulomb matrix in the Z representation."""
+    norb = 5
+    rng = np.random.default_rng()
+    n_alpha = rng.integers(1, norb + 1)
+    n_beta = rng.integers(1, norb + 1)
+    occupied_orbitals = (
+        rng.choice(norb, n_alpha, replace=False),
+        rng.choice(norb, n_beta, replace=False),
+    )
+    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+    state = slater_determinant(norb, occupied_orbitals)
+
+    mat = np.real(random_hermitian(norb, seed=rng))
+    result = contract_diag_coulomb(
+        state, mat, norb=norb, nelec=nelec, z_representation=True
+    )
+
+    eig = 0
+    for a, b in itertools.combinations(range(2 * norb), 2):
+        sigma, i = divmod(a, norb)
+        tau, j = divmod(b, norb)
+        sign_i = -1 if i in occupied_orbitals[sigma] else 1
+        sign_j = -1 if j in occupied_orbitals[tau] else 1
+        eig += 0.25 * sign_i * sign_j * mat[i, j]
+    expected = eig * state
+
+    np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
 def test_contract_num_op_sum():
     """Test contracting sum of number operators."""
     norb = 5
