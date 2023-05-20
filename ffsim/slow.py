@@ -97,7 +97,7 @@ def apply_num_op_sum_evolution_in_place_slow(
         row *= phase
 
 
-def apply_diag_coulomb_evolution_in_place_slow(
+def apply_diag_coulomb_evolution_in_place_num_rep_slow(
     vec: np.ndarray,
     mat_exp: np.ndarray,
     norb: int,
