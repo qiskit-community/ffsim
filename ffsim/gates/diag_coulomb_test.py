@@ -21,8 +21,6 @@ import scipy.sparse.linalg
 
 import ffsim
 from ffsim.fci import diag_coulomb_to_linop, get_dimension, one_body_tensor_to_linop
-from ffsim.gates import apply_diag_coulomb_evolution
-from ffsim.random import random_hermitian, random_unitary
 from ffsim.states import slater_determinant
 
 
@@ -37,11 +35,11 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
         nelec = (n_alpha, n_beta)
         dim = get_dimension(norb, nelec)
 
-        mat = np.real(np.array(random_hermitian(norb, seed=rng)))
-        orbital_rotation = random_unitary(norb, seed=rng)
+        mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim, seed=rng)
         time = rng.uniform()
-        result = apply_diag_coulomb_evolution(
+        result = ffsim.apply_diag_coulomb_evolution(
             vec,
             mat,
             time,
@@ -81,12 +79,14 @@ def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
         nelec = (n_alpha, n_beta)
         dim = get_dimension(norb, nelec)
 
-        mat = np.real(np.array(random_hermitian(norb, seed=rng)))
-        mat_alpha_beta = np.real(np.array(random_hermitian(norb, seed=rng)))
-        orbital_rotation = random_unitary(norb, seed=rng)
+        mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
+        mat_alpha_beta = np.real(
+            np.array(ffsim.random.random_hermitian(norb, seed=rng))
+        )
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim, seed=rng)
         time = rng.uniform()
-        result = apply_diag_coulomb_evolution(
+        result = ffsim.apply_diag_coulomb_evolution(
             vec,
             mat,
             time,
@@ -135,9 +135,9 @@ def test_apply_diag_coulomb_evolution_eigenvalue():
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
 
-        mat = np.real(np.array(random_hermitian(norb, seed=rng)))
+        mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
         time = 0.6
-        result = apply_diag_coulomb_evolution(state, mat, time, norb, nelec)
+        result = ffsim.apply_diag_coulomb_evolution(state, mat, time, norb, nelec)
 
         eig = 0
         for i, j in itertools.product(range(norb), repeat=2):
@@ -165,10 +165,12 @@ def test_apply_diag_coulomb_evolution_alpha_beta_eigenvalue():
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
 
-        mat = np.real(np.array(random_hermitian(norb, seed=rng)))
-        mat_alpha_beta = np.real(np.array(random_hermitian(norb, seed=rng)))
+        mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
+        mat_alpha_beta = np.real(
+            np.array(ffsim.random.random_hermitian(norb, seed=rng))
+        )
         time = 0.6
-        result = apply_diag_coulomb_evolution(
+        result = ffsim.apply_diag_coulomb_evolution(
             state, mat, time, norb, nelec, mat_alpha_beta=mat_alpha_beta
         )
 
