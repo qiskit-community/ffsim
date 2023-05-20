@@ -18,9 +18,11 @@ import numpy as np
 from pyscf.fci import cistring
 from scipy.special import comb
 
-from ffsim._ffsim import apply_diag_coulomb_evolution_in_place
+from ffsim._ffsim import (
+    apply_diag_coulomb_evolution_in_place_num_rep,
+    apply_diag_coulomb_evolution_in_place_z_rep,
+)
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
-from ffsim.slow import apply_diag_coulomb_evolution_in_place_z_rep_slow
 
 
 def apply_diag_coulomb_evolution(
@@ -115,7 +117,7 @@ def apply_diag_coulomb_evolution(
             strings_a = cistring.make_strings(range(norb), n_alpha)
         if strings_b is None:
             strings_b = cistring.make_strings(range(norb), n_beta)
-        apply_diag_coulomb_evolution_in_place_z_rep_slow(
+        apply_diag_coulomb_evolution_in_place_z_rep(
             vec,
             mat_exp,
             mat_exp.conj(),
@@ -132,7 +134,7 @@ def apply_diag_coulomb_evolution(
             occupations_b = cistring._gen_occslst(range(norb), n_beta)
         occupations_a = occupations_a.astype(np.uint, copy=False)
         occupations_b = occupations_b.astype(np.uint, copy=False)
-        apply_diag_coulomb_evolution_in_place(
+        apply_diag_coulomb_evolution_in_place_num_rep(
             vec,
             mat_exp,
             norb=norb,
