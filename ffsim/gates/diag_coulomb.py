@@ -20,6 +20,7 @@ from scipy.special import comb
 
 from ffsim._ffsim import apply_diag_coulomb_evolution_in_place
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
+from ffsim.slow import apply_diag_coulomb_evolution_in_place_z_rep_slow
 
 
 def apply_diag_coulomb_evolution(
@@ -31,8 +32,11 @@ def apply_diag_coulomb_evolution(
     orbital_rotation: np.ndarray | None = None,
     *,
     mat_alpha_beta: np.ndarray | None = None,
+    z_representation: bool = False,
     occupations_a: np.ndarray | None = None,
     occupations_b: np.ndarray | None = None,
+    strings_a: np.ndarray | None = None,
+    strings_b: np.ndarray | None = None,
     orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
@@ -81,12 +85,6 @@ def apply_diag_coulomb_evolution(
     n_alpha, n_beta = nelec
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
-    if occupations_a is None:
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha)
-    if occupations_b is None:
-        occupations_b = cistring._gen_occslst(range(norb), n_beta)
-    occupations_a = occupations_a.astype(np.uint, copy=False)
-    occupations_b = occupations_b.astype(np.uint, copy=False)
 
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(
@@ -107,14 +105,39 @@ def apply_diag_coulomb_evolution(
     mat_exp = np.exp(-1j * time * mat_exp)
     mat_alpha_beta_exp = np.exp(-1j * time * cast(np.ndarray, mat_alpha_beta))
     vec = vec.reshape((dim_a, dim_b))
-    apply_diag_coulomb_evolution_in_place(
-        vec,
-        mat_exp,
-        norb=norb,
-        mat_alpha_beta_exp=mat_alpha_beta_exp,
-        occupations_a=occupations_a,
-        occupations_b=occupations_b,
-    )
+
+    if z_representation:
+        if strings_a is None:
+            strings_a = cistring.make_strings(range(norb), n_alpha)
+        if strings_b is None:
+            strings_b = cistring.make_strings(range(norb), n_beta)
+        mat_exp = mat_exp**0.25
+        mat_alpha_beta_exp = mat_alpha_beta_exp**0.25
+        apply_diag_coulomb_evolution_in_place_z_rep_slow(
+            vec,
+            mat_exp,
+            mat_exp.conj(),
+            norb=norb,
+            mat_alpha_beta_exp=mat_alpha_beta_exp,
+            mat_alpha_beta_exp_conj=mat_alpha_beta_exp.conj(),
+            strings_a=strings_a,
+            strings_b=strings_b,
+        )
+    else:
+        if occupations_a is None:
+            occupations_a = cistring._gen_occslst(range(norb), n_alpha)
+        if occupations_b is None:
+            occupations_b = cistring._gen_occslst(range(norb), n_beta)
+        occupations_a = occupations_a.astype(np.uint, copy=False)
+        occupations_b = occupations_b.astype(np.uint, copy=False)
+        apply_diag_coulomb_evolution_in_place(
+            vec,
+            mat_exp,
+            norb=norb,
+            mat_alpha_beta_exp=mat_alpha_beta_exp,
+            occupations_a=occupations_a,
+            occupations_b=occupations_b,
+        )
     vec = vec.reshape(-1)
 
     if orbital_rotation is not None:
