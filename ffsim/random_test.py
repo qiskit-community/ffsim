@@ -16,25 +16,13 @@ import itertools
 
 import numpy as np
 
-from ffsim.linalg import (
-    is_orthogonal,
-    is_real_symmetric,
-    is_special_orthogonal,
-    is_unitary,
-)
-from ffsim.random import (
-    random_orthogonal,
-    random_real_symmetric_matrix,
-    random_special_orthogonal,
-    random_two_body_tensor_real,
-    random_unitary,
-)
+import ffsim
 
 
 def test_random_two_body_tensor_symmetry():
     """Test random two-body tensor symmetry."""
     n_orbitals = 5
-    two_body_tensor = random_two_body_tensor_real(n_orbitals)
+    two_body_tensor = ffsim.random.random_two_body_tensor_real(n_orbitals)
     for p, q, r, s in itertools.product(range(n_orbitals), repeat=4):
         val = two_body_tensor[p, q, r, s]
         np.testing.assert_allclose(two_body_tensor[r, s, p, q], val)
@@ -49,42 +37,42 @@ def test_random_two_body_tensor_symmetry():
 def test_random_unitary():
     """Test random unitary."""
     dim = 5
-    mat = random_unitary(dim)
-    assert is_unitary(mat)
+    mat = ffsim.random.random_unitary(dim)
+    assert ffsim.linalg.is_unitary(mat)
 
 
 def test_random_orthogonal():
     """Test random orthogonal."""
     dim = 5
-    mat = random_orthogonal(dim)
-    assert is_orthogonal(mat)
+    mat = ffsim.random.random_orthogonal(dim)
+    assert ffsim.linalg.is_orthogonal(mat)
     assert mat.dtype == float
 
-    mat = random_orthogonal(dim, dtype=complex)
-    assert is_orthogonal(mat)
+    mat = ffsim.random.random_orthogonal(dim, dtype=complex)
+    assert ffsim.linalg.is_orthogonal(mat)
     assert mat.dtype == complex
 
 
 def test_random_special_orthogonal():
     """Test random special orthogonal."""
     dim = 5
-    mat = random_special_orthogonal(dim)
-    assert is_special_orthogonal(mat)
+    mat = ffsim.random.random_special_orthogonal(dim)
+    assert ffsim.linalg.is_special_orthogonal(mat)
     assert mat.dtype == float
 
-    mat = random_special_orthogonal(dim, dtype=np.float32)
-    assert is_special_orthogonal(mat, atol=1e-5)
+    mat = ffsim.random.random_special_orthogonal(dim, dtype=np.float32)
+    assert ffsim.linalg.is_special_orthogonal(mat, atol=1e-5)
     assert mat.dtype == np.float32
 
 
 def test_random_real_symmetric_matrix():
     """Test random real symmetric matrix."""
     dim = 5
-    mat = random_real_symmetric_matrix(dim)
-    assert is_real_symmetric(mat)
+    mat = ffsim.random.random_real_symmetric_matrix(dim)
+    assert ffsim.linalg.is_real_symmetric(mat)
     np.testing.assert_allclose(np.linalg.matrix_rank(mat), dim)
 
     rank = 3
-    mat = random_real_symmetric_matrix(dim, rank=rank)
-    assert is_real_symmetric(mat)
+    mat = ffsim.random.random_real_symmetric_matrix(dim, rank=rank)
+    assert ffsim.linalg.is_real_symmetric(mat)
     np.testing.assert_allclose(np.linalg.matrix_rank(mat), rank)
