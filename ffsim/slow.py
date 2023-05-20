@@ -208,6 +208,49 @@ def contract_diag_coulomb_into_buffer_num_rep_slow(
             target[j] += coeff * source[j]
 
 
+def contract_diag_coulomb_into_buffer_z_rep_slow(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    mat_alpha_beta: np.ndarray,
+    strings_a: np.ndarray,
+    strings_b: np.ndarray,
+    out: np.ndarray,
+) -> None:
+    dim_a, dim_b = vec.shape
+    alpha_coeffs = np.empty((dim_a,), dtype=complex)
+    beta_coeffs = np.empty((dim_b,), dtype=complex)
+    coeff_map = np.zeros((dim_a, norb), dtype=complex)
+
+    for i, str0 in enumerate(strings_b):
+        coeff = 0
+        for j, k in itertools.combinations(range(norb), 2):
+            sign_j = -1 if str0 >> j & 1 else 1
+            sign_k = -1 if str0 >> k & 1 else 1
+            coeff += sign_j * sign_k * mat[j, k]
+        beta_coeffs[i] = coeff
+
+    for i, (row, str0) in enumerate(zip(coeff_map, strings_a)):
+        coeff = 0
+        for j in range(norb):
+            sign_j = -1 if str0 >> j & 1 else 1
+            row += sign_j * mat_alpha_beta[j]
+            for k in range(j + 1, norb):
+                sign_k = -1 if str0 >> k & 1 else 1
+                coeff += sign_j * sign_k * mat[j, k]
+        alpha_coeffs[i] = coeff
+
+    for source, target, alpha_coeff, coeff_map in zip(
+        vec, out, alpha_coeffs, coeff_map
+    ):
+        for i, str0 in enumerate(strings_b):
+            coeff = alpha_coeff + beta_coeffs[i]
+            for j in range(norb):
+                sign_j = -1 if str0 >> j & 1 else 1
+                coeff += sign_j * coeff_map[j]
+            target[i] += 0.25 * coeff * source[i]
+
+
 def contract_num_op_sum_spin_into_buffer_slow(
     vec: np.ndarray, coeffs: np.ndarray, occupations: np.ndarray, out: np.ndarray
 ) -> None:

@@ -10,8 +10,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 import numpy as np
 import scipy.sparse.linalg
 from pyscf import lib
@@ -21,6 +19,7 @@ from scipy.special import comb
 
 from ffsim._ffsim import (
     contract_diag_coulomb_into_buffer_num_rep,
+    contract_diag_coulomb_into_buffer_z_rep,
     contract_num_op_sum_spin_into_buffer,
 )
 from ffsim.gates import apply_orbital_rotation
@@ -227,12 +226,30 @@ def contract_diag_coulomb(
     z_representation: bool = False,
     occupations_a: np.ndarray | None = None,
     occupations_b: np.ndarray | None = None,
+    strings_a: np.ndarray | None = None,
+    strings_b: np.ndarray | None = None,
 ) -> np.ndarray:
     """Contract a diagonal Coulomb operator with a vector."""
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
 
     n_alpha, n_beta = nelec
+
+    if z_representation:
+        if strings_a is None:
+            strings_a = cistring.make_strings(range(norb), n_alpha)
+        if strings_b is None:
+            strings_b = cistring.make_strings(range(norb), n_beta)
+        return _contract_diag_coulomb_z_rep(
+            vec,
+            mat,
+            norb=norb,
+            nelec=nelec,
+            mat_alpha_beta=mat_alpha_beta,
+            strings_a=strings_a,
+            strings_b=strings_b,
+        )
+
     if occupations_a is None:
         occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
@@ -241,18 +258,6 @@ def contract_diag_coulomb(
         occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
-
-    if z_representation:
-        return _contract_diag_coulomb_z_rep(
-            vec,
-            mat,
-            norb=norb,
-            nelec=nelec,
-            mat_alpha_beta=mat_alpha_beta,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-        )
-
     return _contract_diag_coulomb_num_rep(
         vec,
         mat,
@@ -302,8 +307,8 @@ def _contract_diag_coulomb_z_rep(
     nelec: tuple[int, int],
     *,
     mat_alpha_beta: np.ndarray,
-    occupations_a: np.ndarray,
-    occupations_b: np.ndarray,
+    strings_a: np.ndarray,
+    strings_b: np.ndarray,
 ) -> np.ndarray:
     n_alpha, n_beta = nelec
     dim_a = comb(norb, n_alpha, exact=True)
@@ -313,60 +318,17 @@ def _contract_diag_coulomb_z_rep(
     mat[np.diag_indices(norb)] *= 0.5
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
-    contract_diag_coulomb_into_buffer_z_rep_slow(
+    contract_diag_coulomb_into_buffer_z_rep(
         vec,
         mat,
         norb=norb,
         mat_alpha_beta=mat_alpha_beta,
-        occupations_a=occupations_a,
-        occupations_b=occupations_b,
+        strings_a=strings_a,
+        strings_b=strings_b,
         out=out,
     )
 
     return out.reshape(-1)
-
-
-def contract_diag_coulomb_into_buffer_z_rep_slow(
-    vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    mat_alpha_beta: np.ndarray,
-    occupations_a: np.ndarray,
-    occupations_b: np.ndarray,
-    out: np.ndarray,
-) -> None:
-    dim_a, dim_b = vec.shape
-    alpha_coeffs = np.empty((dim_a,), dtype=complex)
-    beta_coeffs = np.empty((dim_b,), dtype=complex)
-    coeff_map = np.zeros((dim_a, norb), dtype=complex)
-
-    for i, occ in enumerate(occupations_b):
-        coeff = 0
-        for j, k in itertools.combinations(range(norb), 2):
-            sign_j = -1 if j in occ else 1
-            sign_k = -1 if k in occ else 1
-            coeff += sign_j * sign_k * mat[j, k]
-        beta_coeffs[i] = coeff
-
-    for i, (row, occ) in enumerate(zip(coeff_map, occupations_a)):
-        coeff = 0
-        for j in range(norb):
-            sign_j = -1 if j in occ else 1
-            row += sign_j * mat_alpha_beta[j]
-            for k in range(j + 1, norb):
-                sign_k = -1 if k in occ else 1
-                coeff += sign_j * sign_k * mat[j, k]
-        alpha_coeffs[i] = coeff
-
-    for source, target, alpha_coeff, coeff_map in zip(
-        vec, out, alpha_coeffs, coeff_map
-    ):
-        for i, occ in enumerate(occupations_b):
-            coeff = alpha_coeff + beta_coeffs[i]
-            for j in range(norb):
-                sign_j = -1 if j in occ else 1
-                coeff += sign_j * coeff_map[j]
-            target[i] += 0.25 * coeff * source[i]
 
 
 def diag_coulomb_to_linop(
@@ -383,12 +345,21 @@ def diag_coulomb_to_linop(
         mat_alpha_beta = mat
     n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
-    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
-        np.uint, copy=False
-    )
-    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
-        np.uint, copy=False
-    )
+
+    occupations_a = None
+    occupations_b = None
+    strings_a = None
+    strings_b = None
+    if z_representation:
+        strings_a = cistring.make_strings(range(norb), n_alpha)
+        strings_b = cistring.make_strings(range(norb), n_beta)
+    else:
+        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+            np.uint, copy=False
+        )
+        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+            np.uint, copy=False
+        )
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
     orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
@@ -416,6 +387,8 @@ def diag_coulomb_to_linop(
             z_representation=z_representation,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
+            strings_a=strings_a,
+            strings_b=strings_b,
         )
         if orbital_rotation is not None:
             vec, perm1 = apply_orbital_rotation(
