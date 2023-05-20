@@ -24,7 +24,7 @@ from ffsim.gates import (
     apply_tunneling_interaction,
 )
 from ffsim.linalg import expm_multiply_taylor
-from ffsim.random_utils import random_statevector
+from ffsim.random import random_statevector
 from ffsim.states import slater_determinant
 
 

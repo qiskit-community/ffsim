@@ -21,7 +21,7 @@ from pyscf.fci.fci_slow import contract_1e
 from ffsim.fci import get_dimension, one_body_tensor_to_linop
 from ffsim.gates import apply_orbital_rotation
 from ffsim.linalg import expm_multiply_taylor
-from ffsim.random_utils import random_hermitian, random_statevector, random_unitary
+from ffsim.random import random_hermitian, random_statevector, random_unitary
 from ffsim.states import slater_determinant
 
 

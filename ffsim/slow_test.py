@@ -29,7 +29,7 @@ from ffsim._ffsim import (
 )
 from ffsim.fci import gen_orbital_rotation_index
 from ffsim.gates.orbital_rotation import _zero_one_subspace_indices
-from ffsim.random_utils import random_hermitian, random_statevector, random_unitary
+from ffsim.random import random_hermitian, random_statevector, random_unitary
 from ffsim.slow import (
     apply_diag_coulomb_evolution_in_place_numpy,
     apply_diag_coulomb_evolution_in_place_num_rep_slow,

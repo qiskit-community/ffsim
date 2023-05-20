@@ -23,7 +23,7 @@ from ffsim.fci import (
     get_dimension,
     num_op_sum_to_linop,
 )
-from ffsim.random_utils import random_hermitian, random_statevector
+from ffsim.random import random_hermitian, random_statevector
 from ffsim.states import slater_determinant
 
 

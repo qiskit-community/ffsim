@@ -18,7 +18,7 @@ import pytest
 from ffsim.double_factorized import double_factorized_decomposition
 from ffsim.fci import get_dimension, get_hamiltonian_linop
 from ffsim.linalg import expm_multiply_taylor
-from ffsim.random_utils import (
+from ffsim.random import (
     random_hermitian,
     random_statevector,
     random_two_body_tensor_real,

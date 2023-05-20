@@ -18,7 +18,7 @@ from ffsim.linalg import (
     apply_matrix_to_slices,
     givens_decomposition,
 )
-from ffsim.random_utils import random_unitary
+from ffsim.random import random_unitary
 
 
 def test_givens_decomposition():

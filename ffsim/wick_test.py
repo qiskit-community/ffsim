@@ -16,7 +16,7 @@ import scipy.sparse.linalg
 
 import ffsim
 from ffsim.fci import get_dimension, one_body_tensor_to_linop
-from ffsim.random_utils import random_unitary
+from ffsim.random import random_unitary
 from ffsim.wick import expectation_power, expectation_product
 
 

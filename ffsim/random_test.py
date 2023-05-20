@@ -22,7 +22,7 @@ from ffsim.linalg import (
     is_special_orthogonal,
     is_unitary,
 )
-from ffsim.random_utils import (
+from ffsim.random import (
     random_orthogonal,
     random_real_symmetric_matrix,
     random_special_orthogonal,
