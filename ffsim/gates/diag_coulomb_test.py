@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pytest
 import scipy.linalg
 import scipy.sparse.linalg
 
@@ -25,7 +26,8 @@ from ffsim.random_utils import random_hermitian, random_unitary
 from ffsim.states import slater_determinant
 
 
-def test_apply_diag_coulomb_evolution():
+@pytest.mark.parametrize("z_representation", [False, True])
+def test_apply_diag_coulomb_evolution(z_representation: bool):
     """Test applying time evolution of diagonal Coulomb operator."""
     rng = np.random.default_rng()
     norb = 5
@@ -40,10 +42,18 @@ def test_apply_diag_coulomb_evolution():
         vec = ffsim.random_utils.random_statevector(dim, seed=rng)
         time = rng.uniform()
         result = apply_diag_coulomb_evolution(
-            vec, mat, time, norb, nelec, orbital_rotation=orbital_rotation
+            vec,
+            mat,
+            time,
+            norb,
+            nelec,
+            orbital_rotation=orbital_rotation,
+            z_representation=z_representation,
         )
 
-        op = diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
+        op = diag_coulomb_to_linop(
+            mat, norb=norb, nelec=nelec, z_representation=z_representation
+        )
         orbital_op = one_body_tensor_to_linop(
             scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
         )
