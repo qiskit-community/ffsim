@@ -219,10 +219,13 @@ def test_variance_diag_coulomb(
 
 
 @pytest.mark.parametrize(
-    "length, bond_distance, basis, time, n_steps, symmetric, target_fidelity",
+    "length, bond_distance, basis, time, n_steps, symmetric, z_representation, "
+    "target_fidelity",
     [
-        (4, 1.0, "sto-3g", 1.0, 200, False, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 100, True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 200, False, False, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 100, True, False, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 100, False, True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 50, True, True, 0.99),
     ],
 )
 def test_simulate_qdrift_double_factorized_h_chain(
@@ -232,6 +235,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     time: float,
     n_steps: int,
     symmetric: bool,
+    z_representation: bool,
     target_fidelity: float,
 ):
     rng = np.random.default_rng(1733)
@@ -255,7 +259,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
 
     # perform double factorization
     df_hamiltonian = ffsim.double_factorized_decomposition(
-        one_body_tensor, two_body_tensor
+        one_body_tensor, two_body_tensor, z_representation=z_representation
     )
 
     # generate initial state
@@ -318,13 +322,11 @@ def test_simulate_qdrift_double_factorized_h_chain(
         assert fidelity >= target_fidelity
 
 
-@pytest.mark.skip()
 @pytest.mark.parametrize(
-    "norb, nelec, time, n_steps, target_fidelity",
+    "norb, nelec, time, n_steps, z_representation, target_fidelity",
     [
-        (3, (1, 1), 0.05, 500, 0.99),
-        (4, (1, 2), 0.05, 500, 0.99),
-        (4, (2, 2), 0.05, 500, 0.99),
+        (3, (1, 1), 0.05, 100, False, 0.99),
+        (4, (2, 2), 0.05, 200, True, 0.99),
     ],
 )
 def test_simulate_qdrift_double_factorized_random(
@@ -332,11 +334,11 @@ def test_simulate_qdrift_double_factorized_random(
     nelec: tuple[int, int],
     time: float,
     n_steps: int,
+    z_representation: bool,
     target_fidelity: float,
 ):
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(2030)
     # generate random Hamiltonian
-    dim = get_dimension(norb, nelec)
     # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
     one_body_tensor = np.real(random_hermitian(norb, seed=rng))
     two_body_tensor = random_two_body_tensor_real(norb, rank=norb, seed=rng)
@@ -346,7 +348,7 @@ def test_simulate_qdrift_double_factorized_random(
 
     # perform double factorization
     df_hamiltonian = ffsim.double_factorized_decomposition(
-        one_body_tensor, two_body_tensor
+        one_body_tensor, two_body_tensor, z_representation=z_representation
     )
 
     # generate initial state
