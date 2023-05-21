@@ -27,13 +27,13 @@ from ffsim.trotter import simulate_trotter_double_factorized
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, time, n_steps, order, target_fidelity",
+    "norb, nelec, time, n_steps, order, z_representation, target_fidelity",
     [
-        (3, (1, 1), 0.1, 10, 0, 0.99),
-        (3, (1, 1), 0.1, 3, 1, 0.99),
-        (4, (2, 1), 0.1, 3, 2, 0.99),
-        (4, (1, 2), 0.1, 3, 2, 0.99),
-        (4, (2, 2), 0.1, 8, 1, 0.99),
+        (3, (1, 1), 0.1, 10, 0, False, 0.99),
+        (3, (1, 1), 0.1, 3, 1, True, 0.99),
+        (4, (2, 1), 0.1, 3, 2, False, 0.99),
+        (4, (1, 2), 0.1, 3, 2, True, 0.99),
+        (4, (2, 2), 0.1, 8, 1, False, 0.99),
     ],
 )
 def test_simulate_trotter_double_factorized_random(
@@ -42,6 +42,7 @@ def test_simulate_trotter_double_factorized_random(
     time: float,
     n_steps: int,
     order: int,
+    z_representation: bool,
     target_fidelity: float,
 ):
     # generate random Hamiltonian
@@ -54,7 +55,9 @@ def test_simulate_trotter_double_factorized_random(
     )
 
     # perform double factorization
-    df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
+    df_hamiltonian = double_factorized_decomposition(
+        one_body_tensor, two_body_tensor, z_representation=z_representation
+    )
 
     # generate initial state
     dim = get_dimension(norb, nelec)
