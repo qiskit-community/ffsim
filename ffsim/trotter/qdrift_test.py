@@ -82,6 +82,7 @@ def test_spectral_norm_one_body_tensor(norb: int, nelec: tuple[int, int]):
     [
         (4, (2, 2), False),
         (5, (1, 3), False),
+        (4, (2, 2), True),
     ],
 )
 def test_spectral_norm_diag_coulomb(
