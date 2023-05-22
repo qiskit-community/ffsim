@@ -91,7 +91,9 @@ def test_spectral_norm_diag_coulomb(
     two_body_tensor = random_two_body_tensor_real(norb, seed=7401)
     diag_coulomb_mats, _ = double_factorized(two_body_tensor)
     for diag_coulomb_mat in diag_coulomb_mats:
-        two_body_linop = diag_coulomb_to_linop(diag_coulomb_mat, norb=norb, nelec=nelec)
+        two_body_linop = diag_coulomb_to_linop(
+            diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=z_representation
+        )
         actual = spectral_norm_diag_coulomb(
             diag_coulomb_mat, nelec=nelec, z_representation=z_representation
         )
