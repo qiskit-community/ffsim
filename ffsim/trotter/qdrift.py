@@ -394,7 +394,10 @@ def qdrift_probabilities(
 
 
 def spectral_norm_one_body_tensor(
-    one_body_tensor: np.ndarray, *, nelec: tuple[int, int]
+    one_body_tensor: np.ndarray,
+    *,
+    nelec: tuple[int, int],
+    z_representation: bool = False,
 ) -> float:
     """Compute an upper bound for the largest singular value of a one-body tensor.
 
@@ -407,6 +410,20 @@ def spectral_norm_one_body_tensor(
     """
     eigs = scipy.linalg.eigh(one_body_tensor, eigvals_only=True)
     n_alpha, n_beta = nelec
+    if z_representation:
+        return 0.5 * max(
+            abs(a + b)
+            for a, b in itertools.product(
+                [
+                    sum(eigs[n_alpha:]) - sum(eigs[:n_alpha]),
+                    sum(eigs[:-n_alpha]) - sum(eigs[-n_alpha:]),
+                ],
+                [
+                    sum(eigs[n_beta:]) - sum(eigs[:n_beta]),
+                    sum(eigs[:-n_beta]) - sum(eigs[-n_beta:]),
+                ],
+            )
+        )
     return max(
         abs(a + b)
         for a, b in itertools.product(
@@ -434,10 +451,16 @@ def spectral_norm_diag_coulomb(
     assert len(one_body_tensors) == 1
     one_body_tensor = one_body_tensors[0]
 
-    if not z_representation:
-        return spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec) ** 2
+    if z_representation:
+        return abs(
+            spectral_norm_one_body_tensor(
+                one_body_tensor, nelec=nelec, z_representation=True
+            )
+            ** 2
+            - 0.25 * np.trace(diag_coulomb_mat)
+        )
 
-    raise NotImplementedError
+    return spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec) ** 2
 
 
 def one_body_square_decomposition(
