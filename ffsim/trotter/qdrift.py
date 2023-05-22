@@ -318,10 +318,10 @@ def qdrift_probabilities(
               spectral norm.
             - "uniform": Sample each term with uniform probability.
             - "optimal": Sample with probabilities optimized for a given initial state.
-            The "optimal" method requires the one-body reduced density matrix of the
-            initial state to be specified. It returns optimal probabilities whenever
-            the initial state is completely characterized by this reduced density
-            matrix, i.e., it is a Slater determinant.
+              The "optimal" method requires the one-body reduced density matrix of the
+              initial state to be specified.
+            - "optimal-incoherent": Optimized probabilities for the incoherent qDRIFT
+              channel.
         n_particles: The total number of particles.
         one_rdm: The one-body reduced density matrix of the initial state.
 
@@ -350,7 +350,7 @@ def qdrift_probabilities(
     elif sampling_method == "optimal":
         if one_rdm is None:
             raise ValueError(
-                "The 'optimal' sampling method requires one_rdm to be specified."
+                "The 'optimal' sampling method requires one_rdm to be " "specified."
             )
         variances = np.zeros(n_terms)
         one_body_tensor = scipy.linalg.block_diag(
@@ -359,6 +359,26 @@ def qdrift_probabilities(
         variances[0] = variance_one_body_tensor(one_rdm, one_body_tensor)
         for i in range(len(hamiltonian.diag_coulomb_mats)):
             variances[i + 1] = variance_diag_coulomb(
+                one_rdm,
+                hamiltonian.diag_coulomb_mats[i],
+                orbital_rotation=hamiltonian.orbital_rotations[i],
+                z_representation=hamiltonian.z_representation,
+            )
+        stds = np.sqrt(variances)
+        return stds / np.sum(stds)
+
+    elif sampling_method == "optimal-incoherent":
+        if one_rdm is None:
+            raise ValueError(
+                "The 'optimal-incoherent' sampling method requires one_rdm to be specified."
+            )
+        variances = np.zeros(n_terms)
+        one_body_tensor = scipy.linalg.block_diag(
+            hamiltonian.one_body_tensor, hamiltonian.one_body_tensor
+        )
+        variances[0] = expectation_power(one_body_tensor, one_rdm, 2).real
+        for i in range(len(hamiltonian.diag_coulomb_mats)):
+            variances[i + 1] = expectation_squared_diag_coulomb(
                 one_rdm,
                 hamiltonian.diag_coulomb_mats[i],
                 orbital_rotation=hamiltonian.orbital_rotations[i],
@@ -533,3 +553,69 @@ def variance_diag_coulomb(
     variance = (expectation_squared - abs(expectation) ** 2).real
     # value may be negative due to floating point error
     return max(0, variance)
+
+
+def expectation_squared_diag_coulomb(
+    one_rdm: np.ndarray,
+    diag_coulomb_mat: np.ndarray,
+    orbital_rotation: np.ndarray | None = None,
+    z_representation: bool = False,
+) -> float:
+    """Compute the expectation squared of a diag Coulomb op.
+
+    Args:
+        one_rdm: The one-body reduced density matrix of the state.
+        diag_coulomb_mat: The diagonal Coulomb matrix.
+        orbital_rotation: The orbital rotation.
+        z_representation: Whether the diagonal Coulomb matrix is in the
+            Z representation.
+
+    Returns:
+        The expectation squared.
+    """
+    if orbital_rotation is None:
+        orbital_rotation = np.eye(diag_coulomb_mat.shape[0])
+    one_body_ops = [
+        scipy.linalg.block_diag(mat, mat)
+        for mat in one_body_square_decomposition(diag_coulomb_mat, orbital_rotation)
+    ]
+
+    expectation_squared = 0
+
+    for one_body_op in one_body_ops:
+        expectation_squared += expectation_power(one_body_op, one_rdm, 4)
+
+    for one_body_1, one_body_2 in itertools.combinations(one_body_ops, 2):
+        # this expectation is real so we can just double it instead of computing its
+        # complex conjugate
+        expectation_squared += 2 * expectation_product(
+            [one_body_1, one_body_1, one_body_2, one_body_2], one_rdm
+        )
+
+    if z_representation:
+        one_body_correction = -0.5 * (
+            np.einsum(
+                "ij,pi,qi->pq",
+                diag_coulomb_mat,
+                orbital_rotation,
+                orbital_rotation.conj(),
+            )
+            + np.einsum(
+                "ij,pj,qj->pq",
+                diag_coulomb_mat,
+                orbital_rotation,
+                orbital_rotation.conj(),
+            )
+        )
+        one_body_correction = scipy.linalg.block_diag(
+            one_body_correction, one_body_correction
+        )
+        expectation_squared += expectation_power(one_body_correction, one_rdm, 2)
+        expectation_squared += expectation_product(
+            [one_body_correction, one_body_op, one_body_op], one_rdm
+        )
+        expectation_squared += expectation_product(
+            [one_body_op, one_body_op, one_body_correction], one_rdm
+        )
+
+    return expectation_squared.real
