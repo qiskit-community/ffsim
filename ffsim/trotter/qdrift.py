@@ -406,10 +406,12 @@ def spectral_norm_one_body_tensor(
         The upper bound.
     """
     eigs = scipy.linalg.eigh(one_body_tensor, eigvals_only=True)
+    n_alpha, n_beta = nelec
     return max(
         abs(a + b)
         for a, b in itertools.product(
-            *[(sum(eigs[:nocc]), sum(eigs[-nocc:])) for nocc in nelec]
+            [sum(eigs[:n_alpha]), sum(eigs[-n_alpha:])],
+            [sum(eigs[:n_beta]), sum(eigs[-n_beta:])],
         )
     )
 
