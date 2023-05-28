@@ -87,6 +87,7 @@ def double_factorized(
     callback=None,
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
+    cholesky: bool = True,
 ) -> tuple[np.ndarray, np.ndarray]:
     r"""Double-factorized decomposition of a two-body tensor.
 
@@ -132,6 +133,10 @@ def double_factorized(
             the diagonal coulomb matrices returned by optimization are allowed to be
             nonzero. This parameter is only used if `optimize` is set to `True`, and
             only the upper triangular part of the matrix is used.
+        cholesky: Whether to perform the factorization using a modified Cholesky
+            decomposition. If False, a full eigenvalue decomposition is used instead,
+            which can be much more expensive. This argument is ignored if ``optimize``
+            is set to True.
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
@@ -143,6 +148,9 @@ def double_factorized(
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
     """
+    n_modes, _, _, _ = two_body_tensor.shape
+    if max_vecs is None:
+        max_vecs = n_modes * (n_modes + 1) // 2
     if optimize:
         return _double_factorized_compressed(
             two_body_tensor,
@@ -153,22 +161,22 @@ def double_factorized(
             options=options,
             diag_coulomb_mask=diag_coulomb_mask,
         )
-    return _double_factorized_explicit(
+    if cholesky:
+        return _double_factorized_explicit_cholesky(
+            two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
+        )
+    return _double_factorized_explicit_eigh(
         two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
     )
 
 
-def _double_factorized_explicit(
+def _double_factorized_explicit_cholesky(
     two_body_tensor: np.ndarray,
     *,
-    error_threshold: float = 1e-8,
-    max_vecs: int | None = None,
+    error_threshold: float,
+    max_vecs: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     n_modes, _, _, _ = two_body_tensor.shape
-
-    if max_vecs is None:
-        max_vecs = n_modes * (n_modes + 1) // 2
-
     reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
     cholesky_vecs = modified_cholesky(
         reshaped_tensor, error_threshold=error_threshold, max_vecs=max_vecs
@@ -184,6 +192,41 @@ def _double_factorized_explicit(
         orbital_rotations[i] = vecs
 
     return diag_coulomb_mats, orbital_rotations
+
+
+def _double_factorized_explicit_eigh(  # pylint: disable=invalid-name
+    two_body_tensor: np.ndarray,
+    *,
+    error_threshold: float,
+    max_vecs: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    n_modes, _, _, _ = two_body_tensor.shape
+    reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
+    outer_eigs, outer_vecs = np.linalg.eigh(reshaped_tensor)
+
+    # sort by absolute value
+    indices = np.argsort(np.abs(outer_eigs))
+    outer_eigs = outer_eigs[indices]
+    outer_vecs = outer_vecs[:, indices]
+    # get index to truncate at
+    index = int(np.searchsorted(np.cumsum(np.abs(outer_eigs)), error_threshold))
+    # truncate, then reverse to put into descending order of absolute value
+    outer_eigs = outer_eigs[index:][::-1]
+    outer_vecs = outer_vecs[:, index:][:, ::-1]
+    # truncate to final rank
+    outer_eigs = outer_eigs[:max_vecs]
+    outer_vecs = outer_vecs[:, :max_vecs]
+
+    orbital_rotations = []
+    diag_coulomb_mats = []
+    for outer_eig, outer_vec in zip(outer_eigs, outer_vecs.T):
+        mat = np.reshape(outer_vec, (n_modes, n_modes))
+        inner_eigs, inner_vecs = np.linalg.eigh(mat)
+        diag_coulomb_mat = outer_eig * np.outer(inner_eigs, inner_eigs)
+        orbital_rotations.append(inner_vecs)
+        diag_coulomb_mats.append(diag_coulomb_mat)
+
+    return np.stack(diag_coulomb_mats), np.stack(orbital_rotations)
 
 
 def optimal_diag_coulomb_mats(
@@ -225,14 +268,14 @@ def optimal_diag_coulomb_mats(
 def _double_factorized_compressed(
     two_body_tensor: np.ndarray,
     *,
-    error_threshold: float = 1e-8,
-    max_vecs: int | None = None,
+    error_threshold: float,
+    max_vecs: int,
     method="L-BFGS-B",
     callback=None,
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    _, orbital_rotations = _double_factorized_explicit(
+    _, orbital_rotations = _double_factorized_explicit_cholesky(
         two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
     )
     n_tensors, n_modes, _ = orbital_rotations.shape
