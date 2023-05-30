@@ -370,7 +370,8 @@ def qdrift_probabilities(
     elif sampling_method == "optimal-incoherent":
         if one_rdm is None:
             raise ValueError(
-                "The 'optimal-incoherent' sampling method requires one_rdm to be specified."
+                "The 'optimal-incoherent' sampling method requires one_rdm to be "
+                "specified."
             )
         variances = np.zeros(n_terms)
         one_body_tensor = scipy.linalg.block_diag(
