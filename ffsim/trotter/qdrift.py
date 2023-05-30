@@ -452,6 +452,7 @@ def spectral_norm_diag_coulomb(
     one_body_tensor = one_body_tensors[0]
 
     if z_representation:
+        # TODO this abs is probably not necessary
         return abs(
             spectral_norm_one_body_tensor(
                 one_body_tensor, nelec=nelec, z_representation=True
