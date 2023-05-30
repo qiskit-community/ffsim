@@ -78,20 +78,23 @@ def test_spectral_norm_one_body_tensor(norb: int, nelec: tuple[int, int]):
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, z_representation",
+    "norb, nelec, rank, z_representation",
     [
-        (4, (2, 2), False),
-        (5, (1, 3), False),
-        (4, (2, 2), True),
+        (4, (2, 2), 1, False),
+        (5, (1, 3), 1, False),
+        (4, (2, 2), 1, True),
+        (4, (2, 2), 2, False),
+        (5, (1, 3), 3, False),
+        (4, (2, 2), 4, True),
     ],
 )
 def test_spectral_norm_diag_coulomb(
-    norb: int, nelec: tuple[int, int], z_representation: bool
+    norb: int, nelec: tuple[int, int], rank: int, z_representation: bool
 ):
     """Test spectral norm of diagonal Coulomb operator."""
-    two_body_tensor = random_two_body_tensor_real(norb, seed=7401)
-    diag_coulomb_mats, _ = double_factorized(two_body_tensor)
-    for diag_coulomb_mat in diag_coulomb_mats:
+    rng = np.random.default_rng(5745)
+    for _ in range(5):
+        diag_coulomb_mat = random_real_symmetric_matrix(norb, rank=rank, seed=rng)
         two_body_linop = diag_coulomb_to_linop(
             diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=z_representation
         )
@@ -101,7 +104,10 @@ def test_spectral_norm_diag_coulomb(
         singular_vals = scipy.sparse.linalg.svds(
             two_body_linop, k=1, which="LM", return_singular_vectors=False
         )
-        np.testing.assert_allclose(actual, singular_vals[0], atol=1e-8)
+        if rank == 1:
+            np.testing.assert_allclose(actual, singular_vals[0], atol=1e-8)
+        else:
+            assert actual >= singular_vals[0] - 1e-8
 
 
 @pytest.mark.parametrize(
@@ -222,13 +228,14 @@ def test_variance_diag_coulomb(
 
 
 @pytest.mark.parametrize(
-    "length, bond_distance, basis, time, n_steps, symmetric, z_representation, "
-    "target_fidelity",
+    "length, bond_distance, basis, time, n_steps, symmetric, probabilities, "
+    "z_representation, target_fidelity",
     [
-        (4, 1.0, "sto-3g", 1.0, 200, False, False, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 100, True, False, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 100, False, True, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 50, True, True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 200, False, "optimal", False, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 100, True, "optimal", False, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 100, False, "optimal", True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 50, True, "optimal", True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 50, True, "norm", True, 0.99),
     ],
 )
 def test_simulate_qdrift_double_factorized_h_chain(
@@ -238,6 +245,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     time: float,
     n_steps: int,
     symmetric: bool,
+    probabilities: str | np.ndarray,
     z_representation: bool,
     target_fidelity: float,
 ):
@@ -290,7 +298,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
         nelec=nelec,
         n_steps=n_steps,
         symmetric=symmetric,
-        probabilities="optimal",
+        probabilities=probabilities,
         one_rdm=one_rdm,
         seed=rng,
     )
@@ -312,7 +320,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
         nelec=nelec,
         n_steps=n_steps,
         symmetric=symmetric,
-        probabilities="optimal",
+        probabilities=probabilities,
         one_rdm=one_rdm,
         n_samples=2,
         seed=rng,
@@ -326,10 +334,12 @@ def test_simulate_qdrift_double_factorized_h_chain(
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, time, n_steps, z_representation, target_fidelity",
+    "norb, nelec, time, n_steps, probabilities, optimize, z_representation, "
+    "target_fidelity",
     [
-        (3, (1, 1), 0.05, 100, False, 0.99),
-        (4, (2, 2), 0.05, 200, True, 0.99),
+        (3, (1, 1), 0.05, 100, "optimal", False, False, 0.99),
+        (3, (1, 1), 0.05, 100, "norm", True, False, 0.99),
+        (4, (2, 2), 0.05, 200, "optimal", False, True, 0.99),
     ],
 )
 def test_simulate_qdrift_double_factorized_random(
@@ -337,6 +347,8 @@ def test_simulate_qdrift_double_factorized_random(
     nelec: tuple[int, int],
     time: float,
     n_steps: int,
+    probabilities: str | np.ndarray,
+    optimize: bool,
     z_representation: bool,
     target_fidelity: float,
 ):
@@ -351,7 +363,10 @@ def test_simulate_qdrift_double_factorized_random(
 
     # perform double factorization
     df_hamiltonian = ffsim.double_factorized_decomposition(
-        one_body_tensor, two_body_tensor, z_representation=z_representation
+        one_body_tensor,
+        two_body_tensor,
+        optimize=optimize,
+        z_representation=z_representation,
     )
 
     # generate initial state
@@ -379,7 +394,7 @@ def test_simulate_qdrift_double_factorized_random(
         nelec=nelec,
         n_steps=n_steps,
         symmetric=True,
-        probabilities="optimal",
+        probabilities=probabilities,
         one_rdm=one_rdm,
         seed=rng,
     )

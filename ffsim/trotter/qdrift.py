@@ -336,9 +336,18 @@ def qdrift_probabilities(
                 "The 'norm' sampling method requires nelec to be specified."
             )
         one_norms = np.zeros(n_terms)
-        one_norms[0] = spectral_norm_one_body_tensor(
-            hamiltonian.one_body_tensor, nelec=nelec
-        )
+        if np.all(np.linalg.matrix_rank(hamiltonian.diag_coulomb_mats) == 1):
+            one_norms[0] = spectral_norm_one_body_tensor(
+                hamiltonian.one_body_tensor, nelec=nelec
+            )
+        else:
+            # when the diag coulomb mats have rank greater than one, only a loose
+            # upper bound is used, so use a loose one for the one-body term too
+            one_norms[0] = np.sum(
+                np.abs(
+                    scipy.linalg.eigh(hamiltonian.one_body_tensor, eigvals_only=True)
+                )
+            )
         for i, diag_coulomb_mat in enumerate(hamiltonian.diag_coulomb_mats):
             one_norms[i + 1] = spectral_norm_diag_coulomb(
                 diag_coulomb_mat,
@@ -448,21 +457,30 @@ def spectral_norm_diag_coulomb(
     Returns:
         The upper bounds
     """
+    # decompose the diag Coulomb mat as a sum of squared one-body operators
     one_body_tensors = one_body_square_decomposition(diag_coulomb_mat)
-    assert len(one_body_tensors) == 1
-    one_body_tensor = one_body_tensors[0]
 
-    if z_representation:
-        # TODO this abs is probably not necessary
-        return abs(
-            spectral_norm_one_body_tensor(
-                one_body_tensor, nelec=nelec, z_representation=True
+    # for a rank-1 diag Coulomb mat, we can compute the exact spectral norm
+    if len(one_body_tensors) == 1:
+        one_body_tensor = one_body_tensors[0]
+        if z_representation:
+            # TODO this abs is probably not necessary
+            return abs(
+                spectral_norm_one_body_tensor(
+                    one_body_tensor, nelec=nelec, z_representation=True
+                )
+                ** 2
+                - 0.25 * np.trace(diag_coulomb_mat)
             )
-            ** 2
-            - 0.25 * np.trace(diag_coulomb_mat)
-        )
+        return spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec) ** 2
 
-    return spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec) ** 2
+    # when the rank is greater than one, we only know how to return an upper bound
+    if z_representation:
+        return 0.5 * np.sum(np.abs(diag_coulomb_mat)) - 0.25 * np.sum(
+            np.abs(np.diagonal(diag_coulomb_mat))
+        )
+    # TODO this is probably loose
+    return 2 * np.sum(np.abs(diag_coulomb_mat))
 
 
 def one_body_square_decomposition(
