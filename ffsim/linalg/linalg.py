@@ -16,7 +16,6 @@ import numpy as np
 import scipy.sparse.linalg
 
 
-# TODO use scipy.sparse.linalg.expm_multiply instead after dropping Python 3.7 support
 def expm_multiply_taylor(
     mat: scipy.sparse.linalg.LinearOperator, vec: np.ndarray, tol: float = 1e-12
 ) -> np.ndarray:
