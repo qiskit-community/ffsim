@@ -45,7 +45,7 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
 
         result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
         op = one_body_tensor_to_linop(scipy.linalg.logm(mat), norb=norb, nelec=nelec)
-        expected = ffsim.linalg.expm_multiply_taylor(op, original_vec)
+        expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
         np.testing.assert_allclose(result, expected, atol=atol)
 
 
@@ -94,7 +94,7 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         op = one_body_tensor_to_linop(
             scipy.linalg.logm(mat @ perm), norb=norb, nelec=nelec
         )
-        expected = ffsim.linalg.expm_multiply_taylor(op, original_vec)
+        expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
         np.testing.assert_allclose(result, expected, atol=atol)
 
         result, perm = ffsim.apply_orbital_rotation(
@@ -103,7 +103,7 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         op = one_body_tensor_to_linop(
             scipy.linalg.logm(perm @ mat), norb=norb, nelec=nelec
         )
-        expected = ffsim.linalg.expm_multiply_taylor(op, original_vec)
+        expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
         np.testing.assert_allclose(result, expected, atol=atol)
 
 
