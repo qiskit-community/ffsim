@@ -275,7 +275,7 @@ def _double_factorized_compressed(
     options: dict | None = None,
     diag_coulomb_mask: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    _, orbital_rotations = _double_factorized_explicit_cholesky(
+    diag_coulomb_mats, orbital_rotations = _double_factorized_explicit_cholesky(
         two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
     )
     n_tensors, n_modes, _ = orbital_rotations.shape
@@ -338,10 +338,7 @@ def _double_factorized_compressed(
         grad_core = np.ravel([mat[param_indices] for mat in grad_core])
         return np.concatenate([grad_leaf_log, grad_core])
 
-    diag_coulomb_mats = optimal_diag_coulomb_mats(two_body_tensor, orbital_rotations)
     x0 = _df_tensors_to_params(diag_coulomb_mats, orbital_rotations, diag_coulomb_mask)
-    rng = np.random.default_rng()
-    x0 += 1e-2 * rng.standard_normal(size=x0.shape)
     result = scipy.optimize.minimize(
         fun, x0, method=method, jac=jac, callback=callback, options=options
     )
