@@ -69,5 +69,5 @@ def test_apply_quadratic_hamiltonian_evolution():
             vec, eigs, time, norb, nelec, orbital_rotation=vecs
         )
         op = one_body_tensor_to_linop(mat, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(vec, -1j * time * op)
+        expected = expm_multiply_taylor(-1j * time * op, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)

@@ -65,7 +65,7 @@ def test_simulate_trotter_double_factorized_random(
     original_state = initial_state.copy()
 
     # compute exact state
-    exact_state = expm_multiply_taylor(initial_state, -1j * time * hamiltonian)
+    exact_state = expm_multiply_taylor(-1j * time * hamiltonian, initial_state)
 
     # make sure time is not too small
     assert abs(np.vdot(exact_state, initial_state)) < 0.98

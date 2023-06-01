@@ -48,7 +48,7 @@ def test_apply_givens_rotation():
         generator[i, j] = theta
         generator[j, i] = -theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(vec, linop)
+        expected = expm_multiply_taylor(linop, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
     np.testing.assert_allclose(vec, original_vec)
 
@@ -72,7 +72,7 @@ def test_apply_tunneling_interaction():
         generator[i, j] = theta
         generator[j, i] = theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(vec, 1j * linop)
+        expected = expm_multiply_taylor(1j * linop, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
@@ -92,7 +92,7 @@ def test_apply_num_interaction():
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(vec, 1j * linop)
+        expected = expm_multiply_taylor(1j * linop, vec)
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
