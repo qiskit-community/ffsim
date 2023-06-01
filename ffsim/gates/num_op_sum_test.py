@@ -13,10 +13,10 @@
 from __future__ import annotations
 
 import numpy as np
+import scipy.sparse.linalg
 
 from ffsim.fci import get_dimension, one_body_tensor_to_linop
 from ffsim.gates import apply_num_op_sum_evolution
-from ffsim.linalg import expm_multiply_taylor
 from ffsim.random import random_hermitian, random_statevector
 from ffsim.states import slater_determinant
 
@@ -69,5 +69,7 @@ def test_apply_quadratic_hamiltonian_evolution():
             vec, eigs, time, norb, nelec, orbital_rotation=vecs
         )
         op = one_body_tensor_to_linop(mat, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(-1j * time * op, vec)
+        expected = scipy.sparse.linalg.expm_multiply(
+            -1j * time * op, vec, traceA=np.sum(np.abs(mat))
+        )
         np.testing.assert_allclose(result, expected, atol=1e-8)

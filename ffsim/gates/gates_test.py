@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import scipy.sparse.linalg
 
 from ffsim.fci import get_dimension, one_body_tensor_to_linop
 from ffsim.gates import (
@@ -23,7 +24,6 @@ from ffsim.gates import (
     apply_num_op_prod_interaction,
     apply_tunneling_interaction,
 )
-from ffsim.linalg import expm_multiply_taylor
 from ffsim.random import random_statevector
 from ffsim.states import slater_determinant
 
@@ -48,7 +48,9 @@ def test_apply_givens_rotation():
         generator[i, j] = theta
         generator[j, i] = -theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(linop, vec)
+        expected = scipy.sparse.linalg.expm_multiply(
+            linop, vec, traceA=np.sum(np.abs(generator))
+        )
         np.testing.assert_allclose(result, expected, atol=1e-8)
     np.testing.assert_allclose(vec, original_vec)
 
@@ -72,7 +74,9 @@ def test_apply_tunneling_interaction():
         generator[i, j] = theta
         generator[j, i] = theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(1j * linop, vec)
+        expected = scipy.sparse.linalg.expm_multiply(
+            1j * linop, vec, traceA=np.sum(np.abs(generator))
+        )
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
@@ -92,7 +96,9 @@ def test_apply_num_interaction():
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
-        expected = expm_multiply_taylor(1j * linop, vec)
+        expected = scipy.sparse.linalg.expm_multiply(
+            1j * linop, vec, traceA=np.sum(np.abs(generator))
+        )
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
