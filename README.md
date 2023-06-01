@@ -36,3 +36,9 @@ Once the Rust compiler is installed, ffsim can be installed by running the comma
 from the root directory of the code repository. To install in editable mode, do
 
     pip install -e .
+
+Installing from source has only been tested in a Linux environment.
+
+#### Known issues
+
+- You may need to run `pip install -e .` twice in a row for OpenBLAS to link successfully.
