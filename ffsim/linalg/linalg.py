@@ -18,7 +18,7 @@ import scipy.sparse.linalg
 
 # TODO use scipy.sparse.linalg.expm_multiply instead after dropping Python 3.7 support
 def expm_multiply_taylor(
-    vec: np.ndarray, mat: scipy.sparse.linalg.LinearOperator, tol: float = 1e-12
+    mat: scipy.sparse.linalg.LinearOperator, vec: np.ndarray, tol: float = 1e-12
 ) -> np.ndarray:
     """Compute expm(mat) @ vec using a Taylor series expansion."""
     result = vec.copy()
