@@ -9,8 +9,8 @@ name = "ffsim"
 crate-type = ["cdylib"]
 
 [dependencies]
-blas = "0.22.0"
+blas = "0.22"
 blas-src = { version = "0.8", features = ["openblas"] }
-ndarray = { version = "0.15.6", features = ["rayon"] }
-numpy = "0.18.0"
-pyo3 = { version = "0.18.1", features = ["num-complex"] }
+ndarray = { version = "0.15", features = ["rayon"] }
+numpy = "0.18"
+pyo3 = { version = "0.18", features = ["num-complex"] }
