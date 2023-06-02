@@ -41,4 +41,6 @@ Installing from source has only been tested in a Linux environment.
 
 #### Known issues
 
-- You may need to run `pip install -e .` twice in a row for OpenBLAS to link successfully.
+- It may be a bit tricky to get OpenBLAS to link successfully. If you have issues, try the following:
+  - Run `pip install patchelf`.
+  - Run `pip install -e .` twice in a row.
