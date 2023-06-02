@@ -16,6 +16,7 @@ import itertools
 
 import numpy as np
 
+import ffsim
 from ffsim.fci import (
     contract_diag_coulomb,
     contract_num_op_sum,
@@ -23,7 +24,6 @@ from ffsim.fci import (
     get_dimension,
     num_op_sum_to_linop,
 )
-from ffsim.random import random_hermitian, random_statevector
 from ffsim.states import slater_determinant
 
 
@@ -40,14 +40,18 @@ def test_contract_diag_coulomb():
     nelec = tuple(len(orbs) for orbs in occupied_orbitals)
     state = slater_determinant(norb, occupied_orbitals)
 
-    mat = np.real(random_hermitian(norb, seed=rng))
-    result = contract_diag_coulomb(state, mat, norb=norb, nelec=nelec)
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    result = contract_diag_coulomb(
+        state, mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
+    )
 
     eig = 0
     for i, j in itertools.product(range(norb), repeat=2):
         for sigma, tau in itertools.product(range(2), repeat=2):
             if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                eig += 0.5 * mat[i, j]
+                this_mat = mat if sigma == tau else mat_alpha_beta
+                eig += 0.5 * this_mat[i, j]
     expected = eig * state
 
     np.testing.assert_allclose(result, expected, atol=1e-8)
@@ -66,7 +70,7 @@ def test_contract_diag_coulomb_z_representation():
     nelec = tuple(len(orbs) for orbs in occupied_orbitals)
     state = slater_determinant(norb, occupied_orbitals)
 
-    mat = np.real(random_hermitian(norb, seed=rng))
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     result = contract_diag_coulomb(
         state, mat, norb=norb, nelec=nelec, z_representation=True
     )
@@ -118,8 +122,8 @@ def test_diag_coulomb_to_linop():
     nelec = (n_alpha, n_beta)
     dim = get_dimension(norb, nelec)
 
-    mat = np.real(random_hermitian(norb, seed=rng))
-    vec = random_statevector(dim, seed=rng)
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    vec = ffsim.random.random_statevector(dim, seed=rng)
 
     linop = diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
     result = linop @ vec
@@ -138,7 +142,7 @@ def test_num_op_sum_to_linop():
     dim = get_dimension(norb, nelec)
 
     coeffs = rng.standard_normal(norb)
-    vec = random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_statevector(dim, seed=rng)
 
     linop = num_op_sum_to_linop(coeffs, norb=norb, nelec=nelec)
     result = linop @ vec
