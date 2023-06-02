@@ -35,7 +35,8 @@ jobs:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
-          manylinux: auto
+          manylinux: manylinux2014
+          before-script-linux: yum install -y openssl-devel
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
