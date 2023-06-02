@@ -71,8 +71,14 @@ def test_contract_diag_coulomb_z_representation():
     state = slater_determinant(norb, occupied_orbitals)
 
     mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     result = contract_diag_coulomb(
-        state, mat, norb=norb, nelec=nelec, z_representation=True
+        state,
+        mat,
+        norb=norb,
+        nelec=nelec,
+        mat_alpha_beta=mat_alpha_beta,
+        z_representation=True,
     )
 
     eig = 0
@@ -81,7 +87,8 @@ def test_contract_diag_coulomb_z_representation():
         tau, j = divmod(b, norb)
         sign_i = -1 if i in occupied_orbitals[sigma] else 1
         sign_j = -1 if j in occupied_orbitals[tau] else 1
-        eig += 0.25 * sign_i * sign_j * mat[i, j]
+        this_mat = mat if sigma == tau else mat_alpha_beta
+        eig += 0.25 * sign_i * sign_j * this_mat[i, j]
     expected = eig * state
 
     np.testing.assert_allclose(result, expected, atol=1e-8)
