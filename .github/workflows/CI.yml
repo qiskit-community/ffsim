@@ -36,7 +36,7 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: manylinux2014
-          before-script-linux: yum install -y openssl-devel
+          before-script-linux: apt install -y libssl-dev
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
