@@ -270,10 +270,10 @@ def _double_factorized_compressed(
     *,
     error_threshold: float,
     max_vecs: int,
-    method="L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    diag_coulomb_mask: np.ndarray | None = None,
+    method: str,
+    callback,
+    options: dict | None,
+    diag_coulomb_mask: np.ndarray | None,
 ) -> tuple[np.ndarray, np.ndarray]:
     diag_coulomb_mats, orbital_rotations = _double_factorized_explicit_cholesky(
         two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
