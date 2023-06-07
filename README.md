@@ -12,9 +12,6 @@ and the Z component of spin. This category includes many quantum circuits used f
 - Fast simulation of fermionic quantum circuits that preserve particle number and the Z component of spin.
   ffsim supports the simulation of basic fermionic gates and includes specialized routines for simulation
   of molecular Hamiltonians in the "double-factorized" representation.
-- Quantum computing software framework-agnostic.
-  ffsim is programmed in a largely functional style using functions that take Numpy arrays as input and yield
-  Numpy arrays as output. As a result, it can readily be used as a base for higher-level simulation frameworks.
 - Compatible with PySCF. State vectors use the same indexing convention as PySCF's `fci` module.
 
 ## Limitations
