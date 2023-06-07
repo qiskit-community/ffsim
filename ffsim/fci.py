@@ -316,8 +316,6 @@ def _contract_diag_coulomb_z_rep(
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
 
-    mat = mat.copy()
-    mat[np.diag_indices(norb)] *= 0.5
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
     contract_diag_coulomb_into_buffer_z_rep(
