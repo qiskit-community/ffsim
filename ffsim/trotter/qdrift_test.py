@@ -117,34 +117,38 @@ def test_spectral_norm_diag_coulomb(
         (5, (1, 2)),
         (5, (1, 3)),
         (5, (2, 2)),
+        (4, (2, 2)),
         (4, (3, 2)),
     ],
 )
 def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
     """Test one-body squared decomposition."""
-    rng = np.random.default_rng(5424)
+    rng = np.random.default_rng()
     dim = get_dimension(norb, nelec)
 
-    diag_coulomb_mat = np.real(random_hermitian(norb, seed=rng))
-    orbital_rotation = random_unitary(norb, seed=rng)
+    for _ in range(10):
+        diag_coulomb_mat = np.real(random_hermitian(norb, seed=rng))
+        orbital_rotation = random_unitary(norb, seed=rng)
 
-    one_body_tensors = one_body_square_decomposition(diag_coulomb_mat, orbital_rotation)
-    zero = scipy.sparse.linalg.LinearOperator(
-        shape=(dim, dim), matvec=lambda x: np.zeros_like(x)
-    )
-    actual = sum(
-        [
-            one_body_tensor_to_linop(tensor, norb=norb, nelec=nelec) ** 2
-            for tensor in one_body_tensors
-        ],
-        start=zero,
-    )
-    expected = diag_coulomb_to_linop(
-        diag_coulomb_mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
-    )
+        one_body_tensors = one_body_square_decomposition(
+            diag_coulomb_mat, orbital_rotation
+        )
+        zero = scipy.sparse.linalg.LinearOperator(
+            shape=(dim, dim), matvec=lambda x: np.zeros_like(x)
+        )
+        actual = sum(
+            [
+                one_body_tensor_to_linop(tensor, norb=norb, nelec=nelec) ** 2
+                for tensor in one_body_tensors
+            ],
+            start=zero,
+        )
+        expected = diag_coulomb_to_linop(
+            diag_coulomb_mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
+        )
 
-    vec = random_statevector(dim, seed=rng)
-    np.testing.assert_allclose(actual @ vec, expected @ vec, atol=1e-8)
+        vec = random_statevector(dim, seed=rng)
+        np.testing.assert_allclose(actual @ vec, expected @ vec, atol=1e-8)
 
 
 @pytest.mark.parametrize(
