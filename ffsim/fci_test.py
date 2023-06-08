@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pytest
 
 import ffsim
 from ffsim.fci import (
@@ -27,97 +28,100 @@ from ffsim.fci import (
 from ffsim.states import slater_determinant
 
 
-def test_contract_diag_coulomb():
+@pytest.mark.parametrize("norb", [4, 5])
+def test_contract_diag_coulomb(norb: int):
     """Test contracting a diagonal Coulomb matrix."""
-    norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
-    occupied_orbitals = (
-        rng.choice(norb, n_alpha, replace=False),
-        rng.choice(norb, n_beta, replace=False),
-    )
-    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-    state = slater_determinant(norb, occupied_orbitals)
+    for _ in range(50):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        occupied_orbitals = (
+            rng.choice(norb, n_alpha, replace=False),
+            rng.choice(norb, n_beta, replace=False),
+        )
+        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        state = slater_determinant(norb, occupied_orbitals)
 
-    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    result = contract_diag_coulomb(
-        state, mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
-    )
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        result = contract_diag_coulomb(
+            state, mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
+        )
 
-    eig = 0
-    for i, j in itertools.product(range(norb), repeat=2):
-        for sigma, tau in itertools.product(range(2), repeat=2):
-            if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                this_mat = mat if sigma == tau else mat_alpha_beta
-                eig += 0.5 * this_mat[i, j]
-    expected = eig * state
+        eig = 0
+        for i, j in itertools.product(range(norb), repeat=2):
+            for sigma, tau in itertools.product(range(2), repeat=2):
+                if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
+                    this_mat = mat if sigma == tau else mat_alpha_beta
+                    eig += 0.5 * this_mat[i, j]
+        expected = eig * state
 
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
-def test_contract_diag_coulomb_z_representation():
+@pytest.mark.parametrize("norb", [4, 5])
+def test_contract_diag_coulomb_z_representation(norb: int):
     """Test contracting a diagonal Coulomb matrix in the Z representation."""
-    norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
-    occupied_orbitals = (
-        rng.choice(norb, n_alpha, replace=False),
-        rng.choice(norb, n_beta, replace=False),
-    )
-    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-    state = slater_determinant(norb, occupied_orbitals)
+    for _ in range(50):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        occupied_orbitals = (
+            rng.choice(norb, n_alpha, replace=False),
+            rng.choice(norb, n_beta, replace=False),
+        )
+        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        state = slater_determinant(norb, occupied_orbitals)
 
-    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    result = contract_diag_coulomb(
-        state,
-        mat,
-        norb=norb,
-        nelec=nelec,
-        mat_alpha_beta=mat_alpha_beta,
-        z_representation=True,
-    )
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        result = contract_diag_coulomb(
+            state,
+            mat,
+            norb=norb,
+            nelec=nelec,
+            mat_alpha_beta=mat_alpha_beta,
+            z_representation=True,
+        )
 
-    eig = 0
-    for a, b in itertools.combinations(range(2 * norb), 2):
-        sigma, i = divmod(a, norb)
-        tau, j = divmod(b, norb)
-        sign_i = -1 if i in occupied_orbitals[sigma] else 1
-        sign_j = -1 if j in occupied_orbitals[tau] else 1
-        this_mat = mat if sigma == tau else mat_alpha_beta
-        eig += 0.25 * sign_i * sign_j * this_mat[i, j]
-    expected = eig * state
+        eig = 0
+        for a, b in itertools.combinations(range(2 * norb), 2):
+            sigma, i = divmod(a, norb)
+            tau, j = divmod(b, norb)
+            sign_i = -1 if i in occupied_orbitals[sigma] else 1
+            sign_j = -1 if j in occupied_orbitals[tau] else 1
+            this_mat = mat if sigma == tau else mat_alpha_beta
+            eig += 0.25 * sign_i * sign_j * this_mat[i, j]
+        expected = eig * state
 
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
-def test_contract_num_op_sum():
+@pytest.mark.parametrize("norb", [4, 5])
+def test_contract_num_op_sum(norb: int):
     """Test contracting sum of number operators."""
-    norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
-    occupied_orbitals = (
-        rng.choice(norb, n_alpha, replace=False),
-        rng.choice(norb, n_beta, replace=False),
-    )
-    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-    state = slater_determinant(norb, occupied_orbitals)
+    for _ in range(50):
+        n_alpha = rng.integers(1, norb + 1)
+        n_beta = rng.integers(1, norb + 1)
+        occupied_orbitals = (
+            rng.choice(norb, n_alpha, replace=False),
+            rng.choice(norb, n_beta, replace=False),
+        )
+        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        state = slater_determinant(norb, occupied_orbitals)
 
-    coeffs = rng.standard_normal(norb)
-    result = contract_num_op_sum(state, coeffs, norb=norb, nelec=nelec)
+        coeffs = rng.standard_normal(norb)
+        result = contract_num_op_sum(state, coeffs, norb=norb, nelec=nelec)
 
-    eig = 0
-    for i in range(norb):
-        for sigma in range(2):
-            if i in occupied_orbitals[sigma]:
-                eig += coeffs[i]
-    expected = eig * state
+        eig = 0
+        for i in range(norb):
+            for sigma in range(2):
+                if i in occupied_orbitals[sigma]:
+                    eig += coeffs[i]
+        expected = eig * state
 
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
 def test_diag_coulomb_to_linop():
