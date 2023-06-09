@@ -58,7 +58,7 @@ def test_double_factorized_random(dim: int, cholesky: bool):
 
 
 @pytest.mark.parametrize("cholesky", [True, False])
-def test_double_factorized_error_threshold_max_vecs(cholesky: bool):
+def test_double_factorized_tol_max_vecs(cholesky: bool):
     """Test low rank decomposition error threshold and max vecs."""
     mol = gto.Mole()
     mol.build(
@@ -89,10 +89,8 @@ def test_double_factorized_error_threshold_max_vecs(cholesky: bool):
     np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
 
     # test error threshold
-    error_threshold = 1e-4
-    diag_coulomb_mats, orbital_rotations = double_factorized(
-        two_body_tensor, error_threshold=error_threshold
-    )
+    tol = 1e-4
+    diag_coulomb_mats, orbital_rotations = double_factorized(two_body_tensor, tol=tol)
     reconstructed = np.einsum(
         "tpk,tqk,tkl,trl,tsl->pqrs",
         orbital_rotations,
@@ -102,11 +100,11 @@ def test_double_factorized_error_threshold_max_vecs(cholesky: bool):
         orbital_rotations,
     )
     assert len(orbital_rotations) <= 18
-    np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+    np.testing.assert_allclose(reconstructed, two_body_tensor, atol=tol)
 
     # test error threshold and max vecs
     diag_coulomb_mats, orbital_rotations = double_factorized(
-        two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
+        two_body_tensor, tol=tol, max_vecs=max_vecs
     )
     reconstructed = np.einsum(
         "tpk,tqk,tkl,trl,tsl->pqrs",
@@ -117,7 +115,7 @@ def test_double_factorized_error_threshold_max_vecs(cholesky: bool):
         orbital_rotations,
     )
     assert len(orbital_rotations) <= 18
-    np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+    np.testing.assert_allclose(reconstructed, two_body_tensor, atol=tol)
 
 
 def test_optimal_diag_coulomb_mats_exact():

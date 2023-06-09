@@ -116,7 +116,7 @@ def double_factorized_decomposition(
     one_body_tensor: np.ndarray,
     two_body_tensor: np.ndarray,
     *,
-    error_threshold: float = 1e-8,
+    tol: float = 1e-8,
     max_vecs: int | None = None,
     z_representation: bool = False,
     optimize: bool = False,
@@ -130,7 +130,7 @@ def double_factorized_decomposition(
 
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor,
-        error_threshold=error_threshold,
+        tol=tol,
         max_vecs=max_vecs,
         optimize=optimize,
         method=method,
