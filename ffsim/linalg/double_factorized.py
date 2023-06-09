@@ -18,7 +18,7 @@ from opt_einsum import contract
 
 
 def modified_cholesky(
-    mat: np.ndarray, *, error_threshold: float = 1e-8, max_vecs: int | None = None
+    mat: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
 ) -> np.ndarray:
     r"""Modified Cholesky decomposition.
 
@@ -41,7 +41,7 @@ def modified_cholesky(
 
     Args:
         mat: The matrix to decompose.
-        error_threshold: Threshold for allowed error in the decomposition.
+        tol: Tolerance for error in the decomposition.
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
@@ -63,7 +63,7 @@ def modified_cholesky(
     for index in range(max_vecs + 1):
         max_error_index = np.argmax(errors)
         max_error = errors[max_error_index]
-        if max_error < error_threshold:
+        if max_error < tol:
             break
         cholesky_vecs[:, index] = mat[:, max_error_index]
         if index:
@@ -80,7 +80,7 @@ def modified_cholesky(
 def double_factorized(
     two_body_tensor: np.ndarray,
     *,
-    error_threshold: float = 1e-8,
+    tol: float = 1e-8,
     max_vecs: int | None = None,
     optimize: bool = False,
     method: str = "L-BFGS-B",
@@ -115,12 +115,12 @@ def double_factorized(
 
     Args:
         two_body_tensor: The two-body tensor to decompose.
-        error_threshold: Threshold for allowed error in the decomposition.
+        tol: Tolerance for error in the decomposition.
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
         max_vecs: An optional limit on the number of terms to keep in the decomposition
-            of the two-body tensor. This argument overrides ``error_threshold``.
+            of the two-body tensor. This argument overrides ``tol``.
         optimize: Whether to optimize the tensors returned by the decomposition.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
@@ -154,7 +154,7 @@ def double_factorized(
     if optimize:
         return _double_factorized_compressed(
             two_body_tensor,
-            error_threshold=error_threshold,
+            tol=tol,
             max_vecs=max_vecs,
             method=method,
             callback=callback,
@@ -163,24 +163,20 @@ def double_factorized(
         )
     if cholesky:
         return _double_factorized_explicit_cholesky(
-            two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
+            two_body_tensor, tol=tol, max_vecs=max_vecs
         )
-    return _double_factorized_explicit_eigh(
-        two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
-    )
+    return _double_factorized_explicit_eigh(two_body_tensor, tol=tol, max_vecs=max_vecs)
 
 
 def _double_factorized_explicit_cholesky(
     two_body_tensor: np.ndarray,
     *,
-    error_threshold: float,
+    tol: float,
     max_vecs: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     n_modes, _, _, _ = two_body_tensor.shape
     reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
-    cholesky_vecs = modified_cholesky(
-        reshaped_tensor, error_threshold=error_threshold, max_vecs=max_vecs
-    )
+    cholesky_vecs = modified_cholesky(reshaped_tensor, tol=tol, max_vecs=max_vecs)
 
     _, rank = cholesky_vecs.shape
     diag_coulomb_mats = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
@@ -197,7 +193,7 @@ def _double_factorized_explicit_cholesky(
 def _double_factorized_explicit_eigh(  # pylint: disable=invalid-name
     two_body_tensor: np.ndarray,
     *,
-    error_threshold: float,
+    tol: float,
     max_vecs: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     n_modes, _, _, _ = two_body_tensor.shape
@@ -209,7 +205,7 @@ def _double_factorized_explicit_eigh(  # pylint: disable=invalid-name
     outer_eigs = outer_eigs[indices]
     outer_vecs = outer_vecs[:, indices]
     # get index to truncate at
-    index = int(np.searchsorted(np.cumsum(np.abs(outer_eigs)), error_threshold))
+    index = int(np.searchsorted(np.cumsum(np.abs(outer_eigs)), tol))
     # truncate, then reverse to put into descending order of absolute value
     outer_eigs = outer_eigs[index:][::-1]
     outer_vecs = outer_vecs[:, index:][:, ::-1]
@@ -232,7 +228,7 @@ def _double_factorized_explicit_eigh(  # pylint: disable=invalid-name
 def optimal_diag_coulomb_mats(
     two_body_tensor: np.ndarray,
     orbital_rotations: np.ndarray,
-    cutoff_threshold: float = 1e-8,
+    tol: float = 1e-8,
 ) -> np.ndarray:
     """Compute optimal diagonal Coulomb matrices given fixed orbital rotations."""
     n_modes, _, _, _ = two_body_tensor.shape
@@ -259,7 +255,7 @@ def optimal_diag_coulomb_mats(
 
     eigs, vecs = np.linalg.eigh(coeffs)
     pseudoinverse = np.zeros_like(eigs)
-    pseudoinverse[eigs > cutoff_threshold] = eigs[eigs > cutoff_threshold] ** -1
+    pseudoinverse[eigs > tol] = eigs[eigs > tol] ** -1
     solution = vecs @ (vecs.T @ target * pseudoinverse)
 
     return np.reshape(solution, (n_tensors, n_modes, n_modes))
@@ -268,7 +264,7 @@ def optimal_diag_coulomb_mats(
 def _double_factorized_compressed(
     two_body_tensor: np.ndarray,
     *,
-    error_threshold: float,
+    tol: float,
     max_vecs: int,
     method: str,
     callback,
@@ -276,7 +272,7 @@ def _double_factorized_compressed(
     diag_coulomb_mask: np.ndarray | None,
 ) -> tuple[np.ndarray, np.ndarray]:
     diag_coulomb_mats, orbital_rotations = _double_factorized_explicit_cholesky(
-        two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
+        two_body_tensor, tol=tol, max_vecs=max_vecs
     )
     n_tensors, n_modes, _ = orbital_rotations.shape
     if diag_coulomb_mask is None:
