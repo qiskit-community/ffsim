@@ -14,3 +14,6 @@ blas-src = { version = "0.8", features = ["openblas"] }
 ndarray = { version = "0.15", features = ["rayon"] }
 numpy = "0.18"
 pyo3 = { version = "0.18", features = ["num-complex"] }
+
+[target.'cfg(windows)'.dependencies]
+openblas-src = { version = "0.10", features = ["system"] }
