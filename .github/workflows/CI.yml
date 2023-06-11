@@ -55,7 +55,7 @@ jobs:
           python-version: '3.10'
           architecture: ${{ matrix.target }}
       - name: Install openblas
-        run: vcpkg install openblas --triplet x64-windows-static
+        run: vcpkg install openblas --triplet x64-windows-static && vcpkg integrate install
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         env:
