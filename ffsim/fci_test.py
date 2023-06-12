@@ -13,6 +13,8 @@
 from __future__ import annotations
 
 import itertools
+from collections.abc import Sequence
+from typing import cast
 
 import numpy as np
 import pytest
@@ -36,8 +38,8 @@ def test_contract_diag_coulomb(norb: int):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        alpha_orbitals = rng.choice(norb, n_alpha, replace=False)
-        beta_orbitals = rng.choice(norb, n_beta, replace=False)
+        alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
+        beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
         occupied_orbitals = (alpha_orbitals, beta_orbitals)
         state = slater_determinant(norb, occupied_orbitals)
 
@@ -66,8 +68,8 @@ def test_contract_diag_coulomb_z_representation(norb: int):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        alpha_orbitals = rng.choice(norb, n_alpha, replace=False)
-        beta_orbitals = rng.choice(norb, n_beta, replace=False)
+        alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
+        beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
         occupied_orbitals = (alpha_orbitals, beta_orbitals)
         state = slater_determinant(norb, occupied_orbitals)
 
@@ -103,8 +105,8 @@ def test_contract_num_op_sum(norb: int):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        alpha_orbitals = rng.choice(norb, n_alpha, replace=False)
-        beta_orbitals = rng.choice(norb, n_beta, replace=False)
+        alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
+        beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
         occupied_orbitals = (alpha_orbitals, beta_orbitals)
         state = slater_determinant(norb, occupied_orbitals)
 
