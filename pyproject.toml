@@ -17,7 +17,7 @@ classifiers = [
 dependencies = ["numpy", "opt_einsum >= 3.3", "pyscf >= 2.2.1", "scipy"]
 
 [project.optional-dependencies]
-dev = ["black", "maturin[patchelf]", "mypy", "pytest"]
+dev = ["black", "maturin[patchelf]", "mypy", "pytest", "ruff", "tox"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
@@ -25,3 +25,6 @@ module-name = "ffsim._ffsim"
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
