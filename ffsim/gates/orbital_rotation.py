@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal, overload
 
 import numpy as np
 import scipy.linalg
@@ -69,6 +70,48 @@ def gen_orbital_rotation_index(
         off_diag_index=off_diag_index,
     )
     return diag_strings, off_diag_strings, off_diag_index
+
+
+@overload
+def apply_orbital_rotation(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    ...
+
+
+@overload
+def apply_orbital_rotation(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    allow_row_permutation: Literal[True],
+    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
+    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
+    copy: bool = True,
+) -> tuple[np.ndarray, np.ndarray]:
+    ...
+
+
+@overload
+def apply_orbital_rotation(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    allow_col_permutation: Literal[True],
+    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
+    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
+    copy: bool = True,
+) -> tuple[np.ndarray, np.ndarray]:
+    ...
 
 
 def apply_orbital_rotation(
