@@ -103,7 +103,7 @@ def apply_diag_coulomb_evolution(
         mat_alpha_beta = perm0 @ mat_alpha_beta @ perm0.T
 
     mat_exp = mat.copy()
-    mat_alpha_beta_exp = mat_alpha_beta.copy()
+    mat_alpha_beta_exp = cast(np.ndarray, mat_alpha_beta).copy()
     mat_exp[np.diag_indices(norb)] *= 0.5
     if z_representation:
         mat_exp *= 0.25

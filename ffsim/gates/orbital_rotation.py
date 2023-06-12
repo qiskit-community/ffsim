@@ -176,7 +176,6 @@ def _apply_orbital_rotation_lu(
         vec,
         transformation_mat,
         norb=norb,
-        nocc=n_alpha,
         orbital_rotation_index=orbital_rotation_index_a,
     )
     # transform beta
@@ -186,7 +185,6 @@ def _apply_orbital_rotation_lu(
         vec,
         transformation_mat,
         norb=norb,
-        nocc=n_beta,
         orbital_rotation_index=orbital_rotation_index_b,
     )
     return vec.T.copy().reshape(-1), perm
@@ -196,12 +194,8 @@ def _apply_orbital_rotation_spin_in_place(
     vec: np.ndarray,
     transformation_mat: np.ndarray,
     norb: int,
-    nocc: int,
     orbital_rotation_index: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> None:
-    dim_diag = comb(norb - 1, nocc - 1, exact=True)
-    dim_off_diag = comb(norb - 1, nocc, exact=True)
-    dim = dim_diag + dim_off_diag
     diag_strings, off_diag_strings, off_diag_index = orbital_rotation_index
     for i in range(norb):
         apply_single_column_transformation_in_place(
@@ -250,7 +244,7 @@ def _apply_orbital_rotation_givens(
 
 def _apply_orbital_rotation_adjacent_spin_in_place(
     vec: np.ndarray, mat: np.ndarray, target_orbs: tuple[int, int], norb: int, nocc: int
-) -> np.ndarray:
+) -> None:
     """Apply an orbital rotation to adjacent orbitals.
 
     Args:
