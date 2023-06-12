@@ -445,7 +445,7 @@ def spectral_norm_one_body_tensor(
 
 def spectral_norm_diag_coulomb(
     diag_coulomb_mat: np.ndarray, nelec: tuple[int, int], z_representation: bool = False
-) -> np.ndarray:
+) -> float:
     """Compute upper bound for the largest singular value of a diagonal Coulomb matrix.
 
     Args:
@@ -554,8 +554,8 @@ def variance_diag_coulomb(
         for mat in one_body_square_decomposition(diag_coulomb_mat, orbital_rotation)
     ]
 
-    expectation = 0
-    expectation_squared = 0
+    expectation: complex = 0
+    expectation_squared: complex = 0
 
     for one_body_op in one_body_ops:
         expectation += expectation_power(one_body_op, one_rdm, 2)
@@ -625,7 +625,7 @@ def expectation_squared_diag_coulomb(
         for mat in one_body_square_decomposition(diag_coulomb_mat, orbital_rotation)
     ]
 
-    expectation_squared = 0
+    expectation_squared: complex = 0
 
     for one_body_op in one_body_ops:
         expectation_squared += expectation_power(one_body_op, one_rdm, 4)
