@@ -35,11 +35,10 @@ def test_contract_diag_coulomb(norb: int):
     for _ in range(50):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
-        occupied_orbitals = (
-            rng.choice(norb, n_alpha, replace=False),
-            rng.choice(norb, n_beta, replace=False),
-        )
-        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        nelec = (n_alpha, n_beta)
+        alpha_orbitals = rng.choice(norb, n_alpha, replace=False)
+        beta_orbitals = rng.choice(norb, n_beta, replace=False)
+        occupied_orbitals = (alpha_orbitals, beta_orbitals)
         state = slater_determinant(norb, occupied_orbitals)
 
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
@@ -66,11 +65,10 @@ def test_contract_diag_coulomb_z_representation(norb: int):
     for _ in range(50):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
-        occupied_orbitals = (
-            rng.choice(norb, n_alpha, replace=False),
-            rng.choice(norb, n_beta, replace=False),
-        )
-        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        nelec = (n_alpha, n_beta)
+        alpha_orbitals = rng.choice(norb, n_alpha, replace=False)
+        beta_orbitals = rng.choice(norb, n_beta, replace=False)
+        occupied_orbitals = (alpha_orbitals, beta_orbitals)
         state = slater_determinant(norb, occupied_orbitals)
 
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
@@ -104,11 +102,10 @@ def test_contract_num_op_sum(norb: int):
     for _ in range(50):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
-        occupied_orbitals = (
-            rng.choice(norb, n_alpha, replace=False),
-            rng.choice(norb, n_beta, replace=False),
-        )
-        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+        nelec = (n_alpha, n_beta)
+        alpha_orbitals = rng.choice(norb, n_alpha, replace=False)
+        beta_orbitals = rng.choice(norb, n_beta, replace=False)
+        occupied_orbitals = (alpha_orbitals, beta_orbitals)
         state = slater_determinant(norb, occupied_orbitals)
 
         coeffs = rng.standard_normal(norb)
