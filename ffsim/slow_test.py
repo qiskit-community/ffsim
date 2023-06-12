@@ -16,6 +16,7 @@ import numpy as np
 from pyscf.fci import cistring
 from scipy.special import comb
 
+import ffsim
 from ffsim._ffsim import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
@@ -29,10 +30,9 @@ from ffsim._ffsim import (
 )
 from ffsim.fci import gen_orbital_rotation_index
 from ffsim.gates.orbital_rotation import _zero_one_subspace_indices
-from ffsim.random import random_hermitian, random_statevector, random_unitary
 from ffsim.slow import (
-    apply_diag_coulomb_evolution_in_place_numpy,
     apply_diag_coulomb_evolution_in_place_num_rep_slow,
+    apply_diag_coulomb_evolution_in_place_numpy,
     apply_diag_coulomb_evolution_in_place_z_rep_slow,
     apply_givens_rotation_in_place_slow,
     apply_num_op_sum_evolution_in_place_slow,
@@ -53,8 +53,9 @@ def test_apply_givens_rotation_in_place_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        mat = random_unitary(norb, seed=rng)
-        vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         vec_fast = vec_slow.copy()
         c = rng.uniform()
         s = 1 - c**2
@@ -123,7 +124,9 @@ def test_apply_single_column_transformation_in_place_slow():
         orbital_rotation_index = gen_orbital_rotation_index(norb, n_alpha)
         column = rng.uniform(size=norb) + 1j * rng.uniform(size=norb)
         diag_val = rng.uniform() + 1j * rng.uniform()
-        vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         vec_fast = vec_slow.copy()
         index = [a[0] for a in orbital_rotation_index]
         apply_single_column_transformation_in_place_slow(
@@ -147,7 +150,9 @@ def test_apply_num_op_sum_evolution_in_place_slow():
         )
         exponents = np.random.uniform(0, 2 * np.pi, size=norb)
         phases = np.exp(1j * exponents)
-        vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         vec_fast = vec_slow.copy()
         apply_num_op_sum_evolution_in_place_slow(
             vec_slow, phases, occupations=occupations
@@ -176,11 +181,13 @@ def test_apply_diag_coulomb_evolution_num_rep_slow():
             np.uint, copy=False
         )
         time = 0.6
-        mat = np.real(random_hermitian(norb, seed=rng))
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_exp = np.exp(-1j * time * mat)
-        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
+        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_alpha_beta_exp = np.exp(-1j * time * mat_alpha_beta)
-        vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         vec_fast = vec_slow.copy()
         apply_diag_coulomb_evolution_in_place_num_rep_slow(
             vec_slow,
@@ -213,11 +220,13 @@ def test_apply_diag_coulomb_evolution_z_rep_slow():
         strings_a = cistring.make_strings(range(norb), n_alpha)
         strings_b = cistring.make_strings(range(norb), n_beta)
         time = 0.6
-        mat = np.real(random_hermitian(norb, seed=rng))
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_exp = np.exp(-1j * time * mat)
-        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
+        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_alpha_beta_exp = np.exp(-1j * time * mat_alpha_beta)
-        vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         vec_fast = vec_slow.copy()
         apply_diag_coulomb_evolution_in_place_z_rep_slow(
             vec_slow,
@@ -258,11 +267,13 @@ def test_apply_diag_coulomb_evolution_numpy():
             np.uint, copy=False
         )
         time = 0.6
-        mat = np.real(random_hermitian(norb, seed=rng))
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_exp = np.exp(-1j * time * mat)
-        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
+        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_alpha_beta_exp = np.exp(-1j * time * mat_alpha_beta)
-        vec_slow = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         vec_fast = vec_slow.copy()
         apply_diag_coulomb_evolution_in_place_numpy(
             vec_slow,
@@ -297,9 +308,11 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
         occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
-        mat = np.real(random_hermitian(norb, seed=rng))
-        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
-        vec = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         out_slow = np.zeros_like(vec)
         out_fast = np.zeros_like(vec)
         contract_diag_coulomb_into_buffer_num_rep_slow(
@@ -334,9 +347,11 @@ def test_contract_diag_coulomb_into_buffer_z_rep_slow():
         dim_b = comb(norb, n_beta, exact=True)
         strings_a = cistring.make_strings(range(norb), n_alpha)
         strings_b = cistring.make_strings(range(norb), n_beta)
-        mat = np.real(random_hermitian(norb, seed=rng))
-        mat_alpha_beta = np.real(random_hermitian(norb, seed=rng))
-        vec = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         out_slow = np.zeros_like(vec)
         out_fast = np.zeros_like(vec)
         contract_diag_coulomb_into_buffer_z_rep_slow(
@@ -373,7 +388,9 @@ def test_contract_num_op_sum_spin_into_buffer_slow():
             np.uint, copy=False
         )
         coeffs = np.random.uniform(size=norb)
-        vec = random_statevector(dim_a * dim_b, seed=rng).reshape((dim_a, dim_b))
+        vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+            (dim_a, dim_b)
+        )
         out_slow = np.zeros_like(vec)
         out_fast = np.zeros_like(vec)
         contract_num_op_sum_spin_into_buffer_slow(
