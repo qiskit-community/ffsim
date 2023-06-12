@@ -21,7 +21,7 @@ def expectation_product(
     one_body_tensors: Sequence[np.ndarray],
     one_rdm: np.ndarray,
 ) -> complex:
-    r"""Expectation of product of one-body operators with respect to a Slater determinant.
+    r"""Expectation of product of one-body operators w.r.t. a Slater determinant.
 
     A one-body operator :math:`O` has the form
 
@@ -89,7 +89,7 @@ def expectation_power(
     one_rdm: np.ndarray,
     power: int = 1,
 ) -> complex:
-    r"""Expectation of power of one-body operator with respect to a Slater determinant.
+    r"""Expectation of power of one-body operator w.r.t. a Slater determinant.
 
     A one-body operator :math:`O` has the form
 
