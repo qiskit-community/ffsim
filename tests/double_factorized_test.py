@@ -85,3 +85,25 @@ def test_double_factorized_decomposition(z_representation: bool):
 
     # check agreement
     np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
+def test_z_representation_round_trip():
+    norb = 4
+
+    one_body_tensor = random_hermitian(norb, seed=2474)
+    two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
+
+    df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
+    df_hamiltonian_num = df_hamiltonian.to_z_representation().to_number_representation()
+
+    np.testing.assert_allclose(
+        df_hamiltonian.one_body_tensor, df_hamiltonian_num.one_body_tensor
+    )
+    np.testing.assert_allclose(
+        df_hamiltonian.diag_coulomb_mats, df_hamiltonian_num.diag_coulomb_mats
+    )
+    np.testing.assert_allclose(
+        df_hamiltonian.orbital_rotations, df_hamiltonian_num.orbital_rotations
+    )
+    np.testing.assert_allclose(df_hamiltonian.constant, df_hamiltonian_num.constant)
+    assert df_hamiltonian.z_representation == df_hamiltonian_num.z_representation
