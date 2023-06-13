@@ -13,4 +13,4 @@ blas = "0.22"
 openblas-src = { version = "0.10", features = ["static"] }
 ndarray = { version = "0.15", features = ["rayon"] }
 numpy = "0.18"
-pyo3 = { version = "0.18", features = ["num-complex"] }
+pyo3 = { version = "0.18", features = ["num-complex", "abi3-py38"] }
