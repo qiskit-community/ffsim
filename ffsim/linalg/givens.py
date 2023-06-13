@@ -12,25 +12,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Tuple, Union
-
 import numpy as np
-
-# HACK: Sphinx fails to handle "ellipsis"
-# See https://github.com/python/typing/issues/684
-if TYPE_CHECKING:
-    _SliceAtom = Union[int, slice, np.ndarray, "ellipsis"]
-else:
-    _SliceAtom = Union[int, slice, np.ndarray, type(Ellipsis)]
-
-_Slice = Union[_SliceAtom, Tuple[_SliceAtom, ...]]
 
 
 def apply_matrix_to_slices(
     target: np.ndarray,
     mat: np.ndarray,
-    slices: Sequence[_Slice],
+    slices,
     *,
     out: np.ndarray | None = None,
 ) -> np.ndarray:
