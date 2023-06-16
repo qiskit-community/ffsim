@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tox-env: ['type', 'lint', 'format', 'coverage']
+        tox-env: ['coverage', 'type', 'lint', 'format']
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
