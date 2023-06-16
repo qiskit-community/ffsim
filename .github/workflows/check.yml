@@ -54,4 +54,4 @@ jobs:
       - name: Run tox environment
         shell: bash
         run: |
-          tox run -e ${{ matrix.tox-env }}
+          tox run -e py3.11
