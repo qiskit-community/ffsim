@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tox-env: ['py3.11', 'coverage', 'type', 'lint', 'format']
+        tox-env: ['coverage', 'type', 'lint', 'format']
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
