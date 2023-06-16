@@ -17,15 +17,7 @@ classifiers = [
 dependencies = ["numpy", "opt_einsum >= 3.3", "pyscf >= 2.2.1", "scipy"]
 
 [project.optional-dependencies]
-dev = [
-    "black",
-    "coverage",
-    "maturin[patchelf]",
-    "mypy",
-    "pytest",
-    "ruff",
-    "tox",
-]
+dev = ["black", "coverage", "maturin", "mypy", "pytest", "ruff", "tox"]
 
 [tool.maturin]
 python-source = "python"
