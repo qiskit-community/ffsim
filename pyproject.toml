@@ -28,6 +28,7 @@ dev = [
 ]
 
 [tool.maturin]
+python-source = "python"
 module-name = "ffsim._ffsim"
 
 [tool.mypy]
