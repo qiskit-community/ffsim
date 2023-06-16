@@ -28,20 +28,18 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install tox
         run: |
           python -m pip install --upgrade pip
           pip install tox
-      - name: Test using tox environment
+      - name: Run tests
         shell: bash
         run: |
           tox run -e py${{ matrix.python-version }}
-  type:
+  check:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python-version: ['3.11']
         tox-env: ['type', 'lint', 'format', 'coverage']
     steps:
       - uses: actions/checkout@v3
@@ -53,5 +51,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install tox
-      - name: Run type check
-        run: tox run -e ${{ matrix.tox-env }}
+      - name: Run tox environment
+        shell: bash
+        run: |
+          tox run -e ${{ matrix.tox-env }}
