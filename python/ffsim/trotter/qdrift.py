@@ -16,9 +16,9 @@ import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
 
-from ffsim.double_factorized import DoubleFactorizedHamiltonian
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import gen_orbital_rotation_index
+from ffsim.hamiltonians import DoubleFactorizedHamiltonian
 from ffsim.wick import expectation_power, expectation_product
 
 
