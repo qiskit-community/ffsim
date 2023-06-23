@@ -12,11 +12,8 @@
 
 from __future__ import annotations
 
-import numpy as np
-from pyscf.fci import cistring
-from scipy.special import comb
-
 import ffsim
+import numpy as np
 from ffsim._ffsim import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
@@ -31,8 +28,8 @@ from ffsim._ffsim import (
 from ffsim.fci import gen_orbital_rotation_index
 from ffsim.gates.orbital_rotation import _zero_one_subspace_indices
 from ffsim.slow import (
+    apply_diag_coulomb_evolution_in_place_num_rep_numpy,
     apply_diag_coulomb_evolution_in_place_num_rep_slow,
-    apply_diag_coulomb_evolution_in_place_numpy,
     apply_diag_coulomb_evolution_in_place_z_rep_slow,
     apply_givens_rotation_in_place_slow,
     apply_num_op_sum_evolution_in_place_slow,
@@ -42,6 +39,8 @@ from ffsim.slow import (
     contract_num_op_sum_spin_into_buffer_slow,
     gen_orbital_rotation_index_in_place_slow,
 )
+from pyscf.fci import cistring
+from scipy.special import comb
 
 
 def test_apply_givens_rotation_in_place_slow():
@@ -251,7 +250,7 @@ def test_apply_diag_coulomb_evolution_z_rep_slow():
         np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
 
 
-def test_apply_diag_coulomb_evolution_numpy():
+def test_apply_diag_coulomb_evolution_num_rep_numpy():
     """Test applying time evolution of diag Coulomb operator, numpy implementation."""
     norb = 5
     rng = np.random.default_rng()
@@ -275,7 +274,7 @@ def test_apply_diag_coulomb_evolution_numpy():
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
-        apply_diag_coulomb_evolution_in_place_numpy(
+        apply_diag_coulomb_evolution_in_place_num_rep_numpy(
             vec_slow,
             mat_exp,
             norb=norb,
