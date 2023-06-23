@@ -182,7 +182,7 @@ def apply_diag_coulomb_evolution_in_place_z_rep_slow(
             row[i] *= phase
 
 
-def apply_diag_coulomb_evolution_in_place_numpy(
+def apply_diag_coulomb_evolution_in_place_num_rep_numpy(
     vec: np.ndarray,
     mat_exp: np.ndarray,
     norb: int,
