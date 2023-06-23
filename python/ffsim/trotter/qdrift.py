@@ -47,7 +47,7 @@ def simulate_qdrift_double_factorized(
         probabilities: The sampling method to use, or else an explicit array of
             probabilities. If specifying a string, the following options are supported:
             - "norm": Sample each term with probability proportional to its
-              spectral norm.
+            spectral norm.
             - "uniform": Sample each term with uniform probability.
             - "optimal": Sample with probabilities optimized for a given initial state.
             The "optimal" method requires the one-body reduced density matrix of the
@@ -315,13 +315,13 @@ def qdrift_probabilities(
         sampling_method: The sampling method to use.
             The following options are supported:
             - "norm": Sample each term with probability proportional to its
-              spectral norm.
+            spectral norm.
             - "uniform": Sample each term with uniform probability.
             - "optimal": Sample with probabilities optimized for a given initial state.
-              The "optimal" method requires the one-body reduced density matrix of the
-              initial state to be specified.
+            The "optimal" method requires the one-body reduced density matrix of the
+            initial state to be specified.
             - "optimal-incoherent": Optimized probabilities for the incoherent qDRIFT
-              channel.
+            channel.
         n_particles: The total number of particles.
         one_rdm: The one-body reduced density matrix of the initial state.
 
