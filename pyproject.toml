@@ -17,7 +17,20 @@ classifiers = [
 dependencies = ["numpy", "opt_einsum >= 3.3", "pyscf >= 2.2.1", "scipy"]
 
 [project.optional-dependencies]
-dev = ["black", "coverage", "maturin", "mypy", "pytest", "ruff", "tox"]
+dev = [
+    "black",
+    "coverage",
+    "jupyter-sphinx",
+    "maturin[patchelf]",
+    "mypy",
+    "nbmake",
+    "nbsphinx",
+    "pytest",
+    "ruff",
+    "sphinx",
+    "sphinx-autodoc-typehints",
+    "tox",
+]
 
 [tool.maturin]
 python-source = "python"
