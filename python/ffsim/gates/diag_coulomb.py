@@ -74,11 +74,11 @@ def apply_diag_coulomb_evolution(
         orbital_rotation_index_b: The orbital rotation index for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
-              vector and the original vector is left untouched.
+            vector and the original vector is left untouched.
             - If ``copy=False`` then this function may still return a newly allocated
-              vector, but the original vector may have its data overwritten.
-              It is also possible that the original vector is returned,
-              modified in-place.
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
     """
     if copy:
         vec = vec.copy()
