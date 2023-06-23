@@ -14,17 +14,10 @@ from __future__ import annotations
 
 import itertools
 
+import ffsim
 import numpy as np
 import scipy.sparse.linalg
-
 from ffsim.fci import get_dimension, one_body_tensor_to_linop
-from ffsim.gates import (
-    apply_givens_rotation,
-    apply_num_interaction,
-    apply_num_op_prod_interaction,
-    apply_tunneling_interaction,
-)
-from ffsim.random import random_statevector
 from ffsim.states import slater_determinant
 
 
@@ -37,13 +30,13 @@ def test_apply_givens_rotation():
 
     dim = get_dimension(norb, nelec)
     rng = np.random.default_rng()
-    vec = np.array(random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     original_vec = vec.copy()
     theta = rng.standard_normal()
     for i, j in itertools.product(range(norb), repeat=2):
         if i == j:
             continue
-        result = apply_givens_rotation(vec, theta, (i, j), norb=norb, nelec=nelec)
+        result = ffsim.apply_givens_rotation(vec, theta, (i, j), norb=norb, nelec=nelec)
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = -theta
@@ -64,12 +57,14 @@ def test_apply_tunneling_interaction():
 
     dim = get_dimension(norb, nelec)
     rng = np.random.default_rng()
-    vec = np.array(random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.standard_normal()
     for i, j in itertools.product(range(norb), repeat=2):
         if i == j:
             continue
-        result = apply_tunneling_interaction(vec, theta, (i, j), norb=norb, nelec=nelec)
+        result = ffsim.apply_tunneling_interaction(
+            vec, theta, (i, j), norb=norb, nelec=nelec
+        )
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = theta
@@ -89,10 +84,12 @@ def test_apply_num_interaction():
 
     dim = get_dimension(norb, nelec)
     rng = np.random.default_rng()
-    vec = np.array(random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.standard_normal()
     for target_orb in range(norb):
-        result = apply_num_interaction(vec, theta, target_orb, norb=norb, nelec=nelec)
+        result = ffsim.apply_num_interaction(
+            vec, theta, target_orb, norb=norb, nelec=nelec
+        )
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
         linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
@@ -120,7 +117,7 @@ def test_apply_num_num_interaction():
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         for spin_i, spin_j in itertools.product(range(2), repeat=2):
             target_orbs = ((i, spin_i), (j, spin_j))
-            result = apply_num_op_prod_interaction(
+            result = ffsim.apply_num_op_prod_interaction(
                 vec, theta, target_orbs, norb=norb, nelec=nelec
             )
             if i in occupied_orbitals[spin_i] and j in occupied_orbitals[spin_j]:
