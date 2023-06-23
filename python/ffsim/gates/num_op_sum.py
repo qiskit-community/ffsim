@@ -39,6 +39,7 @@ def apply_num_op_sum_evolution(
     Applies
 
     .. math::
+
         \mathcal{U}
         \exp(-i t \sum_{i, \sigma} \lambda_i n_{i, \sigma})
         \mathcal{U}^\dagger

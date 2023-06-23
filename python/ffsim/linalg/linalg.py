@@ -36,6 +36,7 @@ def lup(mat: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     The decomposition is:
 
     .. math::
+
         A = L U P
 
     where L is a lower triangular matrix with unit diagonal elements,

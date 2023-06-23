@@ -59,6 +59,7 @@ def apply_givens_rotation(
     The Givens rotation gate is
 
     .. math::
+
         G(\theta) = \exp(\theta (a^\dagger_i a_j - a\dagger_j a_i))
 
     Args:
@@ -98,6 +99,7 @@ def apply_tunneling_interaction(
     The tunneling interaction gate is
 
     .. math::
+
         T(\theta) = \exp(i \theta (a^\dagger_i a_j + a\dagger_j a_i))
 
     Args:
@@ -142,6 +144,7 @@ def apply_num_interaction(
     The number interaction gate is
 
     .. math::
+
         N(\theta) = \exp(i \theta a^\dagger_i a_i)
 
     Args:
@@ -181,6 +184,7 @@ def apply_num_op_prod_interaction(
     The gate is
 
     .. math::
+
         NP(\theta) = \exp(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma})
 
     Args:

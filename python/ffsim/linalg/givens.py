@@ -51,6 +51,7 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
     Returns a :math:`2 \times 2` unitary matrix G that satisfies
 
     .. math::
+
         G
         \begin{pmatrix}
             a \\

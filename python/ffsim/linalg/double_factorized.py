@@ -25,6 +25,7 @@ def modified_cholesky(
     The modified Cholesky decomposition of a square matrix :math:`M` has the form
 
     .. math::
+
         M = \sum_{i=1}^N v_i v_i^\dagger
 
     where each :math:`v_i` is a vector. `M` must be positive definite.
@@ -95,6 +96,7 @@ def double_factorized(
     :math:`h_{pqrs}` as
 
     .. math::
+
         h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk}
             Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
 

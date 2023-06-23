@@ -48,6 +48,7 @@ def apply_diag_coulomb_evolution(
     Applies
 
     .. math::
+
         \mathcal{U}
         \exp(-i t \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
         \mathcal{U}^\dagger

@@ -131,12 +131,14 @@ def apply_orbital_rotation(
     An orbital rotation maps creation operators as
 
     .. math::
+
         a^\dagger_i \mapsto \sum_{j} U_{ji} a^\dagger_j
 
     where :math:`U` is a unitary matrix. This is equivalent to applying the
     transformation given by
 
     .. math::
+
         \exp(\sum_{ij} log(U)_{ij} a^\dagger{i} a_j)
 
     Args:
