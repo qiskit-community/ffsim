@@ -11,7 +11,6 @@
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
 from ffsim import linalg, random
-from ffsim.double_factorized import double_factorized_decomposition
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_givens_rotation,
@@ -21,7 +20,11 @@ from ffsim.gates import (
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
-from ffsim.states import one_hot, slater_determinant_one_rdm, slater_determinant
+from ffsim.hamiltonians import (
+    DoubleFactorizedHamiltonian,
+    double_factorized_decomposition,
+)
+from ffsim.states import one_hot, slater_determinant, slater_determinant_one_rdm
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
     simulate_trotter_double_factorized,

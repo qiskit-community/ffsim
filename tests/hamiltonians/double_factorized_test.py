@@ -16,7 +16,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from ffsim.double_factorized import double_factorized_decomposition
+import ffsim
 from ffsim.fci import (
     contract_diag_coulomb,
     contract_num_op_sum,
@@ -47,7 +47,7 @@ def test_double_factorized_decomposition(z_representation: bool):
     )
 
     # perform double factorization
-    df_hamiltonian = double_factorized_decomposition(
+    df_hamiltonian = ffsim.double_factorized_decomposition(
         one_body_tensor, two_body_tensor, z_representation=z_representation
     )
 
@@ -93,7 +93,9 @@ def test_z_representation_round_trip():
     one_body_tensor = random_hermitian(norb, seed=2474)
     two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
 
-    df_hamiltonian = double_factorized_decomposition(one_body_tensor, two_body_tensor)
+    df_hamiltonian = ffsim.double_factorized_decomposition(
+        one_body_tensor, two_body_tensor
+    )
     df_hamiltonian_num = df_hamiltonian.to_z_representation().to_number_representation()
 
     np.testing.assert_allclose(
