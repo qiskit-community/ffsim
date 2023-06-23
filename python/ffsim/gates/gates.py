@@ -70,11 +70,11 @@ def apply_givens_rotation(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
-              vector and the original vector is left untouched.
+            vector and the original vector is left untouched.
             - If ``copy=False`` then this function may still return a newly allocated
-              vector, but the original vector may have its data overwritten.
-              It is also possible that the original vector is returned,
-              modified in-place.
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
@@ -110,11 +110,11 @@ def apply_tunneling_interaction(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
-              vector and the original vector is left untouched.
+            vector and the original vector is left untouched.
             - If ``copy=False`` then this function may still return a newly allocated
-              vector, but the original vector may have its data overwritten.
-              It is also possible that the original vector is returned,
-              modified in-place.
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
@@ -155,11 +155,11 @@ def apply_num_interaction(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
-              vector and the original vector is left untouched.
+            vector and the original vector is left untouched.
             - If ``copy=False`` then this function may still return a newly allocated
-              vector, but the original vector may have its data overwritten.
-              It is also possible that the original vector is returned,
-              modified in-place.
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
     """
     if copy:
         vec = vec.copy()
@@ -196,11 +196,11 @@ def apply_num_op_prod_interaction(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
-              vector and the original vector is left untouched.
+            vector and the original vector is left untouched.
             - If ``copy=False`` then this function may still return a newly allocated
-              vector, but the original vector may have its data overwritten.
-              It is also possible that the original vector is returned,
-              modified in-place.
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
     """
     if copy:
         vec = vec.copy()
