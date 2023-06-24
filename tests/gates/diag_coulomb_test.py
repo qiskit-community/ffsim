@@ -121,36 +121,6 @@ def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
 
 
 def test_apply_diag_coulomb_evolution_eigenvalue():
-    """Test applying time evolution of diagonal Coulomb operator to eigenvector."""
-    rng = np.random.default_rng()
-    norb = 5
-    for _ in range(5):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
-        occupied_orbitals = (
-            rng.choice(norb, n_alpha, replace=False),
-            rng.choice(norb, n_beta, replace=False),
-        )
-        nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-        state = slater_determinant(norb, occupied_orbitals)
-        original_state = state.copy()
-
-        mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
-        time = 0.6
-        result = ffsim.apply_diag_coulomb_evolution(state, mat, time, norb, nelec)
-
-        eig = 0
-        for i, j in itertools.product(range(norb), repeat=2):
-            for sigma, tau in itertools.product(range(2), repeat=2):
-                if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                    eig += 0.5 * mat[i, j]
-        expected = np.exp(-1j * eig * time) * state
-
-        np.testing.assert_allclose(result, expected, atol=1e-8)
-        np.testing.assert_allclose(state, original_state)
-
-
-def test_apply_diag_coulomb_evolution_alpha_beta_eigenvalue():
     """Test applying diagonal Coulomb evolution with alpha beta mat to eigenvector."""
     rng = np.random.default_rng()
     norb = 5
