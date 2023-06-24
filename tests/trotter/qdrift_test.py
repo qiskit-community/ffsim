@@ -120,7 +120,7 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
     dim = get_dimension(norb, nelec)
 
     for _ in range(10):
-        diag_coulomb_mat = np.real(ffsim.random.random_hermitian(norb, seed=rng))
+        diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
 
         one_body_tensors = one_body_square_decomposition(
@@ -353,7 +353,7 @@ def test_simulate_qdrift_double_factorized_random(
     rng = np.random.default_rng(2030)
     # generate random Hamiltonian
     # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
-    one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=rng))
+    one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     two_body_tensor = ffsim.random.random_two_body_tensor_real(
         norb, rank=norb, seed=rng
     )
