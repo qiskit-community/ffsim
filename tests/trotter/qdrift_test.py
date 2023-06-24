@@ -12,26 +12,17 @@
 
 from __future__ import annotations
 
+import ffsim
 import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from pyscf import ao2mo, gto, mcscf, scf
-
-import ffsim
 from ffsim.fci import (
     diag_coulomb_to_linop,
     get_dimension,
     get_hamiltonian_linop,
     get_trace,
     one_body_tensor_to_linop,
-)
-from ffsim.random import (
-    random_hermitian,
-    random_real_symmetric_matrix,
-    random_statevector,
-    random_two_body_tensor_real,
-    random_unitary,
 )
 from ffsim.trotter.qdrift import (
     one_body_square_decomposition,
@@ -40,6 +31,7 @@ from ffsim.trotter.qdrift import (
     variance_diag_coulomb,
     variance_one_body_tensor,
 )
+from pyscf import ao2mo, gto, mcscf, scf
 
 
 def expectation(
@@ -67,7 +59,7 @@ def variance(
 )
 def test_spectral_norm_one_body_tensor(norb: int, nelec: tuple[int, int]):
     """Test spectral norm of one-body operator."""
-    one_body_tensor = random_hermitian(norb, seed=8034)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=8034)
     one_body_linop = one_body_tensor_to_linop(one_body_tensor, norb=norb, nelec=nelec)
     actual = spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec)
     singular_vals = scipy.sparse.linalg.svds(
@@ -94,7 +86,9 @@ def test_spectral_norm_diag_coulomb(
     # TODO changing the seed to 5744 breaks this test
     rng = np.random.default_rng(5745)
     for _ in range(5):
-        diag_coulomb_mat = random_real_symmetric_matrix(norb, rank=rank, seed=rng)
+        diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
+            norb, rank=rank, seed=rng
+        )
         two_body_linop = diag_coulomb_to_linop(
             diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=z_representation
         )
@@ -126,8 +120,8 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
     dim = get_dimension(norb, nelec)
 
     for _ in range(10):
-        diag_coulomb_mat = np.real(random_hermitian(norb, seed=rng))
-        orbital_rotation = random_unitary(norb, seed=rng)
+        diag_coulomb_mat = np.real(ffsim.random.random_hermitian(norb, seed=rng))
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
 
         one_body_tensors = one_body_square_decomposition(
             diag_coulomb_mat, orbital_rotation
@@ -146,7 +140,7 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
             diag_coulomb_mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
         )
 
-        vec = random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
         np.testing.assert_allclose(actual @ vec, expected @ vec, atol=1e-8)
 
 
@@ -164,11 +158,11 @@ def test_variance_one_body_tensor(norb: int, nelec: tuple[int, int]):
     n_alpha, n_beta = nelec
     rng = np.random.default_rng()
 
-    one_body_tensor = random_hermitian(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
     one_body_linop = one_body_tensor_to_linop(one_body_tensor, norb=norb, nelec=nelec)
 
     # generate a random Slater determinant
-    vecs = random_unitary(norb, seed=rng)
+    vecs = ffsim.random.random_unitary(norb, seed=rng)
     occupied_orbitals_a = vecs[:, :n_alpha]
     occupied_orbitals_b = vecs[:, :n_beta]
     one_rdm_a = occupied_orbitals_a.conj() @ occupied_orbitals_a.T
@@ -200,11 +194,11 @@ def test_variance_diag_coulomb(
     n_alpha, n_beta = nelec
     rng = np.random.default_rng()
 
-    diag_coulomb_mat = random_real_symmetric_matrix(norb, seed=rng)
-    orbital_rotation = random_unitary(norb, seed=rng)
+    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
 
     # generate a random Slater determinant
-    vecs = random_unitary(norb, seed=rng)
+    vecs = ffsim.random.random_unitary(norb, seed=rng)
     occupied_orbitals_a = vecs[:, :n_alpha]
     occupied_orbitals_b = vecs[:, :n_beta]
     one_rdm_a = occupied_orbitals_a.conj() @ occupied_orbitals_a.T
@@ -359,8 +353,10 @@ def test_simulate_qdrift_double_factorized_random(
     rng = np.random.default_rng(2030)
     # generate random Hamiltonian
     # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
-    one_body_tensor = np.real(random_hermitian(norb, seed=rng))
-    two_body_tensor = random_two_body_tensor_real(norb, rank=norb, seed=rng)
+    one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=rng))
+    two_body_tensor = ffsim.random.random_two_body_tensor_real(
+        norb, rank=norb, seed=rng
+    )
     hamiltonian = get_hamiltonian_linop(
         one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
     )
