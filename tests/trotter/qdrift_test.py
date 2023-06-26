@@ -83,8 +83,8 @@ def test_spectral_norm_diag_coulomb(
     norb: int, nelec: tuple[int, int], rank: int, z_representation: bool
 ):
     """Test spectral norm of diagonal Coulomb operator."""
-    # TODO changing the seed to 5744 breaks this test
     rng = np.random.default_rng(5745)
+    # TODO increasing the number of repetitions to 20 breaks the z-rep test
     for _ in range(5):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
             norb, rank=rank, seed=rng
