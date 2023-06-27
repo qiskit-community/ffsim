@@ -14,7 +14,10 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["numpy", "opt_einsum >= 3.3", "pyscf >= 2.2.1", "scipy"]
+# scipy is currently bounded from above because scipy 1.11 removed the
+# `sym_pos` kwarg from `scipy.linalg.solve`, but pyscf has not yet been updated.
+# see https://github.com/pyscf/pyscf/pull/1771
+dependencies = ["numpy", "opt_einsum>=3.3", "pyscf>=2.2.1", "scipy<1.11"]
 
 [project.optional-dependencies]
 dev = [
