@@ -35,7 +35,6 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
 # HTML output options
 html_theme = "alabaster"
-html_static_path = ["_static"]
 
 # autodoc/autosummary options
 autosummary_generate = True

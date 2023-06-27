@@ -241,6 +241,10 @@ def double_factorized_hamiltonian(
     References:
         - `arXiv:1808.02625`_
         - `arXiv:2104.08957`_
+
+    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
+    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
+    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
     one_body_tensor = one_body_tensor - 0.5 * np.einsum("prqr", two_body_tensor)
 
