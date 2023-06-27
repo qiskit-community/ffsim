@@ -30,7 +30,7 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
-          before-script-linux: yum install -y openssl-devel
+          before-script-linux: yum install -y openssl-devel openblas-devel
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
