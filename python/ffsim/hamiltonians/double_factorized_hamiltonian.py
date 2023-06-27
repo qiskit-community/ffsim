@@ -23,7 +23,7 @@ from ffsim.linalg import double_factorized
 class DoubleFactorizedHamiltonian:
     """A Hamiltonian in the double-factorized form of the low rank decomposition.
 
-    See :func:`~.double_factorized_decomposition` for a description of what is stored
+    See :func:`~.double_factorized_hamiltonian` for a description of what is stored
     in this class.
 
     Attributes:
@@ -115,7 +115,7 @@ def _df_z_representation(
     return one_body_correction, constant_correction
 
 
-def double_factorized_decomposition(
+def double_factorized_hamiltonian(
     one_body_tensor: np.ndarray,
     two_body_tensor: np.ndarray,
     *,

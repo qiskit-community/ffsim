@@ -10,7 +10,7 @@
 
 """Classes for representing Hamiltonians."""
 
-from ffsim.hamiltonians.double_factorized import (
+from ffsim.hamiltonians.double_factorized_hamiltonian import (
     DoubleFactorizedHamiltonian,
-    double_factorized_decomposition,
+    double_factorized_hamiltonian,
 )
