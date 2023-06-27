@@ -55,7 +55,7 @@ def test_simulate_trotter_double_factorized_random(
     )
 
     # perform double factorization
-    df_hamiltonian = ffsim.double_factorized_decomposition(
+    df_hamiltonian = ffsim.double_factorized_hamiltonian(
         one_body_tensor, two_body_tensor, z_representation=z_representation
     )
 
