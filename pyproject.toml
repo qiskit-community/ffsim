@@ -24,7 +24,7 @@ dev = [
     "black",
     "coverage",
     "jupyter-sphinx",
-    "maturin[patchelf]",
+    "maturin",
     "mypy",
     "nbmake",
     "nbsphinx",
