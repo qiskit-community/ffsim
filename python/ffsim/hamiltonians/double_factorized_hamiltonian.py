@@ -136,7 +136,8 @@ def double_factorized_hamiltonian(
 
         H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
             + \frac12 \sum_{pqrs, \sigma} h_{pqrs, \sigma\tau}
-            a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}.
+            a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}
+            + \text{constant}.
 
     The Hamiltonian is decomposed into the double-factorized form
 
@@ -144,8 +145,8 @@ def double_factorized_hamiltonian(
 
         H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
         + \frac12 \sum_t \sum_{ij, \sigma\tau}
-        Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{t}_{j, \tau}
-        + \text{constant}.
+        Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}
+        + \text{constant}'.
 
     where
 
@@ -191,19 +192,17 @@ def double_factorized_hamiltonian(
 
     where :math:`z^{(t)}_{i, \sigma}` is the Pauli Z operator in the rotated basis.
     The "Z" representation is obtained by rewriting the two-body part in terms
-    of these Pauli Z operators:
+    of these Pauli Z operators and updating the one-body term as appropriate:
 
     .. math::
 
-        H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-        + \sum_{pq, \sigma} \tilde{\kappa}_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
+        H = \sum_{pq, \sigma} \kappa'_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
         + \frac18 \sum_t \sum_{ij, \sigma\tau}^*
-        Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{t}_{j, \tau}
-        + \text{constant}
+        Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}
+        + \text{constant}''
 
-    where the asterisk denotes summation over indices $ij, \sigma\tau$
-    where $i \neq j$ or $\sigma \neq \tau$.
-    Here :math:`\tilde{\kappa}_{pq}` is a correction to the one-body term.
+    where the asterisk denotes summation over indices :math:`ij, \sigma\tau`
+    where :math:`i \neq j` or :math:`\sigma \neq \tau`.
 
     Note: Currently, only real-valued two-body tensors are supported.
 
