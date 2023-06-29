@@ -30,9 +30,7 @@ Once the Rust compiler is installed, ffsim can be installed by running the comma
 
     pip install .
 
-from the root directory of the code repository. To install in editable mode, do
-
-    pip install -e .
+from the root directory of the code repository.
 
 Installing from source has only been tested in a Linux environment.
 
@@ -41,3 +39,26 @@ Installing from source has only been tested in a Linux environment.
 - It may be a bit tricky to get OpenBLAS to link successfully. If you have issues, try the following:
   - Run `pip install patchelf`.
   - Run `pip install -e .` twice in a row.
+
+## Development
+
+To set up ffsim for development, install it from source in editable mode along with the development requirements:
+
+    pip install -e ".[dev]"
+
+If you add or modify any Rust modules, rebuild them by running the command
+
+    maturin develop --release
+
+Tests and other code checks are managed using [tox](https://tox.wiki/en/latest/).
+To run the default tox environments, simply run
+
+    tox
+
+To run a specific environment, for example, to run the lint checks, do
+
+    tox run -e lint
+
+You can also use `pytest` to run the tests directly. For example,
+
+    pytest tests/
