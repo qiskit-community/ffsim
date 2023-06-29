@@ -44,3 +44,11 @@ ignore_missing_imports = true
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.cibuildwheel]
+build = "cp38-macosx* cp38-manylinux_x86_64 cp38-manylinux_aarch64"
+test-requires = "pytest"
+test-command = "pytest {project}/tests"
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y openssl-devel rust cargo"
