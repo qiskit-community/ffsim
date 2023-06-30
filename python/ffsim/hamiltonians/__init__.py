@@ -14,3 +14,4 @@ from ffsim.hamiltonians.double_factorized_hamiltonian import (
     DoubleFactorizedHamiltonian,
     double_factorized_hamiltonian,
 )
+from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
