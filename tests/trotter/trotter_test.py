@@ -12,18 +12,11 @@
 
 from __future__ import annotations
 
+import ffsim
 import numpy as np
 import pytest
 import scipy.sparse.linalg
-
-import ffsim
 from ffsim.fci import get_dimension, get_hamiltonian_linop, get_trace
-from ffsim.random import (
-    random_hermitian,
-    random_statevector,
-    random_two_body_tensor_real,
-)
-from ffsim.trotter import simulate_trotter_double_factorized
 
 
 @pytest.mark.parametrize(
@@ -48,20 +41,21 @@ def test_simulate_trotter_double_factorized_random(
     # generate random Hamiltonian
     dim = get_dimension(norb, nelec)
     # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
-    one_body_tensor = np.real(np.array(random_hermitian(norb, seed=2474)))
-    two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
+    one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
+    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
     hamiltonian = get_hamiltonian_linop(
         one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
     )
 
     # perform double factorization
     df_hamiltonian = ffsim.double_factorized_hamiltonian(
-        one_body_tensor, two_body_tensor, z_representation=z_representation
+        ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor),
+        z_representation=z_representation,
     )
 
     # generate initial state
     dim = get_dimension(norb, nelec)
-    initial_state = random_statevector(dim, seed=1360)
+    initial_state = ffsim.random.random_statevector(dim, seed=1360)
     original_state = initial_state.copy()
 
     # compute exact state
@@ -75,7 +69,7 @@ def test_simulate_trotter_double_factorized_random(
     assert abs(np.vdot(exact_state, initial_state)) < 0.98
 
     # simulate
-    final_state = simulate_trotter_double_factorized(
+    final_state = ffsim.simulate_trotter_double_factorized(
         initial_state,
         df_hamiltonian,
         time,

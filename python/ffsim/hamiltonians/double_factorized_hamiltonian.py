@@ -16,6 +16,7 @@ from functools import cached_property
 import numpy as np
 from opt_einsum import contract
 
+from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
 
 
@@ -116,8 +117,7 @@ def _df_z_representation(
 
 
 def double_factorized_hamiltonian(
-    one_body_tensor: np.ndarray,
-    two_body_tensor: np.ndarray,
+    hamiltonian: MolecularHamiltonian,
     *,
     z_representation: bool = False,
     tol: float = 1e-8,
@@ -245,10 +245,12 @@ def double_factorized_hamiltonian(
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
-    one_body_tensor = one_body_tensor - 0.5 * np.einsum("prqr", two_body_tensor)
+    one_body_tensor = hamiltonian.one_body_tensor - 0.5 * np.einsum(
+        "prqr", hamiltonian.two_body_tensor
+    )
 
     diag_coulomb_mats, orbital_rotations = double_factorized(
-        two_body_tensor,
+        hamiltonian.two_body_tensor,
         tol=tol,
         max_vecs=max_vecs,
         optimize=optimize,

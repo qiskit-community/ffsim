@@ -22,6 +22,7 @@ from ffsim.gates import (
 )
 from ffsim.hamiltonians import (
     DoubleFactorizedHamiltonian,
+    MolecularHamiltonian,
     double_factorized_hamiltonian,
 )
 from ffsim.states import one_hot, slater_determinant, slater_determinant_one_rdm

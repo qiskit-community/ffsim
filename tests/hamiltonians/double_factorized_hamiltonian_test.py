@@ -23,12 +23,6 @@ from ffsim.fci import (
     get_dimension,
     get_hamiltonian_linop,
 )
-from ffsim.gates import apply_orbital_rotation
-from ffsim.random import (
-    random_hermitian,
-    random_statevector,
-    random_two_body_tensor_real,
-)
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
@@ -40,34 +34,35 @@ def test_double_factorized_hamiltonian(z_representation: bool):
     # generate random Hamiltonian
     dim = get_dimension(norb, nelec)
     # TODO test with complex one-body tensor
-    one_body_tensor = np.real(random_hermitian(norb, seed=2474))
-    two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
+    one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
+    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
     hamiltonian = get_hamiltonian_linop(
         one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
     )
 
     # perform double factorization
     df_hamiltonian = ffsim.double_factorized_hamiltonian(
-        one_body_tensor, two_body_tensor, z_representation=z_representation
+        ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor),
+        z_representation=z_representation,
     )
 
     # generate random state
     dim = get_dimension(norb, nelec)
-    state = random_statevector(dim, seed=1360)
+    state = ffsim.random.random_statevector(dim, seed=1360)
 
     # apply Hamiltonian terms
     result = df_hamiltonian.constant * state
 
     eigs, vecs = np.linalg.eigh(df_hamiltonian.one_body_tensor)
-    tmp = apply_orbital_rotation(state, vecs.T.conj(), norb=norb, nelec=nelec)
+    tmp = ffsim.apply_orbital_rotation(state, vecs.T.conj(), norb=norb, nelec=nelec)
     tmp = contract_num_op_sum(tmp, eigs, norb=norb, nelec=nelec)
-    tmp = apply_orbital_rotation(tmp, vecs, norb=norb, nelec=nelec)
+    tmp = ffsim.apply_orbital_rotation(tmp, vecs, norb=norb, nelec=nelec)
     result += tmp
 
     for diag_coulomb_mat, orbital_rotation in zip(
         df_hamiltonian.diag_coulomb_mats, df_hamiltonian.orbital_rotations
     ):
-        tmp = apply_orbital_rotation(
+        tmp = ffsim.apply_orbital_rotation(
             state, orbital_rotation.T.conj(), norb=norb, nelec=nelec
         )
         tmp = contract_diag_coulomb(
@@ -77,7 +72,9 @@ def test_double_factorized_hamiltonian(z_representation: bool):
             nelec=nelec,
             z_representation=z_representation,
         )
-        tmp = apply_orbital_rotation(tmp, orbital_rotation, norb=norb, nelec=nelec)
+        tmp = ffsim.apply_orbital_rotation(
+            tmp, orbital_rotation, norb=norb, nelec=nelec
+        )
         result += tmp
 
     # apply Hamiltonian directly
@@ -90,11 +87,11 @@ def test_double_factorized_hamiltonian(z_representation: bool):
 def test_z_representation_round_trip():
     norb = 4
 
-    one_body_tensor = random_hermitian(norb, seed=2474)
-    two_body_tensor = random_two_body_tensor_real(norb, seed=7054)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=2474)
+    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
 
     df_hamiltonian = ffsim.double_factorized_hamiltonian(
-        one_body_tensor, two_body_tensor
+        ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
     )
     df_hamiltonian_num = df_hamiltonian.to_z_representation().to_number_representation()
 
