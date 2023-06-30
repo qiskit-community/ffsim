@@ -10,7 +10,7 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import linalg, random
+from ffsim import gates, hamiltonians, linalg, random, trotter
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_givens_rotation,
