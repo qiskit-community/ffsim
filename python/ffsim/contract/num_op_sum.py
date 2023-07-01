@@ -63,7 +63,7 @@ def contract_num_op_sum(
     return out.T.reshape(-1)
 
 
-def num_op_sum_to_linop(
+def num_op_sum_linop(
     coeffs: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert a sum of number operators to a linear operator."""

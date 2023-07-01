@@ -47,10 +47,10 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
             z_representation=z_representation,
         )
 
-        op = ffsim.contract.diag_coulomb_to_linop(
+        op = ffsim.contract.diag_coulomb_linop(
             mat, norb=norb, nelec=nelec, z_representation=z_representation
         )
-        orbital_op = ffsim.contract.one_body_tensor_to_linop(
+        orbital_op = ffsim.contract.one_body_tensor_linop(
             scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
         )
         expected = scipy.sparse.linalg.expm_multiply(
@@ -95,14 +95,14 @@ def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
             z_representation=z_representation,
         )
 
-        op = ffsim.contract.diag_coulomb_to_linop(
+        op = ffsim.contract.diag_coulomb_linop(
             mat,
             norb=norb,
             nelec=nelec,
             mat_alpha_beta=mat_alpha_beta,
             z_representation=z_representation,
         )
-        orbital_op = ffsim.contract.one_body_tensor_to_linop(
+        orbital_op = ffsim.contract.one_body_tensor_linop(
             scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
         )
         expected = scipy.sparse.linalg.expm_multiply(

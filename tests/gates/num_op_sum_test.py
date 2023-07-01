@@ -65,7 +65,7 @@ def test_apply_quadratic_hamiltonian_evolution():
         result = ffsim.apply_num_op_sum_evolution(
             vec, eigs, time, norb, nelec, orbital_rotation=vecs
         )
-        op = ffsim.contract.one_body_tensor_to_linop(mat, norb=norb, nelec=nelec)
+        op = ffsim.contract.one_body_tensor_linop(mat, norb=norb, nelec=nelec)
         expected = scipy.sparse.linalg.expm_multiply(
             -1j * time * op, vec, traceA=np.sum(np.abs(mat))
         )

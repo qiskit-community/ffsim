@@ -33,7 +33,7 @@ def test_expectation_product():
     for _ in range(n_tensors):
         one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
         one_body_tensor += 1j * rng.standard_normal((norb, norb))
-        linop = ffsim.contract.one_body_tensor_to_linop(
+        linop = ffsim.contract.one_body_tensor_linop(
             one_body_tensor, norb=norb, nelec=nelec
         )
         one_body_tensors.append(one_body_tensor)
@@ -75,7 +75,7 @@ def test_expectation_power():
     # generate a random one-body tensor
     one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
     one_body_tensor += 1j * rng.standard_normal((norb, norb))
-    linop = ffsim.contract.one_body_tensor_to_linop(
+    linop = ffsim.contract.one_body_tensor_linop(
         one_body_tensor, norb=norb, nelec=nelec
     )
 

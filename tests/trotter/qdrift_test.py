@@ -54,7 +54,7 @@ def variance(
 def test_spectral_norm_one_body_tensor(norb: int, nelec: tuple[int, int]):
     """Test spectral norm of one-body operator."""
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=8034)
-    one_body_linop = ffsim.contract.one_body_tensor_to_linop(
+    one_body_linop = ffsim.contract.one_body_tensor_linop(
         one_body_tensor, norb=norb, nelec=nelec
     )
     actual = spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec)
@@ -85,7 +85,7 @@ def test_spectral_norm_diag_coulomb(
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
             norb, rank=rank, seed=rng
         )
-        two_body_linop = ffsim.contract.diag_coulomb_to_linop(
+        two_body_linop = ffsim.contract.diag_coulomb_linop(
             diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=z_representation
         )
         actual = spectral_norm_diag_coulomb(
@@ -127,13 +127,13 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
         )
         actual = sum(
             [
-                ffsim.contract.one_body_tensor_to_linop(tensor, norb=norb, nelec=nelec)
+                ffsim.contract.one_body_tensor_linop(tensor, norb=norb, nelec=nelec)
                 ** 2
                 for tensor in one_body_tensors
             ],
             start=zero,
         )
-        expected = ffsim.contract.diag_coulomb_to_linop(
+        expected = ffsim.contract.diag_coulomb_linop(
             diag_coulomb_mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
         )
 
@@ -156,7 +156,7 @@ def test_variance_one_body_tensor(norb: int, nelec: tuple[int, int]):
     rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    one_body_linop = ffsim.contract.one_body_tensor_to_linop(
+    one_body_linop = ffsim.contract.one_body_tensor_linop(
         one_body_tensor, norb=norb, nelec=nelec
     )
 
@@ -208,7 +208,7 @@ def test_variance_diag_coulomb(
     state = ffsim.slater_determinant(norb, (range(n_alpha), range(n_beta)))
     state = ffsim.apply_orbital_rotation(state, vecs, norb=norb, nelec=nelec)
 
-    linop = ffsim.contract.diag_coulomb_to_linop(
+    linop = ffsim.contract.diag_coulomb_linop(
         diag_coulomb_mat,
         norb=norb,
         nelec=nelec,
@@ -261,7 +261,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     two_body_tensor = ao2mo.restore(1, mc.get_h2cas(), mc.ncas)
     norb, _ = one_body_tensor.shape
     nelec = mol.nelec
-    hamiltonian = ffsim.contract.get_hamiltonian_linop(
+    hamiltonian = ffsim.contract.hamiltonian_linop(
         one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
     )
 
@@ -357,7 +357,7 @@ def test_simulate_qdrift_double_factorized_random(
     two_body_tensor = ffsim.random.random_two_body_tensor_real(
         norb, rank=norb, seed=rng
     )
-    hamiltonian = ffsim.contract.get_hamiltonian_linop(
+    hamiltonian = ffsim.contract.hamiltonian_linop(
         one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
     )
 
