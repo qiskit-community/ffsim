@@ -25,8 +25,10 @@ from ffsim._ffsim import (
     contract_num_op_sum_spin_into_buffer,
     gen_orbital_rotation_index_in_place,
 )
-from ffsim.fci import gen_orbital_rotation_index
-from ffsim.gates.orbital_rotation import _zero_one_subspace_indices
+from ffsim.gates.orbital_rotation import (
+    _zero_one_subspace_indices,
+    gen_orbital_rotation_index,
+)
 from ffsim.slow import (
     apply_diag_coulomb_evolution_in_place_num_rep_numpy,
     apply_diag_coulomb_evolution_in_place_num_rep_slow,

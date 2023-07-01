@@ -14,14 +14,12 @@ from __future__ import annotations
 
 import itertools
 
+import ffsim
 import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-
-import ffsim
-from ffsim.fci import diag_coulomb_to_linop, get_dimension, one_body_tensor_to_linop
-from ffsim.states import slater_determinant
+from ffsim.contract.hamiltonian import get_dimension
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
@@ -49,10 +47,10 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
             z_representation=z_representation,
         )
 
-        op = diag_coulomb_to_linop(
+        op = ffsim.contract.diag_coulomb_to_linop(
             mat, norb=norb, nelec=nelec, z_representation=z_representation
         )
-        orbital_op = one_body_tensor_to_linop(
+        orbital_op = ffsim.contract.one_body_tensor_to_linop(
             scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
         )
         expected = scipy.sparse.linalg.expm_multiply(
@@ -97,14 +95,14 @@ def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
             z_representation=z_representation,
         )
 
-        op = diag_coulomb_to_linop(
+        op = ffsim.contract.diag_coulomb_to_linop(
             mat,
             norb=norb,
             nelec=nelec,
             mat_alpha_beta=mat_alpha_beta,
             z_representation=z_representation,
         )
-        orbital_op = one_body_tensor_to_linop(
+        orbital_op = ffsim.contract.one_body_tensor_to_linop(
             scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
         )
         expected = scipy.sparse.linalg.expm_multiply(
@@ -132,7 +130,7 @@ def test_apply_diag_coulomb_evolution_eigenvalue():
             rng.choice(norb, n_beta, replace=False),
         )
         nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-        state = slater_determinant(norb, occupied_orbitals)
+        state = ffsim.slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
 
         mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
