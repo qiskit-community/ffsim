@@ -10,13 +10,11 @@
 
 """Test Wick's theorem utilities."""
 
+import ffsim
 import numpy as np
 import scipy.linalg
 import scipy.sparse.linalg
-
-import ffsim
-from ffsim.fci import get_dimension, one_body_tensor_to_linop
-from ffsim.random import random_unitary
+from ffsim.contract.hamiltonian import get_dimension
 from ffsim.wick import expectation_power, expectation_product
 
 
@@ -35,12 +33,14 @@ def test_expectation_product():
     for _ in range(n_tensors):
         one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
         one_body_tensor += 1j * rng.standard_normal((norb, norb))
-        linop = one_body_tensor_to_linop(one_body_tensor, norb=norb, nelec=nelec)
+        linop = ffsim.contract.one_body_tensor_to_linop(
+            one_body_tensor, norb=norb, nelec=nelec
+        )
         one_body_tensors.append(one_body_tensor)
         linops.append(linop)
 
     # generate a random Slater determinant
-    vecs = random_unitary(norb, seed=rng)
+    vecs = ffsim.random.random_unitary(norb, seed=rng)
     occupied_orbitals_a = vecs[:, :n_alpha]
     occupied_orbitals_b = vecs[:, :n_beta]
     one_rdm_a = occupied_orbitals_a.conj() @ occupied_orbitals_a.T
@@ -75,10 +75,12 @@ def test_expectation_power():
     # generate a random one-body tensor
     one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
     one_body_tensor += 1j * rng.standard_normal((norb, norb))
-    linop = one_body_tensor_to_linop(one_body_tensor, norb=norb, nelec=nelec)
+    linop = ffsim.contract.one_body_tensor_to_linop(
+        one_body_tensor, norb=norb, nelec=nelec
+    )
 
     # generate a random Slater determinant
-    vecs = random_unitary(norb, seed=rng)
+    vecs = ffsim.random.random_unitary(norb, seed=rng)
     occupied_orbitals_a = vecs[:, :n_alpha]
     occupied_orbitals_b = vecs[:, :n_beta]
     one_rdm_a = occupied_orbitals_a.conj() @ occupied_orbitals_a.T

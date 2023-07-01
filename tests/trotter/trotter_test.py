@@ -16,7 +16,7 @@ import ffsim
 import numpy as np
 import pytest
 import scipy.sparse.linalg
-from ffsim.fci import get_dimension, get_hamiltonian_linop, get_trace
+from ffsim.contract.hamiltonian import get_dimension, get_hamiltonian_linop, get_trace
 
 
 @pytest.mark.parametrize(

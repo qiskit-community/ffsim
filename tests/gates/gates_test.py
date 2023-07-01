@@ -17,8 +17,7 @@ import itertools
 import ffsim
 import numpy as np
 import scipy.sparse.linalg
-from ffsim.fci import get_dimension, one_body_tensor_to_linop
-from ffsim.states import slater_determinant
+from ffsim.contract.hamiltonian import get_dimension
 
 
 def test_apply_givens_rotation():
@@ -40,7 +39,9 @@ def test_apply_givens_rotation():
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = -theta
-        linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
+        linop = ffsim.contract.one_body_tensor_to_linop(
+            generator, norb=norb, nelec=nelec
+        )
         expected = scipy.sparse.linalg.expm_multiply(
             linop, vec, traceA=np.sum(np.abs(generator))
         )
@@ -68,7 +69,9 @@ def test_apply_tunneling_interaction():
         generator = np.zeros((norb, norb))
         generator[i, j] = theta
         generator[j, i] = theta
-        linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
+        linop = ffsim.contract.one_body_tensor_to_linop(
+            generator, norb=norb, nelec=nelec
+        )
         expected = scipy.sparse.linalg.expm_multiply(
             1j * linop, vec, traceA=np.sum(np.abs(generator))
         )
@@ -92,7 +95,9 @@ def test_apply_num_interaction():
         )
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
-        linop = one_body_tensor_to_linop(generator, norb=norb, nelec=nelec)
+        linop = ffsim.contract.one_body_tensor_to_linop(
+            generator, norb=norb, nelec=nelec
+        )
         expected = scipy.sparse.linalg.expm_multiply(
             1j * linop, vec, traceA=np.sum(np.abs(generator))
         )
@@ -111,7 +116,7 @@ def test_apply_num_num_interaction():
         rng.choice(norb, n_beta, replace=False),
     )
     nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-    vec = slater_determinant(norb, occupied_orbitals)
+    vec = ffsim.slater_determinant(norb, occupied_orbitals)
 
     theta = rng.standard_normal()
     for i, j in itertools.combinations_with_replacement(range(norb), 2):

@@ -12,13 +12,10 @@
 
 from __future__ import annotations
 
+import ffsim
 import numpy as np
 import scipy.sparse.linalg
-
-from ffsim.fci import get_dimension, one_body_tensor_to_linop
-from ffsim.gates import apply_num_op_sum_evolution
-from ffsim.random import random_hermitian, random_statevector
-from ffsim.states import slater_determinant
+from ffsim.contract.hamiltonian import get_dimension
 
 
 def test_apply_num_op_sum_evolution():
@@ -32,12 +29,12 @@ def test_apply_num_op_sum_evolution():
         rng.choice(norb, n_beta, replace=False),
     )
     nelec = tuple(len(orbs) for orbs in occupied_orbitals)
-    state = slater_determinant(norb, occupied_orbitals)
+    state = ffsim.slater_determinant(norb, occupied_orbitals)
     original_state = state.copy()
 
     coeffs = rng.standard_normal(norb)
     time = 0.6
-    result = apply_num_op_sum_evolution(state, coeffs, time, norb, nelec)
+    result = ffsim.apply_num_op_sum_evolution(state, coeffs, time, norb, nelec)
 
     eig = 0
     for i in range(norb):
@@ -60,15 +57,15 @@ def test_apply_quadratic_hamiltonian_evolution():
         nelec = (n_alpha, n_beta)
         dim = get_dimension(norb, nelec)
 
-        mat = random_hermitian(norb, seed=rng)
+        mat = ffsim.random.random_hermitian(norb, seed=rng)
         eigs, vecs = np.linalg.eigh(mat)
-        vec = random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
 
         time = 0.6
-        result = apply_num_op_sum_evolution(
+        result = ffsim.apply_num_op_sum_evolution(
             vec, eigs, time, norb, nelec, orbital_rotation=vecs
         )
-        op = one_body_tensor_to_linop(mat, norb=norb, nelec=nelec)
+        op = ffsim.contract.one_body_tensor_to_linop(mat, norb=norb, nelec=nelec)
         expected = scipy.sparse.linalg.expm_multiply(
             -1j * time * op, vec, traceA=np.sum(np.abs(mat))
         )

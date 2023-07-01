@@ -8,25 +8,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for FCI utils."""
+"""Tests for diagonal Coulomb contraction."""
 
 from __future__ import annotations
 
 import itertools
 from typing import Sequence, cast
 
+import ffsim
 import numpy as np
 import pytest
-
-import ffsim
-from ffsim.fci import (
-    contract_diag_coulomb,
-    contract_num_op_sum,
-    diag_coulomb_to_linop,
-    get_dimension,
-    num_op_sum_to_linop,
-)
-from ffsim.states import slater_determinant
+from ffsim.contract.hamiltonian import get_dimension
 
 
 @pytest.mark.parametrize("norb", [4, 5])
@@ -40,11 +32,11 @@ def test_contract_diag_coulomb(norb: int):
         alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
         beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
         occupied_orbitals = (alpha_orbitals, beta_orbitals)
-        state = slater_determinant(norb, occupied_orbitals)
+        state = ffsim.slater_determinant(norb, occupied_orbitals)
 
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        result = contract_diag_coulomb(
+        result = ffsim.contract.contract_diag_coulomb(
             state, mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
         )
 
@@ -70,11 +62,11 @@ def test_contract_diag_coulomb_z_representation(norb: int):
         alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
         beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
         occupied_orbitals = (alpha_orbitals, beta_orbitals)
-        state = slater_determinant(norb, occupied_orbitals)
+        state = ffsim.slater_determinant(norb, occupied_orbitals)
 
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        result = contract_diag_coulomb(
+        result = ffsim.contract.contract_diag_coulomb(
             state,
             mat,
             norb=norb,
@@ -96,32 +88,6 @@ def test_contract_diag_coulomb_z_representation(norb: int):
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
-@pytest.mark.parametrize("norb", [4, 5])
-def test_contract_num_op_sum(norb: int):
-    """Test contracting sum of number operators."""
-    rng = np.random.default_rng()
-    for _ in range(50):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
-        nelec = (n_alpha, n_beta)
-        alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
-        beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
-        occupied_orbitals = (alpha_orbitals, beta_orbitals)
-        state = slater_determinant(norb, occupied_orbitals)
-
-        coeffs = rng.standard_normal(norb)
-        result = contract_num_op_sum(state, coeffs, norb=norb, nelec=nelec)
-
-        eig = 0
-        for i in range(norb):
-            for sigma in range(2):
-                if i in occupied_orbitals[sigma]:
-                    eig += coeffs[i]
-        expected = eig * state
-
-        np.testing.assert_allclose(result, expected, atol=1e-8)
-
-
 def test_diag_coulomb_to_linop():
     """Test converting a diagonal Coulomb matrix to a linear operator."""
     norb = 5
@@ -134,27 +100,8 @@ def test_diag_coulomb_to_linop():
     mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     vec = ffsim.random.random_statevector(dim, seed=rng)
 
-    linop = diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
+    linop = ffsim.contract.diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
     result = linop @ vec
-    expected = contract_diag_coulomb(vec, mat, norb=norb, nelec=nelec)
-
-    np.testing.assert_allclose(result, expected, atol=1e-8)
-
-
-def test_num_op_sum_to_linop():
-    """Test converting a diagonal Coulomb matrix to a linear operator."""
-    norb = 5
-    rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
-    nelec = (n_alpha, n_beta)
-    dim = get_dimension(norb, nelec)
-
-    coeffs = rng.standard_normal(norb)
-    vec = ffsim.random.random_statevector(dim, seed=rng)
-
-    linop = num_op_sum_to_linop(coeffs, norb=norb, nelec=nelec)
-    result = linop @ vec
-    expected = contract_num_op_sum(vec, coeffs, norb=norb, nelec=nelec)
+    expected = ffsim.contract.contract_diag_coulomb(vec, mat, norb=norb, nelec=nelec)
 
     np.testing.assert_allclose(result, expected, atol=1e-8)

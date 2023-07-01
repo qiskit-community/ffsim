@@ -13,16 +13,10 @@
 
 from __future__ import annotations
 
+import ffsim
 import numpy as np
 import pytest
-
-import ffsim
-from ffsim.fci import (
-    contract_diag_coulomb,
-    contract_num_op_sum,
-    get_dimension,
-    get_hamiltonian_linop,
-)
+from ffsim.contract.hamiltonian import get_dimension
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
@@ -36,7 +30,7 @@ def test_double_factorized_hamiltonian(z_representation: bool):
     # TODO test with complex one-body tensor
     one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
-    hamiltonian = get_hamiltonian_linop(
+    hamiltonian = ffsim.contract.get_hamiltonian_linop(
         one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
     )
 
@@ -55,7 +49,7 @@ def test_double_factorized_hamiltonian(z_representation: bool):
 
     eigs, vecs = np.linalg.eigh(df_hamiltonian.one_body_tensor)
     tmp = ffsim.apply_orbital_rotation(state, vecs.T.conj(), norb=norb, nelec=nelec)
-    tmp = contract_num_op_sum(tmp, eigs, norb=norb, nelec=nelec)
+    tmp = ffsim.contract.contract_num_op_sum(tmp, eigs, norb=norb, nelec=nelec)
     tmp = ffsim.apply_orbital_rotation(tmp, vecs, norb=norb, nelec=nelec)
     result += tmp
 
@@ -65,7 +59,7 @@ def test_double_factorized_hamiltonian(z_representation: bool):
         tmp = ffsim.apply_orbital_rotation(
             state, orbital_rotation.T.conj(), norb=norb, nelec=nelec
         )
-        tmp = contract_diag_coulomb(
+        tmp = ffsim.contract.contract_diag_coulomb(
             tmp,
             diag_coulomb_mat,
             norb=norb,
