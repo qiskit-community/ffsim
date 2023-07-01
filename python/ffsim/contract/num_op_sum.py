@@ -33,6 +33,7 @@ def contract_num_op_sum(
     occupations_b: np.ndarray | None = None,
 ):
     """Contract a sum of number operators with a vector."""
+    # TODO add orbital rotation argument
     vec = vec.astype(complex, copy=False)
     n_alpha, n_beta = nelec
 
