@@ -60,7 +60,7 @@ def test_num_op_sum_to_linop():
     coeffs = rng.standard_normal(norb)
     vec = ffsim.random.random_statevector(dim, seed=rng)
 
-    linop = ffsim.contract.num_op_sum_to_linop(coeffs, norb=norb, nelec=nelec)
+    linop = ffsim.contract.num_op_sum_linop(coeffs, norb=norb, nelec=nelec)
     result = linop @ vec
     expected = ffsim.contract.contract_num_op_sum(vec, coeffs, norb=norb, nelec=nelec)
 

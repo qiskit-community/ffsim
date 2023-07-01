@@ -75,7 +75,7 @@ def get_trace(
     return np.sum(make_hdiag(one_body_tensor, two_body_tensor, norb, nelec))
 
 
-def get_hamiltonian_linop(
+def hamiltonian_linop(
     one_body_tensor: np.ndarray,
     two_body_tensor: np.ndarray,
     norb: int,
@@ -97,7 +97,7 @@ def get_hamiltonian_linop(
     )
 
 
-def one_body_tensor_to_linop(
+def one_body_tensor_linop(
     one_body_tensor: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> scipy.sparse.linalg.LinearOperator:
     """Convert the one-body tensor to a matrix in the FCI basis."""

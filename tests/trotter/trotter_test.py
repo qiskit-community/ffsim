@@ -16,7 +16,7 @@ import ffsim
 import numpy as np
 import pytest
 import scipy.sparse.linalg
-from ffsim.contract.hamiltonian import get_dimension, get_hamiltonian_linop, get_trace
+from ffsim.contract.hamiltonian import get_dimension, hamiltonian_linop, get_trace
 
 
 @pytest.mark.parametrize(
@@ -43,7 +43,7 @@ def test_simulate_trotter_double_factorized_random(
     # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
     one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
-    hamiltonian = get_hamiltonian_linop(
+    hamiltonian = hamiltonian_linop(
         one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
     )
 

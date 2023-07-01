@@ -140,7 +140,7 @@ def _contract_diag_coulomb_z_rep(
     return out.reshape(-1)
 
 
-def diag_coulomb_to_linop(
+def diag_coulomb_linop(
     mat: np.ndarray,
     norb: int,
     nelec: tuple[int, int],

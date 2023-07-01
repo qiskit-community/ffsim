@@ -100,7 +100,7 @@ def test_diag_coulomb_to_linop():
     mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     vec = ffsim.random.random_statevector(dim, seed=rng)
 
-    linop = ffsim.contract.diag_coulomb_to_linop(mat, norb=norb, nelec=nelec)
+    linop = ffsim.contract.diag_coulomb_linop(mat, norb=norb, nelec=nelec)
     result = linop @ vec
     expected = ffsim.contract.contract_diag_coulomb(vec, mat, norb=norb, nelec=nelec)
 
