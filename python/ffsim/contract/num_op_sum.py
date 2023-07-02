@@ -21,6 +21,10 @@ from ffsim._ffsim import (
     contract_num_op_sum_spin_into_buffer,
 )
 from ffsim.contract.hamiltonian import get_dimension
+from ffsim.gates.orbital_rotation import (
+    apply_orbital_rotation,
+    gen_orbital_rotation_index,
+)
 
 
 def contract_num_op_sum(
@@ -116,10 +120,6 @@ def num_op_sum_linop(
         A LinearOperator that implements the action of the linear combination of number
         operators.
     """
-    if orbital_rotation is not None:
-        # TODO
-        raise NotImplementedError
-
     n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
     occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
@@ -128,16 +128,43 @@ def num_op_sum_linop(
     occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
         np.uint, copy=False
     )
+    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
+    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
     def matvec(vec):
-        return contract_num_op_sum(
+        these_coeffs = coeffs
+        if orbital_rotation is not None:
+            vec, perm0 = apply_orbital_rotation(
+                vec,
+                orbital_rotation.T.conj(),
+                norb,
+                nelec,
+                allow_row_permutation=True,
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
+            )
+            these_coeffs = perm0 @ these_coeffs
+        vec = contract_num_op_sum(
             vec,
-            coeffs,
+            these_coeffs,
             norb=norb,
             nelec=nelec,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
         )
+        if orbital_rotation is not None:
+            vec, perm1 = apply_orbital_rotation(
+                vec,
+                orbital_rotation,
+                norb,
+                nelec,
+                allow_col_permutation=True,
+                orbital_rotation_index_a=orbital_rotation_index_a,
+                orbital_rotation_index_b=orbital_rotation_index_b,
+                copy=False,
+            )
+            np.testing.assert_allclose(perm0, perm1.T)
+        return vec
 
     return scipy.sparse.linalg.LinearOperator(
         (dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex

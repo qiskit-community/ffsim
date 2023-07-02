@@ -58,10 +58,22 @@ def test_num_op_sum_to_linop():
     dim = get_dimension(norb, nelec)
 
     coeffs = rng.standard_normal(norb)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     vec = ffsim.random.random_statevector(dim, seed=rng)
 
-    linop = ffsim.contract.num_op_sum_linop(coeffs, norb=norb, nelec=nelec)
+    linop = ffsim.contract.num_op_sum_linop(
+        coeffs, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
+    )
     result = linop @ vec
-    expected = ffsim.contract.contract_num_op_sum(vec, coeffs, norb=norb, nelec=nelec)
+
+    expected = ffsim.apply_orbital_rotation(
+        vec, orbital_rotation.T.conj(), norb=norb, nelec=nelec
+    )
+    expected = ffsim.contract.contract_num_op_sum(
+        expected, coeffs, norb=norb, nelec=nelec
+    )
+    expected = ffsim.apply_orbital_rotation(
+        expected, orbital_rotation, norb=norb, nelec=nelec
+    )
 
     np.testing.assert_allclose(result, expected, atol=1e-8)
