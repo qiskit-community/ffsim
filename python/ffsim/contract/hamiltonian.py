@@ -81,7 +81,28 @@ def hamiltonian_linop(
     norb: int,
     nelec: tuple[int, int],
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Get the Hamiltonian in the FCI basis."""
+    """Convert a molecular Hamiltonian to a linear operator.
+
+    A molecular Hamiltonian has the form
+
+    .. math::
+
+        H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
+            + \frac12 \sum_{pqrs, \sigma} h_{pqrs, \sigma\tau}
+            a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}.
+
+    Here :math:`h_{pq}` is called the one-body tensor and :math:`h_{pqrs}` is called
+    the two-body tensor.
+
+    Args:
+        one_body_tensor: The one-body tensor.
+        two_body_tensor: The two-body tensor.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+
+    Returns:
+        A LinearOperator that implements the action of the Hamiltonian.
+    """
     n_alpha, n_beta = nelec
     linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
     linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
@@ -98,9 +119,26 @@ def hamiltonian_linop(
 
 
 def one_body_tensor_linop(
-    one_body_tensor: np.ndarray, norb: int, nelec: tuple[int, int]
+    mat: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert the one-body tensor to a matrix in the FCI basis."""
+    """Convert a one-body tensor to a linear operator.
+
+    A one-body tensor has the form
+
+    .. math::
+
+        \sum_{ij} M_{ij} a^\dagger{i} a_j
+
+    where :math:`M` is a complex-valued matrix.
+
+    Args:
+        mat: The one-body tensor.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+
+    Returns:
+        A LinearOperator that implements the action of the one-body tensor.
+    """
     dim = get_dimension(norb, nelec)
     n_alpha, n_beta = nelec
     linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
@@ -109,21 +147,19 @@ def one_body_tensor_linop(
 
     def matvec(vec: np.ndarray):
         result = contract_1e(
-            one_body_tensor.real, vec.real, norb, nelec, link_index=link_index
+            mat.real, vec.real, norb, nelec, link_index=link_index
         ).astype(complex)
         result += 1j * contract_1e(
-            one_body_tensor.imag, vec.real, norb, nelec, link_index=link_index
+            mat.imag, vec.real, norb, nelec, link_index=link_index
         )
         result += 1j * contract_1e(
-            one_body_tensor.real, vec.imag, norb, nelec, link_index=link_index
+            mat.real, vec.imag, norb, nelec, link_index=link_index
         )
-        result -= contract_1e(
-            one_body_tensor.imag, vec.imag, norb, nelec, link_index=link_index
-        )
+        result -= contract_1e(mat.imag, vec.imag, norb, nelec, link_index=link_index)
         return result
 
     def rmatvec(vec: np.ndarray):
-        one_body_tensor_H = one_body_tensor.T.conj()
+        one_body_tensor_H = mat.T.conj()
         result = contract_1e(
             one_body_tensor_H.real, vec.real, norb, nelec, link_index=link_index
         ).astype(complex)

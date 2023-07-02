@@ -32,8 +32,29 @@ def contract_num_op_sum(
     occupations_a: np.ndarray | None = None,
     occupations_b: np.ndarray | None = None,
 ):
-    """Contract a sum of number operators with a vector."""
-    # TODO add orbital rotation argument
+    """Contract a linear combination of number operators with a vector.
+
+    A linear combination of number operators has the form
+
+    .. math::
+
+        \sum_{i, \sigma} \lambda_i n_{i, \sigma}
+
+    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    with spin :math:`\sigma` and the :math:`\lambda_i` are real numbers.
+
+    Args:
+        vec: The state vector to be transformed.
+        coeffs: The coefficients of the linear combination.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        occupations_a: List of occupied orbital lists for alpha strings.
+        occupations_b: List of occupied orbital lists for beta strings.
+
+    Returns:
+        The result of applying the linear combination of number operators on the input
+        state vector.
+    """
     vec = vec.astype(complex, copy=False)
     n_alpha, n_beta = nelec
 
@@ -65,9 +86,40 @@ def contract_num_op_sum(
 
 
 def num_op_sum_linop(
-    coeffs: np.ndarray, norb: int, nelec: tuple[int, int]
+    coeffs: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    orbital_rotation: np.ndarray | None = None,
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert a sum of number operators to a linear operator."""
+    """Convert a (rotated) linear combination of number operators to a linear operator.
+
+    A rotated linear combination of number operators has the form
+
+    .. math::
+
+        \mathcal{U}
+        (\sum_{i, \sigma} \lambda_i n_{i, \sigma})
+        \mathcal{U}^\dagger
+
+    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    with spin :math:`\sigma`, the :math:`\lambda_i` are real numbers, and
+    :math:`\mathcal{U}` is an optional orbital rotation.
+
+    Args:
+        coeffs: The coefficients of the linear combination.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        orbital_rotation: A unitary matrix describing the optional orbital rotation.
+
+    Returns:
+        A LinearOperator that implements the action of the linear combination of number
+        operators.
+    """
+    if orbital_rotation is not None:
+        # TODO
+        raise NotImplementedError
+
     n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
     occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(

@@ -39,7 +39,35 @@ def contract_diag_coulomb(
     strings_a: np.ndarray | None = None,
     strings_b: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Contract a diagonal Coulomb operator with a vector."""
+    """Contract a diagonal Coulomb operator with a vector.
+
+    A diagonal Coulomb operator has the form
+
+    .. math::
+
+        \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2
+
+    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    with spin :math:`\sigma` and :math:`Z` is a real symmetric matrix
+    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
+    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
+
+    Args:
+        vec: The state vector to be transformed.
+        mat: The real symmetric matrix :math:`Z`.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        mat_alpha_beta: A matrix of coefficients to use for interactions between
+            orbitals with differing spin.
+        z_representation: Whether the input matrices are in the "Z" representation.
+        occupations_a: List of occupied orbital lists for alpha strings.
+        occupations_b: List of occupied orbital lists for beta strings.
+        strings_a: List of alpha strings.
+        strings_b: List of beta strings.
+
+    Returns:
+        The result of applying the diagonal Coulomb operator on the input state vector.
+    """
     vec = vec.astype(complex, copy=False)
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
@@ -144,12 +172,39 @@ def diag_coulomb_linop(
     mat: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
-    orbital_rotation: np.ndarray | None = None,
     *,
+    orbital_rotation: np.ndarray | None = None,
     mat_alpha_beta: np.ndarray | None = None,
     z_representation: bool = False,
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert a diagonal Coulomb matrix to a linear operator."""
+    """Convert a (rotated) diagonal Coulomb matrix to a linear operator.
+
+    A rotated diagonal Coulomb operator has the form
+
+    .. math::
+
+        \mathcal{U}
+        (\sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
+        \mathcal{U}^\dagger
+
+    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,
+    and :math:`\mathcal{U}` is an optional orbital rotation.
+    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
+    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
+
+    Args:
+        mat: The real symmetric matrix :math:`Z`.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        orbital_rotation: A unitary matrix describing the optional orbital rotation.
+        mat_alpha_beta: A matrix of coefficients to use for interactions between
+            orbitals with differing spin.
+        z_representation: Whether the input matrices are in the "Z" representation.
+
+    Returns:
+        A LinearOperator that implements the action of the diagonal Coulomb operator.
+    """
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
     n_alpha, n_beta = nelec
