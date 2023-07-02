@@ -79,6 +79,9 @@ def apply_diag_coulomb_evolution(
             vector, but the original vector may have its data overwritten.
             It is also possible that the original vector is returned,
             modified in-place.
+
+    Returns:
+        The evolved state vector.
     """
     if copy:
         vec = vec.copy()
