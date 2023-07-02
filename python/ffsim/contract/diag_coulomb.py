@@ -41,7 +41,7 @@ def contract_diag_coulomb(
     strings_a: np.ndarray | None = None,
     strings_b: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Contract a diagonal Coulomb operator with a vector.
+    r"""Contract a diagonal Coulomb operator with a vector.
 
     A diagonal Coulomb operator has the form
 
@@ -179,7 +179,7 @@ def diag_coulomb_linop(
     mat_alpha_beta: np.ndarray | None = None,
     z_representation: bool = False,
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert a (rotated) diagonal Coulomb matrix to a linear operator.
+    r"""Convert a (rotated) diagonal Coulomb matrix to a linear operator.
 
     A rotated diagonal Coulomb operator has the form
 

@@ -36,7 +36,7 @@ def contract_num_op_sum(
     occupations_a: np.ndarray | None = None,
     occupations_b: np.ndarray | None = None,
 ):
-    """Contract a linear combination of number operators with a vector.
+    r"""Contract a linear combination of number operators with a vector.
 
     A linear combination of number operators has the form
 
@@ -96,7 +96,7 @@ def num_op_sum_linop(
     *,
     orbital_rotation: np.ndarray | None = None,
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert a (rotated) linear combination of number operators to a linear operator.
+    r"""Convert a (rotated) linear combination of number operators to a linear operator.
 
     A rotated linear combination of number operators has the form
 
