@@ -81,7 +81,7 @@ def hamiltonian_linop(
     norb: int,
     nelec: tuple[int, int],
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert a molecular Hamiltonian to a linear operator.
+    r"""Convert a molecular Hamiltonian to a linear operator.
 
     A molecular Hamiltonian has the form
 
@@ -121,7 +121,7 @@ def hamiltonian_linop(
 def one_body_tensor_linop(
     mat: np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> scipy.sparse.linalg.LinearOperator:
-    """Convert a one-body tensor to a linear operator.
+    r"""Convert a one-body tensor to a linear operator.
 
     A one-body tensor has the form
 
