@@ -98,10 +98,22 @@ def test_diag_coulomb_to_linop():
     dim = get_dimension(norb, nelec)
 
     mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     vec = ffsim.random.random_statevector(dim, seed=rng)
 
-    linop = ffsim.contract.diag_coulomb_linop(mat, norb=norb, nelec=nelec)
+    linop = ffsim.contract.diag_coulomb_linop(
+        mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
+    )
     result = linop @ vec
-    expected = ffsim.contract.contract_diag_coulomb(vec, mat, norb=norb, nelec=nelec)
+
+    expected = ffsim.apply_orbital_rotation(
+        vec, orbital_rotation.T.conj(), norb=norb, nelec=nelec
+    )
+    expected = ffsim.contract.contract_diag_coulomb(
+        expected, mat, norb=norb, nelec=nelec
+    )
+    expected = ffsim.apply_orbital_rotation(
+        expected, orbital_rotation, norb=norb, nelec=nelec
+    )
 
     np.testing.assert_allclose(result, expected, atol=1e-8)
