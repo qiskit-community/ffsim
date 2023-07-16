@@ -76,3 +76,10 @@ def test_random_real_symmetric_matrix():
     mat = ffsim.random.random_real_symmetric_matrix(dim, rank=rank)
     assert ffsim.linalg.is_real_symmetric(mat)
     np.testing.assert_allclose(np.linalg.matrix_rank(mat), rank)
+
+
+def test_random_antihermitian_matrix():
+    """Test random anti-Hermitian matrix."""
+    dim = 5
+    mat = ffsim.random.random_antihermitian(dim)
+    assert ffsim.linalg.is_antihermitian(mat)

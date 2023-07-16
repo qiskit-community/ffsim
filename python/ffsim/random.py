@@ -141,6 +141,25 @@ def random_real_symmetric_matrix(
     return mat @ mat.T
 
 
+def random_antihermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
+    """Return a random anti-Hermitian matrix.
+
+    Args:
+        dim: The width and height of the matrix.
+        rank: The rank of the matrix. If `None`, the maximum rank is used.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dype: The data type to use for the result.
+
+    Returns:
+        The sampled anti-Hermitian matrix.
+    """
+    rng = np.random.default_rng(seed)
+    mat = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
+    mat += 1j * rng.standard_normal((dim, dim)).astype(dtype, copy=False)
+    return mat - mat.T.conj()
+
+
 def random_two_body_tensor_real(
     dim: int, *, rank: int | None = None, seed=None, dtype=float
 ) -> np.ndarray:

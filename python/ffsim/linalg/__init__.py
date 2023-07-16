@@ -27,6 +27,7 @@ from ffsim.linalg.linalg import (
 )
 
 from ffsim.linalg.predicates import (
+    is_antihermitian,
     is_hermitian,
     is_orthogonal,
     is_real_symmetric,

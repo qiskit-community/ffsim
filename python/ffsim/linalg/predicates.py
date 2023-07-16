@@ -32,6 +32,23 @@ def is_hermitian(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> 
     return m == n and np.allclose(mat, mat.T.conj(), rtol=rtol, atol=atol)
 
 
+def is_antihermitian(
+    mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8
+) -> bool:
+    """Determine if a matrix is approximately anti-Hermitian.
+
+    Args:
+        mat: The matrix.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Returns:
+        Whether the matrix is anti-Hermitian within the given tolerance.
+    """
+    m, n = mat.shape
+    return m == n and np.allclose(mat, -mat.T.conj(), rtol=rtol, atol=atol)
+
+
 def is_real_symmetric(
     mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8
 ) -> _bool:
