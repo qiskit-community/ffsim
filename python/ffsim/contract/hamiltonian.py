@@ -78,8 +78,10 @@ def get_trace(
 def hamiltonian_linop(
     one_body_tensor: np.ndarray,
     two_body_tensor: np.ndarray,
+    *,
     norb: int,
     nelec: tuple[int, int],
+    constant: float = 0.0,
 ) -> scipy.sparse.linalg.LinearOperator:
     r"""Convert a molecular Hamiltonian to a linear operator.
 
@@ -99,6 +101,7 @@ def hamiltonian_linop(
         two_body_tensor: The two-body tensor.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        constant: The constant.
 
     Returns:
         A LinearOperator that implements the action of the Hamiltonian.
@@ -111,7 +114,9 @@ def hamiltonian_linop(
     dim = get_dimension(norb, nelec)
 
     def matvec(vec: np.ndarray):
-        return contract_2e(two_body, vec, norb, nelec, link_index=link_index)
+        return constant * vec + contract_2e(
+            two_body, vec, norb, nelec, link_index=link_index
+        )
 
     return scipy.sparse.linalg.LinearOperator(
         shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
