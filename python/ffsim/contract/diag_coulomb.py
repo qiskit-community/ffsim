@@ -92,11 +92,11 @@ def contract_diag_coulomb(
         )
 
     if occupations_a is None:
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
     if occupations_b is None:
-        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
     return _contract_diag_coulomb_num_rep(
@@ -220,10 +220,10 @@ def diag_coulomb_linop(
         strings_a = cistring.make_strings(range(norb), n_alpha)
         strings_b = cistring.make_strings(range(norb), n_beta)
     else:
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
-        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)

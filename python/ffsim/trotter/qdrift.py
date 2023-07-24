@@ -93,10 +93,10 @@ def simulate_qdrift_double_factorized(
     )
     step_time = time / n_steps
     n_alpha, n_beta = nelec
-    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+    occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
         np.uint, copy=False
     )
-    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+    occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
         np.uint, copy=False
     )
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)

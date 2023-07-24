@@ -63,11 +63,11 @@ def contract_num_op_sum(
     n_alpha, n_beta = nelec
 
     if occupations_a is None:
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
     if occupations_b is None:
-        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
 
@@ -122,10 +122,10 @@ def num_op_sum_linop(
     """
     n_alpha, n_beta = nelec
     dim = get_dimension(norb, nelec)
-    occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+    occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
         np.uint, copy=False
     )
-    occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+    occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
         np.uint, copy=False
     )
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
