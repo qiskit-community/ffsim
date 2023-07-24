@@ -133,9 +133,9 @@ def apply_diag_coulomb_evolution(
         )
     else:
         if occupations_a is None:
-            occupations_a = cistring._gen_occslst(range(norb), n_alpha)
+            occupations_a = cistring.gen_occslst(range(norb), n_alpha)
         if occupations_b is None:
-            occupations_b = cistring._gen_occslst(range(norb), n_beta)
+            occupations_b = cistring.gen_occslst(range(norb), n_beta)
         occupations_a = occupations_a.astype(np.uint, copy=False)
         occupations_b = occupations_b.astype(np.uint, copy=False)
         apply_diag_coulomb_evolution_in_place_num_rep(

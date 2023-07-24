@@ -74,9 +74,9 @@ def apply_num_op_sum_evolution(
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
     if occupations_a is None:
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha)
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha)
     if occupations_b is None:
-        occupations_b = cistring._gen_occslst(range(norb), n_beta)
+        occupations_b = cistring.gen_occslst(range(norb), n_beta)
     occupations_a = occupations_a.astype(np.uint, copy=False)
     occupations_b = occupations_b.astype(np.uint, copy=False)
 

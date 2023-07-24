@@ -146,7 +146,7 @@ def test_apply_num_op_sum_evolution_in_place_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
         exponents = np.random.uniform(0, 2 * np.pi, size=norb)
@@ -175,10 +175,10 @@ def test_apply_diag_coulomb_evolution_num_rep_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
-        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
         time = 0.6
@@ -261,10 +261,10 @@ def test_apply_diag_coulomb_evolution_num_rep_numpy():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
-        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
         time = 0.6
@@ -303,10 +303,10 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations_a = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
-        occupations_b = cistring._gen_occslst(range(norb), n_beta).astype(
+        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
             np.uint, copy=False
         )
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
@@ -385,7 +385,7 @@ def test_contract_num_op_sum_spin_into_buffer_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations = cistring._gen_occslst(range(norb), n_alpha).astype(
+        occupations = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
         coeffs = np.random.uniform(size=norb)
