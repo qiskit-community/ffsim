@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import ffsim
 import numpy as np
+import pytest
 import scipy.sparse.linalg
 from ffsim.contract.hamiltonian import get_dimension
 
@@ -22,13 +23,12 @@ def test_apply_num_op_sum_evolution():
     """Test applying time evolution of sum of number operators."""
     norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
+    nelec = tuple(rng.integers(1, norb + 1, size=2))
+    n_alpha, n_beta = nelec
     occupied_orbitals = (
         rng.choice(norb, n_alpha, replace=False),
         rng.choice(norb, n_beta, replace=False),
     )
-    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
     state = ffsim.slater_determinant(norb, occupied_orbitals)
     original_state = state.copy()
 
@@ -47,14 +47,27 @@ def test_apply_num_op_sum_evolution():
     np.testing.assert_allclose(state, original_state)
 
 
+def test_apply_num_op_sum_evolution_wrong_coeffs_length():
+    """Test passing wrong coeffs length raises correct error."""
+    norb = 5
+    nelec = (3, 2)
+    n_alpha, n_beta = nelec
+    occupied_orbitals = (range(n_alpha), range(n_beta))
+    state = ffsim.slater_determinant(norb, occupied_orbitals)
+
+    coeffs = np.ones(norb - 1)
+    with pytest.raises(ValueError, match="length"):
+        _ = ffsim.apply_num_op_sum_evolution(
+            state, coeffs, time=1.0, norb=norb, nelec=nelec
+        )
+
+
 def test_apply_quadratic_hamiltonian_evolution():
     """Test applying time evolution of a quadratic Hamiltonian."""
     norb = 5
     rng = np.random.default_rng()
     for _ in range(5):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
-        nelec = (n_alpha, n_beta)
+        nelec = tuple(rng.integers(1, norb + 1, size=2))
         dim = get_dimension(norb, nelec)
 
         mat = ffsim.random.random_hermitian(norb, seed=rng)

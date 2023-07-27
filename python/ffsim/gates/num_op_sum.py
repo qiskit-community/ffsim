@@ -66,7 +66,16 @@ def apply_num_op_sum_evolution(
             vector, but the original vector may have its data overwritten.
             It is also possible that the original vector is returned,
             modified in-place.
+
+    Raises:
+        ValueError: ``coeffs`` must be a one-dimensional vector with length ``norb``.
     """
+    if coeffs.shape != (norb,):
+        raise ValueError(
+            "coeffs must be a one-dimensional vector with length norb. "
+            f"Got norb = {norb} but coeffs had shape {coeffs.shape}"
+        )
+
     if copy:
         vec = vec.copy()
 
