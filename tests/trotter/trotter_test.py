@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import ffsim
-from ffsim.states import dimension
 import numpy as np
 import pytest
 import scipy.sparse.linalg
@@ -21,6 +20,7 @@ from ffsim.contract.hamiltonian import (
     hamiltonian_linop,
     hamiltonian_trace,
 )
+from ffsim.states import dimension
 
 
 @pytest.mark.parametrize(

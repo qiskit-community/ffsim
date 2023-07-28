@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import numpy as np
-
 from ffsim.linalg import (
     apply_matrix_to_slices,
     givens_decomposition,

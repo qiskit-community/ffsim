@@ -20,11 +20,11 @@ from scipy.special import comb
 from ffsim._ffsim import (
     contract_num_op_sum_spin_into_buffer,
 )
-from ffsim.states import dimension
 from ffsim.gates.orbital_rotation import (
     apply_orbital_rotation,
     gen_orbital_rotation_index,
 )
+from ffsim.states import dimension
 
 
 def contract_num_op_sum(
