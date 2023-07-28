@@ -21,7 +21,7 @@ from ffsim._ffsim import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
 )
-from ffsim.states import get_dimension
+from ffsim.states import dimension
 from ffsim.gates.orbital_rotation import (
     apply_orbital_rotation,
     gen_orbital_rotation_index,
@@ -210,7 +210,7 @@ def diag_coulomb_linop(
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
     n_alpha, n_beta = nelec
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
 
     occupations_a = None
     occupations_b = None

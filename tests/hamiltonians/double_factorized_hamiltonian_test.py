@@ -16,7 +16,7 @@ from __future__ import annotations
 import ffsim
 import numpy as np
 import pytest
-from ffsim.states import get_dimension
+from ffsim.states import dimension
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
@@ -26,7 +26,7 @@ def test_double_factorized_hamiltonian(z_representation: bool):
     nelec = (2, 2)
 
     # generate random Hamiltonian
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
     # TODO test with complex one-body tensor
     one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
@@ -44,7 +44,7 @@ def test_double_factorized_hamiltonian(z_representation: bool):
     )
 
     # generate random state
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
     state = ffsim.random.random_statevector(dim, seed=1360)
 
     # apply Hamiltonian terms
