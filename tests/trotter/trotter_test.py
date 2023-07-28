@@ -44,7 +44,10 @@ def test_simulate_trotter_double_factorized_random(
     one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
     hamiltonian = hamiltonian_linop(
-        one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
+        one_body_tensor=one_body_tensor,
+        two_body_tensor=two_body_tensor,
+        norb=norb,
+        nelec=nelec,
     )
 
     # perform double factorization
