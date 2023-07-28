@@ -39,11 +39,11 @@ def get_trace(
 
 
 def hamiltonian_linop(
-    one_body_tensor: np.ndarray,
-    two_body_tensor: np.ndarray,
     *,
     norb: int,
     nelec: tuple[int, int],
+    one_body_tensor: np.ndarray | None = None,
+    two_body_tensor: np.ndarray | None = None,
     constant: float = 0.0,
 ) -> scipy.sparse.linalg.LinearOperator:
     r"""Convert a molecular Hamiltonian to a linear operator.
@@ -69,6 +69,13 @@ def hamiltonian_linop(
     Returns:
         A LinearOperator that implements the action of the Hamiltonian.
     """
+    if one_body_tensor is None:
+        one_body_tensor = np.zeros((norb, norb))
+    if two_body_tensor is None:
+        return _one_body_tensor_linop(
+            one_body_tensor, norb=norb, nelec=nelec, constant=constant
+        )
+
     n_alpha, n_beta = nelec
     linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
     linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
@@ -86,8 +93,8 @@ def hamiltonian_linop(
     )
 
 
-def one_body_tensor_linop(
-    mat: np.ndarray, norb: int, nelec: tuple[int, int]
+def _one_body_tensor_linop(
+    mat: np.ndarray, norb: int, nelec: tuple[int, int], constant: float = 0.0
 ) -> scipy.sparse.linalg.LinearOperator:
     r"""Convert a one-body tensor to a linear operator.
 
@@ -114,9 +121,8 @@ def one_body_tensor_linop(
     link_index = (linkstr_index_a, linkstr_index_b)
 
     def matvec(vec: np.ndarray):
-        result = contract_1e(
-            mat.real, vec.real, norb, nelec, link_index=link_index
-        ).astype(complex)
+        result = constant * vec.astype(complex)
+        result += contract_1e(mat.real, vec.real, norb, nelec, link_index=link_index)
         result += 1j * contract_1e(
             mat.imag, vec.real, norb, nelec, link_index=link_index
         )
