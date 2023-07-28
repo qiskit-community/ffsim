@@ -19,7 +19,7 @@ import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from ffsim.contract.hamiltonian import get_dimension
+from ffsim.states import get_dimension
 
 
 @pytest.mark.parametrize("z_representation", [False, True])

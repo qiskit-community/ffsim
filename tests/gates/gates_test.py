@@ -17,7 +17,7 @@ import itertools
 import ffsim
 import numpy as np
 import scipy.sparse.linalg
-from ffsim.contract.hamiltonian import get_dimension
+from ffsim.states import get_dimension
 
 
 def test_apply_givens_rotation():

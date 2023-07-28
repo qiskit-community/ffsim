@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from ffsim.contract.hamiltonian import get_dimension
+from ffsim.states import get_dimension
 from ffsim.states import slater_determinant
 from pyscf.fci.fci_slow import contract_1e
 
