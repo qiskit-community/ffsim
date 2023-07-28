@@ -14,7 +14,7 @@ import ffsim
 import numpy as np
 import scipy.linalg
 import scipy.sparse.linalg
-from ffsim.contract.hamiltonian import get_dimension
+from ffsim.states import get_dimension
 from ffsim.wick import expectation_power, expectation_product
 
 

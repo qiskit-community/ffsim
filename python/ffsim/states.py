@@ -17,6 +17,14 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 
+def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
+    """Get the dimension of the FCI space."""
+    n_alpha, n_beta = nelec
+    dim_a = comb(norb, n_alpha, exact=True)
+    dim_b = comb(norb, n_beta, exact=True)
+    return dim_a * dim_b
+
+
 def one_hot(shape: tuple[int, ...], index, *, dtype=float):
     """Return an array of all zeros except for a one at a specified index."""
     vec = np.zeros(shape, dtype=dtype)

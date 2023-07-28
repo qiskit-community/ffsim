@@ -17,7 +17,7 @@ from typing import Sequence, cast
 import ffsim
 import numpy as np
 import pytest
-from ffsim.contract.hamiltonian import get_dimension
+from ffsim.states import get_dimension
 
 
 @pytest.mark.parametrize("norb", [4, 5])

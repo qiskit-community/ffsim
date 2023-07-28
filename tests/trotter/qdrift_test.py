@@ -13,11 +13,12 @@
 from __future__ import annotations
 
 import ffsim
+from ffsim.states import get_dimension
 import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from ffsim.contract.hamiltonian import get_dimension, hamiltonian_trace
+from ffsim.contract.hamiltonian import hamiltonian_trace
 from ffsim.trotter.qdrift import (
     one_body_square_decomposition,
     spectral_norm_diag_coulomb,

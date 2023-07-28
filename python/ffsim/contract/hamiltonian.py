@@ -17,15 +17,8 @@ import scipy.sparse.linalg
 from pyscf.fci import cistring
 from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, make_hdiag
 from pyscf.fci.fci_slow import contract_2e
-from scipy.special import comb
 
-
-def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
-    """Get the dimension of the FCI space."""
-    n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
-    return dim_a * dim_b
+from ffsim.states import get_dimension
 
 
 def hamiltonian_trace(
