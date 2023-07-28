@@ -17,7 +17,7 @@ import itertools
 import ffsim
 import numpy as np
 import scipy.sparse.linalg
-from ffsim.states import get_dimension
+from ffsim.states import dimension
 
 
 def test_apply_givens_rotation():
@@ -27,7 +27,7 @@ def test_apply_givens_rotation():
     n_beta = 2
     nelec = (n_alpha, n_beta)
 
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     original_vec = vec.copy()
@@ -56,7 +56,7 @@ def test_apply_tunneling_interaction():
     n_beta = 2
     nelec = (n_alpha, n_beta)
 
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.standard_normal()
@@ -85,7 +85,7 @@ def test_apply_num_interaction():
     n_beta = 2
     nelec = (n_alpha, n_beta)
 
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.standard_normal()

@@ -17,11 +17,17 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 
-def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
+def dimensions(norb: int, nelec: tuple[int, int]) -> int:
     """Get the dimension of the FCI space."""
     n_alpha, n_beta = nelec
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
+    return dim_a, dim_b
+
+
+def dimension(norb: int, nelec: tuple[int, int]) -> int:
+    """Get the dimension of the FCI space."""
+    dim_a, dim_b = dimensions(norb, nelec)
     return dim_a * dim_b
 
 
@@ -41,8 +47,7 @@ def slater_determinant(
     alpha_orbitals, beta_orbitals = occupied_orbitals
     n_alpha = len(alpha_orbitals)
     n_beta = len(beta_orbitals)
-    dim1 = comb(norb, n_alpha, exact=True)
-    dim2 = comb(norb, n_beta, exact=True)
+    dim1, dim2 = dimensions(norb, (n_alpha, n_beta))
     alpha_bits = np.zeros(norb, dtype=bool)
     alpha_bits[list(alpha_orbitals)] = 1
     alpha_string = int("".join("1" if b else "0" for b in alpha_bits[::-1]), base=2)

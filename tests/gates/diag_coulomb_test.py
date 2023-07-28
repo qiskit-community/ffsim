@@ -19,7 +19,7 @@ import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from ffsim.states import get_dimension
+from ffsim.states import dimension
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
@@ -31,7 +31,7 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        dim = get_dimension(norb, nelec)
+        dim = dimension(norb, nelec)
 
         mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
         orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
@@ -75,7 +75,7 @@ def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        dim = get_dimension(norb, nelec)
+        dim = dimension(norb, nelec)
 
         mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
         mat_alpha_beta = np.real(

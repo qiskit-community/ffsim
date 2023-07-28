@@ -16,7 +16,7 @@ import ffsim
 import numpy as np
 import pytest
 import scipy.sparse.linalg
-from ffsim.states import get_dimension
+from ffsim.states import dimension
 
 
 def test_apply_num_op_sum_evolution():
@@ -68,7 +68,7 @@ def test_apply_quadratic_hamiltonian_evolution():
     rng = np.random.default_rng()
     for _ in range(5):
         nelec = tuple(rng.integers(1, norb + 1, size=2))
-        dim = get_dimension(norb, nelec)
+        dim = dimension(norb, nelec)
 
         mat = ffsim.random.random_hermitian(norb, seed=rng)
         eigs, vecs = np.linalg.eigh(mat)

@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import ffsim
-from ffsim.states import get_dimension
+from ffsim.states import dimension
 import numpy as np
 import pytest
 import scipy.linalg
@@ -114,7 +114,7 @@ def test_spectral_norm_diag_coulomb(
 def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
     """Test one-body squared decomposition."""
     rng = np.random.default_rng()
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
 
     for _ in range(10):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)

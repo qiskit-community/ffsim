@@ -20,7 +20,7 @@ from scipy.special import comb
 from ffsim._ffsim import (
     contract_num_op_sum_spin_into_buffer,
 )
-from ffsim.states import get_dimension
+from ffsim.states import dimension
 from ffsim.gates.orbital_rotation import (
     apply_orbital_rotation,
     gen_orbital_rotation_index,
@@ -121,7 +121,7 @@ def num_op_sum_linop(
         operators.
     """
     n_alpha, n_beta = nelec
-    dim = get_dimension(norb, nelec)
+    dim = dimension(norb, nelec)
     occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
         np.uint, copy=False
     )
