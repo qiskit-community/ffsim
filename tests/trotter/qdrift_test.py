@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from ffsim.contract.hamiltonian import get_dimension, get_trace
+from ffsim.contract.hamiltonian import get_dimension, hamiltonian_trace
 from ffsim.trotter.qdrift import (
     one_body_square_decomposition,
     spectral_norm_diag_coulomb,
@@ -284,7 +284,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     one_rdm = ffsim.slater_determinant_one_rdm(norb, occupied_orbitals)
 
     # compute exact state
-    trace = get_trace(one_body_tensor, two_body_tensor, norb=norb, nelec=nelec)
+    trace = hamiltonian_trace(one_body_tensor, two_body_tensor, norb=norb, nelec=nelec)
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * hamiltonian, initial_state, traceA=trace
     )
@@ -384,7 +384,7 @@ def test_simulate_qdrift_double_factorized_random(
     one_rdm = ffsim.slater_determinant_one_rdm(norb, occupied_orbitals)
 
     # compute exact state
-    trace = get_trace(one_body_tensor, two_body_tensor, norb=norb, nelec=nelec)
+    trace = hamiltonian_trace(one_body_tensor, two_body_tensor, norb=norb, nelec=nelec)
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * hamiltonian, initial_state, traceA=trace
     )
