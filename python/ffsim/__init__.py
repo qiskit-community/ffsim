@@ -17,7 +17,6 @@ from ffsim.contract import (
     diag_coulomb_linop,
     hamiltonian_linop,
     num_op_sum_linop,
-    _one_body_tensor_linop,
 )
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
