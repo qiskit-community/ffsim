@@ -10,5 +10,5 @@
 
 """Hamiltonian simulation via Trotter-Suzuki formulas."""
 
-from ffsim.trotter.trotter import simulate_trotter_double_factorized
 from ffsim.trotter.qdrift import simulate_qdrift_double_factorized
+from ffsim.trotter.trotter import simulate_trotter_double_factorized

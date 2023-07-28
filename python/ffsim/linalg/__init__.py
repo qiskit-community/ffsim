@@ -14,18 +14,15 @@ from ffsim.linalg.double_factorized import (
     double_factorized,
     modified_cholesky,
 )
-
 from ffsim.linalg.givens import (
     apply_matrix_to_slices,
     givens_decomposition,
     givens_matrix,
 )
-
 from ffsim.linalg.linalg import (
     expm_multiply_taylor,
     lup,
 )
-
 from ffsim.linalg.predicates import (
     is_antihermitian,
     is_hermitian,

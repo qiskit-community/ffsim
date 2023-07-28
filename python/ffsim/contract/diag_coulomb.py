@@ -21,11 +21,11 @@ from ffsim._ffsim import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
 )
-from ffsim.states import dimension
 from ffsim.gates.orbital_rotation import (
     apply_orbital_rotation,
     gen_orbital_rotation_index,
 )
+from ffsim.states import dimension
 
 
 def contract_diag_coulomb(
