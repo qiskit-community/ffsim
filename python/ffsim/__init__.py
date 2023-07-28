@@ -32,7 +32,13 @@ from ffsim.hamiltonians import (
     MolecularHamiltonian,
     double_factorized_hamiltonian,
 )
-from ffsim.states import one_hot, slater_determinant, slater_determinant_one_rdm
+from ffsim.states import (
+    dimension,
+    dimensions,
+    one_hot,
+    slater_determinant,
+    slater_determinant_one_rdm,
+)
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
     simulate_trotter_double_factorized,
