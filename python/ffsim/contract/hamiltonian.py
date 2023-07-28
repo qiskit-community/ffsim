@@ -28,7 +28,7 @@ def get_dimension(norb: int, nelec: tuple[int, int]) -> int:
     return dim_a * dim_b
 
 
-def get_trace(
+def hamiltonian_trace(
     one_body_tensor: np.ndarray,
     two_body_tensor: np.ndarray,
     norb: int,
