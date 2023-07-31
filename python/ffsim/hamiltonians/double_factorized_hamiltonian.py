@@ -135,7 +135,7 @@ def double_factorized_hamiltonian(
     .. math::
 
         H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-            + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs, \sigma\tau}
+            + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}
             a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}
             + \text{constant}.
 
