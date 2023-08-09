@@ -45,7 +45,7 @@ def _decompose(t2, no, nv, nb, o_pairs, verbose=False):
 
 
 @dataclass
-class LUCJOperator:
+class UnitaryClusterJastrowOp:
     diag_coulomb_mats_alpha_alpha: np.ndarray
     diag_coulomb_mats_alpha_beta: np.ndarray
     orbital_rotations: np.ndarray
@@ -70,7 +70,7 @@ class LUCJOperator:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
-    ) -> "LUCJOperator":
+    ) -> "UnitaryClusterJastrowOp":
         triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
         triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
         if alpha_alpha_indices is None:
@@ -144,7 +144,7 @@ class LUCJOperator:
             final_orbital_rotation_generator[cols, rows] -= vals
             # exponentiate final orbital rotation generator
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
-        return LUCJOperator(
+        return UnitaryClusterJastrowOp(
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
             orbital_rotations=orbital_rotations,
@@ -221,7 +221,7 @@ class LUCJOperator:
         *,
         t1: np.ndarray | None = None,
         n_reps: int | None = None,
-    ) -> "LUCJOperator":
+    ) -> "UnitaryClusterJastrowOp":
         # TODO allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
@@ -250,7 +250,7 @@ class LUCJOperator:
             final_orbital_rotation_generator[:nocc, nocc:] = t1
             final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
-        return LUCJOperator(
+        return UnitaryClusterJastrowOp(
             diag_coulomb_mats_alpha_alpha=np.stack(
                 diag_coulomb_mats_alpha_alpha[:n_reps]
             ),
@@ -275,9 +275,9 @@ class LUCJOperator:
         return np.einsum("aibj->ijab", t2)[:nocc, :nocc, nocc:, nocc:], t1
 
 
-def apply_lucj_operator(
+def apply_unitary_cluster_jastrow_op(
     vec: np.ndarray,
-    operator: LUCJOperator,
+    operator: UnitaryClusterJastrowOp,
     *,
     norb: int,
     nelec: tuple[int, int],

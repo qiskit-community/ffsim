@@ -34,13 +34,13 @@ def test_lucj_ansatz_operator_roundtrip():
         [ffsim.random.random_unitary(norb) for _ in range(n_reps)]
     )
     final_orbital_rotation = ffsim.random.random_unitary(norb)
-    operator = ffsim.LUCJOperator(
+    operator = ffsim.UnitaryClusterJastrowOp(
         diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
         diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
         orbital_rotations=orbital_rotations,
         final_orbital_rotation=final_orbital_rotation,
     )
-    roundtripped = ffsim.LUCJOperator.from_parameters(
+    roundtripped = ffsim.UnitaryClusterJastrowOp.from_parameters(
         operator.to_parameters(),
         norb=norb,
         n_reps=n_reps,
@@ -76,7 +76,7 @@ def test_lucj_ansatz_operator_t_amplitudes_roundtrip():
     t2 = ffsim.random.random_two_body_tensor_real(nocc)
     t1 = rng.standard_normal((nocc, nocc))
 
-    operator = ffsim.LUCJOperator.from_t_amplitudes(t2, t1=t1)
+    operator = ffsim.UnitaryClusterJastrowOp.from_t_amplitudes(t2, t1=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
     np.testing.assert_allclose(
