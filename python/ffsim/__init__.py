@@ -10,7 +10,16 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import contract, gates, hamiltonians, linalg, random, states, trotter
+from ffsim import (
+    contract,
+    gates,
+    hamiltonians,
+    linalg,
+    random,
+    states,
+    trotter,
+    variational,
+)
 from ffsim.contract import (
     contract_diag_coulomb,
     contract_num_op_sum,
@@ -44,3 +53,4 @@ from ffsim.trotter import (
     simulate_qdrift_double_factorized,
     simulate_trotter_double_factorized,
 )
+from ffsim.variational import LUCJOperator, apply_lucj_operator
