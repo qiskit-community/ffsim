@@ -14,13 +14,14 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from pyscf import ao2mo, gto, mcscf, scf
+
 from ffsim.linalg import (
     double_factorized,
     modified_cholesky,
 )
 from ffsim.linalg.double_factorized import optimal_diag_coulomb_mats
 from ffsim.random import random_two_body_tensor_real, random_unitary
-from pyscf import ao2mo, gto, mcscf, scf
 
 
 @pytest.mark.parametrize("dim", [4, 5])

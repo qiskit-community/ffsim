@@ -44,6 +44,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 select = ["E", "F", "I"]
+src = ["python"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]

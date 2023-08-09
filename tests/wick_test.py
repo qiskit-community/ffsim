@@ -10,10 +10,11 @@
 
 """Test Wick's theorem utilities."""
 
-import ffsim
 import numpy as np
 import scipy.linalg
 import scipy.sparse.linalg
+
+import ffsim
 from ffsim.states import dimension
 from ffsim.wick import expectation_power, expectation_product
 

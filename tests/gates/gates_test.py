@@ -14,9 +14,10 @@ from __future__ import annotations
 
 import itertools
 
-import ffsim
 import numpy as np
 import scipy.sparse.linalg
+
+import ffsim
 from ffsim.states import dimension
 
 
