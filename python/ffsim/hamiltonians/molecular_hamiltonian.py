@@ -11,8 +11,11 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Iterable
 
 import numpy as np
+import pyscf
+from pyscf import mcscf
 
 
 @dataclasses.dataclass
@@ -45,3 +48,27 @@ class MolecularHamiltonian:
     def norb(self):
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
+
+    @staticmethod
+    def from_hartree_fock(
+        hartree_fock: pyscf.scf.hf.SCF, active_space: Iterable[int] | None = None
+    ) -> "MolecularHamiltonian":
+        if active_space is None:
+            norb = hartree_fock.mo_coeff.shape[0]
+            active_space = range(norb)
+
+        active_space = list(active_space)
+        norb = len(active_space)
+        n_electrons = int(np.sum(hartree_fock.mo_occ[active_space]))
+        n_alpha = (n_electrons + hartree_fock.mol.spin) // 2
+        n_beta = (n_electrons - hartree_fock.mol.spin) // 2
+
+        mc = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
+        one_body_tensor, core_energy = mc.get_h1cas()
+        two_body_tensor = pyscf.ao2mo.restore(1, mc.get_h2cas(), mc.ncas)
+
+        return MolecularHamiltonian(
+            one_body_tensor=one_body_tensor,
+            two_body_tensor=two_body_tensor,
+            constant=core_energy,
+        )
