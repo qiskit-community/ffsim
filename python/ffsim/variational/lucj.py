@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Local unitary cluster Jastrow ansatz."""
+"""(Local) unitary cluster Jastrow ansatz."""
 
 import itertools
 from dataclasses import dataclass
@@ -222,6 +222,7 @@ class LUCJOperator:
         t1: np.ndarray | None = None,
         n_reps: int | None = None,
     ) -> "LUCJOperator":
+        # TODO allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
         o_pairs = list(itertools.product(range(nocc, norb), range(nocc)))
