@@ -16,6 +16,7 @@ from ffsim.contract import (
     contract_num_op_sum,
     diag_coulomb_linop,
     hamiltonian_linop,
+    hamiltonian_trace,
     num_op_sum_linop,
 )
 from ffsim.gates import (

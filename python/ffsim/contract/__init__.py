@@ -11,5 +11,5 @@
 """Functions for contracting tensors and constructing linear operators."""
 
 from ffsim.contract.diag_coulomb import contract_diag_coulomb, diag_coulomb_linop
-from ffsim.contract.hamiltonian import hamiltonian_linop
+from ffsim.contract.hamiltonian import hamiltonian_linop, hamiltonian_trace
 from ffsim.contract.num_op_sum import contract_num_op_sum, num_op_sum_linop

@@ -17,10 +17,7 @@ import pytest
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.contract.hamiltonian import (
-    hamiltonian_linop,
-    hamiltonian_trace,
-)
+from ffsim.contract.hamiltonian import hamiltonian_linop, hamiltonian_trace
 from ffsim.states import dimension
 
 
