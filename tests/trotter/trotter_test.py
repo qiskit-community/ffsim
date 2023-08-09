@@ -12,10 +12,11 @@
 
 from __future__ import annotations
 
-import ffsim
 import numpy as np
 import pytest
 import scipy.sparse.linalg
+
+import ffsim
 from ffsim.contract.hamiltonian import (
     hamiltonian_linop,
     hamiltonian_trace,

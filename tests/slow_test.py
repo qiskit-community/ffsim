@@ -12,8 +12,11 @@
 
 from __future__ import annotations
 
-import ffsim
 import numpy as np
+from pyscf.fci import cistring
+from scipy.special import comb
+
+import ffsim
 from ffsim._ffsim import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
@@ -41,8 +44,6 @@ from ffsim.slow import (
     contract_num_op_sum_spin_into_buffer_slow,
     gen_orbital_rotation_index_in_place_slow,
 )
-from pyscf.fci import cistring
-from scipy.special import comb
 
 
 def test_apply_givens_rotation_in_place_slow():

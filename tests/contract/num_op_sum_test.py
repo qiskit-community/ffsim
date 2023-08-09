@@ -14,9 +14,10 @@ from __future__ import annotations
 
 from typing import Sequence, cast
 
-import ffsim
 import numpy as np
 import pytest
+
+import ffsim
 from ffsim.states import dimension
 
 

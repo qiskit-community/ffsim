@@ -12,13 +12,14 @@
 
 from __future__ import annotations
 
-import ffsim
 import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from ffsim.states import dimension, slater_determinant
 from pyscf.fci.fci_slow import contract_1e
+
+import ffsim
+from ffsim.states import dimension, slater_determinant
 
 
 @pytest.mark.parametrize(

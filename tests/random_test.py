@@ -14,8 +14,9 @@ from __future__ import annotations
 
 import itertools
 
-import ffsim
 import numpy as np
+
+import ffsim
 
 
 def test_random_two_body_tensor_symmetry():
