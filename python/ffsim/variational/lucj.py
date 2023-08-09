@@ -293,7 +293,6 @@ def apply_unitary_cluster_jastrow_op(
         vec = apply_diag_coulomb_evolution(
             vec,
             mat=mat,
-            # TODO use positive time convention for consistency
             time=-1.0,
             norb=norb,
             nelec=nelec,
