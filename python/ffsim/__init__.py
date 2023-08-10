@@ -42,6 +42,7 @@ from ffsim.hamiltonians import (
     MolecularHamiltonian,
     double_factorized_hamiltonian,
 )
+from ffsim.molecular_data import MolecularData
 from ffsim.states import (
     dimension,
     dimensions,
