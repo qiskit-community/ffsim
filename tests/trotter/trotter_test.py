@@ -67,7 +67,10 @@ def test_simulate_trotter_double_factorized_random(
         -1j * time * hamiltonian,
         initial_state,
         traceA=hamiltonian_trace(
-            one_body_tensor, two_body_tensor, norb=norb, nelec=nelec
+            one_body_tensor=one_body_tensor,
+            two_body_tensor=two_body_tensor,
+            norb=norb,
+            nelec=nelec,
         ),
     )
 
