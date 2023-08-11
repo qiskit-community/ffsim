@@ -20,13 +20,54 @@ from ffsim.linalg import double_factorized
 
 @dataclasses.dataclass
 class DoubleFactorizedHamiltonian:
-    """A Hamiltonian in the double-factorized form of the low rank decomposition.
+    r"""A Hamiltonian in the double-factorized form of the low rank decomposition.
 
-    See :func:`~.double_factorized_hamiltonian` for a description of what is stored
-    in this class.
+    The double-factorized form of the molecular Hamiltonian is
+
+    .. math::
+
+        H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
+        + \frac12 \sum_t \sum_{ij, \sigma\tau}
+        Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}
+        + \text{constant}'.
+
+    where
+
+    .. math::
+
+        n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}
+        a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.
+
+    Here each :math:`U^{(t)}` is a unitary matrix and each :math:`Z^{(t)}`
+    is a real symmetric matrix.
+
+    **"Z" representation**
+
+    The "Z" representation of the double factorization is an alternative
+    representation that sometimes yields simpler quantum circuits.
+
+    Under the Jordan-Wigner transformation, the number operators take the form
+
+    .. math::
+
+        n^{(t)}_{i, \sigma} = \frac{(1 - z^{(t)}_{i, \sigma})}{2}
+
+    where :math:`z^{(t)}_{i, \sigma}` is the Pauli Z operator in the rotated basis.
+    The "Z" representation is obtained by rewriting the two-body part in terms
+    of these Pauli Z operators and updating the one-body term as appropriate:
+
+    .. math::
+
+        H = \sum_{pq, \sigma} \kappa'_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
+        + \frac18 \sum_t \sum_{ij, \sigma\tau}^*
+        Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}
+        + \text{constant}''
+
+    where the asterisk denotes summation over indices :math:`ij, \sigma\tau`
+    where :math:`i \neq j` or :math:`\sigma \neq \tau`.
 
     Attributes:
-        one_body_tensor: The one-body tensor.
+        one_body_tensor: The one-body tensor :math:`\kappa`.
         diag_coulomb_mats: The diagonal Coulomb matrices.
         orbital_rotations: The orbital rotations.
         constant: The constant.
@@ -143,7 +184,8 @@ def double_factorized_hamiltonian(
     Here :math:`U^{(t)}_{ij}` and :math:`Z^{(t)}_{ij}` are tensors that are output by
     the decomposition, and :math:`\kappa_{pq}` is an updated one-body tensor.
     Each matrix :math:`U^{(t)}` is guaranteed to be unitary so that the
-    :math:`n^{(t)}_{i, \sigma}` are number operators in a rotated basis.
+    :math:`n^{(t)}_{i, \sigma}` are number operators in a rotated basis, and
+    each :math:`Z^{(t)}` is a real symmetric matrix.
     The number of terms :math:`t` in the decomposition depends on the allowed
     error threshold. A larger error threshold leads to a smaller number of terms.
     Furthermore, the `max_rank` parameter specifies an optional upper bound
@@ -166,8 +208,8 @@ def double_factorized_hamiltonian(
 
     **"Z" representation**
 
-    The "Z" representation of the low rank decomposition is an alternative
-    decomposition that sometimes yields simpler quantum circuits.
+    The "Z" representation of the double factorization is an alternative
+    representation that sometimes yields simpler quantum circuits.
 
     Under the Jordan-Wigner transformation, the number operators take the form
 
