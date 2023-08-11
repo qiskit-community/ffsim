@@ -44,8 +44,8 @@ from ffsim.hamiltonians import (
 )
 from ffsim.molecular_data import MolecularData
 from ffsim.states import (
-    dimension,
-    dimensions,
+    dim,
+    dims,
     one_hot,
     slater_determinant,
     slater_determinant_one_rdm,

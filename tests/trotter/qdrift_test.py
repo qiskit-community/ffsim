@@ -20,7 +20,6 @@ from pyscf import ao2mo, gto, mcscf, scf
 
 import ffsim
 from ffsim.contract.hamiltonian import hamiltonian_trace
-from ffsim.states import dimension
 from ffsim.trotter.qdrift import (
     one_body_square_decomposition,
     spectral_norm_diag_coulomb,
@@ -115,7 +114,7 @@ def test_spectral_norm_diag_coulomb(
 def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
     """Test one-body squared decomposition."""
     rng = np.random.default_rng()
-    dim = dimension(norb, nelec)
+    dim = ffsim.dim(norb, nelec)
 
     for _ in range(10):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)

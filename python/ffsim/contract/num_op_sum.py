@@ -24,7 +24,7 @@ from ffsim.gates.orbital_rotation import (
     apply_orbital_rotation,
     gen_orbital_rotation_index,
 )
-from ffsim.states import dimension
+from ffsim.states import dim
 
 
 def contract_num_op_sum(
@@ -121,7 +121,7 @@ def num_op_sum_linop(
         operators.
     """
     n_alpha, n_beta = nelec
-    dim = dimension(norb, nelec)
+    dim_ = dim(norb, nelec)
     occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
         np.uint, copy=False
     )
@@ -167,5 +167,5 @@ def num_op_sum_linop(
         return vec
 
     return scipy.sparse.linalg.LinearOperator(
-        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
+        (dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
     )

@@ -18,7 +18,7 @@ from pyscf.fci import cistring
 from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, make_hdiag
 from pyscf.fci.fci_slow import contract_2e
 
-from ffsim.states import dimension
+from ffsim.states import dim
 
 
 def hamiltonian_trace(
@@ -74,7 +74,7 @@ def hamiltonian_linop(
     linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
     link_index = (linkstr_index_a, linkstr_index_b)
     two_body = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
-    dim = dimension(norb, nelec)
+    dim_ = dim(norb, nelec)
 
     def matvec(vec: np.ndarray):
         return constant * vec + contract_2e(
@@ -82,7 +82,7 @@ def hamiltonian_linop(
         )
 
     return scipy.sparse.linalg.LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
+        shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
     )
 
 
@@ -107,7 +107,7 @@ def _one_body_tensor_linop(
     Returns:
         A LinearOperator that implements the action of the one-body tensor.
     """
-    dim = dimension(norb, nelec)
+    dim_ = dim(norb, nelec)
     n_alpha, n_beta = nelec
     linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
     linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
@@ -142,5 +142,5 @@ def _one_body_tensor_linop(
         return result
 
     return scipy.sparse.linalg.LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=rmatvec, dtype=complex
+        shape=(dim_, dim_), matvec=matvec, rmatvec=rmatvec, dtype=complex
     )
