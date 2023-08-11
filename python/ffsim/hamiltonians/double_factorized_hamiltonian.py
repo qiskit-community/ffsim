@@ -11,10 +11,8 @@
 from __future__ import annotations
 
 import dataclasses
-from functools import cached_property
 
 import numpy as np
-from opt_einsum import contract
 
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
@@ -46,19 +44,6 @@ class DoubleFactorizedHamiltonian:
     def norb(self):
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
-
-    @cached_property
-    def two_body_tensor(self):
-        """The two-body tensor."""
-        return contract(
-            "tpk,tqk,tkl,trl,tsl->pqrs",
-            self.orbital_rotations,
-            self.orbital_rotations,
-            self.diag_coulomb_mats,
-            self.orbital_rotations,
-            self.orbital_rotations,
-            optimize="greedy",
-        )
 
     def to_z_representation(self) -> "DoubleFactorizedHamiltonian":
         """Return the Hamiltonian in the "Z" representation."""
