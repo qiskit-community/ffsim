@@ -19,7 +19,7 @@ import scipy.sparse.linalg
 from pyscf.fci.fci_slow import contract_1e
 
 import ffsim
-from ffsim.states import dimension, slater_determinant
+from ffsim.states import slater_determinant
 
 
 @pytest.mark.parametrize(
@@ -36,7 +36,7 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        dim = dimension(norb, nelec)
+        dim = ffsim.dim(norb, nelec)
 
         mat = ffsim.random.random_unitary(norb, seed=rng, dtype=dtype)
         vec = ffsim.random.random_statevector(dim, seed=rng, dtype=dtype)
@@ -58,7 +58,7 @@ def test_apply_orbital_rotation_no_side_effects():
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        dim = dimension(norb, nelec)
+        dim = ffsim.dim(norb, nelec)
 
         mat = -np.eye(norb)
         vec = ffsim.random.random_statevector(dim, seed=rng)
@@ -82,7 +82,7 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
         nelec = (n_alpha, n_beta)
-        dim = dimension(norb, nelec)
+        dim = ffsim.dim(norb, nelec)
 
         mat = ffsim.random.random_unitary(norb, seed=rng, dtype=dtype)
         vec = ffsim.random.random_statevector(dim, seed=rng, dtype=dtype)
@@ -174,7 +174,7 @@ def test_apply_orbital_rotation_compose():
     n_alpha = rng.integers(1, norb + 1)
     n_beta = rng.integers(1, norb + 1)
     nelec = (n_alpha, n_beta)
-    dim = dimension(norb, nelec)
+    dim = ffsim.dim(norb, nelec)
     state = np.array(ffsim.random.random_statevector(dim, seed=rng))
 
     result = ffsim.apply_orbital_rotation(state, basis_change_1, norb, nelec)

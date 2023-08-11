@@ -18,7 +18,6 @@ import numpy as np
 import pytest
 
 import ffsim
-from ffsim.states import dimension
 
 
 @pytest.mark.parametrize("norb", [4, 5])
@@ -56,7 +55,7 @@ def test_num_op_sum_to_linop():
     n_alpha = rng.integers(1, norb + 1)
     n_beta = rng.integers(1, norb + 1)
     nelec = (n_alpha, n_beta)
-    dim = dimension(norb, nelec)
+    dim = ffsim.dim(norb, nelec)
 
     coeffs = rng.standard_normal(norb)
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)

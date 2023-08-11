@@ -25,7 +25,7 @@ from ffsim.gates.orbital_rotation import (
     apply_orbital_rotation,
     gen_orbital_rotation_index,
 )
-from ffsim.states import dimension
+from ffsim.states import dim
 
 
 def contract_diag_coulomb(
@@ -210,7 +210,7 @@ def diag_coulomb_linop(
     if mat_alpha_beta is None:
         mat_alpha_beta = mat
     n_alpha, n_beta = nelec
-    dim = dimension(norb, nelec)
+    dim_ = dim(norb, nelec)
 
     occupations_a = None
     occupations_b = None
@@ -271,5 +271,5 @@ def diag_coulomb_linop(
         return vec
 
     return scipy.sparse.linalg.LinearOperator(
-        (dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
+        (dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
     )

@@ -15,7 +15,6 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.states import dimension
 from ffsim.wick import expectation_power, expectation_product
 
 
@@ -24,7 +23,7 @@ def test_expectation_product():
     norb = 5
     nelec = (3, 1)
     n_alpha, n_beta = nelec
-    dim = dimension(norb, nelec)
+    dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
 
     # generate random one-body tensors
@@ -70,7 +69,7 @@ def test_expectation_power():
     norb = 5
     nelec = (3, 1)
     n_alpha, n_beta = nelec
-    dim = dimension(norb, nelec)
+    dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
 
     # generate a random one-body tensor
