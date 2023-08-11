@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import cast, List, Tuple
+from typing import List, Tuple, cast
 
 import numpy as np
 import scipy.linalg
