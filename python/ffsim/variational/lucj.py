@@ -10,8 +10,11 @@
 
 """(Local) unitary cluster Jastrow ansatz."""
 
+from __future__ import annotations
+
 import itertools
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 import scipy.linalg
@@ -106,7 +109,10 @@ class UnitaryClusterJastrowOp:
         with_final_orbital_rotation: bool = False,
     ) -> "UnitaryClusterJastrowOp":
         """Initialize the UCJ operator from a real-valued parameter vector."""
-        triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+        triu_indices = cast(
+            list[tuple[int, int]],
+            list(itertools.combinations_with_replacement(range(norb), 2)),
+        )
         triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
         if alpha_alpha_indices is None:
             alpha_alpha_indices = triu_indices
@@ -189,12 +195,13 @@ class UnitaryClusterJastrowOp:
     def to_parameters(
         self,
         *,
-        alpha_alpha_indices: list[int] | None = None,
-        alpha_beta_indices: list[int] | None = None,
+        alpha_alpha_indices: list[tuple[int, int]] | None = None,
+        alpha_beta_indices: list[tuple[int, int]] | None = None,
     ) -> np.ndarray:
         """Convert the UCJ operator to a real-valued parameter vector."""
-        triu_indices = list(
-            itertools.combinations_with_replacement(range(self.norb), 2)
+        triu_indices = cast(
+            list[tuple[int, int]],
+            list(itertools.combinations_with_replacement(range(self.norb), 2)),
         )
         triu_indices_no_diag = list(itertools.combinations(range(self.norb), 2))
         if alpha_alpha_indices is None:
