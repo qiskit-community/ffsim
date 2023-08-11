@@ -22,13 +22,17 @@ from ffsim.states import dim
 
 
 def hamiltonian_trace(
-    one_body_tensor: np.ndarray,
-    two_body_tensor: np.ndarray,
+    *,
     norb: int,
     nelec: tuple[int, int],
+    one_body_tensor: np.ndarray | None = None,
+    two_body_tensor: np.ndarray | None = None,
+    constant: float = 0.0,
 ) -> float:
     """Get the trace of the Hamiltonian in the FCI basis."""
-    return np.sum(make_hdiag(one_body_tensor, two_body_tensor, norb, nelec))
+    return constant * dim(norb, nelec) + np.sum(
+        make_hdiag(one_body_tensor, two_body_tensor, norb, nelec)
+    )
 
 
 def hamiltonian_linop(
