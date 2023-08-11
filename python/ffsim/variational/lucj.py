@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import cast
+from typing import cast, List, Tuple
 
 import numpy as np
 import scipy.linalg
@@ -110,7 +110,7 @@ class UnitaryClusterJastrowOp:
     ) -> "UnitaryClusterJastrowOp":
         """Initialize the UCJ operator from a real-valued parameter vector."""
         triu_indices = cast(
-            list[tuple[int, int]],
+            List[Tuple[int, int]],
             list(itertools.combinations_with_replacement(range(norb), 2)),
         )
         triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
@@ -200,7 +200,7 @@ class UnitaryClusterJastrowOp:
     ) -> np.ndarray:
         """Convert the UCJ operator to a real-valued parameter vector."""
         triu_indices = cast(
-            list[tuple[int, int]],
+            List[Tuple[int, int]],
             list(itertools.combinations_with_replacement(range(self.norb), 2)),
         )
         triu_indices_no_diag = list(itertools.combinations(range(self.norb), 2))
