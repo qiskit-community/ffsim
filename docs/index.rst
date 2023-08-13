@@ -8,6 +8,7 @@ Faster simulations of fermionic quantum circuits.
    :caption: Contents:
 
    generated/api/modules
+   notebooks/index
 
 
 Indices and tables
