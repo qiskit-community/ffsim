@@ -21,7 +21,7 @@ dependencies = ["numpy", "opt_einsum>=3.3", "pyscf>=2.3.0", "scipy<1.11"]
 
 [project.optional-dependencies]
 dev = [
-    "black",
+    "black[jupyter]",
     "coverage",
     "jupyter-sphinx",
     "maturin",
