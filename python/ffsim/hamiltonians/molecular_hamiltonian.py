@@ -59,7 +59,8 @@ class MolecularHamiltonian:
             constant=self.constant,
         )
 
-    def trace(self, norb: int, nelec: tuple[int, int]) -> float:
+    def _trace_(self, norb: int, nelec: tuple[int, int]) -> float:
+        """Return the trace of the object."""
         return hamiltonian_trace(
             norb=norb,
             nelec=nelec,

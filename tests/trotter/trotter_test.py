@@ -17,7 +17,6 @@ import pytest
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.contract.hamiltonian import hamiltonian_linop, hamiltonian_trace
 
 
 @pytest.mark.parametrize(
@@ -44,17 +43,12 @@ def test_simulate_trotter_double_factorized_random(
     # TODO test with complex one-body tensor after fixing get_hamiltonian_linop
     one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
-    hamiltonian = hamiltonian_linop(
-        one_body_tensor=one_body_tensor,
-        two_body_tensor=two_body_tensor,
-        norb=norb,
-        nelec=nelec,
-    )
+    mol_hamiltonian = ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
 
     # perform double factorization
     df_hamiltonian = ffsim.double_factorized_hamiltonian(
-        ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor),
-        z_representation=z_representation,
+        mol_hamiltonian, z_representation=z_representation
     )
 
     # generate initial state
@@ -66,12 +60,7 @@ def test_simulate_trotter_double_factorized_random(
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * hamiltonian,
         initial_state,
-        traceA=hamiltonian_trace(
-            one_body_tensor=one_body_tensor,
-            two_body_tensor=two_body_tensor,
-            norb=norb,
-            nelec=nelec,
-        ),
+        traceA=ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec),
     )
 
     # make sure time is not too small

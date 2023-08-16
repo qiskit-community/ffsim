@@ -44,7 +44,12 @@ from ffsim.hamiltonians import (
     double_factorized_hamiltonian,
 )
 from ffsim.molecular_data import MolecularData
-from ffsim.protocols import SupportsLinearOperator, linear_operator
+from ffsim.protocols import (
+    SupportsLinearOperator,
+    SupportsTrace,
+    linear_operator,
+    trace,
+)
 from ffsim.states import (
     dim,
     dims,
