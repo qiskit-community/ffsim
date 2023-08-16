@@ -13,6 +13,9 @@ from __future__ import annotations
 import dataclasses
 
 import numpy as np
+from scipy.sparse.linalg import LinearOperator
+
+from ffsim.contract.hamiltonian import hamiltonian_linop, hamiltonian_trace
 
 
 @dataclasses.dataclass
@@ -45,3 +48,22 @@ class MolecularHamiltonian:
     def norb(self):
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
+
+    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+        """Return a SciPy LinearOperator representing the object."""
+        return hamiltonian_linop(
+            norb=norb,
+            nelec=nelec,
+            one_body_tensor=self.one_body_tensor,
+            two_body_tensor=self.two_body_tensor,
+            constant=self.constant,
+        )
+
+    def trace(self, norb: int, nelec: tuple[int, int]) -> float:
+        return hamiltonian_trace(
+            norb=norb,
+            nelec=nelec,
+            one_body_tensor=self.one_body_tensor,
+            two_body_tensor=self.two_body_tensor,
+            constant=self.constant,
+        )

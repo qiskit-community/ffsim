@@ -30,16 +30,16 @@ def test_double_factorized_hamiltonian(z_representation: bool):
     # TODO test with complex one-body tensor
     one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
-    hamiltonian = ffsim.contract.hamiltonian_linop(
-        one_body_tensor=one_body_tensor,
-        two_body_tensor=two_body_tensor,
+    mol_hamiltonian = ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
+    hamiltonian = ffsim.linear_operator(
+        mol_hamiltonian,
         norb=norb,
         nelec=nelec,
     )
 
     # perform double factorization
     df_hamiltonian = ffsim.double_factorized_hamiltonian(
-        ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor),
+        mol_hamiltonian,
         z_representation=z_representation,
     )
 

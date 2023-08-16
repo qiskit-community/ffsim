@@ -15,6 +15,7 @@ from ffsim import (
     gates,
     hamiltonians,
     linalg,
+    protocols,
     random,
     states,
     trotter,
@@ -43,6 +44,7 @@ from ffsim.hamiltonians import (
     double_factorized_hamiltonian,
 )
 from ffsim.molecular_data import MolecularData
+from ffsim.protocols import SupportsLinearOperator, linear_operator
 from ffsim.states import (
     dim,
     dims,
