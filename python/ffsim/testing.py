@@ -27,7 +27,8 @@ def random_nelec(norb: int, *, seed=None) -> tuple[int, int]:
         The sampled pair of (n_alpha, n_beta) particle numbers.
     """
     rng = np.random.default_rng(seed)
-    return tuple(rng.integers(norb + 1, size=2))
+    n_alpha, n_beta = rng.integers(norb + 1, size=2)
+    return (n_alpha, n_beta)
 
 
 def random_occupied_orbitals(
