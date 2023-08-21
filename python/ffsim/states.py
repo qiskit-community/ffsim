@@ -16,6 +16,8 @@ import numpy as np
 from pyscf.fci import cistring
 from scipy.special import comb
 
+from ffsim.gates.orbital_rotation import apply_orbital_rotation
+
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
     """Get the dimension of the FCI space."""
@@ -31,7 +33,7 @@ def dim(norb: int, nelec: tuple[int, int]) -> int:
     return dim_a * dim_b
 
 
-def one_hot(shape: tuple[int, ...], index, *, dtype=float):
+def one_hot(shape: tuple[int, ...], index, *, dtype=complex):
     """Return an array of all zeros except for a one at a specified index."""
     vec = np.zeros(shape, dtype=dtype)
     vec[index] = 1
@@ -41,13 +43,28 @@ def one_hot(shape: tuple[int, ...], index, *, dtype=float):
 def slater_determinant(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    dtype: type = complex,
+    orbital_rotation: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Return a Slater determinant."""
+    """Return a Slater determinant.
+
+    Args:
+        norb: The number of spatial orbitals.
+        occupied_orbitals: A pair of lists of integers. The first list specifies
+            the occupied alpha orbitals and the second list specifies the occupied
+            beta orbitals.
+        orbital_rotation: An optional orbital rotation to apply to the
+            electron configuration. In other words, this is a unitary matrix that
+            describes the orbitals of the Slater determinant.
+        dtype:
+
+    Returns:
+        The Slater determinant.
+    """
     alpha_orbitals, beta_orbitals = occupied_orbitals
     n_alpha = len(alpha_orbitals)
     n_beta = len(beta_orbitals)
-    dim1, dim2 = dims(norb, (n_alpha, n_beta))
+    nelec = (n_alpha, n_beta)
+    dim1, dim2 = dims(norb, nelec)
     alpha_bits = np.zeros(norb, dtype=bool)
     alpha_bits[list(alpha_orbitals)] = 1
     alpha_string = int("".join("1" if b else "0" for b in alpha_bits[::-1]), base=2)
@@ -56,7 +73,10 @@ def slater_determinant(
     beta_bits[list(beta_orbitals)] = 1
     beta_string = int("".join("1" if b else "0" for b in beta_bits[::-1]), base=2)
     beta_index = cistring.str2addr(norb, n_beta, beta_string)
-    return one_hot((dim1, dim2), (alpha_index, beta_index), dtype=dtype).reshape(-1)
+    vec = one_hot((dim1, dim2), (alpha_index, beta_index), dtype=complex).reshape(-1)
+    if orbital_rotation is not None:
+        vec = apply_orbital_rotation(vec, orbital_rotation, norb=norb, nelec=nelec)
+    return vec
 
 
 def slater_determinant_one_rdm(

@@ -18,6 +18,7 @@ from ffsim import (
     protocols,
     random,
     states,
+    testing,
     trotter,
     variational,
 )
