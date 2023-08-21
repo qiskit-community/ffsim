@@ -33,9 +33,7 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
     norb = 5
     rng = np.random.default_rng()
     for _ in range(5):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
-        nelec = (n_alpha, n_beta)
+        nelec = ffsim.testing.random_nelec(norb)
         dim = ffsim.dim(norb, nelec)
 
         mat = ffsim.random.random_unitary(norb, seed=rng, dtype=dtype)
@@ -55,9 +53,7 @@ def test_apply_orbital_rotation_no_side_effects():
     norb = 5
     rng = np.random.default_rng()
     for _ in range(5):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
-        nelec = (n_alpha, n_beta)
+        nelec = ffsim.testing.random_nelec(norb)
         dim = ffsim.dim(norb, nelec)
 
         mat = -np.eye(norb)
