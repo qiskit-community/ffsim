@@ -7,6 +7,8 @@ Faster simulations of fermionic quantum circuits.
 ffsim is a high-performance simulator for fermionic quantum circuits that preserve particle number
 and the Z component of spin. This category includes many quantum circuits used for quantum chemistry simulations.
 
+**Experimental disclaimer**: ffsim is currently an experimental release. Breaking changes may be introduced without warning.
+
 ## Features
 
 - Fast simulation of fermionic quantum circuits that preserve particle number and the Z component of spin.
