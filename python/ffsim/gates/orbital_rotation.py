@@ -50,6 +50,12 @@ def gen_orbital_rotation_index(
     (j, str1, sign) where str1 is formed by annihilating orbital j in str0 and creating
     orbital i, with sign giving the fermionic parity of this operation.
     """
+    if nocc == 0:
+        diag_strings = np.zeros((norb, 0), dtype=np.uint)
+        off_diag_strings = np.zeros((norb, 1), dtype=np.uint)
+        off_diag_index = np.zeros((norb, 1, 0, 3), dtype=np.int32)
+        return diag_strings, off_diag_strings, off_diag_index
+
     if linkstr_index is None:
         linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
     dim_diag = comb(norb - 1, nocc - 1, exact=True)
