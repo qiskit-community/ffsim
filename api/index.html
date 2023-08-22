@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API reference &#8212; ffsim 0.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <script src="../_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ffsim" href="generated/modules.html" />
+    <link rel="prev" title="The local unitary cluster Jastrow (LUCJ) ansatz" href="../notebooks/04-LUCJ.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="api-reference">
+<h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
+<p>ffsim’s API reference.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="generated/modules.html">ffsim</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/ffsim.html">ffsim package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.contract.html">ffsim.contract package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.gates.html">ffsim.gates package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.hamiltonians.html">ffsim.hamiltonians package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.linalg.html">ffsim.linalg package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.protocols.html">ffsim.protocols package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.trotter.html">ffsim.trotter package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.variational.html">ffsim.variational package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#ffsim-molecular-data-module">ffsim.molecular_data module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.molecular_data.MolecularData"><code class="docutils literal notranslate"><span class="pre">MolecularData</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#ffsim-random-module">ffsim.random module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_antihermitian"><code class="docutils literal notranslate"><span class="pre">random_antihermitian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_hermitian"><code class="docutils literal notranslate"><span class="pre">random_hermitian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_orthogonal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_real_symmetric_matrix"><code class="docutils literal notranslate"><span class="pre">random_real_symmetric_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_special_orthogonal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_statevector"><code class="docutils literal notranslate"><span class="pre">random_statevector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_two_body_tensor_real"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor_real()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_unitary"><code class="docutils literal notranslate"><span class="pre">random_unitary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#ffsim-slow-module">ffsim.slow module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_numpy"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_numpy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_slow"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_slow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.slow.apply_diag_coulomb_evolution_in_place_z_rep_slow"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution_in_place_z_rep_slow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.slow.apply_givens_rotation_in_place_slow"><code class="docutils literal notranslate"><span class="pre">apply_givens_rotation_in_place_slow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.slow.apply_num_op_sum_evolution_in_place_slow"><code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution_in_place_slow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.slow.apply_single_column_transformation_in_place_slow"><code class="docutils literal notranslate"><span class="pre">apply_single_column_transformation_in_place_slow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.slow.gen_orbital_rotation_index_in_place_slow"><code class="docutils literal notranslate"><span class="pre">gen_orbital_rotation_index_in_place_slow()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#ffsim-states-module">ffsim.states module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.dim"><code class="docutils literal notranslate"><span class="pre">dim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.one_hot"><code class="docutils literal notranslate"><span class="pre">one_hot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.slater_determinant_one_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_one_rdm()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#ffsim-testing-module">ffsim.testing module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.testing.random_nelec"><code class="docutils literal notranslate"><span class="pre">random_nelec()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.testing.random_occupied_orbitals"><code class="docutils literal notranslate"><span class="pre">random_occupied_orbitals()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#ffsim-wick-module">ffsim.wick module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.wick.expectation_power"><code class="docutils literal notranslate"><span class="pre">expectation_power()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.wick.expectation_product"><code class="docutils literal notranslate"><span class="pre">expectation_product()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../notebooks/04-LUCJ.html" title="previous chapter">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+      <li>Next: <a href="generated/modules.html" title="next chapter">ffsim</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/api/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

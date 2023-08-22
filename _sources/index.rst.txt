@@ -4,11 +4,11 @@ ffsim documentation
 Faster simulations of fermionic quantum circuits.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    notebooks/index
-   generated/api/modules
+   api/index
 
 
 Indices and tables

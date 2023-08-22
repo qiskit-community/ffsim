@@ -504,8 +504,17 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <span class="sig-prename descclassname"><span class="pre">ffsim.states.</span></span><span class="sig-name descname"><span class="pre">dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/states.html#dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.states.dim" title="Link to this definition">¶</a></dt>
 <dd><p>Get the dimension of the FCI space.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The dimension of the FCI space.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -513,10 +522,20 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.states.dims">
 <span class="sig-prename descclassname"><span class="pre">ffsim.states.</span></span><span class="sig-name descname"><span class="pre">dims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/states.html#dims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.states.dims" title="Link to this definition">¶</a></dt>
-<dd><p>Get the dimension of the FCI space.</p>
+<dd><p>Get the dimensions of the FCI space.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A pair of integers (dim_a, dim_b) representing the dimensions of the
+alpha- and beta- FCI space.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -710,19 +729,18 @@ Then this function returns the quantity</p>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Tutorials</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">ffsim</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ffsim package</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API reference</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API reference</a><ul>
   <li><a href="modules.html">ffsim</a><ul>
       <li>Previous: <a href="modules.html" title="previous chapter">ffsim</a></li>
       <li>Next: <a href="ffsim.contract.html" title="next chapter">ffsim.contract package</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -757,7 +775,7 @@ Then this function returns the quantity</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
-      <a href="../../_sources/generated/api/ffsim.rst.txt"
+      <a href="../../_sources/api/generated/ffsim.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

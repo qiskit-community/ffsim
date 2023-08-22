@@ -57,9 +57,18 @@
 
 
 <div class="viewcode-block" id="dims">
-<a class="viewcode-back" href="../../generated/api/ffsim.html#ffsim.states.dims">[docs]</a>
+<a class="viewcode-back" href="../../api/generated/ffsim.html#ffsim.states.dims">[docs]</a>
 <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimension of the FCI space.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimensions of the FCI space.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A pair of integers (dim_a, dim_b) representing the dimensions of the</span>
+<span class="sd">        alpha- and beta- FCI space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_a</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -68,16 +77,24 @@
 
 
 <div class="viewcode-block" id="dim">
-<a class="viewcode-back" href="../../generated/api/ffsim.html#ffsim.states.dim">[docs]</a>
+<a class="viewcode-back" href="../../api/generated/ffsim.html#ffsim.states.dim">[docs]</a>
 <span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimension of the FCI space.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimension of the FCI space.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The dimension of the FCI space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span> <span class="o">=</span> <span class="n">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dim_a</span> <span class="o">*</span> <span class="n">dim_b</span></div>
 
 
 
 <div class="viewcode-block" id="one_hot">
-<a class="viewcode-back" href="../../generated/api/ffsim.html#ffsim.states.one_hot">[docs]</a>
+<a class="viewcode-back" href="../../api/generated/ffsim.html#ffsim.states.one_hot">[docs]</a>
 <span class="k">def</span> <span class="nf">one_hot</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an array of all zeros except for a one at a specified index.&quot;&quot;&quot;</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -87,7 +104,7 @@
 
 
 <div class="viewcode-block" id="slater_determinant">
-<a class="viewcode-back" href="../../generated/api/ffsim.html#ffsim.states.slater_determinant">[docs]</a>
+<a class="viewcode-back" href="../../api/generated/ffsim.html#ffsim.states.slater_determinant">[docs]</a>
 <span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
@@ -129,7 +146,7 @@
 
 
 <div class="viewcode-block" id="slater_determinant_one_rdm">
-<a class="viewcode-back" href="../../generated/api/ffsim.html#ffsim.states.slater_determinant_one_rdm">[docs]</a>
+<a class="viewcode-back" href="../../api/generated/ffsim.html#ffsim.states.slater_determinant_one_rdm">[docs]</a>
 <span class="k">def</span> <span class="nf">slater_determinant_one_rdm</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
@@ -176,7 +193,7 @@
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/api/modules.html">ffsim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API reference</a></li>
 </ul>
 
 <div class="relations">
