@@ -1,0 +1,7 @@
+ffsim
+=====
+
+.. toctree::
+   :maxdepth: 4
+
+   ffsim

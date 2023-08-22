@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Orbital rotations and quadratic Hamiltonians &#8212; ffsim 0.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script src="../_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Diagonal Coulomb operators and double-factorized Trotter simulation" href="03-double-factorized.html" />
+    <link rel="prev" title="Introduction to ffsim" href="01-introduction.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="Orbital-rotations-and-quadratic-Hamiltonians">
+<h1>Orbital rotations and quadratic Hamiltonians<a class="headerlink" href="#Orbital-rotations-and-quadratic-Hamiltonians" title="Link to this heading">¶</a></h1>
+<p>In this tutorial, we show how to use ffsim to perform orbital rotations and time evolution by a quadratic Hamiltonian.</p>
+<section id="Orbital-rotations">
+<h2>Orbital rotations<a class="headerlink" href="#Orbital-rotations" title="Link to this heading">¶</a></h2>
+<p>A fundamental operation in the simulation of a system of fermionic modes is a rotation of the orbital basis. An orbital rotation is described by an <span class="math notranslate nohighlight">\(N \times N\)</span> unitary matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> and we denote the corresponding operator as <span class="math notranslate nohighlight">\(\mathcal{W}\)</span>. This operator has the following action on the fermionic creation operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{i,\sigma}}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{W} a^\dagger_{i,\sigma} \mathcal{W}^\dagger = \sum_j \mathbf{W}_{ji} a^\dagger_{j,\sigma}.\]</div>
+<p>That is, <span class="math notranslate nohighlight">\(a^\dagger_{i,\sigma}\)</span> is mapped to a new operator <span class="math notranslate nohighlight">\(b^\dagger_{i,\sigma}\)</span> where <span class="math notranslate nohighlight">\(b^\dagger_{i,\sigma}\)</span> is a linear combination of the operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{i,\sigma}}\)</span> with coefficients given by the <span class="math notranslate nohighlight">\(i\)</span>-th column of <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>. The <span class="math notranslate nohighlight">\(\set{b^\dagger_{i,\sigma}}\)</span> also satisfy the fermionic anticommutation relations, so they are creation operators in a rotated basis. The mapping <span class="math notranslate nohighlight">\(\mathbf{W} \mapsto \mathcal{W}\)</span> satisfies the properties</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+    \mathbf{W}^\dagger &amp;\mapsto \mathcal{W}^\dagger, \\
+    \mathbf{W}_1 \mathbf{W}_2 &amp;\mapsto \mathcal{W}_1 \mathcal{W}_2
+\end{align*}\end{split}\]</div>
+<p>for any unitary matrices <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{W}_1\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{W}_2\)</span>.</p>
+<p>In ffsim, an orbital rotation is performed by passing the vector to be transformed and the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> to the <code class="docutils literal notranslate"><span class="pre">apply_orbital_rotation</span></code> function. For example:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
+
+<span class="c1"># Set the number of orbitals and their occupancies</span>
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+<span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">))</span>
+
+<span class="c1"># Create a Slater determinant</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="n">occupied_orbitals</span><span class="p">)</span>
+
+<span class="c1"># Generate a random orbital rotation</span>
+<span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="c1"># Apply the orbital rotation to the statevector</span>
+<span class="n">rotated_vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Time-evolution-by-a-quadratic-Hamiltonian">
+<h2>Time evolution by a quadratic Hamiltonian<a class="headerlink" href="#Time-evolution-by-a-quadratic-Hamiltonian" title="Link to this heading">¶</a></h2>
+<p>Orbital rotations can be used to implement time evolution by a quadratic Hamiltonian. In this section, we’ll demonstrate how to use ffsim to perform this task.</p>
+<p>A quadratic Hamiltonian is an operator of the form (here we only consider Hamiltonians with particle number and spin symmetry)</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{M} = \sum_{ij,\sigma} \mathbf{M}_{ij} a^\dagger_{i,\sigma} a_{j,\sigma}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{M}\)</span> is a Hermitian matrix. A quadratic Hamiltonian can always be rewritten as</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{M} = \mathcal{W} \left(\sum_{i,\sigma} \lambda_i n_{i,\sigma}\right)\mathcal{W}^\dagger\]</div>
+<p>where the <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> are real numbers, <span class="math notranslate nohighlight">\(\mathcal{W}\)</span> is an orbital rotation, and we have introduced the occupation number operator <span class="math notranslate nohighlight">\(n_{i, \sigma} = a^\dagger_{i,\sigma} a_{i,\sigma}\)</span>. The <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the unitary matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> describing the orbital rotation are obtained from an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{M}_{ij} = \sum_k \lambda_k \mathbf{W}_{ik} \mathbf{W}_{jk}^*.\]</div>
+<p>For our example, we will generate a random quadratic Hamiltonian and apply time evolution to its ground state. The state should simply pick up a phase proportional to its energy. To compute the ground state, we’ll convert the Hamiltonian to an instance of <code class="docutils literal notranslate"><span class="pre">scipy.sparse.linalg.LinearOperator</span></code> and use Scipy to compute the lowest eigenvalue and eigenvector.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
+
+<span class="c1"># Set the number of orbitals and their occupancies</span>
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+<span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">))</span>
+
+<span class="c1"># Generate a random quadratic Hamiltonian</span>
+<span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_hermitian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="c1"># Convert the Hamiltonian to a LinearOperator</span>
+<span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">contract</span><span class="o">.</span><span class="n">hamiltonian_linop</span><span class="p">(</span>
+    <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+<span class="p">)</span>
+
+<span class="c1"># Get the ground state of the Hamiltonian</span>
+<span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigsh</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;LA&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">eig</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Time evolution by <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> can be implemented with the following steps: - Compute the numbers <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> by performing an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>. - Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}^\dagger\)</span>. - Perform time evolution by the operator <span class="math notranslate nohighlight">\(\sum_{i,\sigma} \lambda_i n_{i,\sigma}\)</span>. - Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which
+corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>.</p>
+<p>ffsim includes a function for performing time evolution by an operator of the form <span class="math notranslate nohighlight">\(\sum_{i,\sigma} \lambda_i n_{i,\sigma}\)</span>, called <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code>. In fact, this function can also perform the orbital rotation for you, but for illustrative purposes we will first perform the orbital rotation explicitly.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">time</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="c1"># Compute the orbital rotation and energies</span>
+<span class="n">energies</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">)</span>
+
+<span class="c1"># Rotate to the basis in which the Hamiltonian is diagonal</span>
+<span class="n">evolved_vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+<span class="p">)</span>
+<span class="c1"># Apply time evolution</span>
+<span class="n">evolved_vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
+    <span class="n">evolved_vec</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+<span class="p">)</span>
+<span class="c1"># Undo basis rotation</span>
+<span class="n">evolved_vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
+    <span class="n">evolved_vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+<span class="p">)</span>
+
+<span class="c1"># Check the result</span>
+<span class="n">expected_phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">eig</span> <span class="o">*</span> <span class="n">time</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">evolved_vec</span><span class="p">,</span> <span class="n">expected_phase</span> <span class="o">*</span> <span class="n">vec</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>As mentioned above, the function <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code> can actually apply the orbital rotation for you if you pass it as an argument, as demonstrated below. Calling the function this way is expected to give better performance.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">evolved_vec_alt</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span>
+<span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">evolved_vec_alt</span><span class="p">,</span> <span class="n">evolved_vec</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../generated/api/modules.html">ffsim</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-introduction.html">Introduction to ffsim</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-LUCJ.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">tutorials</a><ul>
+      <li>Previous: <a href="01-introduction.html" title="previous chapter">Introduction to ffsim</a></li>
+      <li>Next: <a href="03-double-factorized.html" title="next chapter">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/notebooks/02-orbital-rotation.ipynb.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,68 @@
+ffsim package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   ffsim.contract
+   ffsim.gates
+   ffsim.hamiltonians
+   ffsim.linalg
+   ffsim.protocols
+   ffsim.trotter
+   ffsim.variational
+
+Submodules
+----------
+
+ffsim.molecular\_data module
+----------------------------
+
+.. automodule:: ffsim.molecular_data
+   :members:
+   :show-inheritance:
+
+ffsim.random module
+-------------------
+
+.. automodule:: ffsim.random
+   :members:
+   :show-inheritance:
+
+ffsim.slow module
+-----------------
+
+.. automodule:: ffsim.slow
+   :members:
+   :show-inheritance:
+
+ffsim.states module
+-------------------
+
+.. automodule:: ffsim.states
+   :members:
+   :show-inheritance:
+
+ffsim.testing module
+--------------------
+
+.. automodule:: ffsim.testing
+   :members:
+   :show-inheritance:
+
+ffsim.wick module
+-----------------
+
+.. automodule:: ffsim.wick
+   :members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: ffsim
+   :members:
+   :show-inheritance:

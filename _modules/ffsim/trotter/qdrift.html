@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ffsim.trotter.qdrift &#8212; ffsim 0.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/thebelab.css" />
+    <script src="../../../_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ffsim.trotter.qdrift</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span>
+<span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
+
+<span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">,</span> <span class="n">apply_num_op_sum_evolution</span>
+<span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">gen_orbital_rotation_index</span>
+<span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">DoubleFactorizedHamiltonian</span>
+<span class="kn">from</span> <span class="nn">ffsim.wick</span> <span class="kn">import</span> <span class="n">expectation_power</span><span class="p">,</span> <span class="n">expectation_product</span>
+
+
+<div class="viewcode-block" id="simulate_qdrift_double_factorized">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.simulate_qdrift_double_factorized">[docs]</a>
+<span class="k">def</span> <span class="nf">simulate_qdrift_double_factorized</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">symmetric</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">probabilities</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="s2">&quot;norm&quot;</span><span class="p">,</span>
+    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Double-factorized Hamiltonian simulation via qDRIFT.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec: The state vector to evolve.</span>
+<span class="sd">        hamiltonian: The Hamiltonian.</span>
+<span class="sd">        time: The evolution time.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        n_steps: The number of Trotter steps.</span>
+<span class="sd">        probabilities: The sampling method to use, or else an explicit array of</span>
+<span class="sd">            probabilities. If specifying a string, the following options are supported:</span>
+<span class="sd">            - &quot;norm&quot;: Sample each term with probability proportional to its</span>
+<span class="sd">            spectral norm.</span>
+<span class="sd">            - &quot;uniform&quot;: Sample each term with uniform probability.</span>
+<span class="sd">            - &quot;optimal&quot;: Sample with probabilities optimized for a given initial state.</span>
+<span class="sd">            The &quot;optimal&quot; method requires the one-body reduced density matrix of the</span>
+<span class="sd">            initial state to be specified. It returns optimal probabilities whenever</span>
+<span class="sd">            the initial state is completely characterized by this reduced density</span>
+<span class="sd">            matrix, i.e., it is a Slater determinant.</span>
+<span class="sd">        one_rdm: The one-body reduced density matrix of the initial state.</span>
+<span class="sd">        n_samples: The number of qDRIFT trajectories to sample.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A Numpy array representing the final state of the simulation. The shape of the</span>
+<span class="sd">        array depends on the ``n_samples`` argument. If ``n_samples=1`` then it is</span>
+<span class="sd">        just a statevector, a one-dimensional array. Otherwise, it is a two-dimensional</span>
+<span class="sd">        array of shape ``(n_samples, dim)`` where ``dim`` is the dimension of the</span>
+<span class="sd">        statevector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n_steps</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_steps must be non-negative, got </span><span class="si">{</span><span class="n">n_steps</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_samples must be positive, got </span><span class="si">{</span><span class="n">n_samples</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">n_steps</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">time</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n_samples</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">initial_state</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">probabilities</span> <span class="o">=</span> <span class="n">qdrift_probabilities</span><span class="p">(</span>
+            <span class="n">hamiltonian</span><span class="p">,</span> <span class="n">sampling_method</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">one_rdm</span><span class="o">=</span><span class="n">one_rdm</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
+        <span class="c1"># in symmetric qDRIFT the one-body term is treated as a constant</span>
+        <span class="n">probabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">probabilities</span> <span class="o">/=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">one_body_energies</span><span class="p">,</span> <span class="n">one_body_basis_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span>
+        <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span>
+    <span class="p">)</span>
+    <span class="n">step_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="n">n_steps</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="n">occupations_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">occupations_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">orbital_rotation_index_a</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">orbital_rotation_index_b</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+        <span class="c1"># TODO cache trajectories</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">initial_state</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">term_indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">probabilities</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">_simulate_qdrift_step_double_factorized_symmetric</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">one_body_energies</span><span class="p">,</span>
+                <span class="n">one_body_basis_change</span><span class="p">,</span>
+                <span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+                <span class="n">hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+                <span class="n">step_time</span><span class="p">,</span>
+                <span class="n">z_representation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">probabilities</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
+                <span class="n">term_indices</span><span class="o">=</span><span class="n">term_indices</span><span class="p">,</span>
+                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">_simulate_qdrift_step_double_factorized</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">one_body_energies</span><span class="p">,</span>
+                <span class="n">one_body_basis_change</span><span class="p">,</span>
+                <span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+                <span class="n">hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+                <span class="n">step_time</span><span class="p">,</span>
+                <span class="n">z_representation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">probabilities</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
+                <span class="n">term_indices</span><span class="o">=</span><span class="n">term_indices</span><span class="p">,</span>
+                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vec</span>
+
+    <span class="k">if</span> <span class="n">n_samples</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_simulate_qdrift_step_double_factorized</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">one_body_energies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">one_body_basis_change</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">probabilities</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">term_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">occupations_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">occupations_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotation_index_a</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">orbital_rotation_index_b</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">term_index</span> <span class="ow">in</span> <span class="n">term_indices</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">term_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">one_body_energies</span><span class="p">,</span>
+                <span class="n">time</span> <span class="o">/</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">term_index</span><span class="p">],</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
+                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">time</span> <span class="o">/</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">term_index</span><span class="p">],</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
+                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span>
+
+
+<span class="k">def</span> <span class="nf">_simulate_qdrift_step_double_factorized_symmetric</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">one_body_energies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">one_body_basis_change</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">probabilities</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">term_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">occupations_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">occupations_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotation_index_a</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">orbital_rotation_index_b</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="c1"># simulate the one-body term for half the time</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span>
+        <span class="n">one_body_energies</span><span class="p">,</span>
+        <span class="mf">0.5</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
+        <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+        <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+        <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+        <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># simulate the first sampled term</span>
+    <span class="n">term_index</span> <span class="o">=</span> <span class="n">term_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">time</span> <span class="o">/</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">term_index</span><span class="p">],</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
+        <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+        <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+        <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+        <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># simulate the remaining sampled terms</span>
+    <span class="k">for</span> <span class="n">term_index</span> <span class="ow">in</span> <span class="n">term_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">one_body_energies</span><span class="p">,</span>
+            <span class="n">time</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
+            <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+            <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+            <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+            <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">time</span> <span class="o">/</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">term_index</span><span class="p">],</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
+            <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+            <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+            <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+            <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># simulate the one-body term for half the time</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span>
+        <span class="n">one_body_energies</span><span class="p">,</span>
+        <span class="mf">0.5</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
+        <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
+        <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
+        <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
+        <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">vec</span>
+
+
+<div class="viewcode-block" id="qdrift_probabilities">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.qdrift_probabilities">[docs]</a>
+<span class="k">def</span> <span class="nf">qdrift_probabilities</span><span class="p">(</span>
+    <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">,</span>
+    <span class="n">sampling_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute qDRIFT probabilities.</span>
+
+<span class="sd">    Returns a list of probabilities for qDRIFT sampling. The first probability</span>
+<span class="sd">    corresponds to the the one-body tensor of the Hamiltonian, and the rest</span>
+<span class="sd">    correspond to the two-body terms in the same order as they are stored in, e.g.,</span>
+<span class="sd">    ``hamiltonian.orbital_rotations``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        hamiltonian: The Hamiltonian</span>
+<span class="sd">        sampling_method: The sampling method to use.</span>
+<span class="sd">            The following options are supported:</span>
+<span class="sd">            - &quot;norm&quot;: Sample each term with probability proportional to its</span>
+<span class="sd">            spectral norm.</span>
+<span class="sd">            - &quot;uniform&quot;: Sample each term with uniform probability.</span>
+<span class="sd">            - &quot;optimal&quot;: Sample with probabilities optimized for a given initial state.</span>
+<span class="sd">            The &quot;optimal&quot; method requires the one-body reduced density matrix of the</span>
+<span class="sd">            initial state to be specified.</span>
+<span class="sd">            - &quot;optimal-incoherent&quot;: Optimized probabilities for the incoherent qDRIFT</span>
+<span class="sd">            channel.</span>
+<span class="sd">        n_particles: The total number of particles.</span>
+<span class="sd">        one_rdm: The one-body reduced density matrix of the initial state.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The probabilities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_terms</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;norm&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nelec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;norm&#39; sampling method requires nelec to be specified.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">one_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_terms</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">one_norms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">spectral_norm_one_body_tensor</span><span class="p">(</span>
+                <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># when the diag coulomb mats have rank greater than one, only a loose</span>
+            <span class="c1"># upper bound is used, so use a loose one for the one-body term too</span>
+            <span class="n">one_norms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                    <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">eigvals_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">diag_coulomb_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">):</span>
+            <span class="n">one_norms</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">spectral_norm_diag_coulomb</span><span class="p">(</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">,</span>
+                <span class="n">z_representation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">one_norms</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">one_norms</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;optimal&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">one_rdm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;optimal&#39; sampling method requires one_rdm to be &quot;</span> <span class="s2">&quot;specified.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">variances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_terms</span><span class="p">)</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
+            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span>
+        <span class="p">)</span>
+        <span class="n">variances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">variance_one_body_tensor</span><span class="p">(</span><span class="n">one_rdm</span><span class="p">,</span> <span class="n">one_body_tensor</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">)):</span>
+            <span class="n">variances</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">variance_diag_coulomb</span><span class="p">(</span>
+                <span class="n">one_rdm</span><span class="p">,</span>
+                <span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">z_representation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">stds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variances</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stds</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">stds</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;optimal-incoherent&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">one_rdm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;optimal-incoherent&#39; sampling method requires one_rdm to be &quot;</span>
+                <span class="s2">&quot;specified.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">variances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_terms</span><span class="p">)</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
+            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span>
+        <span class="p">)</span>
+        <span class="n">variances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">)):</span>
+            <span class="n">variances</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expectation_squared_diag_coulomb</span><span class="p">(</span>
+                <span class="n">one_rdm</span><span class="p">,</span>
+                <span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">z_representation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">stds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variances</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stds</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">stds</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_terms</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_terms</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported sampling method: </span><span class="si">{</span><span class="n">sampling_method</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="spectral_norm_one_body_tensor">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.spectral_norm_one_body_tensor">[docs]</a>
+<span class="k">def</span> <span class="nf">spectral_norm_one_body_tensor</span><span class="p">(</span>
+    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute an upper bound for the largest singular value of a one-body tensor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        one_body_tensor: The one-body tensor.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The upper bound.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">eigs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">eigvals_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="n">n_alpha</span><span class="p">:])</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="n">n_alpha</span><span class="p">]),</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="o">-</span><span class="n">n_alpha</span><span class="p">])</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="o">-</span><span class="n">n_alpha</span><span class="p">:]),</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="n">n_beta</span><span class="p">:])</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="n">n_beta</span><span class="p">]),</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="o">-</span><span class="n">n_beta</span><span class="p">])</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="o">-</span><span class="n">n_beta</span><span class="p">:]),</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="n">n_alpha</span><span class="p">]),</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="o">-</span><span class="n">n_alpha</span><span class="p">:])],</span>
+            <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="n">n_beta</span><span class="p">]),</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="o">-</span><span class="n">n_beta</span><span class="p">:])],</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="spectral_norm_diag_coulomb">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.spectral_norm_diag_coulomb">[docs]</a>
+<span class="k">def</span> <span class="nf">spectral_norm_diag_coulomb</span><span class="p">(</span>
+    <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute upper bound for the largest singular value of a diagonal Coulomb matrix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        diag_coulomb_mat: The diagonal Coulomb matrix.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        z_representation: Whether the diagonal Coulomb matrix is in the</span>
+<span class="sd">            Z representation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The upper bounds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># decompose the diag Coulomb mat as a sum of squared one-body operators</span>
+    <span class="n">one_body_tensors</span> <span class="o">=</span> <span class="n">one_body_square_decomposition</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">)</span>
+
+    <span class="c1"># for a rank-1 diag Coulomb mat, we can compute the exact spectral norm</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_body_tensors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">one_body_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
+            <span class="c1"># TODO this abs is probably not necessary</span>
+            <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span>
+                <span class="n">spectral_norm_one_body_tensor</span><span class="p">(</span>
+                    <span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">z_representation</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="o">**</span> <span class="mi">2</span>
+                <span class="o">-</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">spectral_norm_one_body_tensor</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="c1"># when the rank is greater than one, we only know how to return an upper bound</span>
+    <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">))</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">))</span>
+        <span class="p">)</span>
+    <span class="c1"># TODO this is probably loose</span>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="one_body_square_decomposition">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.one_body_square_decomposition">[docs]</a>
+<span class="k">def</span> <span class="nf">one_body_square_decomposition</span><span class="p">(</span>
+    <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">truncation_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decompose a two-body term as a sum of squared one-body operators.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        diag_coulomb_mat: The diagonal Coulomb matrix.</span>
+<span class="sd">        orbital_rotation: The orbital rotation.</span>
+<span class="sd">        truncation_threshold: Eigenvalues of the diagonal Coulomb matrix with</span>
+<span class="sd">            absolute value less than this value are truncated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">truncation_threshold</span>
+    <span class="n">eigs</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    <span class="n">vecs</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+        <span class="s2">&quot;t,it,ji,ki-&gt;tjk&quot;</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">emath</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">eigs</span><span class="p">),</span>
+        <span class="n">vecs</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="variance_one_body_tensor">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.variance_one_body_tensor">[docs]</a>
+<span class="k">def</span> <span class="nf">variance_one_body_tensor</span><span class="p">(</span><span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the variance of a one-body operator on a state given by its 1-RDM.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        one_rdm: The one-body reduced density matrix of the state.</span>
+<span class="sd">        one_body_tensor: The one-body tensor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The variance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">real</span>
+    <span class="c1"># value may be negative due to floating point error</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="variance_diag_coulomb">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.variance_diag_coulomb">[docs]</a>
+<span class="k">def</span> <span class="nf">variance_diag_coulomb</span><span class="p">(</span>
+    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the variance of a two-body operator on a state given by its 1-RDM.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        one_rdm: The one-body reduced density matrix of the state.</span>
+<span class="sd">        diag_coulomb_mat: The diagonal Coulomb matrix.</span>
+<span class="sd">        orbital_rotation: The orbital rotation.</span>
+<span class="sd">        z_representation: Whether the diagonal Coulomb matrix is in the</span>
+<span class="sd">            Z representation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The variance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">one_body_ops</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">mat</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">one_body_square_decomposition</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">expectation</span><span class="p">:</span> <span class="nb">complex</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">expectation_squared</span><span class="p">:</span> <span class="nb">complex</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">one_body_op</span> <span class="ow">in</span> <span class="n">one_body_ops</span><span class="p">:</span>
+        <span class="n">expectation</span> <span class="o">+=</span> <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">one_body_1</span><span class="p">,</span> <span class="n">one_body_2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">one_body_ops</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="c1"># this expectation is real so we can just double it instead of computing its</span>
+        <span class="c1"># complex conjugate</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">expectation_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">one_body_1</span><span class="p">,</span> <span class="n">one_body_1</span><span class="p">,</span> <span class="n">one_body_2</span><span class="p">,</span> <span class="n">one_body_2</span><span class="p">],</span> <span class="n">one_rdm</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
+        <span class="n">one_body_correction</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+                <span class="s2">&quot;ij,pi,qi-&gt;pq&quot;</span><span class="p">,</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+                <span class="s2">&quot;ij,pj,qj-&gt;pq&quot;</span><span class="p">,</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">one_body_correction</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
+            <span class="n">one_body_correction</span><span class="p">,</span> <span class="n">one_body_correction</span>
+        <span class="p">)</span>
+        <span class="n">expectation</span> <span class="o">+=</span> <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_correction</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_correction</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">one_body_correction</span><span class="p">,</span> <span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_op</span><span class="p">],</span> <span class="n">one_rdm</span>
+        <span class="p">)</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_correction</span><span class="p">],</span> <span class="n">one_rdm</span>
+        <span class="p">)</span>
+
+    <span class="n">variance</span> <span class="o">=</span> <span class="p">(</span><span class="n">expectation_squared</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">expectation</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+    <span class="c1"># value may be negative due to floating point error</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="expectation_squared_diag_coulomb">
+<a class="viewcode-back" href="../../../generated/api/ffsim.trotter.html#ffsim.trotter.qdrift.expectation_squared_diag_coulomb">[docs]</a>
+<span class="k">def</span> <span class="nf">expectation_squared_diag_coulomb</span><span class="p">(</span>
+    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the expectation squared of a diag Coulomb op.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        one_rdm: The one-body reduced density matrix of the state.</span>
+<span class="sd">        diag_coulomb_mat: The diagonal Coulomb matrix.</span>
+<span class="sd">        orbital_rotation: The orbital rotation.</span>
+<span class="sd">        z_representation: Whether the diagonal Coulomb matrix is in the</span>
+<span class="sd">            Z representation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The expectation squared.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">one_body_ops</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">mat</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">one_body_square_decomposition</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">expectation_squared</span><span class="p">:</span> <span class="nb">complex</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">one_body_op</span> <span class="ow">in</span> <span class="n">one_body_ops</span><span class="p">:</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">one_body_1</span><span class="p">,</span> <span class="n">one_body_2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">one_body_ops</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="c1"># this expectation is real so we can just double it instead of computing its</span>
+        <span class="c1"># complex conjugate</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">expectation_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">one_body_1</span><span class="p">,</span> <span class="n">one_body_1</span><span class="p">,</span> <span class="n">one_body_2</span><span class="p">,</span> <span class="n">one_body_2</span><span class="p">],</span> <span class="n">one_rdm</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
+        <span class="n">one_body_correction</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+                <span class="s2">&quot;ij,pi,qi-&gt;pq&quot;</span><span class="p">,</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+                <span class="s2">&quot;ij,pj,qj-&gt;pq&quot;</span><span class="p">,</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">one_body_correction</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
+            <span class="n">one_body_correction</span><span class="p">,</span> <span class="n">one_body_correction</span>
+        <span class="p">)</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_correction</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">one_body_correction</span><span class="p">,</span> <span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_op</span><span class="p">],</span> <span class="n">one_rdm</span>
+        <span class="p">)</span>
+        <span class="n">expectation_squared</span> <span class="o">+=</span> <span class="n">expectation_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_correction</span><span class="p">],</span> <span class="n">one_rdm</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">expectation_squared</span><span class="o">.</span><span class="n">real</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../generated/api/modules.html">ffsim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/index.html">tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

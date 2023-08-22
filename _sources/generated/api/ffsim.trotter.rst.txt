@@ -1,0 +1,26 @@
+ffsim.trotter package
+=====================
+
+Submodules
+----------
+
+ffsim.trotter.qdrift module
+---------------------------
+
+.. automodule:: ffsim.trotter.qdrift
+   :members:
+   :show-inheritance:
+
+ffsim.trotter.trotter module
+----------------------------
+
+.. automodule:: ffsim.trotter.trotter
+   :members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: ffsim.trotter
+   :members:
+   :show-inheritance:

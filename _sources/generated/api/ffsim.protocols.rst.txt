@@ -1,0 +1,26 @@
+ffsim.protocols package
+=======================
+
+Submodules
+----------
+
+ffsim.protocols.linear\_operator module
+---------------------------------------
+
+.. automodule:: ffsim.protocols.linear_operator
+   :members:
+   :show-inheritance:
+
+ffsim.protocols.trace module
+----------------------------
+
+.. automodule:: ffsim.protocols.trace
+   :members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: ffsim.protocols
+   :members:
+   :show-inheritance:

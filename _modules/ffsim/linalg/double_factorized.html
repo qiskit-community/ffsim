@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ffsim.linalg.double_factorized &#8212; ffsim 0.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/thebelab.css" />
+    <script src="../../../_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ffsim.linalg.double_factorized</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Utilities for performing the double-factorized decomposition.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<span class="kn">from</span> <span class="nn">opt_einsum</span> <span class="kn">import</span> <span class="n">contract</span>
+
+
+<div class="viewcode-block" id="modified_cholesky">
+<a class="viewcode-back" href="../../../generated/api/ffsim.linalg.html#ffsim.linalg.double_factorized.modified_cholesky">[docs]</a>
+<span class="k">def</span> <span class="nf">modified_cholesky</span><span class="p">(</span>
+    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Modified Cholesky decomposition.</span>
+
+<span class="sd">    The modified Cholesky decomposition of a square matrix :math:`M` has the form</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        M = \sum_{i=1}^N v_i v_i^\dagger</span>
+
+<span class="sd">    where each :math:`v_i` is a vector. `M` must be positive definite.</span>
+<span class="sd">    No checking is performed to verify whether `M` is positive definite.</span>
+<span class="sd">    The number of terms :math:`N` in the decomposition depends on the allowed</span>
+<span class="sd">    error threshold. A larger error threshold may yield a smaller number of terms.</span>
+<span class="sd">    Furthermore, the `max_vecs` parameter specifies an optional upper bound</span>
+<span class="sd">    on :math:`N`. The `max_vecs` parameter is always respected, so if it is</span>
+<span class="sd">    too small, then the error of the decomposition may exceed the specified</span>
+<span class="sd">    error threshold.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - `arXiv:1711.02242`_</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mat: The matrix to decompose.</span>
+<span class="sd">        tol: Tolerance for error in the decomposition.</span>
+<span class="sd">            The error is defined as the maximum absolute difference between</span>
+<span class="sd">            an element of the original tensor and the corresponding element of</span>
+<span class="sd">            the reconstructed tensor.</span>
+<span class="sd">        max_vecs: The maximum number of vectors to include in the decomposition.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Cholesky vectors v_i assembled into a 2-dimensional Numpy array</span>
+<span class="sd">        whose columns are the vectors.</span>
+
+<span class="sd">    .. _arXiv:1711.02242: https://arxiv.org/abs/1711.02242</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dim</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="k">if</span> <span class="n">max_vecs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_vecs</span> <span class="o">=</span> <span class="n">dim</span>
+
+    <span class="n">cholesky_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">max_vecs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">mat</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_vecs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">max_error_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+        <span class="n">max_error</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">max_error_index</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">max_error</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[:,</span> <span class="n">max_error_index</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">index</span><span class="p">:</span>
+            <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">-=</span> <span class="p">(</span>
+                <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">index</span><span class="p">]</span>
+<div class="viewcode-block" id="double_factorized">
+<a class="viewcode-back" href="../../../generated/api/ffsim.linalg.html#ffsim.linalg.double_factorized.double_factorized">[docs]</a>
+                <span class="o">@</span> <span class="n">cholesky_vecs</span><span class="p">[</span><span class="n">max_error_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">max_error</span><span class="p">)</span>
+        <span class="n">errors</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="k">return</span> <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="p">:</span><span class="n">index</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">double_factorized</span><span class="p">(</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
+    <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cholesky</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Double-factorized decomposition of a two-body tensor.</span>
+
+<span class="sd">    The double-factorized decomposition is a representation of a two-body tensor</span>
+<span class="sd">    :math:`h_{pqrs}` as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk}</span>
+<span class="sd">            Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}</span>
+
+<span class="sd">    Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a</span>
+<span class="sd">    &quot;diagonal Coulomb matrix,&quot; and each :math:`U^{t}` is a unitary matrix, referred to</span>
+<span class="sd">    as an &quot;orbital rotation.&quot;</span>
+
+<span class="sd">    The number of terms :math:`N` in the decomposition depends on the allowed</span>
+<span class="sd">    error threshold. A larger error threshold may yield a smaller number of terms.</span>
+<span class="sd">    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound</span>
+<span class="sd">    on :math:`N`. The ``max_vecs`` parameter is always respected, so if it is</span>
+<span class="sd">    too small, then the error of the decomposition may exceed the specified</span>
+<span class="sd">    error threshold.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - `arXiv:1808.02625`_</span>
+<span class="sd">        - `arXiv:2104.08957`_</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        two_body_tensor: The two-body tensor to decompose.</span>
+<span class="sd">        tol: Tolerance for error in the decomposition.</span>
+<span class="sd">            The error is defined as the maximum absolute difference between</span>
+<span class="sd">            an element of the original tensor and the corresponding element of</span>
+<span class="sd">            the reconstructed tensor.</span>
+<span class="sd">        max_vecs: An optional limit on the number of terms to keep in the decomposition</span>
+<span class="sd">            of the two-body tensor. This argument overrides ``tol``.</span>
+<span class="sd">        optimize: Whether to optimize the tensors returned by the decomposition.</span>
+<span class="sd">        method: The optimization method. See the documentation of</span>
+<span class="sd">            `scipy.optimize.minimize`_ for possible values.</span>
+<span class="sd">        callback: Callback function for the optimization. See the documentation of</span>
+<span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">        options: Options for the optimization. See the documentation of</span>
+<span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">        diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.</span>
+<span class="sd">            This is a matrix of boolean values where the nonzero elements indicate where</span>
+<span class="sd">            the diagonal coulomb matrices returned by optimization are allowed to be</span>
+<span class="sd">            nonzero. This parameter is only used if `optimize` is set to `True`, and</span>
+<span class="sd">            only the upper triangular part of the matrix is used.</span>
+<span class="sd">        cholesky: Whether to perform the factorization using a modified Cholesky</span>
+<span class="sd">            decomposition. If False, a full eigenvalue decomposition is used instead,</span>
+<span class="sd">            which can be much more expensive. This argument is ignored if ``optimize``</span>
+<span class="sd">            is set to True.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices</span>
+<span class="sd">        is collected into a numpy array, so this method returns a tuple of two numpy</span>
+<span class="sd">        arrays, the first containing the diagonal Coulomb matrices and the second</span>
+<span class="sd">        containing the orbital rotations. Each numpy array will have shape (t, n, n)</span>
+<span class="sd">        where t is the rank of the decomposition and n is the number of orbitals.</span>
+
+<span class="sd">    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625</span>
+<span class="sd">    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
+<span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">max_vecs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_vecs</span> <span class="o">=</span> <span class="n">n_modes</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_modes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">optimize</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_double_factorized_compressed</span><span class="p">(</span>
+            <span class="n">two_body_tensor</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mask</span><span class="o">=</span><span class="n">diag_coulomb_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">cholesky</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_double_factorized_explicit_cholesky</span><span class="p">(</span>
+            <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_double_factorized_explicit_eigh</span><span class="p">(</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_double_factorized_explicit_cholesky</span><span class="p">(</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">reshaped_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">n_modes</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_modes</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">cholesky_vecs</span> <span class="o">=</span> <span class="n">modified_cholesky</span><span class="p">(</span><span class="n">reshaped_tensor</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">cholesky_vecs</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rank</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">two_body_tensor</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rank</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">two_body_tensor</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rank</span><span class="p">):</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">))</span>
+        <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">eigs</span><span class="p">,</span> <span class="n">eigs</span><span class="p">)</span>
+        <span class="n">orbital_rotations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vecs</span>
+
+    <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
+
+
+<span class="k">def</span> <span class="nf">_double_factorized_explicit_eigh</span><span class="p">(</span>  <span class="c1"># pylint: disable=invalid-name</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">reshaped_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">n_modes</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_modes</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">outer_eigs</span><span class="p">,</span> <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">reshaped_tensor</span><span class="p">)</span>
+
+    <span class="c1"># sort by absolute value</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">outer_eigs</span><span class="p">))</span>
+    <span class="n">outer_eigs</span> <span class="o">=</span> <span class="n">outer_eigs</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+    <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">outer_vecs</span><span class="p">[:,</span> <span class="n">indices</span><span class="p">]</span>
+    <span class="c1"># get index to truncate at</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">outer_eigs</span><span class="p">)),</span> <span class="n">tol</span><span class="p">))</span>
+    <span class="c1"># truncate, then reverse to put into descending order of absolute value</span>
+    <span class="n">outer_eigs</span> <span class="o">=</span> <span class="n">outer_eigs</span><span class="p">[</span><span class="n">index</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">outer_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">:][:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># truncate to final rank</span>
+    <span class="n">outer_eigs</span> <span class="o">=</span> <span class="n">outer_eigs</span><span class="p">[:</span><span class="n">max_vecs</span><span class="p">]</span>
+    <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">outer_vecs</span><span class="p">[:,</span> <span class="p">:</span><span class="n">max_vecs</span><span class="p">]</span>
+
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">outer_eig</span><span class="p">,</span> <span class="n">outer_vec</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outer_eigs</span><span class="p">,</span> <span class="n">outer_vecs</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outer_vec</span><span class="p">,</span> <span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">))</span>
+        <span class="n">inner_eigs</span><span class="p">,</span> <span class="n">inner_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+        <span class="n">diag_coulomb_mat</span> <span class="o">=</span> <span class="n">outer_eig</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">inner_eigs</span><span class="p">,</span> <span class="n">inner_eigs</span><span class="p">)</span>
+        <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inner_vecs</span><span class="p">)</span>
+        <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">orbital_rotations</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="optimal_diag_coulomb_mats">
+<a class="viewcode-back" href="../../../generated/api/ffsim.linalg.html#ffsim.linalg.double_factorized.optimal_diag_coulomb_mats">[docs]</a>
+<span class="k">def</span> <span class="nf">optimal_diag_coulomb_mats</span><span class="p">(</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute optimal diagonal Coulomb matrices given fixed orbital rotations.&quot;&quot;&quot;</span>
+    <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n_tensors</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">n_tensors</span> <span class="o">*</span> <span class="n">n_modes</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">contract</span><span class="p">(</span>
+        <span class="s2">&quot;pqrs,tpk,tqk,trl,tsl-&gt;tkl&quot;</span><span class="p">,</span>
+        <span class="n">two_body_tensor</span><span class="p">,</span>
+        <span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="p">(</span><span class="n">dim</span><span class="p">,))</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tensors</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">):</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="p">(</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">orbital_rotations</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kl,mn-&gt;kmln&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+            <span class="n">coeffs</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kl,mn-&gt;kmln&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">metric</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
+
+    <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+    <span class="n">pseudoinverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">eigs</span><span class="p">)</span>
+    <span class="n">pseudoinverse</span><span class="p">[</span><span class="n">eigs</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">]</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="n">eigs</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">]</span> <span class="o">**</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">solution</span> <span class="o">=</span> <span class="n">vecs</span> <span class="o">@</span> <span class="p">(</span><span class="n">vecs</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">target</span> <span class="o">*</span> <span class="n">pseudoinverse</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="p">(</span><span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_double_factorized_compressed</span><span class="p">(</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_double_factorized_explicit_cholesky</span><span class="p">(</span>
+        <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span>
+    <span class="p">)</span>
+    <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">diag_coulomb_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">diag_coulomb_mask</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_params_to_df_tensors</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">diag_coulomb_mask</span>
+        <span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">two_body_tensor</span> <span class="o">-</span> <span class="n">contract</span><span class="p">(</span>
+            <span class="s2">&quot;tpk,tqk,tkl,trl,tsl-&gt;pqrs&quot;</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">jac</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_params_to_df_tensors</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">diag_coulomb_mask</span>
+        <span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">two_body_tensor</span> <span class="o">-</span> <span class="n">contract</span><span class="p">(</span>
+            <span class="s2">&quot;tpk,tqk,tkl,trl,tsl-&gt;pqrs&quot;</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">grad_leaf</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span> <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
+            <span class="s2">&quot;pqrs,tqk,tkl,trl,tsl-&gt;tpk&quot;</span><span class="p">,</span>
+            <span class="n">diff</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">leaf_logs</span> <span class="o">=</span> <span class="n">_params_to_leaf_logs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">)</span>
+        <span class="n">grad_leaf_log</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">_grad_leaf_log</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">grad</span><span class="p">)</span> <span class="k">for</span> <span class="n">log</span><span class="p">,</span> <span class="n">grad</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">leaf_logs</span><span class="p">,</span> <span class="n">grad_leaf</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">grad_core</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
+            <span class="s2">&quot;pqrs,tpk,tqk,trl,tsl-&gt;tkl&quot;</span><span class="p">,</span>
+            <span class="n">diff</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">grad_core</span><span class="p">[:,</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_modes</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_modes</span><span class="p">)]</span> <span class="o">/=</span> <span class="mi">2</span>
+        <span class="n">param_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">diag_coulomb_mask</span><span class="p">)</span>
+        <span class="n">grad_core</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">([</span><span class="n">mat</span><span class="p">[</span><span class="n">param_indices</span><span class="p">]</span> <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">grad_core</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">grad_leaf_log</span><span class="p">,</span> <span class="n">grad_core</span><span class="p">])</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">_df_tensors_to_params</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">diag_coulomb_mask</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
+        <span class="n">fun</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="n">jac</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
+    <span class="p">)</span>
+    <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_params_to_df_tensors</span><span class="p">(</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">diag_coulomb_mask</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
+
+
+<span class="k">def</span> <span class="nf">_df_tensors_to_params</span><span class="p">(</span>
+    <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mat_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">leaf_logs</span> <span class="o">=</span> <span class="p">[</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">logm</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span> <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">orbital_rotations</span><span class="p">]</span>
+    <span class="n">leaf_param_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># TODO this discards the imaginary part of the logarithm, see if we can do better</span>
+    <span class="n">leaf_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">([</span><span class="n">leaf_log</span><span class="p">[</span><span class="n">leaf_param_indices</span><span class="p">]</span> <span class="k">for</span> <span class="n">leaf_log</span> <span class="ow">in</span> <span class="n">leaf_logs</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">core_param_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">diag_coulomb_mat_mask</span><span class="p">)</span>
+    <span class="n">core_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="n">core_param_indices</span><span class="p">]</span> <span class="k">for</span> <span class="n">diag_coulomb_mat</span> <span class="ow">in</span> <span class="n">diag_coulomb_mats</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">leaf_params</span><span class="p">,</span> <span class="n">core_params</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">_params_to_leaf_logs</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">leaf_logs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">))</span>
+    <span class="n">triu_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">param_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">triu_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tensors</span><span class="p">):</span>
+        <span class="n">leaf_logs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">triu_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">param_length</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">param_length</span><span class="p">]</span>
+        <span class="n">leaf_logs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="n">leaf_logs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">leaf_logs</span>
+
+
+<span class="k">def</span> <span class="nf">_params_to_df_tensors</span><span class="p">(</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">diag_coulomb_mat_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">):</span>
+    <span class="n">leaf_logs</span> <span class="o">=</span> <span class="n">_params_to_leaf_logs</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">)</span>
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_expm_antisymmetric</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span> <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">leaf_logs</span><span class="p">])</span>
+
+    <span class="n">n_leaf_params</span> <span class="o">=</span> <span class="n">n_tensors</span> <span class="o">*</span> <span class="n">n_modes</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_modes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">core_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">n_leaf_params</span><span class="p">:])</span>
+    <span class="n">param_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">diag_coulomb_mat_mask</span><span class="p">)</span>
+    <span class="n">param_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tensors</span><span class="p">):</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">param_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_params</span><span class="p">[</span>
+            <span class="n">i</span> <span class="o">*</span> <span class="n">param_length</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">param_length</span>
+        <span class="p">]</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="nb">range</span><span class="p">(</span><span class="n">n_modes</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_modes</span><span class="p">)]</span> <span class="o">/=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
+
+
+<span class="k">def</span> <span class="nf">_expm_antisymmetric</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">mat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">vecs</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">eigs</span><span class="p">))</span> <span class="o">@</span> <span class="n">vecs</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">_grad_leaf_log</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">grad_leaf</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">mat</span><span class="p">)</span>
+    <span class="n">eig_i</span><span class="p">,</span> <span class="n">eig_j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">eigs</span><span class="p">,</span> <span class="n">eigs</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">eig_i</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">eig_j</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">eig_i</span> <span class="o">-</span> <span class="n">eig_j</span><span class="p">)</span>
+    <span class="n">coeffs</span><span class="p">[</span><span class="n">eig_i</span> <span class="o">==</span> <span class="n">eig_j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">eig_i</span><span class="p">[</span><span class="n">eig_i</span> <span class="o">==</span> <span class="n">eig_j</span><span class="p">])</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">vecs</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="p">(</span><span class="n">vecs</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">grad_leaf</span> <span class="o">@</span> <span class="n">vecs</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">*</span> <span class="n">coeffs</span><span class="p">)</span> <span class="o">@</span> <span class="n">vecs</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">grad</span> <span class="o">-=</span> <span class="n">grad</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">triu_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">grad</span><span class="p">[</span><span class="n">triu_indices</span><span class="p">])</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../generated/api/modules.html">ffsim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/index.html">tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

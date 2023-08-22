@@ -1,0 +1,215 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Orbital rotations and quadratic Hamiltonians\n",
+    "\n",
+    "In this tutorial, we show how to use ffsim to perform orbital rotations and time evolution by a quadratic Hamiltonian.\n",
+    "\n",
+    "## Orbital rotations\n",
+    "\n",
+    "A fundamental operation in the simulation of a system of fermionic modes is a rotation\n",
+    "of the orbital basis. An orbital rotation is described by an $N \\times N$ unitary matrix\n",
+    "$\\mathbf{W}$ and we denote the corresponding operator as $\\mathcal{W}$. This operator has\n",
+    "the following action on the fermionic creation operators $\\set{a^\\dagger_{i,\\sigma}}$:\n",
+    "\n",
+    "$$\n",
+    "    \\mathcal{W} a^\\dagger_{i,\\sigma} \\mathcal{W}^\\dagger = \\sum_j \\mathbf{W}_{ji} a^\\dagger_{j,\\sigma}.\n",
+    "$$\n",
+    "\n",
+    "That is, $a^\\dagger_{i,\\sigma}$ is mapped to a new operator $b^\\dagger_{i,\\sigma}$ where\n",
+    "$b^\\dagger_{i,\\sigma}$ is a linear combination of the operators $\\set{a^\\dagger_{i,\\sigma}}$\n",
+    "with coefficients given by the $i$-th column of $\\mathbf{W}$. The $\\set{b^\\dagger_{i,\\sigma}}$\n",
+    "also satisfy the fermionic anticommutation relations, so they are\n",
+    "creation operators in a rotated basis.\n",
+    "The mapping $\\mathbf{W} \\mapsto \\mathcal{W}$ satisfies the properties\n",
+    "\n",
+    "$$\n",
+    "\\begin{align*}\n",
+    "    \\mathbf{W}^\\dagger &\\mapsto \\mathcal{W}^\\dagger, \\\\\n",
+    "    \\mathbf{W}_1 \\mathbf{W}_2 &\\mapsto \\mathcal{W}_1 \\mathcal{W}_2\n",
+    "\\end{align*}\n",
+    "$$\n",
+    "\n",
+    "for any unitary matrices $\\mathbf{W}$, $\\mathbf{W}_1$, and $\\mathbf{W}_2$.\n",
+    "\n",
+    "In ffsim, an orbital rotation is performed by passing the vector to be transformed and the matrix $\\mathbf{W}$ to the `apply_orbital_rotation` function. For example:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ffsim\n",
+    "\n",
+    "# Set the number of orbitals and their occupancies\n",
+    "norb = 6\n",
+    "nelec = (3, 2)\n",
+    "n_alpha, n_beta = nelec\n",
+    "occupied_orbitals = (range(n_alpha), range(n_beta))\n",
+    "\n",
+    "# Create a Slater determinant\n",
+    "vec = ffsim.slater_determinant(norb, occupied_orbitals=occupied_orbitals)\n",
+    "\n",
+    "# Generate a random orbital rotation\n",
+    "orbital_rotation = ffsim.random.random_unitary(norb, seed=1234)\n",
+    "\n",
+    "# Apply the orbital rotation to the statevector\n",
+    "rotated_vec = ffsim.apply_orbital_rotation(\n",
+    "    vec, orbital_rotation, norb=norb, nelec=nelec\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "## Time evolution by a quadratic Hamiltonian\n",
+    "\n",
+    "Orbital rotations can be used to implement time evolution by a quadratic Hamiltonian. In this section, we'll demonstrate how to use ffsim to perform this task.\n",
+    "\n",
+    "\n",
+    "A quadratic Hamiltonian is an operator of the form (here we only consider Hamiltonians\n",
+    "with particle number and spin symmetry)\n",
+    "\n",
+    "$$\n",
+    "    \\mathcal{M} = \\sum_{ij,\\sigma} \\mathbf{M}_{ij} a^\\dagger_{i,\\sigma} a_{j,\\sigma}\n",
+    "$$\n",
+    "\n",
+    "where $\\mathbf{M}$ is a Hermitian matrix. A quadratic Hamiltonian can always be rewritten as\n",
+    "\n",
+    "$$\n",
+    "    \\mathcal{M} = \\mathcal{W} \\left(\\sum_{i,\\sigma} \\lambda_i n_{i,\\sigma}\\right)\\mathcal{W}^\\dagger\n",
+    "$$\n",
+    "\n",
+    "where the $\\set{\\lambda_i}$ are real numbers, $\\mathcal{W}$ is an orbital rotation,\n",
+    "and we have introduced the occupation number operator $n_{i, \\sigma} = a^\\dagger_{i,\\sigma} a_{i,\\sigma}$.\n",
+    "The $\\set{\\lambda_i}$ and the unitary matrix $\\mathbf{W}$ describing the orbital rotation are obtained\n",
+    "from an eigendecomposition of $\\mathbf{M}$:\n",
+    "\n",
+    "$$\n",
+    "    \\mathbf{M}_{ij} = \\sum_k \\lambda_k \\mathbf{W}_{ik} \\mathbf{W}_{jk}^*.\n",
+    "$$\n",
+    "\n",
+    "For our example, we will generate a random quadratic Hamiltonian and apply time evolution to its ground state. The state should simply pick up a phase proportional to its energy. To compute the ground state, we'll convert the Hamiltonian to an instance of `scipy.sparse.linalg.LinearOperator` and use Scipy to compute the lowest eigenvalue and eigenvector."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import scipy.sparse.linalg\n",
+    "\n",
+    "# Set the number of orbitals and their occupancies\n",
+    "norb = 6\n",
+    "nelec = (3, 2)\n",
+    "n_alpha, n_beta = nelec\n",
+    "occupied_orbitals = (range(n_alpha), range(n_beta))\n",
+    "\n",
+    "# Generate a random quadratic Hamiltonian\n",
+    "one_body_tensor = ffsim.random.random_hermitian(norb, seed=1234)\n",
+    "\n",
+    "# Convert the Hamiltonian to a LinearOperator\n",
+    "hamiltonian = ffsim.contract.hamiltonian_linop(\n",
+    "    one_body_tensor=one_body_tensor, norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "# Get the ground state of the Hamiltonian\n",
+    "eigs, vecs = scipy.sparse.linalg.eigsh(hamiltonian, which=\"LA\", k=1)\n",
+    "eig = eigs[0]\n",
+    "vec = vecs[:, 0]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Time evolution by $\\mathcal{M}$ can be implemented with the following steps:\n",
+    "- Compute the numbers $\\set{\\lambda_i}$ and the matrix $\\mathbf{W}$ by performing an eigendecomposition of $\\mathbf{M}$.\n",
+    "- Perform the orbital rotation $\\mathcal{W}^\\dagger$, which corresponds to the matrix $\\mathbf{W}^\\dagger$.\n",
+    "- Perform time evolution by the operator $\\sum_{i,\\sigma} \\lambda_i n_{i,\\sigma}$.\n",
+    "- Perform the orbital rotation $\\mathcal{W}^\\dagger$, which corresponds to the matrix $\\mathbf{W}$.\n",
+    "\n",
+    "ffsim includes a function for performing time evolution by an operator of the form $\\sum_{i,\\sigma} \\lambda_i n_{i,\\sigma}$, called `apply_num_op_sum_evolution`. In fact, this function can also perform the orbital rotation for you, but for illustrative purposes we will first perform the orbital rotation explicitly."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "time = 1.0\n",
+    "\n",
+    "# Compute the orbital rotation and energies\n",
+    "energies, orbital_rotation = np.linalg.eigh(one_body_tensor)\n",
+    "\n",
+    "# Rotate to the basis in which the Hamiltonian is diagonal\n",
+    "evolved_vec = ffsim.apply_orbital_rotation(\n",
+    "    vec, orbital_rotation.T.conj(), norb=norb, nelec=nelec\n",
+    ")\n",
+    "# Apply time evolution\n",
+    "evolved_vec = ffsim.apply_num_op_sum_evolution(\n",
+    "    evolved_vec, energies, time=time, norb=norb, nelec=nelec\n",
+    ")\n",
+    "# Undo basis rotation\n",
+    "evolved_vec = ffsim.apply_orbital_rotation(\n",
+    "    evolved_vec, orbital_rotation, norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "# Check the result\n",
+    "expected_phase = np.exp(-1j * eig * time)\n",
+    "np.testing.assert_allclose(evolved_vec, expected_phase * vec)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "As mentioned above, the function `apply_num_op_sum_evolution` can actually apply the orbital rotation for you if you pass it as an argument, as demonstrated below. Calling the function this way is expected to give better performance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "evolved_vec_alt = ffsim.apply_num_op_sum_evolution(\n",
+    "    vec, energies, time=time, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation\n",
+    ")\n",
+    "np.testing.assert_allclose(evolved_vec_alt, evolved_vec)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim-1cfkSnAR",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.11"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

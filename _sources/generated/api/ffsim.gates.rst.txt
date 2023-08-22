@@ -1,0 +1,40 @@
+ffsim.gates package
+===================
+
+Submodules
+----------
+
+ffsim.gates.diag\_coulomb module
+--------------------------------
+
+.. automodule:: ffsim.gates.diag_coulomb
+   :members:
+   :show-inheritance:
+
+ffsim.gates.gates module
+------------------------
+
+.. automodule:: ffsim.gates.gates
+   :members:
+   :show-inheritance:
+
+ffsim.gates.num\_op\_sum module
+-------------------------------
+
+.. automodule:: ffsim.gates.num_op_sum
+   :members:
+   :show-inheritance:
+
+ffsim.gates.orbital\_rotation module
+------------------------------------
+
+.. automodule:: ffsim.gates.orbital_rotation
+   :members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: ffsim.gates
+   :members:
+   :show-inheritance:

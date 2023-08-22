@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ffsim package &#8212; ffsim 0.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
+    <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ffsim.contract package" href="ffsim.contract.html" />
+    <link rel="prev" title="ffsim" href="modules.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ffsim-package">
+<h1>ffsim package<a class="headerlink" href="#ffsim-package" title="Link to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.contract.html">ffsim.contract package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.contract.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.contract.html#ffsim-contract-diag-coulomb-module">ffsim.contract.diag_coulomb module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.contract.html#ffsim.contract.diag_coulomb.contract_diag_coulomb"><code class="docutils literal notranslate"><span class="pre">contract_diag_coulomb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.contract.html#ffsim.contract.diag_coulomb.diag_coulomb_linop"><code class="docutils literal notranslate"><span class="pre">diag_coulomb_linop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.contract.html#ffsim-contract-hamiltonian-module">ffsim.contract.hamiltonian module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.contract.html#ffsim.contract.hamiltonian.hamiltonian_linop"><code class="docutils literal notranslate"><span class="pre">hamiltonian_linop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.contract.html#ffsim.contract.hamiltonian.hamiltonian_trace"><code class="docutils literal notranslate"><span class="pre">hamiltonian_trace()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.contract.html#ffsim-contract-num-op-sum-module">ffsim.contract.num_op_sum module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.contract.html#ffsim.contract.num_op_sum.contract_num_op_sum"><code class="docutils literal notranslate"><span class="pre">contract_num_op_sum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.contract.html#ffsim.contract.num_op_sum.num_op_sum_linop"><code class="docutils literal notranslate"><span class="pre">num_op_sum_linop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.contract.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.gates.html">ffsim.gates package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.gates.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.gates.html#ffsim-gates-diag-coulomb-module">ffsim.gates.diag_coulomb module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.diag_coulomb.apply_diag_coulomb_evolution"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.gates.html#ffsim-gates-gates-module">ffsim.gates.gates module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.gates.apply_givens_rotation"><code class="docutils literal notranslate"><span class="pre">apply_givens_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.gates.apply_num_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_interaction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.gates.apply_num_op_prod_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_op_prod_interaction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.gates.apply_tunneling_interaction"><code class="docutils literal notranslate"><span class="pre">apply_tunneling_interaction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.gates.html#ffsim-gates-num-op-sum-module">ffsim.gates.num_op_sum module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.num_op_sum.apply_num_op_sum_evolution"><code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.gates.html#ffsim-gates-orbital-rotation-module">ffsim.gates.orbital_rotation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.orbital_rotation.apply_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">apply_orbital_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.gates.html#ffsim.gates.orbital_rotation.gen_orbital_rotation_index"><code class="docutils literal notranslate"><span class="pre">gen_orbital_rotation_index()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.gates.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.hamiltonians.html">ffsim.hamiltonians package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.hamiltonians.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim-hamiltonians-double-factorized-hamiltonian-module">ffsim.hamiltonians.double_factorized_hamiltonian module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.one_body_tensor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.diag_coulomb_mats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.orbital_rotations"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.orbital_rotations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.constant</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.z_representation"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.z_representation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.norb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_number_representation"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.to_number_representation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_z_representation"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.to_z_representation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.double_factorized_hamiltonian"><code class="docutils literal notranslate"><span class="pre">double_factorized_hamiltonian()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim-hamiltonians-molecular-hamiltonian-module">ffsim.hamiltonians.molecular_hamiltonian module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.one_body_tensor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian.two_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.two_body_tensor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.constant</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.hamiltonians.html#ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.norb</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.hamiltonians.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.linalg.html">ffsim.linalg package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.linalg.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.linalg.html#ffsim-linalg-double-factorized-module">ffsim.linalg.double_factorized module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized.double_factorized"><code class="docutils literal notranslate"><span class="pre">double_factorized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized.modified_cholesky"><code class="docutils literal notranslate"><span class="pre">modified_cholesky()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized.optimal_diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">optimal_diag_coulomb_mats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.linalg.html#ffsim-linalg-givens-module">ffsim.linalg.givens module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.givens.apply_matrix_to_slices"><code class="docutils literal notranslate"><span class="pre">apply_matrix_to_slices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.givens.givens_decomposition"><code class="docutils literal notranslate"><span class="pre">givens_decomposition()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.givens.givens_matrix"><code class="docutils literal notranslate"><span class="pre">givens_matrix()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.linalg.html#ffsim-linalg-linalg-module">ffsim.linalg.linalg module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.linalg.expm_multiply_taylor"><code class="docutils literal notranslate"><span class="pre">expm_multiply_taylor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.linalg.lup"><code class="docutils literal notranslate"><span class="pre">lup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.linalg.html#ffsim-linalg-predicates-module">ffsim.linalg.predicates module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.predicates.is_antihermitian"><code class="docutils literal notranslate"><span class="pre">is_antihermitian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.predicates.is_hermitian"><code class="docutils literal notranslate"><span class="pre">is_hermitian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.predicates.is_orthogonal"><code class="docutils literal notranslate"><span class="pre">is_orthogonal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.predicates.is_real_symmetric"><code class="docutils literal notranslate"><span class="pre">is_real_symmetric()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.predicates.is_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">is_special_orthogonal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.predicates.is_unitary"><code class="docutils literal notranslate"><span class="pre">is_unitary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.linalg.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.protocols.html">ffsim.protocols package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#ffsim-protocols-linear-operator-module">ffsim.protocols.linear_operator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.linear_operator.SupportsLinearOperator"><code class="docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.linear_operator.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#ffsim-protocols-trace-module">ffsim.protocols.trace module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.trace.SupportsTrace"><code class="docutils literal notranslate"><span class="pre">SupportsTrace</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.trace.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.trotter.html">ffsim.trotter package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.trotter.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.trotter.html#ffsim-trotter-qdrift-module">ffsim.trotter.qdrift module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.expectation_squared_diag_coulomb"><code class="docutils literal notranslate"><span class="pre">expectation_squared_diag_coulomb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.one_body_square_decomposition"><code class="docutils literal notranslate"><span class="pre">one_body_square_decomposition()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.qdrift_probabilities"><code class="docutils literal notranslate"><span class="pre">qdrift_probabilities()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.simulate_qdrift_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_qdrift_double_factorized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.spectral_norm_diag_coulomb"><code class="docutils literal notranslate"><span class="pre">spectral_norm_diag_coulomb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.spectral_norm_one_body_tensor"><code class="docutils literal notranslate"><span class="pre">spectral_norm_one_body_tensor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.variance_diag_coulomb"><code class="docutils literal notranslate"><span class="pre">variance_diag_coulomb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.qdrift.variance_one_body_tensor"><code class="docutils literal notranslate"><span class="pre">variance_one_body_tensor()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.trotter.html#ffsim-trotter-trotter-module">ffsim.trotter.trotter module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.trotter.html#ffsim.trotter.trotter.simulate_trotter_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_double_factorized()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.trotter.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.variational.html">ffsim.variational package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.variational.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.variational.html#ffsim-variational-lucj-module">ffsim.variational.lucj module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_alpha"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_alpha</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_beta"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_beta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.orbital_rotations"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.orbital_rotations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.final_orbital_rotation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.from_parameters"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.from_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.from_t_amplitudes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.n_reps"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.n_reps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.norb"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.norb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.to_parameters"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.to_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.to_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp.to_t_amplitudes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.variational.html#ffsim.variational.lucj.apply_unitary_cluster_jastrow_op"><code class="docutils literal notranslate"><span class="pre">apply_unitary_cluster_jastrow_op()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.variational.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="ffsim-molecular-data-module">
+<h2>ffsim.molecular_data module<a class="headerlink" href="#ffsim-molecular-data-module" title="Link to this heading">¶</a></h2>
+<dl class="py class" id="module-ffsim.molecular_data">
+<dt class="sig sig-object py" id="ffsim.molecular_data.MolecularData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.molecular_data.</span></span><span class="sig-name descname"><span class="pre">MolecularData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole_integrals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/molecular_data.html#MolecularData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.molecular_data.MolecularData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+</section>
+<section id="ffsim-random-module">
+<h2>ffsim.random module<a class="headerlink" href="#ffsim-random-module" title="Link to this heading">¶</a></h2>
+<dl class="py function" id="module-ffsim.random">
+<dt class="sig sig-object py" id="ffsim.random.random_antihermitian">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_antihermitian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_antihermitian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_antihermitian" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random anti-Hermitian matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The width and height of the matrix.</p></li>
+<li><p><strong>rank</strong> – The rank of the matrix. If <cite>None</cite>, the maximum rank is used.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+<li><p><strong>dype</strong> – The data type to use for the result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled anti-Hermitian matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_hermitian">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_hermitian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_hermitian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_hermitian" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random Hermitian matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The width and height of the matrix.</p></li>
+<li><p><strong>rank</strong> – The rank of the matrix. If <cite>None</cite>, the maximum rank is used.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+<li><p><strong>dype</strong> – The data type to use for the result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled Hermitian matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_orthogonal">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_orthogonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'float'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_orthogonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_orthogonal" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random orthogonal matrix distributed with Haar measure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The width and height of the matrix.</p></li>
+<li><p><strong>seed</strong> – The pseudorandom number generator or seed. Should be an
+instance of <cite>np.random.Generator</cite> or else a valid input to
+<cite>np.random.default_rng</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled orthogonal matrix.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arxiv.org/abs/math-ph/0609050">arXiv:math-ph/0609050</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_real_symmetric_matrix">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_real_symmetric_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'float'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_real_symmetric_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_real_symmetric_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random real symmetric matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The width and height of the matrix.</p></li>
+<li><p><strong>rank</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The rank of the matrix. If <cite>None</cite>, the maximum rank is used.</p></li>
+<li><p><strong>seed</strong> – The pseudorandom number generator or seed. Should be an
+instance of <cite>np.random.Generator</cite> or else a valid input to
+<cite>np.random.default_rng</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled real symmetric matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_special_orthogonal">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_special_orthogonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'float'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_special_orthogonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_special_orthogonal" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random special orthogonal matrix distributed with Haar measure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The width and height of the matrix.</p></li>
+<li><p><strong>seed</strong> – The pseudorandom number generator or seed. Should be an
+instance of <cite>np.random.Generator</cite> or else a valid input to
+<cite>np.random.default_rng</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled special orthogonal matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_statevector">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_statevector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_statevector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_statevector" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random state vector sampled from the uniform distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The dimension of the state vector.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+<li><p><strong>dype</strong> – The data type to use for the result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled state vector.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_two_body_tensor_real">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_two_body_tensor_real</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'float'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_two_body_tensor_real"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_two_body_tensor_real" title="Link to this definition">¶</a></dt>
+<dd><p>Sample a random two-body tensor with real-valued orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The dimension of the tensor. The shape of the returned tensor will be
+(dim, dim, dim, dim).</p></li>
+<li><p><strong>rank</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Rank of the sampled tensor. The default behavior is to use
+the maximum rank, which is <cite>norb * (norb + 1) // 2</cite>.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+<li><p><strong>dype</strong> – The data type to use for the result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled two-body tensor.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_unitary">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_unitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/random.html#random_unitary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_unitary" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random unitary matrix distributed with Haar measure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The width and height of the matrix.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+<li><p><strong>dype</strong> – The data type to use for the result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled unitary matrix.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arxiv.org/abs/math-ph/0609050">arXiv:math-ph/0609050</a></p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="ffsim-slow-module">
+<h2>ffsim.slow module<a class="headerlink" href="#ffsim-slow-module" title="Link to this heading">¶</a></h2>
+<p id="module-ffsim.slow">Python versions of functions that were rewritten in Rust.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_numpy">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_diag_coulomb_evolution_in_place_num_rep_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_numpy" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_diag_coulomb_evolution_in_place_num_rep_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.apply_diag_coulomb_evolution_in_place_z_rep_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_z_rep_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp_conj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp_conj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strings_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strings_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_diag_coulomb_evolution_in_place_z_rep_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_diag_coulomb_evolution_in_place_z_rep_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.apply_givens_rotation_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_givens_rotation_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_givens_rotation_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_givens_rotation_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply a Givens rotation to slices of a state vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.apply_num_op_sum_evolution_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_num_op_sum_evolution_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_num_op_sum_evolution_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_num_op_sum_evolution_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a sum of number operators in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.apply_single_column_transformation_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_single_column_transformation_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_single_column_transformation_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_single_column_transformation_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply a single-column orbital rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gen_orbital_rotation_index_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">gen_orbital_rotation_index_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkstr_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#gen_orbital_rotation_index_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gen_orbital_rotation_index_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Generate orbital rotation index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="ffsim-states-module">
+<h2>ffsim.states module<a class="headerlink" href="#ffsim-states-module" title="Link to this heading">¶</a></h2>
+<dl class="py function" id="module-ffsim.states">
+<dt class="sig sig-object py" id="ffsim.states.dim">
+<span class="sig-prename descclassname"><span class="pre">ffsim.states.</span></span><span class="sig-name descname"><span class="pre">dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/states.html#dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.states.dim" title="Link to this definition">¶</a></dt>
+<dd><p>Get the dimension of the FCI space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.states.dims">
+<span class="sig-prename descclassname"><span class="pre">ffsim.states.</span></span><span class="sig-name descname"><span class="pre">dims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/states.html#dims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.states.dims" title="Link to this definition">¶</a></dt>
+<dd><p>Get the dimension of the FCI space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.states.one_hot">
+<span class="sig-prename descclassname"><span class="pre">ffsim.states.</span></span><span class="sig-name descname"><span class="pre">one_hot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/states.html#one_hot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.states.one_hot" title="Link to this definition">¶</a></dt>
+<dd><p>Return an array of all zeros except for a one at a specified index.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.states.slater_determinant">
+<span class="sig-prename descclassname"><span class="pre">ffsim.states.</span></span><span class="sig-name descname"><span class="pre">slater_determinant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/states.html#slater_determinant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.states.slater_determinant" title="Link to this definition">¶</a></dt>
+<dd><p>Return a Slater determinant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – A pair of lists of integers. The first list specifies
+the occupied alpha orbitals and the second list specifies the occupied
+beta orbitals.</p></li>
+<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – An optional orbital rotation to apply to the
+electron configuration. In other words, this is a unitary matrix that
+describes the orbitals of the Slater determinant.</p></li>
+<li><p><strong>dtype</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The Slater determinant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.states.slater_determinant_one_rdm">
+<span class="sig-prename descclassname"><span class="pre">ffsim.states.</span></span><span class="sig-name descname"><span class="pre">slater_determinant_one_rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/states.html#slater_determinant_one_rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.states.slater_determinant_one_rdm" title="Link to this definition">¶</a></dt>
+<dd><p>Return the one-particle reduced density matrix of a Slater determinant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – A tuple of two sequences of integers. The first
+sequence contains the indices of the occupied alpha orbitals, and
+the second sequence similarly for the beta orbitals.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The one-particle reduced density matrix of the Slater determinant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="ffsim-testing-module">
+<h2>ffsim.testing module<a class="headerlink" href="#ffsim-testing-module" title="Link to this heading">¶</a></h2>
+<p id="module-ffsim.testing">Testing utilities.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.testing.random_nelec">
+<span class="sig-prename descclassname"><span class="pre">ffsim.testing.</span></span><span class="sig-name descname"><span class="pre">random_nelec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/testing.html#random_nelec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.testing.random_nelec" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random pair of (n_alpha, n_beta) particle numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled pair of (n_alpha, n_beta) particle numbers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.testing.random_occupied_orbitals">
+<span class="sig-prename descclassname"><span class="pre">ffsim.testing.</span></span><span class="sig-name descname"><span class="pre">random_occupied_orbitals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/testing.html#random_occupied_orbitals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.testing.random_occupied_orbitals" title="Link to this definition">¶</a></dt>
+<dd><p>Return a random pair of occupied orbitals lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled pair of (occ_a, occ_b) occupied orbitals lists.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="ffsim-wick-module">
+<h2>ffsim.wick module<a class="headerlink" href="#ffsim-wick-module" title="Link to this heading">¶</a></h2>
+<dl class="py function" id="module-ffsim.wick">
+<dt class="sig sig-object py" id="ffsim.wick.expectation_power">
+<span class="sig-prename descclassname"><span class="pre">ffsim.wick.</span></span><span class="sig-name descname"><span class="pre">expectation_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/wick.html#expectation_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.wick.expectation_power" title="Link to this definition">¶</a></dt>
+<dd><p>Expectation of power of one-body operator w.r.t. a Slater determinant.</p>
+<p>A one-body operator <span class="math notranslate nohighlight">\(O\)</span> has the form</p>
+<div class="math notranslate nohighlight">
+\[O = \sum_{pq} M_{pq} a_p^\dagger a_q.\]</div>
+<p>This function takes the matrix <span class="math notranslate nohighlight">\(M\)</span> as its first argument.
+Let <span class="math notranslate nohighlight">\(\lvert \psi \rangle\)</span> be the Slater determinant.
+Then this function returns the quantity</p>
+<div class="math notranslate nohighlight">
+\[\langle \psi \rvert O^k \lvert \psi \rangle.\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>one_body_tensor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body operator.</p></li>
+<li><p><strong>one_rdm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body reduced density matrix of the Slater determinant.</p></li>
+<li><p><strong>power</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The power.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The expectation value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.wick.expectation_product">
+<span class="sig-prename descclassname"><span class="pre">ffsim.wick.</span></span><span class="sig-name descname"><span class="pre">expectation_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/wick.html#expectation_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.wick.expectation_product" title="Link to this definition">¶</a></dt>
+<dd><p>Expectation of product of one-body operators w.r.t. a Slater determinant.</p>
+<p>A one-body operator <span class="math notranslate nohighlight">\(O\)</span> has the form</p>
+<div class="math notranslate nohighlight">
+\[O = \sum_{pq} M_{pq} a_p^\dagger a_q.\]</div>
+<p>This function takes a list of the matrices <span class="math notranslate nohighlight">\(M\)</span> as its first argument.
+Let <span class="math notranslate nohighlight">\((O_1, O_2, \dots O_k)\)</span> be the list of one-body operators,
+and <span class="math notranslate nohighlight">\(\lvert \psi \rangle\)</span> be the Slater determinant.
+Then this function returns the quantity</p>
+<div class="math notranslate nohighlight">
+\[\langle \psi \rvert O_1 O_2 \dots O_k \lvert \psi \rangle.\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>one_body_tensors</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The matrices for the one-body operators.</p></li>
+<li><p><strong>one_rdm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body reduced density matrix of the Slater determinant.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The expectation value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<p id="module-ffsim">ffsim is a software library for fast simulation of fermionic quantum circuits.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">ffsim</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ffsim package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">ffsim</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">ffsim</a></li>
+      <li>Next: <a href="ffsim.contract.html" title="next chapter">ffsim.contract package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../_sources/generated/api/ffsim.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,26 @@
+ffsim.hamiltonians package
+==========================
+
+Submodules
+----------
+
+ffsim.hamiltonians.double\_factorized\_hamiltonian module
+---------------------------------------------------------
+
+.. automodule:: ffsim.hamiltonians.double_factorized_hamiltonian
+   :members:
+   :show-inheritance:
+
+ffsim.hamiltonians.molecular\_hamiltonian module
+------------------------------------------------
+
+.. automodule:: ffsim.hamiltonians.molecular_hamiltonian
+   :members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: ffsim.hamiltonians
+   :members:
+   :show-inheritance:
