@@ -1,4 +1,4 @@
-tutorials
+Tutorials
 =========
 
 ffsim tutorials.
