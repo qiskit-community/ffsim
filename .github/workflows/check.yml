@@ -56,6 +56,9 @@ jobs:
         tox-env: ['coverage', 'type', 'lint', 'format', 'docs']
     steps:
       - uses: actions/checkout@v3
+      - name: Install pandoc
+        run: |
+          sudo apt install -y pandoc
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
