@@ -20,7 +20,16 @@ from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
-    """Get the dimension of the FCI space."""
+    """Get the dimensions of the FCI space.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+
+    Returns:
+        A pair of integers (dim_a, dim_b) representing the dimensions of the
+        alpha- and beta- FCI space.
+    """
     n_alpha, n_beta = nelec
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
@@ -28,7 +37,15 @@ def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
 
 
 def dim(norb: int, nelec: tuple[int, int]) -> int:
-    """Get the dimension of the FCI space."""
+    """Get the dimension of the FCI space.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+
+    Returns:
+        The dimension of the FCI space.
+    """
     dim_a, dim_b = dims(norb, nelec)
     return dim_a * dim_b
 
