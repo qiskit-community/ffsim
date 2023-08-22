@@ -24,15 +24,23 @@ than a generic quantum circuit simulator.
 
 ## Installation
 
-In the future, binary wheels will be made available on PyPI. For now, you can install from source.
+### From PyPI
 
-### Installing from source
+ffsim is available on [PyPI](https://pypi.org/project/ffsim/). It can be installed by running the command
+
+```bash
+pip install ffsim
+```
+
+### From source
 
 Installing ffsim from source requires a Rust compiler to be present on the system.
 A Rust compiler can be installed by following the instructions [here](https://www.rust-lang.org/tools/install).
 Once the Rust compiler is installed, ffsim can be installed by running the command
 
-    pip install .
+```bash
+pip install .
+```
 
 from the root directory of the code repository.
 
