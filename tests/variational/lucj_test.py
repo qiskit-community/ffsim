@@ -9,7 +9,9 @@
 # that they have been altered from the originals.
 
 import numpy as np
+import pyscf
 import scipy.linalg
+from pyscf import cc
 
 import ffsim
 
@@ -21,7 +23,7 @@ def _exponentiate_t1(t1: np.ndarray, norb: int, nocc: int) -> np.ndarray:
     return scipy.linalg.expm(generator)
 
 
-def test_lucj_ansatz_operator_roundtrip():
+def test_parameters_roundtrip():
     norb = 2
     n_reps = 2
     diag_coulomb_mats_alpha_alpha = np.array(
@@ -68,7 +70,7 @@ def test_lucj_ansatz_operator_roundtrip():
     )
 
 
-def test_lucj_ansatz_operator_t_amplitudes_roundtrip():
+def test_t_amplitudes_roundtrip():
     nocc = 5
 
     rng = np.random.default_rng()
@@ -89,3 +91,44 @@ def test_lucj_ansatz_operator_t_amplitudes_roundtrip():
         _exponentiate_t1(t1, norb=2 * nocc, nocc=nocc),
         atol=1e-12,
     )
+
+
+def test_t_amplitudes():
+    # Build an H2 molecule
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["H", (0, 0, 0)], ["H", (0, 0, 1.8)]],
+        basis="sto-6g",
+    )
+    hartree_fock = pyscf.scf.RHF(mol)
+    hartree_fock.kernel()
+
+    # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
+    mol_data = ffsim.MolecularData.from_hartree_fock(hartree_fock)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    mol_hamiltonian = mol_data.hamiltonian
+
+    # Get CCSD t2 amplitudes for initializing the ansatz
+    ccsd = cc.CCSD(hartree_fock)
+    _, _, t2 = ccsd.kernel()
+
+    # Construct UCJ operator
+    n_reps = 2
+    operator = ffsim.UnitaryClusterJastrowOp.from_t_amplitudes(t2, n_reps=n_reps)
+
+    # Construct the Hartree-Fock state to use as the reference state
+    n_alpha, n_beta = nelec
+    reference_state = ffsim.slater_determinant(
+        norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
+    )
+
+    # Apply the operator to the reference state
+    ansatz_state = ffsim.apply_unitary_cluster_jastrow_op(
+        reference_state, operator, norb=norb, nelec=nelec
+    )
+
+    # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
+    energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
+    np.testing.assert_allclose(energy, -0.96962461, atol=1e-8)
