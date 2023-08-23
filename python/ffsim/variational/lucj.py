@@ -262,8 +262,8 @@ class UnitaryClusterJastrowOp:
     def from_t_amplitudes(
         t2: np.ndarray,
         *,
-        t1: np.ndarray | None = None,
         n_reps: int | None = None,
+        t1: np.ndarray | None = None,
     ) -> "UnitaryClusterJastrowOp":
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO allow specifying alpha-alpha and alpha-beta indices
@@ -276,18 +276,15 @@ class UnitaryClusterJastrowOp:
         diag_coulomb_mats_alpha_beta = []
         orbital_rotations = []
         for smu, Umu in low_rank:
-            Xmu_p = (1 - 1j) / 2.0 * (Umu + 1j * Umu.T)
-            Xmu_m = (1 + 1j) / 2.0 * (Umu - 1j * Umu.T)
-            gmu_p, Vmu_p = scipy.linalg.eigh(Xmu_p)
-            gmu_m, Vmu_m = scipy.linalg.eigh(Xmu_m)
-            Jmu_p = smu * np.einsum("p,q->pq", gmu_p, gmu_p)
-            Jmu_m = -smu * np.einsum("p,q->pq", gmu_m, gmu_m)
-            diag_coulomb_mats_alpha_alpha.append(Jmu_p)
-            diag_coulomb_mats_alpha_alpha.append(Jmu_m)
-            diag_coulomb_mats_alpha_beta.append(Jmu_p)
-            diag_coulomb_mats_alpha_beta.append(Jmu_m)
-            orbital_rotations.append(Vmu_p)
-            orbital_rotations.append(Vmu_m)
+            Xmu = 0.5 * (1 - 1j) * (Umu + 1j * Umu.T)
+            gmu, Vmu = scipy.linalg.eigh(Xmu)
+            Jmu = smu * np.outer(gmu, gmu)
+            diag_coulomb_mats_alpha_alpha.append(Jmu)
+            diag_coulomb_mats_alpha_alpha.append(-Jmu)
+            diag_coulomb_mats_alpha_beta.append(Jmu)
+            diag_coulomb_mats_alpha_beta.append(-Jmu)
+            orbital_rotations.append(Vmu)
+            orbital_rotations.append(Vmu.conj())
         final_orbital_rotation = None
         if t1 is not None:
             final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
