@@ -16,6 +16,10 @@ classifiers = [
 ]
 dependencies = ["numpy", "opt_einsum>=3.3", "pyscf>=2.3.0", "scipy"]
 
+[project.urls]
+Homepage = "https://github.com/qiskit-community/ffsim"
+Documentation = "https://qiskit-community.github.io/ffsim/"
+
 [project.optional-dependencies]
 dev = [
     "black[jupyter]",
