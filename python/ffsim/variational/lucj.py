@@ -29,10 +29,11 @@ def _to_mat(vec: np.ndarray, o_pairs: list[tuple[int, int]], norb: int):
     return mat
 
 
-def _decompose(t2: np.ndarray, o_pairs: list[tuple[int, int]], tol: float = 1e-8):
+def decompose_t2_amplitudes(t2: np.ndarray, tol: float = 1e-8):
     nocc, _, nvrt, _ = t2.shape
     norb = nocc + nvrt
     t2_mat = np.zeros((norb**2, norb**2))
+    o_pairs = list(itertools.product(range(nocc, norb), range(nocc)))
     for m, (a, i) in enumerate(o_pairs):
         for n, (b, j) in enumerate(o_pairs):
             if i < nocc <= a and j < nocc <= b:
@@ -263,14 +264,14 @@ class UnitaryClusterJastrowOp:
         *,
         n_reps: int | None = None,
         t1: np.ndarray | None = None,
+        tol: float = 1e-8,
     ) -> "UnitaryClusterJastrowOp":
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
-        o_pairs = list(itertools.product(range(nocc, norb), range(nocc)))
         # TODO use ffsim.linalg.double_factorized
-        low_rank = _decompose(t2, o_pairs)
+        low_rank = decompose_t2_amplitudes(t2, tol=tol)
         diag_coulomb_mats_alpha_alpha = []
         diag_coulomb_mats_alpha_beta = []
         orbital_rotations = []
