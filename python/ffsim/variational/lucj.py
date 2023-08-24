@@ -43,8 +43,7 @@ def _decompose(t2: np.ndarray, o_pairs: list[tuple[int, int]], tol: float = 1e-8
         for eig, vec in zip(eigs, vecs.T)
         if not np.isclose(eig, 0, atol=tol)
     ]
-    dec = sorted(dec, key=lambda x: np.abs(x[0]))[::-1]
-    return dec
+    return sorted(dec, key=lambda x: np.abs(x[0]))[::-1]
 
 
 @dataclass
