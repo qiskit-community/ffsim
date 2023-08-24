@@ -22,28 +22,28 @@ import scipy.linalg
 from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
 
 
-def _to_mat(U, o_pairs, nb):
-    U_mat = np.zeros((nb, nb))
-    for m, (p, r) in enumerate(o_pairs):
-        U_mat[p, r] = U[m]
-    return U_mat
+def _to_mat(vec: np.ndarray, o_pairs: list[tuple[int, int]], norb: int):
+    mat = np.zeros((norb, norb))
+    for val, (p, r) in zip(vec, o_pairs):
+        mat[p, r] = val
+    return mat
 
 
-def _decompose(t2, no, nv, nb, o_pairs, verbose=False):
-    t2_mat = np.zeros((nb**2, nb**2))
+def _decompose(t2: np.ndarray, o_pairs: list[tuple[int, int]], tol: float = 1e-8):
+    nocc, _, nvrt, _ = t2.shape
+    norb = nocc + nvrt
+    t2_mat = np.zeros((norb**2, norb**2))
     for m, (a, i) in enumerate(o_pairs):
         for n, (b, j) in enumerate(o_pairs):
-            if i < no <= a and j < no <= b:
-                t2_mat[m, n] = t2[i, j, a - no, b - no]
-    s, U = scipy.linalg.eigh(t2_mat)
+            if i < nocc <= a and j < nocc <= b:
+                t2_mat[m, n] = t2[i, j, a - nocc, b - nocc]
+    eigs, vecs = scipy.linalg.eigh(t2_mat)
     dec = [
-        (smu, _to_mat(U[:, mu], o_pairs, nb))
-        for mu, smu in enumerate(s)
-        if np.abs(smu) > 1e-6
+        (eig, _to_mat(vec, o_pairs, norb))
+        for eig, vec in zip(eigs, vecs.T)
+        if not np.isclose(eig, 0, atol=tol)
     ]
     dec = sorted(dec, key=lambda x: np.abs(x[0]))[::-1]
-    if verbose:
-        print("SVD of t2, singular values ", [x[0] for x in dec])
     return dec
 
 
@@ -266,12 +266,12 @@ class UnitaryClusterJastrowOp:
         t1: np.ndarray | None = None,
     ) -> "UnitaryClusterJastrowOp":
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
-        # TODO allow specifying alpha-alpha and alpha-beta indices
+        # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
         o_pairs = list(itertools.product(range(nocc, norb), range(nocc)))
         # TODO use ffsim.linalg.double_factorized
-        low_rank = _decompose(t2, nocc, nvrt, norb, o_pairs)
+        low_rank = _decompose(t2, o_pairs)
         diag_coulomb_mats_alpha_alpha = []
         diag_coulomb_mats_alpha_beta = []
         orbital_rotations = []
