@@ -111,6 +111,21 @@ def double_factorized(
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
+    The default behavior of this routine is to perform a straightforward
+    "exact" factorization of the two-body tensor based on a nested
+    eigenvalue decomposition. Additionally, one can choose to optimize the
+    coefficients stored in the tensor to achieve a "compressed" factorization.
+    This option is enabled by setting the `optimize` parameter to `True`.
+    The optimization attempts to minimize a least-squares objective function
+    quantifying the error in the low rank decomposition.
+    It uses `scipy.optimize.minimize`, passing both the objective function
+    and its gradient. The core tensors returned by the optimization can be optionally
+    constrained to have only certain elements allowed to be nonzero. This is achieved by
+    passing the `diag_coulomb_mask` parameter, which is an :math:`N \times N` matrix of
+    boolean values where :math:`N` is the number of orbitals. The nonzero elements of
+    this matrix indicate where the core tensors are allowed to be nonzero. Only the
+    upper triangular part of the matrix is used because the core tensors are symmetric.
+
     References:
         - `arXiv:1808.02625`_
         - `arXiv:2104.08957`_
@@ -142,10 +157,10 @@ def double_factorized(
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
-        is collected into a numpy array, so this method returns a tuple of two numpy
+        is collected into a numpy array, so this method returns a tuple of two Numpy
         arrays, the first containing the diagonal Coulomb matrices and the second
-        containing the orbital rotations. Each numpy array will have shape (t, n, n)
-        where t is the rank of the decomposition and n is the number of orbitals.
+        containing the orbital rotations. Each numpy array will have shape (L, n, n)
+        where L is the rank of the decomposition and n is the number of orbitals.
 
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
@@ -193,39 +208,51 @@ def _double_factorized_explicit_cholesky(
     return diag_coulomb_mats, orbital_rotations
 
 
-def _double_factorized_explicit_eigh(  # pylint: disable=invalid-name
+def _double_factorized_explicit_eigh(
     two_body_tensor: np.ndarray,
     *,
     tol: float,
     max_vecs: int,
 ) -> tuple[np.ndarray, np.ndarray]:
-    n_modes, _, _, _ = two_body_tensor.shape
-    reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
-    outer_eigs, outer_vecs = np.linalg.eigh(reshaped_tensor)
+    norb, _, _, _ = two_body_tensor.shape
 
-    # sort by absolute value
-    indices = np.argsort(np.abs(outer_eigs))
-    outer_eigs = outer_eigs[indices]
-    outer_vecs = outer_vecs[:, indices]
-    # get index to truncate at
-    index = int(np.searchsorted(np.cumsum(np.abs(outer_eigs)), tol))
-    # truncate, then reverse to put into descending order of absolute value
-    outer_eigs = outer_eigs[index:][::-1]
-    outer_vecs = outer_vecs[:, index:][:, ::-1]
-    # truncate to final rank
-    outer_eigs = outer_eigs[:max_vecs]
-    outer_vecs = outer_vecs[:, :max_vecs]
+    reshaped_tensor = np.reshape(two_body_tensor, (norb**2, norb**2))
+    outer_eigs, outer_vecs = _truncated_eigh(
+        reshaped_tensor, tol=tol, max_vecs=max_vecs
+    )
 
-    orbital_rotations = []
     diag_coulomb_mats = []
+    orbital_rotations = []
     for outer_eig, outer_vec in zip(outer_eigs, outer_vecs.T):
-        mat = np.reshape(outer_vec, (n_modes, n_modes))
+        mat = np.reshape(outer_vec, (norb, norb))
         inner_eigs, inner_vecs = np.linalg.eigh(mat)
         diag_coulomb_mat = outer_eig * np.outer(inner_eigs, inner_eigs)
-        orbital_rotations.append(inner_vecs)
         diag_coulomb_mats.append(diag_coulomb_mat)
+        orbital_rotations.append(inner_vecs)
 
     return np.stack(diag_coulomb_mats), np.stack(orbital_rotations)
+
+
+def _truncated_eigh(
+    mat: np.ndarray,
+    *,
+    tol: float,
+    max_vecs: int | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    eigs, vecs = np.linalg.eigh(mat)
+    # sort by absolute value
+    indices = np.argsort(np.abs(eigs))
+    eigs = eigs[indices]
+    vecs = vecs[:, indices]
+    # get index to truncate at
+    index = int(np.searchsorted(np.cumsum(np.abs(eigs)), tol))
+    # truncate, then reverse to put into descending order of absolute value
+    eigs = eigs[index:][::-1]
+    vecs = vecs[:, index:][:, ::-1]
+    # truncate to final rank
+    eigs = eigs[:max_vecs]
+    vecs = vecs[:, :max_vecs]
+    return eigs, vecs
 
 
 def optimal_diag_coulomb_mats(
@@ -413,3 +440,59 @@ def _grad_leaf_log(mat: np.ndarray, grad_leaf: np.ndarray) -> np.ndarray:
     n_modes, _ = mat.shape
     triu_indices = np.triu_indices(n_modes, k=1)
     return np.real(grad[triu_indices])
+
+
+def double_factorized_t2(
+    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
+) -> tuple[np.ndarray, np.ndarray]:
+    """Double-factorized decomposition of t2 amplitudes.
+
+    The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is
+
+    .. math::
+
+        t_{ijab} = i \sum_{k=1}^N \sum_{pq} Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip}
+            U^{k}_{bq} {U^{k}}^*_{jq}
+
+    Here each :math:`Z^{(k)}` is a real symmetric matrix, referred to as a
+    "diagonal Coulomb matrix," and each :math:`U^{k}` is a unitary matrix, referred to
+    as an "orbital rotation."
+
+    Args:
+        t2_amplitudes: The t2 amplitudes tensor.
+        tol: Tolerance for error in the decomposition.
+            The error is defined as the maximum absolute difference between
+            an element of the original tensor and the corresponding element of
+            the reconstructed tensor.
+        max_vecs: An optional limit on the number of terms to keep in the decomposition
+            of the two-body tensor. This argument overrides ``tol``.
+
+    Returns:
+        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
+        is collected into a numpy array, so this method returns a tuple of two Numpy
+        arrays, the first containing the diagonal Coulomb matrices and the second
+        containing the orbital rotations.
+    """
+    # TODO test error tolerance
+    nocc, _, nvrt, _ = t2_amplitudes.shape
+    norb = nocc + nvrt
+
+    two_body_tensor = np.zeros((norb, norb, norb, norb))
+    two_body_tensor[:nocc, :nocc, nocc:, nocc:] = t2_amplitudes
+    two_body_tensor = np.transpose(two_body_tensor, (2, 0, 3, 1))
+    t2_mat = two_body_tensor.reshape((norb**2, norb**2))
+    outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=max_vecs)
+
+    diag_coulomb_mats = []
+    orbital_rotations = []
+    for outer_eig, outer_vec in zip(outer_eigs, outer_vecs.T):
+        mat = np.reshape(outer_vec, (norb, norb))
+        mat = 0.5 * (1 - 1j) * (mat + 1j * mat.T)
+        inner_eigs, inner_vecs = scipy.linalg.eigh(mat)
+        diag_coulomb_mat = outer_eig * np.outer(inner_eigs, inner_eigs)
+        diag_coulomb_mats.append(diag_coulomb_mat)
+        diag_coulomb_mats.append(-diag_coulomb_mat)
+        orbital_rotations.append(inner_vecs)
+        orbital_rotations.append(inner_vecs.conj())
+
+    return np.stack(diag_coulomb_mats), np.stack(orbital_rotations)

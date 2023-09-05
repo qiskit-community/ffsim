@@ -20,8 +20,15 @@ from ffsim.linalg import (
     double_factorized,
     modified_cholesky,
 )
-from ffsim.linalg.double_factorized import optimal_diag_coulomb_mats
-from ffsim.random import random_two_body_tensor_real, random_unitary
+from ffsim.linalg.double_factorized import (
+    double_factorized_t2,
+    optimal_diag_coulomb_mats,
+)
+from ffsim.random import (
+    random_t2_amplitudes,
+    random_two_body_tensor_real,
+    random_unitary,
+)
 
 
 @pytest.mark.parametrize("dim", [4, 5])
@@ -242,3 +249,20 @@ def test_double_factorized_compressed_constrained():
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
     assert error_optimized < error
+
+
+@pytest.mark.parametrize("norb, nocc", [(4, 2), (5, 2), (5, 3)])
+def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
+    """Test double factorization of random t2 amplitudes."""
+    t2 = random_t2_amplitudes(norb, nocc)
+    diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2)
+    reconstructed = 1j * np.einsum(
+        "kpq,kap,kip,kbq,kjq->ijab",
+        diag_coulomb_mats,
+        orbital_rotations,
+        np.conj(orbital_rotations),
+        orbital_rotations,
+        np.conj(orbital_rotations),
+    )
+    reconstructed = reconstructed[:nocc, :nocc, nocc:, nocc:]
+    np.testing.assert_allclose(reconstructed, t2, atol=1e-8)

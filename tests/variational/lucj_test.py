@@ -71,12 +71,13 @@ def test_parameters_roundtrip():
 
 
 def test_t_amplitudes_roundtrip():
-    nocc = 5
+    norb = 5
+    nocc = 3
 
     rng = np.random.default_rng()
 
-    t2 = ffsim.random.random_two_body_tensor_real(nocc)
-    t1 = rng.standard_normal((nocc, nocc))
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc)
+    t1 = rng.standard_normal((nocc, norb - nocc))
 
     operator = ffsim.UnitaryClusterJastrowOp.from_t_amplitudes(t2, t1=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
@@ -87,8 +88,8 @@ def test_t_amplitudes_roundtrip():
         atol=1e-12,
     )
     np.testing.assert_allclose(
-        _exponentiate_t1(t1_roundtripped, norb=2 * nocc, nocc=nocc),
-        _exponentiate_t1(t1, norb=2 * nocc, nocc=nocc),
+        _exponentiate_t1(t1_roundtripped, norb=norb, nocc=nocc),
+        _exponentiate_t1(t1, norb=norb, nocc=nocc),
         atol=1e-12,
     )
 
