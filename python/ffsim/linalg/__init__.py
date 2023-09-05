@@ -12,6 +12,7 @@
 
 from ffsim.linalg.double_factorized import (
     double_factorized,
+    double_factorized_t2,
     modified_cholesky,
 )
 from ffsim.linalg.givens import (
