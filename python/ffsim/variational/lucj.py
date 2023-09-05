@@ -260,13 +260,9 @@ class UnitaryClusterJastrowOp:
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return UnitaryClusterJastrowOp(
-            diag_coulomb_mats_alpha_alpha=np.stack(
-                diag_coulomb_mats_alpha_alpha[:n_reps]
-            ),
-            diag_coulomb_mats_alpha_beta=np.stack(
-                diag_coulomb_mats_alpha_beta[:n_reps]
-            ),
-            orbital_rotations=np.stack(orbital_rotations[:n_reps]),
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha[:n_reps],
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta[:n_reps],
+            orbital_rotations=orbital_rotations[:n_reps],
             final_orbital_rotation=final_orbital_rotation,
         )
 
