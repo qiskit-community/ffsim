@@ -7,7 +7,7 @@ Faster simulations of fermionic quantum circuits.
    :maxdepth: 1
    :caption: Contents:
 
-   notebooks/index
+   tutorials/index
    api/index
 
 
