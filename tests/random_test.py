@@ -34,6 +34,20 @@ def test_random_two_body_tensor_symmetry():
         np.testing.assert_allclose(two_body_tensor[r, s, q, p], val)
 
 
+def test_random_t2_amplitudes_symmetry():
+    """Test random t2 amplitudes symmetry."""
+    # TODO t2 amplitudes from pySCF don't satisfy these symmetries
+    norb = 5
+    nocc = 3
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc)
+    for i, j in itertools.product(range(nocc), repeat=2):
+        for a, b in itertools.product(range(norb - nocc), repeat=2):
+            val = t2[i, j, a, b]
+            np.testing.assert_allclose(t2[i, j, b, a], -val)
+            np.testing.assert_allclose(t2[j, i, a, b], -val)
+            np.testing.assert_allclose(t2[j, i, b, a], val)
+
+
 def test_random_unitary():
     """Test random unitary."""
     dim = 5

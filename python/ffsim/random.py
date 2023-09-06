@@ -183,3 +183,23 @@ def random_two_body_tensor_real(
     cholesky_vecs = rng.standard_normal((rank, dim, dim)).astype(dtype, copy=False)
     cholesky_vecs += cholesky_vecs.transpose((0, 2, 1))
     return np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
+
+
+def random_t2_amplitudes(norb: int, nocc: int, *, seed=None) -> np.ndarray:
+    """Sample a random t2 amplitudes tensor.
+
+    Args:
+        norb: The number of orbitals.
+        nocc: The number of orbitals that are occupied by an electron.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled t2 amplitudes tensor.
+    """
+    rng = np.random.default_rng(seed)
+    nvrt = norb - nocc
+    t2 = rng.standard_normal((nocc, nocc, nvrt, nvrt))
+    t2 -= np.transpose(t2, (0, 1, 3, 2))
+    t2 -= np.transpose(t2, (1, 0, 2, 3))
+    return t2
