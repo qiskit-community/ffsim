@@ -249,7 +249,7 @@
 <span class="sd">    It uses `scipy.optimize.minimize`, passing both the objective function</span>
 <span class="sd">    and its gradient. The core tensors returned by the optimization can be optionally</span>
 <span class="sd">    constrained to have only certain elements allowed to be nonzero. This is achieved by</span>
-<span class="sd">    passing the `core_tensor_mask` parameter, which is an :math:`N \times N` matrix of</span>
+<span class="sd">    passing the `diag_coulomb_mask` parameter, which is an :math:`N \times N` matrix of</span>
 <span class="sd">    boolean values where :math:`N` is the number of orbitals. The nonzero elements of</span>
 <span class="sd">    this matrix indicate where the core tensors are allowed to be nonzero. Only the</span>
 <span class="sd">    upper triangular part of the matrix is used because the core tensors are symmetric.</span>
@@ -404,7 +404,7 @@
       &copy;2023, IBM.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>

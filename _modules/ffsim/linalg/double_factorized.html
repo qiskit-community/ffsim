@@ -139,19 +139,34 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk}</span>
-<span class="sd">            Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}</span>
+<span class="sd">        h_{pqrs} = \sum_{t=1}^L \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}</span>
+<span class="sd">            U^{t}_{r\ell} U^{t}_{s\ell}</span>
 
 <span class="sd">    Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a</span>
 <span class="sd">    &quot;diagonal Coulomb matrix,&quot; and each :math:`U^{t}` is a unitary matrix, referred to</span>
 <span class="sd">    as an &quot;orbital rotation.&quot;</span>
 
-<span class="sd">    The number of terms :math:`N` in the decomposition depends on the allowed</span>
+<span class="sd">    The number of terms :math:`L` in the decomposition depends on the allowed</span>
 <span class="sd">    error threshold. A larger error threshold may yield a smaller number of terms.</span>
 <span class="sd">    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound</span>
-<span class="sd">    on :math:`N`. The ``max_vecs`` parameter is always respected, so if it is</span>
+<span class="sd">    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is</span>
 <span class="sd">    too small, then the error of the decomposition may exceed the specified</span>
 <span class="sd">    error threshold.</span>
+
+<span class="sd">    The default behavior of this routine is to perform a straightforward</span>
+<span class="sd">    &quot;exact&quot; factorization of the two-body tensor based on a nested</span>
+<span class="sd">    eigenvalue decomposition. Additionally, one can choose to optimize the</span>
+<span class="sd">    coefficients stored in the tensor to achieve a &quot;compressed&quot; factorization.</span>
+<span class="sd">    This option is enabled by setting the `optimize` parameter to `True`.</span>
+<span class="sd">    The optimization attempts to minimize a least-squares objective function</span>
+<span class="sd">    quantifying the error in the low rank decomposition.</span>
+<span class="sd">    It uses `scipy.optimize.minimize`, passing both the objective function</span>
+<span class="sd">    and its gradient. The core tensors returned by the optimization can be optionally</span>
+<span class="sd">    constrained to have only certain elements allowed to be nonzero. This is achieved by</span>
+<span class="sd">    passing the `diag_coulomb_mask` parameter, which is an :math:`N \times N` matrix of</span>
+<span class="sd">    boolean values where :math:`N` is the number of orbitals. The nonzero elements of</span>
+<span class="sd">    this matrix indicate where the core tensors are allowed to be nonzero. Only the</span>
+<span class="sd">    upper triangular part of the matrix is used because the core tensors are symmetric.</span>
 
 <span class="sd">    References:</span>
 <span class="sd">        - `arXiv:1808.02625`_</span>
@@ -184,10 +199,10 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices</span>
-<span class="sd">        is collected into a numpy array, so this method returns a tuple of two numpy</span>
+<span class="sd">        is collected into a Numpy array, so this method returns a tuple of two Numpy</span>
 <span class="sd">        arrays, the first containing the diagonal Coulomb matrices and the second</span>
-<span class="sd">        containing the orbital rotations. Each numpy array will have shape (t, n, n)</span>
-<span class="sd">        where t is the rank of the decomposition and n is the number of orbitals.</span>
+<span class="sd">        containing the orbital rotations. Each Numpy array will have shape (L, n, n)</span>
+<span class="sd">        where L is the rank of the decomposition and n is the number of orbitals.</span>
 
 <span class="sd">    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625</span>
 <span class="sd">    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
@@ -236,39 +251,51 @@
     <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
 
 
-<span class="k">def</span> <span class="nf">_double_factorized_explicit_eigh</span><span class="p">(</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="k">def</span> <span class="nf">_double_factorized_explicit_eigh</span><span class="p">(</span>
     <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-    <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">reshaped_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">n_modes</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_modes</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-    <span class="n">outer_eigs</span><span class="p">,</span> <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">reshaped_tensor</span><span class="p">)</span>
+    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
 
-    <span class="c1"># sort by absolute value</span>
-    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">outer_eigs</span><span class="p">))</span>
-    <span class="n">outer_eigs</span> <span class="o">=</span> <span class="n">outer_eigs</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
-    <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">outer_vecs</span><span class="p">[:,</span> <span class="n">indices</span><span class="p">]</span>
-    <span class="c1"># get index to truncate at</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">outer_eigs</span><span class="p">)),</span> <span class="n">tol</span><span class="p">))</span>
-    <span class="c1"># truncate, then reverse to put into descending order of absolute value</span>
-    <span class="n">outer_eigs</span> <span class="o">=</span> <span class="n">outer_eigs</span><span class="p">[</span><span class="n">index</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">outer_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">:][:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="c1"># truncate to final rank</span>
-    <span class="n">outer_eigs</span> <span class="o">=</span> <span class="n">outer_eigs</span><span class="p">[:</span><span class="n">max_vecs</span><span class="p">]</span>
-    <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">outer_vecs</span><span class="p">[:,</span> <span class="p">:</span><span class="n">max_vecs</span><span class="p">]</span>
+    <span class="n">reshaped_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">outer_eigs</span><span class="p">,</span> <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">_truncated_eigh</span><span class="p">(</span>
+        <span class="n">reshaped_tensor</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span>
+    <span class="p">)</span>
 
-    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">outer_eig</span><span class="p">,</span> <span class="n">outer_vec</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outer_eigs</span><span class="p">,</span> <span class="n">outer_vecs</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
-        <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outer_vec</span><span class="p">,</span> <span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">))</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outer_vec</span><span class="p">,</span> <span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
         <span class="n">inner_eigs</span><span class="p">,</span> <span class="n">inner_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
         <span class="n">diag_coulomb_mat</span> <span class="o">=</span> <span class="n">outer_eig</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">inner_eigs</span><span class="p">,</span> <span class="n">inner_eigs</span><span class="p">)</span>
-        <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inner_vecs</span><span class="p">)</span>
         <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">)</span>
+        <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inner_vecs</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">orbital_rotations</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_truncated_eigh</span><span class="p">(</span>
+    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+    <span class="c1"># sort by absolute value</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">))</span>
+    <span class="n">eigs</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+    <span class="n">vecs</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[:,</span> <span class="n">indices</span><span class="p">]</span>
+    <span class="c1"># get index to truncate at</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">)),</span> <span class="n">tol</span><span class="p">))</span>
+    <span class="c1"># truncate, then reverse to put into descending order of absolute value</span>
+    <span class="n">eigs</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="n">index</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">vecs</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">:][:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># truncate to final rank</span>
+    <span class="n">eigs</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[:</span><span class="n">max_vecs</span><span class="p">]</span>
+    <span class="n">vecs</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[:,</span> <span class="p">:</span><span class="n">max_vecs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span>
 
 
 <div class="viewcode-block" id="optimal_diag_coulomb_mats">
@@ -459,6 +486,71 @@
     <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">triu_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">grad</span><span class="p">[</span><span class="n">triu_indices</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="double_factorized_t2">
+<a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.double_factorized.double_factorized_t2">[docs]</a>
+<span class="k">def</span> <span class="nf">double_factorized_t2</span><span class="p">(</span>
+    <span class="n">t2_amplitudes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Double-factorized decomposition of t2 amplitudes.</span>
+
+<span class="sd">    The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        t_{ijab} = i \sum_{k=1}^L \sum_{pq} (</span>
+<span class="sd">            Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip} U^{k}_{bq} {U^{k}}^*_{jq}</span>
+<span class="sd">            - Z^{k}_{pq} {U^{k}}^*_{ap} U^{k}_{ip} {U^{k}}^*_{bq} U^{k}_{jq})</span>
+
+<span class="sd">    Here each :math:`Z^{(k)}` is a real symmetric matrix, referred to as a</span>
+<span class="sd">    &quot;diagonal Coulomb matrix,&quot; and each :math:`U^{k}` is a unitary matrix, referred to</span>
+<span class="sd">    as an &quot;orbital rotation.&quot;</span>
+
+<span class="sd">    The number of terms :math:`L` in the decomposition depends on the allowed</span>
+<span class="sd">    error threshold. A larger error threshold may yield a smaller number of terms.</span>
+<span class="sd">    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound</span>
+<span class="sd">    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is</span>
+<span class="sd">    too small, then the error of the decomposition may exceed the specified</span>
+<span class="sd">    error threshold.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t2_amplitudes: The t2 amplitudes tensor.</span>
+<span class="sd">        tol: Tolerance for error in the decomposition.</span>
+<span class="sd">            The error is defined as the maximum absolute difference between</span>
+<span class="sd">            an element of the original tensor and the corresponding element of</span>
+<span class="sd">            the reconstructed tensor.</span>
+<span class="sd">        max_vecs: An optional limit on the number of terms to keep in the decomposition</span>
+<span class="sd">            of the t2 amplitudes tensor. This argument overrides ``tol``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices</span>
+<span class="sd">        is collected into a Numpy array, so this method returns a tuple of two Numpy</span>
+<span class="sd">        arrays, the first containing the diagonal Coulomb matrices and the second</span>
+<span class="sd">        containing the orbital rotations. Each Numpy array will have shape (L, n, n)</span>
+<span class="sd">        where L is the rank of the decomposition and n is the number of orbitals.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2_amplitudes</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
+
+    <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+    <span class="n">two_body_tensor</span><span class="p">[:</span><span class="n">nocc</span><span class="p">,</span> <span class="p">:</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:,</span> <span class="n">nocc</span><span class="p">:]</span> <span class="o">=</span> <span class="n">t2_amplitudes</span>
+    <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">t2_mat</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">outer_eigs</span><span class="p">,</span> <span class="n">outer_vecs</span> <span class="o">=</span> <span class="n">_truncated_eigh</span><span class="p">(</span><span class="n">t2_mat</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span><span class="p">)</span>
+
+    <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">outer_eig</span><span class="p">,</span> <span class="n">outer_vec</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outer_eigs</span><span class="p">,</span> <span class="n">outer_vecs</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outer_vec</span><span class="p">,</span> <span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">mat</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">mat</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">inner_eigs</span><span class="p">,</span> <span class="n">inner_vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+        <span class="n">diag_coulomb_mat</span> <span class="o">=</span> <span class="n">outer_eig</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">inner_eigs</span><span class="p">,</span> <span class="n">inner_eigs</span><span class="p">)</span>
+        <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">)</span>
+        <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inner_vecs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">orbital_rotations</span><span class="p">)</span></div>
+
 </pre></div>
 
           </div>
@@ -518,7 +610,7 @@
       &copy;2023, IBM.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>

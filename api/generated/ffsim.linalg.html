@@ -44,9 +44,9 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
-<section id="ffsim-linalg-double-factorized-module">
-<h2>ffsim.linalg.double_factorized module<a class="headerlink" href="#ffsim-linalg-double-factorized-module" title="Link to this heading">¶</a></h2>
-<p id="module-ffsim.linalg.double_factorized">Utilities for performing the double-factorized decomposition.</p>
+<section id="module-ffsim.linalg.double_factorized">
+<span id="ffsim-linalg-double-factorized-module"></span><h2>ffsim.linalg.double_factorized module<a class="headerlink" href="#module-ffsim.linalg.double_factorized" title="Link to this heading">¶</a></h2>
+<p>Utilities for performing the double-factorized decomposition.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.double_factorized.double_factorized">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.double_factorized.</span></span><span class="sig-name descname"><span class="pre">double_factorized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cholesky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/linalg/double_factorized.html#double_factorized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.double_factorized.double_factorized" title="Link to this definition">¶</a></dt>
@@ -54,17 +54,31 @@
 <p>The double-factorized decomposition is a representation of a two-body tensor
 <span class="math notranslate nohighlight">\(h_{pqrs}\)</span> as</p>
 <div class="math notranslate nohighlight">
-\[h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk}
-    Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}\]</div>
+\[h_{pqrs} = \sum_{t=1}^L \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
+    U^{t}_{r\ell} U^{t}_{s\ell}\]</div>
 <p>Here each <span class="math notranslate nohighlight">\(Z^{(t)}\)</span> is a real symmetric matrix, referred to as a
 “diagonal Coulomb matrix,” and each <span class="math notranslate nohighlight">\(U^{t}\)</span> is a unitary matrix, referred to
 as an “orbital rotation.”</p>
-<p>The number of terms <span class="math notranslate nohighlight">\(N\)</span> in the decomposition depends on the allowed
+<p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold may yield a smaller number of terms.
 Furthermore, the <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter specifies an optional upper bound
-on <span class="math notranslate nohighlight">\(N\)</span>. The <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter is always respected, so if it is
+on <span class="math notranslate nohighlight">\(L\)</span>. The <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter is always respected, so if it is
 too small, then the error of the decomposition may exceed the specified
 error threshold.</p>
+<p>The default behavior of this routine is to perform a straightforward
+“exact” factorization of the two-body tensor based on a nested
+eigenvalue decomposition. Additionally, one can choose to optimize the
+coefficients stored in the tensor to achieve a “compressed” factorization.
+This option is enabled by setting the <cite>optimize</cite> parameter to <cite>True</cite>.
+The optimization attempts to minimize a least-squares objective function
+quantifying the error in the low rank decomposition.
+It uses <cite>scipy.optimize.minimize</cite>, passing both the objective function
+and its gradient. The core tensors returned by the optimization can be optionally
+constrained to have only certain elements allowed to be nonzero. This is achieved by
+passing the <cite>diag_coulomb_mask</cite> parameter, which is an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of
+boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals. The nonzero elements of
+this matrix indicate where the core tensors are allowed to be nonzero. Only the
+upper triangular part of the matrix is used because the core tensors are symmetric.</p>
 <p class="rubric">References</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://arxiv.org/abs/1808.02625">arXiv:1808.02625</a></p></li>
@@ -103,10 +117,53 @@ is set to True.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
-is collected into a numpy array, so this method returns a tuple of two numpy
+is collected into a Numpy array, so this method returns a tuple of two Numpy
 arrays, the first containing the diagonal Coulomb matrices and the second
-containing the orbital rotations. Each numpy array will have shape (t, n, n)
-where t is the rank of the decomposition and n is the number of orbitals.</p>
+containing the orbital rotations. Each Numpy array will have shape (L, n, n)
+where L is the rank of the decomposition and n is the number of orbitals.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.linalg.double_factorized.double_factorized_t2">
+<span class="sig-prename descclassname"><span class="pre">ffsim.linalg.double_factorized.</span></span><span class="sig-name descname"><span class="pre">double_factorized_t2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2_amplitudes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/linalg/double_factorized.html#double_factorized_t2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.double_factorized.double_factorized_t2" title="Link to this definition">¶</a></dt>
+<dd><p>Double-factorized decomposition of t2 amplitudes.</p>
+<p>The double-factorized decomposition of a t2 amplitudes tensor <span class="math notranslate nohighlight">\(t_{ijab}\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[t_{ijab} = i \sum_{k=1}^L \sum_{pq} (
+    Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip} U^{k}_{bq} {U^{k}}^*_{jq}
+    - Z^{k}_{pq} {U^{k}}^*_{ap} U^{k}_{ip} {U^{k}}^*_{bq} U^{k}_{jq})\]</div>
+<p>Here each <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> is a real symmetric matrix, referred to as a
+“diagonal Coulomb matrix,” and each <span class="math notranslate nohighlight">\(U^{k}\)</span> is a unitary matrix, referred to
+as an “orbital rotation.”</p>
+<p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
+error threshold. A larger error threshold may yield a smaller number of terms.
+Furthermore, the <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter specifies an optional upper bound
+on <span class="math notranslate nohighlight">\(L\)</span>. The <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter is always respected, so if it is
+too small, then the error of the decomposition may exceed the specified
+error threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t2_amplitudes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The t2 amplitudes tensor.</p></li>
+<li><p><strong>tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Tolerance for error in the decomposition.
+The error is defined as the maximum absolute difference between
+an element of the original tensor and the corresponding element of
+the reconstructed tensor.</p></li>
+<li><p><strong>max_vecs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – An optional limit on the number of terms to keep in the decomposition
+of the t2 amplitudes tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
+is collected into a Numpy array, so this method returns a tuple of two Numpy
+arrays, the first containing the diagonal Coulomb matrices and the second
+containing the orbital rotations. Each Numpy array will have shape (L, n, n)
+where L is the rank of the decomposition and n is the number of orbitals.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -163,9 +220,9 @@ whose columns are the vectors.</p>
 </dd></dl>
 
 </section>
-<section id="ffsim-linalg-givens-module">
-<h2>ffsim.linalg.givens module<a class="headerlink" href="#ffsim-linalg-givens-module" title="Link to this heading">¶</a></h2>
-<p id="module-ffsim.linalg.givens">Utilities for performing the Givens decomposition.</p>
+<section id="module-ffsim.linalg.givens">
+<span id="ffsim-linalg-givens-module"></span><h2>ffsim.linalg.givens module<a class="headerlink" href="#module-ffsim.linalg.givens" title="Link to this heading">¶</a></h2>
+<p>Utilities for performing the Givens decomposition.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.givens.apply_matrix_to_slices">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.givens.</span></span><span class="sig-name descname"><span class="pre">apply_matrix_to_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/linalg/givens.html#apply_matrix_to_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.givens.apply_matrix_to_slices" title="Link to this definition">¶</a></dt>
@@ -237,9 +294,9 @@ whose columns are the vectors.</p>
 </dd></dl>
 
 </section>
-<section id="ffsim-linalg-linalg-module">
-<h2>ffsim.linalg.linalg module<a class="headerlink" href="#ffsim-linalg-linalg-module" title="Link to this heading">¶</a></h2>
-<p id="module-ffsim.linalg.linalg">Linear algebra utilities.</p>
+<section id="module-ffsim.linalg.linalg">
+<span id="ffsim-linalg-linalg-module"></span><h2>ffsim.linalg.linalg module<a class="headerlink" href="#module-ffsim.linalg.linalg" title="Link to this heading">¶</a></h2>
+<p>Linear algebra utilities.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.linalg.expm_multiply_taylor">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.linalg.</span></span><span class="sig-name descname"><span class="pre">expm_multiply_taylor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/linalg/linalg.html#expm_multiply_taylor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.linalg.expm_multiply_taylor" title="Link to this definition">¶</a></dt>
@@ -264,9 +321,9 @@ U is upper triangular, and P is a permutation matrix.</p>
 </dd></dl>
 
 </section>
-<section id="ffsim-linalg-predicates-module">
-<h2>ffsim.linalg.predicates module<a class="headerlink" href="#ffsim-linalg-predicates-module" title="Link to this heading">¶</a></h2>
-<p id="module-ffsim.linalg.predicates">Linear algebra predicates.</p>
+<section id="module-ffsim.linalg.predicates">
+<span id="ffsim-linalg-predicates-module"></span><h2>ffsim.linalg.predicates module<a class="headerlink" href="#module-ffsim.linalg.predicates" title="Link to this heading">¶</a></h2>
+<p>Linear algebra predicates.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.predicates.is_antihermitian">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.predicates.</span></span><span class="sig-name descname"><span class="pre">is_antihermitian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/linalg/predicates.html#is_antihermitian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.predicates.is_antihermitian" title="Link to this definition">¶</a></dt>
@@ -394,9 +451,9 @@ U is upper triangular, and P is a permutation matrix.</p>
 </dd></dl>
 
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
-<p id="module-ffsim.linalg">Linear algebra utilities.</p>
+<section id="module-ffsim.linalg">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ffsim.linalg" title="Link to this heading">¶</a></h2>
+<p>Linear algebra utilities.</p>
 </section>
 </section>
 
@@ -464,7 +521,7 @@ U is upper triangular, and P is a permutation matrix.</p>
       &copy;2023, IBM.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

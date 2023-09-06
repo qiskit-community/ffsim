@@ -44,9 +44,9 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
-<section id="ffsim-hamiltonians-double-factorized-hamiltonian-module">
-<h2>ffsim.hamiltonians.double_factorized_hamiltonian module<a class="headerlink" href="#ffsim-hamiltonians-double-factorized-hamiltonian-module" title="Link to this heading">¶</a></h2>
-<dl class="py class" id="module-ffsim.hamiltonians.double_factorized_hamiltonian">
+<section id="module-ffsim.hamiltonians.double_factorized_hamiltonian">
+<span id="ffsim-hamiltonians-double-factorized-hamiltonian-module"></span><h2>ffsim.hamiltonians.double_factorized_hamiltonian module<a class="headerlink" href="#module-ffsim.hamiltonians.double_factorized_hamiltonian" title="Link to this heading">¶</a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.hamiltonians.double_factorized_hamiltonian.</span></span><span class="sig-name descname"><span class="pre">DoubleFactorizedHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -179,7 +179,7 @@ quantifying the error in the low rank decomposition.
 It uses <cite>scipy.optimize.minimize</cite>, passing both the objective function
 and its gradient. The core tensors returned by the optimization can be optionally
 constrained to have only certain elements allowed to be nonzero. This is achieved by
-passing the <cite>core_tensor_mask</cite> parameter, which is an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of
+passing the <cite>diag_coulomb_mask</cite> parameter, which is an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of
 boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals. The nonzero elements of
 this matrix indicate where the core tensors are allowed to be nonzero. Only the
 upper triangular part of the matrix is used because the core tensors are symmetric.</p>
@@ -246,9 +246,9 @@ is set to True.</p></li>
 </dd></dl>
 
 </section>
-<section id="ffsim-hamiltonians-molecular-hamiltonian-module">
-<h2>ffsim.hamiltonians.molecular_hamiltonian module<a class="headerlink" href="#ffsim-hamiltonians-molecular-hamiltonian-module" title="Link to this heading">¶</a></h2>
-<dl class="py class" id="module-ffsim.hamiltonians.molecular_hamiltonian">
+<section id="module-ffsim.hamiltonians.molecular_hamiltonian">
+<span id="ffsim-hamiltonians-molecular-hamiltonian-module"></span><h2>ffsim.hamiltonians.molecular_hamiltonian module<a class="headerlink" href="#module-ffsim.hamiltonians.molecular_hamiltonian" title="Link to this heading">¶</a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.hamiltonians.molecular_hamiltonian.</span></span><span class="sig-name descname"><span class="pre">MolecularHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -288,9 +288,9 @@ the two-body tensor.</p>
 </dd></dl>
 
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
-<p id="module-ffsim.hamiltonians">Classes for representing Hamiltonians.</p>
+<section id="module-ffsim.hamiltonians">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ffsim.hamiltonians" title="Link to this heading">¶</a></h2>
+<p>Classes for representing Hamiltonians.</p>
 </section>
 </section>
 
@@ -358,7 +358,7 @@ the two-body tensor.</p>
       &copy;2023, IBM.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

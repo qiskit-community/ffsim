@@ -244,6 +244,29 @@
     <span class="n">cholesky_vecs</span> <span class="o">+=</span> <span class="n">cholesky_vecs</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ipr,iqs-&gt;prqs&quot;</span><span class="p">,</span> <span class="n">cholesky_vecs</span><span class="p">,</span> <span class="n">cholesky_vecs</span><span class="p">)</span></div>
 
+
+
+<div class="viewcode-block" id="random_t2_amplitudes">
+<a class="viewcode-back" href="../../api/generated/ffsim.html#ffsim.random.random_t2_amplitudes">[docs]</a>
+<span class="k">def</span> <span class="nf">random_t2_amplitudes</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random t2 amplitudes tensor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of orbitals.</span>
+<span class="sd">        nocc: The number of orbitals that are occupied by an electron.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled t2 amplitudes tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">nvrt</span> <span class="o">=</span> <span class="n">norb</span> <span class="o">-</span> <span class="n">nocc</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nocc</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">))</span>
+    <span class="n">t2</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">t2</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">t2</span></div>
+
 </pre></div>
 
           </div>
@@ -303,7 +326,7 @@
       &copy;2023, IBM.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
