@@ -36,13 +36,13 @@ def test_parameters_roundtrip():
         [ffsim.random.random_unitary(norb) for _ in range(n_reps)]
     )
     final_orbital_rotation = ffsim.random.random_unitary(norb)
-    operator = ffsim.UnitaryClusterJastrowOp(
+    operator = ffsim.UCJOperator(
         diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
         diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
         orbital_rotations=orbital_rotations,
         final_orbital_rotation=final_orbital_rotation,
     )
-    roundtripped = ffsim.UnitaryClusterJastrowOp.from_parameters(
+    roundtripped = ffsim.UCJOperator.from_parameters(
         operator.to_parameters(),
         norb=norb,
         n_reps=n_reps,
@@ -79,7 +79,7 @@ def test_t_amplitudes_roundtrip():
     t2 = ffsim.random.random_t2_amplitudes(norb, nocc)
     t1 = rng.standard_normal((nocc, norb - nocc))
 
-    operator = ffsim.UnitaryClusterJastrowOp.from_t_amplitudes(t2, t1=t1)
+    operator = ffsim.UCJOperator.from_t_amplitudes(t2, t1=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
     np.testing.assert_allclose(
@@ -116,7 +116,7 @@ def test_t_amplitudes():
 
     # Construct UCJ operator
     n_reps = 2
-    operator = ffsim.UnitaryClusterJastrowOp.from_t_amplitudes(t2, n_reps=n_reps)
+    operator = ffsim.UCJOperator.from_t_amplitudes(t2, n_reps=n_reps)
 
     # Construct the Hartree-Fock state to use as the reference state
     n_alpha, n_beta = nelec
@@ -125,7 +125,7 @@ def test_t_amplitudes():
     )
 
     # Apply the operator to the reference state
-    ansatz_state = ffsim.apply_unitary_cluster_jastrow_op(
+    ansatz_state = ffsim.apply_ucj_operator(
         reference_state, operator, norb=norb, nelec=nelec
     )
 

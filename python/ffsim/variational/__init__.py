@@ -11,6 +11,6 @@
 """Variational ansatzes."""
 
 from ffsim.variational.lucj import (
-    UnitaryClusterJastrowOp,
-    apply_unitary_cluster_jastrow_op,
+    UCJOperator,
+    apply_ucj_operator,
 )
