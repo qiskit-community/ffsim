@@ -97,8 +97,8 @@ def double_factorized(
 
     .. math::
 
-        h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk}
-            Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
+        h_{pqrs} = \sum_{t=1}^L \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
+            U^{t}_{r\ell} U^{t}_{s\ell}
 
     Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a
     "diagonal Coulomb matrix," and each :math:`U^{t}` is a unitary matrix, referred to
@@ -159,7 +159,7 @@ def double_factorized(
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
         is collected into a numpy array, so this method returns a tuple of two Numpy
         arrays, the first containing the diagonal Coulomb matrices and the second
-        containing the orbital rotations. Each numpy array will have shape (L, n, n)
+        containing the orbital rotations. Each Numpy array will have shape (L, n, n)
         where L is the rank of the decomposition and n is the number of orbitals.
 
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
@@ -445,13 +445,13 @@ def _grad_leaf_log(mat: np.ndarray, grad_leaf: np.ndarray) -> np.ndarray:
 def double_factorized_t2(
     t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Double-factorized decomposition of t2 amplitudes.
+    r"""Double-factorized decomposition of t2 amplitudes.
 
     The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is
 
     .. math::
 
-        t_{ijab} = i \sum_{k=1}^N \sum_{pq} Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip}
+        t_{ijab} = i \sum_{k=1}^L \sum_{pq} Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip}
             U^{k}_{bq} {U^{k}}^*_{jq}
 
     Here each :math:`Z^{(k)}` is a real symmetric matrix, referred to as a
