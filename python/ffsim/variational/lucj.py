@@ -18,33 +18,10 @@ from typing import List, Tuple, cast
 
 import numpy as np
 import scipy.linalg
+from opt_einsum import contract
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
-
-
-def _to_mat(vec: np.ndarray, o_pairs: list[tuple[int, int]], norb: int):
-    mat = np.zeros((norb, norb))
-    for val, (p, r) in zip(vec, o_pairs):
-        mat[p, r] = val
-    return mat
-
-
-def decompose_t2_amplitudes(t2: np.ndarray, tol: float = 1e-8):
-    nocc, _, nvrt, _ = t2.shape
-    norb = nocc + nvrt
-    t2_mat = np.zeros((norb**2, norb**2))
-    o_pairs = list(itertools.product(range(nocc, norb), range(nocc)))
-    for m, (a, i) in enumerate(o_pairs):
-        for n, (b, j) in enumerate(o_pairs):
-            if i < nocc <= a and j < nocc <= b:
-                t2_mat[m, n] = t2[i, j, a - nocc, b - nocc]
-    eigs, vecs = scipy.linalg.eigh(t2_mat)
-    dec = [
-        (eig, _to_mat(vec, o_pairs, norb))
-        for eig, vec in zip(eigs, vecs.T)
-        if not np.isclose(eig, 0, atol=tol)
-    ]
-    return sorted(dec, key=lambda x: np.abs(x[0]))[::-1]
+from ffsim.linalg import double_factorized_t2
 
 
 @dataclass
@@ -270,35 +247,30 @@ class UnitaryClusterJastrowOp:
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
-        # TODO use ffsim.linalg.double_factorized
-        low_rank = decompose_t2_amplitudes(t2, tol=tol)
-        diag_coulomb_mats_alpha_alpha = []
-        diag_coulomb_mats_alpha_beta = []
-        orbital_rotations = []
-        for smu, Umu in low_rank:
-            Xmu = 0.5 * (1 - 1j) * (Umu + 1j * Umu.T)
-            gmu, Vmu = scipy.linalg.eigh(Xmu)
-            Jmu = smu * np.outer(gmu, gmu)
-            diag_coulomb_mats_alpha_alpha.append(Jmu)
-            diag_coulomb_mats_alpha_alpha.append(-Jmu)
-            diag_coulomb_mats_alpha_beta.append(Jmu)
-            diag_coulomb_mats_alpha_beta.append(-Jmu)
-            orbital_rotations.append(Vmu)
-            orbital_rotations.append(Vmu.conj())
+
+        diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
+        n_vecs, norb, _ = diag_coulomb_mats.shape
+        expanded_diag_coulomb_mats = np.zeros((2 * n_vecs, norb, norb))
+        expanded_orbital_rotations = np.zeros((2 * n_vecs, norb, norb), dtype=complex)
+        expanded_diag_coulomb_mats[::2] = diag_coulomb_mats
+        expanded_diag_coulomb_mats[1::2] = -diag_coulomb_mats
+        expanded_orbital_rotations[::2] = orbital_rotations
+        expanded_orbital_rotations[1::2] = orbital_rotations.conj()
+
+        diag_coulomb_mats_alpha_alpha = expanded_diag_coulomb_mats
+        diag_coulomb_mats_alpha_beta = expanded_diag_coulomb_mats.copy()
+
         final_orbital_rotation = None
         if t1 is not None:
             final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
             final_orbital_rotation_generator[:nocc, nocc:] = t1
             final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
+
         return UnitaryClusterJastrowOp(
-            diag_coulomb_mats_alpha_alpha=np.stack(
-                diag_coulomb_mats_alpha_alpha[:n_reps]
-            ),
-            diag_coulomb_mats_alpha_beta=np.stack(
-                diag_coulomb_mats_alpha_beta[:n_reps]
-            ),
-            orbital_rotations=np.stack(orbital_rotations[:n_reps]),
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha[:n_reps],
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta[:n_reps],
+            orbital_rotations=expanded_orbital_rotations[:n_reps],
             final_orbital_rotation=final_orbital_rotation,
         )
 
@@ -306,14 +278,19 @@ class UnitaryClusterJastrowOp:
         self, nocc: int | None = None
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Convert the UCJ operator to t2 (and possibly t1) amplitudes."""
-        t2 = np.zeros((self.norb, self.norb, self.norb, self.norb), dtype=complex)
-        for mu in range(self.n_reps):
-            Jmu = self.diag_coulomb_mats_alpha_beta[mu]
-            Vmu = self.orbital_rotations[mu]
-            t2 += 1j * np.einsum(
-                "pq,ap,ip,bq,jq->aibj", Jmu, Vmu, np.conj(Vmu), Vmu, np.conj(Vmu)
-            )
-        t2 = np.einsum("aibj->ijab", t2)[:nocc, :nocc, nocc:, nocc:]
+        # TODO this ignores diag_coulomb_mats_alpha_beta
+        t2 = (
+            1j
+            * contract(
+                "kpq,kap,kip,kbq,kjq->ijab",
+                self.diag_coulomb_mats_alpha_alpha,
+                self.orbital_rotations,
+                self.orbital_rotations.conj(),
+                self.orbital_rotations,
+                self.orbital_rotations.conj(),
+                optimize="greedy",
+            )[:nocc, :nocc, nocc:, nocc:]
+        )
 
         if self.final_orbital_rotation is None:
             return t2
