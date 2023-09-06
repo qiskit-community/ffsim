@@ -249,8 +249,16 @@ class UnitaryClusterJastrowOp:
         norb = nocc + nvrt
 
         diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
-        diag_coulomb_mats_alpha_alpha = diag_coulomb_mats
-        diag_coulomb_mats_alpha_beta = diag_coulomb_mats.copy()
+        n_vecs, norb, _ = diag_coulomb_mats.shape
+        expanded_diag_coulomb_mats = np.zeros((2 * n_vecs, norb, norb))
+        expanded_orbital_rotations = np.zeros((2 * n_vecs, norb, norb), dtype=complex)
+        expanded_diag_coulomb_mats[::2] = diag_coulomb_mats
+        expanded_diag_coulomb_mats[1::2] = -diag_coulomb_mats
+        expanded_orbital_rotations[::2] = orbital_rotations
+        expanded_orbital_rotations[1::2] = orbital_rotations.conj()
+
+        diag_coulomb_mats_alpha_alpha = expanded_diag_coulomb_mats
+        diag_coulomb_mats_alpha_beta = expanded_diag_coulomb_mats.copy()
 
         final_orbital_rotation = None
         if t1 is not None:
@@ -262,7 +270,7 @@ class UnitaryClusterJastrowOp:
         return UnitaryClusterJastrowOp(
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha[:n_reps],
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta[:n_reps],
-            orbital_rotations=orbital_rotations[:n_reps],
+            orbital_rotations=expanded_orbital_rotations[:n_reps],
             final_orbital_rotation=final_orbital_rotation,
         )
 
@@ -271,16 +279,18 @@ class UnitaryClusterJastrowOp:
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Convert the UCJ operator to t2 (and possibly t1) amplitudes."""
         # TODO this ignores diag_coulomb_mats_alpha_beta
-        t2 = 1j * contract(
-            "kpq,kap,kip,kbq,kjq->ijab",
-            self.diag_coulomb_mats_alpha_alpha,
-            self.orbital_rotations,
-            np.conj(self.orbital_rotations),
-            self.orbital_rotations,
-            np.conj(self.orbital_rotations),
-            optimize="greedy",
+        t2 = (
+            1j
+            * contract(
+                "kpq,kap,kip,kbq,kjq->ijab",
+                self.diag_coulomb_mats_alpha_alpha,
+                self.orbital_rotations,
+                self.orbital_rotations.conj(),
+                self.orbital_rotations,
+                self.orbital_rotations.conj(),
+                optimize="greedy",
+            )[:nocc, :nocc, nocc:, nocc:]
         )
-        t2 = t2[:nocc, :nocc, nocc:, nocc:]
 
         if self.final_orbital_rotation is None:
             return t2

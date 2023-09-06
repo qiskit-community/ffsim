@@ -104,10 +104,10 @@ def double_factorized(
     "diagonal Coulomb matrix," and each :math:`U^{t}` is a unitary matrix, referred to
     as an "orbital rotation."
 
-    The number of terms :math:`N` in the decomposition depends on the allowed
+    The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
     Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
-    on :math:`N`. The ``max_vecs`` parameter is always respected, so if it is
+    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
@@ -157,7 +157,7 @@ def double_factorized(
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
-        is collected into a numpy array, so this method returns a tuple of two Numpy
+        is collected into a Numpy array, so this method returns a tuple of two Numpy
         arrays, the first containing the diagonal Coulomb matrices and the second
         containing the orbital rotations. Each Numpy array will have shape (L, n, n)
         where L is the rank of the decomposition and n is the number of orbitals.
@@ -451,12 +451,20 @@ def double_factorized_t2(
 
     .. math::
 
-        t_{ijab} = i \sum_{k=1}^L \sum_{pq} Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip}
-            U^{k}_{bq} {U^{k}}^*_{jq}
+        t_{ijab} = i \sum_{k=1}^L \sum_{pq} (
+            Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip} U^{k}_{bq} {U^{k}}^*_{jq}
+            - Z^{k}_{pq} {U^{k}}^*_{ap} U^{k}_{ip} {U^{k}}^*_{bq} U^{k}_{jq})
 
     Here each :math:`Z^{(k)}` is a real symmetric matrix, referred to as a
     "diagonal Coulomb matrix," and each :math:`U^{k}` is a unitary matrix, referred to
     as an "orbital rotation."
+
+    The number of terms :math:`L` in the decomposition depends on the allowed
+    error threshold. A larger error threshold may yield a smaller number of terms.
+    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
+    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is
+    too small, then the error of the decomposition may exceed the specified
+    error threshold.
 
     Args:
         t2_amplitudes: The t2 amplitudes tensor.
@@ -465,13 +473,14 @@ def double_factorized_t2(
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
         max_vecs: An optional limit on the number of terms to keep in the decomposition
-            of the two-body tensor. This argument overrides ``tol``.
+            of the t2 amplitudes tensor. This argument overrides ``tol``.
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
-        is collected into a numpy array, so this method returns a tuple of two Numpy
+        is collected into a Numpy array, so this method returns a tuple of two Numpy
         arrays, the first containing the diagonal Coulomb matrices and the second
-        containing the orbital rotations.
+        containing the orbital rotations. Each Numpy array will have shape (L, n, n)
+        where L is the rank of the decomposition and n is the number of orbitals.
     """
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
@@ -490,8 +499,6 @@ def double_factorized_t2(
         inner_eigs, inner_vecs = scipy.linalg.eigh(mat)
         diag_coulomb_mat = outer_eig * np.outer(inner_eigs, inner_eigs)
         diag_coulomb_mats.append(diag_coulomb_mat)
-        diag_coulomb_mats.append(-diag_coulomb_mat)
         orbital_rotations.append(inner_vecs)
-        orbital_rotations.append(inner_vecs.conj())
 
     return np.stack(diag_coulomb_mats), np.stack(orbital_rotations)
