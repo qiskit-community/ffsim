@@ -62,4 +62,4 @@ from ffsim.trotter import (
     simulate_qdrift_double_factorized,
     simulate_trotter_double_factorized,
 )
-from ffsim.variational import UnitaryClusterJastrowOp, apply_unitary_cluster_jastrow_op
+from ffsim.variational import UCJOperator, apply_ucj_operator
