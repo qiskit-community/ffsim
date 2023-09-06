@@ -473,7 +473,6 @@ def double_factorized_t2(
         arrays, the first containing the diagonal Coulomb matrices and the second
         containing the orbital rotations.
     """
-    # TODO test error tolerance
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
 

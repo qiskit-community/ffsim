@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pyscf import ao2mo, gto, mcscf, scf
+from pyscf import ao2mo, cc, gto, mcscf, scf
 
 from ffsim.linalg import (
     double_factorized,
@@ -256,13 +256,86 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     """Test double factorization of random t2 amplitudes."""
     t2 = random_t2_amplitudes(norb, nocc)
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2)
-    reconstructed = 1j * np.einsum(
-        "kpq,kap,kip,kbq,kjq->ijab",
-        diag_coulomb_mats,
-        orbital_rotations,
-        np.conj(orbital_rotations),
-        orbital_rotations,
-        np.conj(orbital_rotations),
+    reconstructed = (
+        1j
+        * np.einsum(
+            "kpq,kap,kip,kbq,kjq->ijab",
+            diag_coulomb_mats,
+            orbital_rotations,
+            np.conj(orbital_rotations),
+            orbital_rotations,
+            np.conj(orbital_rotations),
+        )[:nocc, :nocc, nocc:, nocc:]
     )
-    reconstructed = reconstructed[:nocc, :nocc, nocc:, nocc:]
     np.testing.assert_allclose(reconstructed, t2, atol=1e-8)
+
+
+def test_double_factorized_t2_tol_max_vecs():
+    """Test low rank decomposition error threshold and max vecs."""
+    mol = gto.Mole()
+    mol.build(
+        verbose=0,
+        atom=[["Li", (0, 0, 0)], ["H", (1.6, 0, 0)]],
+        basis="sto-3g",
+    )
+    hartree_fock = scf.RHF(mol)
+    hartree_fock.kernel()
+
+    ccsd = cc.CCSD(hartree_fock)
+    _, _, t2 = ccsd.kernel()
+    nocc, _, _, _ = t2.shape
+
+    # test max_vecs
+    max_vecs = 8
+    diag_coulomb_mats, orbital_rotations = double_factorized_t2(
+        t2,
+        max_vecs=max_vecs,
+    )
+    reconstructed = (
+        1j
+        * np.einsum(
+            "kpq,kap,kip,kbq,kjq->ijab",
+            diag_coulomb_mats,
+            orbital_rotations,
+            np.conj(orbital_rotations),
+            orbital_rotations,
+            np.conj(orbital_rotations),
+        )[:nocc, :nocc, nocc:, nocc:]
+    )
+    assert len(orbital_rotations) == 2 * max_vecs
+    np.testing.assert_allclose(reconstructed, t2, atol=1e-5)
+
+    # test error threshold
+    tol = 1e-3
+    diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
+    reconstructed = (
+        1j
+        * np.einsum(
+            "kpq,kap,kip,kbq,kjq->ijab",
+            diag_coulomb_mats,
+            orbital_rotations,
+            np.conj(orbital_rotations),
+            orbital_rotations,
+            np.conj(orbital_rotations),
+        )[:nocc, :nocc, nocc:, nocc:]
+    )
+    assert len(orbital_rotations) <= 14
+    np.testing.assert_allclose(reconstructed, t2, atol=tol)
+
+    # test error threshold and max vecs
+    diag_coulomb_mats, orbital_rotations = double_factorized_t2(
+        t2, tol=tol, max_vecs=max_vecs
+    )
+    reconstructed = (
+        1j
+        * np.einsum(
+            "kpq,kap,kip,kbq,kjq->ijab",
+            diag_coulomb_mats,
+            orbital_rotations,
+            np.conj(orbital_rotations),
+            orbital_rotations,
+            np.conj(orbital_rotations),
+        )[:nocc, :nocc, nocc:, nocc:]
+    )
+    assert len(orbital_rotations) <= 14
+    np.testing.assert_allclose(reconstructed, t2, atol=tol)
