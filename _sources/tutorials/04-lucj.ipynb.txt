@@ -11,24 +11,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
-   "metadata": {
-    "execution": {
-     "iopub.execute_input": "2023-09-06T11:40:35.305945Z",
-     "iopub.status.busy": "2023-09-06T11:40:35.305518Z",
-     "iopub.status.idle": "2023-09-06T11:40:35.763259Z",
-     "shell.execute_reply": "2023-09-06T11:40:35.762543Z"
-    }
-   },
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "converged SCF energy = -0.837796382593709\n"
-     ]
-    }
-   ],
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
    "source": [
     "import pyscf\n",
     "import ffsim\n",
@@ -70,38 +55,16 @@
     "\n",
     "Note that this expression for the diagonal Coulomb operator is more general than the one introduced in [the previous tutorial](./03-double-factorized.ipynb) because the matrices $\\mathbf{J}^{\\sigma \\tau}$ are indexed by the spins $\\sigma$ and $\\tau$. In order that the operator commutes with the total spin operator, we enforce that $\\mathbf{J}^{\\alpha\\alpha} = \\mathbf{J}^{\\beta\\beta}$ and $\\mathbf{J}^{\\alpha\\beta} = \\mathbf{J}^{\\beta\\alpha}$. As a result, we have two sets of matrices for describing the diagonal Coulomb operators: \"alpha-alpha\" matrices containing coefficients for terms involving the same spin, and \"alpha-beta\" matrices containing coefficients for terms involving different spins.\n",
     "\n",
-    "In ffsim, the UCJ ansatz operator $\\prod_{k = 1}^L \\mathcal{W_k} e^{i \\mathcal{J}_k} \\mathcal{W_k^\\dagger}$ is represented by the `UnitaryClusterJastrowOp` class, which is just a dataclass that stores the diagonal Coulomb matrices and orbital rotations. A constructor method is provided to initialize the operator from a truncated double factorization of t2 amplitudes (e.g. from CCSD or MP2).\n",
+    "In ffsim, the UCJ ansatz operator $\\prod_{k = 1}^L \\mathcal{W_k} e^{i \\mathcal{J}_k} \\mathcal{W_k^\\dagger}$ is represented by the `UCJOperator` class, which is just a dataclass that stores the diagonal Coulomb matrices and orbital rotations. A constructor method is provided to initialize the operator from a truncated double factorization of t2 amplitudes (e.g. from CCSD or MP2).\n",
     "\n",
-    "In the code cell below, we run CCSD to get the t2 amplitudes for initializing the ansatz. We'll create an ansatz operator with 2 repetitions ($L = 2$). For our reference state, we'll use the Hartree-Fock state. We use the function `apply_unitary_cluster_jastrow_op` to apply the ansatz operator to the reference state to obtain the ansatz state. Finally, we compute the energy of the ansatz state."
+    "In the code cell below, we run CCSD to get the t2 amplitudes for initializing the ansatz. We'll create an ansatz operator with 2 repetitions ($L = 2$). For our reference state, we'll use the Hartree-Fock state. We use the function `apply_ucj_operator` to apply the ansatz operator to the reference state to obtain the ansatz state. Finally, we compute the energy of the ansatz state."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
-   "metadata": {
-    "execution": {
-     "iopub.execute_input": "2023-09-06T11:40:35.767240Z",
-     "iopub.status.busy": "2023-09-06T11:40:35.766476Z",
-     "iopub.status.idle": "2023-09-06T11:40:35.931046Z",
-     "shell.execute_reply": "2023-09-06T11:40:35.929896Z"
-    }
-   },
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "E(CCSD) = -0.9707730767165441  E_corr = -0.1329766941228354\n"
-     ]
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Energy at initialialization: -0.9696246123746104\n"
-     ]
-    }
-   ],
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
    "source": [
     "import numpy as np\n",
     "from pyscf import cc\n",
@@ -112,7 +75,7 @@
     "\n",
     "# Construct UCJ operator\n",
     "n_reps = 2\n",
-    "operator = ffsim.UnitaryClusterJastrowOp.from_t_amplitudes(t2, n_reps=n_reps)\n",
+    "operator = ffsim.UCJOperator.from_t_amplitudes(t2, n_reps=n_reps)\n",
     "\n",
     "# Construct the Hartree-Fock state to use as the reference state\n",
     "n_alpha, n_beta = nelec\n",
@@ -121,7 +84,7 @@
     ")\n",
     "\n",
     "# Apply the operator to the reference state\n",
-    "ansatz_state = ffsim.apply_unitary_cluster_jastrow_op(\n",
+    "ansatz_state = ffsim.apply_ucj_operator(\n",
     "    reference_state, operator, norb=norb, nelec=nelec\n",
     ")\n",
     "\n",
@@ -135,56 +98,25 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "To facilitate variational optimization of the ansatz, `UnitaryClusterJastrowOp` implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)\n",
+    "To facilitate variational optimization of the ansatz, `UCJOperator` implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)\n",
     "\n",
     "The following code cell shows how one can define an objective function that takes as input a parameter vector and outputs the energy of the associated ansatz state, and then optimize this objective function using `scipy.optimize.minimize`."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
-   "metadata": {
-    "execution": {
-     "iopub.execute_input": "2023-09-06T11:40:35.934465Z",
-     "iopub.status.busy": "2023-09-06T11:40:35.934108Z",
-     "iopub.status.idle": "2023-09-06T11:40:36.168075Z",
-     "shell.execute_reply": "2023-09-06T11:40:36.167290Z"
-    }
-   },
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Number of parameters: 20\n",
-      "  message: Optimization terminated successfully.\n",
-      "  success: True\n",
-      "   status: 0\n",
-      "      fun: -0.9707730753914435\n",
-      "        x: [-2.678e-01  2.678e-01 ... -1.970e+00 -1.970e+00]\n",
-      "      nit: 2\n",
-      "      jac: [ 0.000e+00  0.000e+00 ...  7.451e-08 -8.941e-08]\n",
-      " hess_inv: [[ 1.000e+00  0.000e+00 ... -1.374e-12  4.036e-13]\n",
-      "            [ 0.000e+00  1.000e+00 ...  0.000e+00  0.000e+00]\n",
-      "            ...\n",
-      "            [-1.374e-12  0.000e+00 ...  1.000e+00  3.571e-13]\n",
-      "            [ 4.036e-13  0.000e+00 ...  3.571e-13  1.000e+00]]\n",
-      "     nfev: 63\n",
-      "     njev: 3\n"
-     ]
-    }
-   ],
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
    "source": [
     "import scipy.optimize\n",
     "\n",
     "\n",
     "def fun(x):\n",
     "    # Initialize the ansatz operator from the parameter vector\n",
-    "    operator = ffsim.UnitaryClusterJastrowOp.from_parameters(\n",
-    "        x, norb=norb, n_reps=n_reps\n",
-    "    )\n",
+    "    operator = ffsim.UCJOperator.from_parameters(x, norb=norb, n_reps=n_reps)\n",
     "    # Apply the ansatz operator to the reference state\n",
-    "    final_state = ffsim.apply_unitary_cluster_jastrow_op(\n",
+    "    final_state = ffsim.apply_ucj_operator(\n",
     "        reference_state, operator, norb=norb, nelec=(n_alpha, n_beta)\n",
     "    )\n",
     "    # Return the energy ⟨ψ|H|ψ⟩ of the ansatz state\n",
@@ -221,38 +153,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
-   "metadata": {
-    "execution": {
-     "iopub.execute_input": "2023-09-06T11:40:36.174070Z",
-     "iopub.status.busy": "2023-09-06T11:40:36.172853Z",
-     "iopub.status.idle": "2023-09-06T11:40:36.441168Z",
-     "shell.execute_reply": "2023-09-06T11:40:36.440387Z"
-    }
-   },
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Number of parameters: 14\n",
-      "  message: Optimization terminated successfully.\n",
-      "  success: True\n",
-      "   status: 0\n",
-      "      fun: -0.9707730754179811\n",
-      "        x: [ 2.678e-01 -2.678e-01 ... -1.970e+00 -1.970e+00]\n",
-      "      nit: 4\n",
-      "      jac: [ 0.000e+00  0.000e+00 ...  7.451e-09 -2.980e-08]\n",
-      " hess_inv: [[ 1.000e+00  0.000e+00 ...  0.000e+00  0.000e+00]\n",
-      "            [ 0.000e+00  1.000e+00 ...  0.000e+00  0.000e+00]\n",
-      "            ...\n",
-      "            [ 0.000e+00  0.000e+00 ...  1.000e+00  1.790e-10]\n",
-      "            [ 0.000e+00  0.000e+00 ...  1.790e-10  1.000e+00]]\n",
-      "     nfev: 75\n",
-      "     njev: 5\n"
-     ]
-    }
-   ],
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
    "source": [
     "alpha_alpha_indices = [(p, p + 1) for p in range(norb - 1)]\n",
     "alpha_beta_indices = [(p, p) for p in range(norb)]\n",
@@ -260,7 +163,7 @@
     "\n",
     "def fun(x):\n",
     "    # Initialize the ansatz operator from the parameter vector\n",
-    "    operator = ffsim.UnitaryClusterJastrowOp.from_parameters(\n",
+    "    operator = ffsim.UCJOperator.from_parameters(\n",
     "        x,\n",
     "        norb=norb,\n",
     "        n_reps=n_reps,\n",
@@ -268,7 +171,7 @@
     "        alpha_beta_indices=alpha_beta_indices,\n",
     "    )\n",
     "    # Apply the ansatz operator to the reference state\n",
-    "    final_state = ffsim.apply_unitary_cluster_jastrow_op(\n",
+    "    final_state = ffsim.apply_ucj_operator(\n",
     "        reference_state, operator, norb=norb, nelec=(n_alpha, n_beta)\n",
     "    )\n",
     "    # Return the energy ⟨ψ|H|ψ⟩ of the ansatz state\n",
@@ -302,7 +205,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.11.4"
+   "version": "3.10.11"
   }
  },
  "nbformat": 4,

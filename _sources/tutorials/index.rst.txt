@@ -10,4 +10,4 @@ ffsim tutorials.
    01-introduction
    02-orbital-rotation
    03-double-factorized
-   04-LUCJ
+   04-lucj

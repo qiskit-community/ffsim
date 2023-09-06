@@ -61,10 +61,10 @@
 <span class="kn">from</span> <span class="nn">ffsim.linalg</span> <span class="kn">import</span> <span class="n">double_factorized_t2</span>
 
 
-<div class="viewcode-block" id="UnitaryClusterJastrowOp">
-<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp">[docs]</a>
+<div class="viewcode-block" id="UCJOperator">
+<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UCJOperator">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">UnitaryClusterJastrowOp</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">UCJOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A unitary cluster Jastrow operator.</span>
 
 <span class="sd">    A unitary cluster Jastrow (UCJ) operator has the form</span>
@@ -114,8 +114,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of ansatz repetitions.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="UnitaryClusterJastrowOp.from_parameters">
-<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.from_parameters">[docs]</a>
+<div class="viewcode-block" id="UCJOperator.from_parameters">
+<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UCJOperator.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -125,7 +125,7 @@
         <span class="n">alpha_alpha_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alpha_beta_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UnitaryClusterJastrowOp&quot;</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UCJOperator&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the UCJ operator from a real-valued parameter vector.&quot;&quot;&quot;</span>
         <span class="n">triu_indices</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
             <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
@@ -203,7 +203,7 @@
             <span class="n">final_orbital_rotation_generator</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">-=</span> <span class="n">vals</span>
             <span class="c1"># exponentiate final orbital rotation generator</span>
             <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">(</span><span class="n">final_orbital_rotation_generator</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">UnitaryClusterJastrowOp</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">UCJOperator</span><span class="p">(</span>
             <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
             <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
             <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
@@ -211,8 +211,8 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="UnitaryClusterJastrowOp.to_parameters">
-<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.to_parameters">[docs]</a>
+<div class="viewcode-block" id="UCJOperator.to_parameters">
+<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UCJOperator.to_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">to_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -280,8 +280,8 @@
         <span class="k">return</span> <span class="n">theta</span></div>
 
 
-<div class="viewcode-block" id="UnitaryClusterJastrowOp.from_t_amplitudes">
-<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.from_t_amplitudes">[docs]</a>
+<div class="viewcode-block" id="UCJOperator.from_t_amplitudes">
+<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UCJOperator.from_t_amplitudes">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_t_amplitudes</span><span class="p">(</span>
         <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -289,7 +289,7 @@
         <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UnitaryClusterJastrowOp&quot;</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UCJOperator&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the UCJ operator from t2 (and optionally t1) amplitudes.&quot;&quot;&quot;</span>
         <span class="c1"># TODO maybe allow specifying alpha-alpha and alpha-beta indices</span>
         <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">shape</span>
@@ -314,7 +314,7 @@
             <span class="n">final_orbital_rotation_generator</span><span class="p">[</span><span class="n">nocc</span><span class="p">:,</span> <span class="p">:</span><span class="n">nocc</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">t1</span><span class="o">.</span><span class="n">T</span>
             <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">(</span><span class="n">final_orbital_rotation_generator</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">UnitaryClusterJastrowOp</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">UCJOperator</span><span class="p">(</span>
             <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
             <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
             <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">expanded_orbital_rotations</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
@@ -322,8 +322,8 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="UnitaryClusterJastrowOp.to_t_amplitudes">
-<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UnitaryClusterJastrowOp.to_t_amplitudes">[docs]</a>
+<div class="viewcode-block" id="UCJOperator.to_t_amplitudes">
+<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.UCJOperator.to_t_amplitudes">[docs]</a>
     <span class="k">def</span> <span class="nf">to_t_amplitudes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
@@ -351,11 +351,11 @@
 
 
 
-<div class="viewcode-block" id="apply_unitary_cluster_jastrow_op">
-<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.apply_unitary_cluster_jastrow_op">[docs]</a>
-<span class="k">def</span> <span class="nf">apply_unitary_cluster_jastrow_op</span><span class="p">(</span>
+<div class="viewcode-block" id="apply_ucj_operator">
+<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.apply_ucj_operator">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_ucj_operator</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">operator</span><span class="p">:</span> <span class="n">UnitaryClusterJastrowOp</span><span class="p">,</span>
+    <span class="n">operator</span><span class="p">:</span> <span class="n">UCJOperator</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>

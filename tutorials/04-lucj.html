@@ -85,8 +85,8 @@ converged SCF energy = -0.837796382593709
 \[\mathcal{J} = \frac12\sum_{ij,\sigma \tau} \mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.\]</div>
 <p>Note that this expression for the diagonal Coulomb operator is more general than the one introduced in <a class="reference internal" href="03-double-factorized.html"><span class="doc">the previous tutorial</span></a> because the matrices <span class="math notranslate nohighlight">\(\mathbf{J}^{\sigma \tau}\)</span> are indexed by the spins <span class="math notranslate nohighlight">\(\sigma\)</span> and <span class="math notranslate nohighlight">\(\tau\)</span>. In order that the operator commutes with the total spin operator, we enforce that <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}\)</span>. As a result, we have
 two sets of matrices for describing the diagonal Coulomb operators: “alpha-alpha” matrices containing coefficients for terms involving the same spin, and “alpha-beta” matrices containing coefficients for terms involving different spins.</p>
-<p>In ffsim, the UCJ ansatz operator <span class="math notranslate nohighlight">\(\prod_{k = 1}^L \mathcal{W_k} e^{i \mathcal{J}_k} \mathcal{W_k^\dagger}\)</span> is represented by the <code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp</span></code> class, which is just a dataclass that stores the diagonal Coulomb matrices and orbital rotations. A constructor method is provided to initialize the operator from a truncated double factorization of t2 amplitudes (e.g. from CCSD or MP2).</p>
-<p>In the code cell below, we run CCSD to get the t2 amplitudes for initializing the ansatz. We’ll create an ansatz operator with 2 repetitions (<span class="math notranslate nohighlight">\(L = 2\)</span>). For our reference state, we’ll use the Hartree-Fock state. We use the function <code class="docutils literal notranslate"><span class="pre">apply_unitary_cluster_jastrow_op</span></code> to apply the ansatz operator to the reference state to obtain the ansatz state. Finally, we compute the energy of the ansatz state.</p>
+<p>In ffsim, the UCJ ansatz operator <span class="math notranslate nohighlight">\(\prod_{k = 1}^L \mathcal{W_k} e^{i \mathcal{J}_k} \mathcal{W_k^\dagger}\)</span> is represented by the <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> class, which is just a dataclass that stores the diagonal Coulomb matrices and orbital rotations. A constructor method is provided to initialize the operator from a truncated double factorization of t2 amplitudes (e.g. from CCSD or MP2).</p>
+<p>In the code cell below, we run CCSD to get the t2 amplitudes for initializing the ansatz. We’ll create an ansatz operator with 2 repetitions (<span class="math notranslate nohighlight">\(L = 2\)</span>). For our reference state, we’ll use the Hartree-Fock state. We use the function <code class="docutils literal notranslate"><span class="pre">apply_ucj_operator</span></code> to apply the ansatz operator to the reference state to obtain the ansatz state. Finally, we compute the energy of the ansatz state.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -100,7 +100,7 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 
 <span class="c1"># Construct UCJ operator</span>
 <span class="n">n_reps</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UnitaryClusterJastrowOp</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
+<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
 
 <span class="c1"># Construct the Hartree-Fock state to use as the reference state</span>
 <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
@@ -109,7 +109,7 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 <span class="p">)</span>
 
 <span class="c1"># Apply the operator to the reference state</span>
-<span class="n">ansatz_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary_cluster_jastrow_op</span><span class="p">(</span>
+<span class="n">ansatz_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_ucj_operator</span><span class="p">(</span>
     <span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
 <span class="p">)</span>
 
@@ -129,7 +129,7 @@ E(CCSD) = -0.9707730767165441  E_corr = -0.1329766941228354
 Energy at initialialization: -0.9696246123746104
 </pre></div></div>
 </div>
-<p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
+<p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
 <p>The following code cell shows how one can define an objective function that takes as input a parameter vector and outputs the energy of the associated ansatz state, and then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -140,11 +140,9 @@ Energy at initialialization: -0.9696246123746104
 
 <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Initialize the ansatz operator from the parameter vector</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UnitaryClusterJastrowOp</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span>
-    <span class="p">)</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
     <span class="c1"># Apply the ansatz operator to the reference state</span>
-    <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary_cluster_jastrow_op</span><span class="p">(</span>
+    <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_ucj_operator</span><span class="p">(</span>
         <span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># Return the energy ⟨ψ|H|ψ⟩ of the ansatz state</span>
@@ -203,7 +201,7 @@ connectivity. The constraints are specified by a list of indices indicating whic
 
 <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Initialize the ansatz operator from the parameter vector</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UnitaryClusterJastrowOp</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
         <span class="n">x</span><span class="p">,</span>
         <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
         <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
@@ -211,7 +209,7 @@ connectivity. The constraints are specified by a list of indices indicating whic
         <span class="n">alpha_beta_indices</span><span class="o">=</span><span class="n">alpha_beta_indices</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Apply the ansatz operator to the reference state</span>
-    <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary_cluster_jastrow_op</span><span class="p">(</span>
+    <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_ucj_operator</span><span class="p">(</span>
         <span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># Return the energy ⟨ψ|H|ψ⟩ of the ansatz state</span>
@@ -318,7 +316,7 @@ Number of parameters: 14
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
-      <a href="../_sources/tutorials/04-LUCJ.ipynb.txt"
+      <a href="../_sources/tutorials/04-lucj.ipynb.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -47,8 +47,8 @@
 <span id="ffsim-variational-lucj-module"></span><h2>ffsim.variational.lucj module<a class="headerlink" href="#module-ffsim.variational.lucj" title="Link to this heading">¶</a></h2>
 <p>(Local) unitary cluster Jastrow ansatz.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.variational.lucj.</span></span><span class="sig-name descname"><span class="pre">UnitaryClusterJastrowOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UnitaryClusterJastrowOp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.variational.lucj.</span></span><span class="sig-name descname"><span class="pre">UCJOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UCJOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A unitary cluster Jastrow operator.</p>
 <p>A unitary cluster Jastrow (UCJ) operator has the form</p>
@@ -69,66 +69,66 @@ spins.</p>
 <p>To support variational optimization of the orbital basis, an optional final
 orbital rotation can be included in the operator, to be performed at the end.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_alpha">
-<span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_alpha" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.diag_coulomb_mats_alpha_alpha">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.diag_coulomb_mats_alpha_alpha" title="Link to this definition">¶</a></dt>
 <dd><p>The “alpha-alpha” diagonal Coulomb matrices.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_beta">
-<span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_beta</span></span><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.diag_coulomb_mats_alpha_beta" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.diag_coulomb_mats_alpha_beta">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_beta</span></span><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.diag_coulomb_mats_alpha_beta" title="Link to this definition">¶</a></dt>
 <dd><p>The “alpha-beta” diagonal Coulomb matrices.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.orbital_rotations">
-<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.orbital_rotations" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.orbital_rotations">
+<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.orbital_rotations" title="Link to this definition">¶</a></dt>
 <dd><p>The orbital rotations.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.final_orbital_rotation">
-<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.final_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.final_orbital_rotation">
+<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.final_orbital_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>The optional final orbital rotation.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.from_parameters">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UnitaryClusterJastrowOp.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.from_parameters" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UCJOperator.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.from_parameters" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp" title="ffsim.variational.lucj.UnitaryClusterJastrowOp"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#ffsim.variational.lucj.UCJOperator" title="ffsim.variational.lucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.from_t_amplitudes">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UnitaryClusterJastrowOp.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.from_t_amplitudes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UCJOperator.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.from_t_amplitudes" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp" title="ffsim.variational.lucj.UnitaryClusterJastrowOp"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#ffsim.variational.lucj.UCJOperator" title="ffsim.variational.lucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.n_reps">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.n_reps" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.n_reps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.n_reps" title="Link to this definition">¶</a></dt>
 <dd><p>The number of ansatz repetitions.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.norb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.norb" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.to_parameters">
-<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UnitaryClusterJastrowOp.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.to_parameters" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UCJOperator.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.to_parameters" title="Link to this definition">¶</a></dt>
 <dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -138,8 +138,8 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.UnitaryClusterJastrowOp.to_t_amplitudes">
-<span class="sig-name descname"><span class="pre">to_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nocc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UnitaryClusterJastrowOp.to_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp.to_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.UCJOperator.to_t_amplitudes">
+<span class="sig-name descname"><span class="pre">to_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nocc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#UCJOperator.to_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.UCJOperator.to_t_amplitudes" title="Link to this definition">¶</a></dt>
 <dd><p>Convert the UCJ operator to t2 (and possibly t1) amplitudes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -151,14 +151,14 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.apply_unitary_cluster_jastrow_op">
-<span class="sig-prename descclassname"><span class="pre">ffsim.variational.lucj.</span></span><span class="sig-name descname"><span class="pre">apply_unitary_cluster_jastrow_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#apply_unitary_cluster_jastrow_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.apply_unitary_cluster_jastrow_op" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.variational.lucj.apply_ucj_operator">
+<span class="sig-prename descclassname"><span class="pre">ffsim.variational.lucj.</span></span><span class="sig-name descname"><span class="pre">apply_ucj_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#apply_ucj_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.apply_ucj_operator" title="Link to this definition">¶</a></dt>
 <dd><p>Apply a UCJ operator to a vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>operator</strong> (<a class="reference internal" href="#ffsim.variational.lucj.UnitaryClusterJastrowOp" title="ffsim.variational.lucj.UnitaryClusterJastrowOp"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnitaryClusterJastrowOp</span></code></a>) – The UCJ operator.</p></li>
+<li><p><strong>operator</strong> (<a class="reference internal" href="#ffsim.variational.lucj.UCJOperator" title="ffsim.variational.lucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a>) – The UCJ operator.</p></li>
 <li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
 <li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
