@@ -25,7 +25,7 @@ from ffsim.linalg import double_factorized_t2
 
 
 @dataclass
-class UnitaryClusterJastrowOp:
+class UCJOperator:
     r"""A unitary cluster Jastrow operator.
 
     A unitary cluster Jastrow (UCJ) operator has the form
@@ -84,7 +84,7 @@ class UnitaryClusterJastrowOp:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
-    ) -> "UnitaryClusterJastrowOp":
+    ) -> "UCJOperator":
         """Initialize the UCJ operator from a real-valued parameter vector."""
         triu_indices = cast(
             List[Tuple[int, int]],
@@ -162,7 +162,7 @@ class UnitaryClusterJastrowOp:
             final_orbital_rotation_generator[cols, rows] -= vals
             # exponentiate final orbital rotation generator
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
-        return UnitaryClusterJastrowOp(
+        return UCJOperator(
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
             orbital_rotations=orbital_rotations,
@@ -242,7 +242,7 @@ class UnitaryClusterJastrowOp:
         n_reps: int | None = None,
         t1: np.ndarray | None = None,
         tol: float = 1e-8,
-    ) -> "UnitaryClusterJastrowOp":
+    ) -> "UCJOperator":
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
@@ -267,7 +267,7 @@ class UnitaryClusterJastrowOp:
             final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
-        return UnitaryClusterJastrowOp(
+        return UCJOperator(
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha[:n_reps],
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta[:n_reps],
             orbital_rotations=expanded_orbital_rotations[:n_reps],
@@ -299,9 +299,9 @@ class UnitaryClusterJastrowOp:
         return t2, t1
 
 
-def apply_unitary_cluster_jastrow_op(
+def apply_ucj_operator(
     vec: np.ndarray,
-    operator: UnitaryClusterJastrowOp,
+    operator: UCJOperator,
     *,
     norb: int,
     nelec: tuple[int, int],
