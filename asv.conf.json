@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "project": "ffsim",
+    "project_url": "https://github.com/qiskit-community/ffsim",
+    "repo": ".",
+    "build_command": [
+        "python -m pip install build maturin",
+        "python -m build",
+        "PIP_NO_BUILD_ISOLATION=false python -mpip wheel --no-deps --no-index -w {build_cache_dir} {build_dir}"
+    ],
+    "branches": [
+        "main"
+    ],
+    "dvcs": "git",
+    "environment_type": "virtualenv",
+    "show_commit_url": "http://github.com/qiskit-community/ffsim/commit/",
+    "pythons": [
+        "3.10"
+    ],
+    "matrix": {
+        "env_nobuild": {
+            "RAYON_NUM_THREADS": [
+                "1",
+                "6"
+            ],
+            "OMP_NUM_THREADS": [
+                "1",
+                "6"
+            ],
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+        }
+    },
+    "env_dir": ".asv/env",
+    "results_dir": ".asv/results",
+    "html_dir": ".asv/html"
+}
