@@ -24,7 +24,7 @@ than a generic quantum circuit simulator.
 
 ## Supported platforms
 
-ffsim is supported on Linux, MacOS, and the Windows Subsystem for Linux (WSL). It is not supported on Windows.
+ffsim is supported on Linux, macOS, and the Windows Subsystem for Linux (WSL). It is not supported on Windows.
 
 ## Installation
 
