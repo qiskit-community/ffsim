@@ -22,6 +22,10 @@ than a generic quantum circuit simulator.
 
 - There is no support for operations that do not preserve particle number and the Z component of spin.
 
+## Supported platforms
+
+ffsim is supported on Linux, MacOS, and the Windows Subsystem for Linux (WSL). It is not supported on Windows.
+
 ## Installation
 
 ### From PyPI
