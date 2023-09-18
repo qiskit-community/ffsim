@@ -73,21 +73,37 @@ from the root directory of the code repository.
 
 To set up ffsim for development, install it from source in editable mode along with the development requirements:
 
-    pip install -e ".[dev]"
+```bash
+pip install -e ".[dev]"
+```
 
 If you add or modify any Rust modules, rebuild them by running the command
 
-    maturin develop --release
+```bash
+maturin develop
+```
+
+If you are benchmarking the code, then pass the `--release` flag:
+
+```bash
+maturin develop --release
+```
 
 Tests and other code checks are managed using [tox](https://tox.wiki/en/latest/).
 To run the default tox environments, simply run
 
-    tox
+```bash
+tox
+```
 
 To run a specific environment, for example, to run the lint checks, do
 
-    tox run -e lint
+```bash
+tox run -e lint
+```
 
 You can also use `pytest` to run the tests directly. For example,
 
-    pytest tests/
+```bash
+pytest tests/
+```
