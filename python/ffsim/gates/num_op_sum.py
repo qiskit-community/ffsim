@@ -34,7 +34,7 @@ def apply_num_op_sum_evolution(
     orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ):
-    """Apply time evolution by a (rotated) linear combination of number operators.
+    r"""Apply time evolution by a (rotated) linear combination of number operators.
 
     Applies
 
