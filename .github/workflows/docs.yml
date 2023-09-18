@@ -20,7 +20,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox
           sudo apt update
-          sudo apt install -y pandoc
+          sudo apt install -y libopenblas-dev pandoc
       - name: Build docs
         run: |
           tox run -e docs
