@@ -38,23 +38,36 @@ pip install ffsim
 
 ### From source
 
-Installing ffsim from source requires a Rust compiler to be present on the system.
-A Rust compiler can be installed by following the instructions [here](https://www.rust-lang.org/tools/install).
-Once the Rust compiler is installed, ffsim can be installed by running the command
+Installing ffsim from source requires the following system dependencies:
+
+- A Rust compiler. See [these instructions](https://www.rust-lang.org/tools/install).
+- A BLAS implementation. For example:
+
+  - Arch Linux:
+
+    ```bash
+    sudo pacman -S blas-openblas
+    ```
+
+  - Fedora:
+
+    ```bash
+    sudo dnf install openblas-devel
+    ```
+
+  - Ubuntu:
+
+    ```bash
+    sudo apt install libopenblas-dev
+    ```
+
+Once these dependencies are satisfied, ffsim can be installed by running the command
 
 ```bash
 pip install .
 ```
 
 from the root directory of the code repository.
-
-Installing from source has only been tested in a Linux environment.
-
-#### Known issues
-
-- It may be a bit tricky to get OpenBLAS to link successfully. If you have issues, try the following:
-  - Run `pip install patchelf`.
-  - Run `pip install -e .` twice in a row.
 
 ## Development
 
