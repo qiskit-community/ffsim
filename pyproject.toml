@@ -55,4 +55,4 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y openssl-devel rust cargo"
+before-all = "yum install -y openssl-devel rust cargo openblas-devel"
