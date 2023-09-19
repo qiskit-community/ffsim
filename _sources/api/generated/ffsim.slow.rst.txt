@@ -1,0 +1,18 @@
+ffsim.slow package
+==================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   ffsim.slow.contract
+   ffsim.slow.gates
+
+Module contents
+---------------
+
+.. automodule:: ffsim.slow
+   :members:
+   :show-inheritance:

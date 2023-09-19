@@ -12,6 +12,7 @@ Subpackages
    ffsim.hamiltonians
    ffsim.linalg
    ffsim.protocols
+   ffsim.slow
    ffsim.trotter
    ffsim.variational
 
@@ -29,13 +30,6 @@ ffsim.random module
 -------------------
 
 .. automodule:: ffsim.random
-   :members:
-   :show-inheritance:
-
-ffsim.slow module
------------------
-
-.. automodule:: ffsim.slow
    :members:
    :show-inheritance:
 

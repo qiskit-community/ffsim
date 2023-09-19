@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ffsim.slow.gates package &#8212; ffsim 0.0.5 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
+    <script src="../../_static/documentation_options.js?v=282f96c0"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ffsim.trotter package" href="ffsim.trotter.html" />
+    <link rel="prev" title="ffsim.slow.contract package" href="ffsim.slow.contract.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ffsim-slow-gates-package">
+<h1>ffsim.slow.gates package<a class="headerlink" href="#ffsim-slow-gates-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-ffsim.slow.gates.diag_coulomb">
+<span id="ffsim-slow-gates-diag-coulomb-module"></span><h2>ffsim.slow.gates.diag_coulomb module<a class="headerlink" href="#module-ffsim.slow.gates.diag_coulomb" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gates.diag_coulomb.apply_diag_coulomb_evolution_in_place_num_rep_numpy">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.gates.diag_coulomb.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow/gates/diag_coulomb.html#apply_diag_coulomb_evolution_in_place_num_rep_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gates.diag_coulomb.apply_diag_coulomb_evolution_in_place_num_rep_numpy" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gates.diag_coulomb.apply_diag_coulomb_evolution_in_place_num_rep_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.gates.diag_coulomb.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow/gates/diag_coulomb.html#apply_diag_coulomb_evolution_in_place_num_rep_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gates.diag_coulomb.apply_diag_coulomb_evolution_in_place_num_rep_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gates.diag_coulomb.apply_diag_coulomb_evolution_in_place_z_rep_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.gates.diag_coulomb.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_z_rep_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp_conj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp_conj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strings_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strings_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow/gates/diag_coulomb.html#apply_diag_coulomb_evolution_in_place_z_rep_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gates.diag_coulomb.apply_diag_coulomb_evolution_in_place_z_rep_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ffsim.slow.gates.num_op_sum">
+<span id="ffsim-slow-gates-num-op-sum-module"></span><h2>ffsim.slow.gates.num_op_sum module<a class="headerlink" href="#module-ffsim.slow.gates.num_op_sum" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gates.num_op_sum.apply_num_op_sum_evolution_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.gates.num_op_sum.</span></span><span class="sig-name descname"><span class="pre">apply_num_op_sum_evolution_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow/gates/num_op_sum.html#apply_num_op_sum_evolution_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gates.num_op_sum.apply_num_op_sum_evolution_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply time evolution by a sum of number operators in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ffsim.slow.gates.orbital_rotation">
+<span id="ffsim-slow-gates-orbital-rotation-module"></span><h2>ffsim.slow.gates.orbital_rotation module<a class="headerlink" href="#module-ffsim.slow.gates.orbital_rotation" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gates.orbital_rotation.apply_givens_rotation_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.gates.orbital_rotation.</span></span><span class="sig-name descname"><span class="pre">apply_givens_rotation_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow/gates/orbital_rotation.html#apply_givens_rotation_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gates.orbital_rotation.apply_givens_rotation_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply a Givens rotation to slices of a state vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gates.orbital_rotation.apply_single_column_transformation_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.gates.orbital_rotation.</span></span><span class="sig-name descname"><span class="pre">apply_single_column_transformation_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow/gates/orbital_rotation.html#apply_single_column_transformation_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gates.orbital_rotation.apply_single_column_transformation_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Apply a single-column orbital rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.slow.gates.orbital_rotation.gen_orbital_rotation_index_in_place_slow">
+<span class="sig-prename descclassname"><span class="pre">ffsim.slow.gates.orbital_rotation.</span></span><span class="sig-name descname"><span class="pre">gen_orbital_rotation_index_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkstr_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow/gates/orbital_rotation.html#gen_orbital_rotation_index_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gates.orbital_rotation.gen_orbital_rotation_index_in_place_slow" title="Link to this definition">¶</a></dt>
+<dd><p>Generate orbital rotation index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ffsim.slow.gates">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ffsim.slow.gates" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API reference</a><ul>
+  <li><a href="modules.html">ffsim</a><ul>
+  <li><a href="ffsim.html">ffsim package</a><ul>
+  <li><a href="ffsim.slow.html">ffsim.slow package</a><ul>
+      <li>Previous: <a href="ffsim.slow.contract.html" title="previous chapter">ffsim.slow.contract package</a></li>
+      <li>Next: <a href="ffsim.trotter.html" title="next chapter">ffsim.trotter package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../_sources/api/generated/ffsim.slow.gates.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

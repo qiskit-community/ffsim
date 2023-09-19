@@ -1,0 +1,33 @@
+ffsim.slow.gates package
+========================
+
+Submodules
+----------
+
+ffsim.slow.gates.diag\_coulomb module
+-------------------------------------
+
+.. automodule:: ffsim.slow.gates.diag_coulomb
+   :members:
+   :show-inheritance:
+
+ffsim.slow.gates.num\_op\_sum module
+------------------------------------
+
+.. automodule:: ffsim.slow.gates.num_op_sum
+   :members:
+   :show-inheritance:
+
+ffsim.slow.gates.orbital\_rotation module
+-----------------------------------------
+
+.. automodule:: ffsim.slow.gates.orbital_rotation
+   :members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: ffsim.slow.gates
+   :members:
+   :show-inheritance:

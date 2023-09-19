@@ -167,6 +167,28 @@
 <li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#module-ffsim.protocols">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.slow.html">ffsim.slow package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.slow.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.slow.contract.html">ffsim.slow.contract package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.contract.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.contract.html#module-ffsim.slow.contract.diag_coulomb">ffsim.slow.contract.diag_coulomb module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.contract.html#module-ffsim.slow.contract.num_op_sum">ffsim.slow.contract.num_op_sum module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.contract.html#module-ffsim.slow.contract">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.slow.gates.html">ffsim.slow.gates package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.gates.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.gates.html#module-ffsim.slow.gates.diag_coulomb">ffsim.slow.gates.diag_coulomb module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.gates.html#module-ffsim.slow.gates.num_op_sum">ffsim.slow.gates.num_op_sum module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.gates.html#module-ffsim.slow.gates.orbital_rotation">ffsim.slow.gates.orbital_rotation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ffsim.slow.gates.html#module-ffsim.slow.gates">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.slow.html#module-ffsim.slow">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="ffsim.trotter.html">ffsim.trotter package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.trotter.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.trotter.html#module-ffsim.trotter.qdrift">ffsim.trotter.qdrift module</a><ul>
@@ -436,87 +458,6 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <ul class="simple">
 <li><p><a class="reference external" href="https://arxiv.org/abs/math-ph/0609050">arXiv:math-ph/0609050</a></p></li>
 </ul>
-</dd></dl>
-
-</section>
-<section id="module-ffsim.slow">
-<span id="ffsim-slow-module"></span><h2>ffsim.slow module<a class="headerlink" href="#module-ffsim.slow" title="Link to this heading">¶</a></h2>
-<p>Python versions of functions that were rewritten in Rust.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_numpy">
-<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_diag_coulomb_evolution_in_place_num_rep_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_numpy" title="Link to this definition">¶</a></dt>
-<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_slow">
-<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_num_rep_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_diag_coulomb_evolution_in_place_num_rep_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_diag_coulomb_evolution_in_place_num_rep_slow" title="Link to this definition">¶</a></dt>
-<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slow.apply_diag_coulomb_evolution_in_place_z_rep_slow">
-<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution_in_place_z_rep_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_exp_conj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta_exp_conj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strings_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strings_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_diag_coulomb_evolution_in_place_z_rep_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_diag_coulomb_evolution_in_place_z_rep_slow" title="Link to this definition">¶</a></dt>
-<dd><p>Apply time evolution by a diagonal Coulomb operator in-place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slow.apply_givens_rotation_in_place_slow">
-<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_givens_rotation_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_givens_rotation_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_givens_rotation_in_place_slow" title="Link to this definition">¶</a></dt>
-<dd><p>Apply a Givens rotation to slices of a state vector.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slow.apply_num_op_sum_evolution_in_place_slow">
-<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_num_op_sum_evolution_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_num_op_sum_evolution_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_num_op_sum_evolution_in_place_slow" title="Link to this definition">¶</a></dt>
-<dd><p>Apply time evolution by a sum of number operators in-place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slow.apply_single_column_transformation_in_place_slow">
-<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">apply_single_column_transformation_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#apply_single_column_transformation_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.apply_single_column_transformation_in_place_slow" title="Link to this definition">¶</a></dt>
-<dd><p>Apply a single-column orbital rotation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slow.gen_orbital_rotation_index_in_place_slow">
-<span class="sig-prename descclassname"><span class="pre">ffsim.slow.</span></span><span class="sig-name descname"><span class="pre">gen_orbital_rotation_index_in_place_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkstr_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_strings_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_diag_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/slow.html#gen_orbital_rotation_index_in_place_slow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slow.gen_orbital_rotation_index_in_place_slow" title="Link to this definition">¶</a></dt>
-<dd><p>Generate orbital rotation index.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
