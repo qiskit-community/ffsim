@@ -27,8 +27,7 @@ def test_double_factorized_hamiltonian(z_representation: bool):
 
     # generate random Hamiltonian
     dim = ffsim.dim(norb, nelec)
-    # TODO test with complex one-body tensor
-    one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=2474)
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
     mol_hamiltonian = ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
     hamiltonian = ffsim.linear_operator(
