@@ -126,7 +126,7 @@ def apply_diag_coulomb_evolution_in_place_num_rep_numpy(
                 nelec=nelec,
                 copy=False,
             )
-            orbitals = [set() for _ in range(2)]
+            orbitals = [set(), set()]
             orbitals[sigma].add(i)
             orbitals[1 - sigma].add(j)
             _apply_phase_shift(
