@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import numpy as np
+from scipy.linalg.blas import zdrot
 
 
 def gen_orbital_rotation_index_in_place_slow(
@@ -74,7 +75,5 @@ def apply_givens_rotation_in_place_slow(
     phase_conj = phase.conjugate()
     for i, j in zip(slice1, slice2):
         vec[i] *= phase_conj
-        tmp = c * vec[i] + s * vec[j]
-        vec[j] = c * vec[j] - s * vec[i]
-        vec[i] = tmp
+        vec[i], vec[j] = zdrot(vec[i], vec[j], c, s)
         vec[i] *= phase
