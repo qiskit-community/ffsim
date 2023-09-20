@@ -27,7 +27,7 @@ def random_statevector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     """
     rng = np.random.default_rng(seed)
     vec = rng.standard_normal(dim).astype(dtype, copy=False)
-    if np.iscomplexobj(dtype):
+    if np.issubdtype(dtype, np.complexfloating):
         vec += 1j * rng.standard_normal(dim).astype(dtype, copy=False)
     vec /= np.linalg.norm(vec)
     return vec
