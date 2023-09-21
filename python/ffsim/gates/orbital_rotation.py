@@ -145,7 +145,7 @@ def apply_orbital_rotation(
 
     .. math::
 
-        \exp(\sum_{ij} log(U)_{ij} a^\dagger{i} a_j)
+        \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_i a_j\right)
 
     Args:
         vec: The state vector to be transformed.
