@@ -62,7 +62,19 @@ def apply_givens_rotation(
 
     .. math::
 
-        G(\theta) = \exp(\theta (a^\dagger_i a_j - a\dagger_j a_i))
+        \text{G}(\theta) = \exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)
+
+    Under the Jordan-Wigner transform, this gate has the following matrix when applied
+    to neighboring qubits:
+
+    .. math::
+
+        \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & \cos(\theta) & -\sin(\theta) & 0\\
+            0 & \sin(\theta) & \cos(\theta) & 0\\
+            0 & 0 & 0 & 1 \\
+        \end{pmatrix}
 
     Args:
         vec: The state vector to be transformed.
@@ -102,7 +114,19 @@ def apply_tunneling_interaction(
 
     .. math::
 
-        T(\theta) = \exp(i \theta (a^\dagger_i a_j + a\dagger_j a_i))
+        \text{T}(\theta) = \exp\left(i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)
+
+    Under the Jordan-Wigner transform, this gate has the following matrix when applied
+    to neighboring qubits:
+
+    .. math::
+
+        \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & \cos(\theta) & i \sin(\theta) & 0\\
+            0 & i \sin(\theta) & \cos(\theta) & 0\\
+            0 & 0 & 0 & 1 \\
+        \end{pmatrix}
 
     Args:
         vec: The state vector to be transformed.
@@ -147,7 +171,7 @@ def apply_num_interaction(
 
     .. math::
 
-        N(\theta) = \exp(i \theta a^\dagger_i a_i)
+        \text{N}(\theta) = \exp\left(i \theta a^\dagger_i a_i\right)
 
     Args:
         vec: The state vector to be transformed.
@@ -184,6 +208,62 @@ def apply_num_interaction(
     return vec
 
 
+def apply_num_num_interaction(
+    vec: np.ndarray,
+    theta: float,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    copy: bool = True,
+):
+    r"""Apply a number-number interaction gate.
+
+    The number-number interaction gate is
+
+    .. math::
+
+        \text{NN}(\theta) = \exp\left(i \theta a^\dagger_i a_i a^\dagger_j a_j\right)
+
+    Args:
+        vec: The state vector to be transformed.
+        theta: The rotation angle.
+        target_orbs: The orbitals on which to apply the interaction.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+            vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
+    """
+    if len(set(target_orbs)) == 1:
+        raise ValueError(
+            f"The orbitals to interact must be distinct. Got {target_orbs}."
+        )
+    if copy:
+        vec = vec.copy()
+    vec = apply_num_op_prod_interaction(
+        vec,
+        theta,
+        target_orbs=(target_orbs, []),
+        norb=norb,
+        nelec=nelec,
+        copy=False,
+    )
+    vec = apply_num_op_prod_interaction(
+        vec,
+        theta,
+        target_orbs=([], target_orbs),
+        norb=norb,
+        nelec=nelec,
+        copy=False,
+    )
+    return vec
+
+
 def apply_num_op_prod_interaction(
     vec: np.ndarray,
     theta: float,
@@ -199,13 +279,15 @@ def apply_num_op_prod_interaction(
 
     .. math::
 
-        NP(\theta) = \exp(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma})
+        \text{NP}(\theta) =
+        \exp\left(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma}\right)
 
     Args:
         vec: The state vector to be transformed.
         theta: The rotation angle.
-        target_orbs: The orbitals on which to apply the interaction. This should
-            be a tuple of (orbital, spin) pairs.
+        target_orbs: A pair of lists of integers giving the orbitals on which to apply
+            the interaction. The first list specifies the alpha orbitals and the second
+            list specifies the beta orbitals.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
@@ -226,5 +308,62 @@ def apply_num_op_prod_interaction(
         norb=norb,
         nelec=nelec,
         copy=False,
+    )
+    return vec
+
+
+def apply_hop_gate(
+    vec: np.ndarray,
+    theta: float,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    r"""Apply a hop gate.
+
+    A "hop gate" is a Givens rotation gate followed by a number-number interaction
+    gate with angle pi:
+
+    .. math::
+
+        \text{Hop}(\theta) = \text{NN}(\pi) \text{G}(\theta)
+        = \exp\left(i \pi a^\dagger_i a_i a^\dagger_j a_j\right)
+        \exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)
+
+    Under the Jordan-Wigner transform, this gate has the following matrix when applied
+    to neighboring qubits:
+
+    .. math::
+
+        \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & \cos(\theta) & -\sin(\theta) & 0\\
+            0 & \sin(\theta) & \cos(\theta) & 0\\
+            0 & 0 & 0 & -1 \\
+        \end{pmatrix}
+
+    Args:
+        vec: The state vector to be transformed.
+        theta: The rotation angle.
+        target_orbs: The orbitals (i, j) to rotate.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+            vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
+    """
+    if copy:
+        vec = vec.copy()
+    vec = apply_givens_rotation(
+        vec, theta, target_orbs, norb=norb, nelec=nelec, copy=False
+    )
+    vec = apply_num_num_interaction(
+        vec, np.pi, target_orbs, norb=norb, nelec=nelec, copy=False
     )
     return vec

@@ -50,7 +50,8 @@ def apply_diag_coulomb_evolution(
     .. math::
 
         \mathcal{U}
-        \exp(-i t \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
+        \exp\left(-i t \sum_{i, j, \sigma, \tau}
+        Z_{ij} n_{i, \sigma} n_{j, \tau} / 2\right)
         \mathcal{U}^\dagger
 
     where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
