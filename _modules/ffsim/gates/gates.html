@@ -101,7 +101,19 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        G(\theta) = \exp(\theta (a^\dagger_i a_j - a\dagger_j a_i))</span>
+<span class="sd">        \text{G}(\theta) = \exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)</span>
+
+<span class="sd">    Under the Jordan-Wigner transform, this gate has the following matrix when applied</span>
+<span class="sd">    to neighboring qubits:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \begin{pmatrix}</span>
+<span class="sd">            1 &amp; 0 &amp; 0 &amp; 0 \\</span>
+<span class="sd">            0 &amp; \cos(\theta) &amp; -\sin(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; \sin(\theta) &amp; \cos(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; 0 &amp; 0 &amp; 1 \\</span>
+<span class="sd">        \end{pmatrix}</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
@@ -144,7 +156,19 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        T(\theta) = \exp(i \theta (a^\dagger_i a_j + a\dagger_j a_i))</span>
+<span class="sd">        \text{T}(\theta) = \exp\left(i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)</span>
+
+<span class="sd">    Under the Jordan-Wigner transform, this gate has the following matrix when applied</span>
+<span class="sd">    to neighboring qubits:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \begin{pmatrix}</span>
+<span class="sd">            1 &amp; 0 &amp; 0 &amp; 0 \\</span>
+<span class="sd">            0 &amp; \cos(\theta) &amp; i \sin(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; i \sin(\theta) &amp; \cos(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; 0 &amp; 0 &amp; 1 \\</span>
+<span class="sd">        \end{pmatrix}</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
@@ -192,7 +216,7 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        N(\theta) = \exp(i \theta a^\dagger_i a_i)</span>
+<span class="sd">        \text{N}(\theta) = \exp\left(i \theta a^\dagger_i a_i\right)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
@@ -230,6 +254,65 @@
 
 
 
+<div class="viewcode-block" id="apply_num_num_interaction">
+<a class="viewcode-back" href="../../../api/generated/ffsim.gates.html#ffsim.gates.gates.apply_num_num_interaction">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_num_num_interaction</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply a number-number interaction gate.</span>
+
+<span class="sd">    The number-number interaction gate is</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{NN}(\theta) = \exp\left(i \theta a^\dagger_i a_i a^\dagger_j a_j\right)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec: The state vector to be transformed.</span>
+<span class="sd">        theta: The rotation angle.</span>
+<span class="sd">        target_orbs: The orbitals on which to apply the interaction.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        copy: Whether to copy the vector before operating on it.</span>
+<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
+<span class="sd">            vector and the original vector is left untouched.</span>
+<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
+<span class="sd">            vector, but the original vector may have its data overwritten.</span>
+<span class="sd">            It is also possible that the original vector is returned,</span>
+<span class="sd">            modified in-place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The orbitals to interact must be distinct. Got </span><span class="si">{</span><span class="n">target_orbs</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span>
+        <span class="n">theta</span><span class="p">,</span>
+        <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">,</span> <span class="p">[]),</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span>
+        <span class="n">theta</span><span class="p">,</span>
+        <span class="n">target_orbs</span><span class="o">=</span><span class="p">([],</span> <span class="n">target_orbs</span><span class="p">),</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span></div>
+
+
+
 <div class="viewcode-block" id="apply_num_op_prod_interaction">
 <a class="viewcode-back" href="../../../api/generated/ffsim.gates.html#ffsim.gates.gates.apply_num_op_prod_interaction">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_num_op_prod_interaction</span><span class="p">(</span>
@@ -247,13 +330,15 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        NP(\theta) = \exp(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma})</span>
+<span class="sd">        \text{NP}(\theta) =</span>
+<span class="sd">        \exp\left(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma}\right)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
 <span class="sd">        theta: The rotation angle.</span>
-<span class="sd">        target_orbs: The orbitals on which to apply the interaction. This should</span>
-<span class="sd">            be a tuple of (orbital, spin) pairs.</span>
+<span class="sd">        target_orbs: A pair of lists of integers giving the orbitals on which to apply</span>
+<span class="sd">            the interaction. The first list specifies the alpha orbitals and the second</span>
+<span class="sd">            list specifies the beta orbitals.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
@@ -274,6 +359,66 @@
         <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
         <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span></div>
+
+
+
+<div class="viewcode-block" id="apply_hop_gate">
+<a class="viewcode-back" href="../../../api/generated/ffsim.gates.html#ffsim.gates.gates.apply_hop_gate">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_hop_gate</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply a hop gate.</span>
+
+<span class="sd">    A &quot;hop gate&quot; is a Givens rotation gate followed by a number-number interaction</span>
+<span class="sd">    gate with angle pi:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{Hop}(\theta) = \text{NN}(\pi) \text{G}(\theta)</span>
+<span class="sd">        = \exp\left(i \pi a^\dagger_i a_i a^\dagger_j a_j\right)</span>
+<span class="sd">        \exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)</span>
+
+<span class="sd">    Under the Jordan-Wigner transform, this gate has the following matrix when applied</span>
+<span class="sd">    to neighboring qubits:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \begin{pmatrix}</span>
+<span class="sd">            1 &amp; 0 &amp; 0 &amp; 0 \\</span>
+<span class="sd">            0 &amp; \cos(\theta) &amp; -\sin(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; \sin(\theta) &amp; \cos(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; 0 &amp; 0 &amp; -1 \\</span>
+<span class="sd">        \end{pmatrix}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec: The state vector to be transformed.</span>
+<span class="sd">        theta: The rotation angle.</span>
+<span class="sd">        target_orbs: The orbitals (i, j) to rotate.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        copy: Whether to copy the vector before operating on it.</span>
+<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
+<span class="sd">            vector and the original vector is left untouched.</span>
+<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
+<span class="sd">            vector, but the original vector may have its data overwritten.</span>
+<span class="sd">            It is also possible that the original vector is returned,</span>
+<span class="sd">            modified in-place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_givens_rotation</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_num_interaction</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span></div>
 
