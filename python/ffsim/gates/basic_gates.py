@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fermionic quantum computation gates."""
+"""Basic fermionic quantum computation gates."""
 
 from __future__ import annotations
 

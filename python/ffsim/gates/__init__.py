@@ -10,8 +10,7 @@
 
 """Fermionic quantum computation gates."""
 
-from ffsim.gates.diag_coulomb import apply_diag_coulomb_evolution
-from ffsim.gates.gates import (
+from ffsim.gates.basic_gates import (
     apply_givens_rotation,
     apply_hop_gate,
     apply_num_interaction,
@@ -19,5 +18,6 @@ from ffsim.gates.gates import (
     apply_num_op_prod_interaction,
     apply_tunneling_interaction,
 )
+from ffsim.gates.diag_coulomb import apply_diag_coulomb_evolution
 from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
