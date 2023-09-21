@@ -14,7 +14,7 @@ import itertools
 
 import numpy as np
 
-from ffsim.gates.gates import _apply_phase_shift
+from ffsim.gates.basic_gates import _apply_phase_shift
 
 
 def apply_diag_coulomb_evolution_in_place_num_rep_slow(
