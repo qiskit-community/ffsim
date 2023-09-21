@@ -121,9 +121,16 @@ def test_apply_num_num_interaction():
     theta = rng.standard_normal()
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         for spin_i, spin_j in itertools.product(range(2), repeat=2):
-            target_orbs = ((i, spin_i), (j, spin_j))
+            target_orbs = (set(), set())
+            target_orbs[spin_i].add(i)
+            target_orbs[spin_j].add(j)
+            alpha_orbs, beta_orbs = target_orbs
             result = ffsim.apply_num_op_prod_interaction(
-                vec, theta, target_orbs, norb=norb, nelec=nelec
+                vec,
+                theta,
+                target_orbs=(list(alpha_orbs), list(beta_orbs)),
+                norb=norb,
+                nelec=nelec,
             )
             if i in occupied_orbitals[spin_i] and j in occupied_orbitals[spin_j]:
                 eig = theta
