@@ -15,18 +15,22 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pytest
 import scipy.sparse.linalg
 
 import ffsim
 
 
-def test_apply_givens_rotation():
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (2, (1, 1)),
+        (4, (2, 2)),
+        (5, (3, 2)),
+    ],
+)
+def test_apply_givens_rotation(norb: int, nelec: tuple[int, int]):
     """Test applying Givens rotation."""
-    norb = 5
-    n_alpha = 3
-    n_beta = 2
-    nelec = (n_alpha, n_beta)
-
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
@@ -49,13 +53,16 @@ def test_apply_givens_rotation():
     np.testing.assert_allclose(vec, original_vec)
 
 
-def test_apply_tunneling_interaction():
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (2, (1, 1)),
+        (4, (2, 2)),
+        (5, (3, 2)),
+    ],
+)
+def test_apply_tunneling_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying tunneling interaction."""
-    norb = 5
-    n_alpha = 3
-    n_beta = 2
-    nelec = (n_alpha, n_beta)
-
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
@@ -78,13 +85,16 @@ def test_apply_tunneling_interaction():
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
-def test_apply_num_interaction():
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (2, (1, 1)),
+        (4, (2, 2)),
+        (5, (3, 2)),
+    ],
+)
+def test_apply_num_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying number interaction."""
-    norb = 5
-    n_alpha = 3
-    n_beta = 2
-    nelec = (n_alpha, n_beta)
-
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
@@ -104,24 +114,24 @@ def test_apply_num_interaction():
         np.testing.assert_allclose(result, expected, atol=1e-8)
 
 
-def test_apply_num_num_interaction():
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (2, (1, 1)),
+        (4, (2, 2)),
+        (5, (3, 2)),
+    ],
+)
+def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying number-number interaction."""
-    norb = 5
-
     rng = np.random.default_rng()
-    n_alpha = 3
-    n_beta = 2
-    occupied_orbitals = (
-        rng.choice(norb, n_alpha, replace=False),
-        rng.choice(norb, n_beta, replace=False),
-    )
-    nelec = tuple(len(orbs) for orbs in occupied_orbitals)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
     vec = ffsim.slater_determinant(norb, occupied_orbitals)
 
     theta = rng.standard_normal()
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         for spin_i, spin_j in itertools.product(range(2), repeat=2):
-            target_orbs = (set(), set())
+            target_orbs: tuple[set[int], set[int]] = (set(), set())
             target_orbs[spin_i].add(i)
             target_orbs[spin_j].add(j)
             alpha_orbs, beta_orbs = target_orbs
