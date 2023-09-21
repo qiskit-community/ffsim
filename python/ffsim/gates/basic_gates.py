@@ -323,8 +323,8 @@ def apply_hop_gate(
 ) -> np.ndarray:
     r"""Apply a hop gate.
 
-    A "hop gate" is a Givens rotation gate followed by a number-number interaction
-    gate with angle pi:
+    A "hop gate" is a Givens rotation gate followed by a number-number interaction with
+    angle pi:
 
     .. math::
 
@@ -365,5 +365,63 @@ def apply_hop_gate(
     )
     vec = apply_num_num_interaction(
         vec, np.pi, target_orbs, norb=norb, nelec=nelec, copy=False
+    )
+    return vec
+
+
+def apply_fsim_gate(
+    vec: np.ndarray,
+    theta: float,
+    phi: float,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    r"""Apply an fSim gate.
+
+    An fSim gate consists of a tunneling interaction followed by a number-number
+    interaction (note the negative sign convention for the angles):
+
+    .. math::
+
+        \text{fSim}(\theta, \phi) = \text{NN}(-\phi) \text{T}(-\theta)
+        = \exp\left(-i \phi a^\dagger_i a_i a^\dagger_j a_j\right)
+        \exp\left(-i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)
+
+    Under the Jordan-Wigner transform, this gate has the following matrix when applied
+    to neighboring qubits:
+
+    .. math::
+
+        \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & \cos(\theta) & -i \sin(\theta) & 0\\
+            0 & -i \sin(\theta) & \cos(\theta) & 0\\
+            0 & 0 & 0 & e^{-i \phi} \\
+        \end{pmatrix}
+
+    Args:
+        vec: The state vector to be transformed.
+        theta: The rotation angle.
+        target_orbs: The orbitals (i, j) to rotate.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+            vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
+    """
+    if copy:
+        vec = vec.copy()
+    vec = apply_tunneling_interaction(
+        vec, -theta, target_orbs, norb=norb, nelec=nelec, copy=False
+    )
+    vec = apply_num_num_interaction(
+        vec, -phi, target_orbs, norb=norb, nelec=nelec, copy=False
     )
     return vec

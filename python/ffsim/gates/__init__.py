@@ -11,6 +11,7 @@
 """Fermionic quantum computation gates."""
 
 from ffsim.gates.basic_gates import (
+    apply_fsim_gate,
     apply_givens_rotation,
     apply_hop_gate,
     apply_num_interaction,

@@ -32,6 +32,7 @@ from ffsim.contract import (
 )
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
+    apply_fsim_gate,
     apply_givens_rotation,
     apply_hop_gate,
     apply_num_interaction,
