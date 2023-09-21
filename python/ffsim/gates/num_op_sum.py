@@ -41,7 +41,7 @@ def apply_num_op_sum_evolution(
     .. math::
 
         \mathcal{U}
-        \exp(-i t \sum_{i, \sigma} \lambda_i n_{i, \sigma})
+        \exp\left(-i t \sum_{i, \sigma} \lambda_i n_{i, \sigma}\right)
         \mathcal{U}^\dagger
 
     where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
