@@ -48,6 +48,48 @@
 <span id="ffsim-gates-basic-gates-module"></span><h2>ffsim.gates.basic_gates module<a class="headerlink" href="#module-ffsim.gates.basic_gates" title="Link to this heading">¶</a></h2>
 <p>Basic fermionic quantum computation gates.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.gates.basic_gates.apply_fsim_gate">
+<span class="sig-prename descclassname"><span class="pre">ffsim.gates.basic_gates.</span></span><span class="sig-name descname"><span class="pre">apply_fsim_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/gates/basic_gates.html#apply_fsim_gate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.gates.basic_gates.apply_fsim_gate" title="Link to this definition">¶</a></dt>
+<dd><p>Apply an fSim gate.</p>
+<p>An fSim gate consists of a tunneling interaction followed by a number-number
+interaction (note the negative sign convention for the angles):</p>
+<div class="math notranslate nohighlight">
+\[\text{fSim}(\theta, \phi) = \text{NN}(-\phi) \text{T}(-\theta)
+= \exp\left(-i \phi a^\dagger_i a_i a^\dagger_j a_j\right)
+\exp\left(-i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)\]</div>
+<p>Under the Jordan-Wigner transform, this gate has the following matrix when applied
+to neighboring qubits:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+    1 &amp; 0 &amp; 0 &amp; 0 \\
+    0 &amp; \cos(\theta) &amp; -i \sin(\theta) &amp; 0\\
+    0 &amp; -i \sin(\theta) &amp; \cos(\theta) &amp; 0\\
+    0 &amp; 0 &amp; 0 &amp; e^{-i \phi} \\
+\end{pmatrix}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
+<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (i, j) to rotate.</p></li>
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+- If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
+vector and the original vector is left untouched.
+- If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
+vector, but the original vector may have its data overwritten.
+It is also possible that the original vector is returned,
+modified in-place.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.gates.basic_gates.apply_givens_rotation">
 <span class="sig-prename descclassname"><span class="pre">ffsim.gates.basic_gates.</span></span><span class="sig-name descname"><span class="pre">apply_givens_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/gates/basic_gates.html#apply_givens_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.gates.basic_gates.apply_givens_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>Apply a Givens rotation gate.</p>
@@ -87,8 +129,8 @@ modified in-place.</p></li>
 <dt class="sig sig-object py" id="ffsim.gates.basic_gates.apply_hop_gate">
 <span class="sig-prename descclassname"><span class="pre">ffsim.gates.basic_gates.</span></span><span class="sig-name descname"><span class="pre">apply_hop_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/gates/basic_gates.html#apply_hop_gate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.gates.basic_gates.apply_hop_gate" title="Link to this definition">¶</a></dt>
 <dd><p>Apply a hop gate.</p>
-<p>A “hop gate” is a Givens rotation gate followed by a number-number interaction
-gate with angle pi:</p>
+<p>A “hop gate” is a Givens rotation gate followed by a number-number interaction with
+angle pi:</p>
 <div class="math notranslate nohighlight">
 \[\text{Hop}(\theta) = \text{NN}(\pi) \text{G}(\theta)
 = \exp\left(i \pi a^\dagger_i a_i a^\dagger_j a_j\right)

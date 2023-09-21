@@ -377,8 +377,8 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply a hop gate.</span>
 
-<span class="sd">    A &quot;hop gate&quot; is a Givens rotation gate followed by a number-number interaction</span>
-<span class="sd">    gate with angle pi:</span>
+<span class="sd">    A &quot;hop gate&quot; is a Givens rotation gate followed by a number-number interaction with</span>
+<span class="sd">    angle pi:</span>
 
 <span class="sd">    .. math::</span>
 
@@ -419,6 +419,67 @@
     <span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_num_interaction</span><span class="p">(</span>
         <span class="n">vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span></div>
+
+
+
+<div class="viewcode-block" id="apply_fsim_gate">
+<a class="viewcode-back" href="../../../api/generated/ffsim.gates.html#ffsim.gates.basic_gates.apply_fsim_gate">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_fsim_gate</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply an fSim gate.</span>
+
+<span class="sd">    An fSim gate consists of a tunneling interaction followed by a number-number</span>
+<span class="sd">    interaction (note the negative sign convention for the angles):</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{fSim}(\theta, \phi) = \text{NN}(-\phi) \text{T}(-\theta)</span>
+<span class="sd">        = \exp\left(-i \phi a^\dagger_i a_i a^\dagger_j a_j\right)</span>
+<span class="sd">        \exp\left(-i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)</span>
+
+<span class="sd">    Under the Jordan-Wigner transform, this gate has the following matrix when applied</span>
+<span class="sd">    to neighboring qubits:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \begin{pmatrix}</span>
+<span class="sd">            1 &amp; 0 &amp; 0 &amp; 0 \\</span>
+<span class="sd">            0 &amp; \cos(\theta) &amp; -i \sin(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; -i \sin(\theta) &amp; \cos(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; 0 &amp; 0 &amp; e^{-i \phi} \\</span>
+<span class="sd">        \end{pmatrix}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec: The state vector to be transformed.</span>
+<span class="sd">        theta: The rotation angle.</span>
+<span class="sd">        target_orbs: The orbitals (i, j) to rotate.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        copy: Whether to copy the vector before operating on it.</span>
+<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
+<span class="sd">            vector and the original vector is left untouched.</span>
+<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
+<span class="sd">            vector, but the original vector may have its data overwritten.</span>
+<span class="sd">            It is also possible that the original vector is returned,</span>
+<span class="sd">            modified in-place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_tunneling_interaction</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span> <span class="o">-</span><span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_num_interaction</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span> <span class="o">-</span><span class="n">phi</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span></div>
 
