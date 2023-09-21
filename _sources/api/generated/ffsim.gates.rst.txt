@@ -4,17 +4,17 @@ ffsim.gates package
 Submodules
 ----------
 
+ffsim.gates.basic\_gates module
+-------------------------------
+
+.. automodule:: ffsim.gates.basic_gates
+   :members:
+   :show-inheritance:
+
 ffsim.gates.diag\_coulomb module
 --------------------------------
 
 .. automodule:: ffsim.gates.diag_coulomb
-   :members:
-   :show-inheritance:
-
-ffsim.gates.gates module
-------------------------
-
-.. automodule:: ffsim.gates.gates
    :members:
    :show-inheritance:
 
