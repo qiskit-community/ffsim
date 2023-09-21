@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 import numpy as np
 from scipy.special import comb
 
@@ -163,17 +165,29 @@ def apply_num_interaction(
     """
     if copy:
         vec = vec.copy()
-    for sigma in range(2):
-        vec = apply_num_op_prod_interaction(
-            vec, theta, ((target_orb, sigma),), norb=norb, nelec=nelec, copy=False
-        )
+    vec = apply_num_op_prod_interaction(
+        vec,
+        theta,
+        target_orbs=([target_orb], []),
+        norb=norb,
+        nelec=nelec,
+        copy=False,
+    )
+    vec = apply_num_op_prod_interaction(
+        vec,
+        theta,
+        target_orbs=([], [target_orb]),
+        norb=norb,
+        nelec=nelec,
+        copy=False,
+    )
     return vec
 
 
 def apply_num_op_prod_interaction(
     vec: np.ndarray,
     theta: float,
-    target_orbs: tuple[tuple[int, int], ...],
+    target_orbs: tuple[Sequence[int], Sequence[int]],
     norb: int,
     nelec: tuple[int, int],
     *,
@@ -204,13 +218,11 @@ def apply_num_op_prod_interaction(
     """
     if copy:
         vec = vec.copy()
-    orbitals: list[set[int]] = [set(), set()]
-    for i, spin_i in target_orbs:
-        orbitals[spin_i].add(i)
+    alpha_orbs, beta_orbs = target_orbs
     vec = _apply_phase_shift(
         vec,
         np.exp(1j * theta),
-        (tuple(orbitals[0]), tuple(orbitals[1])),
+        (tuple(alpha_orbs), tuple(beta_orbs)),
         norb=norb,
         nelec=nelec,
         copy=False,
