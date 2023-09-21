@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for gates."""
+"""Tests for basic gates."""
 
 from __future__ import annotations
 
@@ -314,6 +314,36 @@ def test_apply_hop_gate_matrix():
                 assert_has_two_orbital_matrix(
                     lambda vec, norb, nelec: ffsim.apply_hop_gate(
                         vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec
+                    ),
+                    target_orbs=target_orbs,
+                    mat=mat(theta),
+                    phase_00=phase_00,
+                    phase_11=phase_11,
+                    norb=norb,
+                )
+
+
+def test_apply_fsim_gate_matrix():
+    """Test applying fSim gate matrix."""
+    norb = 4
+    rng = np.random.default_rng()
+
+    def mat(theta: float) -> np.ndarray:
+        c = np.cos(theta)
+        s = np.sin(theta)
+        return np.array([[c, -1j * s], [-1j * s, c]])
+
+    phase_00 = 1
+
+    for _ in range(5):
+        theta = rng.uniform(-10, 10)
+        phi = rng.uniform(-10, 10)
+        phase_11 = np.exp(-1j * phi)
+        for i, j in itertools.combinations(range(norb), 2):
+            for target_orbs in [(i, j), (j, i)]:
+                assert_has_two_orbital_matrix(
+                    lambda vec, norb, nelec: ffsim.apply_fsim_gate(
+                        vec, theta, phi, target_orbs=target_orbs, norb=norb, nelec=nelec
                     ),
                     target_orbs=target_orbs,
                     mat=mat(theta),
