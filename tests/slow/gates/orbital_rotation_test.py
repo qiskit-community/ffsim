@@ -44,14 +44,13 @@ def test_apply_givens_rotation_in_place_slow():
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
-        c = rng.uniform()
-        s = 1 - c**2
-        phase = (1j) ** rng.uniform(0, 4)
+        c = rng.uniform(0, 1)
+        s = (1j) ** rng.uniform(0, 4) * np.sqrt(1 - c**2)
         indices = _zero_one_subspace_indices(norb, n_alpha, (1, 3))
         slice1 = indices[: len(indices) // 2]
         slice2 = indices[len(indices) // 2 :]
-        apply_givens_rotation_in_place_slow(vec_slow, c, s, phase, slice1, slice2)
-        apply_givens_rotation_in_place(vec_fast, c, s, phase, slice1, slice2)
+        apply_givens_rotation_in_place_slow(vec_slow, c, s, slice1, slice2)
+        apply_givens_rotation_in_place(vec_fast, c, s, slice1, slice2)
         np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
 
 
