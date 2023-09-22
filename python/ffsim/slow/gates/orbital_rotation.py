@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 import numpy as np
-from scipy.linalg.blas import zdrot
+from scipy.linalg.blas import zdrot, zscal
 
 
 def gen_orbital_rotation_index_in_place_slow(
@@ -74,6 +74,6 @@ def apply_givens_rotation_in_place_slow(
     """Apply a Givens rotation to slices of a state vector."""
     phase_conj = phase.conjugate()
     for i, j in zip(slice1, slice2):
-        vec[i] *= phase_conj
+        zscal(phase_conj, vec[i])
         vec[i], vec[j] = zdrot(vec[i], vec[j], c, s)
-        vec[i] *= phase
+        zscal(phase, vec[i])
