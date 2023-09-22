@@ -300,53 +300,33 @@ class UCJOperator:
         t1 = scipy.linalg.logm(self.final_orbital_rotation)[:nocc, nocc:]
         return t2, t1
 
-
-def apply_ucj_operator(
-    vec: np.ndarray,
-    operator: UCJOperator,
-    *,
-    norb: int,
-    nelec: tuple[int, int],
-    copy: bool = True,
-) -> np.ndarray:
-    """Apply a UCJ operator to a vector.
-
-    Args:
-        vec: The state vector to be transformed.
-        operator: The UCJ operator.
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-        copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
-    """
-    if copy:
-        vec = vec.copy()
-    for mat, mat_alpha_beta, orbital_rotation in zip(
-        operator.diag_coulomb_mats_alpha_alpha,
-        operator.diag_coulomb_mats_alpha_beta,
-        operator.orbital_rotations,
-    ):
-        vec = apply_diag_coulomb_evolution(
-            vec,
-            mat=mat,
-            time=-1.0,
-            norb=norb,
-            nelec=nelec,
-            mat_alpha_beta=mat_alpha_beta,
-            orbital_rotation=orbital_rotation,
-            copy=False,
-        )
-    if operator.final_orbital_rotation is not None:
-        vec = apply_orbital_rotation(
-            vec,
-            mat=operator.final_orbital_rotation,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-    return vec
+    def _apply_unitary_(
+        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+    ) -> np.ndarray:
+        """Apply the operator to a vector."""
+        if copy:
+            vec = vec.copy()
+        for mat, mat_alpha_beta, orbital_rotation in zip(
+            self.diag_coulomb_mats_alpha_alpha,
+            self.diag_coulomb_mats_alpha_beta,
+            self.orbital_rotations,
+        ):
+            vec = apply_diag_coulomb_evolution(
+                vec,
+                mat=mat,
+                time=-1.0,
+                norb=norb,
+                nelec=nelec,
+                mat_alpha_beta=mat_alpha_beta,
+                orbital_rotation=orbital_rotation,
+                copy=False,
+            )
+        if self.final_orbital_rotation is not None:
+            vec = apply_orbital_rotation(
+                vec,
+                mat=self.final_orbital_rotation,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
+        return vec

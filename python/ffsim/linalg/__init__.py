@@ -16,10 +16,7 @@ from ffsim.linalg.double_factorized import (
     modified_cholesky,
 )
 from ffsim.linalg.givens import apply_matrix_to_slices, givens_decomposition
-from ffsim.linalg.linalg import (
-    expm_multiply_taylor,
-    lup,
-)
+from ffsim.linalg.linalg import expm_multiply_taylor, lup, reduced_matrix
 from ffsim.linalg.predicates import (
     is_antihermitian,
     is_hermitian,

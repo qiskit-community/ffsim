@@ -39,9 +39,11 @@ from ffsim.gates import (
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian, MolecularHamiltonian
 from ffsim.molecular_data import MolecularData
 from ffsim.protocols import (
+    SupportsApplyUnitary,
     SupportsApproximateEquality,
     SupportsLinearOperator,
     SupportsTrace,
+    apply_unitary,
     approx_eq,
     linear_operator,
     trace,
@@ -57,4 +59,4 @@ from ffsim.trotter import (
     simulate_qdrift_double_factorized,
     simulate_trotter_double_factorized,
 )
-from ffsim.variational import UCJOperator, apply_ucj_operator
+from ffsim.variational import HopGateAnsatzOperator, UCJOperator, multireference_state

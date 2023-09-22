@@ -11,7 +11,7 @@
 """Linear algebra utilities."""
 
 from __future__ import annotations
-
+from collections.abc import Sequence
 import numpy as np
 import scipy.sparse.linalg
 
@@ -47,3 +47,18 @@ def lup(mat: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     ell *= d
     u /= d[:, None]
     return u.T, ell.T, p.T
+
+
+def reduced_matrix(mat: scipy.sparse.linalg.LinearOperator, vecs: Sequence[np.ndarray]):
+    """Compute reduced matrix within a subspace spanned by some vectors.
+
+    Given a matrix M and a list of vectors |ψ_i⟩, returns the matrix A where
+    A[i, j] = ⟨ψ_i|M|ψ_j⟩.
+    """
+    dim = len(vecs)
+    result = np.zeros((dim, dim), dtype=complex)
+    for j, state_j in enumerate(vecs):
+        mat_state_j = mat @ state_j
+        for i, state_i in enumerate(vecs):
+            result[i, j] = np.vdot(state_i, mat_state_j)
+    return result

@@ -125,7 +125,7 @@ def test_t_amplitudes():
     )
 
     # Apply the operator to the reference state
-    ansatz_state = ffsim.apply_ucj_operator(
+    ansatz_state = ffsim.apply_unitary(
         reference_state, operator, norb=norb, nelec=nelec
     )
 
