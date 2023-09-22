@@ -311,7 +311,8 @@ def _apply_orbital_rotation_adjacent_spin_in_place(
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
     c, s = mat[0]
-    apply_givens_rotation_in_place(vec, c.real, abs(s), s / abs(s), slice1, slice2)
+    c = c.real
+    apply_givens_rotation_in_place(vec, c, s, slice1, slice2)
 
 
 @lru_cache(maxsize=None)

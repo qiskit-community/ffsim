@@ -150,8 +150,7 @@ pub fn apply_single_column_transformation_in_place(
 pub fn apply_givens_rotation_in_place(
     mut vec: PyReadwriteArray2<Complex64>,
     c: f64,
-    s: f64,
-    phase: Complex64,
+    s: Complex64,
     slice1: PyReadonlyArray1<usize>,
     slice2: PyReadonlyArray1<usize>,
 ) {
@@ -160,6 +159,8 @@ pub fn apply_givens_rotation_in_place(
     let slice2 = slice2.as_array();
     let shape = vec.shape();
     let dim_b = shape[1] as i32;
+    let s_abs = s.norm();
+    let phase = s / s_abs;
     let phase_conj = phase.conj();
 
     // TODO parallelize this
@@ -169,7 +170,9 @@ pub fn apply_givens_rotation_in_place(
             Some(row_i) => match row_j.as_slice_mut() {
                 Some(row_j) => unsafe {
                     zscal(dim_b, phase_conj, row_i, 1);
-                    zdrot(dim_b, row_i, 1, row_j, 1, c, s);
+                    // TODO use zrot from lapack once it's available
+                    // See https://github.com/blas-lapack-rs/lapack/issues/30
+                    zdrot(dim_b, row_i, 1, row_j, 1, c, s_abs);
                     zscal(dim_b, phase, row_i, 1);
                 },
                 None => panic!(
