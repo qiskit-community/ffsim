@@ -15,11 +15,7 @@ from ffsim.linalg.double_factorized import (
     double_factorized_t2,
     modified_cholesky,
 )
-from ffsim.linalg.givens import (
-    apply_matrix_to_slices,
-    givens_decomposition,
-    givens_matrix,
-)
+from ffsim.linalg.givens import apply_matrix_to_slices, givens_decomposition
 from ffsim.linalg.linalg import (
     expm_multiply_taylor,
     lup,
