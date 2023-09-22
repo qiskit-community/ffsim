@@ -271,9 +271,9 @@ def _apply_orbital_rotation_givens(
     dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))
     # transform alpha
-    for givens_mat, target_orbs in givens_rotations:
+    for (c, s), target_orbs in givens_rotations:
         _apply_orbital_rotation_adjacent_spin_in_place(
-            vec, givens_mat.conj(), target_orbs, norb, n_alpha
+            vec, c, s.conjugate(), target_orbs, norb, n_alpha
         )
     for i, phase_shift in enumerate(phase_shifts):
         indices = _one_subspace_indices(norb, n_alpha, (i,))
@@ -282,9 +282,9 @@ def _apply_orbital_rotation_givens(
     # transform beta
     # transpose vector to align memory layout
     vec = vec.T.copy()
-    for givens_mat, target_orbs in givens_rotations:
+    for (c, s), target_orbs in givens_rotations:
         _apply_orbital_rotation_adjacent_spin_in_place(
-            vec, givens_mat.conj(), target_orbs, norb, n_beta
+            vec, c, s.conjugate(), target_orbs, norb, n_beta
         )
     for i, phase_shift in enumerate(phase_shifts):
         indices = _one_subspace_indices(norb, n_beta, (i,))
@@ -294,7 +294,12 @@ def _apply_orbital_rotation_givens(
 
 
 def _apply_orbital_rotation_adjacent_spin_in_place(
-    vec: np.ndarray, mat: np.ndarray, target_orbs: tuple[int, int], norb: int, nocc: int
+    vec: np.ndarray,
+    c: float,
+    s: complex,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nocc: int,
 ) -> None:
     """Apply an orbital rotation to adjacent orbitals.
 
@@ -310,8 +315,6 @@ def _apply_orbital_rotation_adjacent_spin_in_place(
     indices = _zero_one_subspace_indices(norb, nocc, target_orbs)
     slice1 = indices[: len(indices) // 2]
     slice2 = indices[len(indices) // 2 :]
-    c, s = mat[0]
-    c = c.real
     apply_givens_rotation_in_place(vec, c, s, slice1, slice2)
 
 

@@ -13,23 +13,26 @@
 from __future__ import annotations
 
 import numpy as np
+from scipy.linalg.lapack import zrot
 
-from ffsim.linalg import (
-    apply_matrix_to_slices,
-    givens_decomposition,
-)
-from ffsim.random import random_unitary
+import ffsim
+from ffsim.linalg import givens_decomposition
 
 
 def test_givens_decomposition():
     dim = 5
-    mat = random_unitary(dim)
-    givens_rotations, phase_shifts = givens_decomposition(mat)
-    reconstructed = np.eye(dim, dtype=complex)
-    for i, phase_shift in enumerate(phase_shifts):
-        reconstructed[i] *= phase_shift
-    for givens_mat, (i, j) in givens_rotations[::-1]:
-        reconstructed = apply_matrix_to_slices(
-            reconstructed, givens_mat.conj(), ((Ellipsis, j), (Ellipsis, i))
-        )
-    np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
+    rng = np.random.default_rng()
+    for _ in range(5):
+        mat = ffsim.random.random_unitary(dim, seed=rng)
+        givens_rotations, phase_shifts = givens_decomposition(mat)
+        reconstructed = np.eye(dim, dtype=complex)
+        for i, phase_shift in enumerate(phase_shifts):
+            reconstructed[i] *= phase_shift
+        for (c, s), (i, j) in givens_rotations[::-1]:
+            reconstructed = reconstructed.T.copy()
+            reconstructed[j], reconstructed[i] = zrot(
+                reconstructed[j], reconstructed[i], c, s.conjugate()
+            )
+            reconstructed = reconstructed.T
+
+        np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
