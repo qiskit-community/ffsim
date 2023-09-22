@@ -71,8 +71,7 @@ class RustBenchmark:
         apply_givens_rotation_in_place_slow(
             self.vec_as_mat,
             c=0.5,
-            s=0.5,
-            phase=(1j) ** 0.5,
+            s=(1j) ** 0.5 * np.sqrt(0.75),
             slice1=self.slice1,
             slice2=self.slice2,
         )
@@ -81,8 +80,7 @@ class RustBenchmark:
         apply_givens_rotation_in_place(
             self.vec_as_mat,
             c=0.5,
-            s=0.5,
-            phase=(1j) ** 0.5,
+            s=(1j) ** 0.5 * np.sqrt(0.75),
             slice1=self.slice1,
             slice2=self.slice2,
         )
