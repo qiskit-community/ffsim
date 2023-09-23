@@ -114,7 +114,7 @@ class GatesBenchmark:
         ffsim.apply_num_op_prod_interaction(
             self.vec,
             theta=1.0,
-            target_orbs=((0, True), (1, False)),
+            target_orbs=([1], [0]),
             norb=self.norb,
             nelec=self.nelec,
             copy=False,
