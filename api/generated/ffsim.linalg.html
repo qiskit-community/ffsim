@@ -250,45 +250,23 @@ whose columns are the vectors.</p>
 <dd><p>Givens rotation decomposition of a unitary matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.linalg.givens.givens_matrix">
-<span class="sig-prename descclassname"><span class="pre">ffsim.linalg.givens.</span></span><span class="sig-name descname"><span class="pre">givens_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/linalg/givens.html#givens_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.givens.givens_matrix" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the Givens rotation to zero out a row entry.</p>
-<p>Returns a <span class="math notranslate nohighlight">\(2 \times 2\)</span> unitary matrix G that satisfies</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}G
-\begin{pmatrix}
-    a \\
-    b
-\end{pmatrix}
-=
-\begin{pmatrix}
-    r \\
-    0
-\end{pmatrix}\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(r\)</span> is a complex number.</p>
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Givens_rotation#Stable_calculation">https://en.wikipedia.org/wiki/Givens_rotation#Stable_calculation</a></p></li>
-<li><p><a class="reference external" href="https://www.netlib.org/lapack/lawnspdf/lawn148.pdf">https://www.netlib.org/lapack/lawnspdf/lawn148.pdf</a></p></li>
-</ul>
+<dt class="sig sig-object py" id="ffsim.linalg.givens.zrotg">
+<span class="sig-prename descclassname"><span class="pre">ffsim.linalg.givens.</span></span><span class="sig-name descname"><span class="pre">zrotg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/linalg/givens.html#zrotg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.givens.zrotg" title="Link to this definition">¶</a></dt>
+<dd><p>Safe version of the zrotg BLAS function.</p>
+<p>The BLAS implementation of zrotg can return NaN values if either a or b is very
+close to zero. This function detects if either a or b is close to zero up to the
+specified tolerance, in which case it behaves as if it were exactly zero.</p>
+<p>Note that in contrast to <cite>scipy.linalg.blas.zrotg</cite>, this function returns c as a
+float rather than a complex.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>a</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code>) – A complex number representing the first row entry</p></li>
-<li><p><strong>b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code>) – A complex number representing the second row entry</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The Givens rotation matrix.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>

@@ -50,6 +50,8 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg.blas</span> <span class="kn">import</span> <span class="n">zrotg</span> <span class="k">as</span> <span class="n">zrotg_</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg.lapack</span> <span class="kn">import</span> <span class="n">zrot</span>
 
 
 <div class="viewcode-block" id="apply_matrix_to_slices">
@@ -85,55 +87,24 @@
 
 
 
-<div class="viewcode-block" id="givens_matrix">
-<a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.givens.givens_matrix">[docs]</a>
-<span class="k">def</span> <span class="nf">givens_matrix</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">complex</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the Givens rotation to zero out a row entry.</span>
+<div class="viewcode-block" id="zrotg">
+<a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.givens.zrotg">[docs]</a>
+<span class="k">def</span> <span class="nf">zrotg</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">complex</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">complex</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Safe version of the zrotg BLAS function.</span>
 
-<span class="sd">    Returns a :math:`2 \times 2` unitary matrix G that satisfies</span>
+<span class="sd">    The BLAS implementation of zrotg can return NaN values if either a or b is very</span>
+<span class="sd">    close to zero. This function detects if either a or b is close to zero up to the</span>
+<span class="sd">    specified tolerance, in which case it behaves as if it were exactly zero.</span>
 
-<span class="sd">    .. math::</span>
-
-<span class="sd">        G</span>
-<span class="sd">        \begin{pmatrix}</span>
-<span class="sd">            a \\</span>
-<span class="sd">            b</span>
-<span class="sd">        \end{pmatrix}</span>
-<span class="sd">        =</span>
-<span class="sd">        \begin{pmatrix}</span>
-<span class="sd">            r \\</span>
-<span class="sd">            0</span>
-<span class="sd">        \end{pmatrix}</span>
-
-<span class="sd">    where :math:`r` is a complex number.</span>
-
-<span class="sd">    References:</span>
-<span class="sd">        - `&lt;https://en.wikipedia.org/wiki/Givens_rotation#Stable_calculation&gt;`_</span>
-<span class="sd">        - `&lt;https://www.netlib.org/lapack/lawnspdf/lawn148.pdf&gt;`_</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        a: A complex number representing the first row entry</span>
-<span class="sd">        b: A complex number representing the second row entry</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The Givens rotation matrix.</span>
+<span class="sd">    Note that in contrast to `scipy.linalg.blas.zrotg`, this function returns c as a</span>
+<span class="sd">    float rather than a complex.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Handle case that a is zero</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
-        <span class="n">cosine</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">sine</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="c1"># Handle case that b is zero and a is nonzero</span>
-    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
-        <span class="n">cosine</span> <span class="o">=</span> <span class="mf">1.0</span>
-        <span class="n">sine</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="c1"># Handle case that a and b are both nonzero</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">hypotenuse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
-        <span class="n">cosine</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="n">hypotenuse</span>
-        <span class="n">sign_a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">sine</span> <span class="o">=</span> <span class="n">sign_a</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span> <span class="o">/</span> <span class="n">hypotenuse</span>
-
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">cosine</span><span class="p">,</span> <span class="n">sine</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">sine</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">cosine</span><span class="p">]])</span></div>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="n">j</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">zrotg_</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">s</span></div>
 
 
 
@@ -141,12 +112,12 @@
 <a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.givens.givens_decomposition">[docs]</a>
 <span class="k">def</span> <span class="nf">givens_decomposition</span><span class="p">(</span>
     <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Givens rotation decomposition of a unitary matrix.&quot;&quot;&quot;</span>
     <span class="n">n</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">mat</span>
+    <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">left_rotations</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">right_rotations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">right_rotations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># compute left and right Givens rotations</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
@@ -157,18 +128,22 @@
                 <span class="n">row</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">current_matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">target_index</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">):</span>
                     <span class="c1"># zero out element at target index in given row</span>
-                    <span class="n">givens_mat</span> <span class="o">=</span> <span class="n">givens_matrix</span><span class="p">(</span>
+                    <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">zrotg</span><span class="p">(</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">target_index</span><span class="p">],</span>
                     <span class="p">)</span>
-                    <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="p">(</span><span class="n">givens_mat</span><span class="p">,</span> <span class="p">(</span><span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">))</span>
+                    <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="p">(</span><span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">)))</span>
+                    <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">current_matrix</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="p">(</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">],</span>
+                    <span class="p">)</span> <span class="o">=</span> <span class="n">zrot</span><span class="p">(</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">],</span>
+                        <span class="n">c</span><span class="p">,</span>
+                        <span class="n">s</span><span class="p">,</span>
                     <span class="p">)</span>
-                    <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">apply_matrix_to_slices</span><span class="p">(</span>
-                        <span class="n">current_matrix</span><span class="p">,</span>
-                        <span class="n">givens_mat</span><span class="p">,</span>
-                        <span class="p">[(</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">target_index</span><span class="p">)],</span>
-                    <span class="p">)</span>
+                    <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">current_matrix</span><span class="o">.</span><span class="n">T</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># rotate rows by left multiplication</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
@@ -176,24 +151,31 @@
                 <span class="n">col</span> <span class="o">=</span> <span class="n">j</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">):</span>
                     <span class="c1"># zero out element at target index in given column</span>
-                    <span class="n">givens_mat</span> <span class="o">=</span> <span class="n">givens_matrix</span><span class="p">(</span>
+                    <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">zrotg</span><span class="p">(</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span>
                     <span class="p">)</span>
-                    <span class="n">left_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="p">(</span><span class="n">givens_mat</span><span class="p">,</span> <span class="p">(</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">))</span>
-                    <span class="p">)</span>
-                    <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">apply_matrix_to_slices</span><span class="p">(</span>
-                        <span class="n">current_matrix</span><span class="p">,</span> <span class="n">givens_mat</span><span class="p">,</span> <span class="p">[</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">]</span>
+                    <span class="n">left_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="p">(</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">)))</span>
+                    <span class="p">(</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">],</span>
+                    <span class="p">)</span> <span class="o">=</span> <span class="n">zrot</span><span class="p">(</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">],</span>
+                        <span class="n">c</span><span class="p">,</span>
+                        <span class="n">s</span><span class="p">,</span>
                     <span class="p">)</span>
 
     <span class="c1"># convert left rotations to right rotations</span>
-    <span class="k">for</span> <span class="n">givens_mat</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">left_rotations</span><span class="p">):</span>
-        <span class="n">givens_mat</span> <span class="o">=</span> <span class="n">givens_mat</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">left_rotations</span><span class="p">):</span>
+        <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">zrotg</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">current_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span> <span class="o">*</span> <span class="n">current_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span>
+        <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()),</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)))</span>
+
+        <span class="n">givens_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">c</span><span class="p">]])</span>
         <span class="n">givens_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">current_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
         <span class="n">givens_mat</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">current_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
-        <span class="n">new_givens_mat</span> <span class="o">=</span> <span class="n">givens_matrix</span><span class="p">(</span><span class="n">givens_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">givens_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-        <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_givens_mat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)))</span>
+        <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">zrotg</span><span class="p">(</span><span class="n">givens_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">givens_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">new_givens_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">c</span><span class="p">]])</span>
         <span class="n">phase_matrix</span> <span class="o">=</span> <span class="n">givens_mat</span> <span class="o">@</span> <span class="n">new_givens_mat</span>
         <span class="n">current_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">current_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
