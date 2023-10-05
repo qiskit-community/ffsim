@@ -69,21 +69,21 @@
 <span class="n">hartree_fock</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">hartree_fock</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 
-<span class="c1"># Get molecular data and molecular Hamiltonian (one- and two-body tensors)</span>
+<span class="c1"># Define active space</span>
 <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">nelectron</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nelectron</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Compute FCI energy</span>
+<span class="n">cas</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mcscf</span><span class="o">.</span><span class="n">CASCI</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">ncas</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">nelecas</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">mo</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">sort_mo</span><span class="p">(</span><span class="n">active_space</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">energy_fci</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">mo</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Get molecular data and molecular Hamiltonian (one- and two-body tensors)</span>
 <span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_hartree_fock</span><span class="p">(</span>
     <span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span>
 <span class="p">)</span>
 <span class="n">norb</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span>
 <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
-
-<span class="c1"># Compute FCI energy</span>
-<span class="n">energy_fci</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">fci</span><span class="o">.</span><span class="n">direct_spin1</span><span class="o">.</span><span class="n">FCI</span><span class="p">()</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span>
-    <span class="n">mol_data</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span>
-<span class="p">)</span>
-<span class="n">energy_fci</span> <span class="o">+=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">core_energy</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FCI energy: </span><span class="si">{</span><span class="n">energy_fci</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -92,8 +92,8 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643963
-FCI energy: -77.62902543267174
+converged SCF energy = -77.4456267643962
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -149,8 +149,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754476  E_corr = -0.04824536314851666
-Energy at initialialization: -77.46975600021722
+E(CCSD) = -77.49387212754471  E_corr = -0.04824536314851386
+Energy at initialialization: -77.46975600021665
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -191,12 +191,12 @@ Number of parameters: 72
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62897704633636
-        x: [-5.258e-01  8.260e-01 ...  5.412e-01  9.525e-01]
-      nit: 432
-      jac: [ 1.990e-05 -7.958e-05 ... -7.674e-05  1.521e-04]
-     nfev: 33799
-     njev: 463
+      fun: -77.62901534386695
+        x: [-3.824e-03  6.005e-02 ... -7.368e-01 -3.157e-01]
+      nit: 264
+      jac: [-9.237e-05 -2.743e-04 ...  1.663e-04  3.482e-04]
+     nfev: 20513
+     njev: 281
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -257,12 +257,12 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62896369910054
-        x: [-2.189e+00 -6.430e-01 ...  4.003e-01 -7.707e-01]
-      nit: 685
-      jac: [-6.395e-05 -7.105e-06 ...  1.734e-04 -9.521e-05]
-     nfev: 34075
-     njev: 725
+      fun: -77.62879056203764
+        x: [ 2.820e-01 -3.713e-01 ... -1.739e+00  5.238e-01]
+      nit: 200
+      jac: [-9.379e-05  5.116e-05 ... -1.421e-05 -1.137e-04]
+     nfev: 10011
+     njev: 213
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
