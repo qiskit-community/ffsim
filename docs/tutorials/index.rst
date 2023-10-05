@@ -11,3 +11,4 @@ ffsim tutorials.
    02-orbital-rotation
    03-double-factorized
    04-lucj
+   05-fermion-operator

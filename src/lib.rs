@@ -11,6 +11,7 @@
 use pyo3::prelude::*;
 
 mod contract;
+mod fermion_operator;
 mod gates;
 
 /// Python module exposing Rust extensions.
@@ -56,5 +57,6 @@ fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
         contract::num_op_sum::contract_num_op_sum_spin_into_buffer,
         m
     )?)?;
+    m.add_class::<fermion_operator::FermionOperator>()?;
     Ok(())
 }
