@@ -107,9 +107,10 @@ class MolecularData:
         n_alpha = (n_electrons + hartree_fock.mol.spin) // 2
         n_beta = (n_electrons - hartree_fock.mol.spin) // 2
 
-        mc = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
-        one_body_tensor, core_energy = mc.get_h1cas()
-        two_body_tensor = ao2mo.restore(1, mc.get_h2cas(), mc.ncas)
+        cas = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
+        cas.mo_coeff = cas.sort_mo(active_space, base=0)
+        one_body_tensor, core_energy = cas.get_h1cas()
+        two_body_tensor = ao2mo.restore(1, cas.get_h2cas(), cas.ncas)
 
         charges = hartree_fock.mol.atom_charges()
         coords = hartree_fock.mol.atom_coords()
