@@ -68,7 +68,7 @@ def test_linear_operator():
     nelec = mol_data.nelec
     mol_hamiltonian = mol_data.hamiltonian
 
-    # compute FCI energy from molecualar Hamiltonian
+    # compute FCI energy from molecular Hamiltonian
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     eigs, _ = scipy.sparse.linalg.eigsh(hamiltonian, k=1, which="SA")
     eig = eigs[0]
