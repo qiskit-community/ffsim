@@ -107,3 +107,15 @@ You can also use `pytest` to run the tests directly. For example,
 ```bash
 pytest tests/
 ```
+
+## Cite ffsim
+
+You can cite ffsim using the following BibTeX:
+
+```bibtex
+@software{ffsim,
+  author = {{The ffsim developers}},
+  title = {ffsim},
+  url = {https://github.com/qiskit-community/ffsim}
+}
+```
