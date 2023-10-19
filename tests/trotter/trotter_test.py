@@ -48,7 +48,7 @@ def test_simulate_trotter_double_factorized_random(
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
 
     # perform double factorization
-    df_hamiltonian = ffsim.double_factorized_hamiltonian(
+    df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian, z_representation=z_representation
     )
 
