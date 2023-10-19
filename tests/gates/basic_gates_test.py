@@ -96,9 +96,7 @@ def test_apply_givens_rotation(norb: int, nelec: tuple[int, int]):
             a, b = target_orbs
             generator[a, b] = theta
             generator[b, a] = -theta
-            linop = ffsim.contract.hamiltonian_linop(
-                one_body_tensor=generator, norb=norb, nelec=nelec
-            )
+            linop = ffsim.contract.one_body_linop(generator, norb=norb, nelec=nelec)
             expected = scipy.sparse.linalg.expm_multiply(
                 linop, vec, traceA=np.sum(np.abs(generator))
             )
@@ -158,9 +156,7 @@ def test_apply_tunneling_interaction(norb: int, nelec: tuple[int, int]):
             generator = np.zeros((norb, norb))
             generator[i, j] = theta
             generator[j, i] = theta
-            linop = ffsim.contract.hamiltonian_linop(
-                one_body_tensor=generator, norb=norb, nelec=nelec
-            )
+            linop = ffsim.contract.one_body_linop(generator, norb=norb, nelec=nelec)
             expected = scipy.sparse.linalg.expm_multiply(
                 1j * linop, vec, traceA=np.sum(np.abs(generator))
             )
@@ -217,9 +213,7 @@ def test_apply_num_interaction(norb: int, nelec: tuple[int, int]):
         )
         generator = np.zeros((norb, norb))
         generator[target_orb, target_orb] = theta
-        linop = ffsim.contract.hamiltonian_linop(
-            one_body_tensor=generator, norb=norb, nelec=nelec
-        )
+        linop = ffsim.contract.one_body_linop(generator, norb=norb, nelec=nelec)
         expected = scipy.sparse.linalg.expm_multiply(
             1j * linop, vec, traceA=np.sum(np.abs(generator))
         )
