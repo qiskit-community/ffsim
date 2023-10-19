@@ -63,14 +63,16 @@
     "mol_hamiltonian = mol_data.hamiltonian\n",
     "\n",
     "# Get the Hamiltonian in the double-factorized representation\n",
-    "df_hamiltonian = ffsim.double_factorized_hamiltonian(mol_hamiltonian)"
+    "df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(\n",
+    "    mol_hamiltonian\n",
+    ")"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The function `double_factorized_hamiltonian` returns an object of type `DoubleFactorizedHamiltonian` which is just a dataclass that stores the updated one-body-tensor, diagonal Coulomb matrices, and orbital rotations. In the cell below, we print out the tensors describing the original and double-factorized representations."
+    "Here, `mol_hamiltonian` is an instance of `MolecularHamiltonian`, a dataclass that stores the one- and two-body tensors, and `df_hamiltonian` is an instance of `DoubleFactorizedHamiltonian`, a dataclass that stores the updated one-body-tensor, diagonal Coulomb matrices, and orbital rotations. In the cell below, we print out the tensors describing the original and double-factorized representations."
    ]
   },
   {
@@ -404,7 +406,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.10.11"
+   "version": "3.10.13"
   },
   "orig_nbformat": 4
  },

@@ -161,6 +161,166 @@
             <span class="n">constant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constant</span> <span class="o">-</span> <span class="n">constant_correction</span><span class="p">,</span>
             <span class="n">z_representation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DoubleFactorizedHamiltonian.from_molecular_hamiltonian">
+<a class="viewcode-back" href="../../../api/generated/ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.from_molecular_hamiltonian">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_molecular_hamiltonian</span><span class="p">(</span>
+        <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">MolecularHamiltonian</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+        <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">diag_coulomb_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cholesky</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Double-factorized decomposition of a molecular Hamiltonian.</span>
+
+<span class="sd">        The double-factorized decomposition acts on a Hamiltonian of the form</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}</span>
+<span class="sd">                + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}</span>
+<span class="sd">                a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}</span>
+<span class="sd">                + \text{constant}.</span>
+
+<span class="sd">        The Hamiltonian is decomposed into the double-factorized form</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}</span>
+<span class="sd">            + \frac12 \sum_t \sum_{ij, \sigma\tau}</span>
+<span class="sd">            Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}</span>
+<span class="sd">            + \text{constant}&#39;.</span>
+
+<span class="sd">        where</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}</span>
+<span class="sd">            a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.</span>
+
+<span class="sd">        Here :math:`U^{(t)}_{ij}` and :math:`Z^{(t)}_{ij}` are tensors that are output</span>
+<span class="sd">        by the decomposition, and :math:`\kappa_{pq}` is an updated one-body tensor.</span>
+<span class="sd">        Each matrix :math:`U^{(t)}` is guaranteed to be unitary so that the</span>
+<span class="sd">        :math:`n^{(t)}_{i, \sigma}` are number operators in a rotated basis, and</span>
+<span class="sd">        each :math:`Z^{(t)}` is a real symmetric matrix.</span>
+<span class="sd">        The number of terms :math:`t` in the decomposition depends on the allowed</span>
+<span class="sd">        error threshold. A larger error threshold leads to a smaller number of terms.</span>
+<span class="sd">        Furthermore, the `max_rank` parameter specifies an optional upper bound</span>
+<span class="sd">        on :math:`t`.</span>
+
+<span class="sd">        The default behavior of this routine is to perform a straightforward</span>
+<span class="sd">        &quot;exact&quot; factorization of the two-body tensor based on a nested</span>
+<span class="sd">        eigenvalue decomposition. Additionally, one can choose to optimize the</span>
+<span class="sd">        coefficients stored in the tensor to achieve a &quot;compressed&quot; factorization.</span>
+<span class="sd">        This option is enabled by setting the `optimize` parameter to `True`.</span>
+<span class="sd">        The optimization attempts to minimize a least-squares objective function</span>
+<span class="sd">        quantifying the error in the low rank decomposition.</span>
+<span class="sd">        It uses `scipy.optimize.minimize`, passing both the objective function</span>
+<span class="sd">        and its gradient. The diagonal coulomb matrices returned by the optimization</span>
+<span class="sd">        can be optionally constrained to have only certain elements allowed to be</span>
+<span class="sd">        nonzero. This is achieved by passing the `diag_coulomb_mask` parameter, which is</span>
+<span class="sd">        an :math:`N \times N` matrix of boolean values where :math:`N` is the number</span>
+<span class="sd">        of orbitals. The nonzero elements of this matrix indicate where the diagonal</span>
+<span class="sd">        Coulomb matrices are allowed to be nonzero. Only the upper triangular part of</span>
+<span class="sd">        the matrix is used because the diagonal Coulomb matrices are symmetric.</span>
+
+<span class="sd">        **&quot;Z&quot; representation**</span>
+
+<span class="sd">        The &quot;Z&quot; representation of the double factorization is an alternative</span>
+<span class="sd">        representation that sometimes yields simpler quantum circuits.</span>
+
+<span class="sd">        Under the Jordan-Wigner transformation, the number operators take the form</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            n^{(t)}_{i, \sigma} = \frac{(1 - z^{(t)}_{i, \sigma})}{2}</span>
+
+<span class="sd">        where :math:`z^{(t)}_{i, \sigma}` is the Pauli Z operator in the rotated basis.</span>
+<span class="sd">        The &quot;Z&quot; representation is obtained by rewriting the two-body part in terms</span>
+<span class="sd">        of these Pauli Z operators and updating the one-body term as appropriate:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            H = \sum_{pq, \sigma} \kappa&#39;_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}</span>
+<span class="sd">            + \frac18 \sum_t \sum_{ij, \sigma\tau}^*</span>
+<span class="sd">            Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}</span>
+<span class="sd">            + \text{constant}&#39;&#39;</span>
+
+<span class="sd">        where the asterisk denotes summation over indices :math:`ij, \sigma\tau`</span>
+<span class="sd">        where :math:`i \neq j` or :math:`\sigma \neq \tau`.</span>
+
+<span class="sd">        Note: Currently, only real-valued two-body tensors are supported.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            one_body_tensor: The one-body tensor of the Hamiltonian.</span>
+<span class="sd">            two_body_tensor: The two-body tensor of the Hamiltonian.</span>
+<span class="sd">            z_representation: Whether to use the &quot;Z&quot; representation of the</span>
+<span class="sd">                low rank decomposition.</span>
+<span class="sd">            tol: Tolerance for error in the decomposition.</span>
+<span class="sd">                The error is defined as the maximum absolute difference between</span>
+<span class="sd">                an element of the original tensor and the corresponding element of</span>
+<span class="sd">                the reconstructed tensor.</span>
+<span class="sd">            max_vecs: An optional limit on the number of terms to keep in the</span>
+<span class="sd">                decomposition of the two-body tensor. This argument overrides ``tol``.</span>
+<span class="sd">            optimize: Whether to optimize the tensors returned by the decomposition.</span>
+<span class="sd">            method: The optimization method. See the documentation of</span>
+<span class="sd">                `scipy.optimize.minimize`_ for possible values.</span>
+<span class="sd">            callback: Callback function for the optimization. See the documentation of</span>
+<span class="sd">                `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">            options: Options for the optimization. See the documentation of</span>
+<span class="sd">                `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">            diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.</span>
+<span class="sd">                This is a matrix of boolean values where the nonzero elements indicate</span>
+<span class="sd">                where the diagonal Coulomb matrices returned by optimization are allowed</span>
+<span class="sd">                to be nonzero. This parameter is only used if `optimize` is set to</span>
+<span class="sd">                True, and only the upper triangular part of the matrix is used.</span>
+<span class="sd">            cholesky: Whether to perform the factorization using a modified Cholesky</span>
+<span class="sd">                decomposition. If False, a full eigenvalue decomposition is used</span>
+<span class="sd">                instead, which can be much more expensive. This argument is ignored if</span>
+<span class="sd">                ``optimize`` is set to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The double-factorized Hamiltonian.</span>
+
+<span class="sd">        References:</span>
+<span class="sd">            - `arXiv:1808.02625`_</span>
+<span class="sd">            - `arXiv:2104.08957`_</span>
+
+<span class="sd">        .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625</span>
+<span class="sd">        .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
+<span class="sd">        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+            <span class="s2">&quot;prqr&quot;</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span>
+        <span class="p">)</span>
+
+        <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">double_factorized</span><span class="p">(</span>
+            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span><span class="p">,</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="n">optimize</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mask</span><span class="o">=</span><span class="n">diag_coulomb_mask</span><span class="p">,</span>
+            <span class="n">cholesky</span><span class="o">=</span><span class="n">cholesky</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">(</span>
+            <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
+            <span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">to_z_representation</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">df_hamiltonian</span></div>
 </div>
 
 
@@ -186,165 +346,6 @@
         <span class="n">diag_coulomb_mats</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">one_body_correction</span><span class="p">,</span> <span class="n">constant_correction</span>
-
-
-<div class="viewcode-block" id="double_factorized_hamiltonian">
-<a class="viewcode-back" href="../../../api/generated/ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.double_factorized_hamiltonian">[docs]</a>
-<span class="k">def</span> <span class="nf">double_factorized_hamiltonian</span><span class="p">(</span>
-    <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">MolecularHamiltonian</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
-    <span class="n">max_vecs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
-    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">diag_coulomb_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">cholesky</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Double-factorized decomposition of a molecular Hamiltonian.</span>
-
-<span class="sd">    The double-factorized decomposition acts on a Hamiltonian of the form</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}</span>
-<span class="sd">            + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}</span>
-<span class="sd">            a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}</span>
-<span class="sd">            + \text{constant}.</span>
-
-<span class="sd">    The Hamiltonian is decomposed into the double-factorized form</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}</span>
-<span class="sd">        + \frac12 \sum_t \sum_{ij, \sigma\tau}</span>
-<span class="sd">        Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}</span>
-<span class="sd">        + \text{constant}&#39;.</span>
-
-<span class="sd">    where</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}</span>
-<span class="sd">        a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.</span>
-
-<span class="sd">    Here :math:`U^{(t)}_{ij}` and :math:`Z^{(t)}_{ij}` are tensors that are output by</span>
-<span class="sd">    the decomposition, and :math:`\kappa_{pq}` is an updated one-body tensor.</span>
-<span class="sd">    Each matrix :math:`U^{(t)}` is guaranteed to be unitary so that the</span>
-<span class="sd">    :math:`n^{(t)}_{i, \sigma}` are number operators in a rotated basis, and</span>
-<span class="sd">    each :math:`Z^{(t)}` is a real symmetric matrix.</span>
-<span class="sd">    The number of terms :math:`t` in the decomposition depends on the allowed</span>
-<span class="sd">    error threshold. A larger error threshold leads to a smaller number of terms.</span>
-<span class="sd">    Furthermore, the `max_rank` parameter specifies an optional upper bound</span>
-<span class="sd">    on :math:`t`.</span>
-
-<span class="sd">    The default behavior of this routine is to perform a straightforward</span>
-<span class="sd">    &quot;exact&quot; factorization of the two-body tensor based on a nested</span>
-<span class="sd">    eigenvalue decomposition. Additionally, one can choose to optimize the</span>
-<span class="sd">    coefficients stored in the tensor to achieve a &quot;compressed&quot; factorization.</span>
-<span class="sd">    This option is enabled by setting the `optimize` parameter to `True`.</span>
-<span class="sd">    The optimization attempts to minimize a least-squares objective function</span>
-<span class="sd">    quantifying the error in the low rank decomposition.</span>
-<span class="sd">    It uses `scipy.optimize.minimize`, passing both the objective function</span>
-<span class="sd">    and its gradient. The core tensors returned by the optimization can be optionally</span>
-<span class="sd">    constrained to have only certain elements allowed to be nonzero. This is achieved by</span>
-<span class="sd">    passing the `diag_coulomb_mask` parameter, which is an :math:`N \times N` matrix of</span>
-<span class="sd">    boolean values where :math:`N` is the number of orbitals. The nonzero elements of</span>
-<span class="sd">    this matrix indicate where the core tensors are allowed to be nonzero. Only the</span>
-<span class="sd">    upper triangular part of the matrix is used because the core tensors are symmetric.</span>
-
-<span class="sd">    **&quot;Z&quot; representation**</span>
-
-<span class="sd">    The &quot;Z&quot; representation of the double factorization is an alternative</span>
-<span class="sd">    representation that sometimes yields simpler quantum circuits.</span>
-
-<span class="sd">    Under the Jordan-Wigner transformation, the number operators take the form</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        n^{(t)}_{i, \sigma} = \frac{(1 - z^{(t)}_{i, \sigma})}{2}</span>
-
-<span class="sd">    where :math:`z^{(t)}_{i, \sigma}` is the Pauli Z operator in the rotated basis.</span>
-<span class="sd">    The &quot;Z&quot; representation is obtained by rewriting the two-body part in terms</span>
-<span class="sd">    of these Pauli Z operators and updating the one-body term as appropriate:</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        H = \sum_{pq, \sigma} \kappa&#39;_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}</span>
-<span class="sd">        + \frac18 \sum_t \sum_{ij, \sigma\tau}^*</span>
-<span class="sd">        Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}</span>
-<span class="sd">        + \text{constant}&#39;&#39;</span>
-
-<span class="sd">    where the asterisk denotes summation over indices :math:`ij, \sigma\tau`</span>
-<span class="sd">    where :math:`i \neq j` or :math:`\sigma \neq \tau`.</span>
-
-<span class="sd">    Note: Currently, only real-valued two-body tensors are supported.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        one_body_tensor: The one-body tensor of the Hamiltonian.</span>
-<span class="sd">        two_body_tensor: The two-body tensor of the Hamiltonian.</span>
-<span class="sd">        z_representation: Whether to use the &quot;Z&quot; representation of the</span>
-<span class="sd">            low rank decomposition.</span>
-<span class="sd">        tol: Tolerance for error in the decomposition.</span>
-<span class="sd">            The error is defined as the maximum absolute difference between</span>
-<span class="sd">            an element of the original tensor and the corresponding element of</span>
-<span class="sd">            the reconstructed tensor.</span>
-<span class="sd">        max_vecs: An optional limit on the number of terms to keep in the decomposition</span>
-<span class="sd">            of the two-body tensor. This argument overrides ``tol``.</span>
-<span class="sd">        optimize: Whether to optimize the tensors returned by the decomposition.</span>
-<span class="sd">        method: The optimization method. See the documentation of</span>
-<span class="sd">            `scipy.optimize.minimize`_ for possible values.</span>
-<span class="sd">        callback: Callback function for the optimization. See the documentation of</span>
-<span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
-<span class="sd">        options: Options for the optimization. See the documentation of</span>
-<span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
-<span class="sd">        diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.</span>
-<span class="sd">            This is a matrix of boolean values where the nonzero elements indicate where</span>
-<span class="sd">            the diagonal coulomb matrices returned by optimization are allowed to be</span>
-<span class="sd">            nonzero. This parameter is only used if `optimize` is set to `True`, and</span>
-<span class="sd">            only the upper triangular part of the matrix is used.</span>
-<span class="sd">        cholesky: Whether to perform the factorization using a modified Cholesky</span>
-<span class="sd">            decomposition. If False, a full eigenvalue decomposition is used instead,</span>
-<span class="sd">            which can be much more expensive. This argument is ignored if ``optimize``</span>
-<span class="sd">            is set to True.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The double-factorized Hamiltonian.</span>
-
-<span class="sd">    References:</span>
-<span class="sd">        - `arXiv:1808.02625`_</span>
-<span class="sd">        - `arXiv:2104.08957`_</span>
-
-<span class="sd">    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625</span>
-<span class="sd">    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
-<span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
-        <span class="s2">&quot;prqr&quot;</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span>
-    <span class="p">)</span>
-
-    <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">double_factorized</span><span class="p">(</span>
-        <span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span>
-        <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
-        <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span><span class="p">,</span>
-        <span class="n">optimize</span><span class="o">=</span><span class="n">optimize</span><span class="p">,</span>
-        <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
-        <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-        <span class="n">diag_coulomb_mask</span><span class="o">=</span><span class="n">diag_coulomb_mask</span><span class="p">,</span>
-        <span class="n">cholesky</span><span class="o">=</span><span class="n">cholesky</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">(</span>
-        <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
-        <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
-        <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
-        <span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">to_z_representation</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">df_hamiltonian</span></div>
-
 </pre></div>
 
           </div>

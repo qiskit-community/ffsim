@@ -110,39 +110,9 @@ where <span class="math notranslate nohighlight">\(i \neq j\)</span> or <span cl
 than the “number” representation.</p>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.norb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.norb" title="Link to this definition">¶</a></dt>
-<dd><p>The number of spatial orbitals.</p>
-</dd></dl>
-
 <dl class="py method">
-<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_number_representation">
-<span class="sig-name descname"><span class="pre">to_number_representation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian.to_number_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_number_representation" title="Link to this definition">¶</a></dt>
-<dd><p>Return the Hamiltonian in the “number” representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_z_representation">
-<span class="sig-name descname"><span class="pre">to_z_representation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian.to_z_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_z_representation" title="Link to this definition">¶</a></dt>
-<dd><p>Return the Hamiltonian in the “Z” representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.double_factorized_hamiltonian">
-<span class="sig-prename descclassname"><span class="pre">ffsim.hamiltonians.double_factorized_hamiltonian.</span></span><span class="sig-name descname"><span class="pre">double_factorized_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cholesky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#double_factorized_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.double_factorized_hamiltonian" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.from_molecular_hamiltonian">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_molecular_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cholesky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian.from_molecular_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.from_molecular_hamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Double-factorized decomposition of a molecular Hamiltonian.</p>
 <p>The double-factorized decomposition acts on a Hamiltonian of the form</p>
 <div class="math notranslate nohighlight">
@@ -160,8 +130,8 @@ Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}
 <div class="math notranslate nohighlight">
 \[n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}
 a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.\]</div>
-<p>Here <span class="math notranslate nohighlight">\(U^{(t)}_{ij}\)</span> and <span class="math notranslate nohighlight">\(Z^{(t)}_{ij}\)</span> are tensors that are output by
-the decomposition, and <span class="math notranslate nohighlight">\(\kappa_{pq}\)</span> is an updated one-body tensor.
+<p>Here <span class="math notranslate nohighlight">\(U^{(t)}_{ij}\)</span> and <span class="math notranslate nohighlight">\(Z^{(t)}_{ij}\)</span> are tensors that are output
+by the decomposition, and <span class="math notranslate nohighlight">\(\kappa_{pq}\)</span> is an updated one-body tensor.
 Each matrix <span class="math notranslate nohighlight">\(U^{(t)}\)</span> is guaranteed to be unitary so that the
 <span class="math notranslate nohighlight">\(n^{(t)}_{i, \sigma}\)</span> are number operators in a rotated basis, and
 each <span class="math notranslate nohighlight">\(Z^{(t)}\)</span> is a real symmetric matrix.
@@ -177,12 +147,13 @@ This option is enabled by setting the <cite>optimize</cite> parameter to <cite>T
 The optimization attempts to minimize a least-squares objective function
 quantifying the error in the low rank decomposition.
 It uses <cite>scipy.optimize.minimize</cite>, passing both the objective function
-and its gradient. The core tensors returned by the optimization can be optionally
-constrained to have only certain elements allowed to be nonzero. This is achieved by
-passing the <cite>diag_coulomb_mask</cite> parameter, which is an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of
-boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals. The nonzero elements of
-this matrix indicate where the core tensors are allowed to be nonzero. Only the
-upper triangular part of the matrix is used because the core tensors are symmetric.</p>
+and its gradient. The diagonal coulomb matrices returned by the optimization
+can be optionally constrained to have only certain elements allowed to be
+nonzero. This is achieved by passing the <cite>diag_coulomb_mask</cite> parameter, which is
+an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number
+of orbitals. The nonzero elements of this matrix indicate where the diagonal
+Coulomb matrices are allowed to be nonzero. Only the upper triangular part of
+the matrix is used because the diagonal Coulomb matrices are symmetric.</p>
 <p><strong>“Z” representation</strong></p>
 <p>The “Z” representation of the double factorization is an alternative
 representation that sometimes yields simpler quantum circuits.</p>
@@ -211,8 +182,8 @@ low rank decomposition.</p></li>
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – An optional limit on the number of terms to keep in the decomposition
-of the two-body tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
+<li><p><strong>max_vecs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – An optional limit on the number of terms to keep in the
+decomposition of the two-body tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
 <li><p><strong>optimize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to optimize the tensors returned by the decomposition.</p></li>
 <li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The optimization method. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.</p></li>
@@ -221,14 +192,14 @@ of the two-body tensor. This argument overrides <code class="docutils literal no
 <li><p><strong>options</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – Options for the optimization. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
 <li><p><strong>diag_coulomb_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Diagonal Coulomb matrix mask to use in the optimization.
-This is a matrix of boolean values where the nonzero elements indicate where
-the diagonal coulomb matrices returned by optimization are allowed to be
-nonzero. This parameter is only used if <cite>optimize</cite> is set to <cite>True</cite>, and
-only the upper triangular part of the matrix is used.</p></li>
+This is a matrix of boolean values where the nonzero elements indicate
+where the diagonal Coulomb matrices returned by optimization are allowed
+to be nonzero. This parameter is only used if <cite>optimize</cite> is set to
+True, and only the upper triangular part of the matrix is used.</p></li>
 <li><p><strong>cholesky</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to perform the factorization using a modified Cholesky
-decomposition. If False, a full eigenvalue decomposition is used instead,
-which can be much more expensive. This argument is ignored if <code class="docutils literal notranslate"><span class="pre">optimize</span></code>
-is set to True.</p></li>
+decomposition. If False, a full eigenvalue decomposition is used
+instead, which can be much more expensive. This argument is ignored if
+<code class="docutils literal notranslate"><span class="pre">optimize</span></code> is set to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -243,6 +214,36 @@ is set to True.</p></li>
 <li><p><a class="reference external" href="https://arxiv.org/abs/1808.02625">arXiv:1808.02625</a></p></li>
 <li><p><a class="reference external" href="https://arxiv.org/abs/2104.08957">arXiv:2104.08957</a></p></li>
 </ul>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_number_representation">
+<span class="sig-name descname"><span class="pre">to_number_representation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian.to_number_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_number_representation" title="Link to this definition">¶</a></dt>
+<dd><p>Return the Hamiltonian in the “number” representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_z_representation">
+<span class="sig-name descname"><span class="pre">to_z_representation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian.to_z_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_z_representation" title="Link to this definition">¶</a></dt>
+<dd><p>Return the Hamiltonian in the “Z” representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
