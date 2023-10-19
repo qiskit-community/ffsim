@@ -4,6 +4,13 @@ ffsim.protocols package
 Submodules
 ----------
 
+ffsim.protocols.approximate\_equality module
+--------------------------------------------
+
+.. automodule:: ffsim.protocols.approximate_equality
+   :members:
+   :show-inheritance:
+
 ffsim.protocols.linear\_operator module
 ---------------------------------------
 

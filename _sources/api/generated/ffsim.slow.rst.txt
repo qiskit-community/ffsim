@@ -10,6 +10,16 @@ Subpackages
    ffsim.slow.contract
    ffsim.slow.gates
 
+Submodules
+----------
+
+ffsim.slow.fermion\_operator module
+-----------------------------------
+
+.. automodule:: ffsim.slow.fermion_operator
+   :members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

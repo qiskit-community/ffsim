@@ -19,6 +19,13 @@ Subpackages
 Submodules
 ----------
 
+ffsim.fermion\_action module
+----------------------------
+
+.. automodule:: ffsim.fermion_action
+   :members:
+   :show-inheritance:
+
 ffsim.molecular\_data module
 ----------------------------
 

@@ -157,6 +157,11 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ffsim.protocols.html">ffsim.protocols package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#module-ffsim.protocols.approximate_equality">ffsim.protocols.approximate_equality module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.approximate_equality.SupportsApproximateEquality"><code class="docutils literal notranslate"><span class="pre">SupportsApproximateEquality</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.approximate_equality.approx_eq"><code class="docutils literal notranslate"><span class="pre">approx_eq()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.protocols.html#module-ffsim.protocols.linear_operator">ffsim.protocols.linear_operator module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.linear_operator.SupportsLinearOperator"><code class="docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.linear_operator.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
@@ -187,6 +192,11 @@
 <li class="toctree-l4"><a class="reference internal" href="ffsim.slow.gates.html#module-ffsim.slow.gates">Module contents</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.slow.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.slow.html#module-ffsim.slow.fermion_operator">ffsim.slow.fermion_operator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ffsim.slow.html#ffsim.slow.fermion_operator.FermionOperator"><code class="docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.slow.html#module-ffsim.slow">Module contents</a></li>
@@ -239,6 +249,126 @@
 </section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-ffsim.fermion_action">
+<span id="ffsim-fermion-action-module"></span><h2>ffsim.fermion_action module<a class="headerlink" href="#module-ffsim.fermion_action" title="Link to this heading">¶</a></h2>
+<p>The FermionAction NamedTuple and construction functions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.fermion_action.FermionAction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.fermion_action.</span></span><span class="sig-name descname"><span class="pre">FermionAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/fermion_action.html#FermionAction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_action.FermionAction" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>A fermionic action.</p>
+<p>Create new instance of FermionAction(action, spin, orb)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.fermion_action.FermionAction.action">
+<span class="sig-name descname"><span class="pre">action</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#ffsim.fermion_action.FermionAction.action" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.fermion_action.FermionAction.orb">
+<span class="sig-name descname"><span class="pre">orb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#ffsim.fermion_action.FermionAction.orb" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.fermion_action.FermionAction.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#ffsim.fermion_action.FermionAction.spin" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermion_action.cre">
+<span class="sig-prename descclassname"><span class="pre">ffsim.fermion_action.</span></span><span class="sig-name descname"><span class="pre">cre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/fermion_action.html#cre"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_action.cre" title="Link to this definition">¶</a></dt>
+<dd><p>Create a fermion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – The spin of the orbital. False = alpha, True = beta.</p></li>
+<li><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.fermion_action.FermionAction" title="ffsim.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermion_action.cre_a">
+<span class="sig-prename descclassname"><span class="pre">ffsim.fermion_action.</span></span><span class="sig-name descname"><span class="pre">cre_a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/fermion_action.html#cre_a"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_action.cre_a" title="Link to this definition">¶</a></dt>
+<dd><p>Create a fermion with spin alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.fermion_action.FermionAction" title="ffsim.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermion_action.cre_b">
+<span class="sig-prename descclassname"><span class="pre">ffsim.fermion_action.</span></span><span class="sig-name descname"><span class="pre">cre_b</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/fermion_action.html#cre_b"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_action.cre_b" title="Link to this definition">¶</a></dt>
+<dd><p>Create a fermion with spin beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.fermion_action.FermionAction" title="ffsim.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermion_action.des">
+<span class="sig-prename descclassname"><span class="pre">ffsim.fermion_action.</span></span><span class="sig-name descname"><span class="pre">des</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/fermion_action.html#des"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_action.des" title="Link to this definition">¶</a></dt>
+<dd><p>Destroy a fermion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – The spin of the orbital. False = alpha, True = beta.</p></li>
+<li><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.fermion_action.FermionAction" title="ffsim.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermion_action.des_a">
+<span class="sig-prename descclassname"><span class="pre">ffsim.fermion_action.</span></span><span class="sig-name descname"><span class="pre">des_a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/fermion_action.html#des_a"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_action.des_a" title="Link to this definition">¶</a></dt>
+<dd><p>Destroy a fermion with spin alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.fermion_action.FermionAction" title="ffsim.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermion_action.des_b">
+<span class="sig-prename descclassname"><span class="pre">ffsim.fermion_action.</span></span><span class="sig-name descname"><span class="pre">des_b</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/fermion_action.html#des_b"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_action.des_b" title="Link to this definition">¶</a></dt>
+<dd><p>Destroy a fermion with spin beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.fermion_action.FermionAction" title="ffsim.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-ffsim.molecular_data">
 <span id="ffsim-molecular-data-module"></span><h2>ffsim.molecular_data module<a class="headerlink" href="#module-ffsim.molecular_data" title="Link to this heading">¶</a></h2>

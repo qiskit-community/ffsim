@@ -22,7 +22,7 @@
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API reference" href="../api/index.html" />
+    <link rel="next" title="The FermionOperator class" href="05-fermion-operator.html" />
     <link rel="prev" title="Diagonal Coulomb operators and double-factorized Trotter simulation" href="03-double-factorized.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -149,8 +149,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754468  E_corr = -0.0482453631485131
-Energy at initialialization: -77.469756000217
+E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851413
+Energy at initialialization: -77.46975600021675
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -191,12 +191,12 @@ Number of parameters: 72
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62901641854953
-        x: [-1.413e-01  1.156e+00 ...  1.133e-01  2.851e-01]
-      nit: 286
-      jac: [ 1.208e-04  1.677e-04 ...  5.286e-04 -3.610e-04]
-     nfev: 22630
-     njev: 310
+      fun: -77.6290196887073
+        x: [ 6.628e-03  1.205e-01 ... -5.887e-01 -3.573e-01]
+      nit: 274
+      jac: [ 1.492e-04  6.253e-05 ...  2.132e-04 -1.876e-04]
+     nfev: 21827
+     njev: 299
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -257,12 +257,12 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62801246395463
-        x: [ 1.516e-01 -3.936e-02 ... -1.165e+00 -6.871e-01]
-      nit: 357
-      jac: [ 1.563e-04  4.107e-04 ...  6.224e-04 -1.663e-04]
-     nfev: 18001
-     njev: 383
+      fun: -77.62818099405699
+        x: [ 4.219e-01 -4.976e-01 ... -6.351e-01  6.080e-02]
+      nit: 568
+      jac: [ 7.390e-05  1.208e-04 ... -1.265e-04  7.105e-06]
+     nfev: 28388
+     njev: 604
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -298,7 +298,7 @@ Number of parameters: 46
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Tutorials</a><ul>
       <li>Previous: <a href="03-double-factorized.html" title="previous chapter">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
-      <li>Next: <a href="../api/index.html" title="next chapter">API reference</a></li>
+      <li>Next: <a href="05-fermion-operator.html" title="next chapter">The FermionOperator class</a></li>
   </ul></li>
   </ul></li>
 </ul>
