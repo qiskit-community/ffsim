@@ -95,7 +95,7 @@
     "# Get CCSD t2 amplitudes for initializing the ansatz\n",
     "ccsd = cc.CCSD(\n",
     "    hartree_fock,\n",
-    "    frozen=[i for i in range(hartree_fock.mo_coeff.shape[0]) if i not in active_space],\n",
+    "    frozen=[i for i in range(hartree_fock.mol.nao_nr()) if i not in active_space],\n",
     ")\n",
     "_, t1, t2 = ccsd.kernel()\n",
     "\n",
