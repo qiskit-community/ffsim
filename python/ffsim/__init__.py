@@ -23,14 +23,6 @@ from ffsim import (
     variational,
 )
 from ffsim._lib import FermionOperator
-from ffsim.contract import (
-    contract_diag_coulomb,
-    contract_num_op_sum,
-    diag_coulomb_linop,
-    hamiltonian_linop,
-    hamiltonian_trace,
-    num_op_sum_linop,
-)
 from ffsim.fermion_action import FermionAction, cre, cre_a, cre_b, des, des_a, des_b
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
