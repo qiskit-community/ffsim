@@ -20,7 +20,7 @@ from ffsim.gates.orbital_rotation import (
     _zero_one_subspace_indices,
     gen_orbital_rotation_index,
 )
-from ffsim.slow.gates.orbital_rotation import (
+from ffsim._slow.gates.orbital_rotation import (
     apply_givens_rotation_in_place_slow,
     apply_single_column_transformation_in_place_slow,
 )

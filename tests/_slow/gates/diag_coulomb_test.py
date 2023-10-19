@@ -19,7 +19,7 @@ from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
 )
-from ffsim.slow.gates.diag_coulomb import (
+from ffsim._slow.gates.diag_coulomb import (
     apply_diag_coulomb_evolution_in_place_num_rep_numpy,
     apply_diag_coulomb_evolution_in_place_num_rep_slow,
     apply_diag_coulomb_evolution_in_place_z_rep_slow,
