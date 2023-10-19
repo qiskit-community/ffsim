@@ -48,10 +48,12 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyscf</span>
+<span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
 <span class="kn">import</span> <span class="nn">ffsim</span>
 
 <span class="c1"># Build a stretched ethene molecule</span>
-<span class="n">a</span> <span class="o">=</span> <span class="mf">1.339</span>
+<span class="n">bond_distance</span> <span class="o">=</span> <span class="mf">2.678</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">bond_distance</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mf">0.5626</span>
 <span class="n">c</span> <span class="o">=</span> <span class="mf">0.9289</span>
 <span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
@@ -92,8 +94,8 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643961
-CASCI E = -77.6290254326716  E(CI) = -3.57322412553863  S^2 = 0.0000000
+converged SCF energy = -77.4456267643963
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553860  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -149,8 +151,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754465  E_corr = -0.04824536314851437
-Energy at initialialization: -77.46975600021734
+E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851401
+Energy at initialialization: -77.46975600021679
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -191,12 +193,12 @@ Number of parameters: 72
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62896972728723
-        x: [-1.591e-01  5.182e-03 ... -7.229e-01 -6.912e-01]
-      nit: 342
-      jac: [-2.416e-04 -2.643e-04 ...  4.590e-04  1.563e-05]
-     nfev: 26718
-     njev: 366
+      fun: -77.62901955839754
+        x: [-2.626e-01  7.318e-01 ... -8.365e-01 -2.934e-01]
+      nit: 183
+      jac: [-4.690e-05  0.000e+00 ...  4.263e-06  9.095e-05]
+     nfev: 14381
+     njev: 197
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -257,12 +259,12 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62733286135872
-        x: [-7.856e-01  1.029e+00 ... -1.068e+00 -1.200e+00]
-      nit: 562
-      jac: [ 1.222e-04 -1.990e-05 ... -1.052e-04  4.832e-05]
-     nfev: 28388
-     njev: 604
+      fun: -77.6289645029953
+        x: [ 2.766e+00  1.046e-01 ... -7.215e-01 -4.986e-01]
+      nit: 408
+      jac: [ 1.563e-05 -1.421e-05 ...  1.393e-04 -4.263e-05]
+     nfev: 20962
+     njev: 446
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
