@@ -11,17 +11,17 @@ ffsim.contract.diag\_coulomb module
    :members:
    :show-inheritance:
 
-ffsim.contract.hamiltonian module
----------------------------------
-
-.. automodule:: ffsim.contract.hamiltonian
-   :members:
-   :show-inheritance:
-
 ffsim.contract.num\_op\_sum module
 ----------------------------------
 
 .. automodule:: ffsim.contract.num_op_sum
+   :members:
+   :show-inheritance:
+
+ffsim.contract.one\_body module
+-------------------------------
+
+.. automodule:: ffsim.contract.one_body
    :members:
    :show-inheritance:
 

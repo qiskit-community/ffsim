@@ -119,51 +119,6 @@ orbitals with differing spin.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-ffsim.contract.hamiltonian">
-<span id="ffsim-contract-hamiltonian-module"></span><h2>ffsim.contract.hamiltonian module<a class="headerlink" href="#module-ffsim.contract.hamiltonian" title="Link to this heading">¶</a></h2>
-<p>Contract a molecular Hamiltonian.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.contract.hamiltonian.hamiltonian_linop">
-<span class="sig-prename descclassname"><span class="pre">ffsim.contract.hamiltonian.</span></span><span class="sig-name descname"><span class="pre">hamiltonian_linop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/contract/hamiltonian.html#hamiltonian_linop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.hamiltonian.hamiltonian_linop" title="Link to this definition">¶</a></dt>
-<dd><p>Convert a molecular Hamiltonian to a linear operator.</p>
-<p>A molecular Hamiltonian has the form</p>
-<div class="math notranslate nohighlight">
-\[H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-    + \frac12 \sum_{pqrs, \sigma} h_{pqrs, \sigma\tau}
-    a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}.\]</div>
-<p>Here <span class="math notranslate nohighlight">\(h_{pq}\)</span> is called the one-body tensor and <span class="math notranslate nohighlight">\(h_{pqrs}\)</span> is called
-the two-body tensor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>one_body_tensor</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The one-body tensor.</p></li>
-<li><p><strong>two_body_tensor</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The two-body tensor.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>constant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The constant.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A LinearOperator that implements the action of the Hamiltonian.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.contract.hamiltonian.hamiltonian_trace">
-<span class="sig-prename descclassname"><span class="pre">ffsim.contract.hamiltonian.</span></span><span class="sig-name descname"><span class="pre">hamiltonian_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/contract/hamiltonian.html#hamiltonian_trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.hamiltonian.hamiltonian_trace" title="Link to this definition">¶</a></dt>
-<dd><p>Get the trace of the Hamiltonian in the FCI basis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
 <section id="module-ffsim.contract.num_op_sum">
 <span id="ffsim-contract-num-op-sum-module"></span><h2>ffsim.contract.num_op_sum module<a class="headerlink" href="#module-ffsim.contract.num_op_sum" title="Link to this heading">¶</a></h2>
 <p>Contract linear combination of number operators.</p>
@@ -221,6 +176,35 @@ with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, the <spa
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A LinearOperator that implements the action of the linear combination of number
 operators.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ffsim.contract.one_body">
+<span id="ffsim-contract-one-body-module"></span><h2>ffsim.contract.one_body module<a class="headerlink" href="#module-ffsim.contract.one_body" title="Link to this heading">¶</a></h2>
+<p>Contract one-body operator.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.contract.one_body.one_body_linop">
+<span class="sig-prename descclassname"><span class="pre">ffsim.contract.one_body.</span></span><span class="sig-name descname"><span class="pre">one_body_linop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/contract/one_body.html#one_body_linop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.one_body.one_body_linop" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a one-body tensor to a linear operator.</p>
+<p>A one-body tensor has the form</p>
+<div class="math notranslate nohighlight">
+\[\sum_{ij} M_{ij} a^\dagger{i} a_j\]</div>
+<p>where <span class="math notranslate nohighlight">\(M\)</span> is a complex-valued matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body tensor.</p></li>
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A LinearOperator that implements the action of the one-body tensor.</p>
 </dd>
 </dl>
 </dd></dl>
