@@ -17,7 +17,7 @@ import scipy.sparse.linalg
 from pyscf.fci import cistring
 from scipy.special import comb
 
-from ffsim._ffsim import (
+from ffsim._lib import (
     contract_num_op_sum_spin_into_buffer,
 )
 from ffsim.gates.orbital_rotation import (

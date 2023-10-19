@@ -17,7 +17,7 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
-from ffsim._ffsim import contract_num_op_sum_spin_into_buffer
+from ffsim._lib import contract_num_op_sum_spin_into_buffer
 from ffsim.slow.contract.num_op_sum import contract_num_op_sum_spin_into_buffer_slow
 
 

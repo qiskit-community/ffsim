@@ -17,7 +17,7 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
-from ffsim._ffsim import (
+from ffsim._lib import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
 )

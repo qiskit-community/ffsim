@@ -15,7 +15,7 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
-from ffsim._ffsim import (
+from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
 )

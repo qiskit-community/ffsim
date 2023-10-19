@@ -15,7 +15,7 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
-from ffsim._ffsim import apply_num_op_sum_evolution_in_place
+from ffsim._lib import apply_num_op_sum_evolution_in_place
 from ffsim.slow.gates.num_op_sum import apply_num_op_sum_evolution_in_place_slow
 
 
