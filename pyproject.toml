@@ -13,12 +13,7 @@ classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-dependencies = [
-    "numpy==1.26.0",
-    "opt_einsum==3.3.0",
-    "pyscf==2.3.0",
-    "scipy==1.11.2",
-]
+dependencies = ["numpy", "opt_einsum>=3.3", "pyscf>=2.3.0", "scipy"]
 
 [project.urls]
 Homepage = "https://github.com/qiskit-community/ffsim"
@@ -26,18 +21,18 @@ Documentation = "https://qiskit-community.github.io/ffsim/"
 
 [project.optional-dependencies]
 dev = [
-    "black[jupyter]==23.9.1",
-    "coverage==7.3.1",
-    "jupyter-sphinx==0.4.0",
-    "maturin==1.2.3",
-    "mypy==1.5.1",
-    "nbmake==1.4.3",
-    "nbsphinx==0.9.3",
-    "pytest==7.4.2",
-    "ruff==0.0.290",
-    "sphinx==7.2.6",
-    "sphinx-autodoc-typehints==1.24.0",
-    "tox==4.11.3",
+    "black[jupyter]",
+    "coverage",
+    "jupyter-sphinx",
+    "maturin",
+    "mypy",
+    "nbmake",
+    "nbsphinx",
+    "pytest",
+    "ruff",
+    "sphinx",
+    "sphinx-autodoc-typehints",
+    "tox",
 ]
 
 [tool.maturin]
