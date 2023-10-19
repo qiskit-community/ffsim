@@ -80,12 +80,13 @@ statevector has length</p>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">comb</span>
 
-<span class="n">dim_a</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">dim</span> <span class="o">=</span> <span class="n">dim_a</span> <span class="o">*</span> <span class="n">dim_b</span>
+<span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="n">dim</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">dim_a</span> <span class="o">==</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">dim_b</span> <span class="o">==</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">dim</span> <span class="o">==</span> <span class="n">dim_a</span> <span class="o">*</span> <span class="n">dim_b</span>
 <span class="k">assert</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">dim</span><span class="p">,)</span>
-<span class="k">assert</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span> <span class="o">==</span> <span class="n">dim</span>
 </pre></div>
 </div>
 </div>
