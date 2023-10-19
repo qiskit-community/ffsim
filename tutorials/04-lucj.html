@@ -96,7 +96,7 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.4456267643961
-CASCI E = -77.6290254326716  E(CI) = -3.57322412553863  S^2 = 0.0000000
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -152,8 +152,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754462  E_corr = -0.04824536314851502
-Energy at initialialization: -77.46975600021702
+E(CCSD) = -77.49387212754465  E_corr = -0.0482453631485131
+Energy at initialialization: -77.46975600021686
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -194,12 +194,12 @@ Number of parameters: 72
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62900645219578
-        x: [-7.694e-02  8.617e-01 ... -5.297e-01  7.471e-01]
-      nit: 404
-      jac: [-3.837e-05 -4.832e-05 ... -1.393e-04  5.400e-05]
-     nfev: 31317
-     njev: 429
+      fun: -77.62893906227687
+        x: [-1.706e-01  1.029e+00 ... -3.447e-01 -1.011e-01]
+      nit: 306
+      jac: [ 4.405e-05  6.821e-05 ...  2.117e-04 -2.984e-04]
+     nfev: 23360
+     njev: 320
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -260,12 +260,12 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62890087393822
-        x: [-2.238e-01 -1.044e+00 ...  3.513e-01 -4.637e-01]
-      nit: 438
-      jac: [-6.395e-05  7.105e-06 ... -7.816e-05 -1.194e-04]
-     nfev: 22325
-     njev: 475
+      fun: -77.62875844191191
+        x: [ 4.770e-01 -1.544e-01 ...  1.889e-01  1.852e+00]
+      nit: 453
+      jac: [ 1.492e-04 -6.452e-04 ... -4.832e-05  3.183e-04]
+     nfev: 22654
+     njev: 482
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
