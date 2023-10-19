@@ -16,7 +16,7 @@ mod gates;
 
 /// Python module exposing Rust extensions.
 #[pymodule]
-fn _ffsim(_py: Python, m: &PyModule) -> PyResult<()> {
+fn _lib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(
         gates::phase_shift::apply_phase_shift_in_place,
         m

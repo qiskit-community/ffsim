@@ -16,7 +16,7 @@ import numpy as np
 from pyscf.fci import cistring
 from scipy.special import comb
 
-from ffsim._ffsim import apply_num_op_sum_evolution_in_place
+from ffsim._lib import apply_num_op_sum_evolution_in_place
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 

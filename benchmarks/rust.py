@@ -12,7 +12,7 @@ import numpy as np
 import scipy.linalg
 
 import ffsim
-from ffsim._ffsim import (
+from ffsim._lib import (
     apply_givens_rotation_in_place,
     apply_single_column_transformation_in_place,
 )
