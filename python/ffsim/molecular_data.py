@@ -98,7 +98,7 @@ class MolecularData:
         hartree_fock: scf.hf.SCF, active_space: Iterable[int] | None = None
     ) -> "MolecularData":
         if active_space is None:
-            norb = hartree_fock.mo_coeff.shape[0]
+            norb = hartree_fock.mol.nao_nr()
             active_space = range(norb)
 
         active_space = list(active_space)
