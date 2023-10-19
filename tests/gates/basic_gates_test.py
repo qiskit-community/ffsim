@@ -230,11 +230,51 @@ def test_apply_num_interaction(norb: int, nelec: tuple[int, int]):
     "norb, nelec",
     [
         (2, (1, 1)),
+        (3, (2, 1)),
+    ],
+)
+def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int]):
+    """Test applying number interaction."""
+    dim = ffsim.dim(norb, nelec)
+    rng = np.random.default_rng()
+    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
+    theta = rng.uniform(-10, 10)
+    for i, j in itertools.combinations(range(norb), 2):
+        for target_orbs in [(i, j), (j, i)]:
+            result = ffsim.apply_num_num_interaction(
+                vec, theta, target_orbs, norb=norb, nelec=nelec
+            )
+            m, n = target_orbs
+            generator = ffsim.FermionOperator(
+                {
+                    (
+                        ffsim.cre_a(m),
+                        ffsim.des_a(m),
+                        ffsim.cre_a(n),
+                        ffsim.des_a(n),
+                    ): theta,
+                    (
+                        ffsim.cre_b(m),
+                        ffsim.des_b(m),
+                        ffsim.cre_b(n),
+                        ffsim.des_b(n),
+                    ): theta,
+                }
+            )
+            linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
+            expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+            np.testing.assert_allclose(result, expected, atol=1e-8)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (2, (1, 1)),
         (4, (2, 2)),
         (5, (3, 2)),
     ],
 )
-def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int]):
+def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]):
     """Test applying number interaction."""
     rng = np.random.default_rng()
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)

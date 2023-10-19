@@ -22,6 +22,7 @@ from ffsim import (
     trotter,
     variational,
 )
+from ffsim._ffsim import FermionOperator
 from ffsim.contract import (
     contract_diag_coulomb,
     contract_num_op_sum,
@@ -30,6 +31,7 @@ from ffsim.contract import (
     hamiltonian_trace,
     num_op_sum_linop,
 )
+from ffsim.fermion_action import FermionAction, cre, cre_a, cre_b, des, des_a, des_b
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -49,8 +51,10 @@ from ffsim.hamiltonians import (
 )
 from ffsim.molecular_data import MolecularData
 from ffsim.protocols import (
+    SupportsApproximateEquality,
     SupportsLinearOperator,
     SupportsTrace,
+    approx_eq,
     linear_operator,
     trace,
 )
