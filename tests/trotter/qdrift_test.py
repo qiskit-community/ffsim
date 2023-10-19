@@ -254,7 +254,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     )
     hartree_fock = scf.RHF(mol)
     hartree_fock.kernel()
-    norb, _ = hartree_fock.mo_coeff.shape
+    norb = hartree_fock.mol.nao_nr()
     mc = mcscf.CASCI(hartree_fock, norb, mol.nelec)
     one_body_tensor, _ = mc.get_h1cas()
     two_body_tensor = ao2mo.restore(1, mc.get_h2cas(), mc.ncas)

@@ -96,7 +96,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
     )
     hartree_fock = scf.RHF(mol)
     hartree_fock.kernel()
-    norb, _ = hartree_fock.mo_coeff.shape
+    norb = hartree_fock.mol.nao_nr()
     mc = mcscf.CASCI(hartree_fock, norb, mol.nelec)
     two_body_tensor = ao2mo.restore(1, mc.get_h2cas(), mc.ncas)
 
