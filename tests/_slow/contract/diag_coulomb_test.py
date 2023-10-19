@@ -21,7 +21,7 @@ from ffsim._lib import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
 )
-from ffsim.slow.contract.diag_coulomb import (
+from ffsim._slow.contract.diag_coulomb import (
     contract_diag_coulomb_into_buffer_num_rep_slow,
     contract_diag_coulomb_into_buffer_z_rep_slow,
 )
