@@ -12,7 +12,6 @@ Subpackages
    ffsim.hamiltonians
    ffsim.linalg
    ffsim.protocols
-   ffsim.slow
    ffsim.trotter
    ffsim.variational
 
