@@ -36,11 +36,7 @@ from ffsim.gates import (
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
-from ffsim.hamiltonians import (
-    DoubleFactorizedHamiltonian,
-    MolecularHamiltonian,
-    double_factorized_hamiltonian,
-)
+from ffsim.hamiltonians import DoubleFactorizedHamiltonian, MolecularHamiltonian
 from ffsim.molecular_data import MolecularData
 from ffsim.protocols import (
     SupportsApproximateEquality,

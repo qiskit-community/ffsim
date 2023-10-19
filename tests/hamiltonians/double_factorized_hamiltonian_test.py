@@ -37,7 +37,7 @@ def test_double_factorized_hamiltonian(z_representation: bool):
     )
 
     # perform double factorization
-    df_hamiltonian = ffsim.double_factorized_hamiltonian(
+    df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian,
         z_representation=z_representation,
     )
@@ -86,7 +86,7 @@ def test_z_representation_round_trip():
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=2474)
     two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
 
-    df_hamiltonian = ffsim.double_factorized_hamiltonian(
+    df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
         ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
     )
     df_hamiltonian_num = df_hamiltonian.to_z_representation().to_number_representation()
