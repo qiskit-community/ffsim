@@ -80,7 +80,16 @@
 <div class="viewcode-block" id="linear_operator">
 <a class="viewcode-back" href="../../../api/generated/ffsim.protocols.html#ffsim.protocols.linear_operator.linear_operator">[docs]</a>
 <span class="k">def</span> <span class="nf">linear_operator</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LinearOperator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a SciPy LinearOperator representing the object.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a SciPy LinearOperator representing the object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: The object to convert to a LinearOperator.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A Scipy LinearOperator representing the object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">FermionOperator</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_fermion_operator_to_linear_operator</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 

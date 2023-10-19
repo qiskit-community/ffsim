@@ -56,9 +56,23 @@
 <dt class="sig sig-object py" id="ffsim.protocols.approximate_equality.approx_eq">
 <span class="sig-prename descclassname"><span class="pre">ffsim.protocols.approximate_equality.</span></span><span class="sig-name descname"><span class="pre">approx_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/protocols/approximate_equality.html#approx_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.protocols.approximate_equality.approx_eq" title="Link to this definition">¶</a></dt>
 <dd><p>Return whether two objects are approximately equal.</p>
+<p>See the documentation of <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.isclose.html">np.isclose</a> for the interpretation of the tolerance
+parameters <code class="docutils literal notranslate"><span class="pre">rtol</span></code> and <code class="docutils literal notranslate"><span class="pre">atol</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The first object.</p></li>
+<li><p><strong>other</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The object to compare to.</p></li>
+<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the objects are approximately equal up to the specified tolerance,
+and False otherwise.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -79,8 +93,18 @@
 <span class="sig-prename descclassname"><span class="pre">ffsim.protocols.linear_operator.</span></span><span class="sig-name descname"><span class="pre">linear_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/protocols/linear_operator.html#linear_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.protocols.linear_operator.linear_operator" title="Link to this definition">¶</a></dt>
 <dd><p>Return a SciPy LinearOperator representing the object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The object to convert to a LinearOperator.</p></li>
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A Scipy LinearOperator representing the object.</p>
 </dd>
 </dl>
 </dd></dl>

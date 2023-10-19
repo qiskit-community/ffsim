@@ -80,7 +80,23 @@
 <div class="viewcode-block" id="approx_eq">
 <a class="viewcode-back" href="../../../api/generated/ffsim.protocols.html#ffsim.protocols.approximate_equality.approx_eq">[docs]</a>
 <span class="k">def</span> <span class="nf">approx_eq</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether two objects are approximately equal.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether two objects are approximately equal.</span>
+
+<span class="sd">    See the documentation of `np.isclose`_ for the interpretation of the tolerance</span>
+<span class="sd">    parameters ``rtol`` and ``atol``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: The first object.</span>
+<span class="sd">        other: The object to compare to.</span>
+<span class="sd">        rtol: Relative numerical tolerance.</span>
+<span class="sd">        atol: Absolute numerical tolerance.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the objects are approximately equal up to the specified tolerance,</span>
+<span class="sd">        and False otherwise.</span>
+
+<span class="sd">    .. _np.isclose: https://numpy.org/doc/stable/reference/generated/numpy.isclose.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_approx_eq_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
