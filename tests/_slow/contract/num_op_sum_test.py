@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Tests for gates."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -15,11 +17,11 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
-from ffsim._lib import apply_num_op_sum_evolution_in_place
-from ffsim.slow.gates.num_op_sum import apply_num_op_sum_evolution_in_place_slow
+from ffsim._lib import contract_num_op_sum_spin_into_buffer
+from ffsim._slow.contract.num_op_sum import contract_num_op_sum_spin_into_buffer_slow
 
 
-def test_apply_num_op_sum_evolution_in_place_slow():
+def test_contract_num_op_sum_spin_into_buffer_slow():
     """Test applying num op sum evolution."""
     norb = 5
     rng = np.random.default_rng()
@@ -31,18 +33,16 @@ def test_apply_num_op_sum_evolution_in_place_slow():
         occupations = cistring.gen_occslst(range(norb), n_alpha).astype(
             np.uint, copy=False
         )
-        exponents = np.random.uniform(0, 2 * np.pi, size=norb)
-        phases = np.exp(1j * exponents)
-        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        coeffs = np.random.uniform(size=norb)
+        vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
-        vec_fast = vec_slow.copy()
-        apply_num_op_sum_evolution_in_place_slow(
-            vec_slow, phases, occupations=occupations
+        out_slow = np.zeros_like(vec)
+        out_fast = np.zeros_like(vec)
+        contract_num_op_sum_spin_into_buffer_slow(
+            vec, coeffs, occupations=occupations, out=out_slow
         )
-        apply_num_op_sum_evolution_in_place(
-            vec_fast,
-            phases,
-            occupations=occupations,
+        contract_num_op_sum_spin_into_buffer(
+            vec, coeffs, occupations=occupations, out=out_fast
         )
-        np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
+        np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
