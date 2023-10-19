@@ -29,7 +29,5 @@ def test_slater_determinant():
         norb, occupied_orbitals, orbital_rotation=orbital_rotation
     )
 
-    hamiltonian = ffsim.contract.hamiltonian_linop(
-        one_body_tensor=one_body_tensor, norb=norb, nelec=nelec
-    )
+    hamiltonian = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
     np.testing.assert_allclose(hamiltonian @ state, eig * state)

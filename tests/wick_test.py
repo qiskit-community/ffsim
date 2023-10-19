@@ -33,9 +33,7 @@ def test_expectation_product():
     for _ in range(n_tensors):
         one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
         one_body_tensor += 1j * rng.standard_normal((norb, norb))
-        linop = ffsim.contract.hamiltonian_linop(
-            one_body_tensor=one_body_tensor, norb=norb, nelec=nelec
-        )
+        linop = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
         one_body_tensors.append(one_body_tensor)
         linops.append(linop)
 
@@ -75,9 +73,7 @@ def test_expectation_power():
     # generate a random one-body tensor
     one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
     one_body_tensor += 1j * rng.standard_normal((norb, norb))
-    linop = ffsim.contract.hamiltonian_linop(
-        one_body_tensor=one_body_tensor, norb=norb, nelec=nelec
-    )
+    linop = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
 
     # generate a random Slater determinant
     vecs = ffsim.random.random_unitary(norb, seed=rng)

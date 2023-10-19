@@ -54,8 +54,8 @@ def variance(
 def test_spectral_norm_one_body_tensor(norb: int, nelec: tuple[int, int]):
     """Test spectral norm of one-body operator."""
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=8034)
-    one_body_linop = ffsim.contract.hamiltonian_linop(
-        one_body_tensor=one_body_tensor, norb=norb, nelec=nelec
+    one_body_linop = ffsim.contract.one_body_linop(
+        one_body_tensor, norb=norb, nelec=nelec
     )
     actual = spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec)
     singular_vals = scipy.sparse.linalg.svds(
@@ -127,10 +127,7 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
         )
         actual = sum(
             [
-                ffsim.contract.hamiltonian_linop(
-                    one_body_tensor=tensor, norb=norb, nelec=nelec
-                )
-                ** 2
+                ffsim.contract.one_body_linop(tensor, norb=norb, nelec=nelec) ** 2
                 for tensor in one_body_tensors
             ],
             start=zero,
@@ -158,8 +155,8 @@ def test_variance_one_body_tensor(norb: int, nelec: tuple[int, int]):
     rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    one_body_linop = ffsim.contract.hamiltonian_linop(
-        one_body_tensor=one_body_tensor, norb=norb, nelec=nelec
+    one_body_linop = ffsim.contract.one_body_linop(
+        one_body_tensor, norb=norb, nelec=nelec
     )
 
     # generate a random Slater determinant

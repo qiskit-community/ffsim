@@ -507,8 +507,8 @@ def test_linear_operator():
     one_body_tensor = np.zeros((norb, norb))
     one_body_tensor[1, 2] = 0.5
     one_body_tensor[2, 1] = -0.5
-    expected_linop = ffsim.contract.hamiltonian_linop(
-        one_body_tensor=one_body_tensor, norb=norb, nelec=nelec
+    expected_linop = ffsim.contract.one_body_linop(
+        one_body_tensor, norb=norb, nelec=nelec
     )
 
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
