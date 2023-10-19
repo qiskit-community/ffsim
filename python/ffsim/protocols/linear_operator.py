@@ -38,7 +38,16 @@ class SupportsLinearOperator(Protocol):
 
 
 def linear_operator(obj: Any, norb: int, nelec: tuple[int, int]) -> LinearOperator:
-    """Return a SciPy LinearOperator representing the object."""
+    """Return a SciPy LinearOperator representing the object.
+
+    Args:
+        obj: The object to convert to a LinearOperator.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+
+    Returns:
+        A Scipy LinearOperator representing the object.
+    """
     if isinstance(obj, FermionOperator):
         return _fermion_operator_to_linear_operator(obj, norb=norb, nelec=nelec)
 
