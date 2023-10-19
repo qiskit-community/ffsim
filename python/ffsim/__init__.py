@@ -22,7 +22,7 @@ from ffsim import (
     trotter,
     variational,
 )
-from ffsim._ffsim import FermionOperator
+from ffsim._lib import FermionOperator
 from ffsim.contract import (
     contract_diag_coulomb,
     contract_num_op_sum,

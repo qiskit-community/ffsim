@@ -37,7 +37,7 @@ dev = [
 
 [tool.maturin]
 python-source = "python"
-module-name = "ffsim._ffsim"
+module-name = "ffsim._lib"
 
 [tool.mypy]
 ignore_missing_imports = true

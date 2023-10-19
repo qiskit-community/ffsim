@@ -17,7 +17,7 @@ import scipy.sparse.linalg
 from pyscf.fci import cistring
 from scipy.special import comb
 
-from ffsim._ffsim import (
+from ffsim._lib import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
 )

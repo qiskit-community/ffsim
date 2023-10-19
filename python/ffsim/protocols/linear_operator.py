@@ -18,7 +18,7 @@ import numpy as np
 import pyscf.fci
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim._ffsim import FermionOperator
+from ffsim._lib import FermionOperator
 from ffsim.states import dim, dims
 
 
