@@ -41,8 +41,8 @@ def test_apply_orbital_rotation(dtype: type, atol: float):
         original_vec = vec.copy()
 
         result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
-        op = ffsim.contract.hamiltonian_linop(
-            one_body_tensor=scipy.linalg.logm(mat), norb=norb, nelec=nelec
+        op = ffsim.contract.one_body_linop(
+            scipy.linalg.logm(mat), norb=norb, nelec=nelec
         )
         expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
         np.testing.assert_allclose(result, expected, atol=atol)
@@ -86,8 +86,8 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
             vec, mat, norb, nelec, allow_col_permutation=True, copy=True
         )
         np.testing.assert_allclose(np.linalg.norm(result), 1, atol=atol)
-        op = ffsim.contract.hamiltonian_linop(
-            one_body_tensor=scipy.linalg.logm(mat @ perm), norb=norb, nelec=nelec
+        op = ffsim.contract.one_body_linop(
+            scipy.linalg.logm(mat @ perm), norb=norb, nelec=nelec
         )
         expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
         np.testing.assert_allclose(result, expected, atol=atol)
@@ -95,8 +95,8 @@ def test_apply_orbital_rotation_permutation(dtype: type, atol: float):
         result, perm = ffsim.apply_orbital_rotation(
             vec, mat, norb, nelec, allow_row_permutation=True, copy=False
         )
-        op = ffsim.contract.hamiltonian_linop(
-            one_body_tensor=scipy.linalg.logm(perm @ mat), norb=norb, nelec=nelec
+        op = ffsim.contract.one_body_linop(
+            scipy.linalg.logm(perm @ mat), norb=norb, nelec=nelec
         )
         expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
         np.testing.assert_allclose(result, expected, atol=atol)
