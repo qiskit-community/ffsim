@@ -43,6 +43,17 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
+<section id="module-ffsim.variational.hopgate">
+<span id="ffsim-variational-hopgate-module"></span><h2>ffsim.variational.hopgate module<a class="headerlink" href="#module-ffsim.variational.hopgate" title="Link to this heading">¶</a></h2>
+<p>Hop gate ansatz.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.variational.hopgate.HopGateAnsatzOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.variational.hopgate.</span></span><span class="sig-name descname"><span class="pre">HopGateAnsatzOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.hopgate.HopGateAnsatzOperator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A hop gate ansatz operator.</p>
+</dd></dl>
+
+</section>
 <section id="module-ffsim.variational.lucj">
 <span id="ffsim-variational-lucj-module"></span><h2>ffsim.variational.lucj module<a class="headerlink" href="#module-ffsim.variational.lucj" title="Link to this heading">¶</a></h2>
 <p>(Local) unitary cluster Jastrow ansatz.</p>
@@ -150,24 +161,24 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 
 </dd></dl>
 
+</section>
+<section id="module-ffsim.variational.multireference">
+<span id="ffsim-variational-multireference-module"></span><h2>ffsim.variational.multireference module<a class="headerlink" href="#module-ffsim.variational.multireference" title="Link to this heading">¶</a></h2>
+<p>Tools for multireference calculations.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.variational.lucj.apply_ucj_operator">
-<span class="sig-prename descclassname"><span class="pre">ffsim.variational.lucj.</span></span><span class="sig-name descname"><span class="pre">apply_ucj_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/lucj.html#apply_ucj_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.lucj.apply_ucj_operator" title="Link to this definition">¶</a></dt>
-<dd><p>Apply a UCJ operator to a vector.</p>
+<dt class="sig sig-object py" id="ffsim.variational.multireference.multireference_state">
+<span class="sig-prename descclassname"><span class="pre">ffsim.variational.multireference.</span></span><span class="sig-name descname"><span class="pre">multireference_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ansatz_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_occupations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ffsim/variational/multireference.html#multireference_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.variational.multireference.multireference_state" title="Link to this definition">¶</a></dt>
+<dd><p>Compute multireference state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>operator</strong> (<a class="reference internal" href="#ffsim.variational.lucj.UCJOperator" title="ffsim.variational.lucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a>) – The UCJ operator.</p></li>
+<li><p><strong>hamiltonian</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code> | <a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.linear_operator.SupportsLinearOperator" title="ffsim.protocols.linear_operator.SupportsLinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a>) – The Hamiltonian.</p></li>
+<li><p><strong>ansatz_operator</strong> (<a class="reference internal" href="ffsim.protocols.html#ffsim.protocols.apply_unitary.SupportsApplyUnitary" title="ffsim.protocols.apply_unitary.SupportsApplyUnitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a>) – The ansatz operator.</p></li>
+<li><p><strong>reference_occupations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]) – The orbital occupations of the reference states.</p></li>
 <li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
-- If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
-vector and the original vector is left untouched.
-- If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
-vector, but the original vector may have its data overwritten.
-It is also possible that the original vector is returned,
-modified in-place.</p></li>
+<li><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the desired eigenvector. Defaults to 0, which yields the
+lowest-energy state.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

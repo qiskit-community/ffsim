@@ -49,6 +49,8 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
 
@@ -89,6 +91,24 @@
     <span class="n">ell</span> <span class="o">*=</span> <span class="n">d</span>
     <span class="n">u</span> <span class="o">/=</span> <span class="n">d</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">ell</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">T</span></div>
+
+
+
+<div class="viewcode-block" id="reduced_matrix">
+<a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.linalg.reduced_matrix">[docs]</a>
+<span class="k">def</span> <span class="nf">reduced_matrix</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">,</span> <span class="n">vecs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute reduced matrix within a subspace spanned by some vectors.</span>
+
+<span class="sd">    Given a linear operator :math:`A` and a list of vectors :math:`\{v_i}\}`,</span>
+<span class="sd">    return the matrix M where :math:`M_{ij} = v_i^\dagger A v_j`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vecs</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">state_j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vecs</span><span class="p">):</span>
+        <span class="n">mat_state_j</span> <span class="o">=</span> <span class="n">mat</span> <span class="o">@</span> <span class="n">state_j</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">state_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vecs</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">state_i</span><span class="p">,</span> <span class="n">mat_state_j</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
 </pre></div>
 

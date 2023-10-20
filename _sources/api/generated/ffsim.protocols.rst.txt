@@ -4,6 +4,13 @@ ffsim.protocols package
 Submodules
 ----------
 
+ffsim.protocols.apply\_unitary module
+-------------------------------------
+
+.. automodule:: ffsim.protocols.apply_unitary
+   :members:
+   :show-inheritance:
+
 ffsim.protocols.approximate\_equality module
 --------------------------------------------
 

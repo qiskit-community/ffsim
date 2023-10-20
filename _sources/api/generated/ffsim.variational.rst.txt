@@ -4,10 +4,24 @@ ffsim.variational package
 Submodules
 ----------
 
+ffsim.variational.hopgate module
+--------------------------------
+
+.. automodule:: ffsim.variational.hopgate
+   :members:
+   :show-inheritance:
+
 ffsim.variational.lucj module
 -----------------------------
 
 .. automodule:: ffsim.variational.lucj
+   :members:
+   :show-inheritance:
+
+ffsim.variational.multireference module
+---------------------------------------
+
+.. automodule:: ffsim.variational.multireference
    :members:
    :show-inheritance:
 

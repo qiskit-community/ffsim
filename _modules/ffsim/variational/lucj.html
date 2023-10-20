@@ -349,61 +349,38 @@
 
         <span class="n">t1</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">logm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">)[:</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:]</span>
         <span class="k">return</span> <span class="n">t2</span><span class="p">,</span> <span class="n">t1</span></div>
-</div>
 
 
-
-<div class="viewcode-block" id="apply_ucj_operator">
-<a class="viewcode-back" href="../../../api/generated/ffsim.variational.html#ffsim.variational.lucj.apply_ucj_operator">[docs]</a>
-<span class="k">def</span> <span class="nf">apply_ucj_operator</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">operator</span><span class="p">:</span> <span class="n">UCJOperator</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a UCJ operator to a vector.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        vec: The state vector to be transformed.</span>
-<span class="sd">        operator: The UCJ operator.</span>
-<span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
-<span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">mat</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-        <span class="n">operator</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
-        <span class="n">operator</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
-        <span class="n">operator</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">mat</span><span class="o">=</span><span class="n">mat</span><span class="p">,</span>
-            <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
-            <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">operator</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">mat</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">vec</span></div>
+    <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the operator to a vector.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">mat</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">mat</span><span class="o">=</span><span class="n">mat</span><span class="p">,</span>
+                <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">mat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">vec</span></div>
 
 </pre></div>
 
