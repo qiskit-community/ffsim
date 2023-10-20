@@ -10,7 +10,6 @@
 
 """Variational ansatzes."""
 
-from ffsim.variational.lucj import (
-    UCJOperator,
-    apply_ucj_operator,
-)
+from ffsim.variational.hopgate import HopGateAnsatzOperator
+from ffsim.variational.lucj import UCJOperator
+from ffsim.variational.multireference import multireference_state

@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 import numpy as np
 import scipy.sparse.linalg
 
@@ -47,3 +49,18 @@ def lup(mat: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     ell *= d
     u /= d[:, None]
     return u.T, ell.T, p.T
+
+
+def reduced_matrix(mat: scipy.sparse.linalg.LinearOperator, vecs: Sequence[np.ndarray]):
+    r"""Compute reduced matrix within a subspace spanned by some vectors.
+
+    Given a linear operator :math:`A` and a list of vectors :math:`\{v_i}\}`,
+    return the matrix M where :math:`M_{ij} = v_i^\dagger A v_j`.
+    """
+    dim = len(vecs)
+    result = np.zeros((dim, dim), dtype=complex)
+    for j, state_j in enumerate(vecs):
+        mat_state_j = mat @ state_j
+        for i, state_i in enumerate(vecs):
+            result[i, j] = np.vdot(state_i, mat_state_j)
+    return result
