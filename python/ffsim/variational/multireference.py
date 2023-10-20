@@ -11,7 +11,6 @@
 """Tools for multireference calculations."""
 
 from collections.abc import Sequence
-from typing import Union
 
 import numpy as np
 import scipy.linalg
@@ -24,7 +23,7 @@ from ffsim.states import slater_determinant
 
 
 def multireference_state(
-    hamiltonian: Union[LinearOperator, SupportsLinearOperator],
+    hamiltonian: LinearOperator | SupportsLinearOperator,
     ansatz_operator: SupportsApplyUnitary,
     reference_occupations: Sequence[tuple[Sequence[int], Sequence[int]]],
     norb: int,
