@@ -10,6 +10,7 @@
 
 """Protocols."""
 
+from ffsim.protocols.apply_unitary import SupportsApplyUnitary, apply_unitary
 from ffsim.protocols.approximate_equality import SupportsApproximateEquality, approx_eq
 from ffsim.protocols.linear_operator import SupportsLinearOperator, linear_operator
 from ffsim.protocols.trace import SupportsTrace, trace

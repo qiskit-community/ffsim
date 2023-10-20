@@ -103,7 +103,7 @@ class MolecularData:
 
         active_space = list(active_space)
         norb = len(active_space)
-        n_electrons = int(np.sum(hartree_fock.mo_occ[active_space]))
+        n_electrons = int(sum(hartree_fock.mo_occ[active_space]))
         n_alpha = (n_electrons + hartree_fock.mol.spin) // 2
         n_beta = (n_electrons - hartree_fock.mol.spin) // 2
 
