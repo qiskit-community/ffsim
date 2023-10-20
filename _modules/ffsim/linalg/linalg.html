@@ -99,7 +99,7 @@
 <span class="k">def</span> <span class="nf">reduced_matrix</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">,</span> <span class="n">vecs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute reduced matrix within a subspace spanned by some vectors.</span>
 
-<span class="sd">    Given a linear operator :math:`A` and a list of vectors :math:`\{v_i}\}`,</span>
+<span class="sd">    Given a linear operator :math:`A` and a list of vectors :math:`\{v_i\}`,</span>
 <span class="sd">    return the matrix M where :math:`M_{ij} = v_i^\dagger A v_j`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vecs</span><span class="p">)</span>
