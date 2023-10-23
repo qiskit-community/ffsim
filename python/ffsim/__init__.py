@@ -51,6 +51,7 @@ from ffsim.protocols import (
 from ffsim.states import (
     dim,
     dims,
+    indices_to_strings,
     one_hot,
     slater_determinant,
     slater_determinant_one_rdm,
