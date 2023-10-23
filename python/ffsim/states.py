@@ -128,3 +128,36 @@ def slater_determinant_one_rdm(
     one_rdm[(alpha_orbitals, alpha_orbitals)] = 1
     one_rdm[(beta_orbitals, beta_orbitals)] = 1
     return one_rdm
+
+
+def indices_to_strings(
+    indices: Sequence[int], norb: int, nelec: tuple[int, int]
+) -> list[str]:
+    """Convert statevector indices to bitstrings.
+
+    Example:
+        >>> norb = 3
+        >>> nelec = (2, 1)
+        >>> dim = ffsim.dim(norb, nelec)
+        >>> strings = ffsim.indices_to_strings(range(dim), norb, nelec)
+        >>> assert strings == [
+                "011001",
+                "011010",
+                "011100",
+                "101001",
+                "101010",
+                "101100",
+                "110001",
+                "110010",
+                "110100",
+            ]
+    """
+    n_alpha, n_beta = nelec
+    dim_b = comb(norb, n_beta, exact=True)
+    indices_a, indices_b = np.divmod(indices, dim_b)
+    strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)
+    strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)
+    return [
+        f"{string_a:0{norb}b}{string_b:0{norb}b}"
+        for string_a, string_b in zip(strings_a, strings_b)
+    ]

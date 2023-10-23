@@ -31,3 +31,23 @@ def test_slater_determinant():
 
     hamiltonian = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
     np.testing.assert_allclose(hamiltonian @ state, eig * state)
+
+
+def test_indices_to_strings():
+    """Test converting statevector indices to strings."""
+    norb = 3
+    nelec = (2, 1)
+
+    dim = ffsim.dim(norb, nelec)
+    strings = ffsim.indices_to_strings(range(dim), norb, nelec)
+    assert strings == [
+        "011001",
+        "011010",
+        "011100",
+        "101001",
+        "101010",
+        "101100",
+        "110001",
+        "110010",
+        "110100",
+    ]
