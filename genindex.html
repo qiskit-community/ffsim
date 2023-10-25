@@ -43,12 +43,14 @@
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
+ | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
@@ -67,6 +69,8 @@
       <li><a href="api/ffsim.html#ffsim.apply_givens_rotation">apply_givens_rotation() (in module ffsim)</a>
 </li>
       <li><a href="api/ffsim.html#ffsim.apply_hop_gate">apply_hop_gate() (in module ffsim)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.apply_matrix_to_slices">apply_matrix_to_slices() (in module ffsim.linalg)</a>
 </li>
       <li><a href="api/ffsim.html#ffsim.apply_num_interaction">apply_num_interaction() (in module ffsim)</a>
 </li>
@@ -102,8 +106,12 @@
         <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.constant">(ffsim.MolecularHamiltonian attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/ffsim.contract.html#ffsim.contract.contract_diag_coulomb">contract_diag_coulomb() (in module ffsim.contract)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.contract.html#ffsim.contract.contract_num_op_sum">contract_num_op_sum() (in module ffsim.contract)</a>
+</li>
       <li><a href="api/ffsim.html#ffsim.MolecularData.core_energy">core_energy (ffsim.MolecularData attribute)</a>
 </li>
       <li><a href="api/ffsim.html#ffsim.cre">cre() (in module ffsim)</a>
@@ -124,6 +132,8 @@
 </li>
       <li><a href="api/ffsim.html#ffsim.des_b">des_b() (in module ffsim)</a>
 </li>
+      <li><a href="api/ffsim.contract.html#ffsim.contract.diag_coulomb_linop">diag_coulomb_linop() (in module ffsim.contract)</a>
+</li>
       <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.diag_coulomb_mats">diag_coulomb_mats (ffsim.DoubleFactorizedHamiltonian attribute)</a>
 </li>
       <li><a href="api/ffsim.html#ffsim.UCJOperator.diag_coulomb_mats_alpha_alpha">diag_coulomb_mats_alpha_alpha (ffsim.UCJOperator attribute)</a>
@@ -138,6 +148,10 @@
 </li>
       <li><a href="api/ffsim.html#ffsim.MolecularData.dipole_integrals">dipole_integrals (ffsim.MolecularData attribute)</a>
 </li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.double_factorized">double_factorized() (in module ffsim.linalg)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.double_factorized_t2">double_factorized_t2() (in module ffsim.linalg)</a>
+</li>
       <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian">DoubleFactorizedHamiltonian (class in ffsim)</a>
 </li>
   </ul></td>
@@ -151,6 +165,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/ffsim.html#ffsim.expectation_product">expectation_product() (in module ffsim)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.expm_multiply_taylor">expm_multiply_taylor() (in module ffsim.linalg)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -169,8 +185,36 @@
         <li><a href="api/ffsim.html#module-ffsim">module</a>
 </li>
       </ul></li>
+      <li>
+    ffsim.contract
+
+      <ul>
+        <li><a href="api/ffsim.contract.html#module-ffsim.contract">module</a>
+</li>
+      </ul></li>
+      <li>
+    ffsim.linalg
+
+      <ul>
+        <li><a href="api/ffsim.linalg.html#module-ffsim.linalg">module</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    ffsim.random
+
+      <ul>
+        <li><a href="api/ffsim.random.html#module-ffsim.random">module</a>
+</li>
+      </ul></li>
+      <li>
+    ffsim.testing
+
+      <ul>
+        <li><a href="api/ffsim.testing.html#module-ffsim.testing">module</a>
+</li>
+      </ul></li>
       <li><a href="api/ffsim.html#ffsim.UCJOperator.final_orbital_rotation">final_orbital_rotation (ffsim.UCJOperator attribute)</a>
 </li>
       <li><a href="api/ffsim.html#ffsim.MolecularData.from_hartree_fock">from_hartree_fock() (ffsim.MolecularData static method)</a>
@@ -180,6 +224,14 @@
       <li><a href="api/ffsim.html#ffsim.UCJOperator.from_parameters">from_parameters() (ffsim.UCJOperator static method)</a>
 </li>
       <li><a href="api/ffsim.html#ffsim.UCJOperator.from_t_amplitudes">from_t_amplitudes() (ffsim.UCJOperator static method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.givens_decomposition">givens_decomposition() (in module ffsim.linalg)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -201,6 +253,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/ffsim.html#ffsim.indices_to_strings">indices_to_strings() (in module ffsim)</a>
 </li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_antihermitian">is_antihermitian() (in module ffsim.linalg)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_hermitian">is_hermitian() (in module ffsim.linalg)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_orthogonal">is_orthogonal() (in module ffsim.linalg)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_real_symmetric">is_real_symmetric() (in module ffsim.linalg)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_special_orthogonal">is_special_orthogonal() (in module ffsim.linalg)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_unitary">is_unitary() (in module ffsim.linalg)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -210,6 +276,10 @@
       <li><a href="api/ffsim.html#ffsim.linear_operator">linear_operator() (in module ffsim)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.lup">lup() (in module ffsim.linalg)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="M">M</h2>
@@ -217,11 +287,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/ffsim.html#ffsim.FermionOperator.many_body_order">many_body_order() (ffsim.FermionOperator method)</a>
 </li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.modified_cholesky">modified_cholesky() (in module ffsim.linalg)</a>
+</li>
       <li>
     module
 
       <ul>
         <li><a href="api/ffsim.html#module-ffsim">ffsim</a>
+</li>
+        <li><a href="api/ffsim.contract.html#module-ffsim.contract">ffsim.contract</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#module-ffsim.linalg">ffsim.linalg</a>
+</li>
+        <li><a href="api/ffsim.random.html#module-ffsim.random">ffsim.random</a>
+</li>
+        <li><a href="api/ffsim.testing.html#module-ffsim.testing">ffsim.testing</a>
 </li>
       </ul></li>
   </ul></td>
@@ -256,12 +336,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/ffsim.html#ffsim.FermionOperator.normal_ordered">normal_ordered() (ffsim.FermionOperator method)</a>
 </li>
+      <li><a href="api/ffsim.contract.html#ffsim.contract.num_op_sum_linop">num_op_sum_linop() (in module ffsim.contract)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.contract.html#ffsim.contract.one_body_linop">one_body_linop() (in module ffsim.contract)</a>
+</li>
       <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.one_body_tensor">one_body_tensor (ffsim.DoubleFactorizedHamiltonian attribute)</a>
 
       <ul>
@@ -270,10 +354,10 @@
         <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.one_body_tensor">(ffsim.MolecularHamiltonian attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/ffsim.html#ffsim.one_hot">one_hot() (in module ffsim)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.html#ffsim.one_hot">one_hot() (in module ffsim)</a>
+</li>
       <li><a href="api/ffsim.html#ffsim.FermionAction.orb">orb (ffsim.FermionAction attribute)</a>
 </li>
       <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.orbital_rotations">orbital_rotations (ffsim.DoubleFactorizedHamiltonian attribute)</a>
@@ -283,6 +367,38 @@
 </li>
       </ul></li>
       <li><a href="api/ffsim.html#ffsim.MolecularData.orbital_symmetries">orbital_symmetries (ffsim.MolecularData attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_antihermitian">random_antihermitian() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_hermitian">random_hermitian() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.testing.html#ffsim.testing.random_nelec">random_nelec() (in module ffsim.testing)</a>
+</li>
+      <li><a href="api/ffsim.testing.html#ffsim.testing.random_occupied_orbitals">random_occupied_orbitals() (in module ffsim.testing)</a>
+</li>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_orthogonal">random_orthogonal() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_real_symmetric_matrix">random_real_symmetric_matrix() (in module ffsim.random)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_special_orthogonal">random_special_orthogonal() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_statevector">random_statevector() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_t2_amplitudes">random_t2_amplitudes() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_two_body_tensor_real">random_two_body_tensor_real() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.random.html#ffsim.random.random_unitary">random_unitary() (in module ffsim.random)</a>
+</li>
+      <li><a href="api/ffsim.linalg.html#ffsim.linalg.reduced_matrix">reduced_matrix() (in module ffsim.linalg)</a>
 </li>
   </ul></td>
 </tr></table>
