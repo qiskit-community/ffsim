@@ -10,18 +10,7 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import (
-    contract,
-    gates,
-    hamiltonians,
-    linalg,
-    protocols,
-    random,
-    states,
-    testing,
-    trotter,
-    variational,
-)
+from ffsim import contract, linalg, random, testing
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -107,23 +96,16 @@ __all__ = [
     "dims",
     "expectation_power",
     "expectation_product",
-    "gates",
-    "hamiltonians",
     "indices_to_strings",
     "linalg",
     "linear_operator",
     "multireference_state",
     "one_hot",
-    "operators",
-    "protocols",
     "random",
     "simulate_qdrift_double_factorized",
     "simulate_trotter_double_factorized",
     "slater_determinant",
     "slater_determinant_one_rdm",
-    "states",
     "testing",
     "trace",
-    "trotter",
-    "variational",
 ]

@@ -25,30 +25,11 @@ Tutorials
 API Reference
 =============
 
-ffsim module
-------------
-The following objects are exposed at the top-level ``ffsim.*`` namespace.
-
 .. toctree::
    :maxdepth: 2
 
    api/ffsim
-
-Submodules
-----------
-The following submodules are available. Many of the objects from these submodules are already exposed in the top-level ``ffsim.*`` namespace.
-
-.. toctree::
-   :maxdepth: 1
-
    api/ffsim.contract
-   api/ffsim.gates
-   api/ffsim.hamiltonians
    api/ffsim.linalg
-   api/ffsim.operators
-   api/ffsim.protocols
    api/ffsim.random
-   api/ffsim.states
    api/ffsim.testing
-   api/ffsim.trotter
-   api/ffsim.variational
