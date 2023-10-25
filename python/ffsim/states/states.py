@@ -118,9 +118,7 @@ def slater_determinant_one_rdm(
     Returns:
         The one-particle reduced density matrix of the Slater determinant.
     """
-    # TODO figure out why mypy complains about this line with
-    # error: Need type annotation for "one_rdm"  [var-annotated]
-    one_rdm = np.zeros((2 * norb, 2 * norb), dtype=complex)  # type: ignore
+    one_rdm = np.zeros((2 * norb, 2 * norb), dtype=complex)
     alpha_orbitals = np.array(occupied_orbitals[0])
     beta_orbitals = np.array(occupied_orbitals[1]) + norb
     one_rdm[(alpha_orbitals, alpha_orbitals)] = 1
