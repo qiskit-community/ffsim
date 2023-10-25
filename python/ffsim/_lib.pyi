@@ -5,23 +5,11 @@ import numpy as np
 class FermionOperator(Mapping[tuple[tuple[bool, bool, int], ...], complex]):
     def __init__(
         self, coeffs: dict[tuple[tuple[bool, bool, int], ...], complex]
-    ) -> None:
-        """Initialize a FermionOperator.
-
-        Args:
-            coeffs: The coefficients of the operator.
-        """
+    ) -> None: ...
     def normal_ordered(self) -> "FermionOperator": ...
-    def conserves_particle_number(self) -> bool:
-        """Return whether the operator conserves particle number."""
-    def conserves_spin_z(self) -> bool:
-        """Return whether the operator conserves the Z component of spin."""
-    def many_body_order(self) -> int:
-        """Return the many-body order of the operator.
-
-        The many-body order is defined as the length of the longest term contained
-        in the operator.
-        """
+    def conserves_particle_number(self) -> bool: ...
+    def conserves_spin_z(self) -> bool: ...
+    def many_body_order(self) -> int: ...
     def __getitem__(self, key: tuple[tuple[bool, bool, int], ...]) -> complex: ...
     def __contains__(self, key: object) -> bool: ...
     def __iter__(self) -> Iterator[tuple[tuple[bool, bool, int], ...]]: ...
