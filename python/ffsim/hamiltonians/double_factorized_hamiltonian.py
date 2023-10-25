@@ -67,12 +67,12 @@ class DoubleFactorizedHamiltonian:
     where :math:`i \neq j` or :math:`\sigma \neq \tau`.
 
     Attributes:
-        one_body_tensor: The one-body tensor :math:`\kappa`.
-        diag_coulomb_mats: The diagonal Coulomb matrices.
-        orbital_rotations: The orbital rotations.
-        constant: The constant.
-        z_representation: Whether the Hamiltonian is in the "Z" representation rather
-            than the "number" representation.
+        one_body_tensor (np.ndarray): The one-body tensor :math:`\kappa`.
+        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices.
+        orbital_rotations (np.ndarray): The orbital rotations.
+        constant (float): The constant.
+        z_representation (bool): Whether the Hamiltonian is in the "Z" representation
+            rather than the "number" representation.
     """
 
     one_body_tensor: np.ndarray
@@ -82,7 +82,7 @@ class DoubleFactorizedHamiltonian:
     z_representation: bool = False
 
     @property
-    def norb(self):
+    def norb(self) -> int:
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
 
