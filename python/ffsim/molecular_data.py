@@ -56,6 +56,8 @@ def orbital_symmetries(
 
 @dataclasses.dataclass
 class MolecularData:
+    """Class for storing molecular data."""
+
     norb: int
     nelec: tuple[int, int]
     core_energy: float

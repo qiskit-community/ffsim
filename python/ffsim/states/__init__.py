@@ -8,14 +8,25 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Variational ansatzes."""
+"""States."""
 
-from ffsim.variational.hopgate import HopGateAnsatzOperator
-from ffsim.variational.lucj import UCJOperator
-from ffsim.variational.multireference import multireference_state
+from ffsim.states.states import (
+    dim,
+    dims,
+    indices_to_strings,
+    one_hot,
+    slater_determinant,
+    slater_determinant_one_rdm,
+)
+from ffsim.states.wick import expectation_power, expectation_product
 
 __all__ = [
-    "HopGateAnsatzOperator",
-    "UCJOperator",
-    "multireference_state",
+    "dim",
+    "dims",
+    "expectation_power",
+    "expectation_product",
+    "indices_to_strings",
+    "one_hot",
+    "slater_determinant",
+    "slater_determinant_one_rdm",
 ]

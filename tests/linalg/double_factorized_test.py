@@ -20,7 +20,7 @@ from ffsim.linalg import (
     double_factorized,
     modified_cholesky,
 )
-from ffsim.linalg.double_factorized import (
+from ffsim.linalg.double_factorized_decomposition import (
     double_factorized_t2,
     optimal_diag_coulomb_mats,
 )
