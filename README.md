@@ -11,16 +11,9 @@ than a generic quantum circuit simulator.
 
 **Experimental disclaimer**: ffsim is currently an experimental release. Breaking changes may be introduced without warning.
 
-## Features
+## Documentation
 
-- Fast simulation of fermionic quantum circuits that preserve particle number and the Z component of spin.
-  ffsim supports the simulation of basic fermionic gates and includes specialized routines for simulation
-  of molecular Hamiltonians in the "double-factorized" representation.
-- Compatible with PySCF. State vectors use the same indexing convention as PySCF's `fci` module.
-
-## Limitations
-
-- There is no support for operations that do not preserve particle number and the Z component of spin.
+Documentation is located at the [project website](https://qiskit-community.github.io/ffsim/).
 
 ## Supported platforms
 
