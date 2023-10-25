@@ -189,18 +189,9 @@
 <span class="sd">        &gt;&gt;&gt; norb = 3</span>
 <span class="sd">        &gt;&gt;&gt; nelec = (2, 1)</span>
 <span class="sd">        &gt;&gt;&gt; dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        &gt;&gt;&gt; strings = ffsim.indices_to_strings(range(dim), norb, nelec)</span>
-<span class="sd">        &gt;&gt;&gt; assert strings == [</span>
-<span class="sd">                &quot;011001&quot;,</span>
-<span class="sd">                &quot;011010&quot;,</span>
-<span class="sd">                &quot;011100&quot;,</span>
-<span class="sd">                &quot;101001&quot;,</span>
-<span class="sd">                &quot;101010&quot;,</span>
-<span class="sd">                &quot;101100&quot;,</span>
-<span class="sd">                &quot;110001&quot;,</span>
-<span class="sd">                &quot;110010&quot;,</span>
-<span class="sd">                &quot;110100&quot;,</span>
-<span class="sd">            ]</span>
+<span class="sd">        &gt;&gt;&gt; ffsim.indices_to_strings(range(dim), norb, nelec)</span>
+<span class="sd">        [&#39;011001&#39;, &#39;011010&#39;, &#39;011100&#39;, &#39;101001&#39;, &#39;101010&#39;, &#39;101100&#39;, &#39;110001&#39;, \</span>
+<span class="sd">&#39;110010&#39;, &#39;110100&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
