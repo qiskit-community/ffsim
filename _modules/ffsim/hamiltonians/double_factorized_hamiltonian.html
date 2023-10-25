@@ -56,7 +56,7 @@
 
 
 <div class="viewcode-block" id="DoubleFactorizedHamiltonian">
-<a class="viewcode-back" href="../../../api/generated/ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.hamiltonians.html#ffsim.DoubleFactorizedHamiltonian">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">DoubleFactorizedHamiltonian</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A Hamiltonian in the double-factorized form of the low rank decomposition.</span>
@@ -126,7 +126,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="DoubleFactorizedHamiltonian.to_z_representation">
-<a class="viewcode-back" href="../../../api/generated/ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_z_representation">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.hamiltonians.html#ffsim.DoubleFactorizedHamiltonian.to_z_representation">[docs]</a>
     <span class="k">def</span> <span class="nf">to_z_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DoubleFactorizedHamiltonian&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Hamiltonian in the &quot;Z&quot; representation.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_representation</span><span class="p">:</span>
@@ -145,7 +145,7 @@
 
 
 <div class="viewcode-block" id="DoubleFactorizedHamiltonian.to_number_representation">
-<a class="viewcode-back" href="../../../api/generated/ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.to_number_representation">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.hamiltonians.html#ffsim.DoubleFactorizedHamiltonian.to_number_representation">[docs]</a>
     <span class="k">def</span> <span class="nf">to_number_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DoubleFactorizedHamiltonian&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Hamiltonian in the &quot;number&quot; representation.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_representation</span><span class="p">:</span>
@@ -164,7 +164,7 @@
 
 
 <div class="viewcode-block" id="DoubleFactorizedHamiltonian.from_molecular_hamiltonian">
-<a class="viewcode-back" href="../../../api/generated/ffsim.hamiltonians.html#ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian.from_molecular_hamiltonian">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.hamiltonians.html#ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_molecular_hamiltonian</span><span class="p">(</span>
         <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">MolecularHamiltonian</span><span class="p">,</span>

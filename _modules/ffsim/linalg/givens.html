@@ -55,7 +55,7 @@
 
 
 <div class="viewcode-block" id="apply_matrix_to_slices">
-<a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.givens.apply_matrix_to_slices">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.apply_matrix_to_slices">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_matrix_to_slices</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -87,8 +87,6 @@
 
 
 
-<div class="viewcode-block" id="zrotg">
-<a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.givens.zrotg">[docs]</a>
 <span class="k">def</span> <span class="nf">zrotg</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">complex</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">complex</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Safe version of the zrotg BLAS function.</span>
 
@@ -104,12 +102,11 @@
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
         <span class="k">return</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="n">j</span>
     <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">zrotg_</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">s</span></div>
-
+    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">s</span>
 
 
 <div class="viewcode-block" id="givens_decomposition">
-<a class="viewcode-back" href="../../../api/generated/ffsim.linalg.html#ffsim.linalg.givens.givens_decomposition">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.givens_decomposition">[docs]</a>
 <span class="k">def</span> <span class="nf">givens_decomposition</span><span class="p">(</span>
     <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>

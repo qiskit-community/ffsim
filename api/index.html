@@ -19,7 +19,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ffsim" href="generated/modules.html" />
+    <link rel="next" title="ffsim" href="ffsim.html" />
     <link rel="prev" title="The FermionOperator class" href="../tutorials/06-fermion-operator.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -40,73 +40,76 @@
   <section id="api-reference">
 <h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
 <p>ffsim’s API reference.</p>
+<section id="ffsim-module">
+<h2>ffsim module<a class="headerlink" href="#ffsim-module" title="Link to this heading">¶</a></h2>
+<p>The following objects are exposed at the top-level <code class="docutils literal notranslate"><span class="pre">ffsim.*</span></code> namespace.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="generated/modules.html">ffsim</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/ffsim.html">ffsim package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.contract.html">ffsim.contract package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.gates.html">ffsim.gates package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.hamiltonians.html">ffsim.hamiltonians package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.linalg.html">ffsim.linalg package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.protocols.html">ffsim.protocols package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.trotter.html">ffsim.trotter package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.variational.html">ffsim.variational package</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-ffsim.fermion_action">ffsim.fermion_action module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.fermion_action.FermionAction"><code class="docutils literal notranslate"><span class="pre">FermionAction</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.fermion_action.cre"><code class="docutils literal notranslate"><span class="pre">cre()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.fermion_action.cre_a"><code class="docutils literal notranslate"><span class="pre">cre_a()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.fermion_action.cre_b"><code class="docutils literal notranslate"><span class="pre">cre_b()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.fermion_action.des"><code class="docutils literal notranslate"><span class="pre">des()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.fermion_action.des_a"><code class="docutils literal notranslate"><span class="pre">des_a()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.fermion_action.des_b"><code class="docutils literal notranslate"><span class="pre">des_b()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-ffsim.molecular_data">ffsim.molecular_data module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.molecular_data.MolecularData"><code class="docutils literal notranslate"><span class="pre">MolecularData</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-ffsim.random">ffsim.random module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_antihermitian"><code class="docutils literal notranslate"><span class="pre">random_antihermitian()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_hermitian"><code class="docutils literal notranslate"><span class="pre">random_hermitian()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_orthogonal()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_real_symmetric_matrix"><code class="docutils literal notranslate"><span class="pre">random_real_symmetric_matrix()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_special_orthogonal()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_statevector"><code class="docutils literal notranslate"><span class="pre">random_statevector()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_t2_amplitudes"><code class="docutils literal notranslate"><span class="pre">random_t2_amplitudes()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_two_body_tensor_real"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor_real()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.random.random_unitary"><code class="docutils literal notranslate"><span class="pre">random_unitary()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-ffsim.states">ffsim.states module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.dim"><code class="docutils literal notranslate"><span class="pre">dim()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.one_hot"><code class="docutils literal notranslate"><span class="pre">one_hot()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.states.slater_determinant_one_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_one_rdm()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-ffsim.testing">ffsim.testing module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.testing.random_nelec"><code class="docutils literal notranslate"><span class="pre">random_nelec()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.testing.random_occupied_orbitals"><code class="docutils literal notranslate"><span class="pre">random_occupied_orbitals()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-ffsim.wick">ffsim.wick module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.wick.expectation_power"><code class="docutils literal notranslate"><span class="pre">expectation_power()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/ffsim.html#ffsim.wick.expectation_product"><code class="docutils literal notranslate"><span class="pre">expectation_product()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/ffsim.html#module-ffsim">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.html">ffsim</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.DoubleFactorizedHamiltonian"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.FermionAction"><code class="docutils literal notranslate"><span class="pre">FermionAction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.HopGateAnsatzOperator"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.MolecularData"><code class="docutils literal notranslate"><span class="pre">MolecularData</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.SupportsApplyUnitary"><code class="docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.SupportsApproximateEquality"><code class="docutils literal notranslate"><span class="pre">SupportsApproximateEquality</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.SupportsLinearOperator"><code class="docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.SupportsTrace"><code class="docutils literal notranslate"><span class="pre">SupportsTrace</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.UCJOperator"><code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_diag_coulomb_evolution"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_fsim_gate"><code class="docutils literal notranslate"><span class="pre">apply_fsim_gate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_givens_rotation"><code class="docutils literal notranslate"><span class="pre">apply_givens_rotation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_hop_gate"><code class="docutils literal notranslate"><span class="pre">apply_hop_gate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_num_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_interaction()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_num_num_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_num_interaction()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_num_op_prod_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_op_prod_interaction()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_num_op_sum_evolution"><code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">apply_orbital_rotation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_tunneling_interaction"><code class="docutils literal notranslate"><span class="pre">apply_tunneling_interaction()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.apply_unitary"><code class="docutils literal notranslate"><span class="pre">apply_unitary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.approx_eq"><code class="docutils literal notranslate"><span class="pre">approx_eq()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.cre"><code class="docutils literal notranslate"><span class="pre">cre()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.cre_a"><code class="docutils literal notranslate"><span class="pre">cre_a()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.cre_b"><code class="docutils literal notranslate"><span class="pre">cre_b()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.des"><code class="docutils literal notranslate"><span class="pre">des()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.des_a"><code class="docutils literal notranslate"><span class="pre">des_a()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.des_b"><code class="docutils literal notranslate"><span class="pre">des_b()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.dim"><code class="docutils literal notranslate"><span class="pre">dim()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.expectation_power"><code class="docutils literal notranslate"><span class="pre">expectation_power()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.expectation_product"><code class="docutils literal notranslate"><span class="pre">expectation_product()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.multireference_state"><code class="docutils literal notranslate"><span class="pre">multireference_state()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.one_hot"><code class="docutils literal notranslate"><span class="pre">one_hot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.simulate_qdrift_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_qdrift_double_factorized()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.simulate_trotter_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_double_factorized()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.slater_determinant_one_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_one_rdm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.html#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+<p>The following submodules are available. Many of the objects from these submodules are already exposed in the top-level <code class="docutils literal notranslate"><span class="pre">ffsim.*</span></code> namespace.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.contract.html">ffsim.contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.gates.html">ffsim.gates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.linalg.html">ffsim.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.protocols.html">ffsim.protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.random.html">ffsim.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.states.html">ffsim.states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.testing.html">ffsim.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.trotter.html">ffsim.trotter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.variational.html">ffsim.variational</a></li>
+</ul>
+</div>
+</section>
 </section>
 
 
@@ -137,7 +140,7 @@
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
       <li>Previous: <a href="../tutorials/06-fermion-operator.html" title="previous chapter">The FermionOperator class</a></li>
-      <li>Next: <a href="generated/modules.html" title="next chapter">ffsim</a></li>
+      <li>Next: <a href="ffsim.html" title="next chapter">ffsim</a></li>
   </ul></li>
 </ul>
 </div>

@@ -56,11 +56,11 @@
 <span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">,</span> <span class="n">apply_num_op_sum_evolution</span>
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">gen_orbital_rotation_index</span>
 <span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">DoubleFactorizedHamiltonian</span>
-<span class="kn">from</span> <span class="nn">ffsim.wick</span> <span class="kn">import</span> <span class="n">expectation_power</span><span class="p">,</span> <span class="n">expectation_product</span>
+<span class="kn">from</span> <span class="nn">ffsim.states.wick</span> <span class="kn">import</span> <span class="n">expectation_power</span><span class="p">,</span> <span class="n">expectation_product</span>
 
 
 <div class="viewcode-block" id="simulate_qdrift_double_factorized">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.simulate_qdrift_double_factorized">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.trotter.html#ffsim.simulate_qdrift_double_factorized">[docs]</a>
 <span class="k">def</span> <span class="nf">simulate_qdrift_double_factorized</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">,</span>
@@ -336,8 +336,6 @@
     <span class="k">return</span> <span class="n">vec</span>
 
 
-<div class="viewcode-block" id="qdrift_probabilities">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.qdrift_probabilities">[docs]</a>
 <span class="k">def</span> <span class="nf">qdrift_probabilities</span><span class="p">(</span>
     <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">,</span>
     <span class="n">sampling_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -442,12 +440,9 @@
     <span class="k">elif</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_terms</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_terms</span>
 
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported sampling method: </span><span class="si">{</span><span class="n">sampling_method</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported sampling method: </span><span class="si">{</span><span class="n">sampling_method</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="spectral_norm_one_body_tensor">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.spectral_norm_one_body_tensor">[docs]</a>
 <span class="k">def</span> <span class="nf">spectral_norm_one_body_tensor</span><span class="p">(</span>
     <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -485,12 +480,9 @@
             <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="n">n_alpha</span><span class="p">]),</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="o">-</span><span class="n">n_alpha</span><span class="p">:])],</span>
             <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[:</span><span class="n">n_beta</span><span class="p">]),</span> <span class="nb">sum</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="o">-</span><span class="n">n_beta</span><span class="p">:])],</span>
         <span class="p">)</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="spectral_norm_diag_coulomb">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.spectral_norm_diag_coulomb">[docs]</a>
 <span class="k">def</span> <span class="nf">spectral_norm_diag_coulomb</span><span class="p">(</span>
     <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -528,12 +520,9 @@
             <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">))</span>
         <span class="p">)</span>
     <span class="c1"># TODO this is probably loose</span>
-    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">))</span>
 
 
-
-<div class="viewcode-block" id="one_body_square_decomposition">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.one_body_square_decomposition">[docs]</a>
 <span class="k">def</span> <span class="nf">one_body_square_decomposition</span><span class="p">(</span>
     <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -559,12 +548,9 @@
         <span class="n">vecs</span><span class="p">,</span>
         <span class="n">orbital_rotation</span><span class="p">,</span>
         <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="variance_one_body_tensor">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.variance_one_body_tensor">[docs]</a>
 <span class="k">def</span> <span class="nf">variance_one_body_tensor</span><span class="p">(</span><span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the variance of a one-body operator on a state given by its 1-RDM.</span>
 
@@ -580,12 +566,9 @@
         <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">expectation_power</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="p">)</span><span class="o">.</span><span class="n">real</span>
     <span class="c1"># value may be negative due to floating point error</span>
-    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="variance_diag_coulomb">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.variance_diag_coulomb">[docs]</a>
 <span class="k">def</span> <span class="nf">variance_diag_coulomb</span><span class="p">(</span>
     <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -654,12 +637,9 @@
 
     <span class="n">variance</span> <span class="o">=</span> <span class="p">(</span><span class="n">expectation_squared</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">expectation</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
     <span class="c1"># value may be negative due to floating point error</span>
-    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="expectation_squared_diag_coulomb">
-<a class="viewcode-back" href="../../../api/generated/ffsim.trotter.html#ffsim.trotter.qdrift.expectation_squared_diag_coulomb">[docs]</a>
 <span class="k">def</span> <span class="nf">expectation_squared_diag_coulomb</span><span class="p">(</span>
     <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">diag_coulomb_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -723,8 +703,7 @@
             <span class="p">[</span><span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_op</span><span class="p">,</span> <span class="n">one_body_correction</span><span class="p">],</span> <span class="n">one_rdm</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">expectation_squared</span><span class="o">.</span><span class="n">real</span></div>
-
+    <span class="k">return</span> <span class="n">expectation_squared</span><span class="o">.</span><span class="n">real</span>
 </pre></div>
 
           </div>
