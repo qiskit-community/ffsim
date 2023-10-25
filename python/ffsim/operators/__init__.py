@@ -8,14 +8,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Variational ansatzes."""
+"""Operators."""
 
-from ffsim.variational.hopgate import HopGateAnsatzOperator
-from ffsim.variational.lucj import UCJOperator
-from ffsim.variational.multireference import multireference_state
+from ffsim.operators.fermion_action import (
+    FermionAction,
+    cre,
+    cre_a,
+    cre_b,
+    des,
+    des_a,
+    des_b,
+)
 
 __all__ = [
-    "HopGateAnsatzOperator",
-    "UCJOperator",
-    "multireference_state",
+    "FermionAction",
+    "cre",
+    "cre_a",
+    "cre_b",
+    "des",
+    "des_a",
+    "des_b",
 ]

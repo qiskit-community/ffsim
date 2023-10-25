@@ -23,7 +23,6 @@ from ffsim import (
     variational,
 )
 from ffsim._lib import FermionOperator
-from ffsim.fermion_action import FermionAction, cre, cre_a, cre_b, des, des_a, des_b
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -38,6 +37,15 @@ from ffsim.gates import (
 )
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian, MolecularHamiltonian
 from ffsim.molecular_data import MolecularData
+from ffsim.operators import (
+    FermionAction,
+    cre,
+    cre_a,
+    cre_b,
+    des,
+    des_a,
+    des_b,
+)
 from ffsim.protocols import (
     SupportsApplyUnitary,
     SupportsApproximateEquality,
@@ -51,6 +59,8 @@ from ffsim.protocols import (
 from ffsim.states import (
     dim,
     dims,
+    expectation_power,
+    expectation_product,
     indices_to_strings,
     one_hot,
     slater_determinant,
@@ -61,3 +71,59 @@ from ffsim.trotter import (
     simulate_trotter_double_factorized,
 )
 from ffsim.variational import HopGateAnsatzOperator, UCJOperator, multireference_state
+
+__all__ = [
+    "DoubleFactorizedHamiltonian",
+    "FermionAction",
+    "FermionOperator",
+    "HopGateAnsatzOperator",
+    "MolecularData",
+    "MolecularHamiltonian",
+    "SupportsApplyUnitary",
+    "SupportsApproximateEquality",
+    "SupportsLinearOperator",
+    "SupportsTrace",
+    "UCJOperator",
+    "apply_diag_coulomb_evolution",
+    "apply_fsim_gate",
+    "apply_givens_rotation",
+    "apply_hop_gate",
+    "apply_num_interaction",
+    "apply_num_num_interaction",
+    "apply_num_op_prod_interaction",
+    "apply_num_op_sum_evolution",
+    "apply_orbital_rotation",
+    "apply_tunneling_interaction",
+    "apply_unitary",
+    "approx_eq",
+    "contract",
+    "cre",
+    "cre_a",
+    "cre_b",
+    "des",
+    "des_a",
+    "des_b",
+    "dim",
+    "dims",
+    "expectation_power",
+    "expectation_product",
+    "gates",
+    "hamiltonians",
+    "indices_to_strings",
+    "linalg",
+    "linear_operator",
+    "multireference_state",
+    "one_hot",
+    "operators",
+    "protocols",
+    "random",
+    "simulate_qdrift_double_factorized",
+    "simulate_trotter_double_factorized",
+    "slater_determinant",
+    "slater_determinant_one_rdm",
+    "states",
+    "testing",
+    "trace",
+    "trotter",
+    "variational",
+]

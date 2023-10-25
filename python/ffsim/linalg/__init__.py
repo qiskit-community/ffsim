@@ -10,7 +10,7 @@
 
 """Linear algebra utilities."""
 
-from ffsim.linalg.double_factorized import (
+from ffsim.linalg.double_factorized_decomposition import (
     double_factorized,
     double_factorized_t2,
     modified_cholesky,
@@ -25,3 +25,20 @@ from ffsim.linalg.predicates import (
     is_special_orthogonal,
     is_unitary,
 )
+
+__all__ = [
+    "apply_matrix_to_slices",
+    "double_factorized",
+    "double_factorized_t2",
+    "expm_multiply_taylor",
+    "givens_decomposition",
+    "is_antihermitian",
+    "is_hermitian",
+    "is_orthogonal",
+    "is_real_symmetric",
+    "is_special_orthogonal",
+    "is_unitary",
+    "lup",
+    "modified_cholesky",
+    "reduced_matrix",
+]

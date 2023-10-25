@@ -19,7 +19,7 @@ from pyscf.fci import cistring
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import gen_orbital_rotation_index
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
-from ffsim.wick import expectation_power, expectation_product
+from ffsim.states.wick import expectation_power, expectation_product
 
 
 def simulate_qdrift_double_factorized(

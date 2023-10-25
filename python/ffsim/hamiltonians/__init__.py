@@ -12,3 +12,8 @@
 
 from ffsim.hamiltonians.double_factorized_hamiltonian import DoubleFactorizedHamiltonian
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
+
+__all__ = [
+    "DoubleFactorizedHamiltonian",
+    "MolecularHamiltonian",
+]

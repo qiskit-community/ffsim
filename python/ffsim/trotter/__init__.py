@@ -12,3 +12,8 @@
 
 from ffsim.trotter.qdrift import simulate_qdrift_double_factorized
 from ffsim.trotter.trotter import simulate_trotter_double_factorized
+
+__all__ = [
+    "simulate_qdrift_double_factorized",
+    "simulate_trotter_double_factorized",
+]

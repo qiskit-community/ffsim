@@ -8,14 +8,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Variational ansatzes."""
+"""Testing utilities."""
 
-from ffsim.variational.hopgate import HopGateAnsatzOperator
-from ffsim.variational.lucj import UCJOperator
-from ffsim.variational.multireference import multireference_state
+from ffsim.testing.testing import random_nelec, random_occupied_orbitals
 
 __all__ = [
-    "HopGateAnsatzOperator",
-    "UCJOperator",
-    "multireference_state",
+    "random_nelec",
+    "random_occupied_orbitals",
 ]
