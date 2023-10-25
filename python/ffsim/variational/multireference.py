@@ -19,8 +19,11 @@ import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim.linalg.linalg import reduced_matrix
-from ffsim.protocols.apply_unitary import SupportsApplyUnitary, apply_unitary
-from ffsim.protocols.linear_operator import SupportsLinearOperator, linear_operator
+from ffsim.protocols.apply_unitary_protocol import SupportsApplyUnitary, apply_unitary
+from ffsim.protocols.linear_operator_protocol import (
+    SupportsLinearOperator,
+    linear_operator,
+)
 from ffsim.states import slater_determinant
 
 

@@ -13,3 +13,12 @@
 from ffsim.contract.diag_coulomb import contract_diag_coulomb, diag_coulomb_linop
 from ffsim.contract.num_op_sum import contract_num_op_sum, num_op_sum_linop
 from ffsim.contract.one_body import contract_one_body, one_body_linop
+
+__all__ = [
+    "contract_diag_coulomb",
+    "contract_num_op_sum",
+    "contract_one_body",
+    "diag_coulomb_linop",
+    "num_op_sum_linop",
+    "one_body_linop",
+]
