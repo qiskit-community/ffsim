@@ -43,5 +43,5 @@ autoclass_content = "both"
 
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 500
-nbsphinx_execute = "never"
+nbsphinx_execute = "always"
 nbsphinx_widgets_path = ""
