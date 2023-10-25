@@ -98,7 +98,8 @@ class MolecularData:
         super().__init__()
 
     @property
-    def hamiltonian(self):
+    def hamiltonian(self) -> MolecularHamiltonian:
+        """The Hamiltonian defined by the molecular data."""
         return MolecularHamiltonian(
             one_body_tensor=self.one_body_tensor,
             two_body_tensor=self.two_body_tensor,
@@ -109,6 +110,12 @@ class MolecularData:
     def from_hartree_fock(
         hartree_fock: scf.hf.SCF, active_space: Iterable[int] | None = None
     ) -> "MolecularData":
+        """Initialize a MolecularData object from a Hartree-Fock calculation.
+
+        Args:
+            hartree_fock: The Hartree-Fock object.
+            active_space: An optional list of orbitals to use for the active space.
+        """
         if active_space is None:
             norb = hartree_fock.mol.nao_nr()
             active_space = range(norb)
