@@ -135,18 +135,9 @@ def indices_to_strings(
         >>> norb = 3
         >>> nelec = (2, 1)
         >>> dim = ffsim.dim(norb, nelec)
-        >>> strings = ffsim.indices_to_strings(range(dim), norb, nelec)
-        >>> assert strings == [
-                "011001",
-                "011010",
-                "011100",
-                "101001",
-                "101010",
-                "101100",
-                "110001",
-                "110010",
-                "110100",
-            ]
+        >>> ffsim.indices_to_strings(range(dim), norb, nelec)
+        ['011001', '011010', '011100', '101001', '101010', '101100', '110001', \
+'110010', '110100']
     """
     n_alpha, n_beta = nelec
     dim_b = comb(norb, n_beta, exact=True)
