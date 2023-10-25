@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ffsim.operators &#8212; ffsim 0.0.10.dev0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <script src="../_static/documentation_options.js?v=c692a759"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ffsim.protocols" href="ffsim.protocols.html" />
+    <link rel="prev" title="ffsim.linalg" href="ffsim.linalg.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ffsim-operators">
+<h1>ffsim.operators<a class="headerlink" href="#ffsim-operators" title="Link to this heading">¶</a></h1>
+<p>Operators.</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">FermionAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#FermionAction"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>A fermionic action.</p>
+<p>Create new instance of FermionAction(action, spin, orb)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">action</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">orb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">FermionOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A fermionic operator.</p>
+<p>A FermionOperator represents a linear combination of products of fermionic creation
+and annihilation operators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coeffs</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>tuple</em><em>[</em><em>bool</em><em>, </em><em>bool</em><em>, </em><em>int</em><em>]</em><em>, </em><em>...</em><em>]</em><em>, </em><em>complex</em><em>]</em>) – The coefficients of the
+operator.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">conserves_particle_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Return whether the operator conserves particle number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the operator conserves particle number, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">conserves_spin_z</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Return whether the operator conserves the Z component of spin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the operator conserves the Z component of spin, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">many_body_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Return the many-body order of the operator.</p>
+<p>The many-body order is defined as the length of the longest term contained
+in the operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The many-body order of the operator.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">normal_ordered</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Return the normal ordered form of the operator.</p>
+<p>The normal ordered form of an operator is an equivalent operator in which
+each term has been reordered into a canonical ordering.
+In each term of a normal-ordered fermion operator, the operators comprising
+the term appear from left to right in descending lexicographic order by
+(action, spin, orb). That is, all creation operators appear before all
+annihilation operators; within creation/annihilation operators, spin beta
+operators appear before spin alpha operators, and larger orbital indices
+appear before smaller orbital indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The normal-ordered fermion operator.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="ffsim.html#ffsim.FermionOperator" title="ffsim.FermionOperator">FermionOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">cre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#cre"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Create a fermion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – The spin of the orbital. False = alpha, True = beta.</p></li>
+<li><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="ffsim.html#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">cre_a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#cre_a"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Create a fermion with spin alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="ffsim.html#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">cre_b</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#cre_b"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Create a fermion with spin beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="ffsim.html#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">des</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#des"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Destroy a fermion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – The spin of the orbital. False = alpha, True = beta.</p></li>
+<li><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="ffsim.html#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">des_a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#des_a"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Destroy a fermion with spin alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="ffsim.html#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ffsim.operators.</span></span><span class="sig-name descname"><span class="pre">des_b</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#des_b"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Destroy a fermion with spin beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="ffsim.html#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/01-introduction.html">Introduction to ffsim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/04-lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/05-entanglement-forging.html">Entanglement forging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/06-fermion-operator.html">The FermionOperator class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.html">ffsim</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ffsim.contract.html">ffsim.contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.gates.html">ffsim.gates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.linalg.html">ffsim.linalg</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ffsim.operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.protocols.html">ffsim.protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.random.html">ffsim.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.states.html">ffsim.states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.testing.html">ffsim.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.trotter.html">ffsim.trotter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ffsim.variational.html">ffsim.variational</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="ffsim.linalg.html" title="previous chapter">ffsim.linalg</a></li>
+      <li>Next: <a href="ffsim.protocols.html" title="next chapter">ffsim.protocols</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/api/ffsim.operators.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

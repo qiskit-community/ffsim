@@ -96,7 +96,7 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.4456267643961
-CASCI E = -77.6290254326716  E(CI) = -3.57322412553862  S^2 = 0.0000000
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -150,8 +150,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754465  E_corr = -0.04824536314851272
-Energy at initialialization: -77.46975600021639
+E(CCSD) = -77.49387212754465  E_corr = -0.04824536314851442
+Energy at initialialization: -77.46975600021683
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -192,12 +192,12 @@ Number of parameters: 72
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62900707053015
-        x: [-2.901e-01  5.290e-02 ... -3.301e-01  2.687e-01]
-      nit: 367
-      jac: [ 2.103e-04 -1.862e-04 ...  9.663e-05  1.535e-04]
-     nfev: 28616
-     njev: 392
+      fun: -77.6289998981476
+        x: [-1.784e-01  7.360e-01 ... -4.528e-01 -4.015e-02]
+      nit: 236
+      jac: [ 1.279e-05 -2.700e-05 ...  1.322e-04 -2.771e-04]
+     nfev: 19199
+     njev: 263
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -258,12 +258,12 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62873943133823
-        x: [ 3.033e+00  9.747e-01 ... -6.260e-01 -1.970e-03]
-      nit: 684
-      jac: [-2.416e-05  3.979e-05 ... -9.948e-06  2.842e-06]
-     nfev: 34357
-     njev: 731
+      fun: -77.62848262989105
+        x: [ 6.506e-01 -1.349e+00 ... -5.444e-01 -3.138e-01]
+      nit: 439
+      jac: [-1.194e-04  1.961e-04 ...  4.405e-05  3.837e-05]
+     nfev: 22231
+     njev: 473
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -303,6 +303,7 @@ Number of parameters: 46
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.gates.html">ffsim.gates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.linalg.html">ffsim.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.operators.html">ffsim.operators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.protocols.html">ffsim.protocols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.random.html">ffsim.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.states.html">ffsim.states</a></li>

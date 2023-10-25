@@ -45,6 +45,7 @@ The following submodules are available. Many of the objects from these submodule
    api/ffsim.gates
    api/ffsim.hamiltonians
    api/ffsim.linalg
+   api/ffsim.operators
    api/ffsim.protocols
    api/ffsim.random
    api/ffsim.states
