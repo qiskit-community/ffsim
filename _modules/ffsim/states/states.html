@@ -57,7 +57,7 @@
 
 
 <div class="viewcode-block" id="dims">
-<a class="viewcode-back" href="../../../api/ffsim.states.html#ffsim.dims">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.dims">[docs]</a>
 <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimensions of the FCI space.</span>
 
@@ -77,7 +77,7 @@
 
 
 <div class="viewcode-block" id="dim">
-<a class="viewcode-back" href="../../../api/ffsim.states.html#ffsim.dim">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.dim">[docs]</a>
 <span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimension of the FCI space.</span>
 
@@ -94,7 +94,7 @@
 
 
 <div class="viewcode-block" id="one_hot">
-<a class="viewcode-back" href="../../../api/ffsim.states.html#ffsim.one_hot">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.one_hot">[docs]</a>
 <span class="k">def</span> <span class="nf">one_hot</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an array of all zeros except for a one at a specified index.</span>
 
@@ -112,7 +112,7 @@
 
 
 <div class="viewcode-block" id="slater_determinant">
-<a class="viewcode-back" href="../../../api/ffsim.states.html#ffsim.slater_determinant">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant">[docs]</a>
 <span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
@@ -154,7 +154,7 @@
 
 
 <div class="viewcode-block" id="slater_determinant_one_rdm">
-<a class="viewcode-back" href="../../../api/ffsim.states.html#ffsim.slater_determinant_one_rdm">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_one_rdm">[docs]</a>
 <span class="k">def</span> <span class="nf">slater_determinant_one_rdm</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
@@ -183,7 +183,7 @@
 
 
 <div class="viewcode-block" id="indices_to_strings">
-<a class="viewcode-back" href="../../../api/ffsim.states.html#ffsim.indices_to_strings">[docs]</a>
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.indices_to_strings">[docs]</a>
 <span class="k">def</span> <span class="nf">indices_to_strings</span><span class="p">(</span>
     <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -244,19 +244,10 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.html">ffsim</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.contract.html">ffsim.contract</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.gates.html">ffsim.gates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.linalg.html">ffsim.linalg</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.operators.html">ffsim.operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.protocols.html">ffsim.protocols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.random.html">ffsim.random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.states.html">ffsim.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.testing.html">ffsim.testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.trotter.html">ffsim.trotter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.variational.html">ffsim.variational</a></li>
 </ul>
 
 <div class="relations">

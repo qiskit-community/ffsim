@@ -21,8 +21,8 @@
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ffsim.operators" href="ffsim.operators.html" />
-    <link rel="prev" title="ffsim.hamiltonians" href="ffsim.hamiltonians.html" />
+    <link rel="next" title="ffsim.random" href="ffsim.random.html" />
+    <link rel="prev" title="ffsim.contract" href="ffsim.contract.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -419,29 +419,36 @@ return the matrix M where <span class="math notranslate nohighlight">\(M_{ij} = 
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/05-entanglement-forging.html">Entanglement forging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/06-fermion-operator.html">The FermionOperator class</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.html">ffsim</a></li>
-</ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ffsim.html">ffsim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ffsim.contract.html">ffsim.contract</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.gates.html">ffsim.gates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">ffsim.linalg</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.operators.html">ffsim.operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.protocols.html">ffsim.protocols</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ffsim.linalg</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.apply_matrix_to_slices"><code class="docutils literal notranslate"><span class="pre">apply_matrix_to_slices()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.double_factorized"><code class="docutils literal notranslate"><span class="pre">double_factorized()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.double_factorized_t2"><code class="docutils literal notranslate"><span class="pre">double_factorized_t2()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.expm_multiply_taylor"><code class="docutils literal notranslate"><span class="pre">expm_multiply_taylor()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.givens_decomposition"><code class="docutils literal notranslate"><span class="pre">givens_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_antihermitian"><code class="docutils literal notranslate"><span class="pre">is_antihermitian()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_hermitian"><code class="docutils literal notranslate"><span class="pre">is_hermitian()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_orthogonal"><code class="docutils literal notranslate"><span class="pre">is_orthogonal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_real_symmetric"><code class="docutils literal notranslate"><span class="pre">is_real_symmetric()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">is_special_orthogonal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_unitary"><code class="docutils literal notranslate"><span class="pre">is_unitary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.lup"><code class="docutils literal notranslate"><span class="pre">lup()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.modified_cholesky"><code class="docutils literal notranslate"><span class="pre">modified_cholesky()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.reduced_matrix"><code class="docutils literal notranslate"><span class="pre">reduced_matrix()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="ffsim.random.html">ffsim.random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.states.html">ffsim.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ffsim.testing.html">ffsim.testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.trotter.html">ffsim.trotter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ffsim.variational.html">ffsim.variational</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="ffsim.hamiltonians.html" title="previous chapter">ffsim.hamiltonians</a></li>
-      <li>Next: <a href="ffsim.operators.html" title="next chapter">ffsim.operators</a></li>
+      <li>Previous: <a href="ffsim.contract.html" title="previous chapter">ffsim.contract</a></li>
+      <li>Next: <a href="ffsim.random.html" title="next chapter">ffsim.random</a></li>
   </ul></li>
 </ul>
 </div>

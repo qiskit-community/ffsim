@@ -95,8 +95,8 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643961
-CASCI E = -77.6290254326716  E(CI) = -3.57322412553862  S^2 = 0.0000000
+converged SCF energy = -77.4456267643962
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -150,8 +150,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754465  E_corr = -0.04824536314851106
-Energy at initialialization: -77.46975600021658
+E(CCSD) = -77.49387212754471  E_corr = -0.04824536314851454
+Energy at initialialization: -77.46975600021695
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -192,12 +192,12 @@ Number of parameters: 72
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62897631747573
-        x: [-1.654e-01  9.759e-01 ... -3.875e-01 -1.382e-01]
-      nit: 208
-      jac: [-2.800e-04 -3.837e-05 ... -3.524e-04 -1.037e-04]
-     nfev: 16936
-     njev: 232
+      fun: -77.62901637155566
+        x: [-2.323e-01  7.140e-01 ... -5.964e-01  1.211e-01]
+      nit: 216
+      jac: [ 2.984e-05  4.405e-05 ... -1.563e-05  5.684e-06]
+     nfev: 17447
+     njev: 239
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -258,12 +258,12 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.62639951838304
-        x: [ 1.332e+00 -2.308e-01 ... -1.695e+00  8.103e-01]
-      nit: 337
-      jac: [ 8.242e-05  4.405e-05 ...  1.421e-06  1.108e-04]
-     nfev: 17061
-     njev: 363
+      fun: -77.6288543892127
+        x: [ 1.870e-01 -9.360e-02 ...  1.442e-03  4.691e-01]
+      nit: 533
+      jac: [ 7.532e-05 -1.123e-04 ...  2.700e-05  1.478e-04]
+     nfev: 26555
+     njev: 565
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -297,19 +297,10 @@ Number of parameters: 46
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.html">ffsim</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.contract.html">ffsim.contract</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.gates.html">ffsim.gates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.linalg.html">ffsim.linalg</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.operators.html">ffsim.operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.protocols.html">ffsim.protocols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.random.html">ffsim.random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.states.html">ffsim.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/ffsim.testing.html">ffsim.testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.trotter.html">ffsim.trotter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.variational.html">ffsim.variational</a></li>
 </ul>
 
 <div class="relations">

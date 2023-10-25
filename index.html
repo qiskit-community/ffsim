@@ -57,9 +57,6 @@ than a generic quantum circuit simulator.</p>
 </section>
 <section id="api-reference">
 <h2>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h2>
-<section id="ffsim-module">
-<h3>ffsim module<a class="headerlink" href="#ffsim-module" title="Link to this heading">¶</a></h3>
-<p>The following objects are exposed at the top-level <code class="docutils literal notranslate"><span class="pre">ffsim.*</span></code> namespace.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ffsim.html">ffsim</a><ul>
@@ -107,28 +104,50 @@ than a generic quantum circuit simulator.</p>
 <li class="toctree-l2"><a class="reference internal" href="api/ffsim.html#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="api/ffsim.contract.html">ffsim.contract</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.contract.html#ffsim.contract.contract_diag_coulomb"><code class="docutils literal notranslate"><span class="pre">contract_diag_coulomb()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.contract.html#ffsim.contract.contract_num_op_sum"><code class="docutils literal notranslate"><span class="pre">contract_num_op_sum()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.contract.html#ffsim.contract.diag_coulomb_linop"><code class="docutils literal notranslate"><span class="pre">diag_coulomb_linop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.contract.html#ffsim.contract.num_op_sum_linop"><code class="docutils literal notranslate"><span class="pre">num_op_sum_linop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.contract.html#ffsim.contract.one_body_linop"><code class="docutils literal notranslate"><span class="pre">one_body_linop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ffsim.linalg.html">ffsim.linalg</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.apply_matrix_to_slices"><code class="docutils literal notranslate"><span class="pre">apply_matrix_to_slices()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.double_factorized"><code class="docutils literal notranslate"><span class="pre">double_factorized()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.double_factorized_t2"><code class="docutils literal notranslate"><span class="pre">double_factorized_t2()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.expm_multiply_taylor"><code class="docutils literal notranslate"><span class="pre">expm_multiply_taylor()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.givens_decomposition"><code class="docutils literal notranslate"><span class="pre">givens_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.is_antihermitian"><code class="docutils literal notranslate"><span class="pre">is_antihermitian()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.is_hermitian"><code class="docutils literal notranslate"><span class="pre">is_hermitian()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.is_orthogonal"><code class="docutils literal notranslate"><span class="pre">is_orthogonal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.is_real_symmetric"><code class="docutils literal notranslate"><span class="pre">is_real_symmetric()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.is_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">is_special_orthogonal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.is_unitary"><code class="docutils literal notranslate"><span class="pre">is_unitary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.lup"><code class="docutils literal notranslate"><span class="pre">lup()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.modified_cholesky"><code class="docutils literal notranslate"><span class="pre">modified_cholesky()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html#ffsim.linalg.reduced_matrix"><code class="docutils literal notranslate"><span class="pre">reduced_matrix()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ffsim.random.html">ffsim.random</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_antihermitian"><code class="docutils literal notranslate"><span class="pre">random_antihermitian()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_hermitian"><code class="docutils literal notranslate"><span class="pre">random_hermitian()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_orthogonal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_real_symmetric_matrix"><code class="docutils literal notranslate"><span class="pre">random_real_symmetric_matrix()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_special_orthogonal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_statevector"><code class="docutils literal notranslate"><span class="pre">random_statevector()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_t2_amplitudes"><code class="docutils literal notranslate"><span class="pre">random_t2_amplitudes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_two_body_tensor_real"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor_real()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html#ffsim.random.random_unitary"><code class="docutils literal notranslate"><span class="pre">random_unitary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ffsim.testing.html">ffsim.testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.testing.html#ffsim.testing.random_nelec"><code class="docutils literal notranslate"><span class="pre">random_nelec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.testing.html#ffsim.testing.random_occupied_orbitals"><code class="docutils literal notranslate"><span class="pre">random_occupied_orbitals()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
-</section>
-<section id="submodules">
-<h3>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h3>
-<p>The following submodules are available. Many of the objects from these submodules are already exposed in the top-level <code class="docutils literal notranslate"><span class="pre">ffsim.*</span></code> namespace.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.contract.html">ffsim.contract</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.gates.html">ffsim.gates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.linalg.html">ffsim.linalg</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.operators.html">ffsim.operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.protocols.html">ffsim.protocols</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.random.html">ffsim.random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.states.html">ffsim.states</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.testing.html">ffsim.testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.trotter.html">ffsim.trotter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.variational.html">ffsim.variational</a></li>
-</ul>
-</div>
-</section>
 </section>
 </section>
 
@@ -159,19 +178,10 @@ than a generic quantum circuit simulator.</p>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ffsim.html">ffsim</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ffsim.contract.html">ffsim.contract</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.gates.html">ffsim.gates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.hamiltonians.html">ffsim.hamiltonians</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ffsim.linalg.html">ffsim.linalg</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.operators.html">ffsim.operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.protocols.html">ffsim.protocols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ffsim.random.html">ffsim.random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.states.html">ffsim.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ffsim.testing.html">ffsim.testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.trotter.html">ffsim.trotter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ffsim.variational.html">ffsim.variational</a></li>
 </ul>
 
 <div class="relations">
