@@ -40,7 +40,23 @@ impl KeysIterator {
 /// A fermionic operator.
 ///
 /// A FermionOperator represents a linear combination of products of fermionic creation
-/// and annihilation operators.
+/// and annihilation operators. See :doc:`/tutorials/06-fermion-operator`
+/// for an explanation of how to use this class.
+///
+/// Example:
+///
+/// .. jupyter-execute::
+///
+///     import ffsim
+///
+///     op = ffsim.FermionOperator(
+///         {
+///             (ffsim.cre_a(0), ffsim.des_a(3)): 0.5,
+///             (ffsim.cre_a(3), ffsim.des_a(0)): -0.25,
+///             (ffsim.cre_b(1), ffsim.des_b(5), ffsim.cre_a(4)): 1 + 1j,
+///         }
+///     )
+///     op
 ///
 /// Args:
 ///     coeffs (dict[tuple[tuple[bool, bool, int], ...], complex]): The coefficients of the
