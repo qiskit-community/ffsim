@@ -22,7 +22,6 @@ from ffsim import (
     trotter,
     variational,
 )
-from ffsim._lib import FermionOperator
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -39,6 +38,7 @@ from ffsim.hamiltonians import DoubleFactorizedHamiltonian, MolecularHamiltonian
 from ffsim.molecular_data import MolecularData
 from ffsim.operators import (
     FermionAction,
+    FermionOperator,
     cre,
     cre_a,
     cre_b,
