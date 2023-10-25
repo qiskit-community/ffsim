@@ -15,7 +15,7 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.states.wick import expectation_power, expectation_product
+from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
 
 def test_expectation_product():
@@ -57,7 +57,9 @@ def test_expectation_product():
     ]
     for i in range(n_tensors):
         product_op = product_op @ linops[i]
-        computed = expectation_product(expanded_one_body_tensors[: i + 1], one_rdm)
+        computed = expectation_one_body_product(
+            one_rdm, expanded_one_body_tensors[: i + 1]
+        )
         target = np.vdot(state, product_op @ state)
         np.testing.assert_allclose(computed, target, atol=1e-8)
 
@@ -92,7 +94,7 @@ def test_expectation_power():
     )
     expanded_one_body_tensor = scipy.linalg.block_diag(one_body_tensor, one_body_tensor)
     for power in range(7):
-        computed = expectation_power(expanded_one_body_tensor, one_rdm, power)
+        computed = expectation_one_body_power(one_rdm, expanded_one_body_tensor, power)
         target = np.vdot(state, powered_op @ state)
         np.testing.assert_allclose(computed, target, atol=1e-8)
         powered_op = powered_op @ linop
