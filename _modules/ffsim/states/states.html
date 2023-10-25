@@ -156,9 +156,7 @@
 <div class="viewcode-block" id="slater_determinant_one_rdm">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_one_rdm">[docs]</a>
 <span class="k">def</span> <span class="nf">slater_determinant_one_rdm</span><span class="p">(</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-    <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the one-particle reduced density matrix of a Slater determinant.</span>
 
@@ -173,7 +171,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO figure out why mypy complains about this line with</span>
     <span class="c1"># error: Need type annotation for &quot;one_rdm&quot;  [var-annotated]</span>
-    <span class="n">one_rdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">one_rdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
     <span class="n">alpha_orbitals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">norb</span>
     <span class="n">one_rdm</span><span class="p">[(</span><span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">alpha_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
