@@ -135,44 +135,44 @@ One-body tensor:
  [-5.57029092e-17 -6.77238770e-01]]
 
 Two-body tensor:
-[[[[5.23173938e-01 3.58782168e-17]
-   [3.58782168e-17 5.33545754e-01]]
+[[[[0.52317394 0.        ]
+   [0.         0.53354575]]
 
-  [[2.49859013e-17 2.48240570e-01]
-   [2.48240570e-01 4.83067333e-17]]]
+  [[0.         0.24824057]
+   [0.24824057 0.        ]]]
 
 
- [[[2.49859013e-17 2.48240570e-01]
-   [2.48240570e-01 4.83067333e-17]]
+ [[[0.         0.24824057]
+   [0.24824057 0.        ]]
 
-  [[5.33545754e-01 4.01841799e-17]
-   [4.01841799e-17 5.53132024e-01]]]]
+  [[0.53354575 0.        ]
+   [0.         0.55313202]]]]
 
 Double-factorized representation
 --------------------------------
 One-body tensor:
-[[-1.21318608e+00 -1.27383424e-16]
- [-8.82879498e-17 -1.07792507e+00]]
+[[-1.21318608e+00 -8.52909490e-17]
+ [-5.57029092e-17 -1.07792507e+00]]
 
 Diagonal Coulomb matrices:
-[[[ 5.14653029e-01  5.33545754e-01]
-  [ 5.33545754e-01  5.53132024e-01]]
+[[[ 0.51465303  0.53354575]
+  [ 0.53354575  0.55313202]]
 
- [[ 2.48240570e-01 -2.48240570e-01]
-  [-2.48240570e-01  2.48240570e-01]]
+ [[ 0.24824057 -0.24824057]
+  [-0.24824057  0.24824057]]
 
- [[ 2.27521846e-62 -1.39236953e-32]
-  [-1.39236953e-32  8.52090881e-03]]]
+ [[ 0.          0.        ]
+  [ 0.          0.00852091]]]
 
 Orbital rotations:
-[[[ 1.00000000e+00  0.00000000e+00]
-  [ 0.00000000e+00  1.00000000e+00]]
+[[[ 1.          0.        ]
+  [ 0.          1.        ]]
 
- [[-7.07106781e-01 -7.07106781e-01]
-  [ 7.07106781e-01 -7.07106781e-01]]
+ [[-0.70710678  0.70710678]
+  [ 0.70710678  0.70710678]]
 
- [[-1.27830444e-15 -1.00000000e+00]
-  [-1.00000000e+00  1.27830444e-15]]]
+ [[ 0.          1.        ]
+  [ 1.          0.        ]]]
 </pre></div></div>
 </div>
 </section>
@@ -378,7 +378,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9990275744083494
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999906233109686
+Fidelity of Trotter-evolved state with exact state: 0.9999906233109683
 </pre></div></div>
 </div>
 <p>As mentioned above, ffsim already includes functionality for Trotter simulation of double-factorized Hamiltonians. The implementation in ffsim includes higher-order Trotter-Suzuki formulas. The first-order asymmetric formula that we just implemented corresponds to <code class="docutils literal notranslate"><span class="pre">order=0</span></code> in ffsim’s implementation. <code class="docutils literal notranslate"><span class="pre">order=1</span></code> corresponds to the first-order symmetric (commonly known as the second-order) formula, <code class="docutils literal notranslate"><span class="pre">order=2</span></code> corresponds to the second-order symmetric (fourth-order) formula, and so on.</p>
@@ -407,7 +407,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9999906233109686
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999906233109686
+Fidelity of Trotter-evolved state with exact state: 0.9999906233109683
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -435,7 +435,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9999906233109686
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999999336740067
+Fidelity of Trotter-evolved state with exact state: 0.9999999336740071
 </pre></div></div>
 </div>
 </section>

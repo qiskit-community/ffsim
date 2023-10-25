@@ -79,31 +79,56 @@ where <span class="math notranslate nohighlight">\(i \neq j\)</span> or <span cl
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.one_body_tensor">
 <span class="sig-name descname"><span class="pre">one_body_tensor</span></span><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.one_body_tensor" title="Link to this definition">¶</a></dt>
 <dd><p>The one-body tensor <span class="math notranslate nohighlight">\(\kappa\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.diag_coulomb_mats">
 <span class="sig-name descname"><span class="pre">diag_coulomb_mats</span></span><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.diag_coulomb_mats" title="Link to this definition">¶</a></dt>
 <dd><p>The diagonal Coulomb matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.orbital_rotations">
 <span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.orbital_rotations" title="Link to this definition">¶</a></dt>
 <dd><p>The orbital rotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.constant">
 <span class="sig-name descname"><span class="pre">constant</span></span><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.constant" title="Link to this definition">¶</a></dt>
 <dd><p>The constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.z_representation">
 <span class="sig-name descname"><span class="pre">z_representation</span></span><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.z_representation" title="Link to this definition">¶</a></dt>
-<dd><p>Whether the Hamiltonian is in the “Z” representation rather
-than the “number” representation.</p>
+<dd><p>Whether the Hamiltonian is in the “Z” representation
+rather than the “number” representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -214,7 +239,7 @@ instead, which can be much more expensive. This argument is ignored if
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.norb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.norb" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
 </dd></dl>
 
@@ -445,23 +470,38 @@ the two-body tensor.</p>
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.one_body_tensor">
 <span class="sig-name descname"><span class="pre">one_body_tensor</span></span><a class="headerlink" href="#ffsim.MolecularHamiltonian.one_body_tensor" title="Link to this definition">¶</a></dt>
 <dd><p>The one-body tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.two_body_tensor">
 <span class="sig-name descname"><span class="pre">two_body_tensor</span></span><a class="headerlink" href="#ffsim.MolecularHamiltonian.two_body_tensor" title="Link to this definition">¶</a></dt>
 <dd><p>The two-body tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.constant">
 <span class="sig-name descname"><span class="pre">constant</span></span><a class="headerlink" href="#ffsim.MolecularHamiltonian.constant" title="Link to this definition">¶</a></dt>
 <dd><p>The constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.norb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.MolecularHamiltonian.norb" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.MolecularHamiltonian.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
 </dd></dl>
 
