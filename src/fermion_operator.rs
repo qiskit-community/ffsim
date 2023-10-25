@@ -37,6 +37,10 @@ impl KeysIterator {
     }
 }
 
+/// A fermionic operator.
+///
+/// A FermionOperator represents a linear combination of products of fermionic creation
+/// and annihilation operators.
 #[pyclass(module = "ffsim", mapping)]
 pub struct FermionOperator {
     coeffs: HashMap<Vec<(bool, bool, i32)>, Complex64>,
@@ -261,6 +265,16 @@ impl FermionOperator {
         }
     }
 
+    /// Return the normal ordered form of the operator.
+    ///
+    /// The normal ordered form of an operator is an equivalent operator in which
+    /// each term has been reordered into a canonical ordering.
+    /// In each term of a normal-ordered fermion operator, the operators comprising
+    /// the term appear from left to right in descending lexicographic order by
+    /// (action, spin, orb). That is, all creation operators appear before all
+    /// annihilation operators; within creation/annihilation operators, spin beta
+    /// operators appear before spin alpha operators, and larger orbital indices
+    /// appear before smaller orbital indices.
     fn normal_ordered(&self) -> Self {
         let mut result = Self {
             coeffs: HashMap::new(),

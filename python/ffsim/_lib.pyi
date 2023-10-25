@@ -3,12 +3,6 @@ from collections.abc import Iterator, Mapping
 import numpy as np
 
 class FermionOperator(Mapping[tuple[tuple[bool, bool, int], ...], complex]):
-    """A fermionic operator.
-
-    A FermionOperator represents a linear combination of products of fermionic creation
-    and annihilation operators.
-    """
-
     def __init__(
         self, coeffs: dict[tuple[tuple[bool, bool, int], ...], complex]
     ) -> None:
@@ -17,18 +11,7 @@ class FermionOperator(Mapping[tuple[tuple[bool, bool, int], ...], complex]):
         Args:
             coeffs: The coefficients of the operator.
         """
-    def normal_ordered(self) -> "FermionOperator":
-        """Return the normal ordered form of the operator.
-
-        The normal ordered form of an operator is an equivalent operator in which
-        each term has been reordered into a canonical ordering.
-        In each term of a normal-ordered fermion operator, the operators comprising
-        the term appear from left to right in descending lexicographic order by
-        (action, spin, orb). That is, all creation operators appear before all
-        annihilation operators; within creation/annihilation operators, spin beta
-        operators appear before spin alpha operators, and larger orbital indices
-        appear before smaller orbital indices.
-        """
+    def normal_ordered(self) -> "FermionOperator": ...
     def conserves_particle_number(self) -> bool:
         """Return whether the operator conserves particle number."""
     def conserves_spin_z(self) -> bool:
