@@ -41,7 +41,12 @@ impl KeysIterator {
 ///
 /// A FermionOperator represents a linear combination of products of fermionic creation
 /// and annihilation operators.
+///
+/// Args:
+///     coeffs (dict[tuple[tuple[bool, bool, int], ...], complex]): The coefficients of the
+///         operator.
 #[pyclass(module = "ffsim", mapping)]
+#[pyo3(text_signature = "(coeffs)")]
 pub struct FermionOperator {
     coeffs: HashMap<Vec<(bool, bool, i32)>, Complex64>,
 }
@@ -275,6 +280,9 @@ impl FermionOperator {
     /// annihilation operators; within creation/annihilation operators, spin beta
     /// operators appear before spin alpha operators, and larger orbital indices
     /// appear before smaller orbital indices.
+    ///
+    /// Returns:
+    ///     FermionOperator: The normal-ordered fermion operator.
     fn normal_ordered(&self) -> Self {
         let mut result = Self {
             coeffs: HashMap::new(),
@@ -285,6 +293,10 @@ impl FermionOperator {
         result
     }
 
+    /// Return whether the operator conserves particle number.
+    ///
+    /// Returns:
+    ///     bool: True if the operator conserves particle number, False otherwise.
     fn conserves_particle_number(&self) -> bool {
         for term in self.coeffs.keys() {
             let (create_count, destroy_count) =
@@ -303,6 +315,10 @@ impl FermionOperator {
         true
     }
 
+    /// Return whether the operator conserves the Z component of spin.
+    ///
+    /// Returns:
+    ///     bool: True if the operator conserves the Z component of spin, False otherwise.
     fn conserves_spin_z(&self) -> bool {
         for term in self.coeffs.keys() {
             let (create_count_a, destroy_count_a, create_count_b, destroy_count_b) =
@@ -338,6 +354,13 @@ impl FermionOperator {
         true
     }
 
+    /// Return the many-body order of the operator.
+    ///
+    /// The many-body order is defined as the length of the longest term contained
+    /// in the operator.
+    ///
+    /// Returns:
+    ///     int: The many-body order of the operator.
     fn many_body_order(&self) -> usize {
         self.coeffs.keys().map(|term| term.len()).max().unwrap_or(0)
     }
