@@ -18,13 +18,13 @@ from ffsim.states.states import (
     slater_determinant,
     slater_determinant_one_rdm,
 )
-from ffsim.states.wick import expectation_power, expectation_product
+from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
 __all__ = [
     "dim",
     "dims",
-    "expectation_power",
-    "expectation_product",
+    "expectation_one_body_power",
+    "expectation_one_body_product",
     "indices_to_strings",
     "one_hot",
     "slater_determinant",

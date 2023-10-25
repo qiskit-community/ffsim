@@ -17,9 +17,8 @@ from collections.abc import Sequence
 import numpy as np
 
 
-def expectation_product(
-    one_body_tensors: Sequence[np.ndarray],
-    one_rdm: np.ndarray,
+def expectation_one_body_product(
+    one_rdm: np.ndarray, one_body_tensors: Sequence[np.ndarray]
 ) -> complex:
     r"""Expectation of product of one-body operators w.r.t. a Slater determinant.
 
@@ -39,8 +38,8 @@ def expectation_product(
         \langle \psi \rvert O_1 O_2 \dots O_k \lvert \psi \rangle.
 
     Args:
-        one_body_tensors: The matrices for the one-body operators.
         one_rdm: The one-body reduced density matrix of the Slater determinant.
+        one_body_tensors: The matrices for the one-body operators.
 
     Returns:
         The expectation value.
@@ -84,10 +83,8 @@ def expectation_product(
     return result
 
 
-def expectation_power(
-    one_body_tensor: np.ndarray,
-    one_rdm: np.ndarray,
-    power: int = 1,
+def expectation_one_body_power(
+    one_rdm: np.ndarray, one_body_tensor: np.ndarray, power: int = 1
 ) -> complex:
     r"""Expectation of power of one-body operator w.r.t. a Slater determinant.
 
@@ -106,11 +103,11 @@ def expectation_power(
         \langle \psi \rvert O^k \lvert \psi \rangle.
 
     Args:
-        one_body_tensor: The one-body operator.
         one_rdm: The one-body reduced density matrix of the Slater determinant.
+        one_body_tensor: The one-body operator.
         power: The power.
 
     Returns:
         The expectation value.
     """
-    return expectation_product([one_body_tensor] * power, one_rdm)
+    return expectation_one_body_product(one_rdm, [one_body_tensor] * power)

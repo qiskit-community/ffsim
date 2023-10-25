@@ -19,7 +19,7 @@ from pyscf.fci import cistring
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import gen_orbital_rotation_index
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
-from ffsim.states.wick import expectation_power, expectation_product
+from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
 
 def simulate_qdrift_double_factorized(
@@ -386,7 +386,7 @@ def qdrift_probabilities(
         one_body_tensor = scipy.linalg.block_diag(
             hamiltonian.one_body_tensor, hamiltonian.one_body_tensor
         )
-        variances[0] = expectation_power(one_body_tensor, one_rdm, 2).real
+        variances[0] = expectation_one_body_power(one_rdm, one_body_tensor, 2).real
         for i in range(len(hamiltonian.diag_coulomb_mats)):
             variances[i + 1] = expectation_squared_diag_coulomb(
                 one_rdm,
@@ -522,8 +522,8 @@ def variance_one_body_tensor(one_rdm: np.ndarray, one_body_tensor: np.ndarray) -
         The variance.
     """
     variance = (
-        expectation_power(one_body_tensor, one_rdm, 2)
-        - abs(expectation_power(one_body_tensor, one_rdm, 1)) ** 2
+        expectation_one_body_power(one_rdm, one_body_tensor, 2)
+        - abs(expectation_one_body_power(one_rdm, one_body_tensor, 1)) ** 2
     ).real
     # value may be negative due to floating point error
     return max(0, variance)
@@ -558,14 +558,14 @@ def variance_diag_coulomb(
     expectation_squared: complex = 0
 
     for one_body_op in one_body_ops:
-        expectation += expectation_power(one_body_op, one_rdm, 2)
-        expectation_squared += expectation_power(one_body_op, one_rdm, 4)
+        expectation += expectation_one_body_power(one_rdm, one_body_op, 2)
+        expectation_squared += expectation_one_body_power(one_rdm, one_body_op, 4)
 
     for one_body_1, one_body_2 in itertools.combinations(one_body_ops, 2):
         # this expectation is real so we can just double it instead of computing its
         # complex conjugate
-        expectation_squared += 2 * expectation_product(
-            [one_body_1, one_body_1, one_body_2, one_body_2], one_rdm
+        expectation_squared += 2 * expectation_one_body_product(
+            one_rdm, [one_body_1, one_body_1, one_body_2, one_body_2]
         )
 
     if z_representation:
@@ -586,13 +586,15 @@ def variance_diag_coulomb(
         one_body_correction = scipy.linalg.block_diag(
             one_body_correction, one_body_correction
         )
-        expectation += expectation_power(one_body_correction, one_rdm, 1)
-        expectation_squared += expectation_power(one_body_correction, one_rdm, 2)
-        expectation_squared += expectation_product(
-            [one_body_correction, one_body_op, one_body_op], one_rdm
+        expectation += expectation_one_body_power(one_rdm, one_body_correction, 1)
+        expectation_squared += expectation_one_body_power(
+            one_rdm, one_body_correction, 2
         )
-        expectation_squared += expectation_product(
-            [one_body_op, one_body_op, one_body_correction], one_rdm
+        expectation_squared += expectation_one_body_product(
+            one_rdm, [one_body_correction, one_body_op, one_body_op]
+        )
+        expectation_squared += expectation_one_body_product(
+            one_rdm, [one_body_op, one_body_op, one_body_correction]
         )
 
     variance = (expectation_squared - abs(expectation) ** 2).real
@@ -628,13 +630,13 @@ def expectation_squared_diag_coulomb(
     expectation_squared: complex = 0
 
     for one_body_op in one_body_ops:
-        expectation_squared += expectation_power(one_body_op, one_rdm, 4)
+        expectation_squared += expectation_one_body_power(one_rdm, one_body_op, 4)
 
     for one_body_1, one_body_2 in itertools.combinations(one_body_ops, 2):
         # this expectation is real so we can just double it instead of computing its
         # complex conjugate
-        expectation_squared += 2 * expectation_product(
-            [one_body_1, one_body_1, one_body_2, one_body_2], one_rdm
+        expectation_squared += 2 * expectation_one_body_product(
+            one_rdm, [one_body_1, one_body_1, one_body_2, one_body_2]
         )
 
     if z_representation:
@@ -655,12 +657,14 @@ def expectation_squared_diag_coulomb(
         one_body_correction = scipy.linalg.block_diag(
             one_body_correction, one_body_correction
         )
-        expectation_squared += expectation_power(one_body_correction, one_rdm, 2)
-        expectation_squared += expectation_product(
-            [one_body_correction, one_body_op, one_body_op], one_rdm
+        expectation_squared += expectation_one_body_power(
+            one_rdm, one_body_correction, 2
         )
-        expectation_squared += expectation_product(
-            [one_body_op, one_body_op, one_body_correction], one_rdm
+        expectation_squared += expectation_one_body_product(
+            one_rdm, [one_body_correction, one_body_op, one_body_op]
+        )
+        expectation_squared += expectation_one_body_product(
+            one_rdm, [one_body_op, one_body_op, one_body_correction]
         )
 
     return expectation_squared.real
