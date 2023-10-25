@@ -403,6 +403,29 @@ appear before smaller orbital indices.</p>
 <dd><p>The orbital symmetries.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularData.from_hartree_fock">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hartree_fock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hartree_fock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_hartree_fock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_hartree_fock" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize a MolecularData object from a Hartree-Fock calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hartree_fock</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SCF</span></code>) – The Hartree-Fock object.</p></li>
+<li><p><strong>active_space</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – An optional list of orbitals to use for the active space.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.MolecularData.hamiltonian">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hamiltonian</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><span class="pre">MolecularHamiltonian</span></a></em><a class="headerlink" href="#ffsim.MolecularData.hamiltonian" title="Link to this definition">¶</a></dt>
+<dd><p>The Hamiltonian defined by the molecular data.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
