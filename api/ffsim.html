@@ -298,7 +298,34 @@ instead, which can be much more expensive. This argument is ignored if
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A fermionic operator.</p>
 <p>A FermionOperator represents a linear combination of products of fermionic creation
-and annihilation operators.</p>
+and annihilation operators. See <a class="reference internal" href="../tutorials/06-fermion-operator.html"><span class="doc">The FermionOperator class</span></a>
+for an explanation of how to use this class.</p>
+<p>Example:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
+
+<span class="n">op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">cre_a</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">des_a</span><span class="p">(</span><span class="mi">3</span><span class="p">)):</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">cre_a</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">des_a</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">cre_b</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">des_b</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">cre_a</span><span class="p">(</span><span class="mi">4</span><span class="p">)):</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">op</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25,
+    (cre_a(0), des_a(3)): 0.5
+})
+</pre></div>
+</div>
+</div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>coeffs</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>tuple</em><em>[</em><em>bool</em><em>, </em><em>bool</em><em>, </em><em>int</em><em>]</em><em>, </em><em>...</em><em>]</em><em>, </em><em>complex</em><em>]</em>) – The coefficients of the
