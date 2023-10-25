@@ -15,7 +15,7 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.wick import expectation_power, expectation_product
+from ffsim.states.wick import expectation_power, expectation_product
 
 
 def test_expectation_product():

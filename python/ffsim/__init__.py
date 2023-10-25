@@ -23,7 +23,6 @@ from ffsim import (
     variational,
 )
 from ffsim._lib import FermionOperator
-from ffsim.fermion_action import FermionAction, cre, cre_a, cre_b, des, des_a, des_b
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -38,6 +37,15 @@ from ffsim.gates import (
 )
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian, MolecularHamiltonian
 from ffsim.molecular_data import MolecularData
+from ffsim.operators import (
+    FermionAction,
+    cre,
+    cre_a,
+    cre_b,
+    des,
+    des_a,
+    des_b,
+)
 from ffsim.protocols import (
     SupportsApplyUnitary,
     SupportsApproximateEquality,
@@ -51,6 +59,8 @@ from ffsim.protocols import (
 from ffsim.states import (
     dim,
     dims,
+    expectation_power,
+    expectation_product,
     indices_to_strings,
     one_hot,
     slater_determinant,
@@ -95,6 +105,8 @@ __all__ = [
     "des_b",
     "dim",
     "dims",
+    "expectation_power",
+    "expectation_product",
     "gates",
     "hamiltonians",
     "indices_to_strings",
