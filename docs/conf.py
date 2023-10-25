@@ -29,19 +29,11 @@ extensions = [
     "nbsphinx",
 ]
 
-templates_path = ["_templates"]
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
-
 
 # HTML output options
 html_theme = "alabaster"
 
-# autodoc/autosummary options
-autosummary_generate = True
-autosummary_generate_overwrite = False
-autoclass_content = "both"
-
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 500
 nbsphinx_execute = "always"
-nbsphinx_widgets_path = ""
