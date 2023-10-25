@@ -54,11 +54,10 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="expectation_product">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.expectation_product">[docs]</a>
-<span class="k">def</span> <span class="nf">expectation_product</span><span class="p">(</span>
-    <span class="n">one_body_tensors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<div class="viewcode-block" id="expectation_one_body_product">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.expectation_one_body_product">[docs]</a>
+<span class="k">def</span> <span class="nf">expectation_one_body_product</span><span class="p">(</span>
+    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">one_body_tensors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">complex</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Expectation of product of one-body operators w.r.t. a Slater determinant.</span>
 
@@ -78,8 +77,8 @@
 <span class="sd">        \langle \psi \rvert O_1 O_2 \dots O_k \lvert \psi \rangle.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        one_body_tensors: The matrices for the one-body operators.</span>
 <span class="sd">        one_rdm: The one-body reduced density matrix of the Slater determinant.</span>
+<span class="sd">        one_body_tensors: The matrices for the one-body operators.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The expectation value.</span>
@@ -124,12 +123,10 @@
 
 
 
-<div class="viewcode-block" id="expectation_power">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.expectation_power">[docs]</a>
-<span class="k">def</span> <span class="nf">expectation_power</span><span class="p">(</span>
-    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">power</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="expectation_one_body_power">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.expectation_one_body_power">[docs]</a>
+<span class="k">def</span> <span class="nf">expectation_one_body_power</span><span class="p">(</span>
+    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">power</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">complex</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Expectation of power of one-body operator w.r.t. a Slater determinant.</span>
 
@@ -148,14 +145,14 @@
 <span class="sd">        \langle \psi \rvert O^k \lvert \psi \rangle.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        one_body_tensor: The one-body operator.</span>
 <span class="sd">        one_rdm: The one-body reduced density matrix of the Slater determinant.</span>
+<span class="sd">        one_body_tensor: The one-body operator.</span>
 <span class="sd">        power: The power.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The expectation value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">expectation_product</span><span class="p">([</span><span class="n">one_body_tensor</span><span class="p">]</span> <span class="o">*</span> <span class="n">power</span><span class="p">,</span> <span class="n">one_rdm</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">expectation_one_body_product</span><span class="p">(</span><span class="n">one_rdm</span><span class="p">,</span> <span class="p">[</span><span class="n">one_body_tensor</span><span class="p">]</span> <span class="o">*</span> <span class="n">power</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -1205,8 +1205,8 @@ alpha- and beta- FCI space.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.expectation_power">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">expectation_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/wick.html#expectation_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.expectation_power" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.expectation_one_body_power">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">expectation_one_body_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/wick.html#expectation_one_body_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.expectation_one_body_power" title="Link to this definition">¶</a></dt>
 <dd><p>Expectation of power of one-body operator w.r.t. a Slater determinant.</p>
 <p>A one-body operator <span class="math notranslate nohighlight">\(O\)</span> has the form</p>
 <div class="math notranslate nohighlight">
@@ -1219,8 +1219,8 @@ Then this function returns the quantity</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>one_body_tensor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body operator.</p></li>
 <li><p><strong>one_rdm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body reduced density matrix of the Slater determinant.</p></li>
+<li><p><strong>one_body_tensor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body operator.</p></li>
 <li><p><strong>power</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The power.</p></li>
 </ul>
 </dd>
@@ -1234,8 +1234,8 @@ Then this function returns the quantity</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.expectation_product">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">expectation_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/wick.html#expectation_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.expectation_product" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.expectation_one_body_product">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">expectation_one_body_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_tensors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/wick.html#expectation_one_body_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.expectation_one_body_product" title="Link to this definition">¶</a></dt>
 <dd><p>Expectation of product of one-body operators w.r.t. a Slater determinant.</p>
 <p>A one-body operator <span class="math notranslate nohighlight">\(O\)</span> has the form</p>
 <div class="math notranslate nohighlight">
@@ -1249,8 +1249,8 @@ Then this function returns the quantity</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>one_body_tensors</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The matrices for the one-body operators.</p></li>
 <li><p><strong>one_rdm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body reduced density matrix of the Slater determinant.</p></li>
+<li><p><strong>one_body_tensors</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The matrices for the one-body operators.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1542,8 +1542,8 @@ the second sequence similarly for the beta orbitals.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.des_b"><code class="docutils literal notranslate"><span class="pre">des_b()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.dim"><code class="docutils literal notranslate"><span class="pre">dim()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ffsim.expectation_power"><code class="docutils literal notranslate"><span class="pre">expectation_power()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ffsim.expectation_product"><code class="docutils literal notranslate"><span class="pre">expectation_product()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.expectation_one_body_power"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_power()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.expectation_one_body_product"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_product()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.multireference_state"><code class="docutils literal notranslate"><span class="pre">multireference_state()</span></code></a></li>
