@@ -269,6 +269,87 @@ instead, which can be much more expensive. This argument is ignored if
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.FermionOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">FermionOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A fermionic operator.</p>
+<p>A FermionOperator represents a linear combination of products of fermionic creation
+and annihilation operators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coeffs</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>tuple</em><em>[</em><em>bool</em><em>, </em><em>bool</em><em>, </em><em>int</em><em>]</em><em>, </em><em>...</em><em>]</em><em>, </em><em>complex</em><em>]</em>) – The coefficients of the
+operator.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.FermionOperator.conserves_particle_number">
+<span class="sig-name descname"><span class="pre">conserves_particle_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator.conserves_particle_number" title="Link to this definition">¶</a></dt>
+<dd><p>Return whether the operator conserves particle number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the operator conserves particle number, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.FermionOperator.conserves_spin_z">
+<span class="sig-name descname"><span class="pre">conserves_spin_z</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator.conserves_spin_z" title="Link to this definition">¶</a></dt>
+<dd><p>Return whether the operator conserves the Z component of spin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the operator conserves the Z component of spin, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.FermionOperator.many_body_order">
+<span class="sig-name descname"><span class="pre">many_body_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator.many_body_order" title="Link to this definition">¶</a></dt>
+<dd><p>Return the many-body order of the operator.</p>
+<p>The many-body order is defined as the length of the longest term contained
+in the operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The many-body order of the operator.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.FermionOperator.normal_ordered">
+<span class="sig-name descname"><span class="pre">normal_ordered</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator.normal_ordered" title="Link to this definition">¶</a></dt>
+<dd><p>Return the normal ordered form of the operator.</p>
+<p>The normal ordered form of an operator is an equivalent operator in which
+each term has been reordered into a canonical ordering.
+In each term of a normal-ordered fermion operator, the operators comprising
+the term appear from left to right in descending lexicographic order by
+(action, spin, orb). That is, all creation operators appear before all
+annihilation operators; within creation/annihilation operators, spin beta
+operators appear before spin alpha operators, and larger orbital indices
+appear before smaller orbital indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The normal-ordered fermion operator.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator">FermionOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">HopGateAnsatzOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.HopGateAnsatzOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -1327,6 +1408,7 @@ the second sequence similarly for the beta orbitals.</p></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ffsim</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.FermionAction"><code class="docutils literal notranslate"><span class="pre">FermionAction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.FermionOperator"><code class="docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.HopGateAnsatzOperator"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.MolecularData"><code class="docutils literal notranslate"><span class="pre">MolecularData</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></li>
