@@ -39,9 +39,9 @@ class MolecularHamiltonian:
     the two-body tensor.
 
     Attributes:
-        one_body_tensor: The one-body tensor.
-        two_body_tensor: The two-body tensor.
-        constant: The constant.
+        one_body_tensor (np.ndarray): The one-body tensor.
+        two_body_tensor (np.ndarray): The two-body tensor.
+        constant (float): The constant.
     """
 
     one_body_tensor: np.ndarray
@@ -49,7 +49,7 @@ class MolecularHamiltonian:
     constant: float = 0.0
 
     @property
-    def norb(self):
+    def norb(self) -> int:
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
 
