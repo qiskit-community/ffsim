@@ -56,7 +56,17 @@ def orbital_symmetries(
 
 @dataclasses.dataclass
 class MolecularData:
-    """Class for storing molecular data."""
+    """Class for storing molecular data.
+
+    Attributes:
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        core_energy: The core energy.
+        one_body_tensor: The one-body tensor.
+        two_body_tensor: The two-body tensor.
+        dipole_integrals: The dipole integrals.
+        orbital_symmetries: The orbital symmetries.
+    """
 
     norb: int
     nelec: tuple[int, int]
