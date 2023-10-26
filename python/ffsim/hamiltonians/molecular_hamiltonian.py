@@ -22,7 +22,7 @@ from scipy.sparse.linalg import LinearOperator
 from ffsim.states import dim
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class MolecularHamiltonian:
     r"""A molecular Hamiltonian.
 

@@ -24,7 +24,7 @@ from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
 from ffsim.linalg import double_factorized_t2
 
 
-@dataclass
+@dataclass(frozen=True)
 class UCJOperator:
     r"""A unitary cluster Jastrow operator.
 
