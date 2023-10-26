@@ -128,10 +128,9 @@
 <span class="sd">        orbital_rotation: An optional orbital rotation to apply to the</span>
 <span class="sd">            electron configuration. In other words, this is a unitary matrix that</span>
 <span class="sd">            describes the orbitals of the Slater determinant.</span>
-<span class="sd">        dtype:</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The Slater determinant.</span>
+<span class="sd">        The Slater determinant as a statevector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">occupied_orbitals</span>
     <span class="n">n_alpha</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
@@ -150,6 +149,25 @@
     <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span></div>
+
+
+
+<div class="viewcode-block" id="hartree_fock_state">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.hartree_fock_state">[docs]</a>
+<span class="k">def</span> <span class="nf">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the Hartree-Fock state.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Hartree-Fock state as a statevector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="k">return</span> <span class="n">slater_determinant</span><span class="p">(</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">))</span>
+    <span class="p">)</span></div>
 
 
 
