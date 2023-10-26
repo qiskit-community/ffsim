@@ -80,10 +80,9 @@ def slater_determinant(
         orbital_rotation: An optional orbital rotation to apply to the
             electron configuration. In other words, this is a unitary matrix that
             describes the orbitals of the Slater determinant.
-        dtype:
 
     Returns:
-        The Slater determinant.
+        The Slater determinant as a statevector.
     """
     alpha_orbitals, beta_orbitals = occupied_orbitals
     n_alpha = len(alpha_orbitals)
@@ -102,6 +101,22 @@ def slater_determinant(
     if orbital_rotation is not None:
         vec = apply_orbital_rotation(vec, orbital_rotation, norb=norb, nelec=nelec)
     return vec
+
+
+def hartree_fock_state(norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    """Return the Hartree-Fock state.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+
+    Returns:
+        The Hartree-Fock state as a statevector.
+    """
+    n_alpha, n_beta = nelec
+    return slater_determinant(
+        norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
+    )
 
 
 def slater_determinant_one_rdm(
