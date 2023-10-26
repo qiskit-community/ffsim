@@ -13,6 +13,7 @@
 from ffsim.states.states import (
     dim,
     dims,
+    hartree_fock_state,
     indices_to_strings,
     one_hot,
     slater_determinant,
@@ -25,6 +26,7 @@ __all__ = [
     "dims",
     "expectation_one_body_power",
     "expectation_one_body_product",
+    "hartree_fock_state",
     "indices_to_strings",
     "one_hot",
     "slater_determinant",

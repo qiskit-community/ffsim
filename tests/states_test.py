@@ -11,6 +11,7 @@
 """Test states."""
 
 import numpy as np
+import pyscf
 
 import ffsim
 
@@ -31,6 +32,27 @@ def test_slater_determinant():
 
     hamiltonian = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
     np.testing.assert_allclose(hamiltonian @ state, eig * state)
+
+
+def test_hartree_fock_state():
+    """Test Hartree-Fock state."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["H", (0, 0, 0)], ["H", (0, 0, 1.8)]],
+        basis="sto-6g",
+    )
+    hartree_fock = pyscf.scf.RHF(mol)
+    hartree_fock_energy = hartree_fock.kernel()
+
+    mol_data = ffsim.MolecularData.from_hartree_fock(hartree_fock)
+
+    vec = ffsim.hartree_fock_state(mol_data.norb, mol_data.nelec)
+    hamiltonian = ffsim.linear_operator(
+        mol_data.hamiltonian, norb=mol_data.norb, nelec=mol_data.nelec
+    )
+    energy = np.vdot(vec, hamiltonian @ vec)
+
+    np.testing.assert_allclose(energy, hartree_fock_energy)
 
 
 def test_indices_to_strings():
