@@ -18,7 +18,7 @@ from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class DoubleFactorizedHamiltonian:
     r"""A Hamiltonian in the double-factorized form of the low rank decomposition.
 

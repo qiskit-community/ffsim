@@ -54,7 +54,7 @@ def orbital_symmetries(
     return [MOLPRO_ID[hartree_fock.mol.groupname][i] for i in idx]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class MolecularData:
     """Class for storing molecular data.
 
@@ -75,27 +75,6 @@ class MolecularData:
     two_body_tensor: np.ndarray
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[int] | None = None
-
-    # TODO remove this after Python 3.10 dataclasses allows keyword-only arguments
-    def __init__(
-        self,
-        *,
-        norb: int,
-        nelec: tuple[int, int],
-        core_energy: float,
-        one_body_tensor: np.ndarray,
-        two_body_tensor: np.ndarray,
-        dipole_integrals: np.ndarray | None = None,
-        orbital_symmetries: list[int] | None = None,
-    ):
-        self.norb = norb
-        self.nelec = nelec
-        self.core_energy = core_energy
-        self.one_body_tensor = one_body_tensor
-        self.two_body_tensor = two_body_tensor
-        self.dipole_integrals = dipole_integrals
-        self.orbital_symmetries = orbital_symmetries
-        super().__init__()
 
     @property
     def hamiltonian(self) -> MolecularHamiltonian:
