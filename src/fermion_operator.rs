@@ -49,14 +49,32 @@ impl KeysIterator {
 ///
 ///     import ffsim
 ///
-///     op = ffsim.FermionOperator(
+///     op1 = ffsim.FermionOperator(
 ///         {
 ///             (ffsim.cre_a(0), ffsim.des_a(3)): 0.5,
 ///             (ffsim.cre_a(3), ffsim.des_a(0)): -0.25,
 ///             (ffsim.cre_b(1), ffsim.des_b(5), ffsim.cre_a(4)): 1 + 1j,
 ///         }
 ///     )
-///     op
+///     op1
+///
+/// .. jupyter-execute::
+///
+///     2 * op1
+///
+/// .. jupyter-execute::
+///
+///     op2 = ffsim.FermionOperator(
+///         {
+///             (ffsim.cre_b(2),): 1j,
+///             (ffsim.des_a(3), ffsim.des_b(3)): -0.25,
+///         }
+///     )
+///     op1 + op2
+///
+/// .. jupyter-execute::
+///
+///     op1 * op2
 ///
 /// Args:
 ///     coeffs (dict[tuple[tuple[bool, bool, int], ...], complex]): The coefficients of the
