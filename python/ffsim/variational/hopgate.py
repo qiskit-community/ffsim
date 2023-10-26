@@ -20,7 +20,7 @@ import numpy as np
 from ffsim.gates import apply_hop_gate
 
 
-@dataclass
+@dataclass(frozen=True)
 class HopGateAnsatzOperator:
     r"""A hop gate ansatz operator."""
 
