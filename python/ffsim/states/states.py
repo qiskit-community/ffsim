@@ -147,7 +147,6 @@ def indices_to_strings(
     """Convert statevector indices to bitstrings.
 
     Example:
-        >>> import ffsim
         >>> norb = 3
         >>> nelec = (2, 1)
         >>> dim = ffsim.dim(norb, nelec)
