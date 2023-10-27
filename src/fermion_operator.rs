@@ -81,6 +81,7 @@ impl KeysIterator {
 ///         operator.
 #[pyclass(module = "ffsim", mapping)]
 #[pyo3(text_signature = "(coeffs)")]
+#[derive(Clone)]
 pub struct FermionOperator {
     coeffs: HashMap<Vec<(bool, bool, i32)>, Complex64>,
 }
@@ -96,9 +97,7 @@ impl FermionOperator {
     const __hash__: Option<PyObject> = None;
 
     fn copy(&self) -> Self {
-        Self {
-            coeffs: self.coeffs.clone(),
-        }
+        self.clone()
     }
 
     fn __repr__(&self) -> PyResult<String> {
@@ -213,7 +212,7 @@ impl FermionOperator {
     }
 
     fn __add__(&self, other: &Self) -> Self {
-        let mut result = self.copy();
+        let mut result = self.clone();
         result.__iadd__(other);
         result
     }
@@ -229,13 +228,13 @@ impl FermionOperator {
     }
 
     fn __sub__(&self, other: &Self) -> Self {
-        let mut result = self.copy();
+        let mut result = self.clone();
         result.__isub__(other);
         result
     }
 
     fn __neg__(&self) -> Self {
-        let mut result = self.copy();
+        let mut result = self.clone();
         result.__imul__(Complex64::new(-1.0, 0.0));
         result
     }

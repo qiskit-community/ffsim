@@ -569,3 +569,19 @@ def test_str_equivalent():
     )
     exec("from ffsim import cre_a, cre_b, des_a, des_b")
     assert eval(str(op)) == op
+
+
+def test_copy():
+    op = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1,
+            (ffsim.cre_a(2), ffsim.des_a(1)): 0.5,
+            (ffsim.cre_b(1), ffsim.des_b(2)): -0.5j,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1 - 0.5j,
+        }
+    )
+    copy = op.copy()
+    assert copy == op
+
+    copy *= 2
+    assert copy != op
