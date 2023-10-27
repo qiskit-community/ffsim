@@ -487,15 +487,16 @@ def test_iter():
     }
 
 
-def test_linear_operator():
-    """Test linear operator."""
+def test_linear_operator_one_body():
+    """Test linear operator of a one-body operator."""
     norb = 5
 
     rng = np.random.default_rng()
 
-    one_body_tensor = np.zeros((norb, norb))
+    one_body_tensor = np.zeros((norb, norb)).astype(complex)
     one_body_tensor[1, 2] = 0.5
     one_body_tensor[2, 1] = -0.5
+    one_body_tensor[3, 1] = 1 + 1j
 
     for nelec in [(2, 2), (0, 2), (5, 4)]:
         expected_linop = ffsim.contract.one_body_linop(
@@ -506,8 +507,10 @@ def test_linear_operator():
             {
                 (ffsim.cre_a(1), ffsim.des_a(2)): 0.5,
                 (ffsim.cre_a(2), ffsim.des_a(1)): -0.5,
+                (ffsim.cre_a(3), ffsim.des_a(1)): 1 + 1j,
                 (ffsim.cre_b(1), ffsim.des_b(2)): 0.5,
                 (ffsim.cre_b(2), ffsim.des_b(1)): -0.5,
+                (ffsim.cre_b(3), ffsim.des_b(1)): 1 + 1j,
             }
         )
         actual_linop = ffsim.linear_operator(op, norb, nelec)
@@ -524,8 +527,10 @@ def test_linear_operator():
             {
                 (ffsim.des_a(2), ffsim.cre_a(1)): -0.5,
                 (ffsim.des_a(1), ffsim.cre_a(2)): 0.5,
+                (ffsim.cre_a(3), ffsim.des_a(1)): 1 + 1j,
                 (ffsim.des_b(2), ffsim.cre_b(1)): -0.5,
                 (ffsim.des_b(1), ffsim.cre_b(2)): 0.5,
+                (ffsim.cre_b(3), ffsim.des_b(1)): 1 + 1j,
             }
         )
         actual_linop = ffsim.linear_operator(op, norb, nelec)
