@@ -490,35 +490,53 @@ def test_iter():
 def test_linear_operator():
     """Test linear operator."""
     norb = 5
-    nelec = (2, 2)
 
     rng = np.random.default_rng()
-
-    op = FermionOperator(
-        {
-            (ffsim.cre_a(1), ffsim.des_a(2)): 0.5,
-            (ffsim.cre_a(2), ffsim.des_a(1)): -0.5,
-            (ffsim.cre_b(1), ffsim.des_b(2)): 0.5,
-            (ffsim.cre_b(2), ffsim.des_b(1)): -0.5,
-        }
-    )
-    actual_linop = ffsim.linear_operator(op, norb, nelec)
 
     one_body_tensor = np.zeros((norb, norb))
     one_body_tensor[1, 2] = 0.5
     one_body_tensor[2, 1] = -0.5
-    expected_linop = ffsim.contract.one_body_linop(
-        one_body_tensor, norb=norb, nelec=nelec
-    )
 
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
-    original = vec.copy()
-    actual = actual_linop @ vec
-    expected = expected_linop @ vec
-    # test no side effect
-    np.testing.assert_allclose(original, vec)
-    # check results match
-    np.testing.assert_allclose(actual, expected)
+    for nelec in [(2, 2), (0, 2), (5, 4)]:
+        expected_linop = ffsim.contract.one_body_linop(
+            one_body_tensor, norb=norb, nelec=nelec
+        )
+
+        op = FermionOperator(
+            {
+                (ffsim.cre_a(1), ffsim.des_a(2)): 0.5,
+                (ffsim.cre_a(2), ffsim.des_a(1)): -0.5,
+                (ffsim.cre_b(1), ffsim.des_b(2)): 0.5,
+                (ffsim.cre_b(2), ffsim.des_b(1)): -0.5,
+            }
+        )
+        actual_linop = ffsim.linear_operator(op, norb, nelec)
+        vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+        original = vec.copy()
+        actual = actual_linop @ vec
+        expected = expected_linop @ vec
+        # test no side effect
+        np.testing.assert_allclose(original, vec)
+        # check results match
+        np.testing.assert_allclose(actual, expected)
+
+        op = FermionOperator(
+            {
+                (ffsim.des_a(2), ffsim.cre_a(1)): -0.5,
+                (ffsim.des_a(1), ffsim.cre_a(2)): 0.5,
+                (ffsim.des_b(2), ffsim.cre_b(1)): -0.5,
+                (ffsim.des_b(1), ffsim.cre_b(2)): 0.5,
+            }
+        )
+        actual_linop = ffsim.linear_operator(op, norb, nelec)
+        vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+        original = vec.copy()
+        actual = actual_linop @ vec
+        expected = expected_linop @ vec
+        # test no side effect
+        np.testing.assert_allclose(original, vec)
+        # check results match
+        np.testing.assert_allclose(actual, expected)
 
 
 def test_approx_eq():

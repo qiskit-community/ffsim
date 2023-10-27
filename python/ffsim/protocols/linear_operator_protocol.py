@@ -94,6 +94,8 @@ def _fermion_operator_to_linear_operator(
                 transformed_real = action_func(transformed_real, norb, this_nelec, orb)
                 transformed_imag = action_func(transformed_imag, norb, this_nelec, orb)
                 this_nelec[spin] += 1 if action else -1
+                if this_nelec[spin] < 0 or this_nelec[spin] > norb:
+                    break
             result += coeff * transformed_real.reshape(-1)
             result += coeff * 1j * transformed_imag.reshape(-1)
         return result
