@@ -39,6 +39,9 @@ def test_add():
     )
     assert op1 + op2 == expected
 
+    op1 += op2
+    assert op1 == expected
+
 
 def test_subtract():
     """Test subtracting FermionOperators."""
@@ -59,6 +62,9 @@ def test_subtract():
         }
     )
     assert op1 - op2 == expected
+
+    op1 -= op2
+    assert op1 == expected
 
 
 def test_neg():
