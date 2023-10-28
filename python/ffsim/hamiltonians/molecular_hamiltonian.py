@@ -92,4 +92,14 @@ class MolecularHamiltonian:
                     (cre_b(p), des_b(q)): coeff,
                 }
             )
+        for p, q, r, s in itertools.product(range(self.norb), repeat=4):
+            coeff = 0.5 * self.two_body_tensor[p, q, r, s]
+            op += FermionOperator(
+                {
+                    (cre_a(p), cre_a(r), des_a(s), des_a(q)): coeff,
+                    (cre_a(p), cre_b(r), des_b(s), des_a(q)): coeff,
+                    (cre_b(p), cre_a(r), des_a(s), des_b(q)): coeff,
+                    (cre_b(p), cre_b(r), des_b(s), des_b(q)): coeff,
+                }
+            )
         return op
