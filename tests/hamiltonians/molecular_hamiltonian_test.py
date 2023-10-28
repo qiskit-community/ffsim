@@ -16,6 +16,7 @@ from __future__ import annotations
 import numpy as np
 import pyscf
 import pyscf.mcscf
+import pytest
 import scipy.sparse.linalg
 
 import ffsim
@@ -77,12 +78,17 @@ def test_linear_operator():
     np.testing.assert_allclose(eig, energy_fci)
 
 
-def test_fermion_operator():
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test FermionOperator."""
-    norb = 5
-    # TODO test more nelecs, including edge cases like (1, 2), (0, 2)
-    nelec = (2, 2)
-
     rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
