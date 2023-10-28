@@ -86,8 +86,7 @@ def test_fermion_operator():
     rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    # TODO replace this with nonzero tensor
-    two_body_tensor = np.zeros((norb, norb, norb, norb))
+    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=rng)
     constant = rng.standard_normal()
     mol_hamiltonian = ffsim.MolecularHamiltonian(
         one_body_tensor, two_body_tensor, constant=constant
