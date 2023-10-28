@@ -318,9 +318,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(0), des_a(3)): 0.5,
     (cre_a(3), des_a(0)): -0.25,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j
 })
 </pre></div>
 </div>
@@ -335,8 +335,8 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_a(3), des_a(0)): -0.5,
-    (cre_a(0), des_a(3)): 1,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(0), des_a(3)): 1
 })
 </pre></div>
 </div>
@@ -356,11 +356,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
-    (cre_b(2)): 0+1j,
     (cre_a(0), des_a(3)): 0.5,
+    (cre_a(3), des_a(0)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (des_a(3), des_b(3)): -0.25
+    (des_a(3), des_b(3)): -0.25,
+    (cre_b(2)): 0+1j
 })
 </pre></div>
 </div>
@@ -374,11 +374,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j
 })
 </pre></div>
@@ -604,6 +604,13 @@ the two-body tensor.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsApproximateEquality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/approximate_equality_protocol.html#SupportsApproximateEquality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsApproximateEquality" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
 <p>An object that can be compared approximately.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.SupportsFermionOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsFermionOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/fermion_operator_protocol.html#SupportsFermionOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsFermionOperator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>An object that can be converted to a FermionOperator.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1348,6 +1355,23 @@ Then this function returns the quantity</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermion_operator">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/fermion_operator_protocol.html#fermion_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_operator" title="Link to this definition">¶</a></dt>
+<dd><p>Return a FermionOperator representing the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The object to convert to a LinearOperator.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A FermionOperator representing the object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.hartree_fock_state">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">hartree_fock_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#hartree_fock_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.hartree_fock_state" title="Link to this definition">¶</a></dt>
 <dd><p>Return the Hartree-Fock state.</p>
@@ -1613,6 +1637,7 @@ the second sequence similarly for the beta orbitals.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsApplyUnitary"><code class="docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsApproximateEquality"><code class="docutils literal notranslate"><span class="pre">SupportsApproximateEquality</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsFermionOperator"><code class="docutils literal notranslate"><span class="pre">SupportsFermionOperator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsLinearOperator"><code class="docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsTrace"><code class="docutils literal notranslate"><span class="pre">SupportsTrace</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.UCJOperator"><code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></li>
@@ -1638,6 +1663,7 @@ the second sequence similarly for the beta orbitals.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.expectation_one_body_power"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_power()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.expectation_one_body_product"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_product()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.fermion_operator"><code class="docutils literal notranslate"><span class="pre">fermion_operator()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.hartree_fock_state"><code class="docutils literal notranslate"><span class="pre">hartree_fock_state()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
