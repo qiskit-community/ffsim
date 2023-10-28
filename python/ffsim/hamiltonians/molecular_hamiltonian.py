@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import dataclasses
+import itertools
 
 import numpy as np
 import scipy.sparse.linalg
@@ -19,6 +20,8 @@ from pyscf.fci.direct_nosym import absorb_h1e, make_hdiag
 from pyscf.fci.fci_slow import contract_2e
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim._lib import FermionOperator
+from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
 
 
@@ -78,3 +81,15 @@ class MolecularHamiltonian:
         return self.constant * dim(norb, nelec) + np.sum(
             make_hdiag(self.one_body_tensor, self.two_body_tensor, norb, nelec)
         )
+
+    def _fermion_operator_(self) -> FermionOperator:
+        op = FermionOperator({(): self.constant})
+        for p, q in itertools.product(range(self.norb), repeat=2):
+            coeff = self.one_body_tensor[p, q]
+            op += FermionOperator(
+                {
+                    (cre_a(p), des_a(q)): coeff,
+                    (cre_b(p), des_b(q)): coeff,
+                }
+            )
+        return op

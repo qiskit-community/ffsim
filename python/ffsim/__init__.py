@@ -38,10 +38,12 @@ from ffsim.operators import (
 from ffsim.protocols import (
     SupportsApplyUnitary,
     SupportsApproximateEquality,
+    SupportsFermionOperator,
     SupportsLinearOperator,
     SupportsTrace,
     apply_unitary,
     approx_eq,
+    fermion_operator,
     linear_operator,
     trace,
 )
@@ -71,6 +73,7 @@ __all__ = [
     "MolecularHamiltonian",
     "SupportsApplyUnitary",
     "SupportsApproximateEquality",
+    "SupportsFermionOperator",
     "SupportsLinearOperator",
     "SupportsTrace",
     "UCJOperator",
@@ -97,6 +100,7 @@ __all__ = [
     "dims",
     "expectation_one_body_power",
     "expectation_one_body_product",
+    "fermion_operator",
     "hartree_fock_state",
     "indices_to_strings",
     "linalg",

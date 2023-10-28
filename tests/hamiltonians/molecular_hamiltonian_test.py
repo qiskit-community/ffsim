@@ -75,3 +75,29 @@ def test_linear_operator():
 
     # Check that they match
     np.testing.assert_allclose(eig, energy_fci)
+
+
+def test_fermion_operator():
+    """Test FermionOperator."""
+    norb = 5
+    # TODO test more nelecs, including edge cases like (1, 2), (0, 2)
+    nelec = (2, 2)
+
+    rng = np.random.default_rng()
+
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    # TODO replace this with nonzero tensor
+    two_body_tensor = np.zeros((norb, norb, norb, norb))
+    constant = rng.standard_normal()
+    mol_hamiltonian = ffsim.MolecularHamiltonian(
+        one_body_tensor, two_body_tensor, constant=constant
+    )
+    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+
+    op = ffsim.fermion_operator(mol_hamiltonian)
+    linop = ffsim.linear_operator(op, norb, nelec)
+    expected_linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    actual = linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected, atol=1e-12)
