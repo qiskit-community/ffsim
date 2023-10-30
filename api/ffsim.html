@@ -318,9 +318,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -334,9 +334,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
     (cre_a(3), des_a(0)): -0.5,
-    (cre_a(0), des_a(3)): 1
+    (cre_a(0), des_a(3)): 1,
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j
 })
 </pre></div>
 </div>
@@ -356,11 +356,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
-    (cre_b(2)): 0+1j,
+    (des_a(3), des_b(3)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_b(2)): 0+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (des_a(3), des_b(3)): -0.25
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -374,12 +374,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j
 })
 </pre></div>
 </div>
@@ -1618,9 +1618,13 @@ describes the orbitals of the Slater determinant.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slater_determinant_one_rdm">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">slater_determinant_one_rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#slater_determinant_one_rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slater_determinant_one_rdm" title="Link to this definition">¶</a></dt>
-<dd><p>Return the one-particle reduced density matrix of a Slater determinant.</p>
+<dt class="sig sig-object py" id="ffsim.slater_determinant_rdm">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">slater_determinant_rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#slater_determinant_rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slater_determinant_rdm" title="Link to this definition">¶</a></dt>
+<dd><p>Return the reduced density matrix of a Slater determinant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently, only rank 1 is supported.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1628,6 +1632,10 @@ describes the orbitals of the Slater determinant.</p></li>
 <li><p><strong>occupied_orbitals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – A tuple of two sequences of integers. The first
 sequence contains the indices of the occupied alpha orbitals, and
 the second sequence similarly for the beta orbitals.</p></li>
+<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – An optional orbital rotation to apply to the
+electron configuration. In other words, this is a unitary matrix that
+describes the orbitals of the Slater determinant.</p></li>
+<li><p><strong>rank</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The rank of the reduced density matrix.</p></li>
 <li><p><strong>spin_summed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to sum over the spin index.</p></li>
 </ul>
 </dd>
@@ -1635,7 +1643,7 @@ the second sequence similarly for the beta orbitals.</p></li>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The one-particle reduced density matrix of the Slater determinant.</p>
+<dd class="field-odd"><p>The reduced density matrix of the Slater determinant.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1724,7 +1732,7 @@ the second sequence similarly for the beta orbitals.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.simulate_qdrift_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_qdrift_double_factorized()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.simulate_trotter_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_double_factorized()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ffsim.slater_determinant_one_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_one_rdm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.slater_determinant_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdm()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
 </ul>
 </li>
