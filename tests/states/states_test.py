@@ -80,17 +80,38 @@ def test_indices_to_strings():
     ]
 
 
-def test_rdm_1():
-    """Test computing 1-RDM."""
-    norb = 5
-    nelec = ffsim.testing.random_nelec(norb)
-
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_rdm_1_spin_summed(norb: int, nelec: tuple[int, int]):
+    """Test computing spin-summed 1-RDM."""
     rng = np.random.default_rng()
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
 
     rdm = ffsim.rdm(vec, norb, nelec)
     expected = _rdm1_spin_summed(vec, norb, nelec)
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_rdm_1(norb: int, nelec: tuple[int, int]):
+    """Test computing 1-RDM."""
+    rng = np.random.default_rng()
+    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
 
     rdm = ffsim.rdm(vec, norb, nelec, spin_summed=False)
     expected = _rdm1(vec, norb, nelec)
