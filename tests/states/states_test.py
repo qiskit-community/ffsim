@@ -84,7 +84,7 @@ def test_slater_determinant_one_rdm(
     vec = ffsim.slater_determinant(
         norb, occupied_orbitals, orbital_rotation=orbital_rotation
     )
-    rdm = ffsim.slater_determinant_one_rdm(
+    rdm = ffsim.slater_determinant_rdm(
         norb,
         occupied_orbitals,
         orbital_rotation=orbital_rotation,

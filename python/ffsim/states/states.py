@@ -130,38 +130,50 @@ def hartree_fock_state(norb: int, nelec: tuple[int, int]) -> np.ndarray:
     )
 
 
-def slater_determinant_one_rdm(
+def slater_determinant_rdm(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
     orbital_rotation: np.ndarray | None = None,
+    rank: int = 1,
     spin_summed: bool = True,
 ) -> np.ndarray:
-    """Return the one-particle reduced density matrix of a Slater determinant.
+    """Return the reduced density matrix of a Slater determinant.
+
+    Note:
+        Currently, only rank 1 is supported.
 
     Args:
         norb: The number of spatial orbitals.
         occupied_orbitals: A tuple of two sequences of integers. The first
             sequence contains the indices of the occupied alpha orbitals, and
             the second sequence similarly for the beta orbitals.
+        orbital_rotation: An optional orbital rotation to apply to the
+            electron configuration. In other words, this is a unitary matrix that
+            describes the orbitals of the Slater determinant.
+        rank: The rank of the reduced density matrix.
         spin_summed: Whether to sum over the spin index.
 
     Returns:
-        The one-particle reduced density matrix of the Slater determinant.
+        The reduced density matrix of the Slater determinant.
     """
-    rdm_a = np.zeros((norb, norb), dtype=complex)
-    rdm_b = np.zeros((norb, norb), dtype=complex)
-    alpha_orbitals = np.array(occupied_orbitals[0])
-    beta_orbitals = np.array(occupied_orbitals[1])
-    if len(alpha_orbitals):
-        rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
-    if len(beta_orbitals):
-        rdm_b[(beta_orbitals, beta_orbitals)] = 1
-    if orbital_rotation is not None:
-        rdm_a = orbital_rotation.conj() @ rdm_a @ orbital_rotation.T
-        rdm_b = orbital_rotation.conj() @ rdm_b @ orbital_rotation.T
-    if spin_summed:
-        return rdm_a + rdm_b
-    return scipy.linalg.block_diag(rdm_a, rdm_b)
+    if rank == 1:
+        rdm_a = np.zeros((norb, norb), dtype=complex)
+        rdm_b = np.zeros((norb, norb), dtype=complex)
+        alpha_orbitals = np.array(occupied_orbitals[0])
+        beta_orbitals = np.array(occupied_orbitals[1])
+        if len(alpha_orbitals):
+            rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
+        if len(beta_orbitals):
+            rdm_b[(beta_orbitals, beta_orbitals)] = 1
+        if orbital_rotation is not None:
+            rdm_a = orbital_rotation.conj() @ rdm_a @ orbital_rotation.T
+            rdm_b = orbital_rotation.conj() @ rdm_b @ orbital_rotation.T
+        if spin_summed:
+            return rdm_a + rdm_b
+        return scipy.linalg.block_diag(rdm_a, rdm_b)
+    raise NotImplementedError(
+        f"Returning the rank {rank} reduced density matrix is currently not supported."
+    )
 
 
 def indices_to_strings(
