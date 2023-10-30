@@ -274,7 +274,9 @@ def test_simulate_qdrift_double_factorized_h_chain(
     occupied_orbitals = (range(n_alpha), range(n_beta))
     initial_state = ffsim.slater_determinant(norb, occupied_orbitals)
     original_state = initial_state.copy()
-    one_rdm = ffsim.slater_determinant_one_rdm(norb, occupied_orbitals)
+    one_rdm = ffsim.slater_determinant_one_rdm(
+        norb, occupied_orbitals, spin_summed=False
+    )
 
     # compute exact state
     exact_state = scipy.sparse.linalg.expm_multiply(
@@ -372,7 +374,9 @@ def test_simulate_qdrift_double_factorized_random(
     occupied_orbitals = (range(n_alpha), range(n_beta))
     initial_state = ffsim.slater_determinant(norb, occupied_orbitals)
     original_state = initial_state.copy()
-    one_rdm = ffsim.slater_determinant_one_rdm(norb, occupied_orbitals)
+    one_rdm = ffsim.slater_determinant_one_rdm(
+        norb, occupied_orbitals, spin_summed=False
+    )
 
     # compute exact state
     exact_state = scipy.sparse.linalg.expm_multiply(

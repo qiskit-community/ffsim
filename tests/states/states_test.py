@@ -78,13 +78,21 @@ def test_slater_determinant_one_rdm(
     occ_a, occ_b = occupied_orbitals
     nelec = len(occ_a), len(occ_b)
 
-    vec = ffsim.slater_determinant(norb, occupied_orbitals)
+    rng = np.random.default_rng()
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+
+    vec = ffsim.slater_determinant(
+        norb, occupied_orbitals, orbital_rotation=orbital_rotation
+    )
     rdm = ffsim.slater_determinant_one_rdm(
-        norb, occupied_orbitals, spin_summed=spin_summed
+        norb,
+        occupied_orbitals,
+        orbital_rotation=orbital_rotation,
+        spin_summed=spin_summed,
     )
     expected = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
 
-    np.testing.assert_allclose(rdm, expected)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 def test_indices_to_strings():

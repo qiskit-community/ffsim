@@ -133,6 +133,7 @@ def hartree_fock_state(norb: int, nelec: tuple[int, int]) -> np.ndarray:
 def slater_determinant_one_rdm(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray | None = None,
     spin_summed: bool = True,
 ) -> np.ndarray:
     """Return the one-particle reduced density matrix of a Slater determinant.
@@ -155,6 +156,9 @@ def slater_determinant_one_rdm(
         rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
     if len(beta_orbitals):
         rdm_b[(beta_orbitals, beta_orbitals)] = 1
+    if orbital_rotation is not None:
+        rdm_a = orbital_rotation.conj() @ rdm_a @ orbital_rotation.T
+        rdm_b = orbital_rotation.conj() @ rdm_b @ orbital_rotation.T
     if spin_summed:
         return rdm_a + rdm_b
     return scipy.linalg.block_diag(rdm_a, rdm_b)
