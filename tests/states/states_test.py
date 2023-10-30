@@ -60,6 +60,33 @@ def test_hartree_fock_state():
     np.testing.assert_allclose(energy, hartree_fock_energy)
 
 
+@pytest.mark.parametrize(
+    "norb, occupied_orbitals, spin_summed",
+    [
+        (4, ([0, 1], [0, 1]), True),
+        (4, ([0, 1], [0, 1]), False),
+        (3, ([0], [1, 2]), True),
+        (3, ([0], [1, 2]), False),
+        (2, ([], [0]), True),
+        (2, ([], [0]), False),
+    ],
+)
+def test_slater_determinant_one_rdm(
+    norb: int, occupied_orbitals: tuple[list[int], list[int]], spin_summed: bool
+):
+    """Test Slater determinant 1-RDM."""
+    occ_a, occ_b = occupied_orbitals
+    nelec = len(occ_a), len(occ_b)
+
+    vec = ffsim.slater_determinant(norb, occupied_orbitals)
+    rdm = ffsim.slater_determinant_one_rdm(
+        norb, occupied_orbitals, spin_summed=spin_summed
+    )
+    expected = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
+
+    np.testing.assert_allclose(rdm, expected)
+
+
 def test_indices_to_strings():
     """Test converting statevector indices to strings."""
     norb = 3
@@ -84,9 +111,9 @@ def test_indices_to_strings():
     "norb, nelec",
     [
         (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 1)),
-        (4, (0, 0)),
+        (3, (1, 2)),
+        (2, (0, 1)),
+        (1, (0, 0)),
     ],
 )
 def test_rdm_1_spin_summed(norb: int, nelec: tuple[int, int]):
@@ -103,9 +130,9 @@ def test_rdm_1_spin_summed(norb: int, nelec: tuple[int, int]):
     "norb, nelec",
     [
         (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 1)),
-        (4, (0, 0)),
+        (3, (1, 2)),
+        (2, (0, 1)),
+        (1, (0, 0)),
     ],
 )
 def test_rdm_1(norb: int, nelec: tuple[int, int]):
