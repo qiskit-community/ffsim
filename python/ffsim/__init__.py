@@ -57,7 +57,7 @@ from ffsim.states import (
     one_hot,
     rdm,
     slater_determinant,
-    slater_determinant_one_rdm,
+    slater_determinant_rdm,
 )
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
@@ -113,7 +113,7 @@ __all__ = [
     "simulate_qdrift_double_factorized",
     "simulate_trotter_double_factorized",
     "slater_determinant",
-    "slater_determinant_one_rdm",
+    "slater_determinant_rdm",
     "testing",
     "trace",
 ]

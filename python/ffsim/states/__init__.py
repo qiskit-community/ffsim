@@ -18,7 +18,7 @@ from ffsim.states.states import (
     one_hot,
     rdm,
     slater_determinant,
-    slater_determinant_one_rdm,
+    slater_determinant_rdm,
 )
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
@@ -32,5 +32,5 @@ __all__ = [
     "one_hot",
     "rdm",
     "slater_determinant",
-    "slater_determinant_one_rdm",
+    "slater_determinant_rdm",
 ]
