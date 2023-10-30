@@ -187,6 +187,7 @@
 <span class="k">def</span> <span class="nf">slater_determinant_one_rdm</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spin_summed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the one-particle reduced density matrix of a Slater determinant.</span>
@@ -209,6 +210,9 @@
         <span class="n">rdm_a</span><span class="p">[(</span><span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">alpha_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">):</span>
         <span class="n">rdm_b</span><span class="p">[(</span><span class="n">beta_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_a</span> <span class="o">@</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_b</span> <span class="o">@</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span>
     <span class="k">if</span> <span class="n">spin_summed</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">rdm_a</span> <span class="o">+</span> <span class="n">rdm_b</span>
     <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">rdm_a</span><span class="p">,</span> <span class="n">rdm_b</span><span class="p">)</span></div>
