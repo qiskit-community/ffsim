@@ -220,7 +220,7 @@ def _rdm1_spin_summed(
     vec_imag: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray],
+    link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
     result = make_rdm1(vec_real, norb, nelec, link_index=link_index).astype(complex)
     result += make_rdm1(vec_imag, norb, nelec, link_index=link_index)
@@ -235,7 +235,7 @@ def _rdm1(
     vec_imag: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray],
+    link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
     result = np.stack(make_rdm1s(vec_real, norb, nelec, link_index=link_index)).astype(
         complex
@@ -256,7 +256,7 @@ def _rdm2_spin_summed(
     vec_imag: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray],
+    link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
     result = make_rdm12(vec_real, norb, nelec, link_index=link_index)[1].astype(complex)
     result += make_rdm12(vec_imag, norb, nelec, link_index=link_index)[1]
@@ -274,7 +274,7 @@ def _rdm2(
     vec_imag: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray],
+    link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
     rdms = np.stack(
         make_rdm12s(vec_real, norb, nelec, link_index=link_index)[1]
