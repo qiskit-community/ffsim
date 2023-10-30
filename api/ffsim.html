@@ -334,9 +334,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
     (cre_a(3), des_a(0)): -0.5,
-    (cre_a(0), des_a(3)): 1,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
+    (cre_a(0), des_a(3)): 1
 })
 </pre></div>
 </div>
@@ -356,11 +356,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (des_a(3), des_b(3)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_b(2)): 0+1j,
     (cre_a(3), des_a(0)): -0.25,
-    (cre_a(0), des_a(3)): 0.5
+    (des_a(3), des_b(3)): -0.25,
+    (cre_a(0), des_a(3)): 0.5,
+    (cre_b(2)): 0+1j
 })
 </pre></div>
 </div>
@@ -374,12 +374,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j
 })
 </pre></div>
 </div>
@@ -1471,6 +1471,56 @@ lowest-energy state.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.rdm">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.rdm" title="Link to this definition">¶</a></dt>
+<dd><p>Return the reduced density matrix (RDM) of a state vector.</p>
+<p>The rank 1 RDM is defined as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm1[p, q] = ⟨p+ q⟩
+</pre></div>
+</div>
+<p>The definition of higher-rank RDMs depends on the <code class="docutils literal notranslate"><span class="pre">reordered</span></code> argument, which
+defaults to True.</p>
+<p><strong>reordered = True</strong></p>
+<p>The reordered RDMs are defined as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm2[p, q, r, s] = ⟨p+ r+ s q⟩
+rdm3[p, q, r, s, t, u] = ⟨p+ r+ t+ u s q⟩
+rdm4[p, q, r, s, t, u, v, w] = ⟨p+ r+ t+ v+ w u s q⟩
+</pre></div>
+</div>
+<p><strong>reordered = False</strong></p>
+<p>If reordered is set to False, the RDMs are defined as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm2[p, q, r, s] = ⟨p+ q r+ s⟩
+rdm3[p, q, r, s, t, u] = ⟨p+ q r+ s t+ u⟩
+rdm4[p, q, r, s, t, u, v, w] = ⟨p+ q r+ s t+ u v+ w⟩
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently, only ranks 1 and 2 are supported.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector whose reduced density matrix is desired.</p></li>
+<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>rank</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The rank of the reduced density matrix.</p></li>
+<li><p><strong>spin_summed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to sum over the spin index.</p></li>
+<li><p><strong>reordered</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to reorder the indices of the reduced density matrix.</p></li>
+<li><p><strong>link_index</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]) – String index lookup tables for spin alpha and spin beta, as
+generated by the function <a class="reference external" href="https://pyscf.org/pyscf_api_docs/pyscf.fci.html#pyscf.fci.cistring.gen_linkstr_index">pyscf.fci.cistring.gen_linkstr_index</a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The reduced density matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.simulate_qdrift_double_factorized">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">simulate_qdrift_double_factorized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'norm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/trotter/qdrift.html#simulate_qdrift_double_factorized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.simulate_qdrift_double_factorized" title="Link to this definition">¶</a></dt>
 <dd><p>Double-factorized Hamiltonian simulation via qDRIFT.</p>
@@ -1669,6 +1719,7 @@ the second sequence similarly for the beta orbitals.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.multireference_state"><code class="docutils literal notranslate"><span class="pre">multireference_state()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.one_hot"><code class="docutils literal notranslate"><span class="pre">one_hot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.rdm"><code class="docutils literal notranslate"><span class="pre">rdm()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.simulate_qdrift_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_qdrift_double_factorized()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.simulate_trotter_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_double_factorized()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
