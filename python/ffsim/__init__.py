@@ -55,6 +55,7 @@ from ffsim.states import (
     hartree_fock_state,
     indices_to_strings,
     one_hot,
+    rdm,
     slater_determinant,
     slater_determinant_one_rdm,
 )
@@ -108,6 +109,7 @@ __all__ = [
     "multireference_state",
     "one_hot",
     "random",
+    "rdm",
     "simulate_qdrift_double_factorized",
     "simulate_trotter_double_factorized",
     "slater_determinant",
