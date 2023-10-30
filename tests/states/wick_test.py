@@ -10,6 +10,8 @@
 
 """Test Wick's theorem utilities."""
 
+from __future__ import annotations
+
 import numpy as np
 import pytest
 import scipy.linalg
