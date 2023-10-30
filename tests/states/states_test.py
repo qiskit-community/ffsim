@@ -122,9 +122,9 @@ def test_rdm_1(norb: int, nelec: tuple[int, int]):
     "norb, nelec",
     [
         (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 1)),
-        (4, (0, 0)),
+        (3, (1, 2)),
+        (2, (0, 1)),
+        (1, (0, 0)),
     ],
 )
 def test_rdm_2_spin_summed_reordered(norb: int, nelec: tuple[int, int]):
@@ -141,9 +141,9 @@ def test_rdm_2_spin_summed_reordered(norb: int, nelec: tuple[int, int]):
     "norb, nelec",
     [
         (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 1)),
-        (4, (0, 0)),
+        (3, (1, 2)),
+        (2, (0, 1)),
+        (1, (0, 0)),
     ],
 )
 def test_rdm_2_reordered(norb: int, nelec: tuple[int, int]):
@@ -160,9 +160,9 @@ def test_rdm_2_reordered(norb: int, nelec: tuple[int, int]):
     "norb, nelec",
     [
         (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 1)),
-        (4, (0, 0)),
+        (3, (1, 2)),
+        (2, (0, 1)),
+        (1, (0, 0)),
     ],
 )
 def test_rdm_2_spin_summed(norb: int, nelec: tuple[int, int]):
@@ -179,9 +179,9 @@ def test_rdm_2_spin_summed(norb: int, nelec: tuple[int, int]):
     "norb, nelec",
     [
         (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 1)),
-        (4, (0, 0)),
+        (3, (1, 2)),
+        (2, (0, 1)),
+        (1, (0, 0)),
     ],
 )
 def test_rdm_2(norb: int, nelec: tuple[int, int]):
