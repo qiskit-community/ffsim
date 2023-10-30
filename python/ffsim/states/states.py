@@ -131,7 +131,9 @@ def hartree_fock_state(norb: int, nelec: tuple[int, int]) -> np.ndarray:
 
 
 def slater_determinant_one_rdm(
-    norb: int, occupied_orbitals: tuple[Sequence[int], Sequence[int]]
+    norb: int,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    spin_summed: bool = True,
 ) -> np.ndarray:
     """Return the one-particle reduced density matrix of a Slater determinant.
 
@@ -140,16 +142,22 @@ def slater_determinant_one_rdm(
         occupied_orbitals: A tuple of two sequences of integers. The first
             sequence contains the indices of the occupied alpha orbitals, and
             the second sequence similarly for the beta orbitals.
+        spin_summed: Whether to sum over the spin index.
 
     Returns:
         The one-particle reduced density matrix of the Slater determinant.
     """
-    one_rdm = np.zeros((2 * norb, 2 * norb), dtype=complex)
+    rdm_a = np.zeros((norb, norb), dtype=complex)
+    rdm_b = np.zeros((norb, norb), dtype=complex)
     alpha_orbitals = np.array(occupied_orbitals[0])
-    beta_orbitals = np.array(occupied_orbitals[1]) + norb
-    one_rdm[(alpha_orbitals, alpha_orbitals)] = 1
-    one_rdm[(beta_orbitals, beta_orbitals)] = 1
-    return one_rdm
+    beta_orbitals = np.array(occupied_orbitals[1])
+    if len(alpha_orbitals):
+        rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
+    if len(beta_orbitals):
+        rdm_b[(beta_orbitals, beta_orbitals)] = 1
+    if spin_summed:
+        return rdm_a + rdm_b
+    return scipy.linalg.block_diag(rdm_a, rdm_b)
 
 
 def indices_to_strings(
