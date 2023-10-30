@@ -197,6 +197,8 @@ def rdm(
 
     Returns:
         The reduced density matrix.
+
+    .. _pyscf.fci.cistring.gen_linkstr_index: https://pyscf.org/pyscf_api_docs/pyscf.fci.html#pyscf.fci.cistring.gen_linkstr_index
     """
     vec_real = np.real(vec)
     vec_imag = np.imag(vec)
