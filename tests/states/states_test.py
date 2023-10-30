@@ -10,6 +10,8 @@
 
 """Test states."""
 
+from __future__ import annotations
+
 import itertools
 
 import numpy as np
