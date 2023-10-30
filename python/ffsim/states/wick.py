@@ -15,6 +15,7 @@ import string
 from collections.abc import Sequence
 
 import numpy as np
+import scipy.linalg
 
 
 def expectation_one_body_product(
@@ -48,8 +49,14 @@ def expectation_one_body_product(
     if not n_tensors:
         return 1.0
 
-    norb, _ = one_rdm.shape
-    anti_one_rdm = np.eye(norb) - one_rdm
+    norb, _ = one_body_tensors[0].shape
+    dim, _ = one_rdm.shape
+    if dim == 2 * norb:
+        one_body_tensors = [
+            scipy.linalg.block_diag(mat, mat) for mat in one_body_tensors
+        ]
+
+    anti_one_rdm = np.eye(dim) - one_rdm
 
     alphabet = string.ascii_uppercase + string.ascii_lowercase
     indices = alphabet[: 2 * n_tensors]
