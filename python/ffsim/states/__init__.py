@@ -16,6 +16,7 @@ from ffsim.states.states import (
     hartree_fock_state,
     indices_to_strings,
     one_hot,
+    rdm,
     slater_determinant,
     slater_determinant_one_rdm,
 )
@@ -29,6 +30,7 @@ __all__ = [
     "hartree_fock_state",
     "indices_to_strings",
     "one_hot",
+    "rdm",
     "slater_determinant",
     "slater_determinant_one_rdm",
 ]
