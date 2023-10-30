@@ -127,12 +127,50 @@ def test_rdm_1(norb: int, nelec: tuple[int, int]):
         (4, (0, 0)),
     ],
 )
+def test_rdm_2_spin_summed_reordered(norb: int, nelec: tuple[int, int]):
+    """Test computing spin-summed reordered 2-RDM."""
+    rng = np.random.default_rng()
+    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+
+    rdm = ffsim.rdm(vec, norb, nelec, rank=2)
+    expected = _rdm2_spin_summed_reordered(vec, norb, nelec)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 1)),
+        (4, (0, 0)),
+    ],
+)
+def test_rdm_2_reordered(norb: int, nelec: tuple[int, int]):
+    """Test computing reordered 2-RDM."""
+    rng = np.random.default_rng()
+    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+
+    rdm = ffsim.rdm(vec, norb, nelec, rank=2, spin_summed=False)
+    expected = _rdm2_reordered(vec, norb, nelec)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 1)),
+        (4, (0, 0)),
+    ],
+)
 def test_rdm_2_spin_summed(norb: int, nelec: tuple[int, int]):
     """Test computing spin-summed 2-RDM."""
     rng = np.random.default_rng()
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
 
-    rdm = ffsim.rdm(vec, norb, nelec, rank=2)
+    rdm = ffsim.rdm(vec, norb, nelec, rank=2, reordered=False)
     expected = _rdm2_spin_summed(vec, norb, nelec)
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
@@ -151,7 +189,7 @@ def test_rdm_2(norb: int, nelec: tuple[int, int]):
     rng = np.random.default_rng()
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
 
-    rdm = ffsim.rdm(vec, norb, nelec, rank=2, spin_summed=False)
+    rdm = ffsim.rdm(vec, norb, nelec, rank=2, spin_summed=False, reordered=False)
     expected = _rdm2(vec, norb, nelec)
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
@@ -198,8 +236,10 @@ def _rdm1(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
     return rdm
 
 
-def _rdm2_spin_summed(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
-    """Compute spin-summed 2-RDM directly from its definition."""
+def _rdm2_spin_summed_reordered(
+    vec: np.ndarray, norb: int, nelec: tuple[int, int]
+) -> np.ndarray:
+    """Compute spin-summed reordered 2-RDM directly from its definition."""
     rdm = np.zeros((norb, norb, norb, norb), dtype=complex)
     for p, q, r, s in itertools.product(range(norb), repeat=4):
         op = ffsim.FermionOperator(
@@ -216,8 +256,26 @@ def _rdm2_spin_summed(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.
     return rdm
 
 
-def _rdm2(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
-    """Compute 2-RDM directly from its definition."""
+def _rdm2_spin_summed(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    """Compute spin-summed 2-RDM directly from its definition."""
+    rdm = np.zeros((norb, norb, norb, norb), dtype=complex)
+    for p, q, r, s in itertools.product(range(norb), repeat=4):
+        op = ffsim.FermionOperator(
+            {
+                (ffsim.cre_a(p), ffsim.des_a(q), ffsim.cre_a(r), ffsim.des_a(s)): 1,
+                (ffsim.cre_a(p), ffsim.des_a(q), ffsim.cre_b(r), ffsim.des_b(s)): 1,
+                (ffsim.cre_b(p), ffsim.des_b(q), ffsim.cre_a(r), ffsim.des_a(s)): 1,
+                (ffsim.cre_b(p), ffsim.des_b(q), ffsim.cre_b(r), ffsim.des_b(s)): 1,
+            }
+        )
+        linop = ffsim.linear_operator(op, norb, nelec)
+        val = np.vdot(vec, linop @ vec)
+        rdm[p, q, r, s] = val
+    return rdm
+
+
+def _rdm2_reordered(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    """Compute reordered 2-RDM directly from its definition."""
     rdm = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=complex)
     for p, q, r, s in itertools.product(range(norb), repeat=4):
         op = ffsim.FermionOperator(
@@ -250,6 +308,48 @@ def _rdm2(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
         op = ffsim.FermionOperator(
             {
                 (ffsim.cre_b(p), ffsim.cre_b(r), ffsim.des_b(s), ffsim.des_b(q)): 1,
+            }
+        )
+        linop = ffsim.linear_operator(op, norb, nelec)
+        val = np.vdot(vec, linop @ vec)
+        rdm[norb + p, norb + q, norb + r, norb + s] = val
+    return rdm
+
+
+def _rdm2(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    """Compute 2-RDM directly from its definition."""
+    rdm = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=complex)
+    for p, q, r, s in itertools.product(range(norb), repeat=4):
+        op = ffsim.FermionOperator(
+            {
+                (ffsim.cre_a(p), ffsim.des_a(q), ffsim.cre_a(r), ffsim.des_a(s)): 1,
+            }
+        )
+        linop = ffsim.linear_operator(op, norb, nelec)
+        val = np.vdot(vec, linop @ vec)
+        rdm[p, q, r, s] = val
+
+        op = ffsim.FermionOperator(
+            {
+                (ffsim.cre_a(p), ffsim.des_a(q), ffsim.cre_b(r), ffsim.des_b(s)): 1,
+            }
+        )
+        linop = ffsim.linear_operator(op, norb, nelec)
+        val = np.vdot(vec, linop @ vec)
+        rdm[p, q, norb + r, norb + s] = val
+
+        op = ffsim.FermionOperator(
+            {
+                (ffsim.cre_b(p), ffsim.des_b(q), ffsim.cre_a(r), ffsim.des_a(s)): 1,
+            }
+        )
+        linop = ffsim.linear_operator(op, norb, nelec)
+        val = np.vdot(vec, linop @ vec)
+        rdm[norb + p, norb + q, r, s] = val
+
+        op = ffsim.FermionOperator(
+            {
+                (ffsim.cre_b(p), ffsim.des_b(q), ffsim.cre_b(r), ffsim.des_b(s)): 1,
             }
         )
         linop = ffsim.linear_operator(op, norb, nelec)

@@ -182,6 +182,7 @@ def rdm(
     nelec: tuple[int, int],
     rank: int = 1,
     spin_summed: bool = True,
+    reordered: bool = True,
     link_index: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> np.ndarray:
     """Return the reduced density matrix of a state vector.
@@ -209,9 +210,11 @@ def rdm(
             return _rdm1(vec_real, vec_imag, norb, nelec, link_index)
     if rank == 2:
         if spin_summed:
-            return _rdm2_spin_summed(vec_real, vec_imag, norb, nelec, link_index)
+            return _rdm2_spin_summed(
+                vec_real, vec_imag, norb, nelec, reordered, link_index
+            )
         else:
-            return _rdm2(vec_real, vec_imag, norb, nelec, link_index)
+            return _rdm2(vec_real, vec_imag, norb, nelec, reordered, link_index)
     raise NotImplementedError(
         f"Computing the rank {rank} reduced density matrix is currently not supported."
     )
@@ -258,15 +261,26 @@ def _rdm2_spin_summed(
     vec_imag: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
+    reordered: bool,
     link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
-    result = make_rdm12(vec_real, norb, nelec, link_index=link_index)[1].astype(complex)
-    result += make_rdm12(vec_imag, norb, nelec, link_index=link_index)[1]
+    result = make_rdm12(
+        vec_real, norb, nelec, reorder=reordered, link_index=link_index
+    )[1].astype(complex)
+    result += make_rdm12(
+        vec_imag, norb, nelec, reorder=reordered, link_index=link_index
+    )[1]
     result += (
-        1j * trans_rdm12(vec_real, vec_imag, norb, nelec, link_index=link_index)[1]
+        1j
+        * trans_rdm12(
+            vec_real, vec_imag, norb, nelec, reorder=reordered, link_index=link_index
+        )[1]
     )
     result -= (
-        1j * trans_rdm12(vec_imag, vec_real, norb, nelec, link_index=link_index)[1]
+        1j
+        * trans_rdm12(
+            vec_imag, vec_real, norb, nelec, reorder=reordered, link_index=link_index
+        )[1]
     )
     return result
 
@@ -276,20 +290,27 @@ def _rdm2(
     vec_imag: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
+    reordered: bool,
     link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
     rdms = np.stack(
-        make_rdm12s(vec_real, norb, nelec, link_index=link_index)[1]
+        make_rdm12s(vec_real, norb, nelec, reorder=reordered, link_index=link_index)[1]
     ).astype(complex)
-    rdms += np.stack(make_rdm12s(vec_imag, norb, nelec, link_index=link_index)[1])
+    rdms += np.stack(
+        make_rdm12s(vec_imag, norb, nelec, reorder=reordered, link_index=link_index)[1]
+    )
     # result is currently [rdm_aa, rdm_ab, rdm_bb]
     # the following line transforms it into [rdm_aa, rdm_ab, rdm_ba, rdm_bb]
     rdms = np.insert(rdms, 2, rdms[1].transpose(2, 3, 0, 1), axis=0)
     rdms += 1j * np.stack(
-        trans_rdm12s(vec_real, vec_imag, norb, nelec, link_index=link_index)[1]
+        trans_rdm12s(
+            vec_real, vec_imag, norb, nelec, reorder=reordered, link_index=link_index
+        )[1]
     )
     rdms -= 1j * np.stack(
-        trans_rdm12s(vec_imag, vec_real, norb, nelec, link_index=link_index)[1]
+        trans_rdm12s(
+            vec_imag, vec_real, norb, nelec, reorder=reordered, link_index=link_index
+        )[1]
     )
     result = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=complex)
     rdm_aa, rdm_ab, rdm_ba, rdm_bb = rdms
