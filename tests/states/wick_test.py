@@ -51,7 +51,7 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
     # generate a random Slater determinant
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     # TODO test spin-summed
-    one_rdm = ffsim.slater_determinant_rdm(
+    rdm = ffsim.slater_determinant_rdm(
         norb,
         occupied_orbitals,
         orbital_rotation=orbital_rotation,
@@ -59,7 +59,7 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
     )
 
     # get the full statevector
-    state = ffsim.slater_determinant(
+    vec = ffsim.slater_determinant(
         norb, occupied_orbitals, orbital_rotation=orbital_rotation
     )
 
@@ -68,17 +68,20 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
     )
     for i in range(n_tensors):
         product_op = product_op @ linops[i]
-        computed = expectation_one_body_product(one_rdm, one_body_tensors[: i + 1])
-        target = np.vdot(state, product_op @ state)
+        computed = expectation_one_body_product(rdm, one_body_tensors[: i + 1])
+        target = np.vdot(vec, product_op @ vec)
         np.testing.assert_allclose(computed, target, atol=1e-8)
 
 
 def test_expectation_power():
     """Test expectation power."""
-    norb = 5
-    nelec = (3, 1)
-    n_alpha, n_beta = nelec
+    norb = 4
+    occupied_orbitals = ([0, 2], [1, 3])
+
+    occ_a, occ_b = occupied_orbitals
+    nelec = len(occ_a), len(occ_b)
     dim = ffsim.dim(norb, nelec)
+
     rng = np.random.default_rng()
 
     # generate a random one-body tensor
@@ -87,23 +90,25 @@ def test_expectation_power():
     linop = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
 
     # generate a random Slater determinant
-    vecs = ffsim.random.random_unitary(norb, seed=rng)
-    occupied_orbitals_a = vecs[:, :n_alpha]
-    occupied_orbitals_b = vecs[:, :n_beta]
-    one_rdm_a = occupied_orbitals_a.conj() @ occupied_orbitals_a.T
-    one_rdm_b = occupied_orbitals_b.conj() @ occupied_orbitals_b.T
-    one_rdm = scipy.linalg.block_diag(one_rdm_a, one_rdm_b)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    # TODO test spin-summed
+    rdm = ffsim.slater_determinant_rdm(
+        norb,
+        occupied_orbitals,
+        orbital_rotation=orbital_rotation,
+        spin_summed=False,
+    )
 
     # get the full statevector
-    state = ffsim.slater_determinant(norb, (range(n_alpha), range(n_beta)))
-    state = ffsim.apply_orbital_rotation(state, vecs, norb=norb, nelec=nelec)
+    vec = ffsim.slater_determinant(
+        norb, occupied_orbitals, orbital_rotation=orbital_rotation
+    )
 
     powered_op = scipy.sparse.linalg.LinearOperator(
         shape=(dim, dim), matvec=lambda x: x
     )
-    expanded_one_body_tensor = scipy.linalg.block_diag(one_body_tensor, one_body_tensor)
     for power in range(7):
-        computed = expectation_one_body_power(one_rdm, expanded_one_body_tensor, power)
-        target = np.vdot(state, powered_op @ state)
+        computed = expectation_one_body_power(rdm, one_body_tensor, power)
+        target = np.vdot(vec, powered_op @ vec)
         np.testing.assert_allclose(computed, target, atol=1e-8)
         powered_op = powered_op @ linop
