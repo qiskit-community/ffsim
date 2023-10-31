@@ -34,7 +34,7 @@ pip install ffsim
 Installing ffsim from source requires the following system dependencies:
 
 - A Rust compiler. See [these instructions](https://www.rust-lang.org/tools/install).
-- A BLAS implementation. For example:
+- A BLAS implementation. On macOS, ffsim uses the [Accelerate](https://developer.apple.com/documentation/accelerate) framework that is included with the operating system. On Linux, you can try installing [OpenBLAS](https://www.openblas.net/) using your system package manager:
 
   - Arch Linux:
 
