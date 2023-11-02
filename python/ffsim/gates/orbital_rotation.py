@@ -175,8 +175,8 @@ def apply_orbital_rotation(
         permutation was allowed, then it is ``mat @ P``.
 
     Raises:
-        ValueError: If both ``allow_row_permutation`` and ``allow_col_permutation``
-        are set to True. Only one of these is allowed to be set to True at a time.
+        ValueError: If both `allow_row_permutation` and `allow_col_permutation`
+            are set to True. Only one of these can be set to True, not both.
     """
     if allow_row_permutation and allow_col_permutation:
         raise ValueError(
