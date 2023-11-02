@@ -63,8 +63,8 @@ class DoubleFactorizedHamiltonian:
         Z^{(t)}_{ij} z^{(t)}_{\sigma, i} z^{(t)}_{\tau, j}
         + \text{constant}''
 
-    where the asterisk denotes summation over indices :math:`ij, \sigma\tau`
-    where :math:`i \neq j` or :math:`\sigma \neq \tau`.
+    where the asterisk denotes summation over indices :math:`\sigma\tau, ij`
+    where :math:`\sigma \neq \tau` or :math:`i \neq j`.
 
     Attributes:
         one_body_tensor (np.ndarray): The one-body tensor :math:`\kappa`.
