@@ -302,9 +302,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(0), des_a(3)): 1,
     (cre_a(3), des_a(0)): -0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
-    (cre_a(0), des_a(3)): 1
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j
 })
 </pre></div>
 </div>
@@ -324,11 +324,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (des_a(3), des_b(3)): -0.25,
-    (cre_a(3), des_a(0)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (des_a(3), des_b(3)): -0.25,
+    (cre_b(2)): 0+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_b(2)): 0+1j
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -342,12 +342,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j
 })
 </pre></div>
 </div>
@@ -513,9 +513,9 @@ appear before smaller orbital indices.</p>
 <p>A molecular Hamiltonian.</p>
 <p>A Hamiltonian of the form</p>
 <div class="math notranslate nohighlight">
-\[H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-    + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}
-    a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}
+\[H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+    + \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}
+    a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
     + \text{constant}.\]</div>
 <p>Here <span class="math notranslate nohighlight">\(h_{pq}\)</span> is called the one-body tensor and <span class="math notranslate nohighlight">\(h_{pqrs}\)</span> is called
 the two-body tensor.</p>
@@ -606,8 +606,8 @@ the two-body tensor.</p>
 <p>where each <span class="math notranslate nohighlight">\(\mathcal{W_k}\)</span> is an orbital rotation and each <span class="math notranslate nohighlight">\(\mathcal{J}\)</span>
 is a diagonal Coulomb operator of the form</p>
 <div class="math notranslate nohighlight">
-\[\mathcal{J} = \frac12\sum_{ij,\sigma \tau}
-\mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.\]</div>
+\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij}
+\mathbf{J}^{\sigma \tau}_{ij} n_{\sigma, i} n_{\tau, j}.\]</div>
 <p>In order that the operator commutes with the total spin operator, we enforce that
 <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}\)</span> and
 <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}\)</span>. As a result, we have
@@ -706,13 +706,13 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 <p>Applies</p>
 <div class="math notranslate nohighlight">
 \[\mathcal{U}
-\exp\left(-i t \sum_{i, j, \sigma, \tau}
-Z_{ij} n_{i, \sigma} n_{j, \tau} / 2\right)
+\exp\left(-i t \sum_{\sigma, \tau, i, j}
+Z_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
 \mathcal{U}^\dagger\]</div>
-<p>where <span class="math notranslate nohighlight">\(n_{i, \sigma}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
+<p>where <span class="math notranslate nohighlight">\(n_{\sigma, i}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
 with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(Z\)</span> is a real symmetric matrix,
 and <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an optional orbital rotation.
-If <code class="docutils literal notranslate"><span class="pre">mat_alpha_beta</span></code> is also given, then it is used in place of <span class="math notranslate nohighlight">\(Z\)</span>
+If <cite>mat_alpha_beta</cite> is also given, then it is used in place of <span class="math notranslate nohighlight">\(Z\)</span>
 for the terms in the sum where the spins differ (<span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

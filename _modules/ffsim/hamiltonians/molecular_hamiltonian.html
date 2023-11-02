@@ -72,9 +72,9 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}</span>
-<span class="sd">            + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}</span>
-<span class="sd">            a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}</span>
+<span class="sd">        H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}</span>
+<span class="sd">            + \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}</span>
+<span class="sd">            a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}</span>
 <span class="sd">            + \text{constant}.</span>
 
 <span class="sd">    Here :math:`h_{pq}` is called the one-body tensor and :math:`h_{pqrs}` is called</span>
@@ -122,6 +122,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_fermion_operator_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a FermionOperator representing the object.&quot;&quot;&quot;</span>
         <span class="n">op</span> <span class="o">=</span> <span class="n">FermionOperator</span><span class="p">({():</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">})</span>
         <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">),</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
             <span class="n">coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span>
