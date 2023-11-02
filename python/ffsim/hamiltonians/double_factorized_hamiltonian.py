@@ -26,17 +26,17 @@ class DoubleFactorizedHamiltonian:
 
     .. math::
 
-        H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-        + \frac12 \sum_t \sum_{ij, \sigma\tau}
-        Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}
+        H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
+        + \frac12 \sum_t \sum_{\sigma\tau, ij}
+        Z^{(t)}_{ij} n^{(t)}_{\sigma, i} n^{(t)}_{\tau, j}
         + \text{constant}'.
 
     where
 
     .. math::
 
-        n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}
-        a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.
+        n^{(t)}_{\sigma, i} = \sum_{pq} U^{(t)}_{pi}
+        a^\dagger_{\sigma, p} a^\dagger_{\sigma, q} U^{(t)}_{qi}.
 
     Here each :math:`U^{(t)}` is a unitary matrix and each :math:`Z^{(t)}`
     is a real symmetric matrix.
@@ -50,17 +50,17 @@ class DoubleFactorizedHamiltonian:
 
     .. math::
 
-        n^{(t)}_{i, \sigma} = \frac{(1 - z^{(t)}_{i, \sigma})}{2}
+        n^{(t)}_{\sigma, i} = \frac{(1 - z^{(t)}_{\sigma, i})}{2}
 
-    where :math:`z^{(t)}_{i, \sigma}` is the Pauli Z operator in the rotated basis.
+    where :math:`z^{(t)}_{\sigma, i}` is the Pauli Z operator in the rotated basis.
     The "Z" representation is obtained by rewriting the two-body part in terms
     of these Pauli Z operators and updating the one-body term as appropriate:
 
     .. math::
 
-        H = \sum_{pq, \sigma} \kappa'_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-        + \frac18 \sum_t \sum_{ij, \sigma\tau}^*
-        Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}
+        H = \sum_{\sigma, pq} \kappa'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+        + \frac18 \sum_t \sum_{\sigma\tau, ij}^*
+        Z^{(t)}_{ij} z^{(t)}_{\sigma, i} z^{(t)}_{\tau, j}
         + \text{constant}''
 
     where the asterisk denotes summation over indices :math:`ij, \sigma\tau`
@@ -127,42 +127,19 @@ class DoubleFactorizedHamiltonian:
         max_vecs: int | None = None,
         optimize: bool = False,
         method: str = "L-BFGS-B",
+        callback=None,
         options: dict | None = None,
         diag_coulomb_mask: np.ndarray | None = None,
         cholesky: bool = True,
     ) -> DoubleFactorizedHamiltonian:
-        r"""Double-factorized decomposition of a molecular Hamiltonian.
+        r"""Initialize a DoubleFactorizedHamiltonian from a MolecularHamiltonian.
 
-        The double-factorized decomposition acts on a Hamiltonian of the form
+        This function takes as input a :class:`MolecularHamiltonian`, which stores a
+        one-body tensor, two-body tensor, and constant. It performs a double-factorized
+        decomposition of the two-body tensor and computes a new one-body tensor
+        and constant, and returns a :class:`DoubleFactorizedHamiltonian` storing the
+        results.
 
-        .. math::
-
-            H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-                + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}
-                a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}
-                + \text{constant}.
-
-        The Hamiltonian is decomposed into the double-factorized form
-
-        .. math::
-
-            H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-            + \frac12 \sum_t \sum_{ij, \sigma\tau}
-            Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}
-            + \text{constant}'.
-
-        where
-
-        .. math::
-
-            n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}
-            a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.
-
-        Here :math:`U^{(t)}_{ij}` and :math:`Z^{(t)}_{ij}` are tensors that are output
-        by the decomposition, and :math:`\kappa_{pq}` is an updated one-body tensor.
-        Each matrix :math:`U^{(t)}` is guaranteed to be unitary so that the
-        :math:`n^{(t)}_{i, \sigma}` are number operators in a rotated basis, and
-        each :math:`Z^{(t)}` is a real symmetric matrix.
         The number of terms :math:`t` in the decomposition depends on the allowed
         error threshold. A larger error threshold leads to a smaller number of terms.
         Furthermore, the `max_rank` parameter specifies an optional upper bound
@@ -175,7 +152,7 @@ class DoubleFactorizedHamiltonian:
         This option is enabled by setting the `optimize` parameter to `True`.
         The optimization attempts to minimize a least-squares objective function
         quantifying the error in the low rank decomposition.
-        It uses `scipy.optimize.minimize`, passing both the objective function
+        It uses `scipy.optimize.minimize`_, passing both the objective function
         and its gradient. The diagonal coulomb matrices returned by the optimization
         can be optionally constrained to have only certain elements allowed to be
         nonzero. This is achieved by passing the `diag_coulomb_mask` parameter, which is
@@ -184,36 +161,11 @@ class DoubleFactorizedHamiltonian:
         Coulomb matrices are allowed to be nonzero. Only the upper triangular part of
         the matrix is used because the diagonal Coulomb matrices are symmetric.
 
-        **"Z" representation**
-
-        The "Z" representation of the double factorization is an alternative
-        representation that sometimes yields simpler quantum circuits.
-
-        Under the Jordan-Wigner transformation, the number operators take the form
-
-        .. math::
-
-            n^{(t)}_{i, \sigma} = \frac{(1 - z^{(t)}_{i, \sigma})}{2}
-
-        where :math:`z^{(t)}_{i, \sigma}` is the Pauli Z operator in the rotated basis.
-        The "Z" representation is obtained by rewriting the two-body part in terms
-        of these Pauli Z operators and updating the one-body term as appropriate:
-
-        .. math::
-
-            H = \sum_{pq, \sigma} \kappa'_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-            + \frac18 \sum_t \sum_{ij, \sigma\tau}^*
-            Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}
-            + \text{constant}''
-
-        where the asterisk denotes summation over indices :math:`ij, \sigma\tau`
-        where :math:`i \neq j` or :math:`\sigma \neq \tau`.
-
         Note: Currently, only real-valued two-body tensors are supported.
 
         Args:
-            one_body_tensor: The one-body tensor of the Hamiltonian.
-            two_body_tensor: The two-body tensor of the Hamiltonian.
+            hamiltonian: The Hamiltonian whose double-factorized representation to
+                compute.
             z_representation: Whether to use the "Z" representation of the
                 low rank decomposition.
             tol: Tolerance for error in the decomposition.
@@ -237,7 +189,7 @@ class DoubleFactorizedHamiltonian:
             cholesky: Whether to perform the factorization using a modified Cholesky
                 decomposition. If False, a full eigenvalue decomposition is used
                 instead, which can be much more expensive. This argument is ignored if
-                ``optimize`` is set to True.
+                `optimize` is set to True.
 
         Returns:
             The double-factorized Hamiltonian.
@@ -260,6 +212,7 @@ class DoubleFactorizedHamiltonian:
             max_vecs=max_vecs,
             optimize=optimize,
             method=method,
+            callback=callback,
             options=options,
             diag_coulomb_mask=diag_coulomb_mask,
             cholesky=cholesky,
