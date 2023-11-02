@@ -214,8 +214,8 @@
 <span class="sd">        permutation was allowed, then it is ``mat @ P``.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If both ``allow_row_permutation`` and ``allow_col_permutation``</span>
-<span class="sd">        are set to True. Only one of these is allowed to be set to True at a time.</span>
+<span class="sd">        ValueError: If both `allow_row_permutation` and `allow_col_permutation`</span>
+<span class="sd">            are set to True. Only one of these can be set to True, not both.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">allow_row_permutation</span> <span class="ow">and</span> <span class="n">allow_col_permutation</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>

@@ -286,9 +286,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -302,8 +302,8 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.5,
     (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(3), des_a(0)): -0.5,
     (cre_a(0), des_a(3)): 1
 })
 </pre></div>
@@ -324,11 +324,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
-    (des_a(3), des_b(3)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_b(2)): 0+1j
+    (cre_a(3), des_a(0)): -0.25,
+    (cre_b(2)): 0+1j,
+    (des_a(3), des_b(3)): -0.25
 })
 </pre></div>
 </div>
@@ -343,11 +343,11 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j
 })
 </pre></div>
 </div>
@@ -979,7 +979,7 @@ modified in-place.</p></li>
 <p>Applies</p>
 <div class="math notranslate nohighlight">
 \[\mathcal{U}
-\exp\left(-i t \sum_{i, \sigma} \lambda_i n_{i, \sigma}\right)
+\exp\left(-i t \sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)
 \mathcal{U}^\dagger\]</div>
 <p>where <span class="math notranslate nohighlight">\(n_{i, \sigma}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
 with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, the <span class="math notranslate nohighlight">\(\lambda_i\)</span> are real numbers, and
@@ -1057,10 +1057,8 @@ actually effected is given by the matrix <code class="docutils literal notransla
 permutation was allowed, then it is <code class="docutils literal notranslate"><span class="pre">mat</span> <span class="pre">&#64;</span> <span class="pre">P</span></code>.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – If both <code class="docutils literal notranslate"><span class="pre">allow_row_permutation</span></code> and <code class="docutils literal notranslate"><span class="pre">allow_col_permutation</span></code></p></li>
-<li><p><strong>are set to True. Only one</strong><strong> of </strong><strong>these is allowed to be set to True at a time.</strong> – </p></li>
-</ul>
+<dd class="field-even"><p><strong>ValueError</strong> – If both <cite>allow_row_permutation</cite> and <cite>allow_col_permutation</cite>
+    are set to True. Only one of these can be set to True, not both.</p>
 </dd>
 </dl>
 </dd></dl>
