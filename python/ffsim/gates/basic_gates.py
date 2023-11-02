@@ -286,8 +286,11 @@ def apply_num_op_prod_interaction(
 
     .. math::
 
-        \text{NP}(\theta) =
-        \exp\left(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma}\right)
+        \text{NP}(\theta, (S_\alpha, S_\beta)) =
+        \exp\left(i \theta
+        \prod_{p \in S_\alpha} a^\dagger_{\alpha, p} a_{\alpha, p}
+        \prod_{p \in S_\beta} a^\dagger_{\beta, p} a_{\beta, p}
+        \right)
 
     Args:
         vec: The state vector to be transformed.
