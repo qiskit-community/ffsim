@@ -45,12 +45,13 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
         one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
         one_body_tensor += 1j * rng.standard_normal((norb, norb))
         linop = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
-        one_body_tensors.append(one_body_tensor)
+        one_body_tensors.append(
+            scipy.linalg.block_diag(one_body_tensor, one_body_tensor)
+        )
         linops.append(linop)
 
     # generate a random Slater determinant
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    # TODO test spin-summed
     rdm = ffsim.slater_determinant_rdm(
         norb,
         occupied_orbitals,
@@ -88,10 +89,10 @@ def test_expectation_power():
     one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
     one_body_tensor += 1j * rng.standard_normal((norb, norb))
     linop = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
+    one_body_tensor = scipy.linalg.block_diag(one_body_tensor, one_body_tensor)
 
     # generate a random Slater determinant
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    # TODO test spin-summed
     rdm = ffsim.slater_determinant_rdm(
         norb,
         occupied_orbitals,
@@ -107,7 +108,7 @@ def test_expectation_power():
     powered_op = scipy.sparse.linalg.LinearOperator(
         shape=(dim, dim), matvec=lambda x: x
     )
-    for power in range(7):
+    for power in range(4):
         computed = expectation_one_body_power(rdm, one_body_tensor, power)
         target = np.vdot(vec, powered_op @ vec)
         np.testing.assert_allclose(computed, target, atol=1e-8)

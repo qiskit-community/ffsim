@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Wick's theorem utilities."""
+
 from __future__ import annotations
 
 import itertools
@@ -15,7 +17,6 @@ import string
 from collections.abc import Sequence
 
 import numpy as np
-import scipy.linalg
 
 
 def expectation_one_body_product(
@@ -38,6 +39,14 @@ def expectation_one_body_product(
 
         \langle \psi \rvert O_1 O_2 \dots O_k \lvert \psi \rangle.
 
+    Note: Unlike most functions in ffsim, the inputs to this function are specified
+        in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm
+        and the one-body tensors should have the same shape, and all orbitals are
+        treated on an equal footing. The 1-RDM passed here should not be spin-summed,
+        and the one-body tensors should be expanded when compared to the usual
+        one-body tensors elsewhere in ffsim, i.e.,
+        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.
+
     Args:
         one_rdm: The one-body reduced density matrix of the Slater determinant.
         one_body_tensors: The matrices for the one-body operators.
@@ -49,14 +58,8 @@ def expectation_one_body_product(
     if not n_tensors:
         return 1.0
 
-    norb, _ = one_body_tensors[0].shape
-    dim, _ = one_rdm.shape
-    if dim == 2 * norb:
-        one_body_tensors = [
-            scipy.linalg.block_diag(mat, mat) for mat in one_body_tensors
-        ]
-
-    anti_one_rdm = np.eye(dim) - one_rdm
+    norb, _ = one_rdm.shape
+    anti_one_rdm = np.eye(norb) - one_rdm
 
     alphabet = string.ascii_uppercase + string.ascii_lowercase
     indices = alphabet[: 2 * n_tensors]
@@ -108,6 +111,14 @@ def expectation_one_body_power(
     .. math::
 
         \langle \psi \rvert O^k \lvert \psi \rangle.
+
+    Note: Unlike most functions in ffsim, the inputs to this function are specified
+        in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm
+        and the one-body tensors should have the same shape, and all orbitals are
+        treated on an equal footing. The 1-RDM passed here should not be spin-summed,
+        and the one-body tensors should be expanded when compared to the usual
+        one-body tensors elsewhere in ffsim, i.e.,
+        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.
 
     Args:
         one_rdm: The one-body reduced density matrix of the Slater determinant.
