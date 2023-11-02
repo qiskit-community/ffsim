@@ -318,9 +318,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -334,9 +334,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(0), des_a(3)): 1,
+    (cre_a(3), des_a(0)): -0.5,
     (cre_b(1), des_b(5), cre_a(4)): 2+2j,
-    (cre_a(3), des_a(0)): -0.5
+    (cre_a(0), des_a(3)): 1
 })
 </pre></div>
 </div>
@@ -356,10 +356,10 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (des_a(3), des_b(3)): -0.25,
-    (cre_a(0), des_a(3)): 0.5,
     (cre_b(2)): 0+1j,
+    (des_a(3), des_b(3)): -0.25,
     (cre_a(3), des_a(0)): -0.25,
+    (cre_a(0), des_a(3)): 0.5,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j
 })
 </pre></div>
@@ -374,12 +374,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
 })
 </pre></div>
 </div>
@@ -827,7 +827,9 @@ modified in-place.</p></li>
 <dd><p>Apply a Givens rotation gate.</p>
 <p>The Givens rotation gate is</p>
 <div class="math notranslate nohighlight">
-\[\text{G}(\theta) = \exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)\]</div>
+\[\text{G}(\theta, (p, q)) = \prod_{\sigma}
+\exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
+- a^\dagger_{\sigma, q} a_{\sigma, p})\right)\]</div>
 <p>Under the Jordan-Wigner transform, this gate has the following matrix when applied
 to neighboring qubits:</p>
 <div class="math notranslate nohighlight">
@@ -842,7 +844,7 @@ to neighboring qubits:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
 <li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (i, j) to rotate.</p></li>
+<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) to rotate.</p></li>
 <li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
 <li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
@@ -864,9 +866,15 @@ modified in-place.</p></li>
 <p>A “hop gate” is a Givens rotation gate followed by a number-number interaction with
 angle pi:</p>
 <div class="math notranslate nohighlight">
-\[\text{Hop}(\theta) = \text{NN}(\pi) \text{G}(\theta)
-= \exp\left(i \pi a^\dagger_i a_i a^\dagger_j a_j\right)
-\exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)\]</div>
+\[\begin{split}\begin{align}
+    \text{Hop}(\theta, (p, q))
+    &amp;= \text{NN}(\pi, (p, q)) \text{G}(\theta, (p, q)) \\
+    &amp;= \prod_{\sigma}
+    \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}
+    a^\dagger_{\sigma, q} a_{\sigma, q}\right)
+    \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
+    - a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+\end{align}\end{split}\]</div>
 <p>Under the Jordan-Wigner transform, this gate has the following matrix when applied
 to neighboring qubits:</p>
 <div class="math notranslate nohighlight">
@@ -881,7 +889,7 @@ to neighboring qubits:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
 <li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (i, j) to rotate.</p></li>
+<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) to interact.</p></li>
 <li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
 <li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
@@ -905,7 +913,8 @@ modified in-place.</p></li>
 <dd><p>Apply a number interaction gate.</p>
 <p>The number interaction gate is</p>
 <div class="math notranslate nohighlight">
-\[\text{N}(\theta) = \exp\left(i \theta a^\dagger_i a_i\right)\]</div>
+\[\text{N}(\theta, p) = \prod_{\sigma}
+\exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}\right)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -932,13 +941,15 @@ modified in-place.</p></li>
 <dd><p>Apply a number-number interaction gate.</p>
 <p>The number-number interaction gate is</p>
 <div class="math notranslate nohighlight">
-\[\text{NN}(\theta) = \exp\left(i \theta a^\dagger_i a_i a^\dagger_j a_j\right)\]</div>
+\[\text{NN}(\theta, (p, q)) = \prod_{\sigma}
+\exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}
+a^\dagger_{\sigma, q} a_{\sigma, q}\right)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
 <li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals on which to apply the interaction.</p></li>
+<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) to interact.</p></li>
 <li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
 <li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
@@ -1081,7 +1092,9 @@ permutation was allowed, then it is <code class="docutils literal notranslate"><
 <dd><p>Apply a tunneling interaction gate.</p>
 <p>The tunneling interaction gate is</p>
 <div class="math notranslate nohighlight">
-\[\text{T}(\theta) = \exp\left(i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)\]</div>
+\[\text{T}(\theta, (p, q)) = \prod_\sigma
+\exp\left(i \theta (a^\dagger_{\sigma, p} a_{\sigma, q}
++ a^\dagger_{\sigma, q} a_{\sigma, p})\right)\]</div>
 <p>Under the Jordan-Wigner transform, this gate has the following matrix when applied
 to neighboring qubits:</p>
 <div class="math notranslate nohighlight">
@@ -1096,7 +1109,7 @@ to neighboring qubits:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
 <li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (i, j) on which to apply the interaction.</p></li>
+<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) on which to apply the interaction.</p></li>
 <li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
 <li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
