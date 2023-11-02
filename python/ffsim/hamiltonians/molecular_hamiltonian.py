@@ -33,9 +33,9 @@ class MolecularHamiltonian:
 
     .. math::
 
-        H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-            + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}
-            a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}
+        H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+            + \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}
+            a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
             + \text{constant}.
 
     Here :math:`h_{pq}` is called the one-body tensor and :math:`h_{pqrs}` is called
@@ -83,6 +83,7 @@ class MolecularHamiltonian:
         )
 
     def _fermion_operator_(self) -> FermionOperator:
+        """Return a FermionOperator representing the object."""
         op = FermionOperator({(): self.constant})
         for p, q in itertools.product(range(self.norb), repeat=2):
             coeff = self.one_body_tensor[p, q]
