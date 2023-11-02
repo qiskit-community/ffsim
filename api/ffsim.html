@@ -49,14 +49,14 @@
 <p>A Hamiltonian in the double-factorized form of the low rank decomposition.</p>
 <p>The double-factorized form of the molecular Hamiltonian is</p>
 <div class="math notranslate nohighlight">
-\[H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-+ \frac12 \sum_t \sum_{ij, \sigma\tau}
-Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}
+\[H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
++ \frac12 \sum_t \sum_{\sigma\tau, ij}
+Z^{(t)}_{ij} n^{(t)}_{\sigma, i} n^{(t)}_{\tau, j}
 + \text{constant}'.\]</div>
 <p>where</p>
 <div class="math notranslate nohighlight">
-\[n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}
-a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.\]</div>
+\[n^{(t)}_{\sigma, i} = \sum_{pq} U^{(t)}_{pi}
+a^\dagger_{\sigma, p} a^\dagger_{\sigma, q} U^{(t)}_{qi}.\]</div>
 <p>Here each <span class="math notranslate nohighlight">\(U^{(t)}\)</span> is a unitary matrix and each <span class="math notranslate nohighlight">\(Z^{(t)}\)</span>
 is a real symmetric matrix.</p>
 <p><strong>“Z” representation</strong></p>
@@ -64,14 +64,14 @@ is a real symmetric matrix.</p>
 representation that sometimes yields simpler quantum circuits.</p>
 <p>Under the Jordan-Wigner transformation, the number operators take the form</p>
 <div class="math notranslate nohighlight">
-\[n^{(t)}_{i, \sigma} = \frac{(1 - z^{(t)}_{i, \sigma})}{2}\]</div>
-<p>where <span class="math notranslate nohighlight">\(z^{(t)}_{i, \sigma}\)</span> is the Pauli Z operator in the rotated basis.
+\[n^{(t)}_{\sigma, i} = \frac{(1 - z^{(t)}_{\sigma, i})}{2}\]</div>
+<p>where <span class="math notranslate nohighlight">\(z^{(t)}_{\sigma, i}\)</span> is the Pauli Z operator in the rotated basis.
 The “Z” representation is obtained by rewriting the two-body part in terms
 of these Pauli Z operators and updating the one-body term as appropriate:</p>
 <div class="math notranslate nohighlight">
-\[H = \sum_{pq, \sigma} \kappa'_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-+ \frac18 \sum_t \sum_{ij, \sigma\tau}^*
-Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}
+\[H = \sum_{\sigma, pq} \kappa'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
++ \frac18 \sum_t \sum_{\sigma\tau, ij}^*
+Z^{(t)}_{ij} z^{(t)}_{\sigma, i} z^{(t)}_{\tau, j}
 + \text{constant}''\]</div>
 <p>where the asterisk denotes summation over indices <span class="math notranslate nohighlight">\(ij, \sigma\tau\)</span>
 where <span class="math notranslate nohighlight">\(i \neq j\)</span> or <span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>.</p>
@@ -133,30 +133,14 @@ rather than the “number” representation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_molecular_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cholesky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian.from_molecular_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian" title="Link to this definition">¶</a></dt>
-<dd><p>Double-factorized decomposition of a molecular Hamiltonian.</p>
-<p>The double-factorized decomposition acts on a Hamiltonian of the form</p>
-<div class="math notranslate nohighlight">
-\[H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-    + \frac12 \sum_{pqrs, \sigma \tau} h_{pqrs}
-    a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}
-    + \text{constant}.\]</div>
-<p>The Hamiltonian is decomposed into the double-factorized form</p>
-<div class="math notranslate nohighlight">
-\[H = \sum_{pq, \sigma} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-+ \frac12 \sum_t \sum_{ij, \sigma\tau}
-Z^{(t)}_{ij} n^{(t)}_{i, \sigma} n^{(t)}_{j, \tau}
-+ \text{constant}'.\]</div>
-<p>where</p>
-<div class="math notranslate nohighlight">
-\[n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}
-a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.\]</div>
-<p>Here <span class="math notranslate nohighlight">\(U^{(t)}_{ij}\)</span> and <span class="math notranslate nohighlight">\(Z^{(t)}_{ij}\)</span> are tensors that are output
-by the decomposition, and <span class="math notranslate nohighlight">\(\kappa_{pq}\)</span> is an updated one-body tensor.
-Each matrix <span class="math notranslate nohighlight">\(U^{(t)}\)</span> is guaranteed to be unitary so that the
-<span class="math notranslate nohighlight">\(n^{(t)}_{i, \sigma}\)</span> are number operators in a rotated basis, and
-each <span class="math notranslate nohighlight">\(Z^{(t)}\)</span> is a real symmetric matrix.
-The number of terms <span class="math notranslate nohighlight">\(t\)</span> in the decomposition depends on the allowed
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_molecular_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cholesky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian.from_molecular_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize a DoubleFactorizedHamiltonian from a MolecularHamiltonian.</p>
+<p>This function takes as input a <a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a>, which stores a
+one-body tensor, two-body tensor, and constant. It performs a double-factorized
+decomposition of the two-body tensor and computes a new one-body tensor
+and constant, and returns a <a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a> storing the
+results.</p>
+<p>The number of terms <span class="math notranslate nohighlight">\(t\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold leads to a smaller number of terms.
 Furthermore, the <cite>max_rank</cite> parameter specifies an optional upper bound
 on <span class="math notranslate nohighlight">\(t\)</span>.</p>
@@ -167,7 +151,7 @@ coefficients stored in the tensor to achieve a “compressed” factorization.
 This option is enabled by setting the <cite>optimize</cite> parameter to <cite>True</cite>.
 The optimization attempts to minimize a least-squares objective function
 quantifying the error in the low rank decomposition.
-It uses <cite>scipy.optimize.minimize</cite>, passing both the objective function
+It uses <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>, passing both the objective function
 and its gradient. The diagonal coulomb matrices returned by the optimization
 can be optionally constrained to have only certain elements allowed to be
 nonzero. This is achieved by passing the <cite>diag_coulomb_mask</cite> parameter, which is
@@ -175,28 +159,12 @@ an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of bo
 of orbitals. The nonzero elements of this matrix indicate where the diagonal
 Coulomb matrices are allowed to be nonzero. Only the upper triangular part of
 the matrix is used because the diagonal Coulomb matrices are symmetric.</p>
-<p><strong>“Z” representation</strong></p>
-<p>The “Z” representation of the double factorization is an alternative
-representation that sometimes yields simpler quantum circuits.</p>
-<p>Under the Jordan-Wigner transformation, the number operators take the form</p>
-<div class="math notranslate nohighlight">
-\[n^{(t)}_{i, \sigma} = \frac{(1 - z^{(t)}_{i, \sigma})}{2}\]</div>
-<p>where <span class="math notranslate nohighlight">\(z^{(t)}_{i, \sigma}\)</span> is the Pauli Z operator in the rotated basis.
-The “Z” representation is obtained by rewriting the two-body part in terms
-of these Pauli Z operators and updating the one-body term as appropriate:</p>
-<div class="math notranslate nohighlight">
-\[H = \sum_{pq, \sigma} \kappa'_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-+ \frac18 \sum_t \sum_{ij, \sigma\tau}^*
-Z^{(t)}_{ij} z^{(t)}_{i, \sigma} z^{(t)}_{j, \tau}
-+ \text{constant}''\]</div>
-<p>where the asterisk denotes summation over indices <span class="math notranslate nohighlight">\(ij, \sigma\tau\)</span>
-where <span class="math notranslate nohighlight">\(i \neq j\)</span> or <span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>.</p>
 <p>Note: Currently, only real-valued two-body tensors are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>one_body_tensor</strong> – The one-body tensor of the Hamiltonian.</p></li>
-<li><p><strong>two_body_tensor</strong> – The two-body tensor of the Hamiltonian.</p></li>
+<li><p><strong>hamiltonian</strong> (<a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a>) – The Hamiltonian whose double-factorized representation to
+compute.</p></li>
 <li><p><strong>z_representation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use the “Z” representation of the
 low rank decomposition.</p></li>
 <li><p><strong>tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Tolerance for error in the decomposition.
@@ -220,7 +188,7 @@ True, and only the upper triangular part of the matrix is used.</p></li>
 <li><p><strong>cholesky</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to perform the factorization using a modified Cholesky
 decomposition. If False, a full eigenvalue decomposition is used
 instead, which can be much more expensive. This argument is ignored if
-<code class="docutils literal notranslate"><span class="pre">optimize</span></code> is set to True.</p></li>
+<cite>optimize</cite> is set to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -318,9 +286,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5
+    (cre_a(0), des_a(3)): 0.5,
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -334,9 +302,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.5,
     (cre_b(1), des_b(5), cre_a(4)): 2+2j,
-    (cre_a(0), des_a(3)): 1
+    (cre_a(0), des_a(3)): 1,
+    (cre_a(3), des_a(0)): -0.5
 })
 </pre></div>
 </div>
@@ -356,11 +324,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(3), des_a(0)): -0.25,
     (cre_b(2)): 0+1j,
-    (des_a(3), des_b(3)): -0.25,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5
+    (cre_a(0), des_a(3)): 0.5,
+    (des_a(3), des_b(3)): -0.25
 })
 </pre></div>
 </div>
@@ -374,11 +342,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125
 })
 </pre></div>
