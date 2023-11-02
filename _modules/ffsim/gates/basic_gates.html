@@ -390,8 +390,8 @@
 <span class="sd">    .. math::</span>
 
 <span class="sd">        \begin{align}</span>
-<span class="sd">            \text{Hop}(\theta, (p, q))</span>
-<span class="sd">            &amp;= \text{NN}(\pi, (p, q)) \text{G}(\theta, (p, q)) \\</span>
+<span class="sd">            \text{Hop}&amp;(\theta, (p, q))</span>
+<span class="sd">            = \text{NN}(\pi, (p, q)) \text{G}(\theta, (p, q)) \\</span>
 <span class="sd">            &amp;= \prod_{\sigma}</span>
 <span class="sd">            \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}</span>
 <span class="sd">            a^\dagger_{\sigma, q} a_{\sigma, q}\right)</span>
@@ -456,9 +456,15 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \text{fSim}(\theta, \phi) = \text{NN}(-\phi) \text{T}(-\theta)</span>
-<span class="sd">        = \exp\left(-i \phi a^\dagger_i a_i a^\dagger_j a_j\right)</span>
-<span class="sd">        \exp\left(-i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)</span>
+<span class="sd">        \begin{align}</span>
+<span class="sd">            \text{fSim}&amp;(\theta, \phi, (p, q))</span>
+<span class="sd">            = \text{NN}(-\phi, (p, q)) \text{T}(-\theta, (p, q)) \\</span>
+<span class="sd">            &amp;= \prod_\sigma</span>
+<span class="sd">            \exp\left(-i \phi a^\dagger_{\sigma, p} a_{\sigma, p}</span>
+<span class="sd">            a^\dagger_{\sigma, q} a_{\sigma, q}\right)</span>
+<span class="sd">            \exp\left(-i \theta (a^\dagger_{\sigma, p} a_{\sigma, q}</span>
+<span class="sd">            + a^\dagger_{\sigma, q} a_{\sigma, p})\right)</span>
+<span class="sd">        \end{align}</span>
 
 <span class="sd">    Under the Jordan-Wigner transform, this gate has the following matrix when applied</span>
 <span class="sd">    to neighboring qubits:</span>
@@ -474,8 +480,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
-<span class="sd">        theta: The rotation angle.</span>
-<span class="sd">        target_orbs: The orbitals (i, j) to rotate.</span>
+<span class="sd">        theta: The rotation angle for the tunneling interaction.</span>
+<span class="sd">        phi: The phase angle for the number-number interaction.</span>
+<span class="sd">        target_orbs: The orbitals (p, q) to interact.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
