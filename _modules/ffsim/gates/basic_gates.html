@@ -337,8 +337,11 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \text{NP}(\theta) =</span>
-<span class="sd">        \exp\left(i \theta \prod a^\dagger_{i, \sigma} a_{i, \sigma}\right)</span>
+<span class="sd">        \text{NP}(\theta, (S_\alpha, S_\beta)) =</span>
+<span class="sd">        \exp\left(i \theta</span>
+<span class="sd">        \prod_{p \in S_\alpha} a^\dagger_{\alpha, p} a_{\alpha, p}</span>
+<span class="sd">        \prod_{p \in S_\beta} a^\dagger_{\beta, p} a_{\beta, p}</span>
+<span class="sd">        \right)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
