@@ -50,14 +50,14 @@ def apply_diag_coulomb_evolution(
     .. math::
 
         \mathcal{U}
-        \exp\left(-i t \sum_{i, j, \sigma, \tau}
-        Z_{ij} n_{i, \sigma} n_{j, \tau} / 2\right)
+        \exp\left(-i t \sum_{\sigma, \tau, i, j}
+        Z_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
         \mathcal{U}^\dagger
 
-    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
-    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
+    If `mat_alpha_beta` is also given, then it is used in place of :math:`Z`
     for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
 
     Args:

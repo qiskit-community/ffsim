@@ -39,8 +39,8 @@ class UCJOperator:
 
     .. math::
 
-        \mathcal{J} = \frac12\sum_{ij,\sigma \tau}
-        \mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.
+        \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
+        \mathbf{J}^{\sigma \tau}_{ij} n_{\sigma, i} n_{\tau, j}.
 
     In order that the operator commutes with the total spin operator, we enforce that
     :math:`\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}` and
