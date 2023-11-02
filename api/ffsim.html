@@ -73,8 +73,8 @@ of these Pauli Z operators and updating the one-body term as appropriate:</p>
 + \frac18 \sum_t \sum_{\sigma\tau, ij}^*
 Z^{(t)}_{ij} z^{(t)}_{\sigma, i} z^{(t)}_{\tau, j}
 + \text{constant}''\]</div>
-<p>where the asterisk denotes summation over indices <span class="math notranslate nohighlight">\(ij, \sigma\tau\)</span>
-where <span class="math notranslate nohighlight">\(i \neq j\)</span> or <span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>.</p>
+<p>where the asterisk denotes summation over indices <span class="math notranslate nohighlight">\(\sigma\tau, ij\)</span>
+where <span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span> or <span class="math notranslate nohighlight">\(i \neq j\)</span>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian.one_body_tensor">
 <span class="sig-name descname"><span class="pre">one_body_tensor</span></span><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian.one_body_tensor" title="Link to this definition">¶</a></dt>
@@ -302,9 +302,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(3), des_a(0)): -0.5,
     (cre_b(1), des_b(5), cre_a(4)): 2+2j,
-    (cre_a(0), des_a(3)): 1,
-    (cre_a(3), des_a(0)): -0.5
+    (cre_a(0), des_a(3)): 1
 })
 </pre></div>
 </div>
@@ -324,11 +324,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (des_a(3), des_b(3)): -0.25,
     (cre_a(3), des_a(0)): -0.25,
-    (cre_b(2)): 0+1j,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (des_a(3), des_b(3)): -0.25
+    (cre_b(2)): 0+1j
 })
 </pre></div>
 </div>
@@ -342,12 +342,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
 })
 </pre></div>
 </div>
