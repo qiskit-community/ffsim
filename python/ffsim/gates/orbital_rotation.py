@@ -138,14 +138,15 @@ def apply_orbital_rotation(
 
     .. math::
 
-        a^\dagger_i \mapsto \sum_{j} U_{ji} a^\dagger_j
+        a^\dagger_{\sigma, i} \mapsto \sum_{j} U_{ji} a^\dagger_{\sigma, j}
 
     where :math:`U` is a unitary matrix. This is equivalent to applying the
     transformation given by
 
     .. math::
 
-        \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_i a_j\right)
+        \prod_{\sigma}
+        \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
 
     Args:
         vec: The state vector to be transformed.
