@@ -62,7 +62,9 @@ def apply_givens_rotation(
 
     .. math::
 
-        \text{G}(\theta) = \exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)
+        \text{G}(\theta, (p, q)) = \prod_{\sigma}
+        \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
+        - a^\dagger_{\sigma, q} a_{\sigma, p})\right)
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
     to neighboring qubits:
@@ -79,7 +81,7 @@ def apply_givens_rotation(
     Args:
         vec: The state vector to be transformed.
         theta: The rotation angle.
-        target_orbs: The orbitals (i, j) to rotate.
+        target_orbs: The orbitals (p, q) to rotate.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
@@ -114,7 +116,9 @@ def apply_tunneling_interaction(
 
     .. math::
 
-        \text{T}(\theta) = \exp\left(i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)
+        \text{T}(\theta, (p, q)) = \prod_\sigma
+        \exp\left(i \theta (a^\dagger_{\sigma, p} a_{\sigma, q}
+        + a^\dagger_{\sigma, q} a_{\sigma, p})\right)
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
     to neighboring qubits:
@@ -131,7 +135,7 @@ def apply_tunneling_interaction(
     Args:
         vec: The state vector to be transformed.
         theta: The rotation angle.
-        target_orbs: The orbitals (i, j) on which to apply the interaction.
+        target_orbs: The orbitals (p, q) on which to apply the interaction.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
@@ -171,7 +175,8 @@ def apply_num_interaction(
 
     .. math::
 
-        \text{N}(\theta) = \exp\left(i \theta a^\dagger_i a_i\right)
+        \text{N}(\theta, p) = \prod_{\sigma}
+        \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}\right)
 
     Args:
         vec: The state vector to be transformed.
@@ -223,12 +228,14 @@ def apply_num_num_interaction(
 
     .. math::
 
-        \text{NN}(\theta) = \exp\left(i \theta a^\dagger_i a_i a^\dagger_j a_j\right)
+        \text{NN}(\theta, (p, q)) = \prod_{\sigma}
+        \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}
+        a^\dagger_{\sigma, q} a_{\sigma, q}\right)
 
     Args:
         vec: The state vector to be transformed.
         theta: The rotation angle.
-        target_orbs: The orbitals on which to apply the interaction.
+        target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
@@ -328,9 +335,15 @@ def apply_hop_gate(
 
     .. math::
 
-        \text{Hop}(\theta) = \text{NN}(\pi) \text{G}(\theta)
-        = \exp\left(i \pi a^\dagger_i a_i a^\dagger_j a_j\right)
-        \exp\left(\theta (a^\dagger_i a_j - a^\dagger_j a_i)\right)
+        \begin{align}
+            \text{Hop}(\theta, (p, q))
+            &= \text{NN}(\pi, (p, q)) \text{G}(\theta, (p, q)) \\
+            &= \prod_{\sigma}
+            \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}
+            a^\dagger_{\sigma, q} a_{\sigma, q}\right)
+            \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
+            - a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+        \end{align}
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
     to neighboring qubits:
@@ -347,7 +360,7 @@ def apply_hop_gate(
     Args:
         vec: The state vector to be transformed.
         theta: The rotation angle.
-        target_orbs: The orbitals (i, j) to rotate.
+        target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
