@@ -334,9 +334,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(0), des_a(3)): 1,
     (cre_a(3), des_a(0)): -0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(0), des_a(3)): 1
 })
 </pre></div>
 </div>
@@ -356,9 +356,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(3), des_a(0)): -0.25,
     (cre_b(2)): 0+1j,
     (des_a(3), des_b(3)): -0.25,
-    (cre_a(3), des_a(0)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(0), des_a(3)): 0.5
 })
@@ -374,12 +374,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125
 })
 </pre></div>
 </div>
@@ -1331,6 +1331,15 @@ Let <span class="math notranslate nohighlight">\(\lvert \psi \rangle\)</span> be
 Then this function returns the quantity</p>
 <div class="math notranslate nohighlight">
 \[\langle \psi \rvert O^k \lvert \psi \rangle.\]</div>
+<dl class="simple">
+<dt>Note: Unlike most functions in ffsim, the inputs to this function are specified</dt><dd><p>in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm
+and the one-body tensors should have the same shape, and all orbitals are
+treated on an equal footing. The 1-RDM passed here should not be spin-summed,
+and the one-body tensors should be expanded when compared to the usual
+one-body tensors elsewhere in ffsim, i.e.,
+<cite>scipy.linalg.block_diag(one_body_tensor, one_body_tensor)</cite>.</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1361,6 +1370,15 @@ and <span class="math notranslate nohighlight">\(\lvert \psi \rangle\)</span> be
 Then this function returns the quantity</p>
 <div class="math notranslate nohighlight">
 \[\langle \psi \rvert O_1 O_2 \dots O_k \lvert \psi \rangle.\]</div>
+<dl class="simple">
+<dt>Note: Unlike most functions in ffsim, the inputs to this function are specified</dt><dd><p>in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm
+and the one-body tensors should have the same shape, and all orbitals are
+treated on an equal footing. The 1-RDM passed here should not be spin-summed,
+and the one-body tensors should be expanded when compared to the usual
+one-body tensors elsewhere in ffsim, i.e.,
+<cite>scipy.linalg.block_diag(one_body_tensor, one_body_tensor)</cite>.</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

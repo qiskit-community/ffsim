@@ -45,6 +45,8 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
+<span class="sd">&quot;&quot;&quot;Wick&#39;s theorem utilities.&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">itertools</span>
@@ -52,7 +54,6 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.linalg</span>
 
 
 <div class="viewcode-block" id="expectation_one_body_product">
@@ -77,6 +78,14 @@
 
 <span class="sd">        \langle \psi \rvert O_1 O_2 \dots O_k \lvert \psi \rangle.</span>
 
+<span class="sd">    Note: Unlike most functions in ffsim, the inputs to this function are specified</span>
+<span class="sd">        in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm</span>
+<span class="sd">        and the one-body tensors should have the same shape, and all orbitals are</span>
+<span class="sd">        treated on an equal footing. The 1-RDM passed here should not be spin-summed,</span>
+<span class="sd">        and the one-body tensors should be expanded when compared to the usual</span>
+<span class="sd">        one-body tensors elsewhere in ffsim, i.e.,</span>
+<span class="sd">        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        one_rdm: The one-body reduced density matrix of the Slater determinant.</span>
 <span class="sd">        one_body_tensors: The matrices for the one-body operators.</span>
@@ -88,14 +97,8 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">n_tensors</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">1.0</span>
 
-    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">one_body_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">dim</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">one_rdm</span><span class="o">.</span><span class="n">shape</span>
-    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">:</span>
-        <span class="n">one_body_tensors</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">mat</span><span class="p">)</span> <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">one_body_tensors</span>
-        <span class="p">]</span>
-
-    <span class="n">anti_one_rdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="o">-</span> <span class="n">one_rdm</span>
+    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">one_rdm</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">anti_one_rdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span> <span class="o">-</span> <span class="n">one_rdm</span>
 
     <span class="n">alphabet</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span>
     <span class="n">indices</span> <span class="o">=</span> <span class="n">alphabet</span><span class="p">[:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_tensors</span><span class="p">]</span>
@@ -150,6 +153,14 @@
 <span class="sd">    .. math::</span>
 
 <span class="sd">        \langle \psi \rvert O^k \lvert \psi \rangle.</span>
+
+<span class="sd">    Note: Unlike most functions in ffsim, the inputs to this function are specified</span>
+<span class="sd">        in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm</span>
+<span class="sd">        and the one-body tensors should have the same shape, and all orbitals are</span>
+<span class="sd">        treated on an equal footing. The 1-RDM passed here should not be spin-summed,</span>
+<span class="sd">        and the one-body tensors should be expanded when compared to the usual</span>
+<span class="sd">        one-body tensors elsewhere in ffsim, i.e.,</span>
+<span class="sd">        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        one_rdm: The one-body reduced density matrix of the Slater determinant.</span>
