@@ -286,9 +286,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j
 })
 </pre></div>
 </div>
@@ -302,9 +302,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(0), des_a(3)): 1,
     (cre_a(3), des_a(0)): -0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(0), des_a(3)): 1
 })
 </pre></div>
 </div>
@@ -324,11 +324,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (des_a(3), des_b(3)): -0.25,
-    (cre_b(2)): 0+1j,
+    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25
+    (des_a(3), des_b(3)): -0.25,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_b(2)): 0+1j
 })
 </pre></div>
 </div>
@@ -342,10 +342,10 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j
 })
@@ -1018,11 +1018,12 @@ modified in-place.</p></li>
 <dd><p>Apply an orbital rotation to a vector.</p>
 <p>An orbital rotation maps creation operators as</p>
 <div class="math notranslate nohighlight">
-\[a^\dagger_i \mapsto \sum_{j} U_{ji} a^\dagger_j\]</div>
+\[a^\dagger_{\sigma, i} \mapsto \sum_{j} U_{ji} a^\dagger_{\sigma, j}\]</div>
 <p>where <span class="math notranslate nohighlight">\(U\)</span> is a unitary matrix. This is equivalent to applying the
 transformation given by</p>
 <div class="math notranslate nohighlight">
-\[\exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_i a_j\right)\]</div>
+\[\prod_{\sigma}
+\exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
