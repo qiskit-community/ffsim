@@ -336,8 +336,8 @@ def apply_hop_gate(
     .. math::
 
         \begin{align}
-            \text{Hop}(\theta, (p, q))
-            &= \text{NN}(\pi, (p, q)) \text{G}(\theta, (p, q)) \\
+            \text{Hop}&(\theta, (p, q))
+            = \text{NN}(\pi, (p, q)) \text{G}(\theta, (p, q)) \\
             &= \prod_{\sigma}
             \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}
             a^\dagger_{\sigma, q} a_{\sigma, q}\right)
@@ -399,9 +399,15 @@ def apply_fsim_gate(
 
     .. math::
 
-        \text{fSim}(\theta, \phi) = \text{NN}(-\phi) \text{T}(-\theta)
-        = \exp\left(-i \phi a^\dagger_i a_i a^\dagger_j a_j\right)
-        \exp\left(-i \theta (a^\dagger_i a_j + a^\dagger_j a_i)\right)
+        \begin{align}
+            \text{fSim}&(\theta, \phi, (p, q))
+            = \text{NN}(-\phi, (p, q)) \text{T}(-\theta, (p, q)) \\
+            &= \prod_\sigma
+            \exp\left(-i \phi a^\dagger_{\sigma, p} a_{\sigma, p}
+            a^\dagger_{\sigma, q} a_{\sigma, q}\right)
+            \exp\left(-i \theta (a^\dagger_{\sigma, p} a_{\sigma, q}
+            + a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+        \end{align}
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
     to neighboring qubits:
@@ -417,8 +423,9 @@ def apply_fsim_gate(
 
     Args:
         vec: The state vector to be transformed.
-        theta: The rotation angle.
-        target_orbs: The orbitals (i, j) to rotate.
+        theta: The rotation angle for the tunneling interaction.
+        phi: The phase angle for the number-number interaction.
+        target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
