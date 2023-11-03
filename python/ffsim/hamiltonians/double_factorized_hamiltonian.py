@@ -36,7 +36,7 @@ class DoubleFactorizedHamiltonian:
     .. math::
 
         n^{(t)}_{\sigma, i} = \sum_{pq} U^{(t)}_{pi}
-        a^\dagger_{\sigma, p} a^\dagger_{\sigma, q} U^{(t)}_{qi}.
+        a^\dagger_{\sigma, p} a_{\sigma, q} U^{(t)}_{qi}.
 
     Here each :math:`U^{(t)}` is a unitary matrix and each :math:`Z^{(t)}`
     is a real symmetric matrix.
