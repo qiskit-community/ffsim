@@ -131,6 +131,7 @@
    "metadata": {},
    "source": [
     "Time evolution by $\\mathcal{M}$ can be implemented with the following steps:\n",
+    "\n",
     "- Compute the numbers $\\set{\\lambda_i}$ and the matrix $\\mathbf{W}$ by performing an eigendecomposition of $\\mathbf{M}$.\n",
     "- Perform the orbital rotation $\\mathcal{W}^\\dagger$, which corresponds to the matrix $\\mathbf{W}^\\dagger$.\n",
     "- Perform time evolution by the operator $\\sum_{i,\\sigma} \\lambda_i n_{i,\\sigma}$.\n",
@@ -172,7 +173,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "As mentioned above, the function `apply_num_op_sum_evolution` can actually apply the orbital rotation for you if you pass it as an argument, as demonstrated below. Calling the function this way is expected to give better performance."
+    "As mentioned above, the function `apply_num_op_sum_evolution` can actually apply the orbital rotation for you if you pass it as an argument, as demonstrated below. Calling the function this way may give better performance."
    ]
   },
   {

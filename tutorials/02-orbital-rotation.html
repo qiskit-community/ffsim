@@ -121,8 +121,13 @@
 </pre></div>
 </div>
 </div>
-<p>Time evolution by <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> can be implemented with the following steps: - Compute the numbers <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> by performing an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>. - Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}^\dagger\)</span>. - Perform time evolution by the operator <span class="math notranslate nohighlight">\(\sum_{i,\sigma} \lambda_i n_{i,\sigma}\)</span>. - Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which
-corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>.</p>
+<p>Time evolution by <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> can be implemented with the following steps:</p>
+<ul class="simple">
+<li><p>Compute the numbers <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> by performing an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>.</p></li>
+<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}^\dagger\)</span>.</p></li>
+<li><p>Perform time evolution by the operator <span class="math notranslate nohighlight">\(\sum_{i,\sigma} \lambda_i n_{i,\sigma}\)</span>.</p></li>
+<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>.</p></li>
+</ul>
 <p>ffsim includes a function for performing time evolution by an operator of the form <span class="math notranslate nohighlight">\(\sum_{i,\sigma} \lambda_i n_{i,\sigma}\)</span>, called <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code>. In fact, this function can also perform the orbital rotation for you, but for illustrative purposes we will first perform the orbital rotation explicitly.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -152,7 +157,7 @@ corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W
 </pre></div>
 </div>
 </div>
-<p>As mentioned above, the function <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code> can actually apply the orbital rotation for you if you pass it as an argument, as demonstrated below. Calling the function this way is expected to give better performance.</p>
+<p>As mentioned above, the function <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code> can actually apply the orbital rotation for you if you pass it as an argument, as demonstrated below. Calling the function this way may give better performance.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
