@@ -86,9 +86,9 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2</span>
+<span class="sd">        \sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2</span>
 
-<span class="sd">    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`</span>
+<span class="sd">    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`</span>
 <span class="sd">    with spin :math:`\sigma` and :math:`Z` is a real symmetric matrix</span>
 <span class="sd">    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`</span>
 <span class="sd">    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).</span>
@@ -228,10 +228,10 @@
 <span class="sd">    .. math::</span>
 
 <span class="sd">        \mathcal{U}</span>
-<span class="sd">        (\sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)</span>
+<span class="sd">        (\sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2)</span>
 <span class="sd">        \mathcal{U}^\dagger</span>
 
-<span class="sd">    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`</span>
+<span class="sd">    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`</span>
 <span class="sd">    with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,</span>
 <span class="sd">    and :math:`\mathcal{U}` is an optional orbital rotation.</span>
 <span class="sd">    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`</span>
