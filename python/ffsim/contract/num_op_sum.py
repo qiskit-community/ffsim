@@ -42,9 +42,9 @@ def contract_num_op_sum(
 
     .. math::
 
-        \sum_{i, \sigma} \lambda_i n_{i, \sigma}
+        \sum_{\sigma, i} \lambda_i n_{\sigma, i}
 
-    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma` and the :math:`\lambda_i` are real numbers.
 
     Args:
@@ -103,10 +103,10 @@ def num_op_sum_linop(
     .. math::
 
         \mathcal{U}
-        (\sum_{i, \sigma} \lambda_i n_{i, \sigma})
+        (\sum_{\sigma, i} \lambda_i n_{\sigma, i})
         \mathcal{U}^\dagger
 
-    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, the :math:`\lambda_i` are real numbers, and
     :math:`\mathcal{U}` is an optional orbital rotation.
 
