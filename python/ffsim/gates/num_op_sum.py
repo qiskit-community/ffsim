@@ -44,7 +44,7 @@ def apply_num_op_sum_evolution(
         \exp\left(-i t \sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)
         \mathcal{U}^\dagger
 
-    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, the :math:`\lambda_i` are real numbers, and
     :math:`\mathcal{U}` is an optional orbital rotation.
 

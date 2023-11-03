@@ -26,7 +26,7 @@ class DoubleFactorizedHamiltonian:
 
     .. math::
 
-        H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
+        H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
         + \frac12 \sum_t \sum_{\sigma\tau, ij}
         Z^{(t)}_{ij} n^{(t)}_{\sigma, i} n^{(t)}_{\tau, j}
         + \text{constant}'.

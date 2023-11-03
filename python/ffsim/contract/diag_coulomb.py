@@ -47,9 +47,9 @@ def contract_diag_coulomb(
 
     .. math::
 
-        \sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2
+        \sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2
 
-    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma` and :math:`Z` is a real symmetric matrix
     If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
     for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
@@ -186,10 +186,10 @@ def diag_coulomb_linop(
     .. math::
 
         \mathcal{U}
-        (\sum_{i, j, \sigma, \tau} Z_{ij} n_{i, \sigma} n_{j, \tau} / 2)
+        (\sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2)
         \mathcal{U}^\dagger
 
-    where :math:`n_{i, \sigma}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
     If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
