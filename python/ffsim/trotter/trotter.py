@@ -96,7 +96,6 @@ def simulate_trotter_double_factorized(
         hamiltonian.one_body_tensor
     )
     step_time = time / n_steps
-    n_alpha, n_beta = nelec
 
     for _ in range(n_steps):
         vec = _simulate_trotter_step_double_factorized(
