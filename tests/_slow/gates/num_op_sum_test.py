@@ -11,10 +11,10 @@
 from __future__ import annotations
 
 import numpy as np
-from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
+from ffsim import cistring
 from ffsim._lib import apply_num_op_sum_evolution_in_place
 from ffsim._slow.gates.num_op_sum import apply_num_op_sum_evolution_in_place_slow
 
@@ -28,9 +28,7 @@ def test_apply_num_op_sum_evolution_in_place_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations = cistring.gen_occslst(range(norb), n_alpha).astype(
-            np.uint, copy=False
-        )
+        occupations = cistring.gen_occslst(range(norb), n_alpha)
         exponents = np.random.uniform(0, 2 * np.pi, size=norb)
         phases = np.exp(1j * exponents)
         vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(

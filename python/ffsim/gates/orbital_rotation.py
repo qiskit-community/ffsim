@@ -24,58 +24,9 @@ from ffsim._lib import (
     apply_givens_rotation_in_place,
     apply_phase_shift_in_place,
     apply_single_column_transformation_in_place,
-    gen_orbital_rotation_index_in_place,
 )
+from ffsim.cistring import gen_orbital_rotation_index
 from ffsim.linalg import givens_decomposition, lup
-
-
-def gen_orbital_rotation_index(
-    norb: int, nocc: int, linkstr_index: np.ndarray | None = None
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generate string index used for performing orbital rotations.
-
-    Returns a tuple (diag_strings, off_diag_strings, off_diag_index)
-    of three Numpy arrays.
-
-    diag_strings is a norb x binom(norb - 1, nocc - 1) array.
-    The i-th row of this array contains all the strings with orbital i occupied.
-
-    off_diag_strings is a norb x binom(norb - 1, nocc) array.
-    The i-th row of this array contains all the strings with orbital i unoccupied.
-
-    off_diag_index is a norb x binom(norb - 1, nocc) x nocc x 3 array.
-    The first two axes of this array are in one-to-one correspondence with
-    off_diag_strings. For a fixed choice (i, str0) for the first two axes,
-    the last two axes form a nocc x 3 array. Each row of this array is a tuple
-    (j, str1, sign) where str1 is formed by annihilating orbital j in str0 and creating
-    orbital i, with sign giving the fermionic parity of this operation.
-    """
-    if nocc == 0:
-        diag_strings = np.zeros((norb, 0), dtype=np.uint)
-        off_diag_strings = np.zeros((norb, 1), dtype=np.uint)
-        off_diag_index = np.zeros((norb, 1, 0, 3), dtype=np.int32)
-        return diag_strings, off_diag_strings, off_diag_index
-
-    if linkstr_index is None:
-        linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
-    dim_diag = comb(norb - 1, nocc - 1, exact=True)
-    dim_off_diag = comb(norb - 1, nocc, exact=True)
-    dim = dim_diag + dim_off_diag
-    diag_strings = np.empty((norb, dim_diag), dtype=np.uint)
-    off_diag_strings = np.empty((norb, dim_off_diag), dtype=np.uint)
-    # TODO should this be int64? pyscf uses int32 for linkstr_index though
-    off_diag_index = np.empty((norb, dim_off_diag, nocc, 3), dtype=np.int32)
-    off_diag_strings_index = np.empty((norb, dim), dtype=np.uint)
-    gen_orbital_rotation_index_in_place(
-        norb=norb,
-        nocc=nocc,
-        linkstr_index=linkstr_index,
-        diag_strings=diag_strings,
-        off_diag_strings=off_diag_strings,
-        off_diag_strings_index=off_diag_strings_index,
-        off_diag_index=off_diag_index,
-    )
-    return diag_strings, off_diag_strings, off_diag_index
 
 
 @overload
@@ -98,8 +49,6 @@ def apply_orbital_rotation(
     nelec: tuple[int, int],
     *,
     allow_row_permutation: Literal[True],
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ) -> tuple[np.ndarray, np.ndarray]:
     ...
@@ -113,8 +62,6 @@ def apply_orbital_rotation(
     nelec: tuple[int, int],
     *,
     allow_col_permutation: Literal[True],
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ) -> tuple[np.ndarray, np.ndarray]:
     ...
@@ -128,8 +75,6 @@ def apply_orbital_rotation(
     *,
     allow_row_permutation: bool = False,
     allow_col_permutation: bool = False,
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     r"""Apply an orbital rotation to a vector.
@@ -157,8 +102,6 @@ def apply_orbital_rotation(
             of the orbital rotation matrix.
         allow_col_permutation: Whether to allow a permutation of the columns
             of the orbital rotation matrix.
-        orbital_rotation_index_a: The orbital rotation index for alpha strings.
-        orbital_rotation_index_b: The orbital rotation index for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -183,19 +126,12 @@ def apply_orbital_rotation(
             "You can choose to allow either row or column permutations, but not both."
         )
     if allow_row_permutation or allow_col_permutation:
-        n_alpha, n_beta = nelec
-        if orbital_rotation_index_a is None:
-            orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
-        if orbital_rotation_index_b is None:
-            orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
         return _apply_orbital_rotation_lu(
             vec,
             mat,
             norb,
             nelec,
             permute_rows=allow_row_permutation,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=copy,
         )
     return _apply_orbital_rotation_givens(vec, mat, norb, nelec, copy=copy)
@@ -207,8 +143,6 @@ def _apply_orbital_rotation_lu(
     norb: int,
     nelec: tuple[int, int],
     permute_rows: bool,
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
     copy: bool,
 ) -> tuple[np.ndarray, np.ndarray]:
     if copy:
@@ -220,6 +154,8 @@ def _apply_orbital_rotation_lu(
     eye = np.eye(norb, dtype=complex)
     transformation_mat = eye - lower + scipy.linalg.solve_triangular(upper, eye)
     n_alpha, n_beta = nelec
+    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
+    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
     vec = vec.reshape((dim_a, dim_b))

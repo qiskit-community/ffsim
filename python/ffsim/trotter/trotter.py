@@ -13,10 +13,8 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 import numpy as np
-from pyscf.fci import cistring
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
-from ffsim.gates.orbital_rotation import gen_orbital_rotation_index
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
 
 
@@ -99,14 +97,6 @@ def simulate_trotter_double_factorized(
     )
     step_time = time / n_steps
     n_alpha, n_beta = nelec
-    occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
-        np.uint, copy=False
-    )
-    occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
-        np.uint, copy=False
-    )
-    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
-    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
     for _ in range(n_steps):
         vec = _simulate_trotter_step_double_factorized(
@@ -120,10 +110,6 @@ def simulate_trotter_double_factorized(
             nelec=nelec,
             order=order,
             z_representation=hamiltonian.z_representation,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
         )
 
     return vec
@@ -140,10 +126,6 @@ def _simulate_trotter_step_double_factorized(
     nelec: tuple[int, int],
     order: int,
     z_representation: bool,
-    occupations_a: np.ndarray,
-    occupations_b: np.ndarray,
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
     for term_index, time in _simulate_trotter_step_iterator(
         1 + len(diag_coulomb_mats), time, order
@@ -156,10 +138,6 @@ def _simulate_trotter_step_double_factorized(
                 norb=norb,
                 nelec=nelec,
                 orbital_rotation=one_body_basis_change,
-                occupations_a=occupations_a,
-                occupations_b=occupations_b,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
         else:
@@ -171,10 +149,6 @@ def _simulate_trotter_step_double_factorized(
                 nelec=nelec,
                 orbital_rotation=orbital_rotations[term_index - 1],
                 z_representation=z_representation,
-                occupations_a=occupations_a,
-                occupations_b=occupations_b,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
     return vec

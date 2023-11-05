@@ -9,7 +9,6 @@
 # that they have been altered from the originals.
 
 import numpy as np
-from pyscf.fci import cistring
 
 import ffsim
 
@@ -30,7 +29,6 @@ class GatesBenchmark:
         self.norb = norb
         nocc = int(norb * filling_fraction)
         self.nelec = (nocc, nocc)
-        n_alpha, n_beta = self.nelec
 
         rng = np.random.default_rng()
 
@@ -42,12 +40,7 @@ class GatesBenchmark:
         self.diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
             self.norb, seed=rng
         )
-        self.occupations_a = cistring.gen_occslst(range(self.norb), n_alpha).astype(
-            np.uint, copy=False
-        )
-        self.occupations_b = cistring.gen_occslst(range(self.norb), n_beta).astype(
-            np.uint, copy=False
-        )
+        ffsim.init_cache(self.norb, self.nelec)
 
     def time_apply_orbital_rotation_givens(self, *_):
         ffsim.apply_orbital_rotation(
@@ -85,8 +78,6 @@ class GatesBenchmark:
             time=1.0,
             norb=self.norb,
             nelec=self.nelec,
-            occupations_a=self.occupations_a,
-            occupations_b=self.occupations_b,
             copy=False,
         )
 
