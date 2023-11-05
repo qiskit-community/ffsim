@@ -14,27 +14,18 @@ from __future__ import annotations
 
 import numpy as np
 import scipy.sparse.linalg
-from pyscf.fci import cistring
 from scipy.special import comb
 
 from ffsim._lib import (
     contract_num_op_sum_spin_into_buffer,
 )
-from ffsim.gates.orbital_rotation import (
-    apply_orbital_rotation,
-    gen_orbital_rotation_index,
-)
+from ffsim.cistring import gen_occslst
+from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.states import dim
 
 
 def contract_num_op_sum(
-    vec: np.ndarray,
-    coeffs: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    *,
-    occupations_a: np.ndarray | None = None,
-    occupations_b: np.ndarray | None = None,
+    vec: np.ndarray, coeffs: np.ndarray, norb: int, nelec: tuple[int, int]
 ):
     r"""Contract a linear combination of number operators with a vector.
 
@@ -52,8 +43,6 @@ def contract_num_op_sum(
         coeffs: The coefficients of the linear combination.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        occupations_a: List of occupied orbital lists for alpha strings.
-        occupations_b: List of occupied orbital lists for beta strings.
 
     Returns:
         The result of applying the linear combination of number operators on the input
@@ -62,14 +51,8 @@ def contract_num_op_sum(
     vec = vec.astype(complex, copy=False)
     n_alpha, n_beta = nelec
 
-    if occupations_a is None:
-        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
-            np.uint, copy=False
-        )
-    if occupations_b is None:
-        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
-            np.uint, copy=False
-        )
+    occupations_a = gen_occslst(range(norb), n_alpha)
+    occupations_b = gen_occslst(range(norb), n_beta)
 
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
@@ -122,14 +105,6 @@ def num_op_sum_linop(
     """
     n_alpha, n_beta = nelec
     dim_ = dim(norb, nelec)
-    occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
-        np.uint, copy=False
-    )
-    occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
-        np.uint, copy=False
-    )
-    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
-    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
     def matvec(vec):
         these_coeffs = coeffs
@@ -140,18 +115,9 @@ def num_op_sum_linop(
                 norb,
                 nelec,
                 allow_row_permutation=True,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
             )
             these_coeffs = perm0 @ these_coeffs
-        vec = contract_num_op_sum(
-            vec,
-            these_coeffs,
-            norb=norb,
-            nelec=nelec,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-        )
+        vec = contract_num_op_sum(vec, these_coeffs, norb=norb, nelec=nelec)
         if orbital_rotation is not None:
             vec, perm1 = apply_orbital_rotation(
                 vec,
@@ -159,8 +125,6 @@ def num_op_sum_linop(
                 norb,
                 nelec,
                 allow_col_permutation=True,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
             np.testing.assert_allclose(perm0, perm1.T)

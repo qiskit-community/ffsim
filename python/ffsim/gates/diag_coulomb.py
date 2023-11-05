@@ -15,13 +15,13 @@ from __future__ import annotations
 from typing import cast
 
 import numpy as np
-from pyscf.fci import cistring
 from scipy.special import comb
 
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
 )
+from ffsim.cistring import gen_occslst, make_strings
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -35,12 +35,6 @@ def apply_diag_coulomb_evolution(
     *,
     mat_alpha_beta: np.ndarray | None = None,
     z_representation: bool = False,
-    occupations_a: np.ndarray | None = None,
-    occupations_b: np.ndarray | None = None,
-    strings_a: np.ndarray | None = None,
-    strings_b: np.ndarray | None = None,
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ) -> np.ndarray:
     r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
@@ -69,10 +63,7 @@ def apply_diag_coulomb_evolution(
         orbital_rotation: A unitary matrix describing the optional orbital rotation.
         mat_alpha_beta: A matrix of coefficients to use for interactions between
             orbitals with differing spin.
-        occupations_a: List of occupied orbital lists for alpha strings.
-        occupations_b: List of occupied orbital lists for beta strings.
-        orbital_rotation_index_a: The orbital rotation index for alpha strings.
-        orbital_rotation_index_b: The orbital rotation index for beta strings.
+        z_representation: Whether the input matrices are in the "Z" representation.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -100,8 +91,6 @@ def apply_diag_coulomb_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         mat = perm0 @ mat @ perm0.T
@@ -118,10 +107,8 @@ def apply_diag_coulomb_evolution(
     vec = vec.reshape((dim_a, dim_b))
 
     if z_representation:
-        if strings_a is None:
-            strings_a = cistring.make_strings(range(norb), n_alpha)
-        if strings_b is None:
-            strings_b = cistring.make_strings(range(norb), n_beta)
+        strings_a = make_strings(range(norb), n_alpha)
+        strings_b = make_strings(range(norb), n_beta)
         apply_diag_coulomb_evolution_in_place_z_rep(
             vec,
             mat_exp,
@@ -133,12 +120,8 @@ def apply_diag_coulomb_evolution(
             strings_b=strings_b,
         )
     else:
-        if occupations_a is None:
-            occupations_a = cistring.gen_occslst(range(norb), n_alpha)
-        if occupations_b is None:
-            occupations_b = cistring.gen_occslst(range(norb), n_beta)
-        occupations_a = occupations_a.astype(np.uint, copy=False)
-        occupations_b = occupations_b.astype(np.uint, copy=False)
+        occupations_a = gen_occslst(range(norb), n_alpha)
+        occupations_b = gen_occslst(range(norb), n_beta)
         apply_diag_coulomb_evolution_in_place_num_rep(
             vec,
             mat_exp,
@@ -156,8 +139,6 @@ def apply_diag_coulomb_evolution(
             norb,
             nelec,
             allow_col_permutation=True,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         np.testing.assert_allclose(perm0, perm1.T)

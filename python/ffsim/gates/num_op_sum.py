@@ -13,10 +13,10 @@
 from __future__ import annotations
 
 import numpy as np
-from pyscf.fci import cistring
 from scipy.special import comb
 
 from ffsim._lib import apply_num_op_sum_evolution_in_place
+from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -28,10 +28,6 @@ def apply_num_op_sum_evolution(
     nelec: tuple[int, int],
     orbital_rotation: np.ndarray | None = None,
     *,
-    occupations_a: np.ndarray | None = None,
-    occupations_b: np.ndarray | None = None,
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     copy: bool = True,
 ):
     r"""Apply time evolution by a (rotated) linear combination of number operators.
@@ -55,10 +51,6 @@ def apply_num_op_sum_evolution(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         orbital_rotation: A unitary matrix describing the optional orbital rotation.
-        occupations_a: List of occupied orbital lists for alpha strings.
-        occupations_b: List of occupied orbital lists for beta strings.
-        orbital_rotation_index_a: The orbital rotation index for alpha strings.
-        orbital_rotation_index_b: The orbital rotation index for beta strings.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -82,12 +74,8 @@ def apply_num_op_sum_evolution(
     n_alpha, n_beta = nelec
     dim_a = comb(norb, n_alpha, exact=True)
     dim_b = comb(norb, n_beta, exact=True)
-    if occupations_a is None:
-        occupations_a = cistring.gen_occslst(range(norb), n_alpha)
-    if occupations_b is None:
-        occupations_b = cistring.gen_occslst(range(norb), n_beta)
-    occupations_a = occupations_a.astype(np.uint, copy=False)
-    occupations_b = occupations_b.astype(np.uint, copy=False)
+    occupations_a = gen_occslst(range(norb), n_alpha)
+    occupations_b = gen_occslst(range(norb), n_beta)
 
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(
@@ -96,8 +84,6 @@ def apply_num_op_sum_evolution(
             norb,
             nelec,
             allow_row_permutation=True,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         coeffs = perm0 @ coeffs
@@ -118,8 +104,6 @@ def apply_num_op_sum_evolution(
             norb,
             nelec,
             allow_col_permutation=True,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         np.testing.assert_allclose(perm1.T, perm0)

@@ -11,10 +11,10 @@
 from __future__ import annotations
 
 import numpy as np
-from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
+from ffsim import cistring
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
@@ -35,12 +35,8 @@ def test_apply_diag_coulomb_evolution_num_rep_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
-            np.uint, copy=False
-        )
-        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
-            np.uint, copy=False
-        )
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha)
+        occupations_b = cistring.gen_occslst(range(norb), n_beta)
         time = 0.6
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_exp = np.exp(-1j * time * mat)
@@ -121,12 +117,8 @@ def test_apply_diag_coulomb_evolution_num_rep_numpy():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
-            np.uint, copy=False
-        )
-        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
-            np.uint, copy=False
-        )
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha)
+        occupations_b = cistring.gen_occslst(range(norb), n_beta)
         time = 0.6
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_exp = np.exp(-1j * time * mat)

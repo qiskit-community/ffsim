@@ -13,10 +13,10 @@
 from __future__ import annotations
 
 import numpy as np
-from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
+from ffsim import cistring
 from ffsim._lib import contract_num_op_sum_spin_into_buffer
 from ffsim._slow.contract.num_op_sum import contract_num_op_sum_spin_into_buffer_slow
 
@@ -30,9 +30,7 @@ def test_contract_num_op_sum_spin_into_buffer_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations = cistring.gen_occslst(range(norb), n_alpha).astype(
-            np.uint, copy=False
-        )
+        occupations = cistring.gen_occslst(range(norb), n_alpha)
         coeffs = np.random.uniform(size=norb)
         vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
