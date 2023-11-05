@@ -50,10 +50,10 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">comb</span>
 
 <span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="n">apply_num_op_sum_evolution_in_place</span>
+<span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">gen_occslst</span>
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
 
 
@@ -67,10 +67,6 @@
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">occupations_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">occupations_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">orbital_rotation_index_a</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">orbital_rotation_index_b</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply time evolution by a (rotated) linear combination of number operators.</span>
@@ -94,10 +90,6 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        orbital_rotation: A unitary matrix describing the optional orbital rotation.</span>
-<span class="sd">        occupations_a: List of occupied orbital lists for alpha strings.</span>
-<span class="sd">        occupations_b: List of occupied orbital lists for beta strings.</span>
-<span class="sd">        orbital_rotation_index_a: The orbital rotation index for alpha strings.</span>
-<span class="sd">        orbital_rotation_index_b: The orbital rotation index for beta strings.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
 <span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
 <span class="sd">            vector and the original vector is left untouched.</span>
@@ -121,12 +113,8 @@
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_a</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">occupations_a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">occupations_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">occupations_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">occupations_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
-    <span class="n">occupations_a</span> <span class="o">=</span> <span class="n">occupations_a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">occupations_b</span> <span class="o">=</span> <span class="n">occupations_b</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">occupations_a</span> <span class="o">=</span> <span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">occupations_b</span> <span class="o">=</span> <span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">vec</span><span class="p">,</span> <span class="n">perm0</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
@@ -135,8 +123,6 @@
             <span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="p">,</span>
             <span class="n">allow_row_permutation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
             <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">coeffs</span> <span class="o">=</span> <span class="n">perm0</span> <span class="o">@</span> <span class="n">coeffs</span>
@@ -157,8 +143,6 @@
             <span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="p">,</span>
             <span class="n">allow_col_permutation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
             <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">perm1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">perm0</span><span class="p">)</span>

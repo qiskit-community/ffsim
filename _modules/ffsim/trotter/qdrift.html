@@ -51,10 +51,8 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
-<span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">,</span> <span class="n">apply_num_op_sum_evolution</span>
-<span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">gen_orbital_rotation_index</span>
 <span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">DoubleFactorizedHamiltonian</span>
 <span class="kn">from</span> <span class="nn">ffsim.states.wick</span> <span class="kn">import</span> <span class="n">expectation_one_body_power</span><span class="p">,</span> <span class="n">expectation_one_body_product</span>
 
@@ -132,14 +130,6 @@
     <span class="p">)</span>
     <span class="n">step_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="n">n_steps</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">occupations_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
-    <span class="n">occupations_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
-    <span class="n">orbital_rotation_index_a</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
-    <span class="n">orbital_rotation_index_b</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
@@ -161,10 +151,6 @@
                 <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
                 <span class="n">probabilities</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
                 <span class="n">term_indices</span><span class="o">=</span><span class="n">term_indices</span><span class="p">,</span>
-                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">vec</span> <span class="o">=</span> <span class="n">_simulate_qdrift_step_double_factorized</span><span class="p">(</span>
@@ -179,10 +165,6 @@
                 <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
                 <span class="n">probabilities</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
                 <span class="n">term_indices</span><span class="o">=</span><span class="n">term_indices</span><span class="p">,</span>
-                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vec</span>
 
@@ -204,10 +186,6 @@
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">probabilities</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">term_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">occupations_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">occupations_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">orbital_rotation_index_a</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">orbital_rotation_index_b</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">term_index</span> <span class="ow">in</span> <span class="n">term_indices</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">term_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -218,10 +196,6 @@
                 <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
-                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -233,10 +207,6 @@
                 <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
                 <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
-                <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-                <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-                <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span>
@@ -254,10 +224,6 @@
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">probabilities</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">term_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">occupations_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">occupations_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">orbital_rotation_index_a</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">orbital_rotation_index_b</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="c1"># simulate the one-body term for half the time</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
@@ -267,10 +233,6 @@
         <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
         <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
         <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
-        <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-        <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-        <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-        <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># simulate the first sampled term</span>
@@ -283,10 +245,6 @@
         <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
         <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
         <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
-        <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-        <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-        <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-        <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># simulate the remaining sampled terms</span>
@@ -298,10 +256,6 @@
             <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
             <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
-            <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-            <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
             <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
@@ -312,10 +266,6 @@
             <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
             <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
             <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
-            <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-            <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
             <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="c1"># simulate the one-body term for half the time</span>
@@ -326,10 +276,6 @@
         <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
         <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
         <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">one_body_basis_change</span><span class="p">,</span>
-        <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
-        <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
-        <span class="n">orbital_rotation_index_a</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-        <span class="n">orbital_rotation_index_b</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
 
