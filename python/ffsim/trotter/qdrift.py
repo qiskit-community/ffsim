@@ -90,7 +90,6 @@ def simulate_qdrift_double_factorized(
         hamiltonian.one_body_tensor
     )
     step_time = time / n_steps
-    n_alpha, n_beta = nelec
 
     results = np.empty((n_samples, initial_state.shape[0]), dtype=complex)
     for i in range(n_samples):
