@@ -15,12 +15,12 @@ import itertools
 
 import numpy as np
 import scipy.sparse.linalg
-from pyscf.fci import cistring
 from pyscf.fci.direct_nosym import absorb_h1e, make_hdiag
 from pyscf.fci.fci_slow import contract_2e
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim._lib import FermionOperator
+from ffsim.cistring import gen_linkstr_index
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
 
@@ -59,8 +59,8 @@ class MolecularHamiltonian:
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         n_alpha, n_beta = nelec
-        linkstr_index_a = cistring.gen_linkstr_index(range(norb), n_alpha)
-        linkstr_index_b = cistring.gen_linkstr_index(range(norb), n_beta)
+        linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
+        linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
         link_index = (linkstr_index_a, linkstr_index_b)
         two_body = absorb_h1e(
             self.one_body_tensor, self.two_body_tensor, norb, nelec, 0.5
