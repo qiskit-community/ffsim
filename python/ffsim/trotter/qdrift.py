@@ -14,10 +14,8 @@ import itertools
 
 import numpy as np
 import scipy.linalg
-from pyscf.fci import cistring
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
-from ffsim.gates.orbital_rotation import gen_orbital_rotation_index
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
@@ -93,14 +91,6 @@ def simulate_qdrift_double_factorized(
     )
     step_time = time / n_steps
     n_alpha, n_beta = nelec
-    occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
-        np.uint, copy=False
-    )
-    occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
-        np.uint, copy=False
-    )
-    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
-    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
 
     results = np.empty((n_samples, initial_state.shape[0]), dtype=complex)
     for i in range(n_samples):
@@ -122,10 +112,6 @@ def simulate_qdrift_double_factorized(
                 nelec=nelec,
                 probabilities=probabilities,
                 term_indices=term_indices,
-                occupations_a=occupations_a,
-                occupations_b=occupations_b,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
             )
         else:
             vec = _simulate_qdrift_step_double_factorized(
@@ -140,10 +126,6 @@ def simulate_qdrift_double_factorized(
                 nelec=nelec,
                 probabilities=probabilities,
                 term_indices=term_indices,
-                occupations_a=occupations_a,
-                occupations_b=occupations_b,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
             )
         results[i] = vec
 
@@ -164,10 +146,6 @@ def _simulate_qdrift_step_double_factorized(
     nelec: tuple[int, int],
     probabilities: np.ndarray,
     term_indices: np.ndarray,
-    occupations_a: np.ndarray,
-    occupations_b: np.ndarray,
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
     for term_index in term_indices:
         if term_index == 0:
@@ -178,10 +156,6 @@ def _simulate_qdrift_step_double_factorized(
                 norb=norb,
                 nelec=nelec,
                 orbital_rotation=one_body_basis_change,
-                occupations_a=occupations_a,
-                occupations_b=occupations_b,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
         else:
@@ -193,10 +167,6 @@ def _simulate_qdrift_step_double_factorized(
                 nelec=nelec,
                 orbital_rotation=orbital_rotations[term_index - 1],
                 z_representation=z_representation,
-                occupations_a=occupations_a,
-                occupations_b=occupations_b,
-                orbital_rotation_index_a=orbital_rotation_index_a,
-                orbital_rotation_index_b=orbital_rotation_index_b,
                 copy=False,
             )
     return vec
@@ -214,10 +184,6 @@ def _simulate_qdrift_step_double_factorized_symmetric(
     nelec: tuple[int, int],
     probabilities: np.ndarray,
     term_indices: np.ndarray,
-    occupations_a: np.ndarray,
-    occupations_b: np.ndarray,
-    orbital_rotation_index_a: tuple[np.ndarray, np.ndarray, np.ndarray],
-    orbital_rotation_index_b: tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
     # simulate the one-body term for half the time
     vec = apply_num_op_sum_evolution(
@@ -227,10 +193,6 @@ def _simulate_qdrift_step_double_factorized_symmetric(
         norb=norb,
         nelec=nelec,
         orbital_rotation=one_body_basis_change,
-        occupations_a=occupations_a,
-        occupations_b=occupations_b,
-        orbital_rotation_index_a=orbital_rotation_index_a,
-        orbital_rotation_index_b=orbital_rotation_index_b,
         copy=False,
     )
     # simulate the first sampled term
@@ -243,10 +205,6 @@ def _simulate_qdrift_step_double_factorized_symmetric(
         nelec=nelec,
         orbital_rotation=orbital_rotations[term_index - 1],
         z_representation=z_representation,
-        occupations_a=occupations_a,
-        occupations_b=occupations_b,
-        orbital_rotation_index_a=orbital_rotation_index_a,
-        orbital_rotation_index_b=orbital_rotation_index_b,
         copy=False,
     )
     # simulate the remaining sampled terms
@@ -258,10 +216,6 @@ def _simulate_qdrift_step_double_factorized_symmetric(
             norb=norb,
             nelec=nelec,
             orbital_rotation=one_body_basis_change,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
         vec = apply_diag_coulomb_evolution(
@@ -272,10 +226,6 @@ def _simulate_qdrift_step_double_factorized_symmetric(
             nelec=nelec,
             orbital_rotation=orbital_rotations[term_index - 1],
             z_representation=z_representation,
-            occupations_a=occupations_a,
-            occupations_b=occupations_b,
-            orbital_rotation_index_a=orbital_rotation_index_a,
-            orbital_rotation_index_b=orbital_rotation_index_b,
             copy=False,
         )
     # simulate the one-body term for half the time
@@ -286,10 +236,6 @@ def _simulate_qdrift_step_double_factorized_symmetric(
         norb=norb,
         nelec=nelec,
         orbital_rotation=one_body_basis_change,
-        occupations_a=occupations_a,
-        occupations_b=occupations_b,
-        orbital_rotation_index_a=orbital_rotation_index_a,
-        orbital_rotation_index_b=orbital_rotation_index_b,
         copy=False,
     )
 

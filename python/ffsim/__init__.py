@@ -11,6 +11,7 @@
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
 from ffsim import contract, linalg, random, testing
+from ffsim.cistring import init_cache
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -104,6 +105,7 @@ __all__ = [
     "fermion_operator",
     "hartree_fock_state",
     "indices_to_strings",
+    "init_cache",
     "linalg",
     "linear_operator",
     "multireference_state",

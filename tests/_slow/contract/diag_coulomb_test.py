@@ -13,10 +13,10 @@
 from __future__ import annotations
 
 import numpy as np
-from pyscf.fci import cistring
 from scipy.special import comb
 
 import ffsim
+from ffsim import cistring
 from ffsim._lib import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
@@ -36,12 +36,8 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
-        occupations_a = cistring.gen_occslst(range(norb), n_alpha).astype(
-            np.uint, copy=False
-        )
-        occupations_b = cistring.gen_occslst(range(norb), n_beta).astype(
-            np.uint, copy=False
-        )
+        occupations_a = cistring.gen_occslst(range(norb), n_alpha)
+        occupations_b = cistring.gen_occslst(range(norb), n_beta)
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
