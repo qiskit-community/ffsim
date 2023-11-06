@@ -16,7 +16,6 @@ import numpy as np
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
-from pyscf.fci.fci_slow import contract_1e
 
 import ffsim
 from ffsim.states import slater_determinant
@@ -112,14 +111,16 @@ def test_apply_orbital_rotation_eigenstates():
             norb, nelec, seed=rng
         )
         occ_a, occ_b = occupied_orbitals
-        one_body_tensor = np.array(ffsim.random.random_hermitian(norb, seed=rng))
+        one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
         eigs, vecs = np.linalg.eigh(one_body_tensor)
         eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
         final_state = ffsim.apply_orbital_rotation(state, vecs, norb, nelec)
         np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
-        result = contract_1e(one_body_tensor, final_state, norb, nelec)
+        result = ffsim.contract.contract_one_body(
+            final_state, one_body_tensor, norb, nelec
+        )
         expected = eig * final_state
         np.testing.assert_allclose(result, expected, atol=1e-8)
         # check that the state was not modified
@@ -136,7 +137,7 @@ def test_apply_orbital_rotation_eigenstates_permutation():
             norb, nelec, seed=rng
         )
         occ_a, occ_b = occupied_orbitals
-        one_body_tensor = np.array(ffsim.random.random_hermitian(norb, seed=rng))
+        one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
         eigs, vecs = np.linalg.eigh(one_body_tensor)
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
@@ -146,7 +147,9 @@ def test_apply_orbital_rotation_eigenstates_permutation():
         eigs = eigs @ perm
         eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
         np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
-        result = contract_1e(one_body_tensor, final_state, norb, nelec)
+        result = ffsim.contract.contract_one_body(
+            final_state, one_body_tensor, norb, nelec
+        )
         expected = eig * final_state
         np.testing.assert_allclose(result, expected, atol=1e-8)
         # check that the state was not modified
@@ -158,12 +161,12 @@ def test_apply_orbital_rotation_compose():
     norb = 5
     rng = np.random.default_rng()
     for _ in range(5):
-        basis_change_1 = np.array(ffsim.random.random_unitary(norb, seed=rng))
-        basis_change_2 = np.array(ffsim.random.random_unitary(norb, seed=rng))
+        basis_change_1 = ffsim.random.random_unitary(norb, seed=rng)
+        basis_change_2 = ffsim.random.random_unitary(norb, seed=rng)
 
         nelec = ffsim.testing.random_nelec(norb, seed=rng)
         dim = ffsim.dim(norb, nelec)
-        state = np.array(ffsim.random.random_statevector(dim, seed=rng))
+        state = ffsim.random.random_statevector(dim, seed=rng)
 
         result = ffsim.apply_orbital_rotation(state, basis_change_1, norb, nelec)
         result = ffsim.apply_orbital_rotation(
