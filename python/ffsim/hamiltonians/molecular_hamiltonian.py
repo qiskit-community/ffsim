@@ -67,7 +67,7 @@ class MolecularHamiltonian:
         dim_ = dim(norb, nelec)
 
         def matvec(vec: np.ndarray):
-            result = self.constant * vec
+            result = self.constant * vec.astype(complex, copy=False)
             result += 1j * contract_1e(
                 self.one_body_tensor.imag, vec.real, norb, nelec, link_index=link_index
             )
