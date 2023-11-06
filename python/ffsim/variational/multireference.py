@@ -54,6 +54,7 @@ def multireference_state(
             ansatz_operator,
             norb=norb,
             nelec=nelec,
+            copy=False,
         )
         for occ in reference_occupations
     ]
