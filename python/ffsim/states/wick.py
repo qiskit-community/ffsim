@@ -17,6 +17,7 @@ import string
 from collections.abc import Sequence
 
 import numpy as np
+from opt_einsum import contract
 
 
 def expectation_one_body_product(
@@ -84,11 +85,11 @@ def expectation_one_body_product(
             tensors.append(
                 one_rdm if indices.index(c_i) < indices.index(a_i) else anti_one_rdm
             )
-        result += sign * np.einsum(
+        result += sign * contract(
             f'{",".join(subscripts)}->',
             *one_body_tensors,
             *tensors[:n_tensors],
-            optimize=True,
+            optimize="greedy",
         )
     return result
 
