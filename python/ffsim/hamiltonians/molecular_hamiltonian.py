@@ -15,8 +15,7 @@ import itertools
 
 import numpy as np
 import scipy.sparse.linalg
-from pyscf.fci.direct_nosym import absorb_h1e, make_hdiag
-from pyscf.fci.fci_slow import contract_2e
+from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim._lib import FermionOperator
@@ -63,14 +62,25 @@ class MolecularHamiltonian:
         linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
         link_index = (linkstr_index_a, linkstr_index_b)
         two_body = absorb_h1e(
-            self.one_body_tensor, self.two_body_tensor, norb, nelec, 0.5
+            self.one_body_tensor.real, self.two_body_tensor, norb, nelec, 0.5
         )
         dim_ = dim(norb, nelec)
 
         def matvec(vec: np.ndarray):
-            return self.constant * vec + contract_2e(
-                two_body, vec, norb, nelec, link_index=link_index
+            result = self.constant * vec.astype(complex, copy=False)
+            result += 1j * contract_1e(
+                self.one_body_tensor.imag, vec.real, norb, nelec, link_index=link_index
             )
+            result -= contract_1e(
+                self.one_body_tensor.imag, vec.imag, norb, nelec, link_index=link_index
+            )
+            result += contract_2e(
+                two_body, vec.real, norb, nelec, link_index=link_index
+            )
+            result += 1j * contract_2e(
+                two_body, vec.imag, norb, nelec, link_index=link_index
+            )
+            return result
 
         return scipy.sparse.linalg.LinearOperator(
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
