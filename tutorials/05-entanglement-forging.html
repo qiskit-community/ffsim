@@ -51,7 +51,6 @@
 <span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
 <span class="kn">import</span> <span class="nn">ffsim</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># Build a water molecule</span>
 <span class="n">radius_1</span> <span class="o">=</span> <span class="mf">0.958</span>  <span class="c1"># position for the first H atom</span>
@@ -76,7 +75,7 @@
 <span class="n">hartree_fock</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 
 <span class="c1"># Define active space</span>
-<span class="n">active_space</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+<span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span>
 
 <span class="c1"># Get molecular data and molecular Hamiltonian (one- and two-body tensors)</span>
 <span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_hartree_fock</span><span class="p">(</span>
@@ -99,7 +98,7 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -75.6787887956297
-CASCI E = -75.7079508859772  E(CI) = -14.3336207346499  S^2 = 0.0000000
+CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -108,24 +107,31 @@ CASCI E = -75.7079508859772  E(CI) = -14.3336207346499  S^2 = 0.0000000
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="n">n_reps</span> <span class="o">=</span> <span class="mi">1</span>
 
 <span class="c1"># Construct ansatz operator</span>
-<span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
-<span class="n">thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_reps</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">brickwork</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_layers</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_layers</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="n">n_layers</span> <span class="o">=</span> <span class="n">norb</span>
+<span class="n">interaction_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">brickwork</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_layers</span><span class="p">))</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">thetas</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">))</span>
 <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">HopGateAnsatzOperator</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="n">thetas</span><span class="p">)</span>
 
 <span class="c1"># Construct ansatz state</span>
-<span class="n">reference_occupations_spatial</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+<span class="n">reference_occupations_spatial</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
 <span class="n">reference_occupations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
     <span class="nb">zip</span><span class="p">(</span><span class="n">reference_occupations_spatial</span><span class="p">,</span> <span class="n">reference_occupations_spatial</span><span class="p">)</span>
 <span class="p">)</span>
-<span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">linear_operator</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 <span class="n">ansatz_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">multireference_state</span><span class="p">(</span>
-    <span class="n">hamiltonian</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">reference_occupations</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+    <span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">reference_occupations</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
 <span class="p">)</span>
 
 <span class="c1"># Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state</span>
+<span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">linear_operator</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">ansatz_state</span><span class="p">,</span> <span class="n">hamiltonian</span> <span class="o">@</span> <span class="n">ansatz_state</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy at initialialization: </span><span class="si">{</span><span class="n">energy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
@@ -136,7 +142,7 @@ CASCI E = -75.7079508859772  E(CI) = -14.3336207346499  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialialization: -75.68366174447613
+Energy at initialialization: -74.20656273321597
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -158,7 +164,7 @@ Energy at initialialization: -75.68366174447613
 
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
-    <span class="n">fun</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;COBYLA&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">fun</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxfun</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of parameters: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -171,14 +177,17 @@ Energy at initialialization: -75.68366174447613
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Number of parameters: 5
- message: Maximum number of function evaluations has been exceeded.
- success: False
-  status: 2
-     fun: -75.69448131160316
-       x: [ 1.354e+00  9.651e-02 -1.863e-03  1.095e+00 -2.132e-01]
-    nfev: 100
-   maxcv: 0.0
+Number of parameters: 15
+  message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
+  success: False
+   status: 1
+      fun: -75.6808510733411
+        x: [ 2.996e+00 -7.549e-01 ...  2.650e+00  8.012e-01]
+      nit: 6
+      jac: [ 1.756e-03  9.129e-03 ... -1.190e-02  9.621e-04]
+     nfev: 112
+     njev: 7
+ hess_inv: &lt;15x15 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
 </section>
