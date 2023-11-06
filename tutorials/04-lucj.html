@@ -147,8 +147,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754479  E_corr = -0.04824536314851507
-Energy at initialialization: -77.46975600021682
+E(CCSD) = -77.49387212754476  E_corr = -0.04824536314851537
+Energy at initialialization: -77.4697560002167
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -187,12 +187,12 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -77.51576098358399
-        x: [-1.453e-01  1.873e-01 ... -6.235e-01 -5.876e-02]
+      fun: -77.51591538334552
+        x: [-1.414e-01  1.963e-01 ...  4.257e-01  2.897e-01]
       nit: 9
-      jac: [ 3.998e-03 -8.284e-03 ... -3.057e-03 -1.263e-03]
-     nfev: 1168
-     njev: 16
+      jac: [ 6.058e-03 -7.672e-03 ...  3.558e-03 -5.227e-03]
+     nfev: 1314
+     njev: 18
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -251,12 +251,12 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -77.46145287367342
-        x: [-3.877e-01  9.601e-02 ... -6.399e-01  1.788e-01]
-      nit: 17
-      jac: [-1.999e-03  2.743e-04 ...  1.657e-03 -1.859e-03]
-     nfev: 1034
-     njev: 22
+      fun: -77.46263057210639
+        x: [-3.880e-01  1.298e-01 ...  6.534e-01  2.706e-01]
+      nit: 16
+      jac: [ 1.336e-03  1.120e-03 ...  4.121e-05 -2.730e-03]
+     nfev: 1128
+     njev: 24
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>

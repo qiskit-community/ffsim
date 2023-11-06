@@ -60,7 +60,7 @@
 <div class="math notranslate nohighlight">
 \[\mathcal{J} = \frac12\sum_{\sigma \tau, ij} \mathbf{J}_{ij} n_{\sigma, i} n_{\tau, j},\]</div>
 <p>where <span class="math notranslate nohighlight">\(n_{\sigma, i} = a^\dagger_{\sigma, i} a_{\sigma, i}\)</span> is the occupation number operator and <span class="math notranslate nohighlight">\(\mathbf{J}_{ij}\)</span> is a real symmetric matrix.</p>
-<p>In the cell below, we construct the Hamiltonian for a hydrogen molecule at a stretched bond length and then get the double-factorized representation of the Hamiltonian.</p>
+<p>In the cell below, we construct the Hamiltonian for an ethene molecule at a stretched bond length and then get the double-factorized representation of the Hamiltonian.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -68,14 +68,34 @@
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyscf</span>
 <span class="kn">import</span> <span class="nn">ffsim</span>
 
-<span class="c1"># Build an H2 molecule</span>
+<span class="c1"># Build a stretched ethene molecule</span>
+<span class="n">bond_distance</span> <span class="o">=</span> <span class="mf">2.678</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">bond_distance</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mf">0.5626</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mf">0.9289</span>
 <span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
-<span class="n">mol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">atom</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">)]],</span> <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;sto-6g&quot;</span><span class="p">,</span> <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;d2h&quot;</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+    <span class="n">atom</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">)],</span>
+        <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="p">)],</span>
+        <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">)],</span>
+        <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">)],</span>
+        <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span><span class="p">)],</span>
+        <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span><span class="p">)],</span>
+    <span class="p">],</span>
+    <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;sto-6g&quot;</span><span class="p">,</span>
+    <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;d2h&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">hartree_fock</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">hartree_fock</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 
+<span class="c1"># Define active space</span>
+<span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">nelectron</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nelectron</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+
 <span class="c1"># Get molecular data and molecular Hamiltonian (one- and two-body tensors)</span>
-<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_hartree_fock</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">)</span>
+<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_hartree_fock</span><span class="p">(</span>
+    <span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span>
+<span class="p">)</span>
 <span class="n">norb</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span>
 <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
@@ -92,34 +112,33 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -0.837796382593709
+converged SCF energy = -77.4456267643962
 </pre></div></div>
 </div>
-<p>Here, <code class="docutils literal notranslate"><span class="pre">mol_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code>, a dataclass that stores the one- and two-body tensors, and <code class="docutils literal notranslate"><span class="pre">df_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code>, a dataclass that stores the updated one-body-tensor, diagonal Coulomb matrices, and orbital rotations. In the cell below, we print out the tensors describing the original and double-factorized representations.</p>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">mol_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code>, a dataclass that stores the one- and two-body tensors, and <code class="docutils literal notranslate"><span class="pre">df_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code>, a dataclass that stores the updated one-body-tensor, diagonal Coulomb matrices, and orbital rotations. In the cell below, we print out the shapes of the tensors describing the original and double-factorized representations.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print some information</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original representation&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original representation&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-----------------------&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;One-body tensor:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;One-body tensor shape:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Two-body tensor:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Two-body tensor shape:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Double-factorized representation&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;One-body tensor:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;One-body tensor shape:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Diagonal Coulomb matrices:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Diagonal Coulomb matrices shape:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Orbital rotations:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Orbital rotations shape:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -130,49 +149,22 @@ converged SCF energy = -0.837796382593709
 <div class="highlight"><pre>
 Original representation
 -----------------------
-One-body tensor:
-[[-8.27478830e-01 -1.09243819e-16]
- [-7.48351655e-17 -6.77238770e-01]]
+One-body tensor shape:
+(4, 4)
 
-Two-body tensor:
-[[[[0.52317394 0.        ]
-   [0.         0.53354575]]
-
-  [[0.         0.24824057]
-   [0.24824057 0.        ]]]
-
-
- [[[0.         0.24824057]
-   [0.24824057 0.        ]]
-
-  [[0.53354575 0.        ]
-   [0.         0.55313202]]]]
+Two-body tensor shape:
+(4, 4, 4, 4)
 
 Double-factorized representation
 --------------------------------
-One-body tensor:
-[[-1.21318608e+00 -1.09243819e-16]
- [-7.48351655e-17 -1.07792507e+00]]
+One-body tensor shape:
+(4, 4)
 
-Diagonal Coulomb matrices:
-[[[ 5.14653029e-01  5.33545754e-01]
-  [ 5.33545754e-01  5.53132024e-01]]
+Diagonal Coulomb matrices shape:
+(10, 4, 4)
 
- [[ 2.48240570e-01 -2.48240570e-01]
-  [-2.48240570e-01  2.48240570e-01]]
-
- [[ 1.44655364e-30 -1.11022302e-16]
-  [-1.11022302e-16  8.52090881e-03]]]
-
-Orbital rotations:
-[[[ 1.          0.        ]
-  [ 0.          1.        ]]
-
- [[-0.70710678  0.70710678]
-  [ 0.70710678  0.70710678]]
-
- [[ 0.          1.        ]
-  [ 1.          0.        ]]]
+Orbital rotations shape:
+(10, 4, 4)
 </pre></div></div>
 </div>
 </section>
@@ -293,7 +285,7 @@ Orbital rotations:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Hartree Fock energy: -0.837796382593709
+Hartree Fock energy: -77.44562676439617
 </pre></div></div>
 </div>
 <p>Now, we set the evolution time and calculate the exact result of time evolution by directly exponentiating the Hamiltonian using SciPy. Later, we will compare the result of our approximate time evolution with this exact result.</p>
@@ -303,7 +295,7 @@ Hartree Fock energy: -0.837796382593709
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
 
-<span class="n">time</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">time</span> <span class="o">=</span> <span class="mf">5.0</span>
 
 <span class="n">exact_state</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm_multiply</span><span class="p">(</span>
     <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">hamiltonian</span><span class="p">,</span>
@@ -321,7 +313,7 @@ Hartree Fock energy: -0.837796382593709
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of evolved state w.r.t. initial state: 0.9696296369955065
+Fidelity of evolved state w.r.t. initial state: 0.9315062301404435
 </pre></div></div>
 </div>
 <p>Now, let’s test our implementation.</p>
@@ -348,7 +340,7 @@ Fidelity of evolved state w.r.t. initial state: 0.9696296369955065
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9990275744083491
+Fidelity of Trotter-evolved state with exact state: 0.9928527668218281
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
@@ -375,7 +367,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9990275744083491
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.999990623310968
+Fidelity of Trotter-evolved state with exact state: 0.9999320851291621
 </pre></div></div>
 </div>
 <p>As mentioned above, ffsim already includes functionality for Trotter simulation of double-factorized Hamiltonians. The implementation in ffsim includes higher-order Trotter-Suzuki formulas. The first-order asymmetric formula that we just implemented corresponds to <code class="docutils literal notranslate"><span class="pre">order=0</span></code> in ffsim’s implementation. <code class="docutils literal notranslate"><span class="pre">order=1</span></code> corresponds to the first-order symmetric (commonly known as the second-order) formula, <code class="docutils literal notranslate"><span class="pre">order=2</span></code> corresponds to the second-order symmetric (fourth-order) formula, and so on.</p>
@@ -404,7 +396,7 @@ Fidelity of Trotter-evolved state with exact state: 0.999990623310968
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.999990623310968
+Fidelity of Trotter-evolved state with exact state: 0.9999320851291621
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -432,7 +424,7 @@ Fidelity of Trotter-evolved state with exact state: 0.999990623310968
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999999336740071
+Fidelity of Trotter-evolved state with exact state: 0.99994961081367
 </pre></div></div>
 </div>
 </section>
