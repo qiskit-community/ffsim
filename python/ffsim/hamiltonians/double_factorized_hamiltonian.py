@@ -17,7 +17,6 @@ from scipy.sparse.linalg import LinearOperator
 
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
-from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
 from ffsim.states import dim
