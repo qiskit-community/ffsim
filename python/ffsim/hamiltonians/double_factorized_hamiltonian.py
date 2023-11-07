@@ -13,9 +13,14 @@ from __future__ import annotations
 import dataclasses
 
 import numpy as np
+from scipy.sparse.linalg import LinearOperator
 
+from ffsim.contract.diag_coulomb import diag_coulomb_linop
+from ffsim.contract.num_op_sum import num_op_sum_linop
+from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
+from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)
@@ -221,12 +226,42 @@ class DoubleFactorizedHamiltonian:
             one_body_tensor=one_body_tensor,
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
+            constant=hamiltonian.constant,
         )
 
         if z_representation:
             df_hamiltonian = df_hamiltonian.to_z_representation()
 
         return df_hamiltonian
+
+    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+        """Return a SciPy LinearOperator representing the object."""
+        dim_ = dim(norb, nelec)
+        eigs, vecs = np.linalg.eigh(self.one_body_tensor)
+        num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
+        diag_coulomb_linops = [
+            diag_coulomb_linop(
+                diag_coulomb_mat,
+                norb,
+                nelec,
+                orbital_rotation=orbital_rotation,
+                z_representation=self.z_representation,
+            )
+            for diag_coulomb_mat, orbital_rotation in zip(
+                self.diag_coulomb_mats, self.orbital_rotations
+            )
+        ]
+
+        def matvec(vec: np.ndarray):
+            result = self.constant * vec
+            result += num_linop @ vec
+            for linop in diag_coulomb_linops:
+                result += linop @ vec
+            return result
+
+        return LinearOperator(
+            shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
+        )
 
 
 def _df_z_representation(

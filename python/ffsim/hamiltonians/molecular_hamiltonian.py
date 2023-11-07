@@ -14,7 +14,6 @@ import dataclasses
 import itertools
 
 import numpy as np
-import scipy.sparse.linalg
 from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
@@ -82,7 +81,7 @@ class MolecularHamiltonian:
             )
             return result
 
-        return scipy.sparse.linalg.LinearOperator(
+        return LinearOperator(
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
 
