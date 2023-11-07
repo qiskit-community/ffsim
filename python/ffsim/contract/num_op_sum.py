@@ -103,7 +103,6 @@ def num_op_sum_linop(
         A LinearOperator that implements the action of the linear combination of number
         operators.
     """
-    n_alpha, n_beta = nelec
     dim_ = dim(norb, nelec)
 
     def matvec(vec):

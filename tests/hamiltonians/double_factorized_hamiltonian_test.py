@@ -20,64 +20,35 @@ import ffsim
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
-def test_double_factorized_hamiltonian(z_representation: bool):
-    # set parameters
+def test_linear_operator(z_representation: bool):
+    """Test linear operator."""
     norb = 4
     nelec = (2, 2)
+    rng = np.random.default_rng(2474)
 
-    # generate random Hamiltonian
     dim = ffsim.dim(norb, nelec)
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=2474)
-    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
-    mol_hamiltonian = ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
-    hamiltonian = ffsim.linear_operator(
-        mol_hamiltonian,
-        norb=norb,
-        nelec=nelec,
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=rng)
+    constant = rng.standard_normal()
+    mol_hamiltonian = ffsim.MolecularHamiltonian(
+        one_body_tensor, two_body_tensor, constant
     )
 
-    # perform double factorization
     df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian,
         z_representation=z_representation,
     )
 
-    # generate random state
+    actual_linop = ffsim.linear_operator(df_hamiltonian, norb, nelec)
+    expected_linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
     dim = ffsim.dim(norb, nelec)
-    state = ffsim.random.random_statevector(dim, seed=1360)
+    state = ffsim.random.random_statevector(dim, seed=rng)
 
-    # apply Hamiltonian terms
-    result = df_hamiltonian.constant * state
+    actual = actual_linop @ state
+    expected = expected_linop @ state
 
-    eigs, vecs = np.linalg.eigh(df_hamiltonian.one_body_tensor)
-    tmp = ffsim.apply_orbital_rotation(state, vecs.T.conj(), norb=norb, nelec=nelec)
-    tmp = ffsim.contract.contract_num_op_sum(tmp, eigs, norb=norb, nelec=nelec)
-    tmp = ffsim.apply_orbital_rotation(tmp, vecs, norb=norb, nelec=nelec)
-    result += tmp
-
-    for diag_coulomb_mat, orbital_rotation in zip(
-        df_hamiltonian.diag_coulomb_mats, df_hamiltonian.orbital_rotations
-    ):
-        tmp = ffsim.apply_orbital_rotation(
-            state, orbital_rotation.T.conj(), norb=norb, nelec=nelec
-        )
-        tmp = ffsim.contract.contract_diag_coulomb(
-            tmp,
-            diag_coulomb_mat,
-            norb=norb,
-            nelec=nelec,
-            z_representation=z_representation,
-        )
-        tmp = ffsim.apply_orbital_rotation(
-            tmp, orbital_rotation, norb=norb, nelec=nelec
-        )
-        result += tmp
-
-    # apply Hamiltonian directly
-    expected = hamiltonian @ state
-
-    # check agreement
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+    np.testing.assert_allclose(actual, expected, atol=1e-8)
 
 
 def test_z_representation_round_trip():
