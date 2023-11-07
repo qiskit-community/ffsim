@@ -69,7 +69,7 @@ def test_modified_cholesky(dim: int):
     "dim, cholesky", [(4, True), (4, False), (5, True), (5, False)]
 )
 def test_double_factorized_random(dim: int, cholesky: bool):
-    """Test low rank two-body decomposition on a random tensor."""
+    """Test double-factorized decomposition on a random tensor."""
     two_body_tensor = random_two_body_tensor_real(dim, seed=9825)
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, cholesky=cholesky
@@ -87,7 +87,7 @@ def test_double_factorized_random(dim: int, cholesky: bool):
 
 @pytest.mark.parametrize("cholesky", [True, False])
 def test_double_factorized_tol_max_vecs(cholesky: bool):
-    """Test low rank decomposition error threshold and max vecs."""
+    """Test double-factorized decomposition error threshold and max vecs."""
     mol = gto.Mole()
     mol.build(
         verbose=0,
@@ -282,7 +282,7 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
 
 
 def test_double_factorized_t2_tol_max_vecs():
-    """Test low rank decomposition error threshold and max vecs."""
+    """Test double-factorized decomposition error threshold and max vecs."""
     mol = gto.Mole()
     mol.build(
         verbose=0,
