@@ -11,9 +11,18 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 1,
    "metadata": {},
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -75.6787887956297\n",
+      "CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000\n"
+     ]
+    }
+   ],
    "source": [
     "import pyscf\n",
     "import pyscf.mcscf\n",
@@ -61,9 +70,17 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 2,
    "metadata": {},
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Energy at initialialization: -74.206562733216\n"
+     ]
+    }
+   ],
    "source": [
     "import numpy as np\n",
     "\n",
@@ -98,9 +115,27 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 3,
    "metadata": {},
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of parameters: 15\n",
+      "  message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT\n",
+      "  success: False\n",
+      "   status: 1\n",
+      "      fun: -75.68085202358802\n",
+      "        x: [ 2.996e+00 -7.549e-01 ...  2.650e+00  8.012e-01]\n",
+      "      nit: 6\n",
+      "      jac: [ 1.761e-03  9.109e-03 ... -1.192e-02  9.493e-04]\n",
+      "     nfev: 112\n",
+      "     njev: 7\n",
+      " hess_inv: <15x15 LbfgsInvHessProduct with dtype=float64>\n"
+     ]
+    }
+   ],
    "source": [
     "import scipy.optimize\n",
     "\n",

@@ -65,19 +65,15 @@
 <span class="c1"># Set the number of orbitals and their occupancies</span>
 <span class="n">norb</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-<span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">))</span>
 
-<span class="c1"># Create a Slater determinant</span>
-<span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="n">occupied_orbitals</span><span class="p">)</span>
+<span class="c1"># Create the Hartree-Fock state</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
 
 <span class="c1"># Generate a random orbital rotation</span>
 <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 
 <span class="c1"># Apply the orbital rotation to the statevector</span>
-<span class="n">rotated_vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
-<span class="p">)</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
