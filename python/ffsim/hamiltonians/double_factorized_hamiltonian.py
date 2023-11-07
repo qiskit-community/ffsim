@@ -24,7 +24,7 @@ from ffsim.states import dim
 
 @dataclasses.dataclass(frozen=True)
 class DoubleFactorizedHamiltonian:
-    r"""A Hamiltonian in the double-factorized form of the low rank decomposition.
+    r"""A Hamiltonian in the double-factorized representation.
 
     The double-factorized form of the molecular Hamiltonian is
 
@@ -70,6 +70,10 @@ class DoubleFactorizedHamiltonian:
     where the asterisk denotes summation over indices :math:`\sigma\tau, ij`
     where :math:`\sigma \neq \tau` or :math:`i \neq j`.
 
+    References:
+        - `Low rank representations for quantum simulation of electronic structure`_
+        - `Quantum Filter Diagonalization with Double-Factorized Hamiltonians`_
+
     Attributes:
         one_body_tensor (np.ndarray): The one-body tensor :math:`\kappa`.
         diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices.
@@ -77,6 +81,10 @@ class DoubleFactorizedHamiltonian:
         constant (float): The constant.
         z_representation (bool): Whether the Hamiltonian is in the "Z" representation
             rather than the "number" representation.
+
+    .. _Low rank representations for quantum simulation of electronic structure: https://arxiv.org/abs/1808.02625
+    .. _Quantum Filter Diagonalization with Double-Factorized Hamiltonians: https://arxiv.org/abs/2104.08957
+    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
 
     one_body_tensor: np.ndarray
@@ -155,7 +163,7 @@ class DoubleFactorizedHamiltonian:
         coefficients stored in the tensor to achieve a "compressed" factorization.
         This option is enabled by setting the `optimize` parameter to `True`.
         The optimization attempts to minimize a least-squares objective function
-        quantifying the error in the low rank decomposition.
+        quantifying the error in the decomposition.
         It uses `scipy.optimize.minimize`_, passing both the objective function
         and its gradient. The diagonal coulomb matrices returned by the optimization
         can be optionally constrained to have only certain elements allowed to be
@@ -171,7 +179,7 @@ class DoubleFactorizedHamiltonian:
             hamiltonian: The Hamiltonian whose double-factorized representation to
                 compute.
             z_representation: Whether to use the "Z" representation of the
-                low rank decomposition.
+                decomposition.
             tol: Tolerance for error in the decomposition.
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
@@ -197,14 +205,6 @@ class DoubleFactorizedHamiltonian:
 
         Returns:
             The double-factorized Hamiltonian.
-
-        References:
-            - `arXiv:1808.02625`_
-            - `arXiv:2104.08957`_
-
-        .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
-        .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
-        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
         one_body_tensor = hamiltonian.one_body_tensor - 0.5 * np.einsum(
             "prqr", hamiltonian.two_body_tensor

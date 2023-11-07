@@ -117,7 +117,7 @@ def double_factorized(
     coefficients stored in the tensor to achieve a "compressed" factorization.
     This option is enabled by setting the `optimize` parameter to `True`.
     The optimization attempts to minimize a least-squares objective function
-    quantifying the error in the low rank decomposition.
+    quantifying the error in the decomposition.
     It uses `scipy.optimize.minimize`, passing both the objective function
     and its gradient. The core tensors returned by the optimization can be optionally
     constrained to have only certain elements allowed to be nonzero. This is achieved by
