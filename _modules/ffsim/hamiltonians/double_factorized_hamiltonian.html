@@ -63,7 +63,7 @@
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.DoubleFactorizedHamiltonian">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DoubleFactorizedHamiltonian</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A Hamiltonian in the double-factorized form of the low rank decomposition.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A Hamiltonian in the double-factorized representation.</span>
 
 <span class="sd">    The double-factorized form of the molecular Hamiltonian is</span>
 
@@ -109,6 +109,10 @@
 <span class="sd">    where the asterisk denotes summation over indices :math:`\sigma\tau, ij`</span>
 <span class="sd">    where :math:`\sigma \neq \tau` or :math:`i \neq j`.</span>
 
+<span class="sd">    References:</span>
+<span class="sd">        - `Low rank representations for quantum simulation of electronic structure`_</span>
+<span class="sd">        - `Quantum Filter Diagonalization with Double-Factorized Hamiltonians`_</span>
+
 <span class="sd">    Attributes:</span>
 <span class="sd">        one_body_tensor (np.ndarray): The one-body tensor :math:`\kappa`.</span>
 <span class="sd">        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices.</span>
@@ -116,6 +120,10 @@
 <span class="sd">        constant (float): The constant.</span>
 <span class="sd">        z_representation (bool): Whether the Hamiltonian is in the &quot;Z&quot; representation</span>
 <span class="sd">            rather than the &quot;number&quot; representation.</span>
+
+<span class="sd">    .. _Low rank representations for quantum simulation of electronic structure: https://arxiv.org/abs/1808.02625</span>
+<span class="sd">    .. _Quantum Filter Diagonalization with Double-Factorized Hamiltonians: https://arxiv.org/abs/2104.08957</span>
+<span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -202,7 +210,7 @@
 <span class="sd">        coefficients stored in the tensor to achieve a &quot;compressed&quot; factorization.</span>
 <span class="sd">        This option is enabled by setting the `optimize` parameter to `True`.</span>
 <span class="sd">        The optimization attempts to minimize a least-squares objective function</span>
-<span class="sd">        quantifying the error in the low rank decomposition.</span>
+<span class="sd">        quantifying the error in the decomposition.</span>
 <span class="sd">        It uses `scipy.optimize.minimize`_, passing both the objective function</span>
 <span class="sd">        and its gradient. The diagonal coulomb matrices returned by the optimization</span>
 <span class="sd">        can be optionally constrained to have only certain elements allowed to be</span>
@@ -218,7 +226,7 @@
 <span class="sd">            hamiltonian: The Hamiltonian whose double-factorized representation to</span>
 <span class="sd">                compute.</span>
 <span class="sd">            z_representation: Whether to use the &quot;Z&quot; representation of the</span>
-<span class="sd">                low rank decomposition.</span>
+<span class="sd">                decomposition.</span>
 <span class="sd">            tol: Tolerance for error in the decomposition.</span>
 <span class="sd">                The error is defined as the maximum absolute difference between</span>
 <span class="sd">                an element of the original tensor and the corresponding element of</span>
@@ -244,14 +252,6 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The double-factorized Hamiltonian.</span>
-
-<span class="sd">        References:</span>
-<span class="sd">            - `arXiv:1808.02625`_</span>
-<span class="sd">            - `arXiv:2104.08957`_</span>
-
-<span class="sd">        .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625</span>
-<span class="sd">        .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
-<span class="sd">        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
             <span class="s2">&quot;prqr&quot;</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span>
