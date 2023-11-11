@@ -145,26 +145,9 @@ one-body tensor, two-body tensor, and constant. It performs a double-factorized
 decomposition of the two-body tensor and computes a new one-body tensor
 and constant, and returns a <a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a> storing the
 results.</p>
-<p>The number of terms <span class="math notranslate nohighlight">\(t\)</span> in the decomposition depends on the allowed
-error threshold. A larger error threshold leads to a smaller number of terms.
-Furthermore, the <cite>max_vecs</cite> parameter specifies an optional upper bound
-on <span class="math notranslate nohighlight">\(t\)</span>.</p>
-<p>The default behavior of this routine is to perform a straightforward
-“exact” factorization of the two-body tensor based on a nested
-eigenvalue decomposition. Additionally, one can choose to optimize the
-coefficients stored in the tensor to achieve a “compressed” factorization.
-This option is enabled by setting the <cite>optimize</cite> parameter to <cite>True</cite>.
-The optimization attempts to minimize a least-squares objective function
-quantifying the error in the decomposition.
-It uses <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>, passing both the objective function
-and its gradient. The diagonal coulomb matrices returned by the optimization
-can be optionally constrained to have only certain elements allowed to be
-nonzero. This is achieved by passing the <cite>diag_coulomb_mask</cite> parameter, which is
-an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number
-of orbitals. The nonzero elements of this matrix indicate where the diagonal
-Coulomb matrices are allowed to be nonzero. Only the upper triangular part of
-the matrix is used because the diagonal Coulomb matrices are symmetric.</p>
-<p>Note: Currently, only real-valued two-body tensors are supported.</p>
+<p>See <a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a> for a description of the
+<cite>z_representation</cite> argument. See <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized" title="ffsim.linalg.double_factorized"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.linalg.double_factorized()</span></code></a> for a
+description of the rest of the arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -303,8 +286,8 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_a(0), des_a(3)): 1,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
-    (cre_a(3), des_a(0)): -0.5
+    (cre_a(3), des_a(0)): -0.5,
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j
 })
 </pre></div>
 </div>
@@ -324,11 +307,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5,
-    (cre_b(2)): 0+1j,
     (des_a(3), des_b(3)): -0.25,
-    (cre_a(3), des_a(0)): -0.25
+    (cre_b(2)): 0+1j,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25,
+    (cre_a(0), des_a(3)): 0.5
 })
 </pre></div>
 </div>
@@ -343,11 +326,11 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j
 })
 </pre></div>
 </div>
@@ -555,6 +538,97 @@ the two-body tensor.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.norb">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.MolecularHamiltonian.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SingleFactorizedHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_squares</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/single_factorized_hamiltonian.html#SingleFactorizedHamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A Hamiltonian in the single-factorized representation.</p>
+<p>The single-factorized form of the molecular Hamiltonian is</p>
+<div class="math notranslate nohighlight">
+\[H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
++ \frac12 \sum_{t=1}^L \left(\mathcal{M}^{(t)}\right)^2
++ \text{constant}'.\]</div>
+<p>Here each <span class="math notranslate nohighlight">\(\mathcal{M}^{(t)}\)</span> is a one-body operator:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{M}^{(t)} =
+\sum_{\sigma, pq} M^{(t)}_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}\]</div>
+<p>where each <span class="math notranslate nohighlight">\(M^{(t)}\)</span> is a Hermitian matrix.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.one_body_tensor">
+<span class="sig-name descname"><span class="pre">one_body_tensor</span></span><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.one_body_tensor" title="Link to this definition">¶</a></dt>
+<dd><p>The one-body tensor <span class="math notranslate nohighlight">\(\kappa\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.one_body_squares">
+<span class="sig-name descname"><span class="pre">one_body_squares</span></span><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.one_body_squares" title="Link to this definition">¶</a></dt>
+<dd><p>The one-body tensors <span class="math notranslate nohighlight">\(M^{(t)}\)</span> whose
+squares are summed in the Hamiltonian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.constant">
+<span class="sig-name descname"><span class="pre">constant</span></span><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.constant" title="Link to this definition">¶</a></dt>
+<dd><p>The constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_molecular_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cholesky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/single_factorized_hamiltonian.html#SingleFactorizedHamiltonian.from_molecular_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize a SingleFactorizedHamiltonian from a MolecularHamiltonian.</p>
+<p>The number of terms in the decomposition depends on the allowed
+error threshold. A larger error threshold leads to a smaller number of terms.
+Furthermore, the <cite>max_vecs</cite> parameter specifies an optional upper bound
+on the number of terms.</p>
+<p>Note: Currently, only real-valued two-body tensors are supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></span>) – The Hamiltonian whose single-factorized representation to
+compute.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
+The error is defined as the maximum absolute difference between
+an element of the original tensor and the corresponding element of
+the reconstructed tensor.</p></li>
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – An optional limit on the number of terms to keep in the
+decomposition of the two-body tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
+<li><p><strong>cholesky</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to perform the factorization using a modified Cholesky
+decomposition. If False, a full eigenvalue decomposition is used
+instead, which can be much more expensive.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian" title="ffsim.hamiltonians.single_factorized_hamiltonian.SingleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The single-factorized Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
 </dd></dl>
 
@@ -1712,6 +1786,7 @@ describes the orbitals of the Slater determinant.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.HopGateAnsatzOperator"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.MolecularData"><code class="docutils literal notranslate"><span class="pre">MolecularData</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsApplyUnitary"><code class="docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsApproximateEquality"><code class="docutils literal notranslate"><span class="pre">SupportsApproximateEquality</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsFermionOperator"><code class="docutils literal notranslate"><span class="pre">SupportsFermionOperator</span></code></a></li>

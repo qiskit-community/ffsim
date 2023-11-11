@@ -148,8 +148,8 @@
 
 <span class="sd">    The number of terms :math:`L` in the decomposition depends on the allowed</span>
 <span class="sd">    error threshold. A larger error threshold may yield a smaller number of terms.</span>
-<span class="sd">    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound</span>
-<span class="sd">    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is</span>
+<span class="sd">    Furthermore, the `max_vecs` parameter specifies an optional upper bound</span>
+<span class="sd">    on :math:`L`. The `max_vecs` parameter is always respected, so if it is</span>
 <span class="sd">    too small, then the error of the decomposition may exceed the specified</span>
 <span class="sd">    error threshold.</span>
 
@@ -161,16 +161,19 @@
 <span class="sd">    The optimization attempts to minimize a least-squares objective function</span>
 <span class="sd">    quantifying the error in the decomposition.</span>
 <span class="sd">    It uses `scipy.optimize.minimize`, passing both the objective function</span>
-<span class="sd">    and its gradient. The core tensors returned by the optimization can be optionally</span>
-<span class="sd">    constrained to have only certain elements allowed to be nonzero. This is achieved by</span>
-<span class="sd">    passing the `diag_coulomb_mask` parameter, which is an :math:`N \times N` matrix of</span>
-<span class="sd">    boolean values where :math:`N` is the number of orbitals. The nonzero elements of</span>
-<span class="sd">    this matrix indicate where the core tensors are allowed to be nonzero. Only the</span>
-<span class="sd">    upper triangular part of the matrix is used because the core tensors are symmetric.</span>
+<span class="sd">    and its gradient. The diagonal Coulomb matrices returned by the optimization can be</span>
+<span class="sd">    optionally constrained to have only certain elements allowed to be nonzero.</span>
+<span class="sd">    This is achieved by passing the `diag_coulomb_mask` parameter, which is an</span>
+<span class="sd">    :math:`N \times N` matrix of boolean values where :math:`N` is the number of</span>
+<span class="sd">    orbitals. The nonzero elements of this matrix indicate where the diagonal Coulomb</span>
+<span class="sd">    matrices are allowed to be nonzero. Only the upper triangular part of the matrix is</span>
+<span class="sd">    used because the diagonal Coulomb matrices are symmetric.</span>
 
 <span class="sd">    References:</span>
 <span class="sd">        - `arXiv:1808.02625`_</span>
 <span class="sd">        - `arXiv:2104.08957`_</span>
+
+<span class="sd">    Note: Currently, only real-valued two-body tensors are supported.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        two_body_tensor: The two-body tensor to decompose.</span>
@@ -506,8 +509,8 @@
 
 <span class="sd">    The number of terms :math:`L` in the decomposition depends on the allowed</span>
 <span class="sd">    error threshold. A larger error threshold may yield a smaller number of terms.</span>
-<span class="sd">    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound</span>
-<span class="sd">    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is</span>
+<span class="sd">    Furthermore, the `max_vecs` parameter specifies an optional upper bound</span>
+<span class="sd">    on :math:`L`. The `max_vecs` parameter is always respected, so if it is</span>
 <span class="sd">    too small, then the error of the decomposition may exceed the specified</span>
 <span class="sd">    error threshold.</span>
 

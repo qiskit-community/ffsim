@@ -199,28 +199,9 @@
 <span class="sd">        and constant, and returns a :class:`DoubleFactorizedHamiltonian` storing the</span>
 <span class="sd">        results.</span>
 
-<span class="sd">        The number of terms :math:`t` in the decomposition depends on the allowed</span>
-<span class="sd">        error threshold. A larger error threshold leads to a smaller number of terms.</span>
-<span class="sd">        Furthermore, the `max_vecs` parameter specifies an optional upper bound</span>
-<span class="sd">        on :math:`t`.</span>
-
-<span class="sd">        The default behavior of this routine is to perform a straightforward</span>
-<span class="sd">        &quot;exact&quot; factorization of the two-body tensor based on a nested</span>
-<span class="sd">        eigenvalue decomposition. Additionally, one can choose to optimize the</span>
-<span class="sd">        coefficients stored in the tensor to achieve a &quot;compressed&quot; factorization.</span>
-<span class="sd">        This option is enabled by setting the `optimize` parameter to `True`.</span>
-<span class="sd">        The optimization attempts to minimize a least-squares objective function</span>
-<span class="sd">        quantifying the error in the decomposition.</span>
-<span class="sd">        It uses `scipy.optimize.minimize`_, passing both the objective function</span>
-<span class="sd">        and its gradient. The diagonal coulomb matrices returned by the optimization</span>
-<span class="sd">        can be optionally constrained to have only certain elements allowed to be</span>
-<span class="sd">        nonzero. This is achieved by passing the `diag_coulomb_mask` parameter, which is</span>
-<span class="sd">        an :math:`N \times N` matrix of boolean values where :math:`N` is the number</span>
-<span class="sd">        of orbitals. The nonzero elements of this matrix indicate where the diagonal</span>
-<span class="sd">        Coulomb matrices are allowed to be nonzero. Only the upper triangular part of</span>
-<span class="sd">        the matrix is used because the diagonal Coulomb matrices are symmetric.</span>
-
-<span class="sd">        Note: Currently, only real-valued two-body tensors are supported.</span>
+<span class="sd">        See :class:`DoubleFactorizedHamiltonian` for a description of the</span>
+<span class="sd">        `z_representation` argument. See :func:`ffsim.linalg.double_factorized` for a</span>
+<span class="sd">        description of the rest of the arguments.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            hamiltonian: The Hamiltonian whose double-factorized representation to</span>

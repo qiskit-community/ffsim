@@ -77,8 +77,8 @@
 as an “orbital rotation.”</p>
 <p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold may yield a smaller number of terms.
-Furthermore, the <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter specifies an optional upper bound
-on <span class="math notranslate nohighlight">\(L\)</span>. The <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter is always respected, so if it is
+Furthermore, the <cite>max_vecs</cite> parameter specifies an optional upper bound
+on <span class="math notranslate nohighlight">\(L\)</span>. The <cite>max_vecs</cite> parameter is always respected, so if it is
 too small, then the error of the decomposition may exceed the specified
 error threshold.</p>
 <p>The default behavior of this routine is to perform a straightforward
@@ -89,17 +89,19 @@ This option is enabled by setting the <cite>optimize</cite> parameter to <cite>T
 The optimization attempts to minimize a least-squares objective function
 quantifying the error in the decomposition.
 It uses <cite>scipy.optimize.minimize</cite>, passing both the objective function
-and its gradient. The core tensors returned by the optimization can be optionally
-constrained to have only certain elements allowed to be nonzero. This is achieved by
-passing the <cite>diag_coulomb_mask</cite> parameter, which is an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix of
-boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals. The nonzero elements of
-this matrix indicate where the core tensors are allowed to be nonzero. Only the
-upper triangular part of the matrix is used because the core tensors are symmetric.</p>
+and its gradient. The diagonal Coulomb matrices returned by the optimization can be
+optionally constrained to have only certain elements allowed to be nonzero.
+This is achieved by passing the <cite>diag_coulomb_mask</cite> parameter, which is an
+<span class="math notranslate nohighlight">\(N \times N\)</span> matrix of boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number of
+orbitals. The nonzero elements of this matrix indicate where the diagonal Coulomb
+matrices are allowed to be nonzero. Only the upper triangular part of the matrix is
+used because the diagonal Coulomb matrices are symmetric.</p>
 <p class="rubric">References</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://arxiv.org/abs/1808.02625">arXiv:1808.02625</a></p></li>
 <li><p><a class="reference external" href="https://arxiv.org/abs/2104.08957">arXiv:2104.08957</a></p></li>
 </ul>
+<p>Note: Currently, only real-valued two-body tensors are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -155,8 +157,8 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 as an “orbital rotation.”</p>
 <p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold may yield a smaller number of terms.
-Furthermore, the <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter specifies an optional upper bound
-on <span class="math notranslate nohighlight">\(L\)</span>. The <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> parameter is always respected, so if it is
+Furthermore, the <cite>max_vecs</cite> parameter specifies an optional upper bound
+on <span class="math notranslate nohighlight">\(L\)</span>. The <cite>max_vecs</cite> parameter is always respected, so if it is
 too small, then the error of the decomposition may exceed the specified
 error threshold.</p>
 <dl class="field-list simple">
