@@ -24,7 +24,11 @@ from ffsim.gates import (
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
-from ffsim.hamiltonians import DoubleFactorizedHamiltonian, MolecularHamiltonian
+from ffsim.hamiltonians import (
+    DoubleFactorizedHamiltonian,
+    MolecularHamiltonian,
+    SingleFactorizedHamiltonian,
+)
 from ffsim.molecular_data import MolecularData
 from ffsim.operators import (
     FermionAction,
@@ -73,6 +77,7 @@ __all__ = [
     "HopGateAnsatzOperator",
     "MolecularData",
     "MolecularHamiltonian",
+    "SingleFactorizedHamiltonian",
     "SupportsApplyUnitary",
     "SupportsApproximateEquality",
     "SupportsFermionOperator",

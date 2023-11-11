@@ -106,8 +106,8 @@ def double_factorized(
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
-    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
-    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is
+    Furthermore, the `max_vecs` parameter specifies an optional upper bound
+    on :math:`L`. The `max_vecs` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
@@ -119,16 +119,19 @@ def double_factorized(
     The optimization attempts to minimize a least-squares objective function
     quantifying the error in the decomposition.
     It uses `scipy.optimize.minimize`, passing both the objective function
-    and its gradient. The core tensors returned by the optimization can be optionally
-    constrained to have only certain elements allowed to be nonzero. This is achieved by
-    passing the `diag_coulomb_mask` parameter, which is an :math:`N \times N` matrix of
-    boolean values where :math:`N` is the number of orbitals. The nonzero elements of
-    this matrix indicate where the core tensors are allowed to be nonzero. Only the
-    upper triangular part of the matrix is used because the core tensors are symmetric.
+    and its gradient. The diagonal Coulomb matrices returned by the optimization can be
+    optionally constrained to have only certain elements allowed to be nonzero.
+    This is achieved by passing the `diag_coulomb_mask` parameter, which is an
+    :math:`N \times N` matrix of boolean values where :math:`N` is the number of
+    orbitals. The nonzero elements of this matrix indicate where the diagonal Coulomb
+    matrices are allowed to be nonzero. Only the upper triangular part of the matrix is
+    used because the diagonal Coulomb matrices are symmetric.
 
     References:
         - `arXiv:1808.02625`_
         - `arXiv:2104.08957`_
+
+    Note: Currently, only real-valued two-body tensors are supported.
 
     Args:
         two_body_tensor: The two-body tensor to decompose.
@@ -461,8 +464,8 @@ def double_factorized_t2(
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
-    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
-    on :math:`L`. The ``max_vecs`` parameter is always respected, so if it is
+    Furthermore, the `max_vecs` parameter specifies an optional upper bound
+    on :math:`L`. The `max_vecs` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
