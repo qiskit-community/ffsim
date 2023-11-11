@@ -152,28 +152,9 @@ class DoubleFactorizedHamiltonian:
         and constant, and returns a :class:`DoubleFactorizedHamiltonian` storing the
         results.
 
-        The number of terms :math:`t` in the decomposition depends on the allowed
-        error threshold. A larger error threshold leads to a smaller number of terms.
-        Furthermore, the `max_vecs` parameter specifies an optional upper bound
-        on :math:`t`.
-
-        The default behavior of this routine is to perform a straightforward
-        "exact" factorization of the two-body tensor based on a nested
-        eigenvalue decomposition. Additionally, one can choose to optimize the
-        coefficients stored in the tensor to achieve a "compressed" factorization.
-        This option is enabled by setting the `optimize` parameter to `True`.
-        The optimization attempts to minimize a least-squares objective function
-        quantifying the error in the decomposition.
-        It uses `scipy.optimize.minimize`_, passing both the objective function
-        and its gradient. The diagonal coulomb matrices returned by the optimization
-        can be optionally constrained to have only certain elements allowed to be
-        nonzero. This is achieved by passing the `diag_coulomb_mask` parameter, which is
-        an :math:`N \times N` matrix of boolean values where :math:`N` is the number
-        of orbitals. The nonzero elements of this matrix indicate where the diagonal
-        Coulomb matrices are allowed to be nonzero. Only the upper triangular part of
-        the matrix is used because the diagonal Coulomb matrices are symmetric.
-
-        Note: Currently, only real-valued two-body tensors are supported.
+        See :class:`DoubleFactorizedHamiltonian` for a description of the
+        `z_representation` argument. See :func:`ffsim.linalg.double_factorized` for a
+        description of the rest of the arguments.
 
         Args:
             hamiltonian: The Hamiltonian whose double-factorized representation to
