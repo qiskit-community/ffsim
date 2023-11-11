@@ -154,7 +154,7 @@ class DoubleFactorizedHamiltonian:
 
         The number of terms :math:`t` in the decomposition depends on the allowed
         error threshold. A larger error threshold leads to a smaller number of terms.
-        Furthermore, the `max_rank` parameter specifies an optional upper bound
+        Furthermore, the `max_vecs` parameter specifies an optional upper bound
         on :math:`t`.
 
         The default behavior of this routine is to perform a straightforward
