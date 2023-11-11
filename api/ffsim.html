@@ -147,7 +147,7 @@ and constant, and returns a <a class="reference internal" href="#ffsim.DoubleFac
 results.</p>
 <p>The number of terms <span class="math notranslate nohighlight">\(t\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold leads to a smaller number of terms.
-Furthermore, the <cite>max_rank</cite> parameter specifies an optional upper bound
+Furthermore, the <cite>max_vecs</cite> parameter specifies an optional upper bound
 on <span class="math notranslate nohighlight">\(t\)</span>.</p>
 <p>The default behavior of this routine is to perform a straightforward
 “exact” factorization of the two-body tensor based on a nested
@@ -168,36 +168,36 @@ the matrix is used because the diagonal Coulomb matrices are symmetric.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hamiltonian</strong> (<a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a>) – The Hamiltonian whose double-factorized representation to
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></span>) – The Hamiltonian whose double-factorized representation to
 compute.</p></li>
-<li><p><strong>z_representation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use the “Z” representation of the
+<li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to use the “Z” representation of the
 decomposition.</p></li>
-<li><p><strong>tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Tolerance for error in the decomposition.
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – An optional limit on the number of terms to keep in the
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – An optional limit on the number of terms to keep in the
 decomposition of the two-body tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
-<li><p><strong>optimize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to optimize the tensors returned by the decomposition.</p></li>
-<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The optimization method. See the documentation of
+<li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition.</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The optimization method. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.</p></li>
 <li><p><strong>callback</strong> – Callback function for the optimization. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
-<li><p><strong>options</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – Options for the optimization. See the documentation of
+<li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span>) – Options for the optimization. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
-<li><p><strong>diag_coulomb_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Diagonal Coulomb matrix mask to use in the optimization.
+<li><p><strong>diag_coulomb_mask</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – Diagonal Coulomb matrix mask to use in the optimization.
 This is a matrix of boolean values where the nonzero elements indicate
 where the diagonal Coulomb matrices returned by optimization are allowed
 to be nonzero. This parameter is only used if <cite>optimize</cite> is set to
 True, and only the upper triangular part of the matrix is used.</p></li>
-<li><p><strong>cholesky</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to perform the factorization using a modified Cholesky
+<li><p><strong>cholesky</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to perform the factorization using a modified Cholesky
 decomposition. If False, a full eigenvalue decomposition is used
 instead, which can be much more expensive. This argument is ignored if
 <cite>optimize</cite> is set to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The double-factorized Hamiltonian.</p>
@@ -217,7 +217,7 @@ instead, which can be much more expensive. This argument is ignored if
 <dd><p>Return the Hamiltonian in the “number” representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -228,7 +228,7 @@ instead, which can be much more expensive. This argument is ignored if
 <dd><p>Return the Hamiltonian in the “Z” representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -286,9 +286,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(3), des_a(0)): -0.25,
-    (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_a(0), des_a(3)): 0.5
 })
 </pre></div>
 </div>
@@ -302,9 +302,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.5,
     (cre_a(0), des_a(3)): 1,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(3), des_a(0)): -0.5
 })
 </pre></div>
 </div>
@@ -324,11 +324,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
-    (des_a(3), des_b(3)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(0), des_a(3)): 0.5,
     (cre_b(2)): 0+1j,
-    (cre_a(0), des_a(3)): 0.5
+    (des_a(3), des_b(3)): -0.25,
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -342,12 +342,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125
 })
 </pre></div>
 </div>
@@ -488,12 +488,12 @@ appear before smaller orbital indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hartree_fock</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SCF</span></code>) – The Hartree-Fock object.</p></li>
-<li><p><strong>active_space</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – An optional list of orbitals to use for the active space.</p></li>
+<li><p><strong>hartree_fock</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCF</span></code></span>) – The Hartree-Fock object.</p></li>
+<li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – An optional list of orbitals to use for the active space.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -647,7 +647,7 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 <dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.UCJOperator" title="ffsim.variational.ucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOperator" title="ffsim.variational.ucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -658,7 +658,7 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 <dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#ffsim.UCJOperator" title="ffsim.variational.ucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOperator" title="ffsim.variational.ucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -681,7 +681,7 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 <dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -692,7 +692,7 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 <dd><p>Convert the UCJ operator to t2 (and possibly t1) amplitudes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -717,16 +717,16 @@ for the terms in the sum where the spins differ (<span class="math notranslate n
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
-<li><p><strong>time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The evolution time.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – A unitary matrix describing the optional orbital rotation.</p></li>
-<li><p><strong>mat_alpha_beta</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – A matrix of coefficients to use for interactions between
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – A unitary matrix describing the optional orbital rotation.</p></li>
+<li><p><strong>mat_alpha_beta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – A matrix of coefficients to use for interactions between
 orbitals with differing spin.</p></li>
-<li><p><strong>z_representation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether the input matrices are in the “Z” representation.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -736,7 +736,7 @@ modified in-place.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The evolved state vector.</p>
@@ -772,13 +772,13 @@ to neighboring qubits:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle for the tunneling interaction.</p></li>
-<li><p><strong>phi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The phase angle for the number-number interaction.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) to interact.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle for the tunneling interaction.</p></li>
+<li><p><strong>phi</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The phase angle for the number-number interaction.</p></li>
+<li><p><strong>target_orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The orbitals (p, q) to interact.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -788,7 +788,7 @@ modified in-place.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -814,12 +814,12 @@ to neighboring qubits:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) to rotate.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle.</p></li>
+<li><p><strong>target_orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The orbitals (p, q) to rotate.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -859,12 +859,12 @@ to neighboring qubits:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) to interact.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle.</p></li>
+<li><p><strong>target_orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The orbitals (p, q) to interact.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -874,7 +874,7 @@ modified in-place.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -890,12 +890,12 @@ modified in-place.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The orbital on which to apply the interaction.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle.</p></li>
+<li><p><strong>target_orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The orbital on which to apply the interaction.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -919,12 +919,12 @@ a^\dagger_{\sigma, q} a_{\sigma, q}\right)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) to interact.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle.</p></li>
+<li><p><strong>target_orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The orbitals (p, q) to interact.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -950,14 +950,14 @@ modified in-place.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – A pair of lists of integers giving the orbitals on which to apply
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle.</p></li>
+<li><p><strong>target_orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – A pair of lists of integers giving the orbitals on which to apply
 the interaction. The first list specifies the alpha orbitals and the second
 list specifies the beta orbitals.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -984,13 +984,13 @@ with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, the <spa
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>coeffs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The coefficients of the linear combination.</p></li>
-<li><p><strong>time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The evolution time.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – A unitary matrix describing the optional orbital rotation.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The coefficients of the linear combination.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – A unitary matrix describing the optional orbital rotation.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -1020,15 +1020,15 @@ transformation given by</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>allow_row_permutation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to allow a permutation of the rows
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>allow_row_permutation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to allow a permutation of the rows
 of the orbital rotation matrix.</p></li>
-<li><p><strong>allow_col_permutation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to allow a permutation of the columns
+<li><p><strong>allow_col_permutation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to allow a permutation of the columns
 of the orbital rotation matrix.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -1038,7 +1038,7 @@ modified in-place.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The transformed vector. If a row or column permutation was allowed,
@@ -1075,12 +1075,12 @@ to neighboring qubits:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>theta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The rotation angle.</p></li>
-<li><p><strong>target_orbs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The orbitals (p, q) on which to apply the interaction.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle.</p></li>
+<li><p><strong>target_orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The orbitals (p, q) on which to apply the interaction.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -1099,11 +1099,11 @@ modified in-place.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The vector to apply the unitary transformation to.</p></li>
-<li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The object with a unitary effect.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The vector to apply the unitary transformation to.</p></li>
+<li><p><strong>obj</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – The object with a unitary effect.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly
@@ -1113,7 +1113,7 @@ modified in-place.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The transformed vector.</p>
@@ -1130,14 +1130,14 @@ parameters <code class="docutils literal notranslate"><span class="pre">rtol</sp
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The first object.</p></li>
-<li><p><strong>other</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The object to compare to.</p></li>
-<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
-<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+<li><p><strong>obj</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – The first object.</p></li>
+<li><p><strong>other</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – The object to compare to.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>True if the objects are approximately equal up to the specified tolerance,
@@ -1153,12 +1153,12 @@ and False otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>spin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – The spin of the orbital. False = alpha, True = beta.</p></li>
-<li><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p></li>
+<li><p><strong>spin</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – The spin of the orbital. False = alpha, True = beta.</p></li>
+<li><p><strong>orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the orbital to act on.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1169,10 +1169,10 @@ and False otherwise.</p>
 <dd><p>Create a fermion with spin alpha.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+<dd class="field-odd"><p><strong>orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the orbital to act on.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1183,10 +1183,10 @@ and False otherwise.</p>
 <dd><p>Create a fermion with spin beta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+<dd class="field-odd"><p><strong>orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the orbital to act on.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1198,12 +1198,12 @@ and False otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>spin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – The spin of the orbital. False = alpha, True = beta.</p></li>
-<li><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p></li>
+<li><p><strong>spin</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – The spin of the orbital. False = alpha, True = beta.</p></li>
+<li><p><strong>orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the orbital to act on.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1214,10 +1214,10 @@ and False otherwise.</p>
 <dd><p>Destroy a fermion with spin alpha.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+<dd class="field-odd"><p><strong>orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the orbital to act on.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1228,10 +1228,10 @@ and False otherwise.</p>
 <dd><p>Destroy a fermion with spin beta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>orb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the orbital to act on.</p>
+<dd class="field-odd"><p><strong>orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the orbital to act on.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionAction" title="ffsim.operators.fermion_action.FermionAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionAction</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1243,12 +1243,12 @@ and False otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The dimension of the FCI space.</p>
@@ -1263,12 +1263,12 @@ and False otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A pair of integers (dim_a, dim_b) representing the dimensions of the
@@ -1301,13 +1301,13 @@ one-body tensors elsewhere in ffsim, i.e.,
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>one_rdm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body reduced density matrix of the Slater determinant.</p></li>
-<li><p><strong>one_body_tensor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body operator.</p></li>
-<li><p><strong>power</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The power.</p></li>
+<li><p><strong>one_rdm</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The one-body reduced density matrix of the Slater determinant.</p></li>
+<li><p><strong>one_body_tensor</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The one-body operator.</p></li>
+<li><p><strong>power</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The power.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The expectation value.</p>
@@ -1340,12 +1340,12 @@ one-body tensors elsewhere in ffsim, i.e.,
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>one_rdm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body reduced density matrix of the Slater determinant.</p></li>
-<li><p><strong>one_body_tensors</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The matrices for the one-body operators.</p></li>
+<li><p><strong>one_rdm</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The one-body reduced density matrix of the Slater determinant.</p></li>
+<li><p><strong>one_body_tensors</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The matrices for the one-body operators.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The expectation value.</p>
@@ -1359,10 +1359,10 @@ one-body tensors elsewhere in ffsim, i.e.,
 <dd><p>Return a FermionOperator representing the object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The object to convert to a LinearOperator.</p>
+<dd class="field-odd"><p><strong>obj</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – The object to convert to a LinearOperator.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A FermionOperator representing the object.</p>
@@ -1377,12 +1377,12 @@ one-body tensors elsewhere in ffsim, i.e.,
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The Hartree-Fock state as a statevector.</p>
@@ -1396,7 +1396,7 @@ one-body tensors elsewhere in ffsim, i.e.,
 <dd><p>Convert statevector indices to bitstrings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1420,12 +1420,12 @@ cached lookup tables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1437,13 +1437,13 @@ cached lookup tables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The object to convert to a LinearOperator.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>obj</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – The object to convert to a LinearOperator.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A Scipy LinearOperator representing the object.</p>
@@ -1458,17 +1458,17 @@ cached lookup tables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hamiltonian</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code> | <a class="reference internal" href="#ffsim.SupportsLinearOperator" title="ffsim.protocols.linear_operator_protocol.SupportsLinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a>) – The Hamiltonian.</p></li>
-<li><p><strong>ansatz_operator</strong> (<a class="reference internal" href="#ffsim.SupportsApplyUnitary" title="ffsim.protocols.apply_unitary_protocol.SupportsApplyUnitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a>) – The ansatz operator.</p></li>
-<li><p><strong>reference_occupations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]) – The orbital occupations of the reference states.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the desired eigenvector. Defaults to 0, which yields the
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code> | <a class="reference internal" href="#ffsim.SupportsLinearOperator" title="ffsim.protocols.linear_operator_protocol.SupportsLinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></span>) – The Hamiltonian.</p></li>
+<li><p><strong>ansatz_operator</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.SupportsApplyUnitary" title="ffsim.protocols.apply_unitary_protocol.SupportsApplyUnitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></span>) – The ansatz operator.</p></li>
+<li><p><strong>reference_occupations</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]</span>) – The orbital occupations of the reference states.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>root</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the desired eigenvector. Defaults to 0, which yields the
 lowest-energy state.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1480,7 +1480,7 @@ lowest-energy state.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]) – The desired shape of the array.</p></li>
+<li><p><strong>shape</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]</span>) – The desired shape of the array.</p></li>
 <li><p><strong>index</strong> – The index at which to place a one.</p></li>
 </ul>
 </dd>
@@ -1521,16 +1521,16 @@ rdm4[p, q, r, s, t, u, v, w] = ⟨p+ q r+ s t+ u v+ w⟩
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector whose reduced density matrix is desired.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>rank</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The rank of the reduced density matrix.</p></li>
-<li><p><strong>spin_summed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to sum over the spin index.</p></li>
-<li><p><strong>reordered</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to reorder the indices of the reduced density matrix.</p></li>
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector whose reduced density matrix is desired.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The rank of the reduced density matrix.</p></li>
+<li><p><strong>spin_summed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to sum over the spin index.</p></li>
+<li><p><strong>reordered</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to reorder the indices of the reduced density matrix.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The reduced density matrix.</p>
@@ -1545,12 +1545,12 @@ rdm4[p, q, r, s, t, u, v, w] = ⟨p+ q r+ s t+ u v+ w⟩
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to evolve.</p></li>
-<li><p><strong>hamiltonian</strong> (<a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a>) – The Hamiltonian.</p></li>
-<li><p><strong>time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The evolution time.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>n_steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of Trotter steps.</p></li>
-<li><p><strong>probabilities</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The sampling method to use, or else an explicit array of
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to evolve.</p></li>
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></span>) – The Hamiltonian.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>n_steps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of Trotter steps.</p></li>
+<li><p><strong>probabilities</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The sampling method to use, or else an explicit array of
 probabilities. If specifying a string, the following options are supported:
 - “norm”: Sample each term with probability proportional to its
 spectral norm.
@@ -1560,14 +1560,14 @@ The “optimal” method requires the one-body reduced density matrix of the
 initial state to be specified. It returns optimal probabilities whenever
 the initial state is completely characterized by this reduced density
 matrix, i.e., it is a Slater determinant.</p></li>
-<li><p><strong>one_rdm</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The one-body reduced density matrix of the initial state.</p></li>
-<li><p><strong>n_samples</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of qDRIFT trajectories to sample.</p></li>
+<li><p><strong>one_rdm</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The one-body reduced density matrix of the initial state.</p></li>
+<li><p><strong>n_samples</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of qDRIFT trajectories to sample.</p></li>
 <li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
 Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A Numpy array representing the final state of the simulation. The shape of the
@@ -1586,13 +1586,13 @@ statevector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to evolve.</p></li>
-<li><p><strong>hamiltonian</strong> (<a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a>) – The Hamiltonian.</p></li>
-<li><p><strong>time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The evolution time.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>n_steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of Trotter steps.</p></li>
-<li><p><strong>order</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The order of the Trotter decomposition.</p></li>
-<li><p><strong>copy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to copy the vector before operating on it.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to evolve.</p></li>
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></span>) – The Hamiltonian.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>n_steps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of Trotter steps.</p></li>
+<li><p><strong>order</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The order of the Trotter decomposition.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
 - If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
 vector and the original vector is left untouched.
 - If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
@@ -1602,7 +1602,7 @@ modified in-place.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The final state of the simulation.</p>
@@ -1617,17 +1617,17 @@ modified in-place.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>occupied_orbitals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – A pair of lists of integers. The first list specifies
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – A pair of lists of integers. The first list specifies
 the occupied alpha orbitals and the second list specifies the occupied
 beta orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – An optional orbital rotation to apply to the
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – An optional orbital rotation to apply to the
 electron configuration. In other words, this is a unitary matrix that
 describes the orbitals of the Slater determinant.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The Slater determinant as a statevector.</p>
@@ -1646,19 +1646,19 @@ describes the orbitals of the Slater determinant.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>occupied_orbitals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – A tuple of two sequences of integers. The first
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – A tuple of two sequences of integers. The first
 sequence contains the indices of the occupied alpha orbitals, and
 the second sequence similarly for the beta orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – An optional orbital rotation to apply to the
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – An optional orbital rotation to apply to the
 electron configuration. In other words, this is a unitary matrix that
 describes the orbitals of the Slater determinant.</p></li>
-<li><p><strong>rank</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The rank of the reduced density matrix.</p></li>
-<li><p><strong>spin_summed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to sum over the spin index.</p></li>
+<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The rank of the reduced density matrix.</p></li>
+<li><p><strong>spin_summed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to sum over the spin index.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The reduced density matrix of the Slater determinant.</p>
@@ -1672,7 +1672,7 @@ describes the orbitals of the Slater determinant.</p></li>
 <dd><p>Return the trace of the object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>

@@ -49,13 +49,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The tensor containing the slices on which to apply the matrix.</p></li>
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix to apply to slices of the target tensor.</p></li>
+<li><p><strong>target</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The tensor containing the slices on which to apply the matrix.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix to apply to slices of the target tensor.</p></li>
 <li><p><strong>slices</strong> – The slices of the target tensor on which to apply the matrix.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The resulting tensor.</p>
@@ -103,33 +103,33 @@ upper triangular part of the matrix is used because the core tensors are symmetr
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>two_body_tensor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The two-body tensor to decompose.</p></li>
-<li><p><strong>tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Tolerance for error in the decomposition.
+<li><p><strong>two_body_tensor</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The two-body tensor to decompose.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – An optional limit on the number of terms to keep in the decomposition
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – An optional limit on the number of terms to keep in the decomposition
 of the two-body tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
-<li><p><strong>optimize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to optimize the tensors returned by the decomposition.</p></li>
-<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The optimization method. See the documentation of
+<li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition.</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The optimization method. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.</p></li>
 <li><p><strong>callback</strong> – Callback function for the optimization. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
-<li><p><strong>options</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – Options for the optimization. See the documentation of
+<li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span>) – Options for the optimization. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
-<li><p><strong>diag_coulomb_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Diagonal Coulomb matrix mask to use in the optimization.
+<li><p><strong>diag_coulomb_mask</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – Diagonal Coulomb matrix mask to use in the optimization.
 This is a matrix of boolean values where the nonzero elements indicate where
 the diagonal coulomb matrices returned by optimization are allowed to be
 nonzero. This parameter is only used if <cite>optimize</cite> is set to <cite>True</cite>, and
 only the upper triangular part of the matrix is used.</p></li>
-<li><p><strong>cholesky</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to perform the factorization using a modified Cholesky
+<li><p><strong>cholesky</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to perform the factorization using a modified Cholesky
 decomposition. If False, a full eigenvalue decomposition is used instead,
 which can be much more expensive. This argument is ignored if <code class="docutils literal notranslate"><span class="pre">optimize</span></code>
 is set to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
@@ -162,17 +162,17 @@ error threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t2_amplitudes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The t2 amplitudes tensor.</p></li>
-<li><p><strong>tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Tolerance for error in the decomposition.
+<li><p><strong>t2_amplitudes</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes tensor.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – An optional limit on the number of terms to keep in the decomposition
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – An optional limit on the number of terms to keep in the decomposition
 of the t2 amplitudes tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
@@ -190,7 +190,7 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dd><p>Compute expm(mat) &#64; vec using a Taylor series expansion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -201,7 +201,7 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dd><p>Givens rotation decomposition of a unitary matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -213,13 +213,13 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix.</p></li>
-<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
-<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the matrix is anti-Hermitian within the given tolerance.</p>
@@ -234,13 +234,13 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix.</p></li>
-<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
-<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the matrix is Hermitian within the given tolerance.</p>
@@ -255,13 +255,13 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix.</p></li>
-<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
-<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the matrix is orthogonal within the given tolerance.</p>
@@ -276,13 +276,13 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix.</p></li>
-<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
-<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the matrix is real and symmetric within the given tolerance.</p>
@@ -297,13 +297,13 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix.</p></li>
-<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
-<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the matrix is special orthogonal within the given tolerance.</p>
@@ -318,13 +318,13 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix.</p></li>
-<li><p><strong>rtol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Relative numerical tolerance.</p></li>
-<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Absolute numerical tolerance.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the matrix is unitary within the given tolerance.</p>
@@ -337,7 +337,7 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">lup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/linalg.html#lup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.lup" title="Link to this definition">¶</a></dt>
 <dd><p>Column-pivoted LU decomposition of a matrix.</p>
 <p>The decomposition is:
-:rtype: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 <div class="math notranslate nohighlight">
 \[A = L U P\]</div>
 <p>where L is a lower triangular matrix with unit diagonal elements,
@@ -366,16 +366,16 @@ error threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The matrix to decompose.</p></li>
-<li><p><strong>tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Tolerance for error in the decomposition.
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix to decompose.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The maximum number of vectors to include in the decomposition.</p></li>
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The maximum number of vectors to include in the decomposition.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The Cholesky vectors v_i assembled into a 2-dimensional Numpy array

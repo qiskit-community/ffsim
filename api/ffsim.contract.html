@@ -56,17 +56,17 @@ for the terms in the sum where the spins differ (<span class="math notranslate n
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>mat_alpha_beta</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – A matrix of coefficients to use for interactions between
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>mat_alpha_beta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – A matrix of coefficients to use for interactions between
 orbitals with differing spin.</p></li>
-<li><p><strong>z_representation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether the input matrices are in the “Z” representation.</p></li>
+<li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The result of applying the diagonal Coulomb operator on the input state vector.</p>
@@ -86,10 +86,10 @@ with spin <span class="math notranslate nohighlight">\(\sigma\)</span> and the <
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The state vector to be transformed.</p></li>
-<li><p><strong>coeffs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The coefficients of the linear combination.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The coefficients of the linear combination.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -110,13 +110,13 @@ state vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body tensor.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The one-body tensor.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A LinearOperator that implements the action of the one-body tensor.</p>
@@ -141,17 +141,17 @@ for the terms in the sum where the spins differ (<span class="math notranslate n
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – A unitary matrix describing the optional orbital rotation.</p></li>
-<li><p><strong>mat_alpha_beta</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – A matrix of coefficients to use for interactions between
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – A unitary matrix describing the optional orbital rotation.</p></li>
+<li><p><strong>mat_alpha_beta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – A matrix of coefficients to use for interactions between
 orbitals with differing spin.</p></li>
-<li><p><strong>z_representation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether the input matrices are in the “Z” representation.</p></li>
+<li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A LinearOperator that implements the action of the diagonal Coulomb operator.</p>
@@ -174,14 +174,14 @@ with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, the <spa
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>coeffs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The coefficients of the linear combination.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>orbital_rotation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – A unitary matrix describing the optional orbital rotation.</p></li>
+<li><p><strong>coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The coefficients of the linear combination.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – A unitary matrix describing the optional orbital rotation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A LinearOperator that implements the action of the linear combination of number
@@ -201,13 +201,13 @@ operators.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The one-body tensor.</p></li>
-<li><p><strong>norb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The one-body tensor.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A LinearOperator that implements the action of the one-body tensor.</p>
