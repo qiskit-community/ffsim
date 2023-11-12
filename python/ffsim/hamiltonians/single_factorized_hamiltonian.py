@@ -15,7 +15,6 @@ import dataclasses
 import numpy as np
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim.contract.num_op_sum import num_op_sum_linop
 from ffsim.contract.one_body import one_body_linop
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg.double_factorized_decomposition import (
