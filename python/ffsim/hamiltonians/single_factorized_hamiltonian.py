@@ -123,8 +123,7 @@ class SingleFactorizedHamiltonian:
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         dim_ = dim(norb, nelec)
-        eigs, vecs = np.linalg.eigh(self.one_body_tensor)
-        num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
+        one_body_tensor_linop = one_body_linop(self.one_body_tensor, norb, nelec)
         one_body_square_linops = [
             0.5 * one_body_linop(one_body, norb, nelec) ** 2
             for one_body in self.one_body_squares
@@ -132,7 +131,7 @@ class SingleFactorizedHamiltonian:
 
         def matvec(vec: np.ndarray):
             result = self.constant * vec
-            result += num_linop @ vec
+            result += one_body_tensor_linop @ vec
             for linop in one_body_square_linops:
                 result += linop @ vec
             return result
