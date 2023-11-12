@@ -96,7 +96,9 @@
 
 <div class="viewcode-block" id="reduced_matrix">
 <a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.reduced_matrix">[docs]</a>
-<span class="k">def</span> <span class="nf">reduced_matrix</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">,</span> <span class="n">vecs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]):</span>
+<span class="k">def</span> <span class="nf">reduced_matrix</span><span class="p">(</span>
+    <span class="n">mat</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">,</span> <span class="n">vecs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute reduced matrix within a subspace spanned by some vectors.</span>
 
 <span class="sd">    Given a linear operator :math:`A` and a list of vectors :math:`\{v_i\}`,</span>
