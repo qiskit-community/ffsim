@@ -51,7 +51,9 @@ def lup(mat: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return u.T, ell.T, p.T
 
 
-def reduced_matrix(mat: scipy.sparse.linalg.LinearOperator, vecs: Sequence[np.ndarray]):
+def reduced_matrix(
+    mat: scipy.sparse.linalg.LinearOperator, vecs: Sequence[np.ndarray]
+) -> np.ndarray:
     r"""Compute reduced matrix within a subspace spanned by some vectors.
 
     Given a linear operator :math:`A` and a list of vectors :math:`\{v_i\}`,
