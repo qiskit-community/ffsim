@@ -18,6 +18,8 @@ import numpy as np
 import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
+from ffsim.hamiltonians.single_factorized_hamiltonian import SingleFactorizedHamiltonian
 from ffsim.linalg.linalg import reduced_matrix
 from ffsim.protocols.apply_unitary_protocol import SupportsApplyUnitary, apply_unitary
 from ffsim.protocols.linear_operator_protocol import (
@@ -66,3 +68,62 @@ def multireference_state(
     coeffs = vecs[:, root]
     energy = np.real(np.sum(np.outer(coeffs, coeffs) * mat))
     return energy, np.tensordot(coeffs, basis_states, axes=1)
+
+
+def multireference_state_product_operator(
+    hamiltonian: MolecularHamiltonian,
+    ansatz_operator: tuple[SupportsApplyUnitary, SupportsApplyUnitary],
+    reference_occupations: Sequence[tuple[Sequence[int], Sequence[int]]],
+    norb: int,
+    nelec: tuple[int, int],
+    root: int = 0,  # use lowest eigenvector by default
+    tol: float = 1e-8,
+) -> tuple[float, list[tuple[np.ndarray, np.ndarray]], np.ndarray]:
+    """Compute multireference state for a product ansatz operator.
+
+    Args:
+        hamiltonian: The Hamiltonian.
+        ansatz_operator: The alpha and beta parts of the ansatz operator.
+        reference_occupations: The orbital occupations of the reference states.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        root: The index of the desired eigenvector. Defaults to 0, which yields the
+            lowest-energy state.
+        tol: Numerical tolerance to use for the single factorization of the molecular
+            Hamiltonian.
+
+    Returns:
+        The energy of the multireference state, the coefficients of the basis vectors
+        in the multireference state, and the basis vectors themselves, as a list of
+        pairs of vectors, where each pair contains the alpha and the beta components of
+        the full basis vector.
+    """
+    sf_hamiltonian = SingleFactorizedHamiltonian.from_molecular_hamiltonian(
+        hamiltonian, tol=tol
+    )
+    n_alpha, n_beta = nelec
+    ansatz_operator_a, ansatz_operator_b = ansatz_operator
+    basis_states = [
+        (
+            apply_unitary(
+                slater_determinant(norb=norb, occupied_orbitals=(occ_a, [])),
+                ansatz_operator_a,
+                norb=norb,
+                nelec=(n_alpha, 0),
+                copy=False,
+            ),
+            apply_unitary(
+                slater_determinant(norb=norb, occupied_orbitals=([], occ_b)),
+                ansatz_operator_b,
+                norb=norb,
+                nelec=(0, n_beta),
+                copy=False,
+            ),
+        )
+        for occ_a, occ_b in reference_occupations
+    ]
+    mat = sf_hamiltonian.reduced_matrix_product_states(basis_states, norb, nelec)
+    _, vecs = scipy.linalg.eigh(mat)
+    coeffs = vecs[:, root]
+    energy = np.real(np.sum(np.outer(coeffs, coeffs) * mat))
+    return energy, coeffs, basis_states

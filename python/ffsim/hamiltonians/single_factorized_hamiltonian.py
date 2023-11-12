@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Sequence
 
 import numpy as np
 from scipy.sparse.linalg import LinearOperator
@@ -136,3 +137,103 @@ class SingleFactorizedHamiltonian:
         return LinearOperator(
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
+
+    def reduced_matrix_product_states(
+        self,
+        vecs: Sequence[tuple[np.ndarray, np.ndarray]],
+        norb: int,
+        nelec: tuple[int, int],
+    ) -> np.ndarray:
+        """Return reduced matrix within a subspace spanned by some product states."""
+        n_alpha, n_beta = nelec
+        one_body_tensor_linop_a = one_body_linop(
+            self.one_body_tensor, norb, (n_alpha, 0)
+        )
+        one_body_tensor_linop_b = one_body_linop(
+            self.one_body_tensor, norb, (0, n_beta)
+        )
+        one_body_square_linops_a = [
+            one_body_linop(one_body, norb, (n_alpha, 0))
+            for one_body in self.one_body_squares
+        ]
+        one_body_square_linops_b = [
+            one_body_linop(one_body, norb, (0, n_beta))
+            for one_body in self.one_body_squares
+        ]
+
+        dim = len(vecs)
+        result = np.zeros((dim, dim), dtype=complex)
+        for j, (vec_a_j, vec_b_j) in enumerate(vecs):
+            # vec 0 is A @ vec where A is the one-body term of teh Hamiltonian
+            vec_0_a = one_body_tensor_linop_a @ vec_a_j
+            vec_0_b = one_body_tensor_linop_b @ vec_b_j
+            # vec 1 is M @ vec where M is a term that is squared in the Hamiltonian
+            vecs_1_a = []
+            vecs_1_b = []
+            # vec 2 is M**2 @ vec where M is a term that is squared in the Hamiltonian
+            vecs_2_a = []
+            vecs_2_b = []
+            for linop_a, linop_b in zip(
+                one_body_square_linops_a, one_body_square_linops_b
+            ):
+                vec_1_a = linop_a @ vec_a_j
+                vec_2_a = linop_a @ vec_1_a
+                vec_1_b = linop_b @ vec_b_j
+                vec_2_b = linop_b @ vec_1_b
+                vecs_1_a.append(vec_1_a)
+                vecs_2_a.append(vec_2_a)
+                vecs_1_b.append(vec_1_b)
+                vecs_2_b.append(vec_2_b)
+            for i, (vec_a_i, vec_b_i) in enumerate(vecs):
+                overlap_a = np.vdot(vec_a_i, vec_a_j)
+                overlap_b = np.vdot(vec_b_i, vec_b_j)
+                val = (
+                    self.constant * overlap_a * overlap_b
+                    + np.vdot(vec_a_i, vec_0_a) * overlap_b
+                    + np.vdot(vec_b_i, vec_0_b) * overlap_a
+                )
+                for vec_1_a, vec_1_b, vec_2_a, vec_2_b in zip(
+                    vecs_1_a, vecs_1_b, vecs_2_a, vecs_2_b
+                ):
+                    val += 0.5 * (
+                        np.vdot(vec_a_i, vec_2_a) * overlap_b
+                        + np.vdot(vec_b_i, vec_2_b) * overlap_a
+                    ) + np.vdot(vec_a_i, vec_1_a) * np.vdot(vec_b_i, vec_1_b)
+                result[i, j] = val
+        return result
+
+    def expectation_product_state(
+        self, vec: tuple[np.ndarray, np.ndarray], norb: int, nelec: tuple[int, int]
+    ) -> float:
+        """Return expectation value with respect to a product state."""
+        n_alpha, n_beta = nelec
+        one_body_tensor_linop_a = one_body_linop(
+            self.one_body_tensor, norb, (n_alpha, 0)
+        )
+        one_body_tensor_linop_b = one_body_linop(
+            self.one_body_tensor, norb, (0, n_beta)
+        )
+        one_body_square_linops_a = [
+            one_body_linop(one_body, norb, (n_alpha, 0))
+            for one_body in self.one_body_squares
+        ]
+        one_body_square_linops_b = [
+            one_body_linop(one_body, norb, (0, n_beta))
+            for one_body in self.one_body_squares
+        ]
+
+        vec_a, vec_b = vec
+        result = (
+            self.constant
+            + np.vdot(vec_a, one_body_tensor_linop_a @ vec_a)
+            + np.vdot(vec_b, one_body_tensor_linop_b @ vec_b)
+        )
+        for linop_a, linop_b in zip(one_body_square_linops_a, one_body_square_linops_b):
+            vec_1_a = linop_a @ vec_a
+            vec_2_a = linop_a @ vec_1_a
+            vec_1_b = linop_b @ vec_b
+            vec_2_b = linop_b @ vec_1_b
+            result += 0.5 * (
+                np.vdot(vec_a, vec_2_a) + np.vdot(vec_b, vec_2_b)
+            ) + np.vdot(vec_a, vec_1_a) * np.vdot(vec_b, vec_1_b)
+        return result.real

@@ -79,6 +79,7 @@ from ffsim.variational import (
     RealUCJOperator,
     UCJOperator,
     multireference_state,
+    multireference_state_product_operator,
 )
 
 __all__ = [
@@ -130,6 +131,7 @@ __all__ = [
     "linalg",
     "linear_operator",
     "multireference_state",
+    "multireference_state_product_operator",
     "number_operator",
     "one_hot",
     "optimize",
