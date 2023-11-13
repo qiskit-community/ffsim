@@ -99,7 +99,9 @@
     <span class="p">]</span>
     <span class="n">mat</span> <span class="o">=</span> <span class="n">reduced_matrix</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">basis_states</span><span class="p">)</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">vecs</span><span class="p">[:,</span> <span class="n">root</span><span class="p">],</span> <span class="n">basis_states</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[:,</span> <span class="n">root</span><span class="p">]</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">)</span> <span class="o">*</span> <span class="n">mat</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">energy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">basis_states</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 </pre></div>
 
