@@ -35,7 +35,7 @@ def multireference_state(
     nelec: tuple[int, int],
     root: int = 0,  # use lowest eigenvector by default
 ) -> tuple[float, np.ndarray]:
-    """Compute multireference state.
+    """Compute multireference energy and state.
 
     Args:
         hamiltonian: The Hamiltonian.
@@ -45,6 +45,9 @@ def multireference_state(
         nelec: The number of alpha and beta electrons.
         root: The index of the desired eigenvector. Defaults to 0, which yields the
             lowest-energy state.
+
+    Returns:
+        The energy of the multireference state, and the state itself.
     """
     if not isinstance(hamiltonian, LinearOperator):
         hamiltonian = linear_operator(hamiltonian, norb=norb, nelec=nelec)
