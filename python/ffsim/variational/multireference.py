@@ -60,4 +60,6 @@ def multireference_state(
     ]
     mat = reduced_matrix(hamiltonian, basis_states)
     _, vecs = scipy.linalg.eigh(mat)
-    return np.tensordot(vecs[:, root], basis_states, axes=1)
+    coeffs = vecs[:, root]
+    energy = np.real(np.sum(np.outer(coeffs, coeffs) * mat))
+    return energy, np.tensordot(coeffs, basis_states, axes=1)
