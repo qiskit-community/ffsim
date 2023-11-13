@@ -34,7 +34,7 @@ def multireference_state(
     norb: int,
     nelec: tuple[int, int],
     root: int = 0,  # use lowest eigenvector by default
-) -> np.ndarray:
+) -> tuple[float, np.ndarray]:
     """Compute multireference state.
 
     Args:
