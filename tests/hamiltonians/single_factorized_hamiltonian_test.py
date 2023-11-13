@@ -31,8 +31,6 @@ import ffsim
 )
 def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     """Test linear operator."""
-    norb = 4
-    nelec = (2, 2)
     rng = np.random.default_rng(2474)
 
     dim = ffsim.dim(norb, nelec)
