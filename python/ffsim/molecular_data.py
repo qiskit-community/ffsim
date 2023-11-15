@@ -14,7 +14,8 @@ import dataclasses
 from collections.abc import Iterable, Sequence
 
 import numpy as np
-from pyscf import ao2mo, mcscf, scf, symm
+from pyscf import ao2mo, mcscf, symm
+from pyscf.scf.hf import SCF
 
 from ffsim.hamiltonians import MolecularHamiltonian
 
@@ -41,9 +42,7 @@ MOLPRO_ID = {
 }
 
 
-def orbital_symmetries(
-    hartree_fock: scf.hf.SCF, orbitals: Sequence[int]
-) -> list[int] | None:
+def orbital_symmetries(hartree_fock: SCF, orbitals: Sequence[int]) -> list[int] | None:
     if not hartree_fock.mol.symmetry:
         return None
 
@@ -61,18 +60,28 @@ class MolecularData:
     Attributes:
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
+        mo_occ: Hartree-Fock canonical orbital occupancies.
+        active_space: The orbitals included in the active space.
         core_energy: The core energy.
         one_body_tensor: The one-body tensor.
         two_body_tensor: The two-body tensor.
+        hf_energy: The Hartree-Fock energy.
+        fci_energy: The FCI energy.
         dipole_integrals: The dipole integrals.
         orbital_symmetries: The orbital symmetries.
     """
 
     norb: int
     nelec: tuple[int, int]
+    mo_coeff: np.ndarray
+    mo_occ: np.ndarray
+    active_space: list[int]
     core_energy: float
     one_body_tensor: np.ndarray
     two_body_tensor: np.ndarray
+    hf_energy: float
+    fci_energy: float | None = None
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[int] | None = None
 
@@ -87,34 +96,49 @@ class MolecularData:
 
     @staticmethod
     def from_hartree_fock(
-        hartree_fock: scf.hf.SCF, active_space: Iterable[int] | None = None
+        hartree_fock: SCF,
+        active_space: Iterable[int] | None = None,
+        fci: bool = False,
     ) -> "MolecularData":
         """Initialize a MolecularData object from a Hartree-Fock calculation.
 
         Args:
             hartree_fock: The Hartree-Fock object.
             active_space: An optional list of orbitals to use for the active space.
+            fci: Whether to calculate and store the FCI energy.
         """
+        if not hartree_fock.e_tot:
+            raise ValueError(
+                "You must run the Hartree-Fock object before a MolecularData can be "
+                "initialized from it."
+            )
+        hf_energy = hartree_fock.e_tot
+
+        # get core energy and one- and two-body integrals
         if active_space is None:
             norb = hartree_fock.mol.nao_nr()
             active_space = range(norb)
-
         active_space = list(active_space)
         norb = len(active_space)
         n_electrons = int(sum(hartree_fock.mo_occ[active_space]))
         n_alpha = (n_electrons + hartree_fock.mol.spin) // 2
         n_beta = (n_electrons - hartree_fock.mol.spin) // 2
-
         cas = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
         mo = cas.sort_mo(active_space, base=0)
         one_body_tensor, core_energy = cas.get_h1cas(mo)
         two_body_tensor = ao2mo.restore(1, cas.get_h2cas(mo), cas.ncas)
 
+        # run FCI if requested
+        fci_energy = None
+        if fci:
+            cas.run(mo)
+            fci_energy = cas.e_tot
+
+        # compute dipole integrals
         charges = hartree_fock.mol.atom_charges()
         coords = hartree_fock.mol.atom_coords()
         nuc_charge_center = np.einsum("z,zx->x", charges, coords) / charges.sum()
         hartree_fock.mol.set_common_orig_(nuc_charge_center)
-
         mo_coeffs = hartree_fock.mo_coeff[:, active_space]
         dipole_integrals = hartree_fock.mol.intor("cint1e_r_sph", comp=3)
         dipole_integrals = np.einsum(
@@ -126,9 +150,14 @@ class MolecularData:
         return MolecularData(
             norb=norb,
             nelec=(n_alpha, n_beta),
+            mo_coeff=hartree_fock.mo_coeff,
+            mo_occ=hartree_fock.mo_occ,
+            active_space=active_space,
             core_energy=core_energy,
             one_body_tensor=one_body_tensor,
             two_body_tensor=two_body_tensor,
+            hf_energy=hf_energy,
+            fci_energy=fci_energy,
             dipole_integrals=dipole_integrals,
             orbital_symmetries=orbsym,
         )
