@@ -105,7 +105,7 @@ def test_t_amplitudes():
     hartree_fock.kernel()
 
     # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
-    mol_data = ffsim.MolecularData.from_hartree_fock(hartree_fock)
+    mol_data = ffsim.MolecularData.from_scf(hartree_fock)
     norb = mol_data.norb
     nelec = mol_data.nelec
     mol_hamiltonian = mol_data.hamiltonian

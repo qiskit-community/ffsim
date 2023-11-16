@@ -62,9 +62,7 @@ def test_linear_operator():
     energy_fci = cas.kernel(mo)[0]
 
     # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
-    mol_data = ffsim.MolecularData.from_hartree_fock(
-        hartree_fock, active_space=active_space
-    )
+    mol_data = ffsim.MolecularData.from_scf(hartree_fock, active_space=active_space)
     norb = mol_data.norb
     nelec = mol_data.nelec
     mol_hamiltonian = mol_data.hamiltonian
