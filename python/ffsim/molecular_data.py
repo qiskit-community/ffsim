@@ -100,7 +100,7 @@ class MolecularData:
         )
 
     @staticmethod
-    def from_hartree_fock(
+    def from_scf(
         hartree_fock: SCF,
         active_space: Iterable[int] | None = None,
         fci: bool = False,
@@ -184,6 +184,4 @@ class MolecularData:
         """
         hartree_fock = scf_func(molecule)
         hartree_fock.run()
-        return MolecularData.from_hartree_fock(
-            hartree_fock, active_space=active_space, fci=fci
-        )
+        return MolecularData.from_scf(hartree_fock, active_space=active_space, fci=fci)

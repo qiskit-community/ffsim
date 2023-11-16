@@ -49,7 +49,7 @@ def test_hartree_fock_state():
     hartree_fock = pyscf.scf.RHF(mol)
     hartree_fock_energy = hartree_fock.kernel()
 
-    mol_data = ffsim.MolecularData.from_hartree_fock(hartree_fock)
+    mol_data = ffsim.MolecularData.from_scf(hartree_fock)
 
     vec = ffsim.hartree_fock_state(mol_data.norb, mol_data.nelec)
     hamiltonian = ffsim.linear_operator(
