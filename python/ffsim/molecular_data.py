@@ -65,7 +65,7 @@ class MolecularData:
         active_space: The orbitals included in the active space.
         core_energy: The core energy.
         one_body_tensor: The one-body tensor.
-        two_body_tensor: The two-body tensor.
+        two_body_integrals: The two-body integrals in compressed format.
         hf_energy: The Hartree-Fock energy.
         fci_energy: The FCI energy.
         dipole_integrals: The dipole integrals.
@@ -79,11 +79,16 @@ class MolecularData:
     active_space: list[int]
     core_energy: float
     one_body_tensor: np.ndarray
-    two_body_tensor: np.ndarray
+    two_body_integrals: np.ndarray
     hf_energy: float
     fci_energy: float | None = None
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[int] | None = None
+
+    @property
+    def two_body_tensor(self) -> np.ndarray:
+        """The two-body tensor."""
+        return ao2mo.restore(1, self.two_body_integrals, self.norb)
 
     @property
     def hamiltonian(self) -> MolecularHamiltonian:
@@ -126,7 +131,7 @@ class MolecularData:
         cas = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
         mo = cas.sort_mo(active_space, base=0)
         one_body_tensor, core_energy = cas.get_h1cas(mo)
-        two_body_tensor = ao2mo.restore(1, cas.get_h2cas(mo), cas.ncas)
+        two_body_integrals = cas.get_h2cas(mo)
 
         # run FCI if requested
         fci_energy = None
@@ -155,7 +160,7 @@ class MolecularData:
             active_space=active_space,
             core_energy=core_energy,
             one_body_tensor=one_body_tensor,
-            two_body_tensor=two_body_tensor,
+            two_body_integrals=two_body_integrals,
             hf_energy=hf_energy,
             fci_energy=fci_energy,
             dipole_integrals=dipole_integrals,
