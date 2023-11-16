@@ -14,7 +14,7 @@ import dataclasses
 from collections.abc import Iterable, Sequence
 
 import numpy as np
-from pyscf import ao2mo, mcscf, symm
+from pyscf import ao2mo, gto, mcscf, scf, symm
 from pyscf.scf.hf import SCF
 
 from ffsim.hamiltonians import MolecularHamiltonian
@@ -165,4 +165,25 @@ class MolecularData:
             fci_energy=fci_energy,
             dipole_integrals=dipole_integrals,
             orbital_symmetries=orbsym,
+        )
+
+    @staticmethod
+    def from_mole(
+        molecule: gto.Mole,
+        active_space: Iterable[int] | None = None,
+        fci: bool = False,
+        scf_func=scf.RHF,
+    ) -> "MolecularData":
+        """Initialize a MolecularData object from a pySCF molecule.
+
+        Args:
+            molecule: The molecule.
+            active_space: An optional list of orbitals to use for the active space.
+            fci: Whether to calculate and store the FCI energy.
+            scf_func: The pySCF SCF function to use for the Hartree-Fock calculation.
+        """
+        hartree_fock = scf_func(molecule)
+        hartree_fock.run()
+        return MolecularData.from_hartree_fock(
+            hartree_fock, active_space=active_space, fci=fci
         )
