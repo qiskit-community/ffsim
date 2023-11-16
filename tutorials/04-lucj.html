@@ -96,7 +96,7 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.4456267643962
-CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -147,8 +147,8 @@ two sets of matrices for describing the diagonal Coulomb operators: “alpha-alp
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754473  E_corr = -0.0482453631485131
-Energy at initialialization: -77.46975600021673
+E(CCSD) = -77.49387212754476  E_corr = -0.0482453631485155
+Energy at initialialization: -77.46975600021682
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -187,12 +187,12 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -77.51547693774563
-        x: [-1.527e-01  2.033e-01 ...  5.776e-01  8.064e-02]
+      fun: -77.51602000415767
+        x: [-1.450e-01  1.882e-01 ... -6.230e-01 -6.372e-02]
       nit: 9
-      jac: [-7.604e-03 -1.028e-02 ... -7.360e-03 -2.186e-03]
-     nfev: 1095
-     njev: 15
+      jac: [ 4.214e-03 -9.109e-03 ... -3.135e-03 -2.609e-03]
+     nfev: 1168
+     njev: 16
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -251,12 +251,12 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -77.46196288862156
-        x: [-3.710e-01  8.463e-02 ...  6.917e-01 -1.381e-01]
-      nit: 16
-      jac: [-1.269e-03  8.725e-04 ...  3.594e-03 -1.532e-03]
-     nfev: 1034
-     njev: 22
+      fun: -77.46092201419773
+        x: [-3.252e-01  8.067e-02 ... -5.691e-01  2.535e-01]
+      nit: 18
+      jac: [-2.576e-03  2.274e-04 ...  1.528e-03 -2.473e-04]
+     nfev: 1081
+     njev: 23
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
