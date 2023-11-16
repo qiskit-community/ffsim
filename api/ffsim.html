@@ -269,9 +269,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -285,9 +285,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
     (cre_a(0), des_a(3)): 1,
-    (cre_a(3), des_a(0)): -0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
+    (cre_a(3), des_a(0)): -0.5
 })
 </pre></div>
 </div>
@@ -307,11 +307,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5,
     (des_a(3), des_b(3)): -0.25,
-    (cre_b(2)): 0+1j
+    (cre_a(0), des_a(3)): 0.5,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_b(2)): 0+1j,
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -325,12 +325,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125
 })
 </pre></div>
 </div>
@@ -495,8 +495,27 @@ appear before smaller orbital indices.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ffsim.MolecularData.from_hartree_fock">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hartree_fock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hartree_fock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_hartree_fock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_hartree_fock" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ffsim.MolecularData.from_mole">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_func=&lt;function</span> <span class="pre">RHF&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_mole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_mole" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize a MolecularData object from a pySCF molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mole</span></code></span>) – The molecule.</p></li>
+<li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – An optional list of orbitals to use for the active space.</p></li>
+<li><p><strong>fci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the FCI energy.</p></li>
+<li><p><strong>scf_func</strong> – The pySCF SCF function to use for the Hartree-Fock calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularData.from_scf">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_scf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hartree_fock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_scf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_scf" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MolecularData object from a Hartree-Fock calculation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

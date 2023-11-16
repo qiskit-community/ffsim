@@ -51,7 +51,7 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyscf</span> <span class="kn">import</span> <span class="n">ao2mo</span><span class="p">,</span> <span class="n">mcscf</span><span class="p">,</span> <span class="n">symm</span>
+<span class="kn">from</span> <span class="nn">pyscf</span> <span class="kn">import</span> <span class="n">ao2mo</span><span class="p">,</span> <span class="n">gto</span><span class="p">,</span> <span class="n">mcscf</span><span class="p">,</span> <span class="n">scf</span><span class="p">,</span> <span class="n">symm</span>
 <span class="kn">from</span> <span class="nn">pyscf.scf.hf</span> <span class="kn">import</span> <span class="n">SCF</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
@@ -138,10 +138,10 @@
             <span class="n">constant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">core_energy</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="MolecularData.from_hartree_fock">
-<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_hartree_fock">[docs]</a>
+<div class="viewcode-block" id="MolecularData.from_scf">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_scf">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_hartree_fock</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">from_scf</span><span class="p">(</span>
         <span class="n">hartree_fock</span><span class="p">:</span> <span class="n">SCF</span><span class="p">,</span>
         <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fci</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -207,6 +207,28 @@
             <span class="n">dipole_integrals</span><span class="o">=</span><span class="n">dipole_integrals</span><span class="p">,</span>
             <span class="n">orbital_symmetries</span><span class="o">=</span><span class="n">orbsym</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.from_mole">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_mole">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_mole</span><span class="p">(</span>
+        <span class="n">molecule</span><span class="p">:</span> <span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">,</span>
+        <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fci</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">scf_func</span><span class="o">=</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MolecularData&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData object from a pySCF molecule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molecule: The molecule.</span>
+<span class="sd">            active_space: An optional list of orbitals to use for the active space.</span>
+<span class="sd">            fci: Whether to calculate and store the FCI energy.</span>
+<span class="sd">            scf_func: The pySCF SCF function to use for the Hartree-Fock calculation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hartree_fock</span> <span class="o">=</span> <span class="n">scf_func</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
+        <span class="n">hartree_fock</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">,</span> <span class="n">fci</span><span class="o">=</span><span class="n">fci</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

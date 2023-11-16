@@ -73,16 +73,12 @@
     "    basis=\"sto-6g\",\n",
     "    symmetry=\"d2h\",\n",
     ")\n",
-    "hartree_fock = pyscf.scf.RHF(mol)\n",
-    "hartree_fock.kernel()\n",
     "\n",
     "# Define active space\n",
     "active_space = range(mol.nelectron // 2 - 2, mol.nelectron // 2 + 2)\n",
     "\n",
     "# Get molecular data and molecular Hamiltonian (one- and two-body tensors)\n",
-    "mol_data = ffsim.MolecularData.from_hartree_fock(\n",
-    "    hartree_fock, active_space=active_space\n",
-    ")\n",
+    "mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)\n",
     "norb = mol_data.norb\n",
     "nelec = mol_data.nelec\n",
     "mol_hamiltonian = mol_data.hamiltonian\n",
@@ -292,7 +288,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Hartree Fock energy: -77.44562676439625\n"
+      "Hartree Fock energy: -77.44562676439628\n"
      ]
     }
    ],
@@ -324,7 +320,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of evolved state w.r.t. initial state: 0.9315062301402589\n"
+      "Fidelity of evolved state w.r.t. initial state: 0.9315062301399599\n"
      ]
     }
    ],
@@ -359,7 +355,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.9928527668216167\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9928527668213422\n"
      ]
     }
    ],
@@ -393,7 +389,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.9999320851289362\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9999320851286914\n"
      ]
     }
    ],
@@ -429,7 +425,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.9999320851289362\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9999320851286914\n"
      ]
     }
    ],
@@ -464,7 +460,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.9999913261310289\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9999913261307772\n"
      ]
     }
    ],
