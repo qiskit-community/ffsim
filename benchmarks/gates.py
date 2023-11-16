@@ -101,6 +101,16 @@ class GatesBenchmark:
             copy=False,
         )
 
+    def time_apply_num_num_interaction(self, *_):
+        ffsim.apply_num_num_interaction(
+            self.vec,
+            theta=1.0,
+            target_orbs=(0, 1),
+            norb=self.norb,
+            nelec=self.nelec,
+            copy=False,
+        )
+
     def time_apply_num_op_prod_interaction(self, *_):
         ffsim.apply_num_op_prod_interaction(
             self.vec,
