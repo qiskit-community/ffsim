@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import cmath
+import math
 from collections.abc import Sequence
 
 import numpy as np
@@ -94,8 +96,8 @@ def apply_givens_rotation(
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
-    c = np.cos(theta)
-    s = np.sin(theta)
+    c = math.cos(theta)
+    s = math.sin(theta)
     mat = np.eye(norb)
     mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
     return apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=copy)
@@ -149,13 +151,13 @@ def apply_tunneling_interaction(
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
     vec = apply_num_interaction(
-        vec, -np.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=copy
+        vec, -math.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=copy
     )
     vec = apply_givens_rotation(
         vec, theta, target_orbs, norb=norb, nelec=nelec, copy=False
     )
     vec = apply_num_interaction(
-        vec, np.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=False
+        vec, math.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=False
     )
     return vec
 
@@ -313,7 +315,7 @@ def apply_num_op_prod_interaction(
     alpha_orbs, beta_orbs = target_orbs
     vec = _apply_phase_shift(
         vec,
-        np.exp(1j * theta),
+        cmath.exp(1j * theta),
         (tuple(alpha_orbs), tuple(beta_orbs)),
         norb=norb,
         nelec=nelec,
@@ -380,7 +382,7 @@ def apply_hop_gate(
         vec, theta, target_orbs, norb=norb, nelec=nelec, copy=False
     )
     vec = apply_num_num_interaction(
-        vec, np.pi, target_orbs, norb=norb, nelec=nelec, copy=False
+        vec, math.pi, target_orbs, norb=norb, nelec=nelec, copy=False
     )
     return vec
 
