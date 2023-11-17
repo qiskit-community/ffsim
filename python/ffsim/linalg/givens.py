@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import cmath
+
 import numpy as np
 from scipy.linalg.blas import zrotg as zrotg_
 from scipy.linalg.lapack import zrot
@@ -57,9 +59,9 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
     Note that in contrast to `scipy.linalg.blas.zrotg`, this function returns c as a
     float rather than a complex.
     """
-    if np.isclose(a, 0.0, atol=tol):
+    if cmath.isclose(a, 0.0, abs_tol=tol):
         return 0.0, 1 + 0j
-    if np.isclose(b, 0.0, atol=tol):
+    if cmath.isclose(b, 0.0, abs_tol=tol):
         return 1.0, 0j
     c, s = zrotg_(a, b)
     return c.real, s
@@ -81,7 +83,7 @@ def givens_decomposition(
             for j in range(i + 1):
                 target_index = i - j
                 row = n - j - 1
-                if not np.isclose(current_matrix[row, target_index], 0.0):
+                if not cmath.isclose(current_matrix[row, target_index], 0.0):
                     # zero out element at target index in given row
                     c, s = zrotg(
                         current_matrix[row, target_index + 1],
@@ -104,7 +106,7 @@ def givens_decomposition(
             for j in range(i + 1):
                 target_index = n - i + j - 1
                 col = j
-                if not np.isclose(current_matrix[target_index, col], 0.0):
+                if not cmath.isclose(current_matrix[target_index, col], 0.0):
                     # zero out element at target index in given column
                     c, s = zrotg(
                         current_matrix[target_index - 1, col],
