@@ -91,7 +91,7 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.4456267643962
-CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -142,8 +142,8 @@ have two sets of matrices for describing the diagonal Coulomb operators: “alph
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851482
-Energy at initialialization: -77.46975600021693
+E(CCSD) = -77.49387212754471  E_corr = -0.0482453631485139
+Energy at initialialization: -77.46975600021655
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -182,10 +182,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -77.51506644976763
-        x: [-1.550e-01  1.930e-01 ... -6.048e-01  1.979e-01]
+      fun: -77.5154398376577
+        x: [-1.526e-01  2.036e-01 ...  5.767e-01  7.968e-02]
       nit: 9
-      jac: [-6.601e-03 -2.991e-03 ... -7.429e-03  2.380e-03]
+      jac: [-7.765e-03 -1.053e-02 ... -8.063e-03 -1.764e-03]
      nfev: 1095
      njev: 15
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -246,10 +246,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -77.46185272968222
-        x: [-3.230e-01  6.920e-02 ... -5.064e-01  2.134e-01]
-      nit: 17
-      jac: [ 8.100e-04 -1.833e-04 ... -1.165e-04 -1.222e-04]
+      fun: -77.45904067934694
+        x: [-2.856e-01  8.844e-02 ...  6.662e-01 -1.750e-01]
+      nit: 15
+      jac: [ 8.248e-03 -1.070e-03 ... -2.139e-03  1.910e-03]
      nfev: 1034
      njev: 22
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
