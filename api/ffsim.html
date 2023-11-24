@@ -269,8 +269,8 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5
 })
 </pre></div>
@@ -307,11 +307,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
-    (des_a(3), des_b(3)): -0.25,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_b(2)): 0+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (des_a(3), des_b(3)): -0.25,
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -326,11 +326,11 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j
 })
 </pre></div>
 </div>
@@ -595,6 +595,112 @@ the two-body tensor.</p>
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.norb">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.MolecularHamiltonian.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">RealUCJOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#RealUCJOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.RealUCJOperator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Real-valued unitary cluster Jastrow operator.</p>
+<p>A real-valued unitary cluster Jastrow (UCJ) operator has the form</p>
+<div class="math notranslate nohighlight">
+\[\prod_{k = 1}^L
+\mathcal{W_k^*} e^{i \mathcal{-J}_k} \mathcal{W_k}^T
+\mathcal{W_k} e^{i \mathcal{J}_k} \mathcal{W_k^\dagger}\]</div>
+<p>where each <span class="math notranslate nohighlight">\(\mathcal{W_k}\)</span> is an orbital rotation and each <span class="math notranslate nohighlight">\(\mathcal{J}\)</span>
+is a diagonal Coulomb operator of the form</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{J} = \frac12\sum_{ij,\sigma \tau}
+\mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.\]</div>
+<p>In order that the operator commutes with the total spin operator, we enforce that
+<span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}\)</span> and
+<span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}\)</span>. As a result, we have
+two sets of matrices for describing the diagonal Coulomb operators:
+“alpha-alpha” matrices containing coefficients for terms involving the same spin,
+and “alpha-beta” matrices containing coefficients for terms involving different
+spins.</p>
+<p>To support variational optimization of the orbital basis, an optional final
+orbital rotation can be included in the operator, to be performed at the end.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.diag_coulomb_mats_alpha_alpha">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span><a class="headerlink" href="#ffsim.RealUCJOperator.diag_coulomb_mats_alpha_alpha" title="Link to this definition">¶</a></dt>
+<dd><p>The “alpha-alpha” diagonal Coulomb matrices.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.diag_coulomb_mats_alpha_beta">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_beta</span></span><a class="headerlink" href="#ffsim.RealUCJOperator.diag_coulomb_mats_alpha_beta" title="Link to this definition">¶</a></dt>
+<dd><p>The “alpha-beta” diagonal Coulomb matrices.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.orbital_rotations">
+<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.RealUCJOperator.orbital_rotations" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital rotations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.final_orbital_rotation">
+<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.RealUCJOperator.final_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>The optional final orbital rotation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#RealUCJOperator.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.RealUCJOperator.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the real UCJ operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.RealUCJOperator" title="ffsim.variational.ucj.RealUCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealUCJOperator</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.from_t_amplitudes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2_amplitudes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1_amplitudes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#RealUCJOperator.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.RealUCJOperator.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the real UCJ operator from t2 (and optionally t1) amplitudes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.RealUCJOperator" title="ffsim.variational.ucj.RealUCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealUCJOperator</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.n_reps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.RealUCJOperator.n_reps" title="Link to this definition">¶</a></dt>
+<dd><p>The number of ansatz repetitions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.RealUCJOperator.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#RealUCJOperator.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.RealUCJOperator.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the real UCJ operator to a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.to_t_amplitudes">
+<span class="sig-name descname"><span class="pre">to_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nocc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#RealUCJOperator.to_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.RealUCJOperator.to_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the UCJ operator to t2 (and possibly t1) amplitudes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1845,6 +1951,7 @@ describes the orbitals of the Slater determinant.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.HopGateAnsatzOperator"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.MolecularData"><code class="docutils literal notranslate"><span class="pre">MolecularData</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.RealUCJOperator"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsApplyUnitary"><code class="docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.SupportsApproximateEquality"><code class="docutils literal notranslate"><span class="pre">SupportsApproximateEquality</span></code></a></li>
