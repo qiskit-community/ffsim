@@ -68,7 +68,12 @@ from ffsim.trotter import (
     simulate_qdrift_double_factorized,
     simulate_trotter_double_factorized,
 )
-from ffsim.variational import HopGateAnsatzOperator, UCJOperator, multireference_state
+from ffsim.variational import (
+    HopGateAnsatzOperator,
+    RealUCJOperator,
+    UCJOperator,
+    multireference_state,
+)
 
 __all__ = [
     "DoubleFactorizedHamiltonian",
@@ -77,6 +82,7 @@ __all__ = [
     "HopGateAnsatzOperator",
     "MolecularData",
     "MolecularHamiltonian",
+    "RealUCJOperator",
     "SingleFactorizedHamiltonian",
     "SupportsApplyUnitary",
     "SupportsApproximateEquality",
