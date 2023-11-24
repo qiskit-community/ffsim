@@ -12,10 +12,11 @@
 
 from ffsim.variational.hopgate import HopGateAnsatzOperator
 from ffsim.variational.multireference import multireference_state
-from ffsim.variational.ucj import UCJOperator
+from ffsim.variational.ucj import RealUCJOperator, UCJOperator
 
 __all__ = [
     "HopGateAnsatzOperator",
+    "RealUCJOperator",
     "UCJOperator",
     "multireference_state",
 ]
