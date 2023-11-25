@@ -14,6 +14,7 @@ import dataclasses
 import itertools
 
 import numpy as np
+from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
@@ -53,6 +54,45 @@ class MolecularHamiltonian:
     def norb(self) -> int:
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
+
+    def rotated(self, orbital_rotation: np.ndarray) -> MolecularHamiltonian:
+        """Return the Hamiltonian in a rotated orbital basis.
+
+        Given an orbital rotation :math:`\mathcal{U}`, returns the operator
+
+        .. math::
+
+            \mathcal{U} H \mathcal{U}^\dagger
+
+        where :math:`H` is the original Hamiltonian.
+
+        Args:
+            orbital_rotation: The orbital rotation.
+
+        Returns:
+            The rotated Hamiltonian.
+        """
+        one_body_tensor_rotated = contract(
+            "ab,Aa,Bb->AB",
+            self.one_body_tensor,
+            orbital_rotation,
+            orbital_rotation.conj(),
+            optimize="greedy",
+        )
+        two_body_tensor_rotated = contract(
+            "abcd,Aa,Bb,Cc,Dd->ABCD",
+            self.two_body_tensor,
+            orbital_rotation,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            orbital_rotation.conj(),
+            optimize="greedy",
+        )
+        return MolecularHamiltonian(
+            one_body_tensor=one_body_tensor_rotated,
+            two_body_tensor=two_body_tensor_rotated,
+            constant=self.constant,
+        )
 
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
