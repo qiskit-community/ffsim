@@ -43,4 +43,4 @@ def test_contract_num_op_sum_spin_into_buffer_slow():
         contract_num_op_sum_spin_into_buffer(
             vec, coeffs, occupations=occupations, out=out_fast
         )
-        np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
+        np.testing.assert_allclose(out_slow, out_fast)

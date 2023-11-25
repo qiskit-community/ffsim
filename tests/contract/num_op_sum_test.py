@@ -45,7 +45,7 @@ def test_contract_num_op_sum(norb: int):
                     eig += coeffs[i]
         expected = eig * state
 
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
 
 
 def test_num_op_sum_to_linop():
@@ -76,4 +76,4 @@ def test_num_op_sum_to_linop():
         expected, orbital_rotation, norb=norb, nelec=nelec
     )
 
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+    np.testing.assert_allclose(result, expected)

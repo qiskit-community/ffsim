@@ -60,7 +60,7 @@ def test_apply_orbital_rotation_no_side_effects():
         original_vec = vec.copy()
 
         _ = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
-        np.testing.assert_allclose(vec, original_vec, atol=1e-12)
+        np.testing.assert_allclose(vec, original_vec)
 
 
 @pytest.mark.parametrize(
@@ -117,12 +117,12 @@ def test_apply_orbital_rotation_eigenstates():
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
         final_state = ffsim.apply_orbital_rotation(state, vecs, norb, nelec)
-        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
+        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
         result = ffsim.contract.contract_one_body(
             final_state, one_body_tensor, norb, nelec
         )
         expected = eig * final_state
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
         # check that the state was not modified
         np.testing.assert_allclose(state, original_state)
 
@@ -146,12 +146,12 @@ def test_apply_orbital_rotation_eigenstates_permutation():
         )
         eigs = eigs @ perm
         eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
-        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
+        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
         result = ffsim.contract.contract_one_body(
             final_state, one_body_tensor, norb, nelec
         )
         expected = eig * final_state
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
         # check that the state was not modified
         np.testing.assert_allclose(state, original_state)
 
@@ -176,4 +176,4 @@ def test_apply_orbital_rotation_compose():
             state, basis_change_2, norb, nelec
         )
 
-        np.testing.assert_allclose(result, expected_state, atol=1e-8)
+        np.testing.assert_allclose(result, expected_state)

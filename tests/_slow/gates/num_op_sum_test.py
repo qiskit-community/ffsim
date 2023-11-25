@@ -43,4 +43,4 @@ def test_apply_num_op_sum_evolution_in_place_slow():
             phases,
             occupations=occupations,
         )
-        np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
+        np.testing.assert_allclose(vec_slow, vec_fast)

@@ -48,7 +48,7 @@ def test_contract_diag_coulomb(norb: int):
                     eig += 0.5 * this_mat[i, j]
         expected = eig * state
 
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize("norb", [4, 5])
@@ -85,7 +85,7 @@ def test_contract_diag_coulomb_z_representation(norb: int):
             eig += 0.25 * sign_i * sign_j * this_mat[i, j]
         expected = eig * state
 
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
 
 
 def test_diag_coulomb_to_linop():
@@ -116,4 +116,4 @@ def test_diag_coulomb_to_linop():
         expected, orbital_rotation, norb=norb, nelec=nelec
     )
 
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+    np.testing.assert_allclose(result, expected)

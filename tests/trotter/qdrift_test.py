@@ -61,7 +61,7 @@ def test_spectral_norm_one_body_tensor(norb: int, nelec: tuple[int, int]):
     singular_vals = scipy.sparse.linalg.svds(
         one_body_linop, k=1, which="LM", return_singular_vectors=False
     )
-    np.testing.assert_allclose(actual, singular_vals[0], atol=1e-8)
+    np.testing.assert_allclose(actual, singular_vals[0])
 
 
 @pytest.mark.parametrize(
@@ -95,9 +95,9 @@ def test_spectral_norm_diag_coulomb(
             two_body_linop, k=1, which="LM", return_singular_vectors=False
         )
         if rank == 1:
-            np.testing.assert_allclose(actual, singular_vals[0], atol=1e-8)
+            np.testing.assert_allclose(actual, singular_vals[0])
         else:
-            assert actual >= singular_vals[0] - 1e-8
+            assert actual >= singular_vals[0] - 1e-12
 
 
 @pytest.mark.parametrize(
@@ -137,7 +137,7 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
         )
 
         vec = ffsim.random.random_statevector(dim, seed=rng)
-        np.testing.assert_allclose(actual @ vec, expected @ vec, atol=1e-8)
+        np.testing.assert_allclose(actual @ vec, expected @ vec)
 
 
 @pytest.mark.parametrize(
@@ -175,7 +175,7 @@ def test_variance_one_body_tensor(norb: int, nelec: tuple[int, int]):
     actual = variance_one_body_tensor(
         one_rdm, scipy.linalg.block_diag(one_body_tensor, one_body_tensor)
     )
-    np.testing.assert_allclose(expected, actual, atol=1e-8)
+    np.testing.assert_allclose(expected, actual)
 
 
 @pytest.mark.parametrize(
@@ -220,7 +220,7 @@ def test_variance_diag_coulomb(
         orbital_rotation=orbital_rotation,
         z_representation=z_representation,
     )
-    np.testing.assert_allclose(expected, actual, atol=1e-8)
+    np.testing.assert_allclose(expected, actual)
 
 
 @pytest.mark.parametrize(
@@ -304,7 +304,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     np.testing.assert_allclose(initial_state, original_state)
 
     # check agreement
-    np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
+    np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
     fidelity = np.abs(np.vdot(final_state, exact_state))
     assert fidelity >= target_fidelity
 
@@ -325,7 +325,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
 
     # check agreement
     for final_state in final_states:
-        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
+        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
         fidelity = np.abs(np.vdot(final_state, exact_state))
         assert fidelity >= target_fidelity
 
@@ -402,6 +402,6 @@ def test_simulate_qdrift_double_factorized_random(
     np.testing.assert_allclose(initial_state, original_state)
 
     # check agreement
-    np.testing.assert_allclose(np.linalg.norm(final_state), 1.0, atol=1e-8)
+    np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
     fidelity = np.abs(np.vdot(final_state, exact_state))
     assert fidelity >= target_fidelity
