@@ -63,7 +63,7 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
             orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
         )
 
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
@@ -115,7 +115,7 @@ def test_apply_diag_coulomb_evolution_alpha_beta(z_representation: bool):
             orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
         )
 
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
 
 
 def test_apply_diag_coulomb_evolution_eigenvalue():
@@ -150,5 +150,5 @@ def test_apply_diag_coulomb_evolution_eigenvalue():
                     eig += 0.5 * this_mat[i, j]
         expected = np.exp(-1j * eig * time) * state
 
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
         np.testing.assert_allclose(state, original_state)

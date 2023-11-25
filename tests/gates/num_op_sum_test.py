@@ -43,7 +43,7 @@ def test_apply_num_op_sum_evolution():
                 eig += coeffs[i]
     expected = np.exp(-1j * eig * time) * state
 
-    np.testing.assert_allclose(result, expected, atol=1e-8)
+    np.testing.assert_allclose(result, expected)
     np.testing.assert_allclose(state, original_state)
 
 
@@ -82,4 +82,4 @@ def test_apply_quadratic_hamiltonian_evolution():
         expected = scipy.sparse.linalg.expm_multiply(
             -1j * time * op, vec, traceA=np.sum(np.abs(mat))
         )
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)

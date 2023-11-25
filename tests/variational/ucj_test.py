@@ -51,22 +51,18 @@ def test_parameters_roundtrip():
     np.testing.assert_allclose(
         roundtripped.diag_coulomb_mats_alpha_alpha,
         operator.diag_coulomb_mats_alpha_alpha,
-        atol=1e-12,
     )
     np.testing.assert_allclose(
         roundtripped.diag_coulomb_mats_alpha_beta,
         operator.diag_coulomb_mats_alpha_beta,
-        atol=1e-12,
     )
     np.testing.assert_allclose(
         roundtripped.orbital_rotations,
         operator.orbital_rotations,
-        atol=1e-12,
     )
     np.testing.assert_allclose(
         roundtripped.final_orbital_rotation,
         operator.final_orbital_rotation,
-        atol=1e-12,
     )
 
 
@@ -82,11 +78,7 @@ def test_t_amplitudes_roundtrip():
     operator = ffsim.UCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
-    np.testing.assert_allclose(
-        t2_roundtripped,
-        t2,
-        atol=1e-12,
-    )
+    np.testing.assert_allclose(t2_roundtripped, t2, atol=1e-12)
     np.testing.assert_allclose(
         _exponentiate_t1(t1_roundtripped, norb=norb, nocc=nocc),
         _exponentiate_t1(t1, norb=norb, nocc=nocc),
@@ -132,7 +124,7 @@ def test_t_amplitudes():
     # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
-    np.testing.assert_allclose(energy, -0.96962461, atol=1e-8)
+    np.testing.assert_allclose(energy, -0.96962461)
 
 
 def test_real_ucj_parameters_roundtrip():
@@ -163,22 +155,18 @@ def test_real_ucj_parameters_roundtrip():
     np.testing.assert_allclose(
         roundtripped.diag_coulomb_mats_alpha_alpha,
         operator.diag_coulomb_mats_alpha_alpha,
-        atol=1e-12,
     )
     np.testing.assert_allclose(
         roundtripped.diag_coulomb_mats_alpha_beta,
         operator.diag_coulomb_mats_alpha_beta,
-        atol=1e-12,
     )
     np.testing.assert_allclose(
         roundtripped.orbital_rotations,
         operator.orbital_rotations,
-        atol=1e-12,
     )
     np.testing.assert_allclose(
         roundtripped.final_orbital_rotation,
         operator.final_orbital_rotation,
-        atol=1e-12,
     )
 
 
@@ -194,11 +182,7 @@ def test_real_ucj_t_amplitudes_roundtrip():
     operator = ffsim.RealUCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
-    np.testing.assert_allclose(
-        t2_roundtripped,
-        t2,
-        atol=1e-12,
-    )
+    np.testing.assert_allclose(t2_roundtripped, t2, atol=1e-12)
     np.testing.assert_allclose(
         _exponentiate_t1(t1_roundtripped, norb=norb, nocc=nocc),
         _exponentiate_t1(t1, norb=norb, nocc=nocc),
@@ -244,7 +228,7 @@ def test_real_ucj_t_amplitudes():
     # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
-    np.testing.assert_allclose(energy, -0.96962461, atol=1e-8)
+    np.testing.assert_allclose(energy, -0.96962461)
 
 
 def test_real_ucj_preserves_real():
@@ -276,4 +260,4 @@ def test_real_ucj_preserves_real():
     )
 
     t2 = operator.to_t_amplitudes()
-    np.testing.assert_allclose(np.imag(t2), 0, atol=1e-12)
+    np.testing.assert_allclose(np.imag(t2), 0)

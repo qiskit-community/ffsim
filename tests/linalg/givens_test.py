@@ -35,4 +35,4 @@ def test_givens_decomposition():
             )
             reconstructed = reconstructed.T
 
-        np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
+        np.testing.assert_allclose(reconstructed, mat)

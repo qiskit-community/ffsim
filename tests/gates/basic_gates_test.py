@@ -100,7 +100,7 @@ def test_apply_givens_rotation(norb: int, nelec: tuple[int, int]):
             expected = scipy.sparse.linalg.expm_multiply(
                 linop, vec, traceA=np.sum(np.abs(generator))
             )
-            np.testing.assert_allclose(result, expected, atol=1e-8)
+            np.testing.assert_allclose(result, expected)
     np.testing.assert_allclose(vec, original_vec)
 
 
@@ -130,7 +130,6 @@ def test_apply_givens_rotation_matrix():
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
-                    atol=1e-12,
                 )
 
 
@@ -160,7 +159,7 @@ def test_apply_tunneling_interaction(norb: int, nelec: tuple[int, int]):
             expected = scipy.sparse.linalg.expm_multiply(
                 1j * linop, vec, traceA=np.sum(np.abs(generator))
             )
-            np.testing.assert_allclose(result, expected, atol=1e-8)
+            np.testing.assert_allclose(result, expected)
 
 
 def test_apply_tunneling_interaction_matrix():
@@ -189,7 +188,6 @@ def test_apply_tunneling_interaction_matrix():
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
-                    atol=1e-12,
                 )
 
 
@@ -217,7 +215,7 @@ def test_apply_num_interaction(norb: int, nelec: tuple[int, int]):
         expected = scipy.sparse.linalg.expm_multiply(
             1j * linop, vec, traceA=np.sum(np.abs(generator))
         )
-        np.testing.assert_allclose(result, expected, atol=1e-8)
+        np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize(
@@ -257,7 +255,7 @@ def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int]):
             )
             linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
             expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
-            np.testing.assert_allclose(result, expected, atol=1e-8)
+            np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize(
@@ -289,7 +287,7 @@ def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]
                 if i in occ and j in occ:
                     eig += theta
             expected = np.exp(1j * eig) * vec
-            np.testing.assert_allclose(result, expected, atol=1e-8)
+            np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize(
@@ -325,7 +323,7 @@ def test_apply_num_op_prod(norb: int, nelec: tuple[int, int]):
             else:
                 eig = 0
             expected = np.exp(1j * eig) * vec
-            np.testing.assert_allclose(result, expected, atol=1e-8)
+            np.testing.assert_allclose(result, expected)
 
 
 def test_apply_hop_gate_matrix():

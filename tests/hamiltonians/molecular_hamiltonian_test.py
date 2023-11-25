@@ -103,4 +103,4 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
 
     actual = linop @ vec
     expected = expected_linop @ vec
-    np.testing.assert_allclose(actual, expected, atol=1e-12)
+    np.testing.assert_allclose(actual, expected)
