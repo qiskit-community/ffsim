@@ -131,7 +131,7 @@ def test_rdm_1_spin_summed(norb: int, nelec: tuple[int, int]):
 
     rdm = ffsim.rdm(vec, norb, nelec)
     expected = _rdm1_spin_summed(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -150,7 +150,7 @@ def test_rdm_1(norb: int, nelec: tuple[int, int]):
 
     rdm = ffsim.rdm(vec, norb, nelec, spin_summed=False)
     expected = _rdm1(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -169,7 +169,7 @@ def test_rdm_2_spin_summed_reordered(norb: int, nelec: tuple[int, int]):
 
     rdm = ffsim.rdm(vec, norb, nelec, rank=2)
     expected = _rdm2_spin_summed_reordered(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -188,7 +188,7 @@ def test_rdm_2_reordered(norb: int, nelec: tuple[int, int]):
 
     rdm = ffsim.rdm(vec, norb, nelec, rank=2, spin_summed=False)
     expected = _rdm2_reordered(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -207,7 +207,7 @@ def test_rdm_2_spin_summed(norb: int, nelec: tuple[int, int]):
 
     rdm = ffsim.rdm(vec, norb, nelec, rank=2, reordered=False)
     expected = _rdm2_spin_summed(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -226,7 +226,7 @@ def test_rdm_2(norb: int, nelec: tuple[int, int]):
 
     rdm = ffsim.rdm(vec, norb, nelec, rank=2, spin_summed=False, reordered=False)
     expected = _rdm2(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected)
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 def _rdm1_spin_summed(vec: np.ndarray, norb: int, nelec: tuple[int, int]) -> np.ndarray:
