@@ -71,7 +71,7 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
         product_op = product_op @ linops[i]
         computed = expectation_one_body_product(rdm, one_body_tensors[: i + 1])
         target = np.vdot(vec, product_op @ vec)
-        np.testing.assert_allclose(computed, target, atol=1e-8)
+        np.testing.assert_allclose(computed, target)
 
 
 def test_expectation_power():
@@ -111,5 +111,5 @@ def test_expectation_power():
     for power in range(4):
         computed = expectation_one_body_power(rdm, one_body_tensor, power)
         target = np.vdot(vec, powered_op @ vec)
-        np.testing.assert_allclose(computed, target, atol=1e-8)
+        np.testing.assert_allclose(computed, target)
         powered_op = powered_op @ linop

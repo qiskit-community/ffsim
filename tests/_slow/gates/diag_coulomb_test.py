@@ -62,7 +62,7 @@ def test_apply_diag_coulomb_evolution_num_rep_slow():
             occupations_a=occupations_a,
             occupations_b=occupations_b,
         )
-        np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
+        np.testing.assert_allclose(vec_slow, vec_fast)
 
 
 def test_apply_diag_coulomb_evolution_z_rep_slow():
@@ -105,7 +105,7 @@ def test_apply_diag_coulomb_evolution_z_rep_slow():
             strings_a=strings_a,
             strings_b=strings_b,
         )
-        np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
+        np.testing.assert_allclose(vec_slow, vec_fast)
 
 
 def test_apply_diag_coulomb_evolution_num_rep_numpy():
@@ -143,4 +143,4 @@ def test_apply_diag_coulomb_evolution_num_rep_numpy():
             occupations_a=occupations_a,
             occupations_b=occupations_b,
         )
-        np.testing.assert_allclose(vec_slow, vec_fast, atol=1e-8)
+        np.testing.assert_allclose(vec_slow, vec_fast)

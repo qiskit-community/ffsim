@@ -63,7 +63,7 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
             occupations_b=occupations_b,
             out=out_fast,
         )
-        np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
+        np.testing.assert_allclose(out_slow, out_fast)
 
 
 def test_contract_diag_coulomb_into_buffer_z_rep_slow():
@@ -102,4 +102,4 @@ def test_contract_diag_coulomb_into_buffer_z_rep_slow():
             strings_b=strings_b,
             out=out_fast,
         )
-        np.testing.assert_allclose(out_slow, out_fast, atol=1e-8)
+        np.testing.assert_allclose(out_slow, out_fast)

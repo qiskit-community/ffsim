@@ -54,4 +54,4 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     actual = actual_linop @ state
     expected = expected_linop @ state
 
-    np.testing.assert_allclose(actual, expected, atol=1e-8)
+    np.testing.assert_allclose(actual, expected)
