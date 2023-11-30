@@ -43,7 +43,7 @@ def test_simulate_trotter_double_factorized_random(
     # TODO test with complex one-body tensor fails due to the following issue
     # https://github.com/qiskit-community/ffsim/issues/14
     one_body_tensor = np.real(ffsim.random.random_hermitian(norb, seed=2474))
-    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=7054, dtype=float)
     mol_hamiltonian = ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
 

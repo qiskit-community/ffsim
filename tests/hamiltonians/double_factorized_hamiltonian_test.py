@@ -28,7 +28,7 @@ def test_linear_operator(z_representation: bool):
 
     dim = ffsim.dim(norb, nelec)
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=rng)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
     constant = rng.standard_normal()
     mol_hamiltonian = ffsim.MolecularHamiltonian(
         one_body_tensor, two_body_tensor, constant
@@ -55,7 +55,7 @@ def test_z_representation_round_trip():
     norb = 4
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=2474)
-    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=7054)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=7054, dtype=float)
 
     df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
         ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
