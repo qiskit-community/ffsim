@@ -35,7 +35,7 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
 
     dim = ffsim.dim(norb, nelec)
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor_real(norb, seed=rng)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
     constant = rng.standard_normal()
     mol_hamiltonian = ffsim.MolecularHamiltonian(
         one_body_tensor, two_body_tensor, constant
