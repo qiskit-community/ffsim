@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 
 
@@ -160,10 +162,10 @@ def random_antihermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     return mat - mat.T.conj()
 
 
-def random_two_body_tensor_real(
-    dim: int, *, rank: int | None = None, seed=None, dtype=float
+def random_two_body_tensor(
+    dim: int, *, rank: int | None = None, seed=None, dtype=complex
 ) -> np.ndarray:
-    """Sample a random two-body tensor with real-valued orbitals.
+    """Sample a random two-body tensor.
 
     Args:
         dim: The dimension of the tensor. The shape of the returned tensor will be
@@ -182,7 +184,19 @@ def random_two_body_tensor_real(
         rank = dim * (dim + 1) // 2
     cholesky_vecs = rng.standard_normal((rank, dim, dim)).astype(dtype, copy=False)
     cholesky_vecs += cholesky_vecs.transpose((0, 2, 1))
-    return np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
+    two_body_tensor = np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
+    if np.issubdtype(dtype, np.complexfloating):
+        orbital_rotation = random_unitary(dim, seed=rng)
+        two_body_tensor = np.einsum(
+            "abcd,aA,bB,cC,dD->ABCD",
+            two_body_tensor,
+            orbital_rotation,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            orbital_rotation.conj(),
+            optimize=True,
+        )
+    return two_body_tensor
 
 
 def random_t2_amplitudes(norb: int, nocc: int, *, seed=None) -> np.ndarray:
@@ -199,7 +213,11 @@ def random_t2_amplitudes(norb: int, nocc: int, *, seed=None) -> np.ndarray:
     """
     rng = np.random.default_rng(seed)
     nvrt = norb - nocc
-    t2 = rng.standard_normal((nocc, nocc, nvrt, nvrt))
-    t2 -= np.transpose(t2, (0, 1, 3, 2))
-    t2 -= np.transpose(t2, (1, 0, 2, 3))
+    t2 = np.zeros((nocc, nocc, nvrt, nvrt))
+    pairs = itertools.product(range(nocc), range(nocc, norb))
+    for (m, (i, a)), (n, (j, b)) in itertools.product(enumerate(pairs), repeat=2):
+        if m <= n and i <= j and a <= b:
+            val = rng.standard_normal()
+            t2[i, j, a - nocc, b - nocc] = val
+            t2[j, i, b - nocc, a - nocc] = val
     return t2

@@ -16,6 +16,7 @@ import numpy as np
 import pytest
 from pyscf import ao2mo, cc, gto, mcscf, scf
 
+import ffsim
 from ffsim.linalg import (
     double_factorized,
     modified_cholesky,
@@ -24,11 +25,7 @@ from ffsim.linalg.double_factorized_decomposition import (
     double_factorized_t2,
     optimal_diag_coulomb_mats,
 )
-from ffsim.random import (
-    random_t2_amplitudes,
-    random_two_body_tensor_real,
-    random_unitary,
-)
+from ffsim.random import random_t2_amplitudes, random_unitary
 
 
 def _reconstruct_t2(
@@ -70,7 +67,7 @@ def test_modified_cholesky(dim: int):
 )
 def test_double_factorized_random(dim: int, cholesky: bool):
     """Test double-factorized decomposition on a random tensor."""
-    two_body_tensor = random_two_body_tensor_real(dim, seed=9825)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=9825, dtype=float)
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, cholesky=cholesky
     )
@@ -149,7 +146,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
 def test_optimal_diag_coulomb_mats_exact():
     """Test optimal diag Coulomb matrices on exact decomposition."""
     dim = 5
-    two_body_tensor = random_two_body_tensor_real(dim, seed=8386)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8386, dtype=float)
 
     _, orbital_rotations = double_factorized(two_body_tensor)
     diag_coulomb_mats_optimal = optimal_diag_coulomb_mats(
@@ -169,7 +166,7 @@ def test_optimal_diag_coulomb_mats_exact():
 def test_optimal_diag_coulomb_mats_approximate():
     """Test optimal diag Coulomb matrices on approximate decomposition."""
     dim = 5
-    two_body_tensor = random_two_body_tensor_real(dim, seed=3718)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=3718, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=3
@@ -202,7 +199,7 @@ def test_double_factorized_compressed():
     """Test compressed double factorization"""
     # TODO test on simple molecule like ethylene
     dim = 2
-    two_body_tensor = random_two_body_tensor_real(dim, seed=8364)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8364, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=2
@@ -235,7 +232,7 @@ def test_double_factorized_compressed_constrained():
     """Test constrained compressed double factorization"""
     # TODO test on simple molecule like ethylene
     dim = 3
-    two_body_tensor = random_two_body_tensor_real(dim, seed=2927)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=2927, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=2

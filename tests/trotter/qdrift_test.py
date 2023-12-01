@@ -354,8 +354,8 @@ def test_simulate_qdrift_double_factorized_random(
     # TODO test with complex one-body tensor fails due to the following issue
     # https://github.com/qiskit-community/ffsim/issues/14
     one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor_real(
-        norb, rank=norb, seed=rng
+    two_body_tensor = ffsim.random.random_two_body_tensor(
+        norb, rank=norb, seed=rng, dtype=float
     )
     mol_hamiltonian = ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
