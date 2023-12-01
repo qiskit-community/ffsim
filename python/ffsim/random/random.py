@@ -199,7 +199,9 @@ def random_two_body_tensor(
     return two_body_tensor
 
 
-def random_t2_amplitudes(norb: int, nocc: int, *, seed=None) -> np.ndarray:
+def random_t2_amplitudes(
+    norb: int, nocc: int, *, seed=None, dtype=complex
+) -> np.ndarray:
     """Sample a random t2 amplitudes tensor.
 
     Args:
@@ -207,17 +209,31 @@ def random_t2_amplitudes(norb: int, nocc: int, *, seed=None) -> np.ndarray:
         nocc: The number of orbitals that are occupied by an electron.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
+        dype: The data type to use for the result.
 
     Returns:
         The sampled t2 amplitudes tensor.
     """
     rng = np.random.default_rng(seed)
     nvrt = norb - nocc
-    t2 = np.zeros((nocc, nocc, nvrt, nvrt))
+    t2 = np.zeros((nocc, nocc, nvrt, nvrt), dtype=dtype)
     pairs = itertools.product(range(nocc), range(nocc, norb))
     for (m, (i, a)), (n, (j, b)) in itertools.product(enumerate(pairs), repeat=2):
         if m <= n and i <= j and a <= b:
             val = rng.standard_normal()
             t2[i, j, a - nocc, b - nocc] = val
             t2[j, i, b - nocc, a - nocc] = val
+    if np.issubdtype(dtype, np.complexfloating):
+        t2_large = np.zeros((norb, norb, norb, norb), dtype=dtype)
+        t2_large[:nocc, :nocc, nocc:, nocc:] = t2
+        orbital_rotation = random_unitary(norb, seed=rng)
+        t2_large = np.einsum(
+            "ijab,iI,jJ,aA,bB->IJAB",
+            t2_large,
+            orbital_rotation.conj(),
+            orbital_rotation.conj(),
+            orbital_rotation,
+            orbital_rotation,
+        )
+        t2 = t2_large[:nocc, :nocc, nocc:, nocc:]
     return t2

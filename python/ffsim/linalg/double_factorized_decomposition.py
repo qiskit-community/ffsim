@@ -469,6 +469,8 @@ def double_factorized_t2(
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
+    Note: Currently, only real-valued t2 amplitudes are supported.
+
     Args:
         t2_amplitudes: The t2 amplitudes tensor.
         tol: Tolerance for error in the decomposition.
