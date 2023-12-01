@@ -272,7 +272,7 @@ def test_double_factorized_compressed_constrained():
 @pytest.mark.parametrize("norb, nocc", [(4, 2), (5, 2), (5, 3)])
 def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     """Test double factorization of random t2 amplitudes."""
-    t2 = random_t2_amplitudes(norb, nocc)
+    t2 = random_t2_amplitudes(norb, nocc, dtype=float)
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2)
     reconstructed = _reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     np.testing.assert_allclose(reconstructed, t2, atol=1e-8)
