@@ -269,9 +269,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j
 })
 </pre></div>
 </div>
@@ -307,11 +307,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_b(2)): 0+1j,
-    (des_a(3), des_b(3)): -0.25,
-    (cre_a(3), des_a(0)): -0.25
+    (des_a(3), des_b(3)): -0.25
 })
 </pre></div>
 </div>
@@ -325,11 +325,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
 })
 </pre></div>
@@ -595,6 +595,27 @@ the two-body tensor.</p>
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.norb">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.MolecularHamiltonian.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.rotated">
+<span class="sig-name descname"><span class="pre">rotated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian.rotated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonian.rotated" title="Link to this definition">¶</a></dt>
+<dd><p>Return the Hamiltonian in a rotated orbital basis.</p>
+<p>Given an orbital rotation <span class="math notranslate nohighlight">\(\mathcal{U}\)</span>, returns the operator</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{U} H \mathcal{U}^\dagger\]</div>
+<p>where <span class="math notranslate nohighlight">\(H\)</span> is the original Hamiltonian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The orbital rotation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The rotated Hamiltonian.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
