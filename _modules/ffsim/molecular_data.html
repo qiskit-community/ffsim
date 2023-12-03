@@ -97,6 +97,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for storing molecular data.</span>
 
 <span class="sd">    Attributes:</span>
+<span class="sd">        atom: The coordinates of the atoms in the molecule.</span>
+<span class="sd">        basis: The basis set, e.g. &quot;sto-6g&quot;.</span>
+<span class="sd">        spin: The spin of the molecule.</span>
+<span class="sd">        symmetry: The symmetry of the molecule.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.</span>
@@ -116,7 +120,12 @@
 <span class="sd">        orbital_symmetries: The orbital symmetries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># molecule information</span>
+    <span class="c1"># molecule information corresponding to attributes of pyscf.gto.Mole</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span>
+    <span class="n">basis</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">symmetry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="c1"># active space information</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
     <span class="n">active_space</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
@@ -229,6 +238,10 @@
         <span class="n">orbsym</span> <span class="o">=</span> <span class="n">orbital_symmetries</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+            <span class="n">basis</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">basis</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">spin</span><span class="p">,</span>
+            <span class="n">symmetry</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">symmetry</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">),</span>
             <span class="n">mo_coeff</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">,</span>
