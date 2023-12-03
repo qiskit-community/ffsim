@@ -269,9 +269,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(3), des_a(0)): -0.25,
-    (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_a(0), des_a(3)): 0.5
 })
 </pre></div>
 </div>
@@ -285,8 +285,8 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.5,
     (cre_a(0), des_a(3)): 1,
+    (cre_a(3), des_a(0)): -0.5,
     (cre_b(1), des_b(5), cre_a(4)): 2+2j
 })
 </pre></div>
@@ -307,11 +307,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (des_a(3), des_b(3)): -0.25,
     (cre_b(2)): 0+1j,
-    (des_a(3), des_b(3)): -0.25
+    (cre_a(3), des_a(0)): -0.25,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j
 })
 </pre></div>
 </div>
@@ -325,10 +325,10 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
 })
@@ -419,7 +419,7 @@ appear before smaller orbital indices.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ffsim.MolecularData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">MolecularData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_occ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole_integrals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">MolecularData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_occ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole_integrals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for storing molecular data.</p>
 <dl class="py attribute">
@@ -477,6 +477,36 @@ appear before smaller orbital indices.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.mp2_energy">
+<span class="sig-name descname"><span class="pre">mp2_energy</span></span><a class="headerlink" href="#ffsim.MolecularData.mp2_energy" title="Link to this definition">¶</a></dt>
+<dd><p>The MP2 energy.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.mp2_t2">
+<span class="sig-name descname"><span class="pre">mp2_t2</span></span><a class="headerlink" href="#ffsim.MolecularData.mp2_t2" title="Link to this definition">¶</a></dt>
+<dd><p>The MP2 t2 amplitudes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.ccsd_energy">
+<span class="sig-name descname"><span class="pre">ccsd_energy</span></span><a class="headerlink" href="#ffsim.MolecularData.ccsd_energy" title="Link to this definition">¶</a></dt>
+<dd><p>The CCSD energy.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.ccsd_t1">
+<span class="sig-name descname"><span class="pre">ccsd_t1</span></span><a class="headerlink" href="#ffsim.MolecularData.ccsd_t1" title="Link to this definition">¶</a></dt>
+<dd><p>The CCSD t1 amplitudes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.ccsd_t2">
+<span class="sig-name descname"><span class="pre">ccsd_t2</span></span><a class="headerlink" href="#ffsim.MolecularData.ccsd_t2" title="Link to this definition">¶</a></dt>
+<dd><p>The CCSD t2 amplitudes.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.MolecularData.fci_energy">
 <span class="sig-name descname"><span class="pre">fci_energy</span></span><a class="headerlink" href="#ffsim.MolecularData.fci_energy" title="Link to this definition">¶</a></dt>
 <dd><p>The FCI energy.</p>
@@ -496,13 +526,15 @@ appear before smaller orbital indices.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.MolecularData.from_mole">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_func=&lt;function</span> <span class="pre">RHF&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_mole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_mole" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_func=&lt;function</span> <span class="pre">RHF&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_mole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_mole" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MolecularData object from a pySCF molecule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>molecule</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mole</span></code></span>) – The molecule.</p></li>
 <li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – An optional list of orbitals to use for the active space.</p></li>
+<li><p><strong>mp2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the MP2 energy and t2 amplitudes.</p></li>
+<li><p><strong>ccsd</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.</p></li>
 <li><p><strong>fci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the FCI energy.</p></li>
 <li><p><strong>scf_func</strong> – The pySCF SCF function to use for the Hartree-Fock calculation.</p></li>
 </ul>
@@ -515,13 +547,15 @@ appear before smaller orbital indices.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.MolecularData.from_scf">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_scf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hartree_fock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_scf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_scf" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_scf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hartree_fock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_scf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_scf" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MolecularData object from a Hartree-Fock calculation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hartree_fock</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCF</span></code></span>) – The Hartree-Fock object.</p></li>
 <li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – An optional list of orbitals to use for the active space.</p></li>
+<li><p><strong>mp2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the MP2 energy and t2 amplitudes.</p></li>
+<li><p><strong>ccsd</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.</p></li>
 <li><p><strong>fci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the FCI energy.</p></li>
 </ul>
 </dd>
@@ -535,12 +569,6 @@ appear before smaller orbital indices.</p>
 <dt class="sig sig-object py" id="ffsim.MolecularData.hamiltonian">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hamiltonian</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><span class="pre">MolecularHamiltonian</span></a></em><a class="headerlink" href="#ffsim.MolecularData.hamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>The Hamiltonian defined by the molecular data.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ffsim.MolecularData.two_body_tensor">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">two_body_tensor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ffsim.MolecularData.two_body_tensor" title="Link to this definition">¶</a></dt>
-<dd><p>The two-body tensor.</p>
 </dd></dl>
 
 </dd></dl>

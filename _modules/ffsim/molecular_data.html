@@ -51,7 +51,7 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyscf</span> <span class="kn">import</span> <span class="n">ao2mo</span><span class="p">,</span> <span class="n">gto</span><span class="p">,</span> <span class="n">mcscf</span><span class="p">,</span> <span class="n">scf</span><span class="p">,</span> <span class="n">symm</span>
+<span class="kn">from</span> <span class="nn">pyscf</span> <span class="kn">import</span> <span class="n">ao2mo</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="n">gto</span><span class="p">,</span> <span class="n">mcscf</span><span class="p">,</span> <span class="n">mp</span><span class="p">,</span> <span class="n">scf</span><span class="p">,</span> <span class="n">symm</span>
 <span class="kn">from</span> <span class="nn">pyscf.scf.hf</span> <span class="kn">import</span> <span class="n">SCF</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
@@ -106,35 +106,47 @@
 <span class="sd">        one_body_tensor: The one-body tensor.</span>
 <span class="sd">        two_body_integrals: The two-body integrals in compressed format.</span>
 <span class="sd">        hf_energy: The Hartree-Fock energy.</span>
+<span class="sd">        mp2_energy: The MP2 energy.</span>
+<span class="sd">        mp2_t2: The MP2 t2 amplitudes.</span>
+<span class="sd">        ccsd_energy: The CCSD energy.</span>
+<span class="sd">        ccsd_t1: The CCSD t1 amplitudes.</span>
+<span class="sd">        ccsd_t2: The CCSD t2 amplitudes.</span>
 <span class="sd">        fci_energy: The FCI energy.</span>
 <span class="sd">        dipole_integrals: The dipole integrals.</span>
 <span class="sd">        orbital_symmetries: The orbital symmetries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># molecule information</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+    <span class="n">active_space</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="c1"># Hamiltonian coefficients</span>
+    <span class="n">core_energy</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">one_body_integrals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">two_body_integrals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="c1"># Hartree-Fock data</span>
+    <span class="n">hf_energy</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">mo_coeff</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">mo_occ</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">active_space</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="n">core_energy</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">two_body_integrals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">hf_energy</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="c1"># MP2 data</span>
+    <span class="n">mp2_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mp2_t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># CCSD data</span>
+    <span class="n">ccsd_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ccsd_t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ccsd_t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># FCI data</span>
     <span class="n">fci_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># other information</span>
     <span class="n">dipole_integrals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">orbital_symmetries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">two_body_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The two-body tensor.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">ao2mo</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_integrals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The Hamiltonian defined by the molecular data.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MolecularHamiltonian</span><span class="p">(</span>
-            <span class="n">one_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span>
-            <span class="n">two_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span>
+            <span class="n">one_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_integrals</span><span class="p">,</span>
+            <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">ao2mo</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_integrals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">),</span>
             <span class="n">constant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">core_energy</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -144,6 +156,9 @@
     <span class="k">def</span> <span class="nf">from_scf</span><span class="p">(</span>
         <span class="n">hartree_fock</span><span class="p">:</span> <span class="n">SCF</span><span class="p">,</span>
         <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">mp2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">ccsd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">fci</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MolecularData&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData object from a Hartree-Fock calculation.</span>
@@ -151,6 +166,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            hartree_fock: The Hartree-Fock object.</span>
 <span class="sd">            active_space: An optional list of orbitals to use for the active space.</span>
+<span class="sd">            mp2: Whether to calculate and store the MP2 energy and t2 amplitudes.</span>
+<span class="sd">            ccsd: Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.</span>
 <span class="sd">            fci: Whether to calculate and store the FCI energy.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">e_tot</span><span class="p">:</span>
@@ -174,11 +191,29 @@
         <span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">core_energy</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">get_h1cas</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span>
         <span class="n">two_body_integrals</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">get_h2cas</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span>
 
+        <span class="c1"># run MP2 if requested</span>
+        <span class="n">frozen</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">active_space</span><span class="p">]</span>
+        <span class="n">mp2_energy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">mp2_t2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">mp2</span><span class="p">:</span>
+            <span class="n">mp2_solver</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">MP2</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="n">frozen</span><span class="p">)</span>
+            <span class="n">mp2_energy</span><span class="p">,</span> <span class="n">mp2_t2</span> <span class="o">=</span> <span class="n">mp2_solver</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+
+        <span class="c1"># run CCSD if requested</span>
+        <span class="n">ccsd_energy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ccsd_t1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ccsd_t2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">ccsd</span><span class="p">:</span>
+            <span class="n">ccsd_solver</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">CCSD</span><span class="p">(</span>
+                <span class="n">hartree_fock</span><span class="p">,</span>
+                <span class="n">frozen</span><span class="o">=</span><span class="n">frozen</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ccsd_energy</span><span class="p">,</span> <span class="n">ccsd_t1</span><span class="p">,</span> <span class="n">ccsd_t2</span> <span class="o">=</span> <span class="n">ccsd_solver</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+
         <span class="c1"># run FCI if requested</span>
         <span class="n">fci_energy</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">fci</span><span class="p">:</span>
-            <span class="n">cas</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span>
-            <span class="n">fci_energy</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">e_tot</span>
+            <span class="n">fci_energy</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 
         <span class="c1"># compute dipole integrals</span>
         <span class="n">charges</span> <span class="o">=</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">atom_charges</span><span class="p">()</span>
@@ -200,9 +235,14 @@
             <span class="n">mo_occ</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_occ</span><span class="p">,</span>
             <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">,</span>
             <span class="n">core_energy</span><span class="o">=</span><span class="n">core_energy</span><span class="p">,</span>
-            <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
+            <span class="n">one_body_integrals</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
             <span class="n">two_body_integrals</span><span class="o">=</span><span class="n">two_body_integrals</span><span class="p">,</span>
             <span class="n">hf_energy</span><span class="o">=</span><span class="n">hf_energy</span><span class="p">,</span>
+            <span class="n">mp2_energy</span><span class="o">=</span><span class="n">mp2_energy</span><span class="p">,</span>
+            <span class="n">mp2_t2</span><span class="o">=</span><span class="n">mp2_t2</span><span class="p">,</span>
+            <span class="n">ccsd_energy</span><span class="o">=</span><span class="n">ccsd_energy</span><span class="p">,</span>
+            <span class="n">ccsd_t1</span><span class="o">=</span><span class="n">ccsd_t1</span><span class="p">,</span>
+            <span class="n">ccsd_t2</span><span class="o">=</span><span class="n">ccsd_t2</span><span class="p">,</span>
             <span class="n">fci_energy</span><span class="o">=</span><span class="n">fci_energy</span><span class="p">,</span>
             <span class="n">dipole_integrals</span><span class="o">=</span><span class="n">dipole_integrals</span><span class="p">,</span>
             <span class="n">orbital_symmetries</span><span class="o">=</span><span class="n">orbsym</span><span class="p">,</span>
@@ -215,6 +255,8 @@
     <span class="k">def</span> <span class="nf">from_mole</span><span class="p">(</span>
         <span class="n">molecule</span><span class="p">:</span> <span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">,</span>
         <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mp2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">ccsd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">fci</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">scf_func</span><span class="o">=</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MolecularData&quot;</span><span class="p">:</span>
@@ -223,12 +265,16 @@
 <span class="sd">        Args:</span>
 <span class="sd">            molecule: The molecule.</span>
 <span class="sd">            active_space: An optional list of orbitals to use for the active space.</span>
+<span class="sd">            mp2: Whether to calculate and store the MP2 energy and t2 amplitudes.</span>
+<span class="sd">            ccsd: Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.</span>
 <span class="sd">            fci: Whether to calculate and store the FCI energy.</span>
 <span class="sd">            scf_func: The pySCF SCF function to use for the Hartree-Fock calculation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hartree_fock</span> <span class="o">=</span> <span class="n">scf_func</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
         <span class="n">hartree_fock</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">,</span> <span class="n">fci</span><span class="o">=</span><span class="n">fci</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span>
+            <span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">,</span> <span class="n">mp2</span><span class="o">=</span><span class="n">mp2</span><span class="p">,</span> <span class="n">ccsd</span><span class="o">=</span><span class="n">ccsd</span><span class="p">,</span> <span class="n">fci</span><span class="o">=</span><span class="n">fci</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>
