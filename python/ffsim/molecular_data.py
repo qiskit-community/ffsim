@@ -58,6 +58,10 @@ class MolecularData:
     """Class for storing molecular data.
 
     Attributes:
+        atom: The coordinates of the atoms in the molecule.
+        basis: The basis set, e.g. "sto-6g".
+        spin: The spin of the molecule.
+        symmetry: The symmetry of the molecule.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
@@ -77,7 +81,12 @@ class MolecularData:
         orbital_symmetries: The orbital symmetries.
     """
 
-    # molecule information
+    # molecule information corresponding to attributes of pyscf.gto.Mole
+    atom: list[tuple[str, tuple[float, float, float]]]
+    basis: str
+    spin: int
+    symmetry: str | None
+    # active space information
     norb: int
     nelec: tuple[int, int]
     active_space: list[int]
@@ -188,6 +197,10 @@ class MolecularData:
         orbsym = orbital_symmetries(hartree_fock, active_space)
 
         return MolecularData(
+            atom=hartree_fock.mol.atom,
+            basis=hartree_fock.mol.basis,
+            spin=hartree_fock.mol.spin,
+            symmetry=hartree_fock.mol.symmetry or None,
             norb=norb,
             nelec=(n_alpha, n_beta),
             mo_coeff=hartree_fock.mo_coeff,
