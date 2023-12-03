@@ -14,7 +14,7 @@ import dataclasses
 from collections.abc import Iterable, Sequence
 
 import numpy as np
-from pyscf import ao2mo, gto, mcscf, scf, symm
+from pyscf import ao2mo, cc, gto, mcscf, mp, scf, symm
 from pyscf.scf.hf import SCF
 
 from ffsim.hamiltonians import MolecularHamiltonian
@@ -67,35 +67,47 @@ class MolecularData:
         one_body_tensor: The one-body tensor.
         two_body_integrals: The two-body integrals in compressed format.
         hf_energy: The Hartree-Fock energy.
+        mp2_energy: The MP2 energy.
+        mp2_t2: The MP2 t2 amplitudes.
+        ccsd_energy: The CCSD energy.
+        ccsd_t1: The CCSD t1 amplitudes.
+        ccsd_t2: The CCSD t2 amplitudes.
         fci_energy: The FCI energy.
         dipole_integrals: The dipole integrals.
         orbital_symmetries: The orbital symmetries.
     """
 
+    # molecule information
     norb: int
     nelec: tuple[int, int]
+    active_space: list[int]
+    # Hamiltonian coefficients
+    core_energy: float
+    one_body_integrals: np.ndarray
+    two_body_integrals: np.ndarray
+    # Hartree-Fock data
+    hf_energy: float
     mo_coeff: np.ndarray
     mo_occ: np.ndarray
-    active_space: list[int]
-    core_energy: float
-    one_body_tensor: np.ndarray
-    two_body_integrals: np.ndarray
-    hf_energy: float
+    # MP2 data
+    mp2_energy: float | None = None
+    mp2_t2: np.ndarray | None = None
+    # CCSD data
+    ccsd_energy: float | None = None
+    ccsd_t1: np.ndarray | None = None
+    ccsd_t2: np.ndarray | None = None
+    # FCI data
     fci_energy: float | None = None
+    # other information
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[int] | None = None
-
-    @property
-    def two_body_tensor(self) -> np.ndarray:
-        """The two-body tensor."""
-        return ao2mo.restore(1, self.two_body_integrals, self.norb)
 
     @property
     def hamiltonian(self) -> MolecularHamiltonian:
         """The Hamiltonian defined by the molecular data."""
         return MolecularHamiltonian(
-            one_body_tensor=self.one_body_tensor,
-            two_body_tensor=self.two_body_tensor,
+            one_body_tensor=self.one_body_integrals,
+            two_body_tensor=ao2mo.restore(1, self.two_body_integrals, self.norb),
             constant=self.core_energy,
         )
 
@@ -103,6 +115,9 @@ class MolecularData:
     def from_scf(
         hartree_fock: SCF,
         active_space: Iterable[int] | None = None,
+        *,
+        mp2: bool = False,
+        ccsd: bool = False,
         fci: bool = False,
     ) -> "MolecularData":
         """Initialize a MolecularData object from a Hartree-Fock calculation.
@@ -110,6 +125,8 @@ class MolecularData:
         Args:
             hartree_fock: The Hartree-Fock object.
             active_space: An optional list of orbitals to use for the active space.
+            mp2: Whether to calculate and store the MP2 energy and t2 amplitudes.
+            ccsd: Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.
             fci: Whether to calculate and store the FCI energy.
         """
         if not hartree_fock.e_tot:
@@ -133,11 +150,29 @@ class MolecularData:
         one_body_tensor, core_energy = cas.get_h1cas(mo)
         two_body_integrals = cas.get_h2cas(mo)
 
+        # run MP2 if requested
+        frozen = [i for i in range(hartree_fock.mol.nao_nr()) if i not in active_space]
+        mp2_energy = None
+        mp2_t2 = None
+        if mp2:
+            mp2_solver = mp.MP2(hartree_fock, frozen=frozen)
+            mp2_energy, mp2_t2 = mp2_solver.kernel()
+
+        # run CCSD if requested
+        ccsd_energy = None
+        ccsd_t1 = None
+        ccsd_t2 = None
+        if ccsd:
+            ccsd_solver = cc.CCSD(
+                hartree_fock,
+                frozen=frozen,
+            )
+            ccsd_energy, ccsd_t1, ccsd_t2 = ccsd_solver.kernel()
+
         # run FCI if requested
         fci_energy = None
         if fci:
-            cas.run(mo)
-            fci_energy = cas.e_tot
+            fci_energy, _, _, _, _ = cas.kernel()
 
         # compute dipole integrals
         charges = hartree_fock.mol.atom_charges()
@@ -159,9 +194,14 @@ class MolecularData:
             mo_occ=hartree_fock.mo_occ,
             active_space=active_space,
             core_energy=core_energy,
-            one_body_tensor=one_body_tensor,
+            one_body_integrals=one_body_tensor,
             two_body_integrals=two_body_integrals,
             hf_energy=hf_energy,
+            mp2_energy=mp2_energy,
+            mp2_t2=mp2_t2,
+            ccsd_energy=ccsd_energy,
+            ccsd_t1=ccsd_t1,
+            ccsd_t2=ccsd_t2,
             fci_energy=fci_energy,
             dipole_integrals=dipole_integrals,
             orbital_symmetries=orbsym,
@@ -171,6 +211,8 @@ class MolecularData:
     def from_mole(
         molecule: gto.Mole,
         active_space: Iterable[int] | None = None,
+        mp2: bool = False,
+        ccsd: bool = False,
         fci: bool = False,
         scf_func=scf.RHF,
     ) -> "MolecularData":
@@ -179,9 +221,13 @@ class MolecularData:
         Args:
             molecule: The molecule.
             active_space: An optional list of orbitals to use for the active space.
+            mp2: Whether to calculate and store the MP2 energy and t2 amplitudes.
+            ccsd: Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.
             fci: Whether to calculate and store the FCI energy.
             scf_func: The pySCF SCF function to use for the Hartree-Fock calculation.
         """
         hartree_fock = scf_func(molecule)
         hartree_fock.run()
-        return MolecularData.from_scf(hartree_fock, active_space=active_space, fci=fci)
+        return MolecularData.from_scf(
+            hartree_fock, active_space=active_space, mp2=mp2, ccsd=ccsd, fci=fci
+        )
