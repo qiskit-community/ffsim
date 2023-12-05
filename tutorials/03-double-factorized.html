@@ -309,7 +309,7 @@ Hartree Fock energy: -77.44562676439625
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of evolved state w.r.t. initial state: 0.9315062301399527
+Fidelity of evolved state w.r.t. initial state: 0.931506230139561
 </pre></div></div>
 </div>
 <p>Now, let’s test our implementation.</p>
@@ -336,7 +336,7 @@ Fidelity of evolved state w.r.t. initial state: 0.9315062301399527
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9928527668213245
+Fidelity of Trotter-evolved state with exact state: 0.9928527668209349
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
@@ -363,7 +363,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9928527668213245
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.999932085128637
+Fidelity of Trotter-evolved state with exact state: 0.9999320851282362
 </pre></div></div>
 </div>
 <p>As mentioned above, ffsim already includes functionality for Trotter simulation of double-factorized Hamiltonians. The implementation in ffsim includes higher-order Trotter-Suzuki formulas. The first-order asymmetric formula that we just implemented corresponds to <code class="docutils literal notranslate"><span class="pre">order=0</span></code> in ffsim’s implementation. <code class="docutils literal notranslate"><span class="pre">order=1</span></code> corresponds to the first-order symmetric (commonly known as the second-order) formula, <code class="docutils literal notranslate"><span class="pre">order=2</span></code> corresponds to the second-order symmetric (fourth-order) formula, and so on.</p>
@@ -392,7 +392,7 @@ Fidelity of Trotter-evolved state with exact state: 0.999932085128637
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.999932085128637
+Fidelity of Trotter-evolved state with exact state: 0.9999320851282362
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -420,7 +420,7 @@ Fidelity of Trotter-evolved state with exact state: 0.999932085128637
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999913261307384
+Fidelity of Trotter-evolved state with exact state: 0.9999913261303442
 </pre></div></div>
 </div>
 </section>
