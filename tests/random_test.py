@@ -25,10 +25,9 @@ def assert_t2_has_correct_symmetry(t2: np.ndarray):
     norb = nocc + nvrt
     pairs = itertools.product(range(nocc), range(nocc, norb))
     for (i, a), (j, b) in itertools.product(pairs, repeat=2):
-        if i <= j and a <= b:
-            np.testing.assert_allclose(
-                t2[i, j, a - nocc, b - nocc], t2[j, i, b - nocc, a - nocc]
-            )
+        np.testing.assert_allclose(
+            t2[i, j, a - nocc, b - nocc], t2[j, i, b - nocc, a - nocc]
+        )
 
 
 def test_assert_t2_has_correct_symmetry():
