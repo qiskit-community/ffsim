@@ -219,7 +219,7 @@ def random_t2_amplitudes(
     t2 = np.zeros((nocc, nocc, nvrt, nvrt), dtype=dtype)
     pairs = itertools.product(range(nocc), range(nocc, norb))
     for (m, (i, a)), (n, (j, b)) in itertools.product(enumerate(pairs), repeat=2):
-        if m <= n and i <= j and a <= b:
+        if m <= n:
             val = rng.standard_normal()
             t2[i, j, a - nocc, b - nocc] = val
             t2[j, i, b - nocc, a - nocc] = val
