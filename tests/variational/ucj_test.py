@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Tests for unitary cluster Jastrow ansatz."""
+
 import numpy as np
 import pyscf
 import scipy.linalg
