@@ -24,10 +24,10 @@ def orbital_rotation_to_parameters(orbital_rotation: np.ndarray) -> np.ndarray:
     triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     mat = scipy.linalg.logm(orbital_rotation)
     params = np.zeros(norb**2)
-    # imaginary part
-    params[: len(triu_indices)] = mat[tuple(zip(*triu_indices))].imag
     # real part
-    params[len(triu_indices) :] = mat[tuple(zip(*triu_indices_no_diag))].real
+    params[: len(triu_indices_no_diag)] = mat[tuple(zip(*triu_indices_no_diag))].real
+    # imaginary part
+    params[len(triu_indices_no_diag) :] = mat[tuple(zip(*triu_indices))].imag
     return params
 
 
@@ -36,13 +36,13 @@ def orbital_rotation_from_parameters(params: np.ndarray, norb: int) -> np.ndarra
     triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     generator = np.zeros((norb, norb), dtype=complex)
     # imaginary part
+    vals = 1j * params[len(triu_indices_no_diag) :]
     rows, cols = zip(*triu_indices)
-    vals = 1j * params[: len(triu_indices)]
     generator[rows, cols] = vals
     generator[cols, rows] = vals
     # real part
+    vals = params[: len(triu_indices_no_diag)]
     rows, cols = zip(*triu_indices_no_diag)
-    vals = params[len(triu_indices) :]
     generator[rows, cols] += vals
     generator[cols, rows] -= vals
     return scipy.linalg.expm(generator)
