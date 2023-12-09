@@ -22,6 +22,10 @@ from opt_einsum import contract
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
 from ffsim.linalg import double_factorized_t2
+from ffsim.variational.util import (
+    orbital_rotation_from_parameters,
+    orbital_rotation_to_parameters,
+)
 
 
 @dataclass(frozen=True)
@@ -84,7 +88,7 @@ class UCJOperator:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
-    ) -> "UCJOperator":
+    ) -> UCJOperator:
         """Initialize the UCJ operator from a real-valued parameter vector."""
         return UCJOperator(
             *_ucj_from_parameters(
@@ -120,7 +124,7 @@ class UCJOperator:
         t1_amplitudes: np.ndarray | None = None,
         n_reps: int | None = None,
         tol: float = 1e-8,
-    ) -> "UCJOperator":
+    ) -> UCJOperator:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2_amplitudes.shape
@@ -417,14 +421,13 @@ def _ucj_from_parameters(
         List[Tuple[int, int]],
         list(itertools.combinations_with_replacement(range(norb), 2)),
     )
-    triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     if alpha_alpha_indices is None:
         alpha_alpha_indices = triu_indices
     if alpha_beta_indices is None:
         alpha_beta_indices = triu_indices
     diag_coulomb_mats_alpha_alpha = np.zeros((n_reps, norb, norb))
     diag_coulomb_mats_alpha_beta = np.zeros((n_reps, norb, norb))
-    orbital_rotation_generators = np.zeros((n_reps, norb, norb), dtype=complex)
+    orbital_rotations = np.zeros((n_reps, norb, norb), dtype=complex)
     index = 0
     # diag coulomb matrices, alpha-alpha
     indices = alpha_alpha_indices
@@ -446,49 +449,16 @@ def _ucj_from_parameters(
             mat[rows, cols] = vals
             mat[cols, rows] = vals
             index += n_params
-    # orbital rotations, imaginary part
-    indices = triu_indices
-    n_params = len(indices)
-    rows, cols = zip(*indices)
-    for mat in orbital_rotation_generators:
-        vals = 1j * params[index : index + n_params]
-        mat[rows, cols] = vals
-        mat[cols, rows] = vals
-        index += n_params
-    # orbital rotations, real part
-    indices = triu_indices_no_diag
-    n_params = len(indices)
-    rows, cols = zip(*indices)
-    for mat in orbital_rotation_generators:
-        vals = params[index : index + n_params]
-        mat[rows, cols] += vals
-        mat[cols, rows] -= vals
-        index += n_params
-    # exponentiate orbital rotation generators
-    orbital_rotations = np.stack(
-        [scipy.linalg.expm(mat) for mat in orbital_rotation_generators]
-    )
+    # orbital rotations
+    for mat in orbital_rotations:
+        mat[:] = orbital_rotation_from_parameters(
+            params[index : index + norb**2], norb
+        )
+        index += norb**2
     # final orbital rotation
     final_orbital_rotation = None
     if with_final_orbital_rotation:
-        final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
-        # final orbital rotation, imaginary part
-        indices = triu_indices
-        n_params = len(indices)
-        rows, cols = zip(*indices)
-        vals = 1j * params[index : index + n_params]
-        final_orbital_rotation_generator[rows, cols] = vals
-        final_orbital_rotation_generator[cols, rows] = vals
-        index += n_params
-        # final orbital rotation, real part
-        indices = triu_indices_no_diag
-        n_params = len(indices)
-        rows, cols = zip(*indices)
-        vals = params[index : index + n_params]
-        final_orbital_rotation_generator[rows, cols] += vals
-        final_orbital_rotation_generator[cols, rows] -= vals
-        # exponentiate final orbital rotation generator
-        final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
+        final_orbital_rotation = orbital_rotation_from_parameters(params[index:], norb)
     return (
         diag_coulomb_mats_alpha_alpha,
         diag_coulomb_mats_alpha_beta,
@@ -511,7 +481,6 @@ def _ucj_to_parameters(
         List[Tuple[int, int]],
         list(itertools.combinations_with_replacement(range(norb), 2)),
     )
-    triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     if alpha_alpha_indices is None:
         alpha_alpha_indices = triu_indices
     if alpha_beta_indices is None:
@@ -519,7 +488,6 @@ def _ucj_to_parameters(
     ntheta = n_reps * (len(alpha_alpha_indices) + len(alpha_beta_indices) + norb**2)
     if final_orbital_rotation is not None:
         ntheta += norb**2
-    orbital_rotation_generators = [scipy.linalg.logm(mat) for mat in orbital_rotations]
     theta = np.zeros(ntheta)
     index = 0
     # diag coulomb matrices, alpha-alpha
@@ -536,28 +504,15 @@ def _ucj_to_parameters(
         for mat in diag_coulomb_mats_alpha_beta:
             theta[index : index + n_params] = mat[tuple(zip(*indices))]
             index += n_params
-    # orbital rotations, imaginary part
-    indices = triu_indices
-    n_params = len(indices)
-    for mat in orbital_rotation_generators:
-        theta[index : index + n_params] = mat[tuple(zip(*indices))].imag
-        index += n_params
-    # orbital rotations, real part
-    indices = triu_indices_no_diag
-    n_params = len(indices)
-    for mat in orbital_rotation_generators:
-        theta[index : index + n_params] = mat[tuple(zip(*indices))].real
-        index += n_params
+    # orbital rotations
+    for orbital_rotation in orbital_rotations:
+        theta[index : index + norb**2] = orbital_rotation_to_parameters(
+            orbital_rotation
+        )
+        index += norb**2
     # final orbital rotation
     if final_orbital_rotation is not None:
-        mat = scipy.linalg.logm(final_orbital_rotation)
-        # final orbital rotation, imaginary part
-        indices = triu_indices
-        n_params = len(indices)
-        theta[index : index + n_params] = mat[tuple(zip(*indices))].imag
-        index += n_params
-        # final orbital rotation, real part
-        indices = triu_indices_no_diag
-        n_params = len(indices)
-        theta[index : index + n_params] = mat[tuple(zip(*indices))].real
+        theta[index : index + norb**2] = orbital_rotation_to_parameters(
+            final_orbital_rotation
+        )
     return theta
