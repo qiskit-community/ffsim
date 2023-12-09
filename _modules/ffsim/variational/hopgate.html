@@ -54,7 +54,11 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_hop_gate</span>
+<span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_hop_gate</span><span class="p">,</span> <span class="n">apply_orbital_rotation</span>
+<span class="kn">from</span> <span class="nn">ffsim.variational.util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">orbital_rotation_from_parameters</span><span class="p">,</span>
+    <span class="n">orbital_rotation_to_parameters</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="HopGateAnsatzOperator">
@@ -63,8 +67,10 @@
 <span class="k">class</span> <span class="nc">HopGateAnsatzOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A hop gate ansatz operator.&quot;&quot;&quot;</span>
 
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
     <span class="n">thetas</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">final_orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
@@ -78,7 +84,51 @@
             <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_hop_gate</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">vec</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">mat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">vec</span>
+
+<div class="viewcode-block" id="HopGateAnsatzOperator.to_parameters">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.HopGateAnsatzOperator.to_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the hop gate ansatz operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
+        <span class="n">num_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_params</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_params</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thetas</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">orbital_rotation_to_parameters</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">params</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HopGateAnsatzOperator</span><span class="p">:</span>
+        <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
+            <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation_from_parameters</span><span class="p">(</span>
+                <span class="n">params</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="p">:],</span> <span class="n">norb</span>
+            <span class="p">)</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span> <span class="o">-</span><span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">HopGateAnsatzOperator</span><span class="p">(</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">,</span>
+            <span class="n">thetas</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+            <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

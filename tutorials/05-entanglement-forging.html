@@ -110,7 +110,7 @@ CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">brickwork</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_layers</span><span class="p">))</span>
 <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">thetas</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">))</span>
-<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">HopGateAnsatzOperator</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="n">thetas</span><span class="p">)</span>
+<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">HopGateAnsatzOperator</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">)</span>
 
 <span class="c1"># Compute energy of ansatz state</span>
 <span class="n">reference_occupations_spatial</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
@@ -130,7 +130,7 @@ CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialialization: -74.20656273321596
+Energy at initialialization: -74.20656273321595
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -142,7 +142,7 @@ Energy at initialialization: -74.20656273321596
 
 <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Initialize the ansatz operator from the parameter vector</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">HopGateAnsatzOperator</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">HopGateAnsatzOperator</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
     <span class="c1"># Compute energy</span>
     <span class="n">energy</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">multireference_state</span><span class="p">(</span>
         <span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">reference_occupations</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
@@ -168,10 +168,10 @@ Number of parameters: 15
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -75.68085178504263
+      fun: -75.68085260496929
         x: [ 2.996e+00 -7.549e-01 ...  2.650e+00  8.012e-01]
       nit: 6
-      jac: [ 1.761e-03  9.118e-03 ... -1.191e-02  9.550e-04]
+      jac: [ 1.759e-03  9.116e-03 ... -1.193e-02  9.550e-04]
      nfev: 112
      njev: 7
  hess_inv: &lt;15x15 LbfgsInvHessProduct with dtype=float64&gt;

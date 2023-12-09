@@ -285,9 +285,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
     (cre_a(0), des_a(3)): 1,
-    (cre_a(3), des_a(0)): -0.5
+    (cre_a(3), des_a(0)): -0.5,
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j
 })
 </pre></div>
 </div>
@@ -307,11 +307,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
+    (cre_a(3), des_a(0)): -0.25,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_b(2)): 0+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (des_a(3), des_b(3)): -0.25,
-    (cre_a(3), des_a(0)): -0.25
+    (des_a(3), des_b(3)): -0.25
 })
 </pre></div>
 </div>
@@ -325,12 +325,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
 })
 </pre></div>
 </div>
@@ -412,9 +412,20 @@ appear before smaller orbital indices.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">HopGateAnsatzOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.HopGateAnsatzOperator" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">HopGateAnsatzOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.HopGateAnsatzOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A hop gate ansatz operator.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.HopGateAnsatzOperator.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the hop gate ansatz operator to a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
