@@ -19,6 +19,18 @@ import scipy.linalg
 
 
 def orbital_rotation_to_parameters(orbital_rotation: np.ndarray) -> np.ndarray:
+    """Convert an orbital rotation to parameters.
+
+    Converts an orbital rotation to a real-valued parameter vector. The parameter vector
+    contains non-redundant real and imaginary parts of the elements of the matrix
+    logarithm of the orbital rotation matrix.
+
+    Args:
+        orbital_rotation: The orbital rotation.
+
+    Returns:
+        The list of real numbers parameterizing the orbital rotation.
+    """
     norb, _ = orbital_rotation.shape
     triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
     triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
@@ -32,6 +44,20 @@ def orbital_rotation_to_parameters(orbital_rotation: np.ndarray) -> np.ndarray:
 
 
 def orbital_rotation_from_parameters(params: np.ndarray, norb: int) -> np.ndarray:
+    """Construct an orbital rotation from parameters.
+
+    Converts a real-valued parameter vector to an orbital rotation. The parameter vector
+    contains non-redundant real and imaginary parts of the elements of the matrix
+    logarithm of the orbital rotation matrix.
+
+    Args:
+        params: The real-valued parameters.
+        norb: The number of spatial orbitals, which gives the width and height of the
+            orbital rotation matrix.
+
+    Returns:
+        The orbital rotation.
+    """
     triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
     triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     generator = np.zeros((norb, norb), dtype=complex)
