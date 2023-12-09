@@ -74,7 +74,7 @@ class HopGateAnsatzOperator:
         norb: int,
         interaction_pairs: list[tuple[int, int]],
         with_final_orbital_rotation: bool = False,
-    ) -> np.ndarray:
+    ) -> HopGateAnsatzOperator:
         final_orbital_rotation = None
         if with_final_orbital_rotation:
             final_orbital_rotation = orbital_rotation_from_parameters(

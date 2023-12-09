@@ -88,7 +88,7 @@ class UCJOperator:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
-    ) -> "UCJOperator":
+    ) -> UCJOperator:
         """Initialize the UCJ operator from a real-valued parameter vector."""
         return UCJOperator(
             *_ucj_from_parameters(
@@ -124,7 +124,7 @@ class UCJOperator:
         t1_amplitudes: np.ndarray | None = None,
         n_reps: int | None = None,
         tol: float = 1e-8,
-    ) -> "UCJOperator":
+    ) -> UCJOperator:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2_amplitudes.shape
