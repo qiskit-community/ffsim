@@ -78,7 +78,7 @@ class HopGateAnsatzOperator:
         final_orbital_rotation = None
         if with_final_orbital_rotation:
             final_orbital_rotation = orbital_rotation_from_parameters(
-                params[-(norb**2) :]
+                params[-(norb**2) :], norb
             )
             params = params[: -(norb**2)]
         return HopGateAnsatzOperator(
