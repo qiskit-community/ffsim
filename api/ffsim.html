@@ -270,8 +270,8 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div>
 </div>
@@ -286,8 +286,8 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_a(0), des_a(3)): 1,
-    (cre_a(3), des_a(0)): -0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(3), des_a(0)): -0.5
 })
 </pre></div>
 </div>
@@ -308,10 +308,10 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_a(3), des_a(0)): -0.25,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_b(2)): 0+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (des_a(3), des_b(3)): -0.25
+    (des_a(3), des_b(3)): -0.25,
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_b(2)): 0+1j
 })
 </pre></div>
 </div>
@@ -325,12 +325,12 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j
 })
 </pre></div>
 </div>
@@ -430,7 +430,7 @@ appear before smaller orbital indices.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ffsim.MolecularData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">MolecularData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_occ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole_integrals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">MolecularData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_occ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_vec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole_integrals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for storing molecular data.</p>
 <dl class="py attribute">
@@ -548,6 +548,12 @@ appear before smaller orbital indices.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.fci_vec">
+<span class="sig-name descname"><span class="pre">fci_vec</span></span><a class="headerlink" href="#ffsim.MolecularData.fci_vec" title="Link to this definition">¶</a></dt>
+<dd><p>The FCI state vector.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.MolecularData.dipole_integrals">
 <span class="sig-name descname"><span class="pre">dipole_integrals</span></span><a class="headerlink" href="#ffsim.MolecularData.dipole_integrals" title="Link to this definition">¶</a></dt>
 <dd><p>The dipole integrals.</p>
@@ -570,7 +576,7 @@ appear before smaller orbital indices.</p>
 <li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – An optional list of orbitals to use for the active space.</p></li>
 <li><p><strong>mp2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the MP2 energy and t2 amplitudes.</p></li>
 <li><p><strong>ccsd</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.</p></li>
-<li><p><strong>fci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the FCI energy.</p></li>
+<li><p><strong>fci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the FCI energy and state vector.</p></li>
 <li><p><strong>scf_func</strong> – The pySCF SCF function to use for the Hartree-Fock calculation.</p></li>
 </ul>
 </dd>
@@ -591,7 +597,7 @@ appear before smaller orbital indices.</p>
 <li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – An optional list of orbitals to use for the active space.</p></li>
 <li><p><strong>mp2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the MP2 energy and t2 amplitudes.</p></li>
 <li><p><strong>ccsd</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.</p></li>
-<li><p><strong>fci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the FCI energy.</p></li>
+<li><p><strong>fci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to calculate and store the FCI energy and state vector.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
