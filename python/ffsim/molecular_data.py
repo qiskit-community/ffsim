@@ -77,6 +77,7 @@ class MolecularData:
         ccsd_t1: The CCSD t1 amplitudes.
         ccsd_t2: The CCSD t2 amplitudes.
         fci_energy: The FCI energy.
+        fci_vec: The FCI state vector.
         dipole_integrals: The dipole integrals.
         orbital_symmetries: The orbital symmetries.
     """
@@ -107,6 +108,7 @@ class MolecularData:
     ccsd_t2: np.ndarray | None = None
     # FCI data
     fci_energy: float | None = None
+    fci_vec: np.ndarray | None = None
     # other information
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[int] | None = None
@@ -136,7 +138,7 @@ class MolecularData:
             active_space: An optional list of orbitals to use for the active space.
             mp2: Whether to calculate and store the MP2 energy and t2 amplitudes.
             ccsd: Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.
-            fci: Whether to calculate and store the FCI energy.
+            fci: Whether to calculate and store the FCI energy and state vector.
         """
         if not hartree_fock.e_tot:
             raise ValueError(
@@ -180,8 +182,9 @@ class MolecularData:
 
         # run FCI if requested
         fci_energy = None
+        fci_vec = None
         if fci:
-            fci_energy, _, _, _, _ = cas.kernel()
+            fci_energy, _, fci_vec, _, _ = cas.kernel()
 
         # compute dipole integrals
         charges = hartree_fock.mol.atom_charges()
@@ -216,6 +219,7 @@ class MolecularData:
             ccsd_t1=ccsd_t1,
             ccsd_t2=ccsd_t2,
             fci_energy=fci_energy,
+            fci_vec=fci_vec,
             dipole_integrals=dipole_integrals,
             orbital_symmetries=orbsym,
         )
@@ -236,7 +240,7 @@ class MolecularData:
             active_space: An optional list of orbitals to use for the active space.
             mp2: Whether to calculate and store the MP2 energy and t2 amplitudes.
             ccsd: Whether to calculate and store the CCSD energy, t1, and t2 amplitudes.
-            fci: Whether to calculate and store the FCI energy.
+            fci: Whether to calculate and store the FCI energy and state vector.
             scf_func: The pySCF SCF function to use for the Hartree-Fock calculation.
         """
         hartree_fock = scf_func(molecule)
