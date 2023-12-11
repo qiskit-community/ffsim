@@ -348,6 +348,27 @@ U is upper triangular, and P is a permutation matrix.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.linalg.match_global_phase">
+<span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">match_global_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/linalg.html#match_global_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.match_global_phase" title="Link to this definition">¶</a></dt>
+<dd><p>Phase the given arrays so that their phases match at one entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A Numpy array.</p></li>
+<li><p><strong>b</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – Another Numpy array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A pair of arrays (a’, b’) that are equal if and only if a == b * exp(i phi)
+for some real number phi.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.modified_cholesky">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">modified_cholesky</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/double_factorized_decomposition.html#modified_cholesky"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.modified_cholesky" title="Link to this definition">¶</a></dt>
 <dd><p>Modified Cholesky decomposition.</p>
@@ -443,6 +464,7 @@ return the matrix M where <span class="math notranslate nohighlight">\(M_{ij} = 
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">is_special_orthogonal()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.is_unitary"><code class="docutils literal notranslate"><span class="pre">is_unitary()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.lup"><code class="docutils literal notranslate"><span class="pre">lup()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.match_global_phase"><code class="docutils literal notranslate"><span class="pre">match_global_phase()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.modified_cholesky"><code class="docutils literal notranslate"><span class="pre">modified_cholesky()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.linalg.reduced_matrix"><code class="docutils literal notranslate"><span class="pre">reduced_matrix()</span></code></a></li>
 </ul>
