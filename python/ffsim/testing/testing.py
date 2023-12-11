@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from ffsim.linalg import match_global_phase
 
 
