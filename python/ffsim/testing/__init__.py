@@ -10,9 +10,14 @@
 
 """Testing utilities."""
 
-from ffsim.testing.testing import random_nelec, random_occupied_orbitals
+from ffsim.testing.testing import (
+    assert_allclose_up_to_global_phase,
+    random_nelec,
+    random_occupied_orbitals,
+)
 
 __all__ = [
+    "assert_allclose_up_to_global_phase",
     "random_nelec",
     "random_occupied_orbitals",
 ]

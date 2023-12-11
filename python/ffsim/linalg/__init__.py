@@ -16,7 +16,12 @@ from ffsim.linalg.double_factorized_decomposition import (
     modified_cholesky,
 )
 from ffsim.linalg.givens import apply_matrix_to_slices, givens_decomposition
-from ffsim.linalg.linalg import expm_multiply_taylor, lup, reduced_matrix
+from ffsim.linalg.linalg import (
+    expm_multiply_taylor,
+    lup,
+    match_global_phase,
+    reduced_matrix,
+)
 from ffsim.linalg.predicates import (
     is_antihermitian,
     is_hermitian,
@@ -39,6 +44,7 @@ __all__ = [
     "is_special_orthogonal",
     "is_unitary",
     "lup",
+    "match_global_phase",
     "modified_cholesky",
     "reduced_matrix",
 ]

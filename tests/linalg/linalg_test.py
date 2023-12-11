@@ -43,3 +43,15 @@ def test_reduced_matrix():
         actual = reduced_mat[i, j]
         expected = np.vdot(vecs[i], mat @ vecs[j])
         np.testing.assert_allclose(actual, expected)
+
+
+def test_match_global_phase():
+    a = np.array([[1, 2, 3], [4, 5, 6]])
+    b = 1j * a
+    c, d = ffsim.linalg.match_global_phase(a, b)
+    np.testing.assert_allclose(c, d)
+
+    a = np.array([[1, 2, 3], [4, 5, 6]])
+    b = 2j * a
+    c, d = ffsim.linalg.match_global_phase(a, b)
+    np.testing.assert_allclose(2 * c, d)

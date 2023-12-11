@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import numpy as np
+from ffsim.linalg import match_global_phase
 
 
 def random_nelec(norb: int, *, seed=None) -> tuple[int, int]:
@@ -50,3 +51,39 @@ def random_occupied_orbitals(
     occ_a = list(rng.choice(norb, n_alpha, replace=False))
     occ_b = list(rng.choice(norb, n_beta, replace=False))
     return (occ_a, occ_b)
+
+
+def assert_allclose_up_to_global_phase(
+    actual: np.ndarray,
+    desired: np.ndarray,
+    rtol: float = 1e-7,
+    atol: float = 0,
+    equal_nan: bool = True,
+    err_msg: str = "",
+    verbose: bool = True,
+):
+    """Check if a == b * exp(i phi) for some real number phi.
+
+    Args:
+        actual: A Numpy array.
+        desired: Another Numpy array.
+        rtol: Relative tolerance.
+        atol: Absolute tolerance.
+        equal_nan: If True, NaNs will compare equal.
+        err_msg: The error message to be printed in case of failure.
+        verbose: If True, the conflicting values are appended to the error message.
+
+    Raises:
+        AssertionError: If a and b are not equal up to global phase, up to the
+            specified precision.
+    """
+    actual, desired = match_global_phase(actual, desired)
+    np.testing.assert_allclose(
+        actual,
+        desired,
+        rtol=rtol,
+        atol=atol,
+        equal_nan=equal_nan,
+        err_msg=err_msg,
+        verbose=verbose,
+    )

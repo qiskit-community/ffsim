@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import cmath
 from collections.abc import Sequence
 
 import numpy as np
@@ -66,3 +67,23 @@ def reduced_matrix(
         for i, state_i in enumerate(vecs):
             result[i, j] = np.vdot(state_i, mat_state_j)
     return result
+
+
+def match_global_phase(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Phase the given arrays so that their phases match at one entry.
+
+    Args:
+        a: A Numpy array.
+        b: Another Numpy array.
+
+    Returns:
+        A pair of arrays (a', b') that are equal if and only if a == b * exp(i phi)
+        for some real number phi.
+    """
+    if a.shape != b.shape:
+        return a, b
+    # use the largest entry of one of the matrices to maximize precision
+    index = max(np.ndindex(*a.shape), key=lambda i: abs(b[i]))
+    phase_a = cmath.phase(a[index])
+    phase_b = cmath.phase(b[index])
+    return a * cmath.rect(1, -phase_a), b * cmath.rect(1, -phase_b)
