@@ -226,7 +226,7 @@ def test_apply_num_interaction(norb: int, nelec: tuple[int, int]):
     ],
 )
 def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int]):
-    """Test applying number interaction."""
+    """Test applying number-number interaction."""
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
@@ -267,7 +267,7 @@ def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int]):
     ],
 )
 def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]):
-    """Test applying number interaction."""
+    """Test eigenvalues of number-number interaction."""
     rng = np.random.default_rng()
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
     vec = ffsim.slater_determinant(norb, occupied_orbitals)
@@ -288,6 +288,38 @@ def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]
                     eig += theta
             expected = np.exp(1j * eig) * vec
             np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (2, (1, 1)),
+        (3, (2, 1)),
+    ],
+)
+def test_apply_on_site_num_num_interaction(norb: int, nelec: tuple[int, int]):
+    """Test applying on-site number-number interaction."""
+    dim = ffsim.dim(norb, nelec)
+    rng = np.random.default_rng()
+    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
+    theta = rng.uniform(-10, 10)
+    for i in range(norb):
+        result = ffsim.apply_on_site_num_num_interaction(
+            vec, theta, i, norb=norb, nelec=nelec
+        )
+        generator = ffsim.FermionOperator(
+            {
+                (
+                    ffsim.cre_a(i),
+                    ffsim.des_a(i),
+                    ffsim.cre_b(i),
+                    ffsim.des_b(i),
+                ): theta
+            }
+        )
+        linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
+        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize(
