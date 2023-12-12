@@ -273,6 +273,52 @@ def apply_num_num_interaction(
     return vec
 
 
+def apply_on_site_num_num_interaction(
+    vec: np.ndarray,
+    theta: float,
+    target_orb: int,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    copy: bool = True,
+):
+    r"""Apply an on-site number-number interaction gate.
+
+    The on-site number-number interaction gate is
+
+    .. math::
+
+        \text{OSNN}(\theta, p) =
+        \exp\left(i \theta a^\dagger_{\alpha, p} a_{\alpha, p}
+        a^\dagger_{\beta, p} a_{\beta, p}\right)
+
+    Args:
+        vec: The state vector to be transformed.
+        theta: The rotation angle.
+        target_orb: The orbital on which to apply the interaction.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        copy: Whether to copy the vector before operating on it.
+            - If ``copy=True`` then this function always returns a newly allocated
+            vector and the original vector is left untouched.
+            - If ``copy=False`` then this function may still return a newly allocated
+            vector, but the original vector may have its data overwritten.
+            It is also possible that the original vector is returned,
+            modified in-place.
+    """
+    if copy:
+        vec = vec.copy()
+    vec = apply_num_op_prod_interaction(
+        vec,
+        theta,
+        target_orbs=([target_orb], [target_orb]),
+        norb=norb,
+        nelec=nelec,
+        copy=False,
+    )
+    return vec
+
+
 def apply_num_op_prod_interaction(
     vec: np.ndarray,
     theta: float,
