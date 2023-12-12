@@ -269,9 +269,9 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+    (cre_a(3), des_a(0)): -0.25,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j
 })
 </pre></div>
 </div>
@@ -307,11 +307,11 @@ for an explanation of how to use this class.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5,
     (cre_a(3), des_a(0)): -0.25,
+    (cre_a(0), des_a(3)): 0.5,
+    (cre_b(2)): 0+1j,
     (des_a(3), des_b(3)): -0.25,
-    (cre_b(2)): 0+1j
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j
 })
 </pre></div>
 </div>
@@ -326,11 +326,11 @@ for an explanation of how to use this class.</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625
 })
 </pre></div>
 </div>
@@ -1332,6 +1332,35 @@ modified in-place.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.apply_on_site_num_num_interaction">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_on_site_num_num_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/basic_gates.html#apply_on_site_num_num_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_on_site_num_num_interaction" title="Link to this definition">¶</a></dt>
+<dd><p>Apply an on-site number-number interaction gate.</p>
+<p>The on-site number-number interaction gate is</p>
+<div class="math notranslate nohighlight">
+\[\text{OSNN}(\theta, p) =
+\exp\left(i \theta a^\dagger_{\alpha, p} a_{\alpha, p}
+a^\dagger_{\beta, p} a_{\beta, p}\right)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>theta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The rotation angle.</p></li>
+<li><p><strong>target_orb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The orbital on which to apply the interaction.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to copy the vector before operating on it.
+- If <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then this function always returns a newly allocated
+vector and the original vector is left untouched.
+- If <code class="docutils literal notranslate"><span class="pre">copy=False</span></code> then this function may still return a newly allocated
+vector, but the original vector may have its data overwritten.
+It is also possible that the original vector is returned,
+modified in-place.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_orbital_rotation">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_orbital_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_row_permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_col_permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/orbital_rotation.html#apply_orbital_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_orbital_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>Apply an orbital rotation to a vector.</p>
@@ -2057,6 +2086,7 @@ describes the orbitals of the Slater determinant.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.apply_num_num_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_num_interaction()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.apply_num_op_prod_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_op_prod_interaction()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.apply_num_op_sum_evolution"><code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ffsim.apply_on_site_num_num_interaction"><code class="docutils literal notranslate"><span class="pre">apply_on_site_num_num_interaction()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.apply_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">apply_orbital_rotation()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.apply_tunneling_interaction"><code class="docutils literal notranslate"><span class="pre">apply_tunneling_interaction()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ffsim.apply_unitary"><code class="docutils literal notranslate"><span class="pre">apply_unitary()</span></code></a></li>
