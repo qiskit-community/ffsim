@@ -35,10 +35,9 @@ def rdm(
     rank: int = 1,
     spin_summed: bool = True,
     reordered: bool = True,
-    # TODO document this argument
     return_lower_ranks: bool = True,
 ) -> np.ndarray | tuple[np.ndarray, ...]:
-    """Return the reduced density matrix (RDM) of a state vector.
+    """Return the reduced density matrix (RDM) or matrices of a state vector.
 
     The rank 1 RDM is defined as follows:
 
@@ -79,9 +78,16 @@ def rdm(
         rank: The rank of the reduced density matrix.
         spin_summed: Whether to sum over the spin index.
         reordered: Whether to reorder the indices of the reduced density matrix.
+        return_lower_ranks: Whether to return lower rank RDMs in addition to the
+            specified rank. If True, then this function returns all RDMs up to and
+            including the specified rank, in increasing order of rank. For example,
+            if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
 
     Returns:
-        The reduced density matrix.
+        The reduced density matrix or matrices. If `return_lower_ranks` is False,
+        then a single matrix is returned. If `return_lower_ranks` is True, then
+        a `rank`-length tuple of matrices is returned, containing the RDMs up to
+        the specified rank in increasing order of rank.
     """
     n_alpha, n_beta = nelec
     link_index_a = gen_linkstr_index(range(norb), n_alpha)
