@@ -116,116 +116,70 @@ def test_indices_to_strings():
 
 
 @pytest.mark.parametrize(
-    "norb, nelec",
+    "norb, nelec, spin_summed",
     [
-        (4, (2, 2)),
-        (3, (1, 2)),
-        (2, (0, 1)),
-        (1, (0, 0)),
+        (4, (2, 2), True),
+        (4, (2, 2), False),
+        (3, (1, 2), True),
+        (3, (1, 2), False),
+        (2, (0, 1), True),
+        (2, (0, 1), False),
+        (1, (0, 0), True),
+        (1, (0, 0), False),
     ],
 )
-def test_rdm_1_spin_summed(norb: int, nelec: tuple[int, int]):
-    """Test computing spin-summed 1-RDM."""
-    rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
-
-    rdm = ffsim.rdm(vec, norb, nelec)
-    expected = _rdm1_spin_summed(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected, atol=1e-12)
-
-
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (3, (1, 2)),
-        (2, (0, 1)),
-        (1, (0, 0)),
-    ],
-)
-def test_rdm_1(norb: int, nelec: tuple[int, int]):
+def test_rdm_1(norb: int, nelec: tuple[int, int], spin_summed: bool):
     """Test computing 1-RDM."""
+    func = {
+        # spin_summed: function
+        False: _rdm1,
+        True: _rdm1_spin_summed,
+    }
     rng = np.random.default_rng()
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
 
-    rdm = ffsim.rdm(vec, norb, nelec, spin_summed=False)
-    expected = _rdm1(vec, norb, nelec)
+    rdm = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
+    expected = func[spin_summed](vec, norb, nelec)
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(
-    "norb, nelec",
+    "norb, nelec, spin_summed, reordered",
     [
-        (4, (2, 2)),
-        (3, (1, 2)),
-        (2, (0, 1)),
-        (1, (0, 0)),
+        (4, (2, 2), True, True),
+        (4, (2, 2), True, False),
+        (4, (2, 2), False, True),
+        (4, (2, 2), False, False),
+        (3, (1, 2), True, True),
+        (3, (1, 2), True, False),
+        (3, (1, 2), False, True),
+        (3, (1, 2), False, False),
+        (2, (0, 1), True, True),
+        (2, (0, 1), True, False),
+        (2, (0, 1), False, True),
+        (2, (0, 1), False, False),
+        (1, (0, 0), True, True),
+        (1, (0, 0), True, False),
+        (1, (0, 0), False, True),
+        (1, (0, 0), False, False),
     ],
 )
-def test_rdm_2_spin_summed_reordered(norb: int, nelec: tuple[int, int]):
-    """Test computing spin-summed reordered 2-RDM."""
-    rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
-
-    rdm = ffsim.rdm(vec, norb, nelec, rank=2)
-    expected = _rdm2_spin_summed_reordered(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected, atol=1e-12)
-
-
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (3, (1, 2)),
-        (2, (0, 1)),
-        (1, (0, 0)),
-    ],
-)
-def test_rdm_2_reordered(norb: int, nelec: tuple[int, int]):
-    """Test computing reordered 2-RDM."""
-    rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
-
-    rdm = ffsim.rdm(vec, norb, nelec, rank=2, spin_summed=False)
-    expected = _rdm2_reordered(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected, atol=1e-12)
-
-
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (3, (1, 2)),
-        (2, (0, 1)),
-        (1, (0, 0)),
-    ],
-)
-def test_rdm_2_spin_summed(norb: int, nelec: tuple[int, int]):
-    """Test computing spin-summed 2-RDM."""
-    rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
-
-    rdm = ffsim.rdm(vec, norb, nelec, rank=2, reordered=False)
-    expected = _rdm2_spin_summed(vec, norb, nelec)
-    np.testing.assert_allclose(rdm, expected, atol=1e-12)
-
-
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (3, (1, 2)),
-        (2, (0, 1)),
-        (1, (0, 0)),
-    ],
-)
-def test_rdm_2(norb: int, nelec: tuple[int, int]):
+def test_rdm_2(norb: int, nelec: tuple[int, int], spin_summed: bool, reordered):
     """Test computing 2-RDM."""
+    func = {
+        # (spin_summed, reorder): function
+        (False, False): _rdm2,
+        (False, True): _rdm2_reordered,
+        (True, False): _rdm2_spin_summed,
+        (True, True): _rdm2_spin_summed_reordered,
+    }
     rng = np.random.default_rng()
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
 
-    rdm = ffsim.rdm(vec, norb, nelec, rank=2, spin_summed=False, reordered=False)
-    expected = _rdm2(vec, norb, nelec)
+    rdm = ffsim.rdm(
+        vec, norb, nelec, rank=2, spin_summed=spin_summed, reordered=reordered
+    )
+    expected = func[spin_summed, reordered](vec, norb, nelec)
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
