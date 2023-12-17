@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Fermionic quantum states."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -15,19 +17,8 @@ from collections.abc import Sequence
 import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
-from pyscf.fci.direct_spin1 import (
-    make_rdm1,
-    make_rdm1s,
-    make_rdm12,
-    make_rdm12s,
-    trans_rdm1,
-    trans_rdm1s,
-    trans_rdm12,
-    trans_rdm12s,
-)
 from scipy.special import comb
 
-from ffsim.cistring import gen_linkstr_index
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -199,180 +190,3 @@ def indices_to_strings(
         f"{string_a:0{norb}b}{string_b:0{norb}b}"
         for string_a, string_b in zip(strings_a, strings_b)
     ]
-
-
-def rdm(
-    vec: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    rank: int = 1,
-    spin_summed: bool = True,
-    reordered: bool = True,
-) -> np.ndarray:
-    """Return the reduced density matrix (RDM) of a state vector.
-
-    The rank 1 RDM is defined as follows:
-
-    .. code::
-
-        rdm1[p, q] = ⟨p+ q⟩
-
-    The definition of higher-rank RDMs depends on the ``reordered`` argument, which
-    defaults to True.
-
-    **reordered = True**
-
-    The reordered RDMs are defined as follows:
-
-    .. code::
-
-        rdm2[p, q, r, s] = ⟨p+ r+ s q⟩
-        rdm3[p, q, r, s, t, u] = ⟨p+ r+ t+ u s q⟩
-        rdm4[p, q, r, s, t, u, v, w] = ⟨p+ r+ t+ v+ w u s q⟩
-
-    **reordered = False**
-
-    If reordered is set to False, the RDMs are defined as follows:
-
-    .. code::
-
-        rdm2[p, q, r, s] = ⟨p+ q r+ s⟩
-        rdm3[p, q, r, s, t, u] = ⟨p+ q r+ s t+ u⟩
-        rdm4[p, q, r, s, t, u, v, w] = ⟨p+ q r+ s t+ u v+ w⟩
-
-    Note:
-        Currently, only ranks 1 and 2 are supported.
-
-    Args:
-        vec: The state vector whose reduced density matrix is desired.
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-        rank: The rank of the reduced density matrix.
-        spin_summed: Whether to sum over the spin index.
-        reordered: Whether to reorder the indices of the reduced density matrix.
-
-    Returns:
-        The reduced density matrix.
-    """
-    n_alpha, n_beta = nelec
-    link_index_a = gen_linkstr_index(range(norb), n_alpha)
-    link_index_b = gen_linkstr_index(range(norb), n_beta)
-    link_index = (link_index_a, link_index_b)
-    vec_real = np.real(vec)
-    vec_imag = np.imag(vec)
-    if rank == 1:
-        if spin_summed:
-            return _rdm1_spin_summed(vec_real, vec_imag, norb, nelec, link_index)
-        else:
-            return _rdm1(vec_real, vec_imag, norb, nelec, link_index)
-    if rank == 2:
-        if spin_summed:
-            return _rdm2_spin_summed(
-                vec_real, vec_imag, norb, nelec, reordered, link_index
-            )
-        else:
-            return _rdm2(vec_real, vec_imag, norb, nelec, reordered, link_index)
-    raise NotImplementedError(
-        f"Computing the rank {rank} reduced density matrix is currently not supported."
-    )
-
-
-def _rdm1_spin_summed(
-    vec_real: np.ndarray,
-    vec_imag: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray] | None,
-) -> np.ndarray:
-    result = make_rdm1(vec_real, norb, nelec, link_index=link_index).astype(complex)
-    result += make_rdm1(vec_imag, norb, nelec, link_index=link_index)
-    # the rdm1 convention from pyscf is tranposed
-    result -= 1j * trans_rdm1(vec_real, vec_imag, norb, nelec, link_index=link_index)
-    result += 1j * trans_rdm1(vec_imag, vec_real, norb, nelec, link_index=link_index)
-    return result
-
-
-def _rdm1(
-    vec_real: np.ndarray,
-    vec_imag: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray] | None,
-) -> np.ndarray:
-    result = np.stack(make_rdm1s(vec_real, norb, nelec, link_index=link_index)).astype(
-        complex
-    )
-    result += np.stack(make_rdm1s(vec_imag, norb, nelec, link_index=link_index))
-    # the rdm1 convention from pyscf is tranposed
-    result -= 1j * np.stack(
-        trans_rdm1s(vec_real, vec_imag, norb, nelec, link_index=link_index)
-    )
-    result += 1j * np.stack(
-        trans_rdm1s(vec_imag, vec_real, norb, nelec, link_index=link_index)
-    )
-    return scipy.linalg.block_diag(*result)
-
-
-def _rdm2_spin_summed(
-    vec_real: np.ndarray,
-    vec_imag: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    reordered: bool,
-    link_index: tuple[np.ndarray, np.ndarray] | None,
-) -> np.ndarray:
-    result = make_rdm12(
-        vec_real, norb, nelec, reorder=reordered, link_index=link_index
-    )[1].astype(complex)
-    result += make_rdm12(
-        vec_imag, norb, nelec, reorder=reordered, link_index=link_index
-    )[1]
-    result += (
-        1j
-        * trans_rdm12(
-            vec_real, vec_imag, norb, nelec, reorder=reordered, link_index=link_index
-        )[1]
-    )
-    result -= (
-        1j
-        * trans_rdm12(
-            vec_imag, vec_real, norb, nelec, reorder=reordered, link_index=link_index
-        )[1]
-    )
-    return result
-
-
-def _rdm2(
-    vec_real: np.ndarray,
-    vec_imag: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    reordered: bool,
-    link_index: tuple[np.ndarray, np.ndarray] | None,
-) -> np.ndarray:
-    rdms = np.stack(
-        make_rdm12s(vec_real, norb, nelec, reorder=reordered, link_index=link_index)[1]
-    ).astype(complex)
-    rdms += np.stack(
-        make_rdm12s(vec_imag, norb, nelec, reorder=reordered, link_index=link_index)[1]
-    )
-    # result is currently [rdm_aa, rdm_ab, rdm_bb]
-    # the following line transforms it into [rdm_aa, rdm_ab, rdm_ba, rdm_bb]
-    rdms = np.insert(rdms, 2, rdms[1].transpose(2, 3, 0, 1), axis=0)
-    rdms += 1j * np.stack(
-        trans_rdm12s(
-            vec_real, vec_imag, norb, nelec, reorder=reordered, link_index=link_index
-        )[1]
-    )
-    rdms -= 1j * np.stack(
-        trans_rdm12s(
-            vec_imag, vec_real, norb, nelec, reorder=reordered, link_index=link_index
-        )[1]
-    )
-    result = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=complex)
-    rdm_aa, rdm_ab, rdm_ba, rdm_bb = rdms
-    result[:norb, :norb, :norb, :norb] = rdm_aa
-    result[:norb, :norb, norb:, norb:] = rdm_ab
-    result[norb:, norb:, :norb, :norb] = rdm_ba
-    result[norb:, norb:, norb:, norb:] = rdm_bb
-    return result
