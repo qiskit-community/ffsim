@@ -35,7 +35,6 @@ def rdm(
     rank: int = 1,
     spin_summed: bool = True,
     reordered: bool = True,
-    # TODO make this default to True
     # TODO document this argument
     return_lower_ranks: bool = True,
 ) -> np.ndarray | tuple[np.ndarray, ...]:
@@ -128,12 +127,17 @@ def _rdm1_spin_summed(
     nelec: tuple[int, int],
     link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
-    result = make_rdm1(vec_real, norb, nelec, link_index=link_index).astype(complex)
-    result += make_rdm1(vec_imag, norb, nelec, link_index=link_index)
-    # the rdm1 convention from pyscf is transposed
-    result -= 1j * trans_rdm1(vec_real, vec_imag, norb, nelec, link_index=link_index)
-    result += 1j * trans_rdm1(vec_imag, vec_real, norb, nelec, link_index=link_index)
-    return result
+    rdm1_real = make_rdm1(vec_real, norb, nelec, link_index=link_index)
+    rdm1_imag = make_rdm1(vec_imag, norb, nelec, link_index=link_index)
+    trans_rdm1_real_imag = trans_rdm1(
+        vec_real, vec_imag, norb, nelec, link_index=link_index
+    )
+    trans_rdm1_imag_real = trans_rdm1(
+        vec_imag, vec_real, norb, nelec, link_index=link_index
+    )
+    return _assemble_rdm1_spin_summed(
+        rdm1_real, rdm1_imag, trans_rdm1_real_imag, trans_rdm1_imag_real
+    )
 
 
 def _rdm1(
@@ -143,18 +147,17 @@ def _rdm1(
     nelec: tuple[int, int],
     link_index: tuple[np.ndarray, np.ndarray] | None,
 ) -> np.ndarray:
-    result = np.stack(make_rdm1s(vec_real, norb, nelec, link_index=link_index)).astype(
-        complex
+    rdms1_real = make_rdm1s(vec_real, norb, nelec, link_index=link_index)
+    rdms1_imag = make_rdm1s(vec_imag, norb, nelec, link_index=link_index)
+    trans_rdms1_real_imag = trans_rdm1s(
+        vec_real, vec_imag, norb, nelec, link_index=link_index
     )
-    result += np.stack(make_rdm1s(vec_imag, norb, nelec, link_index=link_index))
-    # the rdm1 convention from pyscf is transposed
-    result -= 1j * np.stack(
-        trans_rdm1s(vec_real, vec_imag, norb, nelec, link_index=link_index)
+    trans_rdms1_imag_real = trans_rdm1s(
+        vec_imag, vec_real, norb, nelec, link_index=link_index
     )
-    result += 1j * np.stack(
-        trans_rdm1s(vec_imag, vec_real, norb, nelec, link_index=link_index)
+    return _assemble_rdm1(
+        rdms1_real, rdms1_imag, trans_rdms1_real_imag, trans_rdms1_imag_real
     )
-    return scipy.linalg.block_diag(*result)
 
 
 def _rdm2_spin_summed(
@@ -178,11 +181,14 @@ def _rdm2_spin_summed(
     trans_rdm1_imag_real, trans_rdm2_imag_real = trans_rdm12(
         vec_imag, vec_real, norb, nelec, reorder=reordered, link_index=link_index
     )
-    rdm2 = rdm2_real + rdm2_imag + 1j * (trans_rdm2_real_imag - trans_rdm2_imag_real)
+    rdm2 = _assemble_rdm2_spin_summed(
+        rdm2_real, rdm2_imag, trans_rdm2_real_imag, trans_rdm2_imag_real
+    )
     if not return_lower_ranks:
         return rdm2
-    # use minus sign for 1j because the rdm1 convention from pyscf is transposed
-    rdm1 = rdm1_real + rdm1_imag - 1j * (trans_rdm1_real_imag - trans_rdm1_imag_real)
+    rdm1 = _assemble_rdm1_spin_summed(
+        rdm1_real, rdm1_imag, trans_rdm1_real_imag, trans_rdm1_imag_real
+    )
     return rdm1, rdm2
 
 
@@ -207,7 +213,57 @@ def _rdm2(
     trans_rdms1_imag_real, trans_rdms2_imag_real = trans_rdm12s(
         vec_imag, vec_real, norb, nelec, reorder=reordered, link_index=link_index
     )
+    rdm2 = _assemble_rdm2(
+        rdms2_real, rdms2_imag, trans_rdms2_real_imag, trans_rdms2_imag_real
+    )
+    if not return_lower_ranks:
+        return rdm2
+    rdm1 = _assemble_rdm1(
+        rdms1_real, rdms1_imag, trans_rdms1_real_imag, trans_rdms1_imag_real
+    )
+    return rdm1, rdm2
 
+
+def _assemble_rdm1_spin_summed(
+    rdm1_real: np.ndarray,
+    rdm1_imag: np.ndarray,
+    trans_rdm1_real_imag: np.ndarray,
+    trans_rdm1_imag_real: np.ndarray,
+) -> np.ndarray:
+    # use minus sign for 1j because the rdm1 convention from pyscf is transposed
+    return rdm1_real + rdm1_imag - 1j * (trans_rdm1_real_imag - trans_rdm1_imag_real)
+
+
+def _assemble_rdm1(
+    rdms1_real: np.ndarray,
+    rdms1_imag: np.ndarray,
+    trans_rdms1_real_imag: np.ndarray,
+    trans_rdms1_imag_real: np.ndarray,
+) -> np.ndarray:
+    rdms1 = np.stack(rdms1_real).astype(complex)
+    rdms1 += np.stack(rdms1_imag)
+    # use minus sign for real-imag and plus sign for imag-real because
+    # the rdm1 convention in pyscf is transposed
+    rdms1 -= 1j * np.stack(trans_rdms1_real_imag)
+    rdms1 += 1j * np.stack(trans_rdms1_imag_real)
+    return scipy.linalg.block_diag(*rdms1)
+
+
+def _assemble_rdm2_spin_summed(
+    rdm2_real: np.ndarray,
+    rdm2_imag: np.ndarray,
+    trans_rdm2_real_imag: np.ndarray,
+    trans_rdm2_imag_real: np.ndarray,
+) -> np.ndarray:
+    return rdm2_real + rdm2_imag + 1j * (trans_rdm2_real_imag - trans_rdm2_imag_real)
+
+
+def _assemble_rdm2(
+    rdms2_real: np.ndarray,
+    rdms2_imag: np.ndarray,
+    trans_rdms2_real_imag: np.ndarray,
+    trans_rdms2_imag_real: np.ndarray,
+) -> np.ndarray:
     rdms2 = np.stack(rdms2_real).astype(complex)
     rdms2 += np.stack(rdms2_imag)
     # rdms2 is currently [rdm_aa, rdm_ab, rdm_bb]
@@ -215,18 +271,12 @@ def _rdm2(
     rdms2 = np.insert(rdms2, 2, rdms2[1].transpose(2, 3, 0, 1), axis=0)
     rdms2 += 1j * np.stack(trans_rdms2_real_imag)
     rdms2 -= 1j * np.stack(trans_rdms2_imag_real)
+
+    norb, _, _, _ = rdms2_real[0].shape
     rdm2 = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=complex)
     rdm_aa, rdm_ab, rdm_ba, rdm_bb = rdms2
     rdm2[:norb, :norb, :norb, :norb] = rdm_aa
     rdm2[:norb, :norb, norb:, norb:] = rdm_ab
     rdm2[norb:, norb:, :norb, :norb] = rdm_ba
     rdm2[norb:, norb:, norb:, norb:] = rdm_bb
-    if not return_lower_ranks:
-        return rdm2
-
-    rdms1 = np.stack(rdms1_real).astype(complex)
-    rdms1 += np.stack(rdms1_imag)
-    rdms1 -= 1j * np.stack(trans_rdms1_real_imag)
-    rdms1 += 1j * np.stack(trans_rdms1_imag_real)
-    rdm1 = scipy.linalg.block_diag(*rdms1)
-    return rdm1, rdm2
+    return rdm2
