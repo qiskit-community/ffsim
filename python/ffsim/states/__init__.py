@@ -10,13 +10,13 @@
 
 """States."""
 
+from ffsim.states.rdm import rdm
 from ffsim.states.states import (
     dim,
     dims,
     hartree_fock_state,
     indices_to_strings,
     one_hot,
-    rdm,
     slater_determinant,
     slater_determinant_rdm,
 )
