@@ -168,7 +168,7 @@ def _rdm2_spin_summed(
     reordered: bool,
     link_index: tuple[np.ndarray, np.ndarray] | None,
     return_lower_ranks: bool,
-) -> np.ndarray:
+) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     rdm1_real, rdm2_real = make_rdm12(
         vec_real, norb, nelec, reorder=reordered, link_index=link_index
     )
@@ -200,7 +200,7 @@ def _rdm2(
     reordered: bool,
     link_index: tuple[np.ndarray, np.ndarray] | None,
     return_lower_ranks: bool,
-) -> np.ndarray:
+) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     rdms1_real, rdms2_real = make_rdm12s(
         vec_real, norb, nelec, reorder=reordered, link_index=link_index
     )
@@ -235,10 +235,10 @@ def _assemble_rdm1_spin_summed(
 
 
 def _assemble_rdm1(
-    rdms1_real: np.ndarray,
-    rdms1_imag: np.ndarray,
-    trans_rdms1_real_imag: np.ndarray,
-    trans_rdms1_imag_real: np.ndarray,
+    rdms1_real: tuple[np.ndarray, np.ndarray],
+    rdms1_imag: tuple[np.ndarray, np.ndarray],
+    trans_rdms1_real_imag: tuple[np.ndarray, np.ndarray],
+    trans_rdms1_imag_real: tuple[np.ndarray, np.ndarray],
 ) -> np.ndarray:
     rdms1 = np.stack(rdms1_real).astype(complex)
     rdms1 += np.stack(rdms1_imag)
@@ -259,10 +259,10 @@ def _assemble_rdm2_spin_summed(
 
 
 def _assemble_rdm2(
-    rdms2_real: np.ndarray,
-    rdms2_imag: np.ndarray,
-    trans_rdms2_real_imag: np.ndarray,
-    trans_rdms2_imag_real: np.ndarray,
+    rdms2_real: tuple[np.ndarray, np.ndarray, np.ndarray],
+    rdms2_imag: tuple[np.ndarray, np.ndarray, np.ndarray],
+    trans_rdms2_real_imag: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
+    trans_rdms2_imag_real: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
     rdms2 = np.stack(rdms2_real).astype(complex)
     rdms2 += np.stack(rdms2_imag)
