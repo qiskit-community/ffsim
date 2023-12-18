@@ -18,154 +18,159 @@ from pyscf.lib.linalg_helper import safe_eigh
 from scipy.optimize import OptimizeResult, minimize
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim.states import one_hot
 
-# TODO use math instead of np where possible
+
+# TODO optionally take energy function as input (maybe instead of Hamiltonian)
+# TODO add callback function argument
 def minimize_linear_method(
     params_to_vec: Callable[[np.ndarray], np.ndarray],
     x0: np.ndarray,
     hamiltonian: LinearOperator,
-    maxiter: int = 10,
-    alpha0: float = 0.0,
-    xi0: float = 0.0,
-    l0: float = 1e-5,
-    pgtol=1e-8,
-):
-    def energy(x: np.ndarray):
-        vec = params_to_vec(x)
-        return np.real(np.vdot(vec, hamiltonian @ vec))
-
-    converged = False
-    finish = False
-    i = 0
-    t0 = [alpha0, xi0]
+    maxiter: int = 1000,
+    regularization_param: float = 0.0,
+    variation_param: float = 0.0,
+    lindep: float = 1e-5,
+    pgtol: float = 1e-8,
+) -> OptimizeResult:
+    # TODO get rid of info and instead, show an example of using callback function
     info = {"theta": [], "E": [], "g": []}
-    theta = x0.copy()
-    while not finish:
-        vec = params_to_vec(theta)
-        ham_vec = hamiltonian @ vec
-        grad = compute_wfn_gradient(params_to_vec, theta, vec)
-        h = apply_H_wfn_gradient(hamiltonian, grad)
-        A, B = compute_lm_matrices(vec, ham_vec, grad, h)
-        Ec, grad = A[0, 0], 2 * A[0, 1:]
-        info["theta"].append(theta)
-        info["E"].append(Ec)
-        info["g"].append(grad)
-        print("     E,|g| = ", Ec, np.linalg.norm(grad), flush=True)
+    converged = False
 
-        def f(x):
-            alpha, xi = x[0] ** 2, (1.0 + math.tanh(x[1])) / 2.0
-            E, dp, Q = solve_lm_eigensystem(A, B, alpha, lindep=l0)
-            num = (1 - xi) * Q
-            den = (1 - xi) + xi * np.sqrt(1 + Q)
-            par = theta + dp[1:] / (1 + num / den)
-            vec = params_to_vec(par)
-            return np.real(np.vdot(vec, hamiltonian @ vec))
+    params = x0.copy()
+
+    for i in range(maxiter):
+        vec = params_to_vec(params)
+        jac = _jac(params_to_vec, params, vec, epsilon=1e-8)
+
+        energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
+        energy, grad = energy_mat[0, 0], 2 * energy_mat[0, 1:]
+
+        info["theta"].append(params)
+        info["E"].append(energy)
+        info["g"].append(grad)
+
+        print("     E,|g| = ", energy, np.linalg.norm(grad), flush=True)
+
+        def f(x: np.ndarray) -> float:
+            regularization_param, variation_param = x
+            _, param_update = _get_param_update(
+                energy_mat,
+                overlap_mat,
+                regularization_param,
+                variation_param,
+                lindep,
+            )
+            vec = params_to_vec(params + param_update)
+            return np.vdot(vec, hamiltonian @ vec).real
 
         # TODO allow setting options, like maxiter and pgtol
-        res = minimize(f, x0=t0, method="L-BFGS-B")
-        t0 = res.x
-        alpha, xi = t0[0] ** 2, (1.0 + np.tanh(t0[1])) / 2.0
-        print("               alpha,xi,Emin = ", alpha, xi, res.fun)
-        E, dp, Q = solve_lm_eigensystem(A, B, alpha)
-        num = (1 - xi) * Q
-        den = (1 - xi) + xi * np.sqrt(1 + Q)
-        theta = theta + dp[1:] / (1 + num / den)
-        """
-            Emin   = 1e10
-            xmin   = (None,None,None)
-            for xi in [0.0,0.5,1.0]:
-                for alpha in [0.0,0.1,0.2,0.5,1.0]:
-                    E,dp,Q = solve_lm_eigensystem(A,B,alpha)
-                    num = (1-xi)*Q
-                    den = (1-xi)+xi*np.sqrt(1+Q)
-                    par = theta+dp[1:]/(1+num/den)
-                    E   = self.compute_energy(par)
-                    if(E<Emin): 
-                        Emin = E
-                        xmin = (xi,alpha,par)
-            if(Emin<Ec):
-                theta = xmin[2]
-            """
+        result = minimize(
+            f,
+            x0=[regularization_param, variation_param],
+            method="L-BFGS-B",
+        )
+        regularization_param, variation_param = result.x
+        energy_linear, param_update = _get_param_update(
+            energy_mat,
+            overlap_mat,
+            regularization_param,
+            variation_param,
+            lindep,
+        )
+        params += param_update
+
         if i > 0:
-            li = len(info["g"]) - 1
-            grad = info["g"][li]
             if np.linalg.norm(grad) < pgtol:
-                finish = True
                 converged = True
                 break
-        if i == maxiter - 1:
-            finish = True
-            converged = False
-            break
-        i += 1
-    print(
-        "LM optimization; maxiter,niter,E,converged? ",
-        maxiter,
-        i,
-        min(info["E"]),
-        converged,
+
+    # TODO add nfev, success, status, message
+    return OptimizeResult(
+        x=params,
+        fun=energy_linear,
+        jac=grad,
+        nit=i + 1,
+        info=info,
     )
-    # TODO return scipy.optimize.OptimizeResult
-    return theta, E, grad, info
 
 
-def compute_lm_matrices(
-    vec: np.ndarray, ham_vec: np.ndarray, grad: np.ndarray, h: np.ndarray
-):
-    nt = h.shape[1]
-    A = np.zeros((nt + 1, nt + 1), dtype=complex)
-    A[0, 0] = np.vdot(vec, ham_vec).real
-    A[0, 1:] = np.einsum("x,xi->i", np.conj(vec), h)
-    A[1:, 0] = np.conj(A[0, 1:])
-    A[1:, 1:] = np.einsum("xi,xj->ij", np.conj(grad), h)
-    B = np.zeros((nt + 1, nt + 1), dtype=complex)
-    B[0, 0] = 1.0
-    B[0, 1:] = np.einsum("x,xi->i", np.conj(vec), grad)
-    B[1:, 0] = np.conj(B[0, 1:])
-    B[1:, 1:] = np.einsum("xi,xj->ij", np.conj(grad), grad)
-    return A.real, B.real
+def _linear_method_matrices(
+    vec: np.ndarray, jac: np.ndarray, hamiltonian: LinearOperator
+) -> tuple[np.ndarray, np.ndarray]:
+    _, n_params = jac.shape
+    energy_mat = np.zeros((n_params + 1, n_params + 1), dtype=complex)
+    overlap_mat = np.zeros_like(energy_mat)
+
+    energy_mat[0, 0] = np.vdot(vec, hamiltonian @ vec).real
+    ham_grad = hamiltonian @ jac
+    energy_mat[0, 1:] = vec.conj() @ ham_grad
+    energy_mat[1:, 0] = energy_mat[0, 1:].conj()
+    energy_mat[1:, 1:] = jac.T.conj() @ ham_grad
+
+    overlap_mat[0, 0] = 1
+    overlap_mat[0, 1:] = vec.conj() @ jac
+    overlap_mat[1:, 0] = overlap_mat[0, 1:].conj()
+    overlap_mat[1:, 1:] = jac.T.conj() @ jac
+
+    return energy_mat.real, overlap_mat.real
 
 
-def solve_lm_eigensystem(
-    A: np.ndarray, B: np.ndarray, alpha: float = 0.0, lindep: float = 1e-5
-):
-    A_alpha = A.copy()
-    nt = A.shape[0] - 1
-    A_alpha[1:, 1:] += alpha * np.eye(nt)
-    e, c, _ = safe_eigh(A_alpha, B, lindep)
-    c = c[:, 0]
-    c /= c[0]
-    c = c.real
-    # TODO is this just np.dot(c, B @ c)?
-    Q = np.einsum("i,ij,j->", c, B, c)
-    return e[0], c, Q
+def _solve_linear_method_eigensystem(
+    energy_mat: np.ndarray,
+    overlap_mat: np.ndarray,
+    regularization: float,
+    lindep: float,
+) -> tuple[float, np.ndarray, float]:
+    n_params = energy_mat.shape[0] - 1
+    energy_mat_regularized = energy_mat.copy()
+    energy_mat_regularized[1:, 1:] += regularization * np.eye(n_params)
+    eigs, vecs, _ = safe_eigh(energy_mat_regularized, overlap_mat, lindep)
+    eig = eigs[0]
+    vec = vecs[:, 0]
+    vec /= vec[0]
+    vec = vec.real
+    return eig, vec
 
 
-# TODO use scipy.optimize.approx_fprime instead
-def compute_wfn_gradient(params_to_vec, theta: np.ndarray, vec: np.ndarray):
-    g = np.zeros((len(vec), len(theta)), dtype=complex)
+def _jac(
+    params_to_vec: Callable[[np.ndarray], np.ndarray],
+    theta: np.ndarray,
+    vec: np.ndarray,
+    epsilon: float,
+) -> np.ndarray:
+    jac = np.zeros((len(vec), len(theta)), dtype=complex)
     for i in range(len(theta)):
-        g[:, i] = wfn_deriv(params_to_vec, i, theta)
-        g[:, i] = g[:, i] - np.vdot(vec, g[:, i]) * vec
-    return g
+        jac[:, i] = _grad(params_to_vec, theta, i, epsilon)
+        jac[:, i] = jac[:, i] - np.vdot(vec, jac[:, i]) * vec
+    return jac
 
 
-def wfn_deriv(params_to_vec, i, parameters, eps=1e-8):
-    nParams = parameters.size
-    plus = parameters + eps * ei(i, nParams)
-    minus = parameters - eps * ei(i, nParams)
-    return (params_to_vec(plus) - params_to_vec(minus)) / (2 * eps)
+def _grad(
+    params_to_vec: Callable[[np.ndarray], np.ndarray],
+    theta: np.ndarray,
+    index: int,
+    epsilon: float,
+) -> np.ndarray:
+    unit = one_hot(len(theta), index, dtype=float)
+    plus = theta + epsilon * unit
+    minus = theta - epsilon * unit
+    return (params_to_vec(plus) - params_to_vec(minus)) / (2 * epsilon)
 
 
-def ei(i, n):
-    v = np.zeros(n)
-    v[i] = 1
-    return v
-
-
-def apply_H_wfn_gradient(hamiltonian: LinearOperator, g):
-    _, ntheta = g.shape
-    h = np.zeros(g.shape, dtype=complex)
-    for i in range(ntheta):
-        h[:, i] = hamiltonian @ g[:, i]
-    return h
+def _get_param_update(
+    energy_mat: np.ndarray,
+    overlap_mat: np.ndarray,
+    regularization_param: float,
+    variation_param: float,
+    lindep: float,
+) -> tuple[float, np.ndarray]:
+    energy_linear, param_variations = _solve_linear_method_eigensystem(
+        energy_mat, overlap_mat, regularization_param**2, lindep=lindep
+    )
+    # TODO check this doesn't fail if safe_eigh detects linear dependency
+    average_overlap = np.dot(param_variations, overlap_mat @ param_variations)
+    variation = 0.5 * (1 + math.tanh(variation_param))
+    numerator = (1 - variation) * average_overlap
+    denominator = (1 - variation) + variation * math.sqrt(1 + average_overlap)
+    return energy_linear, param_variations[1:] / (1 + numerator / denominator)

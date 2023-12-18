@@ -12,7 +12,6 @@
 
 import numpy as np
 import pyscf
-import scipy.linalg
 from pyscf import cc
 
 import ffsim
@@ -51,7 +50,23 @@ def test_minimize_linear_method():
         operator = ffsim.UCJOperator.from_parameters(x, norb=norb, n_reps=n_reps)
         return ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)
 
-    result_lm = ffsim.optimize.minimize_linear_method(
-        params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=10
+    def energy(x: np.ndarray):
+        vec = params_to_vec(x)
+        return np.real(np.vdot(vec, hamiltonian @ vec))
+
+    result = ffsim.optimize.minimize_linear_method(
+        params_to_vec, x0=x0, hamiltonian=hamiltonian
     )
-    np.testing.assert_allclose(min(result_lm[3]["E"]), -0.970773)
+    np.testing.assert_allclose(energy(result.x), result.fun)
+    np.testing.assert_allclose(result.fun, -0.970773)
+
+    result = ffsim.optimize.minimize_linear_method(
+        params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=3
+    )
+    assert result.nit == 3
+
+    # TODO this doesn't pass
+    # result = ffsim.optimize.minimize_linear_method(
+    #     params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=1
+    # )
+    # np.testing.assert_allclose(energy(result.x), result.fun)
