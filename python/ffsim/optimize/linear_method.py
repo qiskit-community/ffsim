@@ -30,6 +30,10 @@ def minimize_linear_method(
     l0: float = 1e-5,
     pgtol=1e-8,
 ):
+    def energy(x: np.ndarray):
+        vec = params_to_vec(x)
+        return np.real(np.vdot(vec, hamiltonian @ vec))
+
     converged = False
     finish = False
     i = 0
@@ -39,14 +43,14 @@ def minimize_linear_method(
     while not finish:
         vec = params_to_vec(theta)
         ham_vec = hamiltonian @ vec
-        g = compute_wfn_gradient(params_to_vec, theta, vec)
-        h = apply_H_wfn_gradient(hamiltonian, g)
-        A, B = compute_lm_matrices(vec, ham_vec, g, h)
-        Ec, g = A[0, 0], 2 * A[0, 1:]
+        grad = compute_wfn_gradient(params_to_vec, theta, vec)
+        h = apply_H_wfn_gradient(hamiltonian, grad)
+        A, B = compute_lm_matrices(vec, ham_vec, grad, h)
+        Ec, grad = A[0, 0], 2 * A[0, 1:]
         info["theta"].append(theta)
         info["E"].append(Ec)
-        info["g"].append(g)
-        print("     E,|g| = ", Ec, np.linalg.norm(g), flush=True)
+        info["g"].append(grad)
+        print("     E,|g| = ", Ec, np.linalg.norm(grad), flush=True)
 
         def f(x):
             alpha, xi = x[0] ** 2, (1.0 + math.tanh(x[1])) / 2.0
@@ -88,9 +92,11 @@ def minimize_linear_method(
             if np.linalg.norm(grad) < pgtol:
                 finish = True
                 converged = True
+                break
         if i == maxiter - 1:
             finish = True
             converged = False
+            break
         i += 1
     print(
         "LM optimization; maxiter,niter,E,converged? ",
