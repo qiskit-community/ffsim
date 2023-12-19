@@ -87,17 +87,27 @@ def minimize_linear_method(
 
     params = x0.copy()
     converged = False
+    intermediate_result = OptimizeResult(
+        x=None, fun=None, jac=None, nfev=0, njev=0, nit=0
+    )
+
+    def params_to_vec_wrapped(params):
+        intermediate_result.nfev += 1
+        return params_to_vec(params)
 
     for i in range(maxiter):
-        vec = params_to_vec(params)
-        jac = _jac(params_to_vec, params, vec, epsilon=1e-8)
+        vec = params_to_vec_wrapped(params)
+        jac = _jac(params_to_vec_wrapped, params, vec, epsilon=1e-8)
 
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
         energy = energy_mat[0, 0]
         grad = 2 * energy_mat[0, 1:]
+        intermediate_result.njev += 1
 
         if i > 0 and callback is not None:
-            intermediate_result = OptimizeResult(x=params, fun=energy, jac=grad)
+            intermediate_result.x = params
+            intermediate_result.fun = energy
+            intermediate_result.jac = grad
             callback(intermediate_result)
 
         if np.linalg.norm(grad) < pgtol:
@@ -113,7 +123,7 @@ def minimize_linear_method(
                 variation_param,
                 lindep,
             )
-            vec = params_to_vec(params + param_update)
+            vec = params_to_vec_wrapped(params + param_update)
             return np.vdot(vec, hamiltonian @ vec).real
 
         result = minimize(
@@ -131,23 +141,33 @@ def minimize_linear_method(
             lindep,
         )
         params = params + param_update
+        intermediate_result.nit += 1
 
-    vec = params_to_vec(params)
+    vec = params_to_vec_wrapped(params)
     energy = np.vdot(vec, hamiltonian @ vec).real
 
+    intermediate_result.x = params
+    intermediate_result.fun = energy
+    del intermediate_result.jac
     if callback is not None:
-        intermediate_result = OptimizeResult(x=params, fun=energy)
         callback(intermediate_result)
 
-    # TODO add nfev
     if converged:
         success = True
         message = "Convergence: Norm of projected gradient <= pgtol."
     else:
         success = False
         message = "Stop: Total number of iterations reached limit."
+
     return OptimizeResult(
-        x=params, success=success, message=message, fun=energy, jac=grad, nit=i + 1
+        x=params,
+        success=success,
+        message=message,
+        fun=energy,
+        jac=grad,
+        nfev=intermediate_result.nfev,
+        njev=intermediate_result.njev,
+        nit=intermediate_result.nit,
     )
 
 
@@ -159,10 +179,10 @@ def _linear_method_matrices(
     overlap_mat = np.zeros_like(energy_mat)
 
     energy_mat[0, 0] = np.vdot(vec, hamiltonian @ vec).real
-    ham_grad = hamiltonian @ jac
-    energy_mat[0, 1:] = vec.conj() @ ham_grad
+    ham_jac = hamiltonian @ jac
+    energy_mat[0, 1:] = vec.conj() @ ham_jac
     energy_mat[1:, 0] = energy_mat[0, 1:].conj()
-    energy_mat[1:, 1:] = jac.T.conj() @ ham_grad
+    energy_mat[1:, 1:] = jac.T.conj() @ ham_jac
 
     overlap_mat[0, 0] = 1
     overlap_mat[0, 1:] = vec.conj() @ jac

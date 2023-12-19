@@ -75,6 +75,7 @@ def test_minimize_linear_method():
     for params, fun in zip(info["x"], info["fun"]):
         np.testing.assert_allclose(energy(params), fun)
     assert result.nit <= 7
+    assert result.nfev > result.nit
 
     info = {"x": [], "fun": [], "jac": []}
     result = ffsim.optimize.minimize_linear_method(
