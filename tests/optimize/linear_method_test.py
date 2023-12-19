@@ -65,8 +65,7 @@ def test_minimize_linear_method():
     )
     assert result.nit == 3
 
-    # TODO this doesn't pass
-    # result = ffsim.optimize.minimize_linear_method(
-    #     params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=1
-    # )
-    # np.testing.assert_allclose(energy(result.x), result.fun)
+    result = ffsim.optimize.minimize_linear_method(
+        params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=1
+    )
+    np.testing.assert_allclose(energy(result.x), result.fun)

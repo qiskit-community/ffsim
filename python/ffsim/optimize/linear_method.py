@@ -46,6 +46,10 @@ def minimize_linear_method(
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
         energy, grad = energy_mat[0, 0], 2 * energy_mat[0, 1:]
 
+        if np.linalg.norm(grad) < pgtol:
+            converged = True
+            break
+
         info["theta"].append(params)
         info["E"].append(energy)
         info["g"].append(grad)
@@ -54,7 +58,7 @@ def minimize_linear_method(
 
         def f(x: np.ndarray) -> float:
             regularization_param, variation_param = x
-            _, param_update = _get_param_update(
+            param_update = _get_param_update(
                 energy_mat,
                 overlap_mat,
                 regularization_param,
@@ -71,7 +75,7 @@ def minimize_linear_method(
             method="L-BFGS-B",
         )
         regularization_param, variation_param = result.x
-        energy_linear, param_update = _get_param_update(
+        param_update = _get_param_update(
             energy_mat,
             overlap_mat,
             regularization_param,
@@ -80,15 +84,12 @@ def minimize_linear_method(
         )
         params += param_update
 
-        if i > 0:
-            if np.linalg.norm(grad) < pgtol:
-                converged = True
-                break
-
+    vec = params_to_vec(params)
+    energy = np.vdot(vec, hamiltonian @ vec).real
     # TODO add nfev, success, status, message
     return OptimizeResult(
         x=params,
-        fun=energy_linear,
+        fun=energy,
         jac=grad,
         nit=i + 1,
         info=info,
@@ -164,13 +165,12 @@ def _get_param_update(
     regularization_param: float,
     variation_param: float,
     lindep: float,
-) -> tuple[float, np.ndarray]:
-    energy_linear, param_variations = _solve_linear_method_eigensystem(
+) -> np.ndarray:
+    _, param_variations = _solve_linear_method_eigensystem(
         energy_mat, overlap_mat, regularization_param**2, lindep=lindep
     )
-    # TODO check this doesn't fail if safe_eigh detects linear dependency
     average_overlap = np.dot(param_variations, overlap_mat @ param_variations)
     variation = 0.5 * (1 + math.tanh(variation_param))
     numerator = (1 - variation) * average_overlap
     denominator = (1 - variation) + variation * math.sqrt(1 + average_overlap)
-    return energy_linear, param_variations[1:] / (1 + numerator / denominator)
+    return param_variations[1:] / (1 + numerator / denominator)
