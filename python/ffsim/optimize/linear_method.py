@@ -21,6 +21,20 @@ from scipy.sparse.linalg import LinearOperator
 from ffsim.states import one_hot
 
 
+class _WrappedCallable:
+    """Callable wrapper used to count function calls."""
+
+    def __init__(
+        self, func: Callable[[np.ndarray], np.ndarray], optimize_result: OptimizeResult
+    ):
+        self.func = func
+        self.optimize_result = optimize_result
+
+    def __call__(self, x: np.ndarray) -> np.ndarray:
+        self.optimize_result.nfev += 1
+        return self.func(x)
+
+
 class _WrappedLinearOperator:
     """LinearOperator wrapper used to count LinearOperator applications."""
 
@@ -123,15 +137,12 @@ def minimize_linear_method(
         x=None, fun=None, jac=None, nfev=0, njev=0, nit=0, nlinop=0
     )
 
-    def params_to_vec_wrapped(params):
-        intermediate_result.nfev += 1
-        return params_to_vec(params)
-
+    params_to_vec = _WrappedCallable(params_to_vec, intermediate_result)
     hamiltonian = _WrappedLinearOperator(hamiltonian, intermediate_result)
 
     for i in range(maxiter):
-        vec = params_to_vec_wrapped(params)
-        jac = _jac(params_to_vec_wrapped, params, vec, epsilon=1e-8)
+        vec = params_to_vec(params)
+        jac = _jac(params_to_vec, params, vec, epsilon=1e-8)
 
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
         energy = energy_mat[0, 0]
@@ -157,7 +168,7 @@ def minimize_linear_method(
                 variation_param,
                 lindep,
             )
-            vec = params_to_vec_wrapped(params + param_update)
+            vec = params_to_vec(params + param_update)
             return np.vdot(vec, hamiltonian @ vec).real
 
         result = minimize(
@@ -177,7 +188,7 @@ def minimize_linear_method(
         params = params + param_update
         intermediate_result.nit += 1
 
-    vec = params_to_vec_wrapped(params)
+    vec = params_to_vec(params)
     energy = np.vdot(vec, hamiltonian @ vec).real
 
     intermediate_result.x = params
