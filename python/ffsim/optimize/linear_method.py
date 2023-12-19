@@ -99,7 +99,7 @@ def minimize_linear_method(
             eigenvalue problem.
         epsilon: Increment to use for approximating the gradient using
             finite difference.
-        pgtol: Convergence threshold for the norm of the projected gradient.
+        gtol: Convergence threshold for the norm of the projected gradient.
         optimize_hyperparameters: Whether to optimize the `regularization` and
             `variation` hyperparameters in each iteration. Optimizing the
             hyperparameters incurs more function and energy evaluations in each
@@ -232,7 +232,7 @@ def minimize_linear_method(
 
     if converged:
         success = True
-        message = "Convergence: Norm of projected gradient <= pgtol."
+        message = "Convergence: Norm of projected gradient <= gtol."
     else:
         success = False
         message = "Stop: Total number of iterations reached limit."
