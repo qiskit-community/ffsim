@@ -65,10 +65,12 @@ def minimize_linear_method(
     params_to_vec: Callable[[np.ndarray], np.ndarray],
     hamiltonian: LinearOperator,
     x0: np.ndarray,
+    *,
     maxiter: int = 1000,
     regularization: float = 0.0,
     variation: float = 0.5,
     lindep: float = 1e-5,
+    epsilon: float = 1e-8,
     pgtol: float = 1e-8,
     scipy_optimize_minimize_args: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
@@ -98,6 +100,8 @@ def minimize_linear_method(
             which is adjusted during optimization.
         lindep: Linear dependency threshold to use when solving the generalized
             eigenvalue problem.
+        epsilon: Increment to use for approximating the gradient using
+            finite difference.
         pgtol: Convergence threshold for the norm of the projected gradient.
         scipy_optimize_minimize_args: Arguments to use when calling
             `scipy.optimize.minimize`_ to optimize the hyperparameters. The call is
@@ -159,7 +163,7 @@ def minimize_linear_method(
 
     for i in range(maxiter):
         vec = params_to_vec(params)
-        jac = _jac(params_to_vec, params, vec, epsilon=1e-8)
+        jac = _jac(params_to_vec, params, vec, epsilon=epsilon)
 
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
         energy = energy_mat[0, 0]
