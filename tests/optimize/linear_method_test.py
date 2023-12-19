@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
+
 import numpy as np
 import pyscf
 import pytest
@@ -57,7 +59,7 @@ def test_minimize_linear_method():
         vec = params_to_vec(x)
         return np.real(np.vdot(vec, hamiltonian @ vec))
 
-    info = {"x": [], "fun": [], "jac": []}
+    info = defaultdict(list)
 
     def callback(intermediate_result):
         info["x"].append(intermediate_result.x)
@@ -67,6 +69,10 @@ def test_minimize_linear_method():
         )
         if hasattr(intermediate_result, "jac"):
             info["jac"].append(intermediate_result.jac)
+        if hasattr(intermediate_result, "regularization"):
+            info["regularization"].append(intermediate_result.regularization)
+        if hasattr(intermediate_result, "variation"):
+            info["variation"].append(intermediate_result.variation)
 
     result = ffsim.optimize.minimize_linear_method(
         params_to_vec, x0=x0, hamiltonian=hamiltonian, callback=callback
@@ -78,9 +84,10 @@ def test_minimize_linear_method():
     for params, fun in zip(info["x"], info["fun"]):
         np.testing.assert_allclose(energy(params), fun)
     assert result.nit <= 7
+    assert result.nfev <= 600
     assert result.nit < result.nlinop < result.nfev
 
-    info = {"x": [], "fun": [], "jac": []}
+    info = defaultdict(list)
     result = ffsim.optimize.minimize_linear_method(
         params_to_vec, hamiltonian=hamiltonian, x0=x0, maxiter=3, callback=callback
     )
@@ -94,6 +101,18 @@ def test_minimize_linear_method():
     )
     np.testing.assert_allclose(energy(result.x), result.fun)
 
+    with pytest.raises(ValueError, match="regularization"):
+        result = ffsim.optimize.minimize_linear_method(
+            params_to_vec, x0=x0, hamiltonian=hamiltonian, regularization=-1
+        )
+    with pytest.raises(ValueError, match="variation"):
+        result = ffsim.optimize.minimize_linear_method(
+            params_to_vec, x0=x0, hamiltonian=hamiltonian, variation=0
+        )
+    with pytest.raises(ValueError, match="variation"):
+        result = ffsim.optimize.minimize_linear_method(
+            params_to_vec, x0=x0, hamiltonian=hamiltonian, variation=1
+        )
     with pytest.raises(ValueError, match="maxiter"):
         result = ffsim.optimize.minimize_linear_method(
             params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=0

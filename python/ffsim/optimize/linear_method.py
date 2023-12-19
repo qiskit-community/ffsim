@@ -66,8 +66,8 @@ def minimize_linear_method(
     hamiltonian: LinearOperator,
     x0: np.ndarray,
     maxiter: int = 1000,
-    regularization_param: float = 0.0,
-    variation_param: float = 0.0,
+    regularization: float = 0.0,
+    variation: float = 0.5,
     lindep: float = 1e-5,
     pgtol: float = 1e-8,
     scipy_optimize_minimize_args: dict | None = None,
@@ -82,13 +82,14 @@ def minimize_linear_method(
         hamiltonian: The Hamiltonian representing the energy to be minimized.
         x0: Initial guess for the parameters.
         maxiter: Maximum number of optimization iterations to perform.
-        regularization_param: Hyperparameter controlling regularization of the
-            energy matrix. A larger value results in greater regularization.
+        regularization: Hyperparameter controlling regularization of the
+            energy matrix. Its value must be positive. A larger value results in
+            greater regularization.
             The value passed here is only the initial value of the hyperparameter,
             which is adjusted during optimization.
-        variation_param: Hyperparameter controlling the size of parameter variations
-            used in the linear expansion of the wavefunction. A larger value results in
-            larger variations.
+        variation: Hyperparameter controlling the size of parameter variations
+            used in the linear expansion of the wavefunction. Its value must be
+            strictly between 0 and 1. A larger value results in larger variations.
             The value passed here is only the initial value of the hyperparameter,
             which is adjusted during optimization.
         lindep: Linear dependency threshold to use when solving the generalized
@@ -130,6 +131,12 @@ def minimize_linear_method(
     .. _scipy.optimize.OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
+    if regularization < 0:
+        raise ValueError(f"regularization must be nonnegative. Got {regularization}.")
+    if not 0 < variation < 1:
+        raise ValueError(
+            f"variation must be strictly between 0 and 1. Got {variation}."
+        )
     if maxiter < 1:
         raise ValueError(f"maxiter must be at least 1. Got {maxiter}.")
 
@@ -158,6 +165,8 @@ def minimize_linear_method(
             intermediate_result.x = params
             intermediate_result.fun = energy
             intermediate_result.jac = grad
+            intermediate_result.regularization = regularization
+            intermediate_result.variation = variation
             callback(intermediate_result)
 
         if np.linalg.norm(grad) < pgtol:
@@ -165,12 +174,14 @@ def minimize_linear_method(
             break
 
         def f(x: np.ndarray) -> float:
-            regularization_param, variation_param = x
+            a, b = x
+            regularization = a**2
+            variation = 0.5 * (1 + math.tanh(b))
             param_update = _get_param_update(
                 energy_mat,
                 overlap_mat,
-                regularization_param,
-                variation_param,
+                regularization,
+                variation,
                 lindep,
             )
             vec = params_to_vec(params + param_update)
@@ -178,16 +189,18 @@ def minimize_linear_method(
 
         result = minimize(
             f,
-            x0=[regularization_param, variation_param],
+            x0=[math.sqrt(regularization), math.atanh(2 * variation - 1)],
             **scipy_optimize_minimize_args,
         )
-        regularization_param, variation_param = result.x
+        a, b = result.x
+        regularization = a**2
+        variation = 0.5 * (1 + math.tanh(b))
 
         param_update = _get_param_update(
             energy_mat,
             overlap_mat,
-            regularization_param,
-            variation_param,
+            regularization,
+            variation,
             lindep,
         )
         params = params + param_update
@@ -288,15 +301,14 @@ def _grad(
 def _get_param_update(
     energy_mat: np.ndarray,
     overlap_mat: np.ndarray,
-    regularization_param: float,
-    variation_param: float,
+    regularization: float,
+    variation: float,
     lindep: float,
 ) -> np.ndarray:
     _, param_variations = _solve_linear_method_eigensystem(
-        energy_mat, overlap_mat, regularization_param**2, lindep=lindep
+        energy_mat, overlap_mat, regularization, lindep=lindep
     )
     average_overlap = np.dot(param_variations, overlap_mat @ param_variations)
-    variation = 0.5 * (1 + math.tanh(variation_param))
     numerator = (1 - variation) * average_overlap
     denominator = (1 - variation) + variation * math.sqrt(1 + average_overlap)
     return param_variations[1:] / (1 + numerator / denominator)
