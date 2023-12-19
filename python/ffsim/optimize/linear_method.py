@@ -33,6 +33,55 @@ def minimize_linear_method(
     scipy_optimize_minimize_args: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
 ) -> OptimizeResult:
+    """Minimize the energy of a variational ansatz using the linear method.
+
+    Args:
+        params_to_vec: Function representing the wavefunction ansatz. It takes as input
+            a vector of real-valued parameters and outputs the state vector represented
+            by those parameters.
+        hamiltonian: The Hamiltonian representing the energy to be minimized.
+        x0: Initial guess for the parameters.
+        maxiter: Maximum number of optimization iterations to perform.
+        regularization_param: Hyperparameter controlling regularization of the
+            energy matrix. A larger value results in greater regularization.
+            The value passed here is only the initial value of the hyperparameter,
+            which is adjusted during optimization.
+        variation_param: Hyperparameter controlling the size of parameter variations
+            used in the linear expansion of the wavefunction. A larger value results in
+            larger variations.
+            The value passed here is only the initial value of the hyperparameter,
+            which is adjusted during optimization.
+        lindep: Linear dependency threshold to use when solving the generalized
+            eigenvalue problem.
+        pgtol: Convergence threshold for the norm of the projected gradient.
+        scipy_optimize_minimize_args: Arguments to use when calling
+            `scipy.optimize.minimize`_ to optimize the hyperparameters. The call is
+            constructed as
+
+            .. code::
+
+                scipy.optimize.minimize(f, x0, **scipy_optimize_minimize_args)
+
+        callback: A callable called after each iteration. It is called with the
+            signature
+
+            .. code::
+
+                callback(intermediate_result: OptimizeResult)
+
+            where ``intermediate_result`` is a `scipy.optimize.OptimizeResult`_
+            with attributes ``x``  and ``fun``, the present values of the parameter
+            vector and objective function. For all iterations except for the last,
+            it also contains the ``jac`` attribute holding the present value of the
+            gradient.
+
+    Returns:
+        The optimization result represented as a `scipy.optimize.OptimizeResult`_
+        object.
+
+    .. _scipy.optimize.OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
+    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+    """
     if scipy_optimize_minimize_args is None:
         scipy_optimize_minimize_args = dict(method="L-BFGS-B")
 
@@ -73,6 +122,7 @@ def minimize_linear_method(
             **scipy_optimize_minimize_args,
         )
         regularization_param, variation_param = result.x
+
         param_update = _get_param_update(
             energy_mat,
             overlap_mat,
