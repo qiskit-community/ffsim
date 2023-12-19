@@ -163,7 +163,9 @@
 <span class="sd">            with attributes ``x``  and ``fun``, the present values of the parameter</span>
 <span class="sd">            vector and objective function. For all iterations except for the last,</span>
 <span class="sd">            it also contains the ``jac`` attribute holding the present value of the</span>
-<span class="sd">            gradient.</span>
+<span class="sd">            gradient, as well as ``regularization`` and ``variation`` attributes</span>
+<span class="sd">            holding the present values of the `regularization` and `variation`</span>
+<span class="sd">            hyperparameters.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The optimization result represented as a `scipy.optimize.OptimizeResult`_</span>
