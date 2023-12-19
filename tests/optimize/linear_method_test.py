@@ -78,7 +78,7 @@ def test_minimize_linear_method():
 
     info = {"x": [], "fun": [], "jac": []}
     result = ffsim.optimize.minimize_linear_method(
-        params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=3, callback=callback
+        params_to_vec, hamiltonian=hamiltonian, x0=x0, maxiter=3, callback=callback
     )
     assert result.nit == 3
     assert len(info["x"]) == 3

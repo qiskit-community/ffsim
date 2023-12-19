@@ -23,8 +23,8 @@ from ffsim.states import one_hot
 
 def minimize_linear_method(
     params_to_vec: Callable[[np.ndarray], np.ndarray],
-    x0: np.ndarray,
     hamiltonian: LinearOperator,
+    x0: np.ndarray,
     maxiter: int = 1000,
     regularization_param: float = 0.0,
     variation_param: float = 0.0,
