@@ -128,6 +128,9 @@ def minimize_linear_method(
     .. _scipy.optimize.OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
+    if maxiter < 1:
+        raise ValueError(f"maxiter must be at least 1. Got {maxiter}.")
+
     if scipy_optimize_minimize_args is None:
         scipy_optimize_minimize_args = dict(method="L-BFGS-B")
 

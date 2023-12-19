@@ -12,6 +12,7 @@
 
 import numpy as np
 import pyscf
+import pytest
 from pyscf import cc
 
 import ffsim
@@ -90,3 +91,8 @@ def test_minimize_linear_method():
         params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=1
     )
     np.testing.assert_allclose(energy(result.x), result.fun)
+
+    with pytest.raises(ValueError, match="maxiter"):
+        result = ffsim.optimize.minimize_linear_method(
+            params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=0
+        )
