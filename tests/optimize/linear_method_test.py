@@ -10,6 +10,8 @@
 
 """Tests for linear method optimization algorithm."""
 
+from __future__ import annotations
+
 import numpy as np
 import pyscf
 import pytest

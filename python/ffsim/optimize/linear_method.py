@@ -10,6 +10,8 @@
 
 """Linear method for optimization of a variational ansatz."""
 
+from __future__ import annotations
+
 import math
 from typing import Any, Callable
 
