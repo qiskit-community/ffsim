@@ -72,7 +72,8 @@ def minimize_linear_method(
     lindep: float = 1e-5,
     epsilon: float = 1e-8,
     pgtol: float = 1e-8,
-    scipy_optimize_minimize_args: dict | None = None,
+    optimize_hyperparameters: bool = True,
+    optimize_hyperparameters_args: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
 ) -> OptimizeResult:
     """Minimize the energy of a variational ansatz using the linear method.
@@ -91,19 +92,20 @@ def minimize_linear_method(
         regularization: Hyperparameter controlling regularization of the
             energy matrix. Its value must be positive. A larger value results in
             greater regularization.
-            The value passed here is only the initial value of the hyperparameter,
-            which is adjusted during optimization.
         variation: Hyperparameter controlling the size of parameter variations
             used in the linear expansion of the wavefunction. Its value must be
             strictly between 0 and 1. A larger value results in larger variations.
-            The value passed here is only the initial value of the hyperparameter,
-            which is adjusted during optimization.
         lindep: Linear dependency threshold to use when solving the generalized
             eigenvalue problem.
         epsilon: Increment to use for approximating the gradient using
             finite difference.
         pgtol: Convergence threshold for the norm of the projected gradient.
-        scipy_optimize_minimize_args: Arguments to use when calling
+        optimize_hyperparameters: Whether to optimize the `regularization` and
+            `variation` hyperparameters in each iteration. Optimizing the
+            hyperparameters incurs more function and energy evaluations in each
+            iteration, but may speed up convergence, leading to fewer iterations
+            overall. The optimization is performed using `scipy.optimize.minimize`_.
+        optimize_hyperparameters_args: Arguments to use when calling
             `scipy.optimize.minimize`_ to optimize the hyperparameters. The call is
             constructed as
 
@@ -149,8 +151,8 @@ def minimize_linear_method(
     if maxiter < 1:
         raise ValueError(f"maxiter must be at least 1. Got {maxiter}.")
 
-    if scipy_optimize_minimize_args is None:
-        scipy_optimize_minimize_args = dict(method="L-BFGS-B")
+    if optimize_hyperparameters_args is None:
+        optimize_hyperparameters_args = dict(method="L-BFGS-B")
 
     params = x0.copy()
     converged = False
@@ -182,28 +184,30 @@ def minimize_linear_method(
             converged = True
             break
 
-        def f(x: np.ndarray) -> float:
-            a, b = x
+        if optimize_hyperparameters:
+
+            def f(x: np.ndarray) -> float:
+                a, b = x
+                regularization = a**2
+                variation = 0.5 * (1 + math.tanh(b))
+                param_update = _get_param_update(
+                    energy_mat,
+                    overlap_mat,
+                    regularization,
+                    variation,
+                    lindep,
+                )
+                vec = params_to_vec(params + param_update)
+                return np.vdot(vec, hamiltonian @ vec).real
+
+            result = minimize(
+                f,
+                x0=[math.sqrt(regularization), math.atanh(2 * variation - 1)],
+                **optimize_hyperparameters_args,
+            )
+            a, b = result.x
             regularization = a**2
             variation = 0.5 * (1 + math.tanh(b))
-            param_update = _get_param_update(
-                energy_mat,
-                overlap_mat,
-                regularization,
-                variation,
-                lindep,
-            )
-            vec = params_to_vec(params + param_update)
-            return np.vdot(vec, hamiltonian @ vec).real
-
-        result = minimize(
-            f,
-            x0=[math.sqrt(regularization), math.atanh(2 * variation - 1)],
-            **scipy_optimize_minimize_args,
-        )
-        a, b = result.x
-        regularization = a**2
-        variation = 0.5 * (1 + math.tanh(b))
 
         param_update = _get_param_update(
             energy_mat,

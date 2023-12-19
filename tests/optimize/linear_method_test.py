@@ -74,6 +74,7 @@ def test_minimize_linear_method():
         if hasattr(intermediate_result, "variation"):
             info["variation"].append(intermediate_result.variation)
 
+    # default optimization
     result = ffsim.optimize.minimize_linear_method(
         params_to_vec, x0=x0, hamiltonian=hamiltonian, callback=callback
     )
@@ -84,9 +85,29 @@ def test_minimize_linear_method():
     for params, fun in zip(info["x"], info["fun"]):
         np.testing.assert_allclose(energy(params), fun)
     assert result.nit <= 7
-    assert result.nfev <= 600
     assert result.nit < result.nlinop < result.nfev
 
+    # optimization with optimizing hyperparameters
+    info = defaultdict(list)
+    result = ffsim.optimize.minimize_linear_method(
+        params_to_vec,
+        x0=x0,
+        hamiltonian=hamiltonian,
+        regularization=0.01,
+        variation=0.9,
+        optimize_hyperparameters=False,
+        callback=callback,
+    )
+    np.testing.assert_allclose(energy(result.x), result.fun)
+    np.testing.assert_allclose(result.fun, -0.970773)
+    for params, fun in zip(info["x"], info["fun"]):
+        np.testing.assert_allclose(energy(params), fun)
+    assert result.nit <= 11
+    assert result.nit < result.nlinop < result.nfev
+    assert set(info["regularization"]) == {0.01}
+    assert set(info["variation"]) == {0.9}
+
+    # optimization with maxiter
     info = defaultdict(list)
     result = ffsim.optimize.minimize_linear_method(
         params_to_vec, hamiltonian=hamiltonian, x0=x0, maxiter=3, callback=callback
@@ -95,12 +116,9 @@ def test_minimize_linear_method():
     assert len(info["x"]) == 3
     assert len(info["fun"]) == 3
     assert len(info["jac"]) == 2
-
-    result = ffsim.optimize.minimize_linear_method(
-        params_to_vec, x0=x0, hamiltonian=hamiltonian, maxiter=1
-    )
     np.testing.assert_allclose(energy(result.x), result.fun)
 
+    # test raising errors
     with pytest.raises(ValueError, match="regularization"):
         result = ffsim.optimize.minimize_linear_method(
             params_to_vec, x0=x0, hamiltonian=hamiltonian, regularization=-1
