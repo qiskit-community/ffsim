@@ -21,6 +21,30 @@ from scipy.sparse.linalg import LinearOperator
 from ffsim.states import one_hot
 
 
+class _WrappedLinearOperator:
+    """LinearOperator wrapper used to count LinearOperator applications."""
+
+    def __init__(self, linop: LinearOperator, optimize_result: OptimizeResult):
+        self.linop = linop
+        self.optimize_result = optimize_result
+
+    def __matmul__(self, other: np.ndarray):
+        if len(other.shape) == 1:
+            self.optimize_result.nlinop += 1
+        else:
+            _, n = other.shape
+            self.optimize_result.nlinop += n
+        return self.linop @ other
+
+    def __rmatmul__(self, other: np.ndarray):
+        if len(other.shape) == 1:
+            self.optimize_result.nlinop += 1
+        else:
+            n, _ = other.shape
+            self.optimize_result.nlinop += n
+        return other @ self.linop
+
+
 def minimize_linear_method(
     params_to_vec: Callable[[np.ndarray], np.ndarray],
     hamiltonian: LinearOperator,
@@ -77,7 +101,15 @@ def minimize_linear_method(
 
     Returns:
         The optimization result represented as a `scipy.optimize.OptimizeResult`_
-        object.
+        object. Note the following definitions of selected attributes:
+
+        - ``x``: The final parameters of the optimization.
+        - ``fun``: The energy associated with the final parameters. That is, the
+          expectation value of the Hamiltonian with respect to the state vector
+          corresponding to the parameters.
+        - ``nfev``: The number of times the ``params_to_vec`` function was called.
+        - ``nlinop``: The number of times the ``hamiltonian`` linear operator was
+          applied to a vector.
 
     .. _scipy.optimize.OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
@@ -88,12 +120,14 @@ def minimize_linear_method(
     params = x0.copy()
     converged = False
     intermediate_result = OptimizeResult(
-        x=None, fun=None, jac=None, nfev=0, njev=0, nit=0
+        x=None, fun=None, jac=None, nfev=0, njev=0, nit=0, nlinop=0
     )
 
     def params_to_vec_wrapped(params):
         intermediate_result.nfev += 1
         return params_to_vec(params)
+
+    hamiltonian = _WrappedLinearOperator(hamiltonian, intermediate_result)
 
     for i in range(maxiter):
         vec = params_to_vec_wrapped(params)
@@ -167,6 +201,7 @@ def minimize_linear_method(
         jac=grad,
         nfev=intermediate_result.nfev,
         njev=intermediate_result.njev,
+        nlinop=intermediate_result.nlinop,
         nit=intermediate_result.nit,
     )
 
