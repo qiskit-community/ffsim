@@ -33,5 +33,6 @@ API Reference
    api/ffsim
    api/ffsim.contract
    api/ffsim.linalg
+   api/ffsim.optimize
    api/ffsim.random
    api/ffsim.testing
