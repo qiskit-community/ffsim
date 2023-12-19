@@ -11,7 +11,7 @@
 """Linear method for optimization of a variational ansatz."""
 
 import math
-from typing import Callable
+from typing import Any, Callable
 
 import numpy as np
 from pyscf.lib.linalg_helper import safe_eigh
@@ -21,8 +21,6 @@ from scipy.sparse.linalg import LinearOperator
 from ffsim.states import one_hot
 
 
-# TODO optionally take energy function as input (maybe instead of Hamiltonian)
-# TODO add callback function argument
 def minimize_linear_method(
     params_to_vec: Callable[[np.ndarray], np.ndarray],
     x0: np.ndarray,
@@ -32,29 +30,26 @@ def minimize_linear_method(
     variation_param: float = 0.0,
     lindep: float = 1e-5,
     pgtol: float = 1e-8,
+    callback: Callable[[OptimizeResult], Any] | None = None,
 ) -> OptimizeResult:
-    # TODO get rid of info and instead, show an example of using callback function
-    info = {"theta": [], "E": [], "g": []}
-    converged = False
-
     params = x0.copy()
+    converged = False
 
     for i in range(maxiter):
         vec = params_to_vec(params)
         jac = _jac(params_to_vec, params, vec, epsilon=1e-8)
 
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
-        energy, grad = energy_mat[0, 0], 2 * energy_mat[0, 1:]
+        energy = energy_mat[0, 0]
+        grad = 2 * energy_mat[0, 1:]
+
+        if i > 0 and callback is not None:
+            intermediate_result = OptimizeResult(x=params, fun=energy, jac=grad)
+            callback(intermediate_result)
 
         if np.linalg.norm(grad) < pgtol:
             converged = True
             break
-
-        info["theta"].append(params)
-        info["E"].append(energy)
-        info["g"].append(grad)
-
-        print("     E,|g| = ", energy, np.linalg.norm(grad), flush=True)
 
         def f(x: np.ndarray) -> float:
             regularization_param, variation_param = x
@@ -82,17 +77,24 @@ def minimize_linear_method(
             variation_param,
             lindep,
         )
-        params += param_update
+        params = params + param_update
 
     vec = params_to_vec(params)
     energy = np.vdot(vec, hamiltonian @ vec).real
-    # TODO add nfev, success, status, message
+
+    if callback is not None:
+        intermediate_result = OptimizeResult(x=params, fun=energy)
+        callback(intermediate_result)
+
+    # TODO add nfev
+    if converged:
+        success = True
+        message = "Convergence: Norm of projected gradient <= pgtol."
+    else:
+        success = False
+        message = "Stop: Total number of iterations reached limit."
     return OptimizeResult(
-        x=params,
-        fun=energy,
-        jac=grad,
-        nit=i + 1,
-        info=info,
+        x=params, success=success, message=message, fun=energy, jac=grad, nit=i + 1
     )
 
 
