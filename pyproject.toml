@@ -13,7 +13,7 @@ classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-dependencies = ["numpy", "opt_einsum>=3.3", "pyscf>=2.4.0", "scipy>=1.11.4"]
+dependencies = ["numpy", "opt_einsum>=3.3", "pyscf>=2.4.0", "scipy"]
 
 [project.urls]
 Homepage = "https://github.com/qiskit-community/ffsim"
