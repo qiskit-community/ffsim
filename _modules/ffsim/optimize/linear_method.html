@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ffsim.optimize.linear_method &#8212; ffsim 0.0.18.dev0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/thebelab.css" />
+    <script src="../../../_static/documentation_options.js?v=e7a0160f"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ffsim.optimize.linear_method</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Linear method for optimization of a variational ansatz.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyscf.lib.linalg_helper</span> <span class="kn">import</span> <span class="n">safe_eigh</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">OptimizeResult</span><span class="p">,</span> <span class="n">minimize</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">LinearOperator</span>
+
+<span class="kn">from</span> <span class="nn">ffsim.states</span> <span class="kn">import</span> <span class="n">one_hot</span>
+
+
+<span class="k">class</span> <span class="nc">_WrappedCallable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Callable wrapper used to count function calls.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">optimize_result</span><span class="p">:</span> <span class="n">OptimizeResult</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimize_result</span> <span class="o">=</span> <span class="n">optimize_result</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimize_result</span><span class="o">.</span><span class="n">nfev</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_WrappedLinearOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LinearOperator wrapper used to count LinearOperator applications.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linop</span><span class="p">:</span> <span class="n">LinearOperator</span><span class="p">,</span> <span class="n">optimize_result</span><span class="p">:</span> <span class="n">OptimizeResult</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linop</span> <span class="o">=</span> <span class="n">linop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimize_result</span> <span class="o">=</span> <span class="n">optimize_result</span>
+
+    <span class="k">def</span> <span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimize_result</span><span class="o">.</span><span class="n">nlinop</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">shape</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimize_result</span><span class="o">.</span><span class="n">nlinop</span> <span class="o">+=</span> <span class="n">n</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linop</span> <span class="o">@</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimize_result</span><span class="o">.</span><span class="n">nlinop</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">shape</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimize_result</span><span class="o">.</span><span class="n">nlinop</span> <span class="o">+=</span> <span class="n">n</span>
+        <span class="k">return</span> <span class="n">other</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">linop</span>
+
+
+<div class="viewcode-block" id="minimize_linear_method">
+<a class="viewcode-back" href="../../../api/ffsim.optimize.html#ffsim.optimize.minimize_linear_method">[docs]</a>
+<span class="k">def</span> <span class="nf">minimize_linear_method</span><span class="p">(</span>
+    <span class="n">params_to_vec</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">LinearOperator</span><span class="p">,</span>
+    <span class="n">x0</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">maxiter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">variation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">lindep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
+    <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="n">pgtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="n">optimize_hyperparameters</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">optimize_hyperparameters_args</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OptimizeResult</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptimizeResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimize the energy of a variational ansatz using the linear method.</span>
+
+<span class="sd">    References:</span>
+
+<span class="sd">    - `Implementation of the Linear Method for the optimization of Jastrow-Feenberg and Backflow Correlations`_</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        params_to_vec: Function representing the wavefunction ansatz. It takes as input</span>
+<span class="sd">            a vector of real-valued parameters and outputs the state vector represented</span>
+<span class="sd">            by those parameters.</span>
+<span class="sd">        hamiltonian: The Hamiltonian representing the energy to be minimized.</span>
+<span class="sd">        x0: Initial guess for the parameters.</span>
+<span class="sd">        maxiter: Maximum number of optimization iterations to perform.</span>
+<span class="sd">        regularization: Hyperparameter controlling regularization of the</span>
+<span class="sd">            energy matrix. Its value must be positive. A larger value results in</span>
+<span class="sd">            greater regularization.</span>
+<span class="sd">        variation: Hyperparameter controlling the size of parameter variations</span>
+<span class="sd">            used in the linear expansion of the wavefunction. Its value must be</span>
+<span class="sd">            strictly between 0 and 1. A larger value results in larger variations.</span>
+<span class="sd">        lindep: Linear dependency threshold to use when solving the generalized</span>
+<span class="sd">            eigenvalue problem.</span>
+<span class="sd">        epsilon: Increment to use for approximating the gradient using</span>
+<span class="sd">            finite difference.</span>
+<span class="sd">        pgtol: Convergence threshold for the norm of the projected gradient.</span>
+<span class="sd">        optimize_hyperparameters: Whether to optimize the `regularization` and</span>
+<span class="sd">            `variation` hyperparameters in each iteration. Optimizing the</span>
+<span class="sd">            hyperparameters incurs more function and energy evaluations in each</span>
+<span class="sd">            iteration, but may speed up convergence, leading to fewer iterations</span>
+<span class="sd">            overall. The optimization is performed using `scipy.optimize.minimize`_.</span>
+<span class="sd">        optimize_hyperparameters_args: Arguments to use when calling</span>
+<span class="sd">            `scipy.optimize.minimize`_ to optimize the hyperparameters. The call is</span>
+<span class="sd">            constructed as</span>
+
+<span class="sd">            .. code::</span>
+
+<span class="sd">                scipy.optimize.minimize(f, x0, **scipy_optimize_minimize_args)</span>
+
+<span class="sd">        callback: A callable called after each iteration. It is called with the</span>
+<span class="sd">            signature</span>
+
+<span class="sd">            .. code::</span>
+
+<span class="sd">                callback(intermediate_result: OptimizeResult)</span>
+
+<span class="sd">            where ``intermediate_result`` is a `scipy.optimize.OptimizeResult`_</span>
+<span class="sd">            with attributes ``x``  and ``fun``, the present values of the parameter</span>
+<span class="sd">            vector and objective function. For all iterations except for the last,</span>
+<span class="sd">            it also contains the ``jac`` attribute holding the present value of the</span>
+<span class="sd">            gradient.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The optimization result represented as a `scipy.optimize.OptimizeResult`_</span>
+<span class="sd">        object. Note the following definitions of selected attributes:</span>
+
+<span class="sd">        - ``x``: The final parameters of the optimization.</span>
+<span class="sd">        - ``fun``: The energy associated with the final parameters. That is, the</span>
+<span class="sd">          expectation value of the Hamiltonian with respect to the state vector</span>
+<span class="sd">          corresponding to the parameters.</span>
+<span class="sd">        - ``nfev``: The number of times the ``params_to_vec`` function was called.</span>
+<span class="sd">        - ``nlinop``: The number of times the ``hamiltonian`` linear operator was</span>
+<span class="sd">          applied to a vector.</span>
+
+<span class="sd">    .. _Implementation of the Linear Method for the optimization of Jastrow-Feenberg and Backflow Correlations: https://arxiv.org/abs/1412.0490</span>
+<span class="sd">    .. _scipy.optimize.OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult</span>
+<span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+    <span class="k">if</span> <span class="n">regularization</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;regularization must be nonnegative. Got </span><span class="si">{</span><span class="n">regularization</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">variation</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;variation must be strictly between 0 and 1. Got </span><span class="si">{</span><span class="n">variation</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">maxiter</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;maxiter must be at least 1. Got </span><span class="si">{</span><span class="n">maxiter</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">optimize_hyperparameters_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">optimize_hyperparameters_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">)</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">x0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">intermediate_result</span> <span class="o">=</span> <span class="n">OptimizeResult</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fun</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nfev</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">njev</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nit</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nlinop</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+
+    <span class="n">params_to_vec</span> <span class="o">=</span> <span class="n">_WrappedCallable</span><span class="p">(</span><span class="n">params_to_vec</span><span class="p">,</span> <span class="n">intermediate_result</span><span class="p">)</span>
+    <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">_WrappedLinearOperator</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">intermediate_result</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxiter</span><span class="p">):</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">params_to_vec</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">jac</span> <span class="o">=</span> <span class="n">_jac</span><span class="p">(</span><span class="n">params_to_vec</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">vec</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span>
+
+        <span class="n">energy_mat</span><span class="p">,</span> <span class="n">overlap_mat</span> <span class="o">=</span> <span class="n">_linear_method_matrices</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">jac</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="p">)</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">energy_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">energy_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="n">intermediate_result</span><span class="o">.</span><span class="n">njev</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">params</span>
+            <span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span> <span class="o">=</span> <span class="n">energy</span>
+            <span class="n">intermediate_result</span><span class="o">.</span><span class="n">jac</span> <span class="o">=</span> <span class="n">grad</span>
+            <span class="n">intermediate_result</span><span class="o">.</span><span class="n">regularization</span> <span class="o">=</span> <span class="n">regularization</span>
+            <span class="n">intermediate_result</span><span class="o">.</span><span class="n">variation</span> <span class="o">=</span> <span class="n">variation</span>
+            <span class="n">callback</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">pgtol</span><span class="p">:</span>
+            <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">optimize_hyperparameters</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+                <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">x</span>
+                <span class="n">regularization</span> <span class="o">=</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">variation</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+                <span class="n">param_update</span> <span class="o">=</span> <span class="n">_get_param_update</span><span class="p">(</span>
+                    <span class="n">energy_mat</span><span class="p">,</span>
+                    <span class="n">overlap_mat</span><span class="p">,</span>
+                    <span class="n">regularization</span><span class="p">,</span>
+                    <span class="n">variation</span><span class="p">,</span>
+                    <span class="n">lindep</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">vec</span> <span class="o">=</span> <span class="n">params_to_vec</span><span class="p">(</span><span class="n">params</span> <span class="o">+</span> <span class="n">param_update</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">hamiltonian</span> <span class="o">@</span> <span class="n">vec</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
+                <span class="n">f</span><span class="p">,</span>
+                <span class="n">x0</span><span class="o">=</span><span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">regularization</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">atanh</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">variation</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)],</span>
+                <span class="o">**</span><span class="n">optimize_hyperparameters_args</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">regularization</span> <span class="o">=</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">variation</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+
+        <span class="n">param_update</span> <span class="o">=</span> <span class="n">_get_param_update</span><span class="p">(</span>
+            <span class="n">energy_mat</span><span class="p">,</span>
+            <span class="n">overlap_mat</span><span class="p">,</span>
+            <span class="n">regularization</span><span class="p">,</span>
+            <span class="n">variation</span><span class="p">,</span>
+            <span class="n">lindep</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="o">+</span> <span class="n">param_update</span>
+        <span class="n">intermediate_result</span><span class="o">.</span><span class="n">nit</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">params_to_vec</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">hamiltonian</span> <span class="o">@</span> <span class="n">vec</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+
+    <span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">params</span>
+    <span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span> <span class="o">=</span> <span class="n">energy</span>
+    <span class="k">del</span> <span class="n">intermediate_result</span><span class="o">.</span><span class="n">jac</span>
+    <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">callback</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">converged</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Convergence: Norm of projected gradient &lt;= pgtol.&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Stop: Total number of iterations reached limit.&quot;</span>
+
+    <span class="k">return</span> <span class="n">OptimizeResult</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+        <span class="n">success</span><span class="o">=</span><span class="n">success</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+        <span class="n">fun</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span>
+        <span class="n">jac</span><span class="o">=</span><span class="n">grad</span><span class="p">,</span>
+        <span class="n">nfev</span><span class="o">=</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">nfev</span><span class="p">,</span>
+        <span class="n">njev</span><span class="o">=</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">njev</span><span class="p">,</span>
+        <span class="n">nlinop</span><span class="o">=</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">nlinop</span><span class="p">,</span>
+        <span class="n">nit</span><span class="o">=</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">nit</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_linear_method_matrices</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">jac</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">LinearOperator</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">n_params</span> <span class="o">=</span> <span class="n">jac</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">energy_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_params</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_params</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="n">overlap_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">energy_mat</span><span class="p">)</span>
+
+    <span class="n">energy_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">hamiltonian</span> <span class="o">@</span> <span class="n">vec</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+    <span class="n">ham_jac</span> <span class="o">=</span> <span class="n">hamiltonian</span> <span class="o">@</span> <span class="n">jac</span>
+    <span class="n">energy_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">ham_jac</span>
+    <span class="n">energy_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="n">energy_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">jac</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">ham_jac</span>
+
+    <span class="n">overlap_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">overlap_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">jac</span>
+    <span class="n">overlap_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">overlap_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="n">overlap_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">jac</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">jac</span>
+
+    <span class="k">return</span> <span class="n">energy_mat</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">overlap_mat</span><span class="o">.</span><span class="n">real</span>
+
+
+<span class="k">def</span> <span class="nf">_solve_linear_method_eigensystem</span><span class="p">(</span>
+    <span class="n">energy_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">overlap_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lindep</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">n_params</span> <span class="o">=</span> <span class="n">energy_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">energy_mat_regularized</span> <span class="o">=</span> <span class="n">energy_mat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">energy_mat_regularized</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">regularization</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_params</span><span class="p">)</span>
+    <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">safe_eigh</span><span class="p">(</span><span class="n">energy_mat_regularized</span><span class="p">,</span> <span class="n">overlap_mat</span><span class="p">,</span> <span class="n">lindep</span><span class="p">)</span>
+    <span class="n">eig</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">vec</span> <span class="o">/=</span> <span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span>
+    <span class="k">return</span> <span class="n">eig</span><span class="p">,</span> <span class="n">vec</span>
+
+
+<span class="k">def</span> <span class="nf">_jac</span><span class="p">(</span>
+    <span class="n">params_to_vec</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">jac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">theta</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">theta</span><span class="p">)):</span>
+        <span class="n">jac</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_grad</span><span class="p">(</span><span class="n">params_to_vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+        <span class="n">jac</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">jac</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">jac</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">vec</span>
+    <span class="k">return</span> <span class="n">jac</span>
+
+
+<span class="k">def</span> <span class="nf">_grad</span><span class="p">(</span>
+    <span class="n">params_to_vec</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">one_hot</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">plus</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">+</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">unit</span>
+    <span class="n">minus</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">unit</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">params_to_vec</span><span class="p">(</span><span class="n">plus</span><span class="p">)</span> <span class="o">-</span> <span class="n">params_to_vec</span><span class="p">(</span><span class="n">minus</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">epsilon</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_param_update</span><span class="p">(</span>
+    <span class="n">energy_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">overlap_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">variation</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lindep</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">param_variations</span> <span class="o">=</span> <span class="n">_solve_linear_method_eigensystem</span><span class="p">(</span>
+        <span class="n">energy_mat</span><span class="p">,</span> <span class="n">overlap_mat</span><span class="p">,</span> <span class="n">regularization</span><span class="p">,</span> <span class="n">lindep</span><span class="o">=</span><span class="n">lindep</span>
+    <span class="p">)</span>
+    <span class="n">average_overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">param_variations</span><span class="p">,</span> <span class="n">overlap_mat</span> <span class="o">@</span> <span class="n">param_variations</span><span class="p">)</span>
+    <span class="n">numerator</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">variation</span><span class="p">)</span> <span class="o">*</span> <span class="n">average_overlap</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">variation</span><span class="p">)</span> <span class="o">+</span> <span class="n">variation</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">average_overlap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">param_variations</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ffsim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/01-introduction.html">Introduction to ffsim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/04-lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/05-entanglement-forging.html">Entanglement forging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/06-fermion-operator.html">The FermionOperator class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.html">ffsim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.contract.html">ffsim.contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.linalg.html">ffsim.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.optimize.html">ffsim.optimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.random.html">ffsim.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ffsim.testing.html">ffsim.testing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, IBM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

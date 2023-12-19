@@ -18,7 +18,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "converged SCF energy = -77.4456267643963\n",
+      "converged SCF energy = -77.4456267643962\n",
       "CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000\n"
      ]
     }
@@ -96,8 +96,8 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "E(CCSD) = -77.49387212754476  E_corr = -0.0482453631485156\n",
-      "Energy at initialialization: -77.46975600021696\n"
+      "E(CCSD) = -77.49387212754468  E_corr = -0.04824536314851346\n",
+      "Energy at initialization: -77.46975600021715\n"
      ]
     }
    ],
@@ -125,7 +125,7 @@
     "# Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state\n",
     "hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)\n",
     "energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))\n",
-    "print(f\"Energy at initialialization: {energy}\")"
+    "print(f\"Energy at initialization: {energy}\")"
    ]
   },
   {
@@ -134,7 +134,7 @@
    "source": [
     "To facilitate variational optimization of the ansatz, `UCJOperator` implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)\n",
     "\n",
-    "The following code cell shows how one can define an objective function that takes as input a parameter vector and outputs the energy of the associated ansatz state, and then optimize this objective function using `scipy.optimize.minimize`. Here, we set a small limit on the number of function evaluations; increase the value if you would like to run it to convergence."
+    "The following code cell shows how one can define an objective function that takes as input a parameter vector and outputs the energy of the associated ansatz state, and then optimize this objective function using `scipy.optimize.minimize`. Here, we set a small limit on the number of iterations; increase the value if you would like to run it to convergence."
    ]
   },
   {
@@ -147,15 +147,15 @@
      "output_type": "stream",
      "text": [
       "Number of parameters: 72\n",
-      "  message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT\n",
+      "  message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT\n",
       "  success: False\n",
       "   status: 1\n",
-      "      fun: -77.51553302318014\n",
-      "        x: [-1.564e-01  1.936e-01 ... -6.065e-01  1.984e-01]\n",
-      "      nit: 9\n",
-      "      jac: [-7.813e-03 -4.198e-03 ... -9.645e-03  2.018e-03]\n",
-      "     nfev: 1095\n",
-      "     njev: 15\n",
+      "      fun: -77.5096393678589\n",
+      "        x: [-1.486e-01  1.914e-01 ...  6.534e-03 -1.987e+00]\n",
+      "      nit: 5\n",
+      "      jac: [-1.194e-03 -1.067e-03 ... -5.684e-04 -2.913e-04]\n",
+      "     nfev: 584\n",
+      "     njev: 8\n",
       " hess_inv: <72x72 LbfgsInvHessProduct with dtype=float64>\n"
      ]
     }
@@ -174,7 +174,7 @@
     "\n",
     "\n",
     "result = scipy.optimize.minimize(\n",
-    "    fun, x0=operator.to_parameters(), method=\"L-BFGS-B\", options=dict(maxfun=1000)\n",
+    "    fun, x0=operator.to_parameters(), method=\"L-BFGS-B\", options=dict(maxiter=5)\n",
     ")\n",
     "\n",
     "print(f\"Number of parameters: {len(result.x)}\")\n",
@@ -213,15 +213,15 @@
      "output_type": "stream",
      "text": [
       "Number of parameters: 46\n",
-      "  message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT\n",
+      "  message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT\n",
       "  success: False\n",
       "   status: 1\n",
-      "      fun: -77.45855030244786\n",
-      "        x: [-3.446e-01  8.146e-02 ... -5.415e-01  2.187e-01]\n",
-      "      nit: 15\n",
-      "      jac: [-9.209e-04  2.160e-04 ... -1.053e-03  9.607e-04]\n",
-      "     nfev: 1081\n",
-      "     njev: 23\n",
+      "      fun: -77.45741314558897\n",
+      "        x: [-4.128e-01  8.249e-02 ... -3.067e-02 -1.935e+00]\n",
+      "      nit: 5\n",
+      "      jac: [ 8.285e-04 -1.137e-05 ...  3.837e-05 -2.345e-04]\n",
+      "     nfev: 423\n",
+      "     njev: 9\n",
       " hess_inv: <46x46 LbfgsInvHessProduct with dtype=float64>\n"
      ]
     }
@@ -249,10 +249,122 @@
     "        alpha_alpha_indices=alpha_alpha_indices, alpha_beta_indices=alpha_beta_indices\n",
     "    ),\n",
     "    method=\"L-BFGS-B\",\n",
-    "    options=dict(maxfun=1000),\n",
+    "    options=dict(maxiter=5),\n",
     ")\n",
     "print(f\"Number of parameters: {len(result.x)}\")\n",
     "print(result)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Optimize with the linear method\n",
+    "\n",
+    "ffsim includes an implementation of the [\"linear method\"](https://arxiv.org/abs/1412.0490v2) for optimization of a variational wavefunction. The linear method often converges faster than a standard optimization algorithm like L-BFGS-B. The interface is similar to that of `scipy.optimize.minimize`, the main difference being that instead of passing a callable that directly returns the function value to be optimized, you pass two objects: a callable that returns the wavefunction, and the Hamiltonian representing the energy to be optimized as a `LinearOperator`. The code cell below shows how to use the linear method to optimize the LUCJ ansatz from the previous example. It also shows how you can use an optional callback function to save intermediate results of the optimization."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of parameters: 46\n",
+      " message: Stop: Total number of iterations reached limit.\n",
+      " success: False\n",
+      "     fun: -77.49749625463323\n",
+      "       x: [ 1.063e+00 -8.659e-02 ... -1.679e+01  2.643e+01]\n",
+      "     nit: 5\n",
+      "     jac: [ 9.021e-03  1.711e-03 ...  6.221e-03 -5.828e-03]\n",
+      "    nfev: 856\n",
+      "    njev: 5\n",
+      "  nlinop: 626\n",
+      "\n",
+      "Iteration 1\n",
+      "    Energy: -77.41517984348127\n",
+      "    Norm of gradient: 0.10920578601840765\n",
+      "    Regularization hyperparameter: 6.687981176805703e-07\n",
+      "    Variation hyperparameter: 0.696485198650709\n",
+      "Iteration 2\n",
+      "    Energy: -77.4387582021023\n",
+      "    Norm of gradient: 0.10615951394818811\n",
+      "    Regularization hyperparameter: 0.037348668091859744\n",
+      "    Variation hyperparameter: 0.6955252427321973\n",
+      "Iteration 3\n",
+      "    Energy: -77.46917421145808\n",
+      "    Norm of gradient: 0.058657242826842995\n",
+      "    Regularization hyperparameter: 0.005576706874662407\n",
+      "    Variation hyperparameter: 0.9943325006472397\n",
+      "Iteration 4\n",
+      "    Energy: -77.48627050747123\n",
+      "    Norm of gradient: 0.05746841139489317\n",
+      "    Regularization hyperparameter: 0.015337740819403546\n",
+      "    Variation hyperparameter: 0.9941142453075373\n"
+     ]
+    }
+   ],
+   "source": [
+    "from collections import defaultdict\n",
+    "from ffsim.optimize import minimize_linear_method\n",
+    "\n",
+    "\n",
+    "# Define function that converts a list of parameters to the corresponding state vector\n",
+    "def params_to_vec(x: np.ndarray) -> np.ndarray:\n",
+    "    operator = ffsim.UCJOperator.from_parameters(\n",
+    "        x,\n",
+    "        norb=norb,\n",
+    "        n_reps=n_reps,\n",
+    "        alpha_alpha_indices=alpha_alpha_indices,\n",
+    "        alpha_beta_indices=alpha_beta_indices,\n",
+    "    )\n",
+    "    return ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)\n",
+    "\n",
+    "\n",
+    "# Define a callback function used to save optimization information (this is optional)\n",
+    "info = defaultdict(list)\n",
+    "\n",
+    "\n",
+    "def callback(intermediate_result: scipy.optimize.OptimizeResult):\n",
+    "    # The callback function is called after each iteration. It accepts\n",
+    "    # an OptimizeResult object storing the parameters and function value at\n",
+    "    # the current iteration, and possibly other information\n",
+    "    info[\"x\"].append(intermediate_result.x)\n",
+    "    info[\"fun\"].append(intermediate_result.fun)\n",
+    "    if hasattr(intermediate_result, \"jac\"):\n",
+    "        info[\"jac\"].append(intermediate_result.jac)\n",
+    "    if hasattr(intermediate_result, \"regularization\"):\n",
+    "        info[\"regularization\"].append(intermediate_result.regularization)\n",
+    "    if hasattr(intermediate_result, \"variation\"):\n",
+    "        info[\"variation\"].append(intermediate_result.variation)\n",
+    "\n",
+    "\n",
+    "# Optimize with the linear method\n",
+    "result = minimize_linear_method(\n",
+    "    params_to_vec,\n",
+    "    hamiltonian,\n",
+    "    x0=operator.to_parameters(\n",
+    "        alpha_alpha_indices=alpha_alpha_indices, alpha_beta_indices=alpha_beta_indices\n",
+    "    ),\n",
+    "    maxiter=5,\n",
+    "    callback=callback,\n",
+    ")\n",
+    "\n",
+    "# Print some information\n",
+    "print(f\"Number of parameters: {len(result.x)}\")\n",
+    "print(result)\n",
+    "print()\n",
+    "for i, (fun, jac, regularization, variation) in enumerate(\n",
+    "    zip(info[\"fun\"], info[\"jac\"], info[\"regularization\"], info[\"variation\"])\n",
+    "):\n",
+    "    print(f\"Iteration {i + 1}\")\n",
+    "    print(f\"    Energy: {fun}\")\n",
+    "    print(f\"    Norm of gradient: {np.linalg.norm(jac)}\")\n",
+    "    print(f\"    Regularization hyperparameter: {np.linalg.norm(regularization)}\")\n",
+    "    print(f\"    Variation hyperparameter: {np.linalg.norm(variation)}\")"
    ]
   }
  ],
