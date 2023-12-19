@@ -232,7 +232,7 @@ def _solve_linear_method_eigensystem(
     overlap_mat: np.ndarray,
     regularization: float,
     lindep: float,
-) -> tuple[float, np.ndarray, float]:
+) -> tuple[float, np.ndarray]:
     n_params = energy_mat.shape[0] - 1
     energy_mat_regularized = energy_mat.copy()
     energy_mat_regularized[1:, 1:] += regularization * np.eye(n_params)

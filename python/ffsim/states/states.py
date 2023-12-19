@@ -53,7 +53,7 @@ def dim(norb: int, nelec: tuple[int, int]) -> int:
     return dim_a * dim_b
 
 
-def one_hot(shape: tuple[int, ...], index, *, dtype=complex):
+def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
     """Return an array of all zeros except for a one at a specified index.
 
     Args:
