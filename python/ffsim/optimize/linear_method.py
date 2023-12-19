@@ -75,6 +75,10 @@ def minimize_linear_method(
 ) -> OptimizeResult:
     """Minimize the energy of a variational ansatz using the linear method.
 
+    References:
+
+    - `Implementation of the Linear Method for the optimization of Jastrow-Feenberg and Backflow Correlations`_
+
     Args:
         params_to_vec: Function representing the wavefunction ansatz. It takes as input
             a vector of real-valued parameters and outputs the state vector represented
@@ -128,9 +132,10 @@ def minimize_linear_method(
         - ``nlinop``: The number of times the ``hamiltonian`` linear operator was
           applied to a vector.
 
+    .. _Implementation of the Linear Method for the optimization of Jastrow-Feenberg and Backflow Correlations: https://arxiv.org/abs/1412.0490
     .. _scipy.optimize.OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    """
+    """  # noqa: E501
     if regularization < 0:
         raise ValueError(f"regularization must be nonnegative. Got {regularization}.")
     if not 0 < variation < 1:
