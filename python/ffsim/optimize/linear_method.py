@@ -69,9 +69,9 @@ def minimize_linear_method(
     maxiter: int = 1000,
     regularization: float = 0.0,
     variation: float = 0.5,
-    lindep: float = 1e-5,
+    lindep: float = 1e-8,
     epsilon: float = 1e-8,
-    pgtol: float = 1e-8,
+    gtol: float = 1e-5,
     optimize_hyperparameters: bool = True,
     optimize_hyperparameters_args: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
@@ -182,7 +182,7 @@ def minimize_linear_method(
             intermediate_result.variation = variation
             callback(intermediate_result)
 
-        if np.linalg.norm(grad) < pgtol:
+        if np.linalg.norm(grad) < gtol:
             converged = True
             break
 
