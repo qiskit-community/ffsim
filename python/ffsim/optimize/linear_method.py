@@ -124,7 +124,9 @@ def minimize_linear_method(
             with attributes ``x``  and ``fun``, the present values of the parameter
             vector and objective function. For all iterations except for the last,
             it also contains the ``jac`` attribute holding the present value of the
-            gradient.
+            gradient, as well as ``regularization`` and ``variation`` attributes
+            holding the present values of the `regularization` and `variation`
+            hyperparameters.
 
     Returns:
         The optimization result represented as a `scipy.optimize.OptimizeResult`_
