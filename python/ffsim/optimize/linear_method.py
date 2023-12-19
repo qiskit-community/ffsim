@@ -30,8 +30,12 @@ def minimize_linear_method(
     variation_param: float = 0.0,
     lindep: float = 1e-5,
     pgtol: float = 1e-8,
+    scipy_optimize_minimize_args: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
 ) -> OptimizeResult:
+    if scipy_optimize_minimize_args is None:
+        scipy_optimize_minimize_args = dict(method="L-BFGS-B")
+
     params = x0.copy()
     converged = False
 
@@ -63,11 +67,10 @@ def minimize_linear_method(
             vec = params_to_vec(params + param_update)
             return np.vdot(vec, hamiltonian @ vec).real
 
-        # TODO allow setting options, like maxiter and pgtol
         result = minimize(
             f,
             x0=[regularization_param, variation_param],
-            method="L-BFGS-B",
+            **scipy_optimize_minimize_args,
         )
         regularization_param, variation_param = result.x
         param_update = _get_param_update(
