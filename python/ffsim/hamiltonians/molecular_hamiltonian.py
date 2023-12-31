@@ -56,7 +56,7 @@ class MolecularHamiltonian:
         return self.one_body_tensor.shape[0]
 
     def rotated(self, orbital_rotation: np.ndarray) -> MolecularHamiltonian:
-        """Return the Hamiltonian in a rotated orbital basis.
+        r"""Return the Hamiltonian in a rotated orbital basis.
 
         Given an orbital rotation :math:`\mathcal{U}`, returns the operator
 
