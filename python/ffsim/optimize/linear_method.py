@@ -156,6 +156,8 @@ def minimize_linear_method(
     if optimize_hyperparameters_args is None:
         optimize_hyperparameters_args = dict(method="L-BFGS-B")
 
+    regularization_param = math.sqrt(regularization)
+    variation_param = math.atanh(2 * variation - 1)
     params = x0.copy()
     converged = False
     intermediate_result = OptimizeResult(
@@ -189,9 +191,9 @@ def minimize_linear_method(
         if optimize_hyperparameters:
 
             def f(x: np.ndarray) -> float:
-                a, b = x
-                regularization = a**2
-                variation = 0.5 * (1 + math.tanh(b))
+                regularization_param, variation_param = x
+                regularization = regularization_param**2
+                variation = 0.5 * (1 + math.tanh(variation_param))
                 param_update = _get_param_update(
                     energy_mat,
                     overlap_mat,
@@ -204,12 +206,12 @@ def minimize_linear_method(
 
             result = minimize(
                 f,
-                x0=[math.sqrt(regularization), math.atanh(2 * variation - 1)],
+                x0=[regularization_param, variation_param],
                 **optimize_hyperparameters_args,
             )
-            a, b = result.x
-            regularization = a**2
-            variation = 0.5 * (1 + math.tanh(b))
+            regularization_param, variation_param = result.x
+            regularization = regularization_param**2
+            variation = 0.5 * (1 + math.tanh(variation_param))
 
         param_update = _get_param_update(
             energy_mat,
