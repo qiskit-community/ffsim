@@ -8,14 +8,9 @@
     <title>ffsim &#8212; ffsim 0.0.19.dev0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
-    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
     <script src="../_static/documentation_options.js?v=78e28295"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/thebelab-helper.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -250,12 +245,17 @@ instead, which can be much more expensive. This argument is ignored if
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A fermionic operator.</p>
 <p>A FermionOperator represents a linear combination of products of fermionic creation
-and annihilation operators. See <a class="reference internal" href="../tutorials/06-fermion-operator.html"><span class="doc">The FermionOperator class</span></a>
-for an explanation of how to use this class.</p>
+and annihilation operators. Initialize a FermionOperator by passing a dictionary mapping
+the terms in the linear combination to their associated coefficients. FermionOperators
+Can be added, subtracted, and multiplied, and they support multiplication and division
+by scalars. When multiplying by a scalar, the scalar should go on the left side of the
+multiplication operator, e.g. <code class="docutils literal notranslate"><span class="pre">scalar</span> <span class="pre">*</span> <span class="pre">op</span></code>, not <code class="docutils literal notranslate"><span class="pre">op</span> <span class="pre">*</span> <span class="pre">scalar</span></code>.</p>
+<p>See <a class="reference internal" href="../tutorials/06-fermion-operator.html"><span class="doc">The FermionOperator class</span></a> for a demonstration of how to use this class.</p>
 <p>Example:</p>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: Since FermionOperator is an unordered mapping, the order of</span>
+<span class="c1"># the terms in the print outputs below may vary between runs.</span>
+
+<span class="kn">import</span> <span class="nn">ffsim</span>
 
 <span class="n">op1</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span>
     <span class="p">{</span>
@@ -264,78 +264,41 @@ for an explanation of how to use this class.</p>
         <span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">cre_b</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">des_b</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">cre_a</span><span class="p">(</span><span class="mi">4</span><span class="p">)):</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
-<span class="n">op1</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25
-})
-</pre></div>
-</div>
-</div>
-</div>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="mi">2</span> <span class="o">*</span> <span class="n">op1</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0)): -0.5,
-    (cre_a(0), des_a(3)): 1,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j
-})
-</pre></div>
-</div>
-</div>
-</div>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">op2</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span>
+<span class="nb">print</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">op1</span><span class="p">)</span>
+<span class="c1"># prints</span>
+<span class="c1"># FermionOperator({</span>
+<span class="c1">#     (cre_b(1), des_b(5), cre_a(4)): 2+2j,</span>
+<span class="c1">#     (cre_a(3), des_a(0)): -0.5,</span>
+<span class="c1">#     (cre_a(0), des_a(3)): 1</span>
+<span class="c1"># })</span>
+
+<span class="n">op2</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span>
     <span class="p">{</span>
         <span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">cre_b</span><span class="p">(</span><span class="mi">2</span><span class="p">),):</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span>
         <span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">des_a</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">des_b</span><span class="p">(</span><span class="mi">3</span><span class="p">)):</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
-<span class="n">op1</span> <span class="o">+</span> <span class="n">op2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">op1</span> <span class="o">+</span> <span class="n">op2</span><span class="p">)</span>
+<span class="c1"># prints</span>
+<span class="c1"># FermionOperator({</span>
+<span class="c1">#     (cre_a(3), des_a(0)): -0.25,</span>
+<span class="c1">#     (cre_b(2)): 0+1j,</span>
+<span class="c1">#     (des_a(3), des_b(3)): -0.25,</span>
+<span class="c1">#     (cre_b(1), des_b(5), cre_a(4)): 1+1j,</span>
+<span class="c1">#     (cre_a(0), des_a(3)): 0.5</span>
+<span class="c1"># })</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">op1</span> <span class="o">*</span> <span class="n">op2</span><span class="p">)</span>
+<span class="c1"># prints</span>
+<span class="c1"># FermionOperator({</span>
+<span class="c1">#     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,</span>
+<span class="c1">#     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,</span>
+<span class="c1">#     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,</span>
+<span class="c1">#     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,</span>
+<span class="c1">#     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,</span>
+<span class="c1">#     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j</span>
+<span class="c1"># })</span>
 </pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (des_a(3), des_b(3)): -0.25,
-    (cre_a(0), des_a(3)): 0.5,
-    (cre_b(2)): 0+1j,
-    (cre_a(3), des_a(0)): -0.25
-})
-</pre></div>
-</div>
-</div>
-</div>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">op1</span> <span class="o">*</span> <span class="n">op2</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>FermionOperator({
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625
-})
-</pre></div>
-</div>
-</div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
