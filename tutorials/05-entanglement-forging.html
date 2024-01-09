@@ -156,20 +156,24 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="01-introduction.html">Introduction to ffsim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
-<li class="toctree-l1"><a class="reference internal" href="03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04-lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Entanglement forging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="06-fermion-operator.html">The FermionOperator class</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-introduction.html">Introduction to ffsim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-fermion-operator.html">The FermionOperator class</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.html">ffsim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.contract.html">ffsim.contract</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.linalg.html">ffsim.linalg</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.optimize.html">ffsim.optimize</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.random.html">ffsim.random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/ffsim.testing.html">ffsim.testing</a></li>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/ffsim.html">ffsim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/ffsim.contract.html">ffsim.contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/ffsim.linalg.html">ffsim.linalg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/ffsim.optimize.html">ffsim.optimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/ffsim.random.html">ffsim.random</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/ffsim.testing.html">ffsim.testing</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -301,7 +305,7 @@ CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialialization: -74.20656273321595
+Energy at initialialization: -74.20656273321596
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -339,10 +343,10 @@ Number of parameters: 15
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -75.68085129579218
+      fun: -75.68085163303087
         x: [ 2.996e+00 -7.549e-01 ...  2.650e+00  8.012e-01]
       nit: 6
-      jac: [ 1.758e-03  9.116e-03 ... -1.193e-02  9.322e-04]
+      jac: [ 1.771e-03  9.116e-03 ... -1.192e-02  9.649e-04]
      nfev: 112
      njev: 7
  hess_inv: &lt;15x15 LbfgsInvHessProduct with dtype=float64&gt;
