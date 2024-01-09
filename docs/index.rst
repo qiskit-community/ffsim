@@ -7,8 +7,6 @@ and the Z component of spin. This category includes many quantum circuits used f
 By exploiting the symmetries and using specialized algorithms, ffsim can simulate these circuits much faster
 than a generic quantum circuit simulator.
 
-ffsim's source code is located at https://github.com/qiskit-community/ffsim.
-
 
 Tutorials
 =========
