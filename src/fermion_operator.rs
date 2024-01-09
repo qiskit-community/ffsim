@@ -40,12 +40,20 @@ impl KeysIterator {
 /// A fermionic operator.
 ///
 /// A FermionOperator represents a linear combination of products of fermionic creation
-/// and annihilation operators. See :doc:`/tutorials/06-fermion-operator`
-/// for an explanation of how to use this class.
+/// and annihilation operators. Initialize a FermionOperator by passing a dictionary mapping
+/// the terms in the linear combination to their associated coefficients. FermionOperators
+/// Can be added, subtracted, and multiplied, and they support multiplication and division
+/// by scalars. When multiplying by a scalar, the scalar should go on the left side of the
+/// multiplication operator, e.g. ``scalar * op``, not ``op * scalar``.
+///
+/// See :doc:`/tutorials/06-fermion-operator` for a demonstration of how to use this class.
 ///
 /// Example:
 ///
-/// .. jupyter-execute::
+/// .. code-block:: python
+///
+///     # Note: Since FermionOperator is an unordered mapping, the order of
+///     # the terms in the print outputs below may vary between runs.
 ///
 ///     import ffsim
 ///
@@ -56,13 +64,13 @@ impl KeysIterator {
 ///             (ffsim.cre_b(1), ffsim.des_b(5), ffsim.cre_a(4)): 1 + 1j,
 ///         }
 ///     )
-///     op1
-///
-/// .. jupyter-execute::
-///
-///     2 * op1
-///
-/// .. jupyter-execute::
+///     print(2 * op1)
+///     # prints    
+///     # FermionOperator({
+///     #     (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+///     #     (cre_a(3), des_a(0)): -0.5,
+///     #     (cre_a(0), des_a(3)): 1
+///     # })
 ///
 ///     op2 = ffsim.FermionOperator(
 ///         {
@@ -70,11 +78,26 @@ impl KeysIterator {
 ///             (ffsim.des_a(3), ffsim.des_b(3)): -0.25,
 ///         }
 ///     )
-///     op1 + op2
+///     print(op1 + op2)
+///     # prints
+///     # FermionOperator({
+///     #     (cre_a(3), des_a(0)): -0.25,
+///     #     (cre_b(2)): 0+1j,
+///     #     (des_a(3), des_b(3)): -0.25,
+///     #     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
+///     #     (cre_a(0), des_a(3)): 0.5
+///     # })
 ///
-/// .. jupyter-execute::
-///
-///     op1 * op2
+///     print(op1 * op2)
+///     # prints
+///     # FermionOperator({
+///     #     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+///     #     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+///     #     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+///     #     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
+///     #     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+///     #     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j
+///     # })
 ///
 /// Args:
 ///     coeffs (dict[tuple[tuple[bool, bool, int], ...], complex]): The coefficients of the
