@@ -93,18 +93,20 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-<span class="sd">            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            To act on both spin alpha and spin beta, pass</span>
-<span class="sd">            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+
+<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
 <span class="sd">        orbital_rotation: A unitary matrix describing the optional orbital rotation.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The evolved state vector.</span>

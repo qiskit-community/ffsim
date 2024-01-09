@@ -129,17 +129,19 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-<span class="sd">            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            To act on both spin alpha and spin beta, pass</span>
-<span class="sd">            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+
+<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The orbitals to rotate must be distinct. Got </span><span class="si">{</span><span class="n">target_orbs</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
@@ -194,17 +196,19 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-<span class="sd">            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            To act on both spin alpha and spin beta, pass</span>
-<span class="sd">            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+
+<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The orbitals to rotate must be distinct. Got </span><span class="si">{</span><span class="n">target_orbs</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
@@ -249,17 +253,19 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-<span class="sd">            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            To act on both spin alpha and spin beta, pass</span>
-<span class="sd">            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+
+<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -314,17 +320,19 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-<span class="sd">            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            To act on both spin alpha and spin beta, pass</span>
-<span class="sd">            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+
+<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -382,12 +390,13 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -435,12 +444,13 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -505,17 +515,19 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-<span class="sd">            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            To act on both spin alpha and spin beta, pass</span>
-<span class="sd">            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+
+<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -579,17 +591,19 @@
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-<span class="sd">            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            To act on both spin alpha and spin beta, pass</span>
-<span class="sd">            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+
+<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-<span class="sd">            - If ``copy=True`` then this function always returns a newly allocated</span>
-<span class="sd">            vector and the original vector is left untouched.</span>
-<span class="sd">            - If ``copy=False`` then this function may still return a newly allocated</span>
-<span class="sd">            vector, but the original vector may have its data overwritten.</span>
-<span class="sd">            It is also possible that the original vector is returned,</span>
-<span class="sd">            modified in-place.</span>
+
+<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
+<span class="sd">              vector and the original vector is left untouched.</span>
+<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
+<span class="sd">              vector, but the original vector may have its data overwritten.</span>
+<span class="sd">              It is also possible that the original vector is returned,</span>
+<span class="sd">              modified in-place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
