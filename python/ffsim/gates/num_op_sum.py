@@ -53,18 +53,20 @@ def apply_num_op_sum_evolution(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         orbital_rotation: A unitary matrix describing the optional orbital rotation.
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
 
     Returns:
         The evolved state vector.

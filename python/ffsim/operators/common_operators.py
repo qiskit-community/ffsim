@@ -27,10 +27,11 @@ def number_operator(orb: int, spin: Spin = Spin.ALPHA_AND_BETA) -> FermionOperat
     Args:
         orb: The orbital.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
 
     Returns:
         The number operator acting on the specified orbital and spin sector(s).
