@@ -31,7 +31,7 @@ extensions = [
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
 # HTML output options
-html_theme = "alabaster"
+html_theme = "furo"
 
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 500
