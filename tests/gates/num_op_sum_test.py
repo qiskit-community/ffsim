@@ -34,17 +34,22 @@ def test_apply_num_op_sum_evolution():
 
     coeffs = rng.standard_normal(norb)
     time = 0.6
-    result = ffsim.apply_num_op_sum_evolution(state, coeffs, time, norb, nelec)
 
-    eig = 0
-    for i in range(norb):
-        for sigma in range(2):
-            if i in occupied_orbitals[sigma]:
+    for spin in ffsim.Spin:
+        result = ffsim.apply_num_op_sum_evolution(
+            state, coeffs, time, norb, nelec, spin
+        )
+
+        eig = 0
+        for i in range(norb):
+            if spin & ffsim.Spin.ALPHA and i in occupied_orbitals[0]:
                 eig += coeffs[i]
-    expected = np.exp(-1j * eig * time) * state
+            if spin & ffsim.Spin.BETA and i in occupied_orbitals[1]:
+                eig += coeffs[i]
+        expected = np.exp(-1j * eig * time) * state
 
-    np.testing.assert_allclose(result, expected)
-    np.testing.assert_allclose(state, original_state)
+        np.testing.assert_allclose(result, expected)
+        np.testing.assert_allclose(state, original_state)
 
 
 def test_apply_num_op_sum_evolution_wrong_coeffs_length():
