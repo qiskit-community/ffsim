@@ -20,6 +20,7 @@ import numpy as np
 from scipy.special import comb
 
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
+from ffsim.spin import Spin
 
 
 def _apply_phase_shift(
@@ -55,9 +56,10 @@ def apply_givens_rotation(
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
-):
+) -> np.ndarray:
     r"""Apply a Givens rotation gate.
 
     The Givens rotation gate is
@@ -86,6 +88,11 @@ def apply_givens_rotation(
         target_orbs: The orbitals (p, q) to rotate.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        spin: Choice of spin sector(s) to act on.
+            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            To act on both spin alpha and spin beta, pass
+            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -100,7 +107,9 @@ def apply_givens_rotation(
     s = math.sin(theta)
     mat = np.eye(norb)
     mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
-    return apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=copy)
+    return apply_orbital_rotation(
+        vec, mat, norb=norb, nelec=nelec, spin=spin, copy=copy
+    )
 
 
 def apply_tunneling_interaction(
@@ -109,9 +118,10 @@ def apply_tunneling_interaction(
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
-):
+) -> np.ndarray:
     r"""Apply a tunneling interaction gate.
 
     The tunneling interaction gate is
@@ -140,6 +150,11 @@ def apply_tunneling_interaction(
         target_orbs: The orbitals (p, q) on which to apply the interaction.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        spin: Choice of spin sector(s) to act on.
+            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            To act on both spin alpha and spin beta, pass
+            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -151,13 +166,13 @@ def apply_tunneling_interaction(
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
     vec = apply_num_interaction(
-        vec, -math.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=copy
+        vec, -math.pi / 2, target_orbs[0], norb=norb, nelec=nelec, spin=spin, copy=copy
     )
     vec = apply_givens_rotation(
-        vec, theta, target_orbs, norb=norb, nelec=nelec, copy=False
+        vec, theta, target_orbs, norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = apply_num_interaction(
-        vec, math.pi / 2, target_orbs[0], norb=norb, nelec=nelec, copy=False
+        vec, math.pi / 2, target_orbs[0], norb=norb, nelec=nelec, spin=spin, copy=False
     )
     return vec
 
@@ -168,9 +183,10 @@ def apply_num_interaction(
     target_orb: int,
     norb: int,
     nelec: tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
-):
+) -> np.ndarray:
     r"""Apply a number interaction gate.
 
     The number interaction gate is
@@ -186,6 +202,11 @@ def apply_num_interaction(
         target_orb: The orbital on which to apply the interaction.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        spin: Choice of spin sector(s) to act on.
+            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            To act on both spin alpha and spin beta, pass
+            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -196,22 +217,24 @@ def apply_num_interaction(
     """
     if copy:
         vec = vec.copy()
-    vec = apply_num_op_prod_interaction(
-        vec,
-        theta,
-        target_orbs=([target_orb], []),
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
-    vec = apply_num_op_prod_interaction(
-        vec,
-        theta,
-        target_orbs=([], [target_orb]),
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
+    if spin & Spin.ALPHA:
+        vec = apply_num_op_prod_interaction(
+            vec,
+            theta,
+            target_orbs=([target_orb], []),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+    if spin & Spin.BETA:
+        vec = apply_num_op_prod_interaction(
+            vec,
+            theta,
+            target_orbs=([], [target_orb]),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
     return vec
 
 
@@ -221,6 +244,7 @@ def apply_num_num_interaction(
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
 ):
@@ -240,6 +264,11 @@ def apply_num_num_interaction(
         target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        spin: Choice of spin sector(s) to act on.
+            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            To act on both spin alpha and spin beta, pass
+            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -254,22 +283,24 @@ def apply_num_num_interaction(
         )
     if copy:
         vec = vec.copy()
-    vec = apply_num_op_prod_interaction(
-        vec,
-        theta,
-        target_orbs=(target_orbs, []),
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
-    vec = apply_num_op_prod_interaction(
-        vec,
-        theta,
-        target_orbs=([], target_orbs),
-        norb=norb,
-        nelec=nelec,
-        copy=False,
-    )
+    if spin & Spin.ALPHA:
+        vec = apply_num_op_prod_interaction(
+            vec,
+            theta,
+            target_orbs=(target_orbs, []),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+    if spin & Spin.BETA:
+        vec = apply_num_op_prod_interaction(
+            vec,
+            theta,
+            target_orbs=([], target_orbs),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
     return vec
 
 
@@ -376,6 +407,7 @@ def apply_hop_gate(
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
 ) -> np.ndarray:
@@ -414,6 +446,11 @@ def apply_hop_gate(
         target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        spin: Choice of spin sector(s) to act on.
+            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            To act on both spin alpha and spin beta, pass
+            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -425,10 +462,10 @@ def apply_hop_gate(
     if copy:
         vec = vec.copy()
     vec = apply_givens_rotation(
-        vec, theta, target_orbs, norb=norb, nelec=nelec, copy=False
+        vec, theta, target_orbs, norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = apply_num_num_interaction(
-        vec, math.pi, target_orbs, norb=norb, nelec=nelec, copy=False
+        vec, math.pi, target_orbs, norb=norb, nelec=nelec, spin=spin, copy=False
     )
     return vec
 
@@ -440,6 +477,7 @@ def apply_fsim_gate(
     target_orbs: tuple[int, int],
     norb: int,
     nelec: tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
 ) -> np.ndarray:
@@ -479,6 +517,11 @@ def apply_fsim_gate(
         target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        spin: Choice of spin sector(s) to act on.
+            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            To act on both spin alpha and spin beta, pass
+            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
             vector and the original vector is left untouched.
@@ -490,9 +533,9 @@ def apply_fsim_gate(
     if copy:
         vec = vec.copy()
     vec = apply_tunneling_interaction(
-        vec, -theta, target_orbs, norb=norb, nelec=nelec, copy=False
+        vec, -theta, target_orbs, norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = apply_num_num_interaction(
-        vec, -phi, target_orbs, norb=norb, nelec=nelec, copy=False
+        vec, -phi, target_orbs, norb=norb, nelec=nelec, spin=spin, copy=False
     )
     return vec

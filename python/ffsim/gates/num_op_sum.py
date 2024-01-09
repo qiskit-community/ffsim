@@ -18,6 +18,7 @@ from scipy.special import comb
 from ffsim._lib import apply_num_op_sum_evolution_in_place
 from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
+from ffsim.spin import Spin
 
 
 def apply_num_op_sum_evolution(
@@ -26,10 +27,11 @@ def apply_num_op_sum_evolution(
     time: float,
     norb: int,
     nelec: tuple[int, int],
-    orbital_rotation: np.ndarray | None = None,
+    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
+    orbital_rotation: np.ndarray | None = None,
     copy: bool = True,
-):
+) -> np.ndarray:
     r"""Apply time evolution by a (rotated) linear combination of number operators.
 
     Applies
@@ -50,6 +52,11 @@ def apply_num_op_sum_evolution(
         time: The evolution time.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        spin: Choice of spin sector(s) to act on.
+            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            To act on both spin alpha and spin beta, pass
+            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         orbital_rotation: A unitary matrix describing the optional orbital rotation.
         copy: Whether to copy the vector before operating on it.
             - If ``copy=True`` then this function always returns a newly allocated
@@ -58,6 +65,9 @@ def apply_num_op_sum_evolution(
             vector, but the original vector may have its data overwritten.
             It is also possible that the original vector is returned,
             modified in-place.
+
+    Returns:
+        The evolved state vector.
 
     Raises:
         ValueError: ``coeffs`` must be a one-dimensional vector with length ``norb``.
@@ -83,6 +93,7 @@ def apply_num_op_sum_evolution(
             orbital_rotation.T.conj(),
             norb,
             nelec,
+            spin=spin,
             allow_row_permutation=True,
             copy=False,
         )
@@ -90,12 +101,16 @@ def apply_num_op_sum_evolution(
 
     phases = np.exp(-1j * time * coeffs)
     vec = vec.reshape((dim_a, dim_b))
-    # apply alpha
-    apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_a)
-    # apply beta
-    vec = vec.T
-    apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_b)
-    vec = vec.T.reshape(-1)
+
+    if spin & Spin.ALPHA:
+        # apply alpha
+        apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_a)
+    if spin & Spin.BETA:
+        # apply beta
+        vec = vec.T
+        apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_b)
+        vec = vec.T
+    vec = vec.reshape(-1)
 
     if orbital_rotation is not None:
         vec, perm1 = apply_orbital_rotation(
@@ -103,6 +118,7 @@ def apply_num_op_sum_evolution(
             orbital_rotation,
             norb,
             nelec,
+            spin=spin,
             allow_col_permutation=True,
             copy=False,
         )
