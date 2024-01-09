@@ -8,28 +8,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Operators."""
+"""Enumeration for indicating alpha, beta, or both spins."""
 
-from ffsim._lib import FermionOperator
-from ffsim.operators.common_operators import number_operator
-from ffsim.operators.fermion_action import (
-    FermionAction,
-    cre,
-    cre_a,
-    cre_b,
-    des,
-    des_a,
-    des_b,
-)
+from enum import Flag, auto
 
-__all__ = [
-    "FermionAction",
-    "FermionOperator",
-    "cre",
-    "cre_a",
-    "cre_b",
-    "des",
-    "des_a",
-    "des_b",
-    "number_operator",
-]
+
+class Spin(Flag):
+    """Enumeration for indicating alpha, beta, or both spins."""
+
+    ALPHA = auto()
+    """Use this to indicate spin alpha."""
+
+    BETA = auto()
+    """Use this to indicate spin beta."""
+
+    ALPHA_AND_BETA = ALPHA | BETA
+    """Use this to indicate both spin alpha and spin beta."""

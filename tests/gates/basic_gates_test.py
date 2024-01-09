@@ -206,16 +206,14 @@ def test_apply_num_interaction(norb: int, nelec: tuple[int, int]):
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for target_orb in range(norb):
-        result = ffsim.apply_num_interaction(
-            vec, theta, target_orb, norb=norb, nelec=nelec
-        )
-        generator = np.zeros((norb, norb))
-        generator[target_orb, target_orb] = theta
-        linop = ffsim.contract.one_body_linop(generator, norb=norb, nelec=nelec)
-        expected = scipy.sparse.linalg.expm_multiply(
-            1j * linop, vec, traceA=np.sum(np.abs(generator))
-        )
-        np.testing.assert_allclose(result, expected)
+        for spin in ffsim.Spin:
+            result = ffsim.apply_num_interaction(
+                vec, theta, target_orb, norb=norb, nelec=nelec, spin=spin
+            )
+            generator = theta * ffsim.number_operator(target_orb, spin=spin)
+            linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
+            expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+            np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize(

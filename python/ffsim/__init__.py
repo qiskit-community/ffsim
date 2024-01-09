@@ -40,6 +40,7 @@ from ffsim.operators import (
     des,
     des_a,
     des_b,
+    number_operator,
 )
 from ffsim.protocols import (
     SupportsApplyUnitary,
@@ -53,6 +54,7 @@ from ffsim.protocols import (
     linear_operator,
     trace,
 )
+from ffsim.spin import Spin
 from ffsim.states import (
     dim,
     dims,
@@ -85,6 +87,7 @@ __all__ = [
     "MolecularHamiltonian",
     "RealUCJOperator",
     "SingleFactorizedHamiltonian",
+    "Spin",
     "SupportsApplyUnitary",
     "SupportsApproximateEquality",
     "SupportsFermionOperator",
@@ -122,6 +125,7 @@ __all__ = [
     "linalg",
     "linear_operator",
     "multireference_state",
+    "number_operator",
     "one_hot",
     "optimize",
     "random",
