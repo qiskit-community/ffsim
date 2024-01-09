@@ -65,12 +65,13 @@ def apply_diag_coulomb_evolution(
             orbitals with differing spin.
         z_representation: Whether the input matrices are in the "Z" representation.
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
 
     Returns:
         The evolved state vector.

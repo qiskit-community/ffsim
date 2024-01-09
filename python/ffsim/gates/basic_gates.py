@@ -89,17 +89,19 @@ def apply_givens_rotation(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
@@ -151,17 +153,19 @@ def apply_tunneling_interaction(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
@@ -203,17 +207,19 @@ def apply_num_interaction(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
@@ -265,17 +271,19 @@ def apply_num_num_interaction(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if len(set(target_orbs)) == 1:
         raise ValueError(
@@ -330,12 +338,13 @@ def apply_on_site_num_num_interaction(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
@@ -380,12 +389,13 @@ def apply_num_op_prod_interaction(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
@@ -447,17 +457,19 @@ def apply_hop_gate(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
@@ -518,17 +530,19 @@ def apply_fsim_gate(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         spin: Choice of spin sector(s) to act on.
-            To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            To act on both spin alpha and spin beta, pass
-            :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
-            - If ``copy=True`` then this function always returns a newly allocated
-            vector and the original vector is left untouched.
-            - If ``copy=False`` then this function may still return a newly allocated
-            vector, but the original vector may have its data overwritten.
-            It is also possible that the original vector is returned,
-            modified in-place.
+
+            - If `copy=True` then this function always returns a newly allocated
+              vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+              vector, but the original vector may have its data overwritten.
+              It is also possible that the original vector is returned,
+              modified in-place.
     """
     if copy:
         vec = vec.copy()
