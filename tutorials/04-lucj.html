@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Entanglement forging" href="05-entanglement-forging.html" /><link rel="prev" title="Diagonal Coulomb operators and double-factorized Trotter simulation" href="03-double-factorized.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>The local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.19 documentation</title>
+        <title>The local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.20.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.19 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.20.dev0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.19 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.20.dev0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -321,7 +321,7 @@ have two sets of matrices for describing the diagonal Coulomb operators: “alph
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754476  E_corr = -0.04824536314851326
+E(CCSD) = -77.49387212754471  E_corr = -0.04824536314851467
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -329,7 +329,7 @@ E(CCSD) = -77.49387212754476  E_corr = -0.04824536314851326
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialization: -77.469756000217
+Energy at initialization: -77.46975600021702
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -368,10 +368,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50964096856933
-        x: [-1.478e-01  1.876e-01 ...  3.292e-03  6.461e-01]
+      fun: -77.50959956367446
+        x: [-1.502e-01  1.898e-01 ...  3.204e-01  5.933e-01]
       nit: 5
-      jac: [ 1.364e-03 -2.144e-03 ... -5.613e-04 -3.340e-04]
+      jac: [-1.073e-03 -9.919e-04 ...  2.998e-04 -4.107e-04]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -434,10 +434,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.45740123142512
-        x: [-4.078e-01  8.192e-02 ... -1.773e-02  7.037e-01]
+      fun: -77.45741468773538
+        x: [-4.098e-01  8.255e-02 ...  3.364e-01  6.494e-01]
       nit: 5
-      jac: [ 1.901e-03 -1.847e-05 ...  4.974e-05 -8.811e-05]
+      jac: [ 1.775e-03  7.105e-06 ... -1.236e-04 -8.527e-05]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -520,34 +520,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.5003499056618
-       x: [-8.492e-01  1.969e-01 ...  1.255e-01  6.040e-01]
+     fun: -77.45820306356973
+       x: [-4.201e-01  8.106e-02 ...  3.558e-01  7.535e-01]
      nit: 5
-     jac: [-3.019e-03  7.158e-03 ...  2.838e-02 -3.021e-03]
-    nfev: 916
+     jac: [ 8.295e-04  1.081e-04 ...  5.688e-05 -5.179e-04]
+    nfev: 679
     njev: 5
-  nlinop: 686
+  nlinop: 449
 
 Iteration 1
-    Energy: -77.45617006342947
-    Norm of gradient: 0.020239432669236286
-    Regularization hyperparameter: 0.0017700365298958128
-    Variation hyperparameter: 0.23854723445854864
+    Energy: -77.45724474724085
+    Norm of gradient: 0.010035140843603492
+    Regularization hyperparameter: 0.02687659660261662
+    Variation hyperparameter: 0.9921919421102453
 Iteration 2
-    Energy: -77.45814740986603
-    Norm of gradient: 0.015969850899012494
-    Regularization hyperparameter: 0.0022384817080829808
-    Variation hyperparameter: 0.2385668960956578
+    Energy: -77.4581168742322
+    Norm of gradient: 0.007807080528587426
+    Regularization hyperparameter: 0.0006079637572267446
+    Variation hyperparameter: 0.9922750064055008
 Iteration 3
-    Energy: -77.46281813097485
-    Norm of gradient: 0.02849494412261699
-    Regularization hyperparameter: 0.00460065885155873
-    Variation hyperparameter: 0.18611794162262169
+    Energy: -77.4581471091317
+    Norm of gradient: 0.00758353660741876
+    Regularization hyperparameter: 0.9512880839077054
+    Variation hyperparameter: 0.9922797028545618
 Iteration 4
-    Energy: -77.4764192124165
-    Norm of gradient: 0.06250018105655639
-    Regularization hyperparameter: 0.004087053313140544
-    Variation hyperparameter: 0.18615833527082193
+    Energy: -77.45817576120025
+    Norm of gradient: 0.007390228626374297
+    Regularization hyperparameter: 0.9512360012108495
+    Variation hyperparameter: 0.9922797331569526
 </pre></div></div>
 </div>
 </section>
@@ -630,7 +630,7 @@ Iteration 4
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2fd7553c"></script>
+</div><script src="../_static/documentation_options.js?v=f65dee0b"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
