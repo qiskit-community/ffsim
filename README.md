@@ -4,12 +4,16 @@ Faster simulations of fermionic quantum circuits.
 
 ## What is ffsim?
 
+<!-- start what-is-ffsim -->
+
 ffsim is a software library for simulating fermionic quantum circuits that conserve particle number
 and the Z component of spin. This category includes many quantum circuits used for quantum chemistry simulations.
 By exploiting the symmetries and using specialized algorithms, ffsim can simulate these circuits much faster
 than a generic quantum circuit simulator.
 
 **Experimental disclaimer**: ffsim is currently an experimental release. Breaking changes may be introduced without warning.
+
+<!-- end what-is-ffsim -->
 
 ## Documentation
 
@@ -23,11 +27,15 @@ ffsim is supported on Linux, macOS, and the Windows Subsystem for Linux (WSL). I
 
 ### From PyPI
 
+<!-- start install-from-pypi -->
+
 ffsim is available on [PyPI](https://pypi.org/project/ffsim/). It can be installed by running the command
 
 ```bash
 pip install ffsim
 ```
+
+<!-- end install-from-pypi -->
 
 ### From source
 
