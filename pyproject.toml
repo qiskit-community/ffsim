@@ -25,7 +25,6 @@ dev = [
     "black[jupyter]",
     "coverage",
     "furo",
-    "jupyter-sphinx",
     "maturin",
     "mypy",
     "myst-parser",
