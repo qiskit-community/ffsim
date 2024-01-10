@@ -25,6 +25,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
     "sphinx_autodoc_typehints",
+    "myst_parser",
     "nbsphinx",
 ]
 
@@ -49,4 +50,5 @@ html_theme_options = {
 
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 500
-nbsphinx_execute = "always"
+# TODO change this back to "always"
+nbsphinx_execute = "never"

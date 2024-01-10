@@ -28,6 +28,7 @@ dev = [
     "jupyter-sphinx",
     "maturin",
     "mypy",
+    "myst-parser",
     "nbmake",
     "nbsphinx",
     "pytest",
