@@ -50,5 +50,4 @@ html_theme_options = {
 
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 500
-# TODO change this back to "always"
-nbsphinx_execute = "never"
+nbsphinx_execute = "always"
