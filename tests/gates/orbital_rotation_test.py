@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pyscf
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
@@ -259,3 +260,39 @@ def test_apply_orbital_rotation_compose():
         )
 
         np.testing.assert_allclose(result, expected_state)
+
+
+def test_apply_orbital_rotation_nitrogen():
+    """Test a special case that was found to cause issues."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        basis="sto-6g",
+        symmetry="d2h",
+    )
+    active_space = range(2, mol.nao_nr())
+    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space, ccsd=True)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    t1 = mol_data.ccsd_t1
+    t2 = mol_data.ccsd_t2
+
+    op = ffsim.UCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
+    for orbital_rotation in itertools.chain(
+        op.orbital_rotations, [op.final_orbital_rotation]
+    ):
+        assert ffsim.linalg.is_unitary(orbital_rotation)
+
+        original_vec = ffsim.hartree_fock_state(norb, nelec)
+        np.testing.assert_allclose(np.linalg.norm(original_vec), 1)
+
+        result = ffsim.apply_orbital_rotation(
+            original_vec, orbital_rotation, norb, nelec
+        )
+        np.testing.assert_allclose(np.linalg.norm(result), 1)
+
+        op = ffsim.contract.one_body_linop(
+            scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
+        )
+        expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
+        np.testing.assert_allclose(result, expected, atol=1e-12)
