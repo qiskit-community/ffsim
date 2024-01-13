@@ -174,12 +174,25 @@ def indices_to_strings(
     """Convert statevector indices to bitstrings.
 
     Example:
-        >>> norb = 3
-        >>> nelec = (2, 1)
-        >>> dim = ffsim.dim(norb, nelec)
-        >>> ffsim.indices_to_strings(range(dim), norb, nelec)
-        ['011001', '011010', '011100', '101001', '101010', '101100', '110001', \
-'110010', '110100']
+
+    .. code::
+
+        import ffsim
+
+        norb = 3
+        nelec = (2, 1)
+        dim = ffsim.dim(norb, nelec)
+        ffsim.indices_to_strings(range(dim), norb, nelec)
+        # output:
+        # ['001011',
+        #  '010011',
+        #  '100011',
+        #  '001101',
+        #  '010101',
+        #  '100101',
+        #  '001110',
+        #  '010110',
+        #  '100110']
     """
     n_alpha, n_beta = nelec
     dim_b = comb(norb, n_beta, exact=True)
@@ -187,6 +200,6 @@ def indices_to_strings(
     strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)
     strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)
     return [
-        f"{string_a:0{norb}b}{string_b:0{norb}b}"
+        f"{string_b:0{norb}b}{string_a:0{norb}b}"
         for string_a, string_b in zip(strings_a, strings_b)
     ]
