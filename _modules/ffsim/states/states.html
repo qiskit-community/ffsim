@@ -402,12 +402,25 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert statevector indices to bitstrings.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; norb = 3</span>
-<span class="sd">        &gt;&gt;&gt; nelec = (2, 1)</span>
-<span class="sd">        &gt;&gt;&gt; dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        &gt;&gt;&gt; ffsim.indices_to_strings(range(dim), norb, nelec)</span>
-<span class="sd">        [&#39;011001&#39;, &#39;011010&#39;, &#39;011100&#39;, &#39;101001&#39;, &#39;101010&#39;, &#39;101100&#39;, &#39;110001&#39;, \</span>
-<span class="sd">&#39;110010&#39;, &#39;110100&#39;]</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">        import ffsim</span>
+
+<span class="sd">        norb = 3</span>
+<span class="sd">        nelec = (2, 1)</span>
+<span class="sd">        dim = ffsim.dim(norb, nelec)</span>
+<span class="sd">        ffsim.indices_to_strings(range(dim), norb, nelec)</span>
+<span class="sd">        # output:</span>
+<span class="sd">        # [&#39;001011&#39;,</span>
+<span class="sd">        #  &#39;010011&#39;,</span>
+<span class="sd">        #  &#39;100011&#39;,</span>
+<span class="sd">        #  &#39;001101&#39;,</span>
+<span class="sd">        #  &#39;010101&#39;,</span>
+<span class="sd">        #  &#39;100101&#39;,</span>
+<span class="sd">        #  &#39;001110&#39;,</span>
+<span class="sd">        #  &#39;010110&#39;,</span>
+<span class="sd">        #  &#39;100110&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -415,7 +428,7 @@
     <span class="n">strings_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_a</span><span class="p">)</span>
     <span class="n">strings_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_b</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">string_a</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}{</span><span class="n">string_b</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">string_b</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}{</span><span class="n">string_a</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">for</span> <span class="n">string_a</span><span class="p">,</span> <span class="n">string_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span><span class="p">)</span>
     <span class="p">]</span></div>
 
