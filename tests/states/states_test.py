@@ -101,13 +101,13 @@ def test_indices_to_strings():
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(range(dim), norb, nelec)
     assert strings == [
-        "011001",
-        "011010",
-        "011100",
-        "101001",
-        "101010",
-        "101100",
-        "110001",
-        "110010",
-        "110100",
+        "001011",
+        "010011",
+        "100011",
+        "001101",
+        "010101",
+        "100101",
+        "001110",
+        "010110",
+        "100110",
     ]
