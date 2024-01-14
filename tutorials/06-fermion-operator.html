@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="API Reference" href="../api/index.html" /><link rel="prev" title="Entanglement forging" href="05-entanglement-forging.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>The FermionOperator class - ffsim 0.0.21 documentation</title>
+        <title>The FermionOperator class - ffsim 0.0.22.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.21 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.22.dev0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.21 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.22.dev0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -297,17 +297,17 @@ FermionOperator({
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_b(2)): 0-0.25j,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(0), des_a(3)): 1,
-    (des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(3), des_a(0)): -0.5
+    (des_a(3), des_b(3)): 0.0625,
+    (cre_a(3), des_a(0)): -0.5,
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_b(2)): 0-0.25j,
+    (cre_a(0), des_a(3)): 1
 })
 </pre></div></div>
 </div>
@@ -332,17 +332,17 @@ FermionOperator({
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_b(2)): -5,
-    (cre_b(1), des_b(5), cre_a(4)): 12-12j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,
-    (cre_a(0), des_a(3)): 0-6j,
-    (des_a(3), des_b(3)): 0-1.25j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,
     (cre_a(0), des_a(3), cre_b(2)): 2,
-    (cre_a(3), des_a(0), cre_b(2)): -1,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,
     (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
-    (cre_a(3), des_a(0)): 0+3j
+    (des_a(3), des_b(3)): 0-1.25j,
+    (cre_a(3), des_a(0)): 0+3j,
+    (cre_b(1), des_b(5), cre_a(4)): 12-12j,
+    (cre_a(3), des_a(0), cre_b(2)): -1,
+    (cre_b(2)): -5,
+    (cre_a(0), des_a(3)): 0-6j
 })
 </pre></div></div>
 </div>
@@ -364,15 +364,15 @@ smaller orbital indices.</p>
 <div class="highlight"><pre>
 FermionOperator({
     (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
-    (cre_b(2)): -5,
     (cre_b(2), cre_a(0), des_a(3)): 2,
-    (des_b(3), des_a(3)): 0+1.25j,
-    (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,
-    (cre_a(0), des_a(3)): 0-6j,
-    (cre_b(1), cre_a(4), des_b(5)): -12+12j,
-    (cre_a(3), des_a(0)): 0+3j,
     (cre_b(2), cre_a(3), des_a(0)): -1,
-    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j
+    (cre_b(1), cre_a(4), des_b(5)): -12+12j,
+    (des_b(3), des_a(3)): 0+1.25j,
+    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j,
+    (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,
+    (cre_b(2)): -5,
+    (cre_a(0), des_a(3)): 0-6j,
+    (cre_a(3), des_a(0)): 0+3j
 })
 </pre></div></div>
 </div>
@@ -443,7 +443,7 @@ True
 <div class="highlight"><pre>
 array([ 0.        +0.j        ,  0.        +0.j        ,
         0.        +0.j        ,  0.        +0.j        ,
-       -0.00641479-0.05805911j,  0.        +0.j        ,
+       -0.01545112+0.13880258j,  0.        +0.j        ,
         0.        +0.j        ,  0.        +0.j        ,
         0.        +0.j        ])
 </pre></div></div>
@@ -527,7 +527,7 @@ array([-0.5+1.21984743e-18j])
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=a11416ff"></script>
+</div><script src="../_static/documentation_options.js?v=13a9c17e"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
