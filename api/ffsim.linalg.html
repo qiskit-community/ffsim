@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.optimize" href="ffsim.optimize.html" /><link rel="prev" title="ffsim.contract" href="ffsim.contract.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>ffsim.linalg - ffsim 0.0.22.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -280,16 +280,16 @@ used because the diagonal Coulomb matrices are symmetric.</p>
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – An optional limit on the number of terms to keep in the decomposition
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
 of the two-body tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
 <li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition.</p></li>
 <li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The optimization method. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.</p></li>
 <li><p><strong>callback</strong> – Callback function for the optimization. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
-<li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span>) – Options for the optimization. See the documentation of
+<li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Options for the optimization. See the documentation of
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
-<li><p><strong>diag_coulomb_mask</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – Diagonal Coulomb matrix mask to use in the optimization.
+<li><p><strong>diag_coulomb_mask</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Diagonal Coulomb matrix mask to use in the optimization.
 This is a matrix of boolean values where the nonzero elements indicate where
 the diagonal coulomb matrices returned by optimization are allowed to be
 nonzero. This parameter is only used if <cite>optimize</cite> is set to <cite>True</cite>, and
@@ -342,7 +342,7 @@ error threshold.</p>
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – An optional limit on the number of terms to keep in the decomposition
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
 of the t2 amplitudes tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
 </ul>
 </dd>
@@ -571,7 +571,7 @@ error threshold.</p>
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
-<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The maximum number of vectors to include in the decomposition.</p></li>
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The maximum number of vectors to include in the decomposition.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

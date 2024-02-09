@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.testing" href="ffsim.testing.html" /><link rel="prev" title="ffsim.optimize" href="ffsim.optimize.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>ffsim.random - ffsim 0.0.22.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -290,7 +290,7 @@ instance of <cite>np.random.Generator</cite> or else a valid input to
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dim</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The width and height of the matrix.</p></li>
-<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The rank of the matrix. If <cite>None</cite>, the maximum rank is used.</p></li>
+<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The rank of the matrix. If <cite>None</cite>, the maximum rank is used.</p></li>
 <li><p><strong>seed</strong> – The pseudorandom number generator or seed. Should be an
 instance of <cite>np.random.Generator</cite> or else a valid input to
 <cite>np.random.default_rng</cite>.</p></li>
@@ -381,7 +381,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dim</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The dimension of the tensor. The shape of the returned tensor will be
 (dim, dim, dim, dim).</p></li>
-<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Rank of the sampled tensor. The default behavior is to use
+<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Rank of the sampled tensor. The default behavior is to use
 the maximum rank, which is <cite>norb * (norb + 1) // 2</cite>.</p></li>
 <li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
 Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>

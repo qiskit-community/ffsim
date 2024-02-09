@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>ffsim.optimize.linear_method - ffsim 0.0.22.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
@@ -390,6 +390,8 @@
             <span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">params</span>
             <span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span> <span class="o">=</span> <span class="n">energy</span>
             <span class="n">intermediate_result</span><span class="o">.</span><span class="n">jac</span> <span class="o">=</span> <span class="n">grad</span>
+            <span class="n">intermediate_result</span><span class="o">.</span><span class="n">energy_mat</span> <span class="o">=</span> <span class="n">energy_mat</span>
+            <span class="n">intermediate_result</span><span class="o">.</span><span class="n">overlap_mat</span> <span class="o">=</span> <span class="n">overlap_mat</span>
             <span class="n">intermediate_result</span><span class="o">.</span><span class="n">regularization</span> <span class="o">=</span> <span class="n">regularization</span>
             <span class="n">intermediate_result</span><span class="o">.</span><span class="n">variation</span> <span class="o">=</span> <span class="n">variation</span>
             <span class="n">callback</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">)</span>
