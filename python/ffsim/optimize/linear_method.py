@@ -180,6 +180,8 @@ def minimize_linear_method(
             intermediate_result.x = params
             intermediate_result.fun = energy
             intermediate_result.jac = grad
+            intermediate_result.energy_mat = energy_mat
+            intermediate_result.overlap_mat = overlap_mat
             intermediate_result.regularization = regularization
             intermediate_result.variation = variation
             callback(intermediate_result)
