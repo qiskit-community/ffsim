@@ -300,8 +300,9 @@ def _jac(
 ) -> np.ndarray:
     jac = np.zeros((len(vec), len(theta)), dtype=complex)
     for i in range(len(theta)):
-        jac[:, i] = _grad(params_to_vec, theta, i, epsilon)
-        jac[:, i] = jac[:, i] - np.vdot(vec, jac[:, i]) * vec
+        grad = _grad(params_to_vec, theta, i, epsilon)
+        grad -= np.vdot(vec, grad) * vec
+        jac[:, i] = grad
     return jac
 
 
