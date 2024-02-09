@@ -99,9 +99,7 @@ class SingleFactorizedHamiltonian:
         )
 
         norb = hamiltonian.norb
-        reshaped_tensor = np.reshape(
-            hamiltonian.two_body_tensor, (norb**2, norb**2)
-        )
+        reshaped_tensor = np.reshape(hamiltonian.two_body_tensor, (norb**2, norb**2))
 
         if cholesky:
             cholesky_vecs = modified_cholesky(
