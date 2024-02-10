@@ -479,30 +479,37 @@ def _ucj_from_parameters(
     diag_coulomb_mats_alpha_beta = np.zeros((n_reps, norb, norb))
     orbital_rotations = np.zeros((n_reps, norb, norb), dtype=complex)
     index = 0
-    # diag coulomb matrices, alpha-alpha
-    indices = alpha_alpha_indices
-    if indices:
-        n_params = len(indices)
-        rows, cols = zip(*indices)
-        for mat in diag_coulomb_mats_alpha_alpha:
+    for (
+        orbital_rotation,
+        diag_coulomb_mat_alpha_alpha,
+        diag_coulomb_mat_alpha_beta,
+    ) in zip(
+        orbital_rotations,
+        diag_coulomb_mats_alpha_alpha,
+        diag_coulomb_mats_alpha_beta,
+    ):
+        # orbital rotation
+        n_params = norb**2
+        orbital_rotation[:] = orbital_rotation_from_parameters(
+            params[index : index + n_params], norb
+        )
+        index += n_params
+        # diag coulomb matrix, alpha-alpha
+        if alpha_alpha_indices:
+            n_params = len(alpha_alpha_indices)
+            rows, cols = zip(*alpha_alpha_indices)
             vals = params[index : index + n_params]
-            mat[rows, cols] = vals
-            mat[cols, rows] = vals
+            diag_coulomb_mat_alpha_alpha[rows, cols] = vals
+            diag_coulomb_mat_alpha_alpha[cols, rows] = vals
             index += n_params
-    # diag coulomb matrices, alpha-beta
-    indices = alpha_beta_indices
-    if indices:
-        n_params = len(indices)
-        rows, cols = zip(*indices)
-        for mat in diag_coulomb_mats_alpha_beta:
+        # diag coulomb matrix, alpha-beta
+        if alpha_beta_indices:
+            n_params = len(alpha_beta_indices)
+            rows, cols = zip(*alpha_beta_indices)
             vals = params[index : index + n_params]
-            mat[rows, cols] = vals
-            mat[cols, rows] = vals
+            diag_coulomb_mat_alpha_beta[rows, cols] = vals
+            diag_coulomb_mat_alpha_beta[cols, rows] = vals
             index += n_params
-    # orbital rotations
-    for mat in orbital_rotations:
-        mat[:] = orbital_rotation_from_parameters(params[index : index + norb**2], norb)
-        index += norb**2
     # final orbital rotation
     final_orbital_rotation = None
     if with_final_orbital_rotation:
@@ -538,26 +545,35 @@ def _ucj_to_parameters(
         ntheta += norb**2
     theta = np.zeros(ntheta)
     index = 0
-    # diag coulomb matrices, alpha-alpha
-    indices = alpha_alpha_indices
-    if indices:
-        n_params = len(indices)
-        for mat in diag_coulomb_mats_alpha_alpha:
-            theta[index : index + n_params] = mat[tuple(zip(*indices))]
-            index += n_params
-    # diag coulomb matrices, alpha-beta
-    indices = alpha_beta_indices
-    if indices:
-        n_params = len(indices)
-        for mat in diag_coulomb_mats_alpha_beta:
-            theta[index : index + n_params] = mat[tuple(zip(*indices))]
-            index += n_params
-    # orbital rotations
-    for orbital_rotation in orbital_rotations:
-        theta[index : index + norb**2] = orbital_rotation_to_parameters(
+    for (
+        orbital_rotation,
+        diag_coulomb_mat_alpha_alpha,
+        diag_coulomb_mat_alpha_beta,
+    ) in zip(
+        orbital_rotations,
+        diag_coulomb_mats_alpha_alpha,
+        diag_coulomb_mats_alpha_beta,
+    ):
+        # orbital rotation
+        n_params = norb**2
+        theta[index : index + n_params] = orbital_rotation_to_parameters(
             orbital_rotation
         )
-        index += norb**2
+        index += n_params
+        # diag coulomb matrix, alpha-alpha
+        if alpha_alpha_indices:
+            n_params = len(alpha_alpha_indices)
+            theta[index : index + n_params] = diag_coulomb_mat_alpha_alpha[
+                tuple(zip(*alpha_alpha_indices))
+            ]
+            index += n_params
+        # diag coulomb matrix, alpha-beta
+        if alpha_beta_indices:
+            n_params = len(alpha_beta_indices)
+            theta[index : index + n_params] = diag_coulomb_mat_alpha_beta[
+                tuple(zip(*alpha_beta_indices))
+            ]
+            index += n_params
     # final orbital rotation
     if final_orbital_rotation is not None:
         theta[index : index + norb**2] = orbital_rotation_to_parameters(
