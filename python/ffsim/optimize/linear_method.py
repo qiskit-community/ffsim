@@ -113,6 +113,9 @@ def minimize_linear_method(
 
                 scipy.optimize.minimize(f, x0, **scipy_optimize_minimize_args)
 
+            If not specified, the default value of `dict(method="L-BFGS-B")` will be
+            used.
+
         callback: A callable called after each iteration. It is called with the
             signature
 
