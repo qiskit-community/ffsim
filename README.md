@@ -79,6 +79,12 @@ To set up ffsim for development, install it from source in editable mode along w
 pip install -e ".[dev]"
 ```
 
+To install the git pre-commit hooks, run
+
+```bash
+pre-commit install
+```
+
 If you add or modify any Rust modules, rebuild them by running the command
 
 ```bash
