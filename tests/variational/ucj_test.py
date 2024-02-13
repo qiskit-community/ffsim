@@ -10,6 +10,7 @@
 
 """Tests for unitary cluster Jastrow ansatz."""
 
+import itertools
 import numpy as np
 import pyscf
 import scipy.linalg
@@ -23,6 +24,53 @@ def _exponentiate_t1(t1: np.ndarray, norb: int, nocc: int) -> np.ndarray:
     generator[:nocc, nocc:] = t1
     generator[nocc:, :nocc] = -t1.T
     return scipy.linalg.expm(generator)
+
+
+def test_n_params():
+    for norb, n_reps, with_final_orbital_rotation in itertools.product(
+        [1, 2, 3], [1, 2, 3], [False, True]
+    ):
+        diag_coulomb_mats_alpha_alpha = np.zeros((n_reps, norb, norb))
+        diag_coulomb_mats_alpha_beta = np.zeros((n_reps, norb, norb))
+        orbital_rotations = np.stack([np.eye(norb) for _ in range(n_reps)])
+
+        final_orbital_rotation = np.eye(norb)
+        operator = ffsim.UCJOperator(
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
+            orbital_rotations=orbital_rotations,
+            final_orbital_rotation=final_orbital_rotation
+            if with_final_orbital_rotation
+            else None,
+        )
+
+        actual = ffsim.UCJOperator.n_params(
+            norb, n_reps, with_final_orbital_rotation=with_final_orbital_rotation
+        )
+        expected = len(operator.to_parameters())
+        assert actual == expected
+
+        alpha_alpha_indices = list(
+            itertools.combinations_with_replacement(range(norb), 2)
+        )[:norb]
+        alpha_beta_indices = list(
+            itertools.combinations_with_replacement(range(norb), 2)
+        )[:norb]
+
+        actual = ffsim.UCJOperator.n_params(
+            norb,
+            n_reps,
+            alpha_alpha_indices=alpha_alpha_indices,
+            alpha_beta_indices=alpha_beta_indices,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        expected = len(
+            operator.to_parameters(
+                alpha_alpha_indices=alpha_alpha_indices,
+                alpha_beta_indices=alpha_beta_indices,
+            )
+        )
+        assert actual == expected
 
 
 def test_parameters_roundtrip():
@@ -127,6 +175,53 @@ def test_t_amplitudes():
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
     np.testing.assert_allclose(energy, -0.96962461)
+
+
+def test_real_ucj_n_params():
+    for norb, n_reps, with_final_orbital_rotation in itertools.product(
+        [1, 2, 3], [1, 2, 3], [False, True]
+    ):
+        diag_coulomb_mats_alpha_alpha = np.zeros((n_reps, norb, norb))
+        diag_coulomb_mats_alpha_beta = np.zeros((n_reps, norb, norb))
+        orbital_rotations = np.stack([np.eye(norb) for _ in range(n_reps)])
+
+        final_orbital_rotation = np.eye(norb)
+        operator = ffsim.RealUCJOperator(
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
+            orbital_rotations=orbital_rotations,
+            final_orbital_rotation=final_orbital_rotation
+            if with_final_orbital_rotation
+            else None,
+        )
+
+        actual = ffsim.RealUCJOperator.n_params(
+            norb, n_reps, with_final_orbital_rotation=with_final_orbital_rotation
+        )
+        expected = len(operator.to_parameters())
+        assert actual == expected
+
+        alpha_alpha_indices = list(
+            itertools.combinations_with_replacement(range(norb), 2)
+        )[:norb]
+        alpha_beta_indices = list(
+            itertools.combinations_with_replacement(range(norb), 2)
+        )[:norb]
+
+        actual = ffsim.RealUCJOperator.n_params(
+            norb,
+            n_reps,
+            alpha_alpha_indices=alpha_alpha_indices,
+            alpha_beta_indices=alpha_beta_indices,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        expected = len(
+            operator.to_parameters(
+                alpha_alpha_indices=alpha_alpha_indices,
+                alpha_beta_indices=alpha_beta_indices,
+            )
+        )
+        assert actual == expected
 
 
 def test_real_ucj_parameters_roundtrip():

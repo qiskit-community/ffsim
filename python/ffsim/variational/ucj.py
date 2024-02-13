@@ -80,6 +80,31 @@ class UCJOperator:
         return self.diag_coulomb_mats_alpha_alpha.shape[0]
 
     @staticmethod
+    def n_params(
+        norb: int,
+        n_reps: int,
+        *,
+        alpha_alpha_indices: list[tuple[int, int]] | None = None,
+        alpha_beta_indices: list[tuple[int, int]] | None = None,
+        with_final_orbital_rotation: bool = False,
+    ) -> int:
+        """Return the number of parameters of an ansatz with given settings."""
+        n_params_aa = (
+            norb * (norb + 1) // 2
+            if alpha_alpha_indices is None
+            else len(alpha_alpha_indices)
+        )
+        n_params_ab = (
+            norb * (norb + 1) // 2
+            if alpha_beta_indices is None
+            else len(alpha_beta_indices)
+        )
+        return (
+            n_reps * (norb**2 + n_params_aa + n_params_ab)
+            + with_final_orbital_rotation * norb**2
+        )
+
+    @staticmethod
     def from_parameters(
         params: np.ndarray,
         *,
@@ -263,6 +288,31 @@ class RealUCJOperator:
     def n_reps(self):
         """The number of ansatz repetitions."""
         return self.diag_coulomb_mats_alpha_alpha.shape[0]
+
+    @staticmethod
+    def n_params(
+        norb: int,
+        n_reps: int,
+        *,
+        alpha_alpha_indices: list[tuple[int, int]] | None = None,
+        alpha_beta_indices: list[tuple[int, int]] | None = None,
+        with_final_orbital_rotation: bool = False,
+    ) -> int:
+        """Return the number of parameters of an ansatz with given settings."""
+        n_params_aa = (
+            norb * (norb + 1) // 2
+            if alpha_alpha_indices is None
+            else len(alpha_alpha_indices)
+        )
+        n_params_ab = (
+            norb * (norb + 1) // 2
+            if alpha_beta_indices is None
+            else len(alpha_beta_indices)
+        )
+        return (
+            n_reps * (norb**2 + n_params_aa + n_params_ab)
+            + with_final_orbital_rotation * norb**2
+        )
 
     @staticmethod
     def from_parameters(
