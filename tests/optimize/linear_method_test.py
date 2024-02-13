@@ -17,7 +17,6 @@ from collections import defaultdict
 import numpy as np
 import pyscf
 import pytest
-from pyscf import cc
 
 import ffsim
 
