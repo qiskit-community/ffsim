@@ -289,6 +289,34 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of ansatz repetitions.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
+<div class="viewcode-block" id="UCJOperator.n_params">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOperator.n_params">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">n_params</span><span class="p">(</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">alpha_alpha_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">alpha_beta_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of parameters of an ansatz with given settings.&quot;&quot;&quot;</span>
+        <span class="n">n_params_aa</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">alpha_alpha_indices</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_alpha_indices</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">n_params_ab</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">alpha_beta_indices</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_beta_indices</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">n_reps</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">n_params_aa</span> <span class="o">+</span> <span class="n">n_params_ab</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">with_final_orbital_rotation</span> <span class="o">*</span> <span class="n">norb</span><span class="o">**</span><span class="mi">2</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="UCJOperator.from_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOperator.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -488,6 +516,34 @@
     <span class="k">def</span> <span class="nf">n_reps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of ansatz repetitions.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="RealUCJOperator.n_params">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.RealUCJOperator.n_params">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">n_params</span><span class="p">(</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">alpha_alpha_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">alpha_beta_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of parameters of an ansatz with given settings.&quot;&quot;&quot;</span>
+        <span class="n">n_params_aa</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">alpha_alpha_indices</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_alpha_indices</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">n_params_ab</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">alpha_beta_indices</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_beta_indices</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">n_reps</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">n_params_aa</span> <span class="o">+</span> <span class="n">n_params_ab</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">with_final_orbital_rotation</span> <span class="o">*</span> <span class="n">norb</span><span class="o">**</span><span class="mi">2</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="RealUCJOperator.from_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.RealUCJOperator.from_parameters">[docs]</a>

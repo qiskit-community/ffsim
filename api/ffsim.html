@@ -911,6 +911,17 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.RealUCJOperator.n_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#RealUCJOperator.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.RealUCJOperator.n_params" title="Link to this definition">#</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="ffsim.RealUCJOperator.n_reps">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.RealUCJOperator.n_reps" title="Link to this definition">#</a></dt>
@@ -1170,6 +1181,17 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOperator" title="ffsim.variational.ucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOperator.n_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#UCJOperator.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOperator.n_params" title="Link to this definition">#</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2566,6 +2588,7 @@ describes the orbitals of the Slater determinant.</p></li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.final_orbital_rotation</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.from_parameters"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.from_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.from_t_amplitudes()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.RealUCJOperator.n_params"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.n_params()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.n_reps"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.n_reps</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.norb"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.to_parameters"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.to_parameters()</span></code></a></li>
@@ -2598,6 +2621,7 @@ describes the orbitals of the Slater determinant.</p></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">UCJOperator.final_orbital_rotation</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.from_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOperator.from_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOperator.from_t_amplitudes()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOperator.n_params"><code class="docutils literal notranslate"><span class="pre">UCJOperator.n_params()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.n_reps"><code class="docutils literal notranslate"><span class="pre">UCJOperator.n_reps</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.norb"><code class="docutils literal notranslate"><span class="pre">UCJOperator.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOperator.to_parameters()</span></code></a></li>
