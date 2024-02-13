@@ -31,10 +31,10 @@ def test_minimize_linear_method():
     hartree_fock = pyscf.scf.RHF(mol)
     hartree_fock.kernel()
 
-    # Construct UCJ operator
+    # Initialize parameters
     n_reps = 2
     n_params = ffsim.UCJOperator.n_params(hartree_fock.mol.nao_nr(), n_reps)
-    rng = np.random.default_rng(1234)
+    rng = np.random.default_rng(1804)
     x0 = rng.uniform(-10, 10, size=n_params)
 
     # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
@@ -74,7 +74,7 @@ def test_minimize_linear_method():
     )
     np.testing.assert_allclose(energy(result.x), result.fun)
     np.testing.assert_allclose(result.fun, -0.970773)
-    np.testing.assert_allclose(info["fun"][0], -0.834889, atol=1e-5)
+    np.testing.assert_allclose(info["fun"][0], -0.833558, atol=1e-5)
     np.testing.assert_allclose(info["fun"][-1], -0.970773, atol=1e-5)
     for params, fun in zip(info["x"], info["fun"]):
         np.testing.assert_allclose(energy(params), fun)
