@@ -311,7 +311,9 @@
         <span class="p">)</span>
 
         <span class="n">norb</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">norb</span>
-        <span class="n">reshaped_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">reshaped_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">cholesky</span><span class="p">:</span>
             <span class="n">cholesky_vecs</span> <span class="o">=</span> <span class="n">modified_cholesky</span><span class="p">(</span>
