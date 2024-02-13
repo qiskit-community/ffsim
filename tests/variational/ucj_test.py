@@ -40,9 +40,9 @@ def test_n_params():
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
             orbital_rotations=orbital_rotations,
-            final_orbital_rotation=final_orbital_rotation
-            if with_final_orbital_rotation
-            else None,
+            final_orbital_rotation=(
+                final_orbital_rotation if with_final_orbital_rotation else None
+            ),
         )
 
         actual = ffsim.UCJOperator.n_params(
@@ -191,9 +191,9 @@ def test_real_ucj_n_params():
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
             orbital_rotations=orbital_rotations,
-            final_orbital_rotation=final_orbital_rotation
-            if with_final_orbital_rotation
-            else None,
+            final_orbital_rotation=(
+                final_orbital_rotation if with_final_orbital_rotation else None
+            ),
         )
 
         actual = ffsim.RealUCJOperator.n_params(

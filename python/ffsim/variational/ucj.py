@@ -501,9 +501,7 @@ def _ucj_from_parameters(
             index += n_params
     # orbital rotations
     for mat in orbital_rotations:
-        mat[:] = orbital_rotation_from_parameters(
-            params[index : index + norb**2], norb
-        )
+        mat[:] = orbital_rotation_from_parameters(params[index : index + norb**2], norb)
         index += norb**2
     # final orbital rotation
     final_orbital_rotation = None

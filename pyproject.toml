@@ -30,6 +30,7 @@ dev = [
     "myst-parser",
     "nbmake",
     "nbsphinx",
+    "pre-commit",
     "pytest == 8.0.0",
     "ruff == 0.2.1",
     "sphinx",
