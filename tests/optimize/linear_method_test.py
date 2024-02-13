@@ -32,16 +32,11 @@ def test_minimize_linear_method():
     hartree_fock = pyscf.scf.RHF(mol)
     hartree_fock.kernel()
 
-    # Get CCSD t2 amplitudes for initializing the ansatz
-    ccsd = cc.CCSD(hartree_fock)
-    _, _, t2 = ccsd.kernel()
-
     # Construct UCJ operator
     n_reps = 2
-    operator = ffsim.UCJOperator.from_t_amplitudes(t2, n_reps=n_reps)
-    params = operator.to_parameters()
+    n_params = ffsim.UCJOperator.n_params(hartree_fock.mol.nao_nr(), n_reps)
     rng = np.random.default_rng(1234)
-    x0 = rng.uniform(-10, 10, size=len(params))
+    x0 = rng.uniform(-10, 10, size=n_params)
 
     # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
     mol_data = ffsim.MolecularData.from_scf(hartree_fock)
