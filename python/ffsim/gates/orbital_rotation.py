@@ -44,7 +44,8 @@ def apply_orbital_rotation(
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
-) -> np.ndarray: ...
+) -> np.ndarray:
+    ...
 
 
 @overload
@@ -57,7 +58,8 @@ def apply_orbital_rotation(
     *,
     allow_row_permutation: Literal[True],
     copy: bool = True,
-) -> tuple[np.ndarray, np.ndarray]: ...
+) -> tuple[np.ndarray, np.ndarray]:
+    ...
 
 
 @overload
@@ -70,7 +72,8 @@ def apply_orbital_rotation(
     *,
     allow_col_permutation: Literal[True],
     copy: bool = True,
-) -> tuple[np.ndarray, np.ndarray]: ...
+) -> tuple[np.ndarray, np.ndarray]:
+    ...
 
 
 def apply_orbital_rotation(
