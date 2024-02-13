@@ -19,7 +19,7 @@
      "output_type": "stream",
      "text": [
       "converged SCF energy = -77.4456267643962\n",
-      "CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000\n"
+      "CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000\n"
      ]
     }
    ],
@@ -53,12 +53,13 @@
     "active_space = range(mol.nelectron // 2 - 2, mol.nelectron // 2 + 2)\n",
     "\n",
     "# Get molecular data and molecular Hamiltonian (one- and two-body tensors)\n",
-    "mol_data = ffsim.MolecularData.from_scf(\n",
-    "    hartree_fock, active_space=active_space, fci=True\n",
-    ")\n",
+    "mol_data = ffsim.MolecularData.from_scf(hartree_fock, active_space=active_space)\n",
     "norb = mol_data.norb\n",
     "nelec = mol_data.nelec\n",
-    "mol_hamiltonian = mol_data.hamiltonian"
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "\n",
+    "# Compute FCI energy\n",
+    "mol_data.run_fci()"
    ]
   },
   {
@@ -96,8 +97,8 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "E(CCSD) = -77.49387212754468  E_corr = -0.04824536314851346\n",
-      "Energy at initialization: -77.46975600021715\n"
+      "E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851485\n",
+      "Energy at initialization: -77.46975600021644\n"
      ]
     }
    ],
@@ -150,10 +151,10 @@
       "  message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT\n",
       "  success: False\n",
       "   status: 1\n",
-      "      fun: -77.5096393678589\n",
-      "        x: [-1.486e-01  1.914e-01 ...  6.534e-03 -1.987e+00]\n",
+      "      fun: -77.50964466939116\n",
+      "        x: [-1.479e-01  1.876e-01 ...  3.824e-03  6.462e-01]\n",
       "      nit: 5\n",
-      "      jac: [-1.194e-03 -1.067e-03 ... -5.684e-04 -2.913e-04]\n",
+      "      jac: [ 1.333e-03 -2.134e-03 ... -5.372e-04 -3.055e-04]\n",
       "     nfev: 584\n",
       "     njev: 8\n",
       " hess_inv: <72x72 LbfgsInvHessProduct with dtype=float64>\n"
@@ -216,10 +217,10 @@
       "  message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT\n",
       "  success: False\n",
       "   status: 1\n",
-      "      fun: -77.45741314558897\n",
-      "        x: [-4.128e-01  8.249e-02 ... -3.067e-02 -1.935e+00]\n",
+      "      fun: -77.45739668895403\n",
+      "        x: [-4.078e-01  8.271e-02 ... -1.694e-02  7.034e-01]\n",
       "      nit: 5\n",
-      "      jac: [ 8.285e-04 -1.137e-05 ...  3.837e-05 -2.345e-04]\n",
+      "      jac: [ 1.815e-03 -2.700e-05 ...  3.553e-05 -8.384e-05]\n",
       "     nfev: 423\n",
       "     njev: 9\n",
       " hess_inv: <46x46 LbfgsInvHessProduct with dtype=float64>\n"
@@ -276,34 +277,34 @@
       "Number of parameters: 46\n",
       " message: Stop: Total number of iterations reached limit.\n",
       " success: False\n",
-      "     fun: -77.49749625463323\n",
-      "       x: [ 1.063e+00 -8.659e-02 ... -1.679e+01  2.643e+01]\n",
+      "     fun: -77.47158320347539\n",
+      "       x: [-6.631e-01  8.976e-02 ... -2.173e-01  9.995e-01]\n",
       "     nit: 5\n",
-      "     jac: [ 9.021e-03  1.711e-03 ...  6.221e-03 -5.828e-03]\n",
-      "    nfev: 856\n",
+      "     jac: [ 7.259e-03 -1.181e-03 ...  3.433e-03 -5.383e-03]\n",
+      "    nfev: 826\n",
       "    njev: 5\n",
-      "  nlinop: 626\n",
+      "  nlinop: 596\n",
       "\n",
       "Iteration 1\n",
-      "    Energy: -77.41517984348127\n",
-      "    Norm of gradient: 0.10920578601840765\n",
-      "    Regularization hyperparameter: 6.687981176805703e-07\n",
-      "    Variation hyperparameter: 0.696485198650709\n",
+      "    Energy: -77.45724086956001\n",
+      "    Norm of gradient: 0.010199505442545696\n",
+      "    Regularization hyperparameter: 0.026890960056319083\n",
+      "    Variation hyperparameter: 0.9931578556353272\n",
       "Iteration 2\n",
-      "    Energy: -77.4387582021023\n",
-      "    Norm of gradient: 0.10615951394818811\n",
-      "    Regularization hyperparameter: 0.037348668091859744\n",
-      "    Variation hyperparameter: 0.6955252427321973\n",
+      "    Energy: -77.4580971045074\n",
+      "    Norm of gradient: 0.0076454977282466455\n",
+      "    Regularization hyperparameter: 0.0006243190909239268\n",
+      "    Variation hyperparameter: 0.9931620654125893\n",
       "Iteration 3\n",
-      "    Energy: -77.46917421145808\n",
-      "    Norm of gradient: 0.058657242826842995\n",
-      "    Regularization hyperparameter: 0.005576706874662407\n",
-      "    Variation hyperparameter: 0.9943325006472397\n",
+      "    Energy: -77.45812347703834\n",
+      "    Norm of gradient: 0.007443152735598327\n",
+      "    Regularization hyperparameter: 1.0505969544705465\n",
+      "    Variation hyperparameter: 0.9931574003267095\n",
       "Iteration 4\n",
-      "    Energy: -77.48627050747123\n",
-      "    Norm of gradient: 0.05746841139489317\n",
-      "    Regularization hyperparameter: 0.015337740819403546\n",
-      "    Variation hyperparameter: 0.9941142453075373\n"
+      "    Energy: -77.46243342363793\n",
+      "    Norm of gradient: 0.02558853103196335\n",
+      "    Regularization hyperparameter: 0.0033642512286005625\n",
+      "    Variation hyperparameter: 0.9991474891911944\n"
      ]
     }
    ],
