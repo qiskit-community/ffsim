@@ -274,7 +274,8 @@ def test_apply_orbital_rotation_nitrogen():
         symmetry="d2h",
     )
     active_space = range(2, mol.nao_nr())
-    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space, ccsd=True)
+    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
+    mol_data.run_ccsd(store_t1=True, store_t2=True)
     norb = mol_data.norb
     nelec = mol_data.nelec
     t1 = mol_data.ccsd_t1
