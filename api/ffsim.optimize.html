@@ -249,6 +249,8 @@ constructed as</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="o">**</span><span class="n">scipy_optimize_minimize_args</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>If not specified, the default value of <cite>dict(method=”L-BFGS-B”)</cite> will be
+used.</p>
 </p></li>
 <li><p><strong>callback</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizeResult</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span>) – <p>A callable called after each iteration. It is called with the
 signature</p>
