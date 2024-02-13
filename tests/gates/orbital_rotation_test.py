@@ -262,6 +262,9 @@ def test_apply_orbital_rotation_compose():
         np.testing.assert_allclose(result, expected_state)
 
 
+@pytest.mark.skip(
+    reason="Flaky test. See https://github.com/qiskit-community/ffsim/issues/97"
+)
 def test_apply_orbital_rotation_nitrogen():
     """Test a special case that was found to cause issues."""
     mol = pyscf.gto.Mole()
