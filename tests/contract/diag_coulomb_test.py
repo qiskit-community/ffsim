@@ -39,7 +39,10 @@ def test_contract_diag_coulomb(norb: int):
                 eig = 0
                 for i, j in itertools.product(range(norb), repeat=2):
                     for sigma, tau in itertools.product(range(2), repeat=2):
-                        if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
+                        if (
+                            i in occupied_orbitals[sigma]
+                            and j in occupied_orbitals[tau]
+                        ):
                             this_mat = mat if sigma == tau else mat_alpha_beta
                             eig += 0.5 * this_mat[i, j]
                 expected = eig * state
