@@ -17,6 +17,7 @@ from collections.abc import Sequence
 import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
+from pyscf.fci.spin_op import contract_ss
 from scipy.special import comb
 
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
@@ -203,3 +204,19 @@ def indices_to_strings(
         f"{string_b:0{norb}b}{string_a:0{norb}b}"
         for string_a, string_b in zip(strings_a, strings_b)
     ]
+
+
+# source: pySCF
+# modified to support complex wavefunction
+def spin_square0(fcivec, norb, nelec):
+    """Spin square for RHF-FCI CI wfn only (obtained from spin-degenerated
+    Hamiltonian)"""
+    if np.issubdtype(fcivec.dtype, np.complexfloating):
+        ci1 = contract_ss(fcivec.real, norb, nelec).astype(complex)
+        ci1 += 1j * contract_ss(fcivec.imag, norb, nelec)
+    else:
+        ci1 = contract_ss(fcivec, norb, nelec)
+    ss = np.einsum("ij,ij->", fcivec.reshape(ci1.shape), ci1.conj()).real
+    s = np.sqrt(ss + 0.25) - 0.5
+    multip = s * 2 + 1
+    return ss, multip
