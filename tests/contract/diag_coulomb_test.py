@@ -27,14 +27,17 @@ def test_contract_diag_coulomb(norb: int):
     rng = np.random.default_rng()
     mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    for nelec in itertools.product(range(1, norb), repeat=2):
-        n_alpha, n_beta = nelec
+    for n_alpha, n_beta in itertools.product(range(1, norb), repeat=2):
         for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
             for beta_orbitals in itertools.combinations(range(norb), n_beta):
                 occupied_orbitals = (alpha_orbitals, beta_orbitals)
                 state = ffsim.slater_determinant(norb, occupied_orbitals)
                 result = ffsim.contract.contract_diag_coulomb(
-                    state, mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
+                    state,
+                    mat,
+                    norb=norb,
+                    nelec=(n_alpha, n_beta),
+                    mat_alpha_beta=mat_alpha_beta,
                 )
                 eig = 0
                 for i, j in itertools.product(range(norb), repeat=2):
