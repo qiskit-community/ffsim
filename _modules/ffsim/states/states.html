@@ -435,11 +435,12 @@
 
 
 
-<span class="c1"># source: pySCF</span>
+<span class="c1"># source: pyscf.fci.spin_op.spin_square0</span>
 <span class="c1"># modified to support complex wavefunction</span>
-<span class="k">def</span> <span class="nf">spin_square0</span><span class="p">(</span><span class="n">fcivec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spin square for RHF-FCI CI wfn only (obtained from spin-degenerated</span>
-<span class="sd">    Hamiltonian)&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="spin_square">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.spin_square">[docs]</a>
+<span class="k">def</span> <span class="nf">spin_square</span><span class="p">(</span><span class="n">fcivec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expectation value of spin squared operator on a state vector.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">fcivec</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
         <span class="n">ci1</span> <span class="o">=</span> <span class="n">contract_ss</span><span class="p">(</span><span class="n">fcivec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">)</span>
         <span class="n">ci1</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">contract_ss</span><span class="p">(</span><span class="n">fcivec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
@@ -448,7 +449,8 @@
     <span class="n">ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;&quot;</span><span class="p">,</span> <span class="n">fcivec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ci1</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">ci1</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span><span class="o">.</span><span class="n">real</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ss</span> <span class="o">+</span> <span class="mf">0.25</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span>
     <span class="n">multip</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">ss</span><span class="p">,</span> <span class="n">multip</span>
+    <span class="k">return</span> <span class="n">ss</span><span class="p">,</span> <span class="n">multip</span></div>
+
 </pre></div>
         </article>
       </div>
