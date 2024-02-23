@@ -46,7 +46,7 @@ class UCJOperator:
         \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
         \mathbf{J}^{\sigma \tau}_{ij} n_{\sigma, i} n_{\tau, j}.
 
-    In order that the operator commutes with the total spin operator, we enforce that
+    In order that the operator commutes with the total spin Z operator, we enforce that
     :math:`\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}` and
     :math:`\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}`. As a result, we have
     two sets of matrices for describing the diagonal Coulomb operators:
@@ -256,7 +256,7 @@ class RealUCJOperator:
         \mathcal{J} = \frac12\sum_{ij,\sigma \tau}
         \mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.
 
-    In order that the operator commutes with the total spin operator, we enforce that
+    In order that the operator commutes with the total spin Z operator, we enforce that
     :math:`\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}` and
     :math:`\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}`. As a result, we have
     two sets of matrices for describing the diagonal Coulomb operators:
