@@ -215,7 +215,4 @@ def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
         ci1 += 1j * contract_ss(fcivec.imag, norb, nelec)
     else:
         ci1 = contract_ss(fcivec, norb, nelec)
-    ss = np.einsum("ij,ij->", fcivec.reshape(ci1.shape), ci1.conj()).real
-    s = np.sqrt(ss + 0.25) - 0.5
-    multip = s * 2 + 1
-    return ss, multip
+    return np.einsum("ij,ij->", fcivec.reshape(ci1.shape), ci1.conj()).real
