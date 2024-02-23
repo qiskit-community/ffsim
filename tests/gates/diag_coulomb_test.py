@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import itertools
-from typing import cast
+from typing import Tuple, cast
 
 import numpy as np
 import pytest
@@ -74,7 +74,7 @@ def test_apply_diag_coulomb_evolution_spin(z_representation: bool):
     rng = np.random.default_rng(2345)
     norb = 5
     for nelec in itertools.product(range(1, norb + 1), repeat=2):
-        nelec = cast(tuple[int, int], nelec)
+        nelec = cast(Tuple[int, int], nelec)
         dim = ffsim.dim(norb, nelec)
 
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
