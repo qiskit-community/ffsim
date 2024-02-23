@@ -208,7 +208,7 @@ def test_t_amplitudes_spin():
     reference_state = ffsim.slater_determinant(
         norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
     )
-    spin_squared, _ = ffsim.spin_square(reference_state, norb=norb, nelec=nelec)
+    spin_squared = ffsim.spin_square(reference_state, norb=norb, nelec=nelec)
     np.testing.assert_allclose(spin_squared, 0)
 
     # Apply the operator to the reference state
@@ -222,7 +222,7 @@ def test_t_amplitudes_spin():
     np.testing.assert_allclose(energy, -108.595692)
 
     # Compute the spin of the ansatz state
-    spin_squared, _ = ffsim.spin_square(ansatz_state, norb=norb, nelec=nelec)
+    spin_squared = ffsim.spin_square(ansatz_state, norb=norb, nelec=nelec)
     np.testing.assert_allclose(spin_squared, 0, atol=1e-12)
 
 
@@ -407,7 +407,7 @@ def test_real_ucj_t_amplitudes_spin():
     reference_state = ffsim.slater_determinant(
         norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
     )
-    spin_squared, _ = ffsim.spin_square(reference_state, norb=norb, nelec=nelec)
+    spin_squared = ffsim.spin_square(reference_state, norb=norb, nelec=nelec)
     np.testing.assert_allclose(spin_squared, 0)
 
     # Apply the operator to the reference state
@@ -421,7 +421,7 @@ def test_real_ucj_t_amplitudes_spin():
     np.testing.assert_allclose(energy, -108.595692)
 
     # Compute the spin of the ansatz state
-    spin_squared, _ = ffsim.spin_square(ansatz_state, norb=norb, nelec=nelec)
+    spin_squared = ffsim.spin_square(ansatz_state, norb=norb, nelec=nelec)
     np.testing.assert_allclose(spin_squared, 0, atol=1e-12)
 
 
