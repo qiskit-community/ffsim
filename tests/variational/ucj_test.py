@@ -18,6 +18,7 @@ import scipy.linalg
 from pyscf import cc
 
 import ffsim
+from ffsim.states.states import spin_square0
 
 
 def _exponentiate_t1(t1: np.ndarray, norb: int, nocc: int) -> np.ndarray:
@@ -178,6 +179,54 @@ def test_t_amplitudes():
     np.testing.assert_allclose(energy, -0.96962461)
 
 
+def test_t_amplitudes_spin():
+    """Test that initialization from CCSD amplitudes gives a singlet."""
+    # Build an N2 molecule
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.5)]],
+        basis="sto-6g",
+    )
+    hartree_fock = pyscf.scf.RHF(mol)
+    hartree_fock.kernel()
+
+    # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
+    mol_data = ffsim.MolecularData.from_scf(hartree_fock)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    mol_hamiltonian = mol_data.hamiltonian
+
+    # Get CCSD t2 amplitudes for initializing the ansatz
+    ccsd = cc.CCSD(hartree_fock)
+    _, _, t2 = ccsd.kernel()
+
+    # Construct UCJ operator
+    n_reps = None
+    operator = ffsim.UCJOperator.from_t_amplitudes(t2, n_reps=n_reps)
+
+    # Construct the Hartree-Fock state to use as the reference state
+    n_alpha, n_beta = nelec
+    reference_state = ffsim.slater_determinant(
+        norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
+    )
+    spin_squared, _ = spin_square0(reference_state, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(spin_squared, 0)
+
+    # Apply the operator to the reference state
+    ansatz_state = ffsim.apply_unitary(
+        reference_state, operator, norb=norb, nelec=nelec
+    )
+
+    # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
+    energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
+    np.testing.assert_allclose(energy, -108.595692)
+
+    # Compute the spin of the ansatz state
+    spin_squared, _ = spin_square0(ansatz_state, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(spin_squared, 0, atol=1e-12)
+
+
 def test_real_ucj_n_params():
     for norb, n_reps, with_final_orbital_rotation in itertools.product(
         [1, 2, 3], [1, 2, 3], [False, True]
@@ -327,6 +376,54 @@ def test_real_ucj_t_amplitudes():
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
     np.testing.assert_allclose(energy, -0.96962461)
+
+
+def test_real_ucj_t_amplitudes_spin():
+    """Test that initialization from CCSD amplitudes gives a singlet."""
+    # Build an N2 molecule
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.5)]],
+        basis="sto-6g",
+    )
+    hartree_fock = pyscf.scf.RHF(mol)
+    hartree_fock.kernel()
+
+    # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
+    mol_data = ffsim.MolecularData.from_scf(hartree_fock)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    mol_hamiltonian = mol_data.hamiltonian
+
+    # Get CCSD t2 amplitudes for initializing the ansatz
+    ccsd = cc.CCSD(hartree_fock)
+    _, _, t2 = ccsd.kernel()
+
+    # Construct UCJ operator
+    n_reps = None
+    operator = ffsim.RealUCJOperator.from_t_amplitudes(t2, n_reps=n_reps)
+
+    # Construct the Hartree-Fock state to use as the reference state
+    n_alpha, n_beta = nelec
+    reference_state = ffsim.slater_determinant(
+        norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
+    )
+    spin_squared, _ = spin_square0(reference_state, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(spin_squared, 0)
+
+    # Apply the operator to the reference state
+    ansatz_state = ffsim.apply_unitary(
+        reference_state, operator, norb=norb, nelec=nelec
+    )
+
+    # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
+    energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
+    np.testing.assert_allclose(energy, -108.595692)
+
+    # Compute the spin of the ansatz state
+    spin_squared, _ = spin_square0(ansatz_state, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(spin_squared, 0, atol=1e-12)
 
 
 def test_real_ucj_preserves_real():

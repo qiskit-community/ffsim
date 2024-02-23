@@ -20,6 +20,7 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
+from ffsim.states.states import spin_square0
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
@@ -33,7 +34,7 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
         nelec = (n_alpha, n_beta)
         dim = ffsim.dim(norb, nelec)
 
-        mat = np.real(np.array(ffsim.random.random_hermitian(norb, seed=rng)))
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim, seed=rng)
         time = rng.uniform()
@@ -64,6 +65,36 @@ def test_apply_diag_coulomb_evolution(z_representation: bool):
         )
 
         np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize("z_representation", [False])
+def test_apply_diag_coulomb_evolution_spin(z_representation: bool):
+    """Test applying time evolution of diagonal Coulomb operator."""
+    rng = np.random.default_rng(2345)
+    norb = 5
+    for nelec in itertools.product(range(1, norb + 1), repeat=2):
+        dim = ffsim.dim(norb, nelec)
+
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
+
+        spin_squared_init, _ = spin_square0(vec, norb=norb, nelec=nelec)
+
+        time = rng.uniform()
+        result = ffsim.apply_diag_coulomb_evolution(
+            vec,
+            mat,
+            time,
+            norb,
+            nelec,
+            orbital_rotation=orbital_rotation,
+            z_representation=z_representation,
+        )
+
+        spin_squared_result, _ = spin_square0(result, norb=norb, nelec=nelec)
+
+        np.testing.assert_allclose(spin_squared_result, spin_squared_init)
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
