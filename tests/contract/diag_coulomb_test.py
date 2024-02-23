@@ -25,30 +25,25 @@ import ffsim
 def test_contract_diag_coulomb(norb: int):
     """Test contracting a diagonal Coulomb matrix."""
     rng = np.random.default_rng()
-    for _ in range(50):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
-        nelec = (n_alpha, n_beta)
-        alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
-        beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
-        occupied_orbitals = (alpha_orbitals, beta_orbitals)
-        state = ffsim.slater_determinant(norb, occupied_orbitals)
-
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        result = ffsim.contract.contract_diag_coulomb(
-            state, mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
-        )
-
-        eig = 0
-        for i, j in itertools.product(range(norb), repeat=2):
-            for sigma, tau in itertools.product(range(2), repeat=2):
-                if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                    this_mat = mat if sigma == tau else mat_alpha_beta
-                    eig += 0.5 * this_mat[i, j]
-        expected = eig * state
-
-        np.testing.assert_allclose(result, expected)
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    for nelec in itertools.product(range(1, norb), repeat=2):
+        n_alpha, n_beta = nelec
+        for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
+            for beta_orbitals in itertools.combinations(range(norb), n_beta):
+                occupied_orbitals = (alpha_orbitals, beta_orbitals)
+                state = ffsim.slater_determinant(norb, occupied_orbitals)
+                result = ffsim.contract.contract_diag_coulomb(
+                    state, mat, norb=norb, nelec=nelec, mat_alpha_beta=mat_alpha_beta
+                )
+                eig = 0
+                for i, j in itertools.product(range(norb), repeat=2):
+                    for sigma, tau in itertools.product(range(2), repeat=2):
+                        if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
+                            this_mat = mat if sigma == tau else mat_alpha_beta
+                            eig += 0.5 * this_mat[i, j]
+                expected = eig * state
+                np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize("norb", [4, 5])
