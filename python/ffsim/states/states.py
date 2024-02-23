@@ -206,11 +206,10 @@ def indices_to_strings(
     ]
 
 
-# source: pySCF
+# source: pyscf.fci.spin_op.spin_square0
 # modified to support complex wavefunction
-def spin_square0(fcivec, norb, nelec):
-    """Spin square for RHF-FCI CI wfn only (obtained from spin-degenerated
-    Hamiltonian)"""
+def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
+    """Expectation value of spin squared operator on a state vector."""
     if np.issubdtype(fcivec.dtype, np.complexfloating):
         ci1 = contract_ss(fcivec.real, norb, nelec).astype(complex)
         ci1 += 1j * contract_ss(fcivec.imag, norb, nelec)

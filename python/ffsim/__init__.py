@@ -66,6 +66,7 @@ from ffsim.states import (
     rdm,
     slater_determinant,
     slater_determinant_rdm,
+    spin_square,
 )
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
@@ -134,6 +135,7 @@ __all__ = [
     "simulate_trotter_double_factorized",
     "slater_determinant",
     "slater_determinant_rdm",
+    "spin_square",
     "testing",
     "trace",
 ]
