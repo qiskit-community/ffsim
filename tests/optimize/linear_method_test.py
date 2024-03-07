@@ -119,11 +119,11 @@ def test_minimize_linear_method():
         )
     with pytest.raises(ValueError, match="variation"):
         result = ffsim.optimize.minimize_linear_method(
-            params_to_vec, x0=x0, hamiltonian=hamiltonian, variation=0
+            params_to_vec, x0=x0, hamiltonian=hamiltonian, variation=-0.1
         )
     with pytest.raises(ValueError, match="variation"):
         result = ffsim.optimize.minimize_linear_method(
-            params_to_vec, x0=x0, hamiltonian=hamiltonian, variation=1
+            params_to_vec, x0=x0, hamiltonian=hamiltonian, variation=1.1
         )
     with pytest.raises(ValueError, match="maxiter"):
         result = ffsim.optimize.minimize_linear_method(

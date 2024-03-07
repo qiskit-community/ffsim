@@ -149,10 +149,8 @@ def minimize_linear_method(
     """  # noqa: E501
     if regularization < 0:
         raise ValueError(f"regularization must be nonnegative. Got {regularization}.")
-    if not 0 < variation < 1:
-        raise ValueError(
-            f"variation must be strictly between 0 and 1. Got {variation}."
-        )
+    if not 0 <= variation <= 1:
+        raise ValueError(f"variation must be between 0 and 1. Got {variation}.")
     if maxiter < 1:
         raise ValueError(f"maxiter must be at least 1. Got {maxiter}.")
 
@@ -160,7 +158,7 @@ def minimize_linear_method(
         optimize_hyperparameters_args = dict(method="L-BFGS-B")
 
     regularization_param = math.sqrt(regularization)
-    variation_param = math.atanh(2 * variation - 1)
+    variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
     params = x0.copy()
     converged = False
     intermediate_result = OptimizeResult(
