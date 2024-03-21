@@ -21,14 +21,9 @@ from pyscf.fci import cistring
 from scipy.special import comb
 
 from ffsim._lib import (
-    # apply_givens_rotation_in_place,
+    apply_givens_rotation_in_place,
     apply_phase_shift_in_place,
     apply_single_column_transformation_in_place,
-)
-
-# TODO delete this and uncomment import from ffsim._lib after fixing bug
-from ffsim._slow.gates.orbital_rotation import (
-    apply_givens_rotation_in_place_slow as apply_givens_rotation_in_place,
 )
 from ffsim.cistring import gen_orbital_rotation_index
 from ffsim.linalg import givens_decomposition, lup
