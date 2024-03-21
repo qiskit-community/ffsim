@@ -16,7 +16,6 @@ import itertools
 from pathlib import Path
 
 import numpy as np
-import pyscf
 import pytest
 import scipy.linalg
 import scipy.sparse.linalg
@@ -263,41 +262,26 @@ def test_apply_orbital_rotation_compose():
         np.testing.assert_allclose(result, expected_state)
 
 
-def test_apply_orbital_rotation_nitrogen():
+def test_apply_orbital_rotation_special_case():
     """Test a special case that was found to cause issues."""
-    mol = pyscf.gto.Mole()
-    mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
-        basis="sto-6g",
-        symmetry="d2h",
-    )
-    active_space = range(2, mol.nao_nr())
-    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
-    mol_data.run_ccsd(store_t1=True, store_t2=True)
-    norb = mol_data.norb
-    nelec = mol_data.nelec
-    t1 = mol_data.ccsd_t1
-    t2 = mol_data.ccsd_t2
+    datadir = Path(__file__).parent.parent / "test_data"
+    filepath = datadir / "orbital_rotation-0.npy"
 
-    op = ffsim.UCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
-    for orbital_rotation in itertools.chain(
-        op.orbital_rotations, [op.final_orbital_rotation]
-    ):
-        assert ffsim.linalg.is_unitary(orbital_rotation)
+    with open(filepath, "rb") as f:
+        mat = np.load(f)
+    assert ffsim.linalg.is_unitary(mat, atol=1e-12)
 
-        original_vec = ffsim.hartree_fock_state(norb, nelec)
-        np.testing.assert_allclose(np.linalg.norm(original_vec), 1)
+    norb = 8
+    nelec = 5, 5
+    vec = ffsim.hartree_fock_state(norb, nelec)
+    np.testing.assert_allclose(np.linalg.norm(vec), 1)
 
-        result = ffsim.apply_orbital_rotation(
-            original_vec, orbital_rotation, norb, nelec
-        )
-        np.testing.assert_allclose(np.linalg.norm(result), 1)
+    result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
+    np.testing.assert_allclose(np.linalg.norm(result), 1)
 
-        op = ffsim.contract.one_body_linop(
-            scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
-        )
-        expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
-        np.testing.assert_allclose(result, expected, atol=1e-12)
+    op = ffsim.contract.one_body_linop(scipy.linalg.logm(mat), norb=norb, nelec=nelec)
+    expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=1)
+    np.testing.assert_allclose(result, expected, atol=1e-12)
 
 
 def test_apply_orbital_rotation_no_side_effects_mat():
