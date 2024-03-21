@@ -72,7 +72,7 @@ def givens_decomposition(
 ) -> tuple[list[tuple[tuple[float, complex], tuple[int, int]]], np.ndarray]:
     """Givens rotation decomposition of a unitary matrix."""
     n, _ = mat.shape
-    current_matrix = mat.astype(complex, copy=False)
+    current_matrix = mat.astype(complex, copy=True)
     left_rotations = []
     right_rotations: list[tuple[tuple[float, complex], tuple[int, int]]] = []
 

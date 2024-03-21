@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import itertools
+from pathlib import Path
 
 import numpy as np
 import pyscf
@@ -89,7 +90,7 @@ def test_apply_orbital_rotation_spin(dtype: type, atol: float):
             np.testing.assert_allclose(result, expected, atol=atol)
 
 
-def test_apply_orbital_rotation_no_side_effects():
+def test_apply_orbital_rotation_no_side_effects_vec():
     """Test applying orbital basis change doesn't modify the original vector."""
     norb = 5
     rng = np.random.default_rng()
@@ -262,9 +263,6 @@ def test_apply_orbital_rotation_compose():
         np.testing.assert_allclose(result, expected_state)
 
 
-@pytest.mark.skip(
-    reason="Flaky test. See https://github.com/qiskit-community/ffsim/issues/97"
-)
 def test_apply_orbital_rotation_nitrogen():
     """Test a special case that was found to cause issues."""
     mol = pyscf.gto.Mole()
@@ -300,3 +298,41 @@ def test_apply_orbital_rotation_nitrogen():
         )
         expected = scipy.sparse.linalg.expm_multiply(op, original_vec, traceA=1)
         np.testing.assert_allclose(result, expected, atol=1e-12)
+
+
+def test_apply_orbital_rotation_no_side_effects_mat():
+    """Test applying orbital rotation doesn't modify the original matrix."""
+    norb = 8
+    nelec = 5, 5
+    vec = ffsim.hartree_fock_state(norb, nelec)
+
+    rng = np.random.default_rng()
+    for _ in range(5):
+        mat = ffsim.random.random_unitary(norb, seed=rng)
+        original_mat = mat.copy()
+        _ = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
+
+        assert ffsim.linalg.is_unitary(original_mat)
+        assert ffsim.linalg.is_unitary(mat)
+        np.testing.assert_allclose(mat, original_mat, atol=1e-12)
+
+
+def test_apply_orbital_rotation_no_side_effects_special_case():
+    """Test applying orbital rotation doesn't modify the original matrix."""
+    datadir = Path(__file__).parent.parent / "test_data"
+    filepath = datadir / "orbital_rotation-0.npy"
+
+    with open(filepath, "rb") as f:
+        mat = np.load(f)
+    assert ffsim.linalg.is_unitary(mat, atol=1e-12)
+
+    norb = 8
+    nelec = 5, 5
+    vec = ffsim.hartree_fock_state(norb, nelec)
+
+    original_mat = mat.copy()
+    _ = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
+
+    assert ffsim.linalg.is_unitary(original_mat)
+    assert ffsim.linalg.is_unitary(mat)
+    np.testing.assert_allclose(mat, original_mat, atol=1e-12)
