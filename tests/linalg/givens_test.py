@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 from scipy.linalg.lapack import zrot
 
@@ -36,3 +38,34 @@ def test_givens_decomposition():
             reconstructed = reconstructed.T
 
         np.testing.assert_allclose(reconstructed, mat)
+
+
+def test_givens_decomposition_no_side_effects():
+    """Test that the Givens decomposition doesn't modify the original matrix."""
+    norb = 8
+    rng = np.random.default_rng()
+    for _ in range(5):
+        mat = ffsim.random.random_unitary(norb, seed=rng)
+        original_mat = mat.copy()
+        _ = givens_decomposition(mat)
+
+        assert ffsim.linalg.is_unitary(original_mat)
+        assert ffsim.linalg.is_unitary(mat)
+        np.testing.assert_allclose(mat, original_mat, atol=1e-12)
+
+
+def test_givens_decomposition_no_side_effects_special_case():
+    """Test that the Givens decomposition doesn't modify the original matrix."""
+    datadir = Path(__file__).parent.parent / "test_data"
+    filepath = datadir / "orbital_rotation-0.npy"
+
+    with open(filepath, "rb") as f:
+        mat = np.load(f)
+    assert ffsim.linalg.is_unitary(mat, atol=1e-12)
+
+    original_mat = mat.copy()
+    _ = givens_decomposition(mat)
+
+    assert ffsim.linalg.is_unitary(original_mat)
+    assert ffsim.linalg.is_unitary(mat)
+    np.testing.assert_allclose(mat, original_mat, atol=1e-12)
