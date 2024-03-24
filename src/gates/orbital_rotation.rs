@@ -160,7 +160,8 @@ pub fn apply_givens_rotation_in_place(
     let shape = vec.shape();
     let dim_b = shape[1] as i32;
     let s_abs = s.norm();
-    let phase = s / s_abs;
+    let angle = s.arg();
+    let phase = Complex64::new(angle.cos(), angle.sin());
     let phase_conj = phase.conj();
 
     // TODO parallelize this
