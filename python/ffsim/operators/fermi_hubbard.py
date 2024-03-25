@@ -14,15 +14,22 @@ from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 
-def fermi_hubbard(norb: int, t: float = 1, U: float = 0, mu: float = 0, V: float = 0, PBC: bool = False) \
-        -> FermionOperator:
+def fermi_hubbard(
+    norb: int,
+    t: float = 1,
+    U: float = 0,
+    mu: float = 0,
+    V: float = 0,
+    PBC: bool = False,
+) -> FermionOperator:
     r"""Fermi-Hubbard operator.
 
     The Fermi-Hubbard operator for :math:`N` spatial orbitals is defined as
 
     .. math::
 
-        H = -t \sum_{p=0}^{N-1} \sum_{\sigma} (a^\dagger_{p+1, \sigma} a_{p, \sigma} + \text{H.c.})
+        H = -t \sum_{p=0}^{N-1} \sum_{\sigma}
+        (a^\dagger_{p+1, \sigma} a_{p, \sigma} + \text{H.c.})
         + \frac{U}{2} \sum_{p=0}^{N} \sum_{\sigma, \sigma'}
         a^\dagger_{p, \sigma} a^\dagger_{p, \sigma'} a_{p, \sigma'} a_{p, \sigma}
         - \mu \sum_{p=0}^N \sum_{\sigma} a^\dagger_{\sigma, p} a_{\sigma, p}
@@ -42,21 +49,29 @@ def fermi_hubbard(norb: int, t: float = 1, U: float = 0, mu: float = 0, V: float
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
 
-    for p in range(norb-int(not PBC)):
-        coeffs[(cre_a((p+1) % norb), des_a(p))] = -t
-        coeffs[(cre_b((p+1) % norb), des_b(p))] = -t
-        coeffs[(cre_a(p), des_a((p+1) % norb))] = -t
-        coeffs[(cre_b(p), des_b((p+1) % norb))] = -t
+    for p in range(norb - int(not PBC)):
+        coeffs[(cre_a((p + 1) % norb), des_a(p))] = -t
+        coeffs[(cre_b((p + 1) % norb), des_b(p))] = -t
+        coeffs[(cre_a(p), des_a((p + 1) % norb))] = -t
+        coeffs[(cre_b(p), des_b((p + 1) % norb))] = -t
         if V != 0:
-            coeffs[(cre_a(p), cre_a((p+1) % norb), des_a((p+1) % norb), des_a(p))] = V
-            coeffs[(cre_a(p), cre_b((p+1) % norb), des_b((p+1) % norb), des_a(p))] = V
-            coeffs[(cre_b(p), cre_a((p+1) % norb), des_a((p+1) % norb), des_b(p))] = V
-            coeffs[(cre_b(p), cre_b((p+1) % norb), des_b((p+1) % norb), des_b(p))] = V
+            coeffs[
+                (cre_a(p), cre_a((p + 1) % norb), des_a((p + 1) % norb), des_a(p))
+            ] = V
+            coeffs[
+                (cre_a(p), cre_b((p + 1) % norb), des_b((p + 1) % norb), des_a(p))
+            ] = V
+            coeffs[
+                (cre_b(p), cre_a((p + 1) % norb), des_a((p + 1) % norb), des_b(p))
+            ] = V
+            coeffs[
+                (cre_b(p), cre_b((p + 1) % norb), des_b((p + 1) % norb), des_b(p))
+            ] = V
 
     for p in range(norb):
         if U != 0:
-            coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = U/2
-            coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = U/2
+            coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = U / 2
+            coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = U / 2
         if mu != 0:
             coeffs[(cre_a(p), des_a(p))] = -mu
             coeffs[(cre_b(p), des_b(p))] = -mu
