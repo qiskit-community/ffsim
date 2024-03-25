@@ -14,7 +14,7 @@ from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 
-def fermi_hubbard(norb: int, t: float, U: float, mu: float, V: float, PBC: bool = False) -> FermionOperator:
+def fermi_hubbard(norb: int, t: float = 1, U: float = 0, mu: float = 0, V: float = 0, PBC: bool = False) -> FermionOperator:
     r"""Fermi-Hubbard operator.
 
     The Fermi-Hubbard operator for :math:`N` spatial orbitals is defined as
@@ -44,15 +44,18 @@ def fermi_hubbard(norb: int, t: float, U: float, mu: float, V: float, PBC: bool 
         coeffs[(cre_b((p+1) % norb), des_b(p))] = -t
         coeffs[(cre_a(p), des_a((p+1) % norb))] = -t
         coeffs[(cre_b(p), des_b((p+1) % norb))] = -t
-        coeffs[(cre_a(p), cre_a((p+1) % norb), des_a((p+1) % norb), des_a(p))] = V
-        coeffs[(cre_a(p), cre_b((p+1) % norb), des_b((p+1) % norb), des_a(p))] = V
-        coeffs[(cre_b(p), cre_a((p+1) % norb), des_a((p+1) % norb), des_b(p))] = V
-        coeffs[(cre_b(p), cre_b((p+1) % norb), des_b((p+1) % norb), des_b(p))] = V
+        if V != 0:
+            coeffs[(cre_a(p), cre_a((p+1) % norb), des_a((p+1) % norb), des_a(p))] = V
+            coeffs[(cre_a(p), cre_b((p+1) % norb), des_b((p+1) % norb), des_a(p))] = V
+            coeffs[(cre_b(p), cre_a((p+1) % norb), des_a((p+1) % norb), des_b(p))] = V
+            coeffs[(cre_b(p), cre_b((p+1) % norb), des_b((p+1) % norb), des_b(p))] = V
 
     for p in range(norb):
-        coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = U/2
-        coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = U/2
-        coeffs[(cre_a(p), des_a(p))] = -mu
-        coeffs[(cre_b(p), des_b(p))] = -mu
+        if U != 0:
+            coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = U/2
+            coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = U/2
+        if mu != 0:
+            coeffs[(cre_a(p), des_a(p))] = -mu
+            coeffs[(cre_b(p), des_b(p))] = -mu
 
     return FermionOperator(coeffs)
