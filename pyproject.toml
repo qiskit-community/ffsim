@@ -43,6 +43,9 @@ features = ["pyo3/extension-module"]
 python-source = "python"
 module-name = "ffsim._lib"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.mypy]
 ignore_missing_imports = true
 
