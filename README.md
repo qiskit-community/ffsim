@@ -138,13 +138,13 @@ pytest
 #### Fix lint errors
 
 ```bash
-ruff --fix
+ruff check --fix
 ```
 
 #### Fix formatting errors
 
 ```bash
-black .
+ruff format
 ```
 
 ## Cite ffsim
