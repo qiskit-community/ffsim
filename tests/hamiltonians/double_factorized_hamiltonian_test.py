@@ -10,7 +10,6 @@
 
 """Tests for double-factorized Hamiltonian."""
 
-
 from __future__ import annotations
 
 import numpy as np
