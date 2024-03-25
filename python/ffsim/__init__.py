@@ -127,6 +127,7 @@ __all__ = [
     "linear_operator",
     "multireference_state",
     "number_operator",
+    "fermi_hubbard",
     "one_hot",
     "optimize",
     "random",

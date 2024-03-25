@@ -31,11 +31,11 @@ def fermi_hubbard(norb: int, t: float, U: float, mu: float, V: float, PBC: bool 
         t: The hopping strength.
         U: The onsite interaction strength.
         mu: The chemical potential.
-        V: The offsite interaction strength.
+        V: The nearest-neighbor interaction strength.
         PBC: The periodic boundary conditions flag.
 
     Returns:
-        The Fermi-Hubbard operator for the specified number of orbitals.
+        The Fermi-Hubbard operator for a specified number of orbitals.
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
 

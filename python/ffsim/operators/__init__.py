@@ -12,6 +12,7 @@
 
 from ffsim._lib import FermionOperator
 from ffsim.operators.common_operators import number_operator
+from ffsim.operators.fermi_hubbard import fermi_hubbard
 from ffsim.operators.fermion_action import (
     FermionAction,
     cre,
@@ -32,4 +33,5 @@ __all__ = [
     "des_a",
     "des_b",
     "number_operator",
+    "fermi_hubbard"
 ]
