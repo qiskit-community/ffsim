@@ -73,6 +73,8 @@ from the root directory of the code repository.
 
 ## Development
 
+### Setup
+
 To set up ffsim for development, install it from source in editable mode along with the development requirements:
 
 ```bash
@@ -84,6 +86,8 @@ To install the git pre-commit hooks, run
 ```bash
 pre-commit install
 ```
+
+### Rust
 
 If you add or modify any Rust modules, rebuild them by running the command
 
@@ -97,23 +101,50 @@ If you are benchmarking the code, then pass the `--release` flag:
 maturin develop --release
 ```
 
-Tests and other code checks are managed using [tox](https://tox.wiki/en/latest/).
-To run the default tox environments, simply run
+### Run code checks using tox
+
+You can run tests and other code checks using [tox](https://tox.wiki/en/latest/).
+To run all checks, simply run
 
 ```bash
 tox
 ```
 
-To run a specific environment, for example, to run the lint checks, do
+To run a specific check, run
 
 ```bash
-tox run -e lint
+tox run -e <environment name>
 ```
 
-You can also use `pytest` to run the tests directly. For example,
+substituting `<environment name>` with the name of the tox environment for the check. The following environments are available:
+
+- `py38`, `py39`, `py310`, `py311`, `py312`: Run tests for a specific Python version
+- `coverage`: Code coverage
+- `type`: Type check
+- `lint`: Lint check
+- `format`: Format check
+- `docs`: Build documentation
+
+### Run code checks directly
+
+Running the code checks directly using the corresponding software tool directly is also useful, for example, for automatically fixing lint or format errors.
+
+#### Run tests
 
 ```bash
-pytest tests/
+pytest
+```
+
+#### Fix lint errors
+
+```bash
+ruff --fix
+```
+
+#### Fix formatting errors
+
+```bash
+black .
 ```
 
 ## Cite ffsim
