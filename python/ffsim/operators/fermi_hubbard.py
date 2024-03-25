@@ -14,7 +14,8 @@ from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 
-def fermi_hubbard(norb: int, t: float = 1, U: float = 0, mu: float = 0, V: float = 0, PBC: bool = False) -> FermionOperator:
+def fermi_hubbard(norb: int, t: float = 1, U: float = 0, mu: float = 0, V: float = 0, PBC: bool = False) \
+        -> FermionOperator:
     r"""Fermi-Hubbard operator.
 
     The Fermi-Hubbard operator for :math:`N` spatial orbitals is defined as
@@ -22,9 +23,11 @@ def fermi_hubbard(norb: int, t: float = 1, U: float = 0, mu: float = 0, V: float
     .. math::
 
         H = -t \sum_{p=0}^{N-1} \sum_{\sigma} (a^\dagger_{p+1, \sigma} a_{p, \sigma} + \text{H.c.})
-        + \frac{U}{2} \sum_{p=0}^{N} \sum_{\sigma, \sigma'} a^\dagger_{p, \sigma} a^\dagger_{p, \sigma'} a_{p, \sigma'} a_{p, \sigma}
+        + \frac{U}{2} \sum_{p=0}^{N} \sum_{\sigma, \sigma'}
+        a^\dagger_{p, \sigma} a^\dagger_{p, \sigma'} a_{p, \sigma'} a_{p, \sigma}
         - \mu \sum_{p=0}^N \sum_{\sigma} a^\dagger_{\sigma, p} a_{\sigma, p}
-        + V \sum_{p=0}^{N-1} \sum_{\sigma, \sigma'} a^\dagger_{p, \sigma} a^\dagger_{p+1, \sigma'} a_{p+1, \sigma'} a_{p, \sigma}
+        + V \sum_{p=0}^{N-1} \sum_{\sigma, \sigma'}
+        a^\dagger_{p, \sigma} a^\dagger_{p+1, \sigma'} a_{p+1, \sigma'} a_{p, \sigma}
 
     Args:
         norb: The number of spatial orbitals.
