@@ -22,7 +22,6 @@ Documentation = "https://qiskit-community.github.io/ffsim/"
 [project.optional-dependencies]
 dev = [
     "asv",
-    "black[jupyter] == 24.1.1",
     "coverage",
     "furo",
     "maturin",
@@ -32,7 +31,7 @@ dev = [
     "nbsphinx",
     "pre-commit",
     "pytest == 8.0.0",
-    "ruff == 0.2.1",
+    "ruff == 0.3.4",
     "sphinx",
     "sphinx-autodoc-typehints",
     "tox",
