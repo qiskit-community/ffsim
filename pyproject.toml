@@ -47,8 +47,10 @@ module-name = "ffsim._lib"
 ignore_missing_imports = true
 
 [tool.ruff]
-select = ["E", "F", "I"]
 src = ["python"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 
 [tool.cibuildwheel]
 build = "cp38-macosx* cp38-manylinux_x86_64 cp38-manylinux_aarch64"
