@@ -179,20 +179,18 @@ class UCJOperator:
 
     @staticmethod
     def from_t_amplitudes(
-        t2_amplitudes: np.ndarray,
+        t2: np.ndarray,
         *,
-        t1_amplitudes: np.ndarray | None = None,
+        t1: np.ndarray | None = None,
         n_reps: int | None = None,
         tol: float = 1e-8,
     ) -> UCJOperator:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
-        nocc, _, nvrt, _ = t2_amplitudes.shape
+        nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
-        diag_coulomb_mats, orbital_rotations = double_factorized_t2(
-            t2_amplitudes, tol=tol
-        )
+        diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
         n_vecs, norb, _ = diag_coulomb_mats.shape
         expanded_diag_coulomb_mats = np.zeros((2 * n_vecs, norb, norb))
         expanded_orbital_rotations = np.zeros((2 * n_vecs, norb, norb), dtype=complex)
@@ -202,10 +200,10 @@ class UCJOperator:
         expanded_orbital_rotations[1::2] = orbital_rotations.conj()
 
         final_orbital_rotation = None
-        if t1_amplitudes is not None:
+        if t1 is not None:
             final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
-            final_orbital_rotation_generator[:nocc, nocc:] = t1_amplitudes
-            final_orbital_rotation_generator[nocc:, :nocc] = -t1_amplitudes.T
+            final_orbital_rotation_generator[:nocc, nocc:] = t1
+            final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return UCJOperator(
@@ -424,27 +422,25 @@ class RealUCJOperator:
 
     @staticmethod
     def from_t_amplitudes(
-        t2_amplitudes: np.ndarray,
+        t2: np.ndarray,
         *,
-        t1_amplitudes: np.ndarray | None = None,
+        t1: np.ndarray | None = None,
         n_reps: int | None = None,
         tol: float = 1e-8,
     ) -> "RealUCJOperator":
         """Initialize the real UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
-        nocc, _, nvrt, _ = t2_amplitudes.shape
+        nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
-        diag_coulomb_mats, orbital_rotations = double_factorized_t2(
-            t2_amplitudes, tol=tol
-        )
+        diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
         _, norb, _ = diag_coulomb_mats.shape
 
         final_orbital_rotation = None
-        if t1_amplitudes is not None:
+        if t1 is not None:
             final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
-            final_orbital_rotation_generator[:nocc, nocc:] = t1_amplitudes
-            final_orbital_rotation_generator[nocc:, :nocc] = -t1_amplitudes.T
+            final_orbital_rotation_generator[:nocc, nocc:] = t1
+            final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return RealUCJOperator(
