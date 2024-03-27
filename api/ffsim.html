@@ -937,10 +937,16 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 this class).</p></li>
 <li><p><strong>alpha_alpha_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-alpha”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 <li><p><strong>alpha_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-beta”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 <li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
 in the operator.</p></li>
 </ul>
@@ -950,6 +956,12 @@ in the operator.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The real UCJ operator constructed from the given parameters.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – alpha_alpha_indices contains lower triangular indices.</p></li>
+<li><p><strong>ValueError</strong> – alpha_beta_indices contains lower triangular indices.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1001,10 +1013,16 @@ recoverable from the parameter vector.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alpha_alpha_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-alpha”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 <li><p><strong>alpha_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-beta”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1012,6 +1030,12 @@ If not specified, all matrix entries are allowed to be nonzero.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The real-valued parameter vector.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – alpha_alpha_indices contains lower triangular indices.</p></li>
+<li><p><strong>ValueError</strong> – alpha_beta_indices contains lower triangular indices.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1247,10 +1271,16 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 this class).</p></li>
 <li><p><strong>alpha_alpha_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-alpha”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 <li><p><strong>alpha_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-beta”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 <li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
 in the operator.</p></li>
 </ul>
@@ -1260,6 +1290,12 @@ in the operator.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The UCJ operator constructed from the given parameters.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – alpha_alpha_indices contains lower triangular indices.</p></li>
+<li><p><strong>ValueError</strong> – alpha_beta_indices contains lower triangular indices.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1311,10 +1347,16 @@ recoverable from the parameter vector.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alpha_alpha_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-alpha”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 <li><p><strong>alpha_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-beta”
 diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
+If not specified, all matrix entries are allowed to be nonzero.
+This list should contain only upper trianglular indices, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
+lower triangular indices will raise an error.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1322,6 +1364,12 @@ If not specified, all matrix entries are allowed to be nonzero.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The real-valued parameter vector.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – alpha_alpha_indices contains lower triangular indices.</p></li>
+<li><p><strong>ValueError</strong> – alpha_beta_indices contains lower triangular indices.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

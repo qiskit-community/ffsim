@@ -236,6 +236,17 @@
 <span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;When specifying diagonal Coulomb indices, you must give only &quot;</span>
+                    <span class="s2">&quot;upper trianglular indices. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}</span><span class="s2">, which is a lower triangular index.&quot;</span>
+                <span class="p">)</span>
+
+
 <div class="viewcode-block" id="UCJOperator">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOperator">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -301,6 +312,8 @@
         <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of parameters of an ansatz with given settings.&quot;&quot;&quot;</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_alpha_indices</span><span class="p">)</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_beta_indices</span><span class="p">)</span>
         <span class="n">n_params_aa</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
             <span class="k">if</span> <span class="n">alpha_alpha_indices</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -339,15 +352,27 @@
 <span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 <span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 <span class="sd">            with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">                in the operator.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The UCJ operator constructed from the given parameters.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: alpha_alpha_indices contains lower triangular indices.</span>
+<span class="sd">            ValueError: alpha_beta_indices contains lower triangular indices.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_alpha_indices</span><span class="p">)</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_beta_indices</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">UCJOperator</span><span class="p">(</span>
             <span class="o">*</span><span class="n">_ucj_from_parameters</span><span class="p">(</span>
                 <span class="n">params</span><span class="p">,</span>
@@ -379,13 +404,25 @@
 <span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 <span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The real-valued parameter vector.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: alpha_alpha_indices contains lower triangular indices.</span>
+<span class="sd">            ValueError: alpha_beta_indices contains lower triangular indices.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_alpha_indices</span><span class="p">)</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_beta_indices</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_ucj_to_parameters</span><span class="p">(</span>
             <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
             <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
@@ -600,15 +637,27 @@
 <span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 <span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 <span class="sd">            with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">                in the operator.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The real UCJ operator constructed from the given parameters.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: alpha_alpha_indices contains lower triangular indices.</span>
+<span class="sd">            ValueError: alpha_beta_indices contains lower triangular indices.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_alpha_indices</span><span class="p">)</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_beta_indices</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">RealUCJOperator</span><span class="p">(</span>
             <span class="o">*</span><span class="n">_ucj_from_parameters</span><span class="p">(</span>
                 <span class="n">params</span><span class="p">,</span>
@@ -640,13 +689,25 @@
 <span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 <span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
 <span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
 <span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">                This list should contain only upper trianglular indices, i.e.,</span>
+<span class="sd">                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with</span>
+<span class="sd">                lower triangular indices will raise an error.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The real-valued parameter vector.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: alpha_alpha_indices contains lower triangular indices.</span>
+<span class="sd">            ValueError: alpha_beta_indices contains lower triangular indices.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_alpha_indices</span><span class="p">)</span>
+        <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">alpha_beta_indices</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_ucj_to_parameters</span><span class="p">(</span>
             <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
             <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>

@@ -280,8 +280,6 @@
         <span class="k">if</span> <span class="n">index</span><span class="p">:</span>
             <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">-=</span> <span class="p">(</span>
                 <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">index</span><span class="p">]</span>
-<div class="viewcode-block" id="double_factorized">
-<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.double_factorized">[docs]</a>
                 <span class="o">@</span> <span class="n">cholesky_vecs</span><span class="p">[</span><span class="n">max_error_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="n">cholesky_vecs</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">max_error</span><span class="p">)</span>
@@ -291,6 +289,19 @@
 
 
 
+<span class="k">def</span> <span class="nf">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;When specifying diagonal Coulomb indices, you must give only &quot;</span>
+                    <span class="s2">&quot;upper trianglular indices. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}</span><span class="s2">, which is a lower triangular index.&quot;</span>
+                <span class="p">)</span>
+
+
+<div class="viewcode-block" id="double_factorized">
+<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.double_factorized">[docs]</a>
 <span class="k">def</span> <span class="nf">double_factorized</span><span class="p">(</span>
     <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -386,13 +397,7 @@
 <span class="sd">    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
 <span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">diag_coulomb_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">diag_coulomb_indices</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;diag_coulomb_indices must contain only upper triangular indices. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}</span><span class="s2">, which is a lower triangle index.&quot;</span>
-                <span class="p">)</span>
+    <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">diag_coulomb_indices</span><span class="p">)</span>
 
     <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">if</span> <span class="n">max_vecs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
