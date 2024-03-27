@@ -237,14 +237,19 @@ def test_double_factorized_compressed_constrained():
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=2
     )
-    diag_coulomb_mask = np.sum(
-        [np.diag(np.ones(dim - abs(k)), k=k) for k in range(-1, 2)],
-        axis=0,
-        dtype=bool,
-    )
+    diag_coulomb_indices = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2)]
+
     diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
-        two_body_tensor, max_vecs=2, optimize=True, diag_coulomb_mask=diag_coulomb_mask
+        two_body_tensor,
+        max_vecs=2,
+        optimize=True,
+        diag_coulomb_indices=diag_coulomb_indices,
     )
+
+    diag_coulomb_mask = np.zeros((3, 3), dtype=bool)
+    rows, cols = zip(*diag_coulomb_indices)
+    diag_coulomb_mask[rows, cols] = True
+    diag_coulomb_mask[cols, rows] = True
     np.testing.assert_allclose(
         diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
     )
