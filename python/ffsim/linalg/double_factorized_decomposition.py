@@ -78,6 +78,17 @@ def modified_cholesky(
     return cholesky_vecs[:, :index]
 
 
+def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
+    if indices is not None:
+        for i, j in indices:
+            if i > j:
+                raise ValueError(
+                    "When specifying diagonal Coulomb indices, you must give only "
+                    "upper trianglular indices. "
+                    f"Got {(i, j)}, which is a lower triangular index."
+                )
+
+
 def double_factorized(
     two_body_tensor: np.ndarray,
     *,
@@ -173,13 +184,7 @@ def double_factorized(
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
-    if diag_coulomb_indices is not None:
-        for i, j in diag_coulomb_indices:
-            if i > j:
-                raise ValueError(
-                    "diag_coulomb_indices must contain only upper triangular indices. "
-                    f"Got {(i, j)}, which is a lower triangle index."
-                )
+    _validate_diag_coulomb_indices(diag_coulomb_indices)
 
     n_modes, _, _, _ = two_body_tensor.shape
     if max_vecs is None:

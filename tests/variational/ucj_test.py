@@ -14,6 +14,7 @@ import itertools
 
 import numpy as np
 import pyscf
+import pytest
 import scipy.linalg
 from pyscf import cc
 
@@ -72,6 +73,21 @@ def test_n_params():
             )
         )
         assert actual == expected
+
+        with pytest.raises(ValueError, match="triangular"):
+            actual = ffsim.UCJOperator.n_params(
+                norb,
+                n_reps,
+                alpha_alpha_indices=[(1, 0)],
+                alpha_beta_indices=alpha_beta_indices,
+            )
+        with pytest.raises(ValueError, match="triangular"):
+            actual = ffsim.UCJOperator.n_params(
+                norb,
+                n_reps,
+                alpha_alpha_indices=alpha_alpha_indices,
+                alpha_beta_indices=[(1, 0)],
+            )
 
 
 def test_parameters_roundtrip():
