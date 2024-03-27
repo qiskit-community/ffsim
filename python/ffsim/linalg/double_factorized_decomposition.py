@@ -132,11 +132,11 @@ def double_factorized(
     It uses `scipy.optimize.minimize`, passing both the objective function
     and its gradient. The diagonal Coulomb matrices returned by the optimization can be
     optionally constrained to have only certain elements allowed to be nonzero.
-    This is achieved by passing the `diag_coulomb_mask` parameter, which is an
-    :math:`N \times N` matrix of boolean values where :math:`N` is the number of
-    orbitals. The nonzero elements of this matrix indicate where the diagonal Coulomb
-    matrices are allowed to be nonzero. Only the upper triangular part of the matrix is
-    used because the diagonal Coulomb matrices are symmetric.
+    This is achieved by passing the `diag_coulomb_indices` parameter, which is a
+    list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
+    matrices are allowed to be nonzero. Since the diagonal Coulomb matrices are
+    symmetric, only upper triangular indices should be given, i.e.,
+    pairs :math:`(i, j)` where :math:`i \leq j`.
 
     References:
         - `arXiv:1808.02625`_
