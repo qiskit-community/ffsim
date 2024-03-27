@@ -126,7 +126,7 @@ def test_t_amplitudes_roundtrip():
     t2 = ffsim.random.random_t2_amplitudes(norb, nocc, dtype=float)
     t1 = rng.standard_normal((nocc, norb - nocc))
 
-    operator = ffsim.UCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
+    operator = ffsim.UCJOperator.from_t_amplitudes(t2, t1=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
     np.testing.assert_allclose(t2_roundtripped, t2, atol=1e-12)
@@ -325,7 +325,7 @@ def test_real_ucj_t_amplitudes_roundtrip():
     t2 = ffsim.random.random_t2_amplitudes(norb, nocc, dtype=float)
     t1 = rng.standard_normal((nocc, norb - nocc))
 
-    operator = ffsim.RealUCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
+    operator = ffsim.RealUCJOperator.from_t_amplitudes(t2, t1=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
     np.testing.assert_allclose(t2_roundtripped, t2, atol=1e-12)
