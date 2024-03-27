@@ -87,7 +87,7 @@ def double_factorized(
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
-    diag_coulomb_mask: np.ndarray | None = None,
+    diag_coulomb_indices: list[tuple[int, int]] | None = None,
     cholesky: bool = True,
 ) -> tuple[np.ndarray, np.ndarray]:
     r"""Double-factorized decomposition of a two-body tensor.
@@ -148,11 +148,12 @@ def double_factorized(
             `scipy.optimize.minimize`_ for usage.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
-        diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.
-            This is a matrix of boolean values where the nonzero elements indicate where
-            the diagonal coulomb matrices returned by optimization are allowed to be
-            nonzero. This parameter is only used if `optimize` is set to `True`, and
-            only the upper triangular part of the matrix is used.
+        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+            Coulomb matrices. Matrix entries corresponding to indices not in this
+            list will be set to zero. This list should contain only upper
+            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+            Passing a list with lower triangular indices will raise an error.
+            This parameter is only used if `optimize` is set to True.
         cholesky: Whether to perform the factorization using a modified Cholesky
             decomposition. If False, a full eigenvalue decomposition is used instead,
             which can be much more expensive. This argument is ignored if ``optimize``
@@ -165,14 +166,32 @@ def double_factorized(
         containing the orbital rotations. Each Numpy array will have shape (L, n, n)
         where L is the rank of the decomposition and n is the number of orbitals.
 
+    Raises:
+        ValueError: diag_coulomb_indices contains lower triangular indices.
+
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
+    if diag_coulomb_indices is not None:
+        for i, j in diag_coulomb_indices:
+            if i > j:
+                raise ValueError(
+                    "diag_coulomb_indices must contain only upper triangular indices. "
+                    f"Got {(i, j)}, which is a lower triangle index."
+                )
+
     n_modes, _, _, _ = two_body_tensor.shape
     if max_vecs is None:
         max_vecs = n_modes * (n_modes + 1) // 2
     if optimize:
+        if diag_coulomb_indices is None:
+            diag_coulomb_mask = None
+        else:
+            diag_coulomb_mask = np.zeros((n_modes, n_modes), dtype=bool)
+            rows, cols = zip(*diag_coulomb_indices)
+            diag_coulomb_mask[rows, cols] = True
+            diag_coulomb_mask[cols, rows] = True
         return _double_factorized_compressed(
             two_body_tensor,
             tol=tol,

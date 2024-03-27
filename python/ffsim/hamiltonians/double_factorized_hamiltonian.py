@@ -141,7 +141,7 @@ class DoubleFactorizedHamiltonian:
         method: str = "L-BFGS-B",
         callback=None,
         options: dict | None = None,
-        diag_coulomb_mask: np.ndarray | None = None,
+        diag_coulomb_indices: list[tuple[int, int]] | None = None,
         cholesky: bool = True,
     ) -> DoubleFactorizedHamiltonian:
         r"""Initialize a DoubleFactorizedHamiltonian from a MolecularHamiltonian.
@@ -174,11 +174,12 @@ class DoubleFactorizedHamiltonian:
                 `scipy.optimize.minimize`_ for usage.
             options: Options for the optimization. See the documentation of
                 `scipy.optimize.minimize`_ for usage.
-            diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.
-                This is a matrix of boolean values where the nonzero elements indicate
-                where the diagonal Coulomb matrices returned by optimization are allowed
-                to be nonzero. This parameter is only used if `optimize` is set to
-                True, and only the upper triangular part of the matrix is used.
+            diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+                Coulomb matrices. Matrix entries corresponding to indices not in this
+                list will be set to zero. This list should contain only upper
+                trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+                Passing a list with lower triangular indices will raise an error.
+                This parameter is only used if `optimize` is set to True.
             cholesky: Whether to perform the factorization using a modified Cholesky
                 decomposition. If False, a full eigenvalue decomposition is used
                 instead, which can be much more expensive. This argument is ignored if
@@ -199,7 +200,7 @@ class DoubleFactorizedHamiltonian:
             method=method,
             callback=callback,
             options=options,
-            diag_coulomb_mask=diag_coulomb_mask,
+            diag_coulomb_indices=diag_coulomb_indices,
             cholesky=cholesky,
         )
         df_hamiltonian = DoubleFactorizedHamiltonian(
