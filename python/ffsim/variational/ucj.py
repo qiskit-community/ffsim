@@ -28,6 +28,17 @@ from ffsim.variational.util import (
 )
 
 
+def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
+    if indices is not None:
+        for i, j in indices:
+            if i > j:
+                raise ValueError(
+                    "When specifying diagonal Coulomb indices, you must give only "
+                    "upper trianglular indices. "
+                    f"Got {(i, j)}, which is a lower triangular index."
+                )
+
+
 @dataclass(frozen=True)
 class UCJOperator:
     r"""A unitary cluster Jastrow operator.
@@ -89,6 +100,8 @@ class UCJOperator:
         with_final_orbital_rotation: bool = False,
     ) -> int:
         """Return the number of parameters of an ansatz with given settings."""
+        _validate_diag_coulomb_indices(alpha_alpha_indices)
+        _validate_diag_coulomb_indices(alpha_beta_indices)
         n_params_aa = (
             norb * (norb + 1) // 2
             if alpha_alpha_indices is None
@@ -114,7 +127,37 @@ class UCJOperator:
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
     ) -> UCJOperator:
-        """Initialize the UCJ operator from a real-valued parameter vector."""
+        """Initialize the UCJ operator from a real-valued parameter vector.
+
+        Args:
+            params: The real-valued parameter vector.
+            norb: The number of spatial orbitals.
+            n_reps: The number of ansatz repetitions (:math:`L` from the docstring of
+                this class).
+            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the operator.
+
+        Returns:
+            The UCJ operator constructed from the given parameters.
+
+        Raises:
+            ValueError: alpha_alpha_indices contains lower triangular indices.
+            ValueError: alpha_beta_indices contains lower triangular indices.
+        """
+        _validate_diag_coulomb_indices(alpha_alpha_indices)
+        _validate_diag_coulomb_indices(alpha_beta_indices)
         return UCJOperator(
             *_ucj_from_parameters(
                 params,
@@ -132,7 +175,36 @@ class UCJOperator:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
     ) -> np.ndarray:
-        """Convert the UCJ operator to a real-valued parameter vector."""
+        """Convert the UCJ operator to a real-valued parameter vector.
+
+        If `alpha_alpha_indices` or `alpha_beta_indices` is specified, the returned
+        parameter vector will incorporate only the diagonal Coulomb matrix entries
+        corresponding to the given indices, so the original operator will not be
+        recoverable from the parameter vector.
+
+        Args:
+            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+
+        Returns:
+            The real-valued parameter vector.
+
+        Raises:
+            ValueError: alpha_alpha_indices contains lower triangular indices.
+            ValueError: alpha_beta_indices contains lower triangular indices.
+        """
+        _validate_diag_coulomb_indices(alpha_alpha_indices)
+        _validate_diag_coulomb_indices(alpha_beta_indices)
         return _ucj_to_parameters(
             diag_coulomb_mats_alpha_alpha=self.diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=self.diag_coulomb_mats_alpha_beta,
@@ -144,20 +216,18 @@ class UCJOperator:
 
     @staticmethod
     def from_t_amplitudes(
-        t2_amplitudes: np.ndarray,
+        t2: np.ndarray,
         *,
-        t1_amplitudes: np.ndarray | None = None,
+        t1: np.ndarray | None = None,
         n_reps: int | None = None,
         tol: float = 1e-8,
     ) -> UCJOperator:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
-        nocc, _, nvrt, _ = t2_amplitudes.shape
+        nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
-        diag_coulomb_mats, orbital_rotations = double_factorized_t2(
-            t2_amplitudes, tol=tol
-        )
+        diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
         n_vecs, norb, _ = diag_coulomb_mats.shape
         expanded_diag_coulomb_mats = np.zeros((2 * n_vecs, norb, norb))
         expanded_orbital_rotations = np.zeros((2 * n_vecs, norb, norb), dtype=complex)
@@ -167,10 +237,10 @@ class UCJOperator:
         expanded_orbital_rotations[1::2] = orbital_rotations.conj()
 
         final_orbital_rotation = None
-        if t1_amplitudes is not None:
+        if t1 is not None:
             final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
-            final_orbital_rotation_generator[:nocc, nocc:] = t1_amplitudes
-            final_orbital_rotation_generator[nocc:, :nocc] = -t1_amplitudes.T
+            final_orbital_rotation_generator[:nocc, nocc:] = t1
+            final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return UCJOperator(
@@ -324,7 +394,37 @@ class RealUCJOperator:
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
     ) -> "RealUCJOperator":
-        """Initialize the real UCJ operator from a real-valued parameter vector."""
+        """Initialize the real UCJ operator from a real-valued parameter vector.
+
+        Args:
+            params: The real-valued parameter vector.
+            norb: The number of spatial orbitals.
+            n_reps: The number of ansatz repetitions (:math:`L` from the docstring of
+                this class).
+            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the operator.
+
+        Returns:
+            The real UCJ operator constructed from the given parameters.
+
+        Raises:
+            ValueError: alpha_alpha_indices contains lower triangular indices.
+            ValueError: alpha_beta_indices contains lower triangular indices.
+        """
+        _validate_diag_coulomb_indices(alpha_alpha_indices)
+        _validate_diag_coulomb_indices(alpha_beta_indices)
         return RealUCJOperator(
             *_ucj_from_parameters(
                 params,
@@ -342,7 +442,36 @@ class RealUCJOperator:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
     ) -> np.ndarray:
-        """Convert the real UCJ operator to a real-valued parameter vector."""
+        """Convert the real UCJ operator to a real-valued parameter vector.
+
+        If `alpha_alpha_indices` or `alpha_beta_indices` is specified, the returned
+        parameter vector will incorporate only the diagonal Coulomb matrix entries
+        corresponding to the given indices, so the original operator will not be
+        recoverable from the parameter vector.
+
+        Args:
+            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+
+        Returns:
+            The real-valued parameter vector.
+
+        Raises:
+            ValueError: alpha_alpha_indices contains lower triangular indices.
+            ValueError: alpha_beta_indices contains lower triangular indices.
+        """
+        _validate_diag_coulomb_indices(alpha_alpha_indices)
+        _validate_diag_coulomb_indices(alpha_beta_indices)
         return _ucj_to_parameters(
             diag_coulomb_mats_alpha_alpha=self.diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=self.diag_coulomb_mats_alpha_beta,
@@ -354,27 +483,25 @@ class RealUCJOperator:
 
     @staticmethod
     def from_t_amplitudes(
-        t2_amplitudes: np.ndarray,
+        t2: np.ndarray,
         *,
-        t1_amplitudes: np.ndarray | None = None,
+        t1: np.ndarray | None = None,
         n_reps: int | None = None,
         tol: float = 1e-8,
     ) -> "RealUCJOperator":
         """Initialize the real UCJ operator from t2 (and optionally t1) amplitudes."""
         # TODO maybe allow specifying alpha-alpha and alpha-beta indices
-        nocc, _, nvrt, _ = t2_amplitudes.shape
+        nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
-        diag_coulomb_mats, orbital_rotations = double_factorized_t2(
-            t2_amplitudes, tol=tol
-        )
+        diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
         _, norb, _ = diag_coulomb_mats.shape
 
         final_orbital_rotation = None
-        if t1_amplitudes is not None:
+        if t1 is not None:
             final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
-            final_orbital_rotation_generator[:nocc, nocc:] = t1_amplitudes
-            final_orbital_rotation_generator[nocc:, :nocc] = -t1_amplitudes.T
+            final_orbital_rotation_generator[:nocc, nocc:] = t1
+            final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return RealUCJOperator(

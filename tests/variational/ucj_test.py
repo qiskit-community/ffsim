@@ -14,6 +14,7 @@ import itertools
 
 import numpy as np
 import pyscf
+import pytest
 import scipy.linalg
 from pyscf import cc
 
@@ -73,6 +74,21 @@ def test_n_params():
         )
         assert actual == expected
 
+        with pytest.raises(ValueError, match="triangular"):
+            actual = ffsim.UCJOperator.n_params(
+                norb,
+                n_reps,
+                alpha_alpha_indices=[(1, 0)],
+                alpha_beta_indices=alpha_beta_indices,
+            )
+        with pytest.raises(ValueError, match="triangular"):
+            actual = ffsim.UCJOperator.n_params(
+                norb,
+                n_reps,
+                alpha_alpha_indices=alpha_alpha_indices,
+                alpha_beta_indices=[(1, 0)],
+            )
+
 
 def test_parameters_roundtrip():
     norb = 5
@@ -126,7 +142,7 @@ def test_t_amplitudes_roundtrip():
     t2 = ffsim.random.random_t2_amplitudes(norb, nocc, dtype=float)
     t1 = rng.standard_normal((nocc, norb - nocc))
 
-    operator = ffsim.UCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
+    operator = ffsim.UCJOperator.from_t_amplitudes(t2, t1=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
     np.testing.assert_allclose(t2_roundtripped, t2, atol=1e-12)
@@ -325,7 +341,7 @@ def test_real_ucj_t_amplitudes_roundtrip():
     t2 = ffsim.random.random_t2_amplitudes(norb, nocc, dtype=float)
     t1 = rng.standard_normal((nocc, norb - nocc))
 
-    operator = ffsim.RealUCJOperator.from_t_amplitudes(t2, t1_amplitudes=t1)
+    operator = ffsim.RealUCJOperator.from_t_amplitudes(t2, t1=t1)
     t2_roundtripped, t1_roundtripped = operator.to_t_amplitudes(nocc=nocc)
 
     np.testing.assert_allclose(t2_roundtripped, t2, atol=1e-12)
