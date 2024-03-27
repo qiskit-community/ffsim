@@ -16,10 +16,10 @@ from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 def fermi_hubbard(
     norb: int,
-    t: float = 1,
-    U: float = 0,
-    mu: float = 0,
-    V: float = 0,
+    t_hop: float = 1,
+    U_int: float = 0,
+    mu_pot: float = 0,
+    V_int: float = 0,
     PBC: bool = False,
 ) -> FermionOperator:
     r"""Fermi-Hubbard operator.
@@ -38,10 +38,10 @@ def fermi_hubbard(
 
     Args:
         norb: The number of spatial orbitals.
-        t: The hopping strength.
-        U: The onsite interaction strength.
-        mu: The chemical potential.
-        V: The nearest-neighbor interaction strength.
+        t_hop: The hopping strength.
+        U_int: The onsite interaction strength.
+        mu_pot: The chemical potential.
+        V_int: The nearest-neighbor interaction strength.
         PBC: The periodic boundary conditions flag.
 
     Returns:
@@ -49,31 +49,31 @@ def fermi_hubbard(
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
 
-    for p in range(norb - int(not PBC)):
-        coeffs[(cre_a((p + 1) % norb), des_a(p))] = -t
-        coeffs[(cre_b((p + 1) % norb), des_b(p))] = -t
-        coeffs[(cre_a(p), des_a((p + 1) % norb))] = -t
-        coeffs[(cre_b(p), des_b((p + 1) % norb))] = -t
-        if V != 0:
+    for p in range(norb - 1 + PBC):
+        coeffs[(cre_a((p + 1) % norb), des_a(p))] = -t_hop
+        coeffs[(cre_b((p + 1) % norb), des_b(p))] = -t_hop
+        coeffs[(cre_a(p), des_a((p + 1) % norb))] = -t_hop
+        coeffs[(cre_b(p), des_b((p + 1) % norb))] = -t_hop
+        if V_int:
             coeffs[
                 (cre_a(p), cre_a((p + 1) % norb), des_a((p + 1) % norb), des_a(p))
-            ] = V
+            ] = V_int
             coeffs[
                 (cre_a(p), cre_b((p + 1) % norb), des_b((p + 1) % norb), des_a(p))
-            ] = V
+            ] = V_int
             coeffs[
                 (cre_b(p), cre_a((p + 1) % norb), des_a((p + 1) % norb), des_b(p))
-            ] = V
+            ] = V_int
             coeffs[
                 (cre_b(p), cre_b((p + 1) % norb), des_b((p + 1) % norb), des_b(p))
-            ] = V
+            ] = V_int
 
     for p in range(norb):
-        if U != 0:
-            coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = U / 2
-            coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = U / 2
-        if mu != 0:
-            coeffs[(cre_a(p), des_a(p))] = -mu
-            coeffs[(cre_b(p), des_b(p))] = -mu
+        if U_int:
+            coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = U_int / 2
+            coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = U_int / 2
+        if mu_pot:
+            coeffs[(cre_a(p), des_a(p))] = -mu_pot
+            coeffs[(cre_b(p), des_b(p))] = -mu_pot
 
     return FermionOperator(coeffs)

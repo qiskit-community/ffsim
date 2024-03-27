@@ -105,7 +105,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-.ffsim
 env/
 venv/
 ENV/
