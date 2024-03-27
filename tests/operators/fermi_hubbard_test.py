@@ -25,17 +25,17 @@ def test_non_interacting_FH_operator():
     """Test non-interacting Fermi-Hubbard operator."""
 
     # open boundary conditions
-    op = fermi_hubbard(norb=6, t_hop=1)
-    ham = ffsim.linear_operator(op, norb=6, nelec=(3, 3))
+    op = fermi_hubbard(norb=4, t_hop=1)
+    ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
-    E = -6.987918414870
+    E = -4.472135955000
     assert np.isclose(eigs[0], E)
 
     # periodic boundary conditions
-    op_PBC = fermi_hubbard(norb=6, t_hop=1, PBC=True)
-    ham_PBC = ffsim.linear_operator(op_PBC, norb=6, nelec=(3, 3))
+    op_PBC = fermi_hubbard(norb=4, t_hop=1, PBC=True)
+    ham_PBC = ffsim.linear_operator(op_PBC, norb=4, nelec=(2, 2))
     eigs_PBC, _ = scipy.sparse.linalg.eigsh(ham_PBC, which="SA", k=1)
-    E_PBC = -8.000000000000
+    E_PBC = -4.000000000000
     assert np.isclose(eigs_PBC[0], E_PBC)
 
 
@@ -43,17 +43,17 @@ def test_FH_operator_with_U_int():
     """Test Fermi-Hubbard operator with U_int."""
 
     # open boundary conditions
-    op = fermi_hubbard(norb=6, t_hop=1, U_int=2)
-    ham = ffsim.linear_operator(op, norb=6, nelec=(3, 3))
+    op = fermi_hubbard(norb=4, t_hop=1, U_int=2)
+    ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
-    E = -4.546313794436
+    E = -2.875942809005
     assert np.isclose(eigs[0], E)
 
     # periodic boundary conditions
-    op_PBC = fermi_hubbard(norb=6, t_hop=1, U_int=2, PBC=True)
-    ham_PBC = ffsim.linear_operator(op_PBC, norb=6, nelec=(3, 3))
+    op_PBC = fermi_hubbard(norb=4, t_hop=1, U_int=2, PBC=True)
+    ham_PBC = ffsim.linear_operator(op_PBC, norb=4, nelec=(2, 2))
     eigs_PBC, _ = scipy.sparse.linalg.eigsh(ham_PBC, which="SA", k=1)
-    E_PBC = -5.409456845101
+    E_PBC = -2.828427124746
     assert np.isclose(eigs_PBC[0], E_PBC)
 
 
@@ -61,17 +61,17 @@ def test_FH_operator_with_U_int_mu_pot():
     """Test Fermi-Hubbard operator with U_int and mu_pot."""
 
     # open boundary conditions
-    op = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3)
-    ham = ffsim.linear_operator(op, norb=6, nelec=(3, 3))
+    op = fermi_hubbard(norb=4, t_hop=1, U_int=2, mu_pot=3)
+    ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
-    E = -22.546313794436
+    E = -14.875942809005
     assert np.isclose(eigs[0], E)
 
     # periodic boundary conditions
-    op_PBC = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3, PBC=True)
-    ham_PBC = ffsim.linear_operator(op_PBC, norb=6, nelec=(3, 3))
+    op_PBC = fermi_hubbard(norb=4, t_hop=1, U_int=2, mu_pot=3, PBC=True)
+    ham_PBC = ffsim.linear_operator(op_PBC, norb=4, nelec=(2, 2))
     eigs_PBC, _ = scipy.sparse.linalg.eigsh(ham_PBC, which="SA", k=1)
-    E_PBC = -23.409456845101
+    E_PBC = -14.828427124746
     assert np.isclose(eigs_PBC[0], E_PBC)
 
 
@@ -79,17 +79,17 @@ def test_FH_operator_with_U_int_mu_pot_V_int():
     """Test Fermi-Hubbard operator with U_int, mu_pot, and V_int."""
 
     # open boundary conditions
-    op = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3, V_int=4)
-    ham = ffsim.linear_operator(op, norb=6, nelec=(3, 3))
+    op = fermi_hubbard(norb=4, t_hop=1, U_int=2, mu_pot=3, V_int=4)
+    ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
-    E = -14.509370615823
+    E = -9.961978205599
     assert np.isclose(eigs[0], E)
 
     # periodic boundary conditions
-    op_PBC = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3, V_int=4, PBC=True)
-    ham_PBC = ffsim.linear_operator(op_PBC, norb=6, nelec=(3, 3))
+    op_PBC = fermi_hubbard(norb=4, t_hop=1, U_int=2, mu_pot=3, V_int=4, PBC=True)
+    ham_PBC = ffsim.linear_operator(op_PBC, norb=4, nelec=(2, 2))
     eigs_PBC, _ = scipy.sparse.linalg.eigsh(ham_PBC, which="SA", k=1)
-    E_PBC = -13.195026650471
+    E_PBC = -8.781962448006
     assert np.isclose(eigs_PBC[0], E_PBC)
 
 
@@ -97,32 +97,34 @@ def test_FH_operator_with_unequal_filling():
     """Test Fermi-Hubbard operator with unequal filling."""
 
     # open boundary conditions
-    op = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3, V_int=4)
-    ham = ffsim.linear_operator(op, norb=6, nelec=(2, 4))
+    op = fermi_hubbard(norb=4, t_hop=1, U_int=2, mu_pot=3, V_int=4)
+    ham = ffsim.linear_operator(op, norb=4, nelec=(1, 3))
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
-    E = -11.172537759869
+    E = -6.615276287167
     assert np.isclose(eigs[0], E)
 
     # periodic boundary conditions
-    op_PBC = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3, V_int=4, PBC=True)
-    ham_PBC = ffsim.linear_operator(op_PBC, norb=6, nelec=(2, 4))
+    op_PBC = fermi_hubbard(norb=4, t_hop=1, U_int=2, mu_pot=3, V_int=4, PBC=True)
+    ham_PBC = ffsim.linear_operator(op_PBC, norb=4, nelec=(1, 3))
     eigs_PBC, _ = scipy.sparse.linalg.eigsh(ham_PBC, which="SA", k=1)
-    E_PBC = -4.113713891656
+    E_PBC = -0.828427124746
     assert np.isclose(eigs_PBC[0], E_PBC)
 
 
 def test_FH_operator_hermiticity():
     """Test Fermi-Hubbard operator hermiticity."""
 
-    N_orb, N_alpha, N_beta = 6, 1, 5
+    N_orb, N_alpha, N_beta = 4, 3, 1
     dim = comb(N_orb, N_alpha) * comb(N_orb, N_beta)
 
     # open boundary conditions
-    op = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3, V_int=4)
+    op = fermi_hubbard(norb=N_orb, t_hop=0.1, U_int=0.2, mu_pot=0.3, V_int=0.4)
     ham = ffsim.linear_operator(op, norb=N_orb, nelec=(N_alpha, N_beta))
     assert np.allclose(ham.dot(np.eye(dim)), ham.H.dot(np.eye(dim)))
 
     # periodic boundary conditions
-    op_PBC = fermi_hubbard(norb=6, t_hop=1, U_int=2, mu_pot=3, V_int=4, PBC=True)
+    op_PBC = fermi_hubbard(
+        norb=N_orb, t_hop=0.1, U_int=0.2, mu_pot=0.3, V_int=0.4, PBC=True
+    )
     ham_PBC = ffsim.linear_operator(op_PBC, norb=N_orb, nelec=(N_alpha, N_beta))
     assert np.allclose(ham_PBC.dot(np.eye(dim)), ham_PBC.H.dot(np.eye(dim)))
