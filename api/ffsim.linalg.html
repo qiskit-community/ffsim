@@ -261,11 +261,11 @@ quantifying the error in the decomposition.
 It uses <cite>scipy.optimize.minimize</cite>, passing both the objective function
 and its gradient. The diagonal Coulomb matrices returned by the optimization can be
 optionally constrained to have only certain elements allowed to be nonzero.
-This is achieved by passing the <cite>diag_coulomb_mask</cite> parameter, which is an
-<span class="math notranslate nohighlight">\(N \times N\)</span> matrix of boolean values where <span class="math notranslate nohighlight">\(N\)</span> is the number of
-orbitals. The nonzero elements of this matrix indicate where the diagonal Coulomb
-matrices are allowed to be nonzero. Only the upper triangular part of the matrix is
-used because the diagonal Coulomb matrices are symmetric.</p>
+This is achieved by passing the <cite>diag_coulomb_indices</cite> parameter, which is a
+list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
+matrices are allowed to be nonzero. Since the diagonal Coulomb matrices are
+symmetric, only upper triangular indices should be given, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p>
 <p class="rubric">References</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://arxiv.org/abs/1808.02625">arXiv:1808.02625</a></p></li>
