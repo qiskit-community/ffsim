@@ -329,7 +329,25 @@
         <span class="n">alpha_beta_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UCJOperator</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the UCJ operator from a real-valued parameter vector.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the UCJ operator from a real-valued parameter vector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params: The real-valued parameter vector.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            n_reps: The number of ansatz repetitions (:math:`L` from the docstring of</span>
+<span class="sd">                this class).</span>
+<span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">            with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">                in the operator.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The UCJ operator constructed from the given parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">UCJOperator</span><span class="p">(</span>
             <span class="o">*</span><span class="n">_ucj_from_parameters</span><span class="p">(</span>
                 <span class="n">params</span><span class="p">,</span>
@@ -350,7 +368,24 @@
         <span class="n">alpha_alpha_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alpha_beta_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the UCJ operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the UCJ operator to a real-valued parameter vector.</span>
+
+<span class="sd">        If `alpha_alpha_indices` or `alpha_beta_indices` is specified, the returned</span>
+<span class="sd">        parameter vector will incorporate only the diagonal Coulomb matrix entries</span>
+<span class="sd">        corresponding to the given indices, so the original operator will not be</span>
+<span class="sd">        recoverable from the parameter vector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The real-valued parameter vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ucj_to_parameters</span><span class="p">(</span>
             <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
             <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
@@ -557,7 +592,25 @@
         <span class="n">alpha_beta_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RealUCJOperator&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the real UCJ operator from a real-valued parameter vector.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the real UCJ operator from a real-valued parameter vector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params: The real-valued parameter vector.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            n_reps: The number of ansatz repetitions (:math:`L` from the docstring of</span>
+<span class="sd">                this class).</span>
+<span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">            with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">                in the operator.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The real UCJ operator constructed from the given parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">RealUCJOperator</span><span class="p">(</span>
             <span class="o">*</span><span class="n">_ucj_from_parameters</span><span class="p">(</span>
                 <span class="n">params</span><span class="p">,</span>
@@ -578,7 +631,24 @@
         <span class="n">alpha_alpha_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alpha_beta_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the real UCJ operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the real UCJ operator to a real-valued parameter vector.</span>
+
+<span class="sd">        If `alpha_alpha_indices` or `alpha_beta_indices` is specified, the returned</span>
+<span class="sd">        parameter vector will incorporate only the diagonal Coulomb matrix entries</span>
+<span class="sd">        corresponding to the given indices, so the original operator will not be</span>
+<span class="sd">        recoverable from the parameter vector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alpha_alpha_indices: Allowed indices for nonzero values of the &quot;alpha-alpha&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+<span class="sd">            alpha_beta_indices: Allowed indices for nonzero values of the &quot;alpha-beta&quot;</span>
+<span class="sd">                diagonal Coulomb matrices (see the docstring of this class).</span>
+<span class="sd">                If not specified, all matrix entries are allowed to be nonzero.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The real-valued parameter vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ucj_to_parameters</span><span class="p">(</span>
             <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
             <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
