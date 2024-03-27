@@ -359,7 +359,7 @@
         <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
         <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">diag_coulomb_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cholesky</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize a DoubleFactorizedHamiltonian from a MolecularHamiltonian.</span>
@@ -392,11 +392,12 @@
 <span class="sd">                `scipy.optimize.minimize`_ for usage.</span>
 <span class="sd">            options: Options for the optimization. See the documentation of</span>
 <span class="sd">                `scipy.optimize.minimize`_ for usage.</span>
-<span class="sd">            diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.</span>
-<span class="sd">                This is a matrix of boolean values where the nonzero elements indicate</span>
-<span class="sd">                where the diagonal Coulomb matrices returned by optimization are allowed</span>
-<span class="sd">                to be nonzero. This parameter is only used if `optimize` is set to</span>
-<span class="sd">                True, and only the upper triangular part of the matrix is used.</span>
+<span class="sd">            diag_coulomb_indices: Allowed indices for nonzero values of the diagonal</span>
+<span class="sd">                Coulomb matrices. Matrix entries corresponding to indices not in this</span>
+<span class="sd">                list will be set to zero. This list should contain only upper</span>
+<span class="sd">                trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.</span>
+<span class="sd">                Passing a list with lower triangular indices will raise an error.</span>
+<span class="sd">                This parameter is only used if `optimize` is set to True.</span>
 <span class="sd">            cholesky: Whether to perform the factorization using a modified Cholesky</span>
 <span class="sd">                decomposition. If False, a full eigenvalue decomposition is used</span>
 <span class="sd">                instead, which can be much more expensive. This argument is ignored if</span>
@@ -417,7 +418,7 @@
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
             <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
             <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-            <span class="n">diag_coulomb_mask</span><span class="o">=</span><span class="n">diag_coulomb_mask</span><span class="p">,</span>
+            <span class="n">diag_coulomb_indices</span><span class="o">=</span><span class="n">diag_coulomb_indices</span><span class="p">,</span>
             <span class="n">cholesky</span><span class="o">=</span><span class="n">cholesky</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">(</span>

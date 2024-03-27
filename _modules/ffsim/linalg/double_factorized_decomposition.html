@@ -300,7 +300,7 @@
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
     <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">diag_coulomb_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">cholesky</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Double-factorized decomposition of a two-body tensor.</span>
@@ -361,11 +361,12 @@
 <span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
 <span class="sd">        options: Options for the optimization. See the documentation of</span>
 <span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
-<span class="sd">        diag_coulomb_mask: Diagonal Coulomb matrix mask to use in the optimization.</span>
-<span class="sd">            This is a matrix of boolean values where the nonzero elements indicate where</span>
-<span class="sd">            the diagonal coulomb matrices returned by optimization are allowed to be</span>
-<span class="sd">            nonzero. This parameter is only used if `optimize` is set to `True`, and</span>
-<span class="sd">            only the upper triangular part of the matrix is used.</span>
+<span class="sd">        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal</span>
+<span class="sd">            Coulomb matrices. Matrix entries corresponding to indices not in this</span>
+<span class="sd">            list will be set to zero. This list should contain only upper</span>
+<span class="sd">            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.</span>
+<span class="sd">            Passing a list with lower triangular indices will raise an error.</span>
+<span class="sd">            This parameter is only used if `optimize` is set to True.</span>
 <span class="sd">        cholesky: Whether to perform the factorization using a modified Cholesky</span>
 <span class="sd">            decomposition. If False, a full eigenvalue decomposition is used instead,</span>
 <span class="sd">            which can be much more expensive. This argument is ignored if ``optimize``</span>
@@ -378,14 +379,32 @@
 <span class="sd">        containing the orbital rotations. Each Numpy array will have shape (L, n, n)</span>
 <span class="sd">        where L is the rank of the decomposition and n is the number of orbitals.</span>
 
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: diag_coulomb_indices contains lower triangular indices.</span>
+
 <span class="sd">    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625</span>
 <span class="sd">    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
 <span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">diag_coulomb_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">diag_coulomb_indices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;diag_coulomb_indices must contain only upper triangular indices. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}</span><span class="s2">, which is a lower triangle index.&quot;</span>
+                <span class="p">)</span>
+
     <span class="n">n_modes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">if</span> <span class="n">max_vecs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">max_vecs</span> <span class="o">=</span> <span class="n">n_modes</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_modes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
     <span class="k">if</span> <span class="n">optimize</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">diag_coulomb_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">diag_coulomb_indices</span><span class="p">)</span>
+            <span class="n">diag_coulomb_mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">diag_coulomb_mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">_double_factorized_compressed</span><span class="p">(</span>
             <span class="n">two_body_tensor</span><span class="p">,</span>
             <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
