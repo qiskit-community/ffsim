@@ -74,3 +74,8 @@ jobs:
         shell: bash
         run: |
           tox run -e ${{ matrix.tox-env }}
+      - name: Archive HTML documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-html
+          path: ./docs/_build/html/
