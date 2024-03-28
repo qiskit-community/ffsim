@@ -47,6 +47,12 @@ testpaths = ["tests"]
 
 [tool.mypy]
 ignore_missing_imports = true
+files = [
+    "python/**/*.py",
+    "python/**/*.pyi",
+    "tests/**/*.py",
+    "docs/**/*.py",
+]
 
 [tool.ruff]
 src = ["python"]
