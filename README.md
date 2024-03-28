@@ -157,6 +157,8 @@ tox run -e docs
 
 open the file `docs/_build/html/index.html` in your web browser.
 
+Note that building the docs can consume significant CPU because the tutorial notebooks are executed. To avoid executing the notebooks, you can change the value of `nbsphinx_execute` to `"never"` in [`docs/conf.py`](docs/conf.py).
+
 ## Cite ffsim
 
 You can cite ffsim using the following BibTeX:
