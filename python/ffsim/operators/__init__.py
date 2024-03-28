@@ -32,6 +32,6 @@ __all__ = [
     "des",
     "des_a",
     "des_b",
-    "number_operator",
     "fermi_hubbard",
+    "number_operator",
 ]

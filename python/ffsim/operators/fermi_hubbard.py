@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fermi-Hubbard operator."""
+"""Fermi-Hubbard model Hamiltonian."""
 
 from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
@@ -16,15 +16,16 @@ from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 def fermi_hubbard(
     norb: int,
-    t_hop: float = 1,
-    U_int: float = 0,
-    mu_pot: float = 0,
-    V_int: float = 0,
-    PBC: bool = False,
+    tunneling: float,
+    interaction: float,
+    chemical_potential: float = 0,
+    nearest_neighbor_interaction: float = 0,
+    periodic: bool = False,
 ) -> FermionOperator:
-    r"""Fermi-Hubbard operator.
+    r"""Fermi-Hubbard model Hamiltonian.
 
-    The Fermi-Hubbard operator for :math:`N` spatial orbitals is defined as
+    The Hamiltonian for the Fermi-Hubbard model with :math:`N` spatial orbitals is given
+    by
 
     .. math::
 
@@ -37,43 +38,44 @@ def fermi_hubbard(
         a^\dagger_{p, \sigma} a^\dagger_{p+1, \sigma'} a_{p+1, \sigma'} a_{p, \sigma}
 
     Args:
-        norb: The number of spatial orbitals.
-        t_hop: The hopping strength.
-        U_int: The onsite interaction strength.
-        mu_pot: The chemical potential.
-        V_int: The nearest-neighbor interaction strength.
-        PBC: The periodic boundary conditions flag.
+        norb: The number of spatial orbitals :math:`N`.
+        tunneling: The tunneling amplitude :math:`t`.
+        interaction: The onsite interaction strength :math:`U`.
+        chemical_potential: The chemical potential :math:`\mu`.
+        nearest_neighbor_interaction: The nearest-neighbor interaction strength
+            :math:`V`.
+        periodic: The periodic boundary conditions flag.
 
     Returns:
-        The Fermi-Hubbard operator for a specified number of orbitals.
+        The Fermi-Hubbard model Hamiltonian.
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
 
-    for p in range(norb - 1 + PBC):
-        coeffs[(cre_a((p + 1) % norb), des_a(p))] = -t_hop
-        coeffs[(cre_b((p + 1) % norb), des_b(p))] = -t_hop
-        coeffs[(cre_a(p), des_a((p + 1) % norb))] = -t_hop
-        coeffs[(cre_b(p), des_b((p + 1) % norb))] = -t_hop
-        if V_int:
+    for p in range(norb - 1 + periodic):
+        coeffs[(cre_a((p + 1) % norb), des_a(p))] = -tunneling
+        coeffs[(cre_b((p + 1) % norb), des_b(p))] = -tunneling
+        coeffs[(cre_a(p), des_a((p + 1) % norb))] = -tunneling
+        coeffs[(cre_b(p), des_b((p + 1) % norb))] = -tunneling
+        if nearest_neighbor_interaction:
             coeffs[
                 (cre_a(p), cre_a((p + 1) % norb), des_a((p + 1) % norb), des_a(p))
-            ] = V_int
+            ] = nearest_neighbor_interaction
             coeffs[
                 (cre_a(p), cre_b((p + 1) % norb), des_b((p + 1) % norb), des_a(p))
-            ] = V_int
+            ] = nearest_neighbor_interaction
             coeffs[
                 (cre_b(p), cre_a((p + 1) % norb), des_a((p + 1) % norb), des_b(p))
-            ] = V_int
+            ] = nearest_neighbor_interaction
             coeffs[
                 (cre_b(p), cre_b((p + 1) % norb), des_b((p + 1) % norb), des_b(p))
-            ] = V_int
+            ] = nearest_neighbor_interaction
 
     for p in range(norb):
-        if U_int:
-            coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = U_int / 2
-            coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = U_int / 2
-        if mu_pot:
-            coeffs[(cre_a(p), des_a(p))] = -mu_pot
-            coeffs[(cre_b(p), des_b(p))] = -mu_pot
+        if interaction:
+            coeffs[(cre_a(p), cre_b(p), des_b(p), des_a(p))] = interaction / 2
+            coeffs[(cre_b(p), cre_a(p), des_a(p), des_b(p))] = interaction / 2
+        if chemical_potential:
+            coeffs[(cre_a(p), des_a(p))] = -chemical_potential
+            coeffs[(cre_b(p), des_b(p))] = -chemical_potential
 
     return FermionOperator(coeffs)
