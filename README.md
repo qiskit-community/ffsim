@@ -135,6 +135,12 @@ Running the code checks directly using the corresponding software tool is also u
 pytest
 ```
 
+#### Run type check
+
+```bash
+mypy
+```
+
 #### Fix lint errors
 
 ```bash
