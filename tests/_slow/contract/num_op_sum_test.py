@@ -31,7 +31,7 @@ def test_contract_num_op_sum_spin_into_buffer_slow():
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
         occupations = cistring.gen_occslst(range(norb), n_alpha)
-        coeffs = np.random.uniform(size=norb)
+        coeffs = rng.uniform(size=norb)
         vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
