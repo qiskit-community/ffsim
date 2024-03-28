@@ -50,7 +50,14 @@ ignore_missing_imports = true
 
 [tool.ruff]
 src = ["python"]
-extend-include = ["*.ipynb"]
+include = [
+    "pyproject.toml",
+    "python/**/*.py",
+    "python/**/*.pyi",
+    "tests/**/*.py",
+    "docs/**/*.py",
+    "docs/**/*.ipynb",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
