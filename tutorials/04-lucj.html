@@ -217,6 +217,7 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyscf</span>
 <span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
+
 <span class="kn">import</span> <span class="nn">ffsim</span>
 
 <span class="c1"># Build a stretched ethene molecule</span>
@@ -267,7 +268,7 @@ converged SCF energy = -77.4456267643962
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -322,7 +323,7 @@ have two sets of matrices for describing the diagonal Coulomb operators: “alph
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851292
+E(CCSD) = -77.49387212754468  E_corr = -0.04824536314851356
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -330,7 +331,7 @@ E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851292
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialization: -77.46975600021685
+Energy at initialization: -77.46975600021722
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -369,10 +370,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50959705045406
-        x: [ 1.251e+00  6.192e-01 ...  8.733e-02  1.371e-01]
+      fun: -77.50961854740359
+        x: [ 1.246e+00 -6.260e-01 ...  8.771e-02  1.382e-01]
       nit: 5
-      jac: [ 1.279e-04 -5.770e-04 ... -3.662e-03 -4.751e-03]
+      jac: [-4.647e-04  1.239e-03 ... -3.817e-03 -2.916e-03]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -435,10 +436,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.45740084141843
-        x: [ 1.251e+00  6.266e-01 ... -1.424e-03  1.461e-02]
+      fun: -77.45742177780866
+        x: [ 1.250e+00 -6.341e-01 ...  5.114e-04  1.332e-02]
       nit: 5
-      jac: [-5.684e-05  2.231e-04 ... -2.775e-03 -2.434e-03]
+      jac: [ 2.132e-05 -3.268e-05 ... -1.904e-03 -2.920e-03]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -454,6 +455,7 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
 <span class="kn">from</span> <span class="nn">ffsim.optimize</span> <span class="kn">import</span> <span class="n">minimize_linear_method</span>
 
 
@@ -521,34 +523,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.46274930758932
-       x: [ 1.313e+00  6.768e-01 ...  5.911e-02 -2.616e-01]
+     fun: -77.46542814436162
+       x: [ 1.344e+00 -5.166e-01 ... -3.978e-01  1.511e-01]
      nit: 5
-     jac: [-4.128e-04  1.938e-04 ... -1.075e-03 -1.575e-03]
-    nfev: 673
+     jac: [-1.047e-03 -1.910e-03 ...  3.699e-03 -3.563e-03]
+    nfev: 655
     njev: 5
-  nlinop: 443
+  nlinop: 425
 
 Iteration 1
-    Energy: -77.450256268354
-    Norm of gradient: 0.020492858414451257
-    Regularization hyperparameter: 0.9996915434617267
-    Variation hyperparameter: 0.5007092528592785
+    Energy: -77.45619146473827
+    Norm of gradient: 0.01925862930510445
+    Regularization hyperparameter: 0.0013854467575691821
+    Variation hyperparameter: 0.23882898817809012
 Iteration 2
-    Energy: -77.45700281287739
-    Norm of gradient: 0.01345162305442379
-    Regularization hyperparameter: 0.025172662816604706
-    Variation hyperparameter: 0.614883267800856
+    Energy: -77.45628594783236
+    Norm of gradient: 0.01855389811374295
+    Regularization hyperparameter: 1.0757817459077648
+    Variation hyperparameter: 0.23730537711675947
 Iteration 3
-    Energy: -77.45805134381919
-    Norm of gradient: 0.008333386655351743
-    Regularization hyperparameter: 0.00039661836829146693
-    Variation hyperparameter: 0.6202288735406325
+    Energy: -77.45852555747528
+    Norm of gradient: 0.01770593805788764
+    Regularization hyperparameter: 0.002413825802982642
+    Variation hyperparameter: 0.22966668903564608
 Iteration 4
-    Energy: -77.45807725524442
-    Norm of gradient: 0.008038429855953131
-    Regularization hyperparameter: 0.9605514760852408
-    Variation hyperparameter: 0.6204850592239071
+    Energy: -77.45860305274874
+    Norm of gradient: 0.01714370773445822
+    Regularization hyperparameter: 1.0998986834122912
+    Variation hyperparameter: 0.2263874159628636
 </pre></div></div>
 </div>
 </section>

@@ -26,6 +26,7 @@
    "source": [
     "import pyscf\n",
     "import pyscf.mcscf\n",
+    "\n",
     "import ffsim\n",
     "\n",
     "# Build a stretched ethene molecule\n",
@@ -310,6 +311,7 @@
    ],
    "source": [
     "from collections import defaultdict\n",
+    "\n",
     "from ffsim.optimize import minimize_linear_method\n",
     "\n",
     "\n",
