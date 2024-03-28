@@ -29,7 +29,7 @@ def test_apply_num_op_sum_evolution_in_place_slow():
         dim_a = comb(norb, n_alpha, exact=True)
         dim_b = comb(norb, n_beta, exact=True)
         occupations = cistring.gen_occslst(range(norb), n_alpha)
-        exponents = np.random.uniform(0, 2 * np.pi, size=norb)
+        exponents = rng.uniform(0, 2 * np.pi, size=norb)
         phases = np.exp(1j * exponents)
         vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
