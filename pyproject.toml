@@ -50,6 +50,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 src = ["python"]
+extend-include = ["*.ipynb"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
