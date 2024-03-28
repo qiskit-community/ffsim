@@ -14,7 +14,7 @@ from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 
-def fermi_hubbard(
+def fermi_hubbard_1d(
     norb: int,
     tunneling: float,
     interaction: float,
@@ -22,19 +22,19 @@ def fermi_hubbard(
     nearest_neighbor_interaction: float = 0,
     periodic: bool = False,
 ) -> FermionOperator:
-    r"""Fermi-Hubbard model Hamiltonian.
+    r"""1D Fermi-Hubbard model Hamiltonian.
 
-    The Hamiltonian for the Fermi-Hubbard model with :math:`N` spatial orbitals is given
-    by
+    The Hamiltonian for the 1D Fermi-Hubbard model with :math:`N` spatial orbitals is
+    given by
 
     .. math::
 
-        H = -t \sum_{p=0}^{N-1} \sum_{\sigma}
+        H = -t \sum_{p=1}^{N-1} \sum_{\sigma}
         (a^\dagger_{p+1, \sigma} a_{p, \sigma} + \text{H.c.})
-        + \frac{U}{2} \sum_{p=0}^{N} \sum_{\sigma, \sigma'}
+        + \frac{U}{2} \sum_{p=1}^{N} \sum_{\sigma, \sigma'}
         a^\dagger_{p, \sigma} a^\dagger_{p, \sigma'} a_{p, \sigma'} a_{p, \sigma}
-        - \mu \sum_{p=0}^N \sum_{\sigma} a^\dagger_{\sigma, p} a_{\sigma, p}
-        + V \sum_{p=0}^{N-1} \sum_{\sigma, \sigma'}
+        - \mu \sum_{p=1}^N \sum_{\sigma} a^\dagger_{\sigma, p} a_{\sigma, p}
+        + V \sum_{p=1}^{N-1} \sum_{\sigma, \sigma'}
         a^\dagger_{p, \sigma} a^\dagger_{p+1, \sigma'} a_{p+1, \sigma'} a_{p, \sigma}
 
     Args:
@@ -47,7 +47,7 @@ def fermi_hubbard(
         periodic: Whether to use periodic boundary conditions.
 
     Returns:
-        The Fermi-Hubbard model Hamiltonian.
+        The 1D Fermi-Hubbard model Hamiltonian.
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
 
