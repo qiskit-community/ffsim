@@ -40,6 +40,7 @@ from ffsim.operators import (
     des,
     des_a,
     des_b,
+    fermi_hubbard,
     number_operator,
 )
 from ffsim.protocols import (
@@ -119,6 +120,7 @@ __all__ = [
     "dims",
     "expectation_one_body_power",
     "expectation_one_body_product",
+    "fermi_hubbard",
     "fermion_operator",
     "hartree_fock_state",
     "indices_to_strings",
@@ -127,7 +129,6 @@ __all__ = [
     "linear_operator",
     "multireference_state",
     "number_operator",
-    "fermi_hubbard",
     "one_hot",
     "optimize",
     "random",

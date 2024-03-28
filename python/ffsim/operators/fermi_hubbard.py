@@ -44,7 +44,7 @@ def fermi_hubbard(
         chemical_potential: The chemical potential :math:`\mu`.
         nearest_neighbor_interaction: The nearest-neighbor interaction strength
             :math:`V`.
-        periodic: The periodic boundary conditions flag.
+        periodic: Whether to use periodic boundary conditions.
 
     Returns:
         The Fermi-Hubbard model Hamiltonian.
