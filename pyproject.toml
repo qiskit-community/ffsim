@@ -47,13 +47,23 @@ testpaths = ["tests"]
 
 [tool.mypy]
 ignore_missing_imports = true
+files = ["python/**/*.py", "python/**/*.pyi", "tests/**/*.py", "docs/**/*.py"]
 
 [tool.ruff]
 src = ["python"]
-extend-include = ["*.ipynb"]
+include = [
+    "pyproject.toml",
+    "python/**/*.py",
+    "python/**/*.pyi",
+    "tests/**/*.py",
+    "tests/**/*.pyi",
+    "docs/**/*.py",
+    "docs/**/*.pyi",
+    "docs/**/*.ipynb",
+]
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "N"]
 
 [tool.cibuildwheel]
 build = "cp38-macosx* cp38-manylinux_x86_64 cp38-manylinux_aarch64"
