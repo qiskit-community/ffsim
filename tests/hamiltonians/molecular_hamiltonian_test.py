@@ -28,16 +28,16 @@ def test_linear_operator():
     radius_2 = 0.958  # position for the second H atom
     thetas_in_deg = 104.478  # bond angles.
 
-    H1_x = radius_1
-    H2_x = radius_2 * np.cos(np.pi / 180 * thetas_in_deg)
-    H2_y = radius_2 * np.sin(np.pi / 180 * thetas_in_deg)
+    h1_x = radius_1
+    h2_x = radius_2 * np.cos(np.pi / 180 * thetas_in_deg)
+    h2_y = radius_2 * np.sin(np.pi / 180 * thetas_in_deg)
 
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[
             ["O", (0, 0, 0)],
-            ["H", (H1_x, 0, 0)],
-            ["H", (H2_x, H2_y, 0)],
+            ["H", (h1_x, 0, 0)],
+            ["H", (h2_x, h2_y, 0)],
         ],
         basis="sto-6g",
         spin=0,
