@@ -127,7 +127,7 @@ substituting `<environment name>` with the name of the tox environment for the c
 
 ### Run code checks directly
 
-Running the code checks directly using the corresponding software tool directly is also useful, for example, for automatically fixing lint or format errors.
+Running the code checks directly using the corresponding software tool is also useful, for example, for automatically fixing lint or format errors.
 
 #### Run tests
 
@@ -146,6 +146,18 @@ ruff check --fix
 ```bash
 ruff format
 ```
+
+### Build and view documentation
+
+After running
+
+```bash
+tox run -e docs
+```
+
+open the file `docs/_build/html/index.html` in your web browser.
+
+Note that building the docs can consume significant CPU because the tutorial notebooks are executed. To avoid executing the notebooks, you can change the value of `nbsphinx_execute` to `"never"` in [`docs/conf.py`](docs/conf.py).
 
 ## Cite ffsim
 
