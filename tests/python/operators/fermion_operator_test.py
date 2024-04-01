@@ -614,3 +614,20 @@ def test_copy():
 
     copy *= 2
     assert copy != op
+
+
+def test_mapping_methods():
+    op = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1,
+            (ffsim.cre_a(2), ffsim.des_a(1)): 0.5,
+            (ffsim.cre_b(1), ffsim.des_b(2)): -0.5j,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1 - 0.5j,
+        }
+    )
+    assert op.keys() == {
+        (ffsim.cre_a(1), ffsim.des_a(2)),
+        (ffsim.cre_a(2), ffsim.des_a(1)),
+        (ffsim.cre_b(1), ffsim.des_b(2)),
+        (ffsim.cre_b(2), ffsim.des_b(1)),
+    }
