@@ -27,6 +27,6 @@ def items(self):
     return ItemsView(self)
 
 
-FermionOperator.keys = keys
-FermionOperator.values = values
-FermionOperator.items = items
+FermionOperator.keys = keys  # type: ignore[method-assign]
+FermionOperator.values = values  # type: ignore[method-assign]
+FermionOperator.items = items  # type: ignore[method-assign]
