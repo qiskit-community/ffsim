@@ -220,7 +220,8 @@ impl FermionOperator {
 
     fn __iter__(slf: PyRef<Self>) -> PyResult<Py<KeysIterator>> {
         let keys = slf.coeffs.keys().cloned().collect::<Vec<_>>().into_iter();
-        Py::new(slf.py(), KeysIterator { keys })
+        let iter = KeysIterator { keys };
+        Py::new(slf.py(), iter)
     }
 
     fn __iadd__(&mut self, other: &Self) -> () {
