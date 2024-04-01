@@ -195,27 +195,27 @@ def test_fermi_hubbard_1d_with_unequal_filling():
     # open boundary conditions
     op = fermi_hubbard_1d(
         norb=4,
-        tunneling=1.1,
-        interaction=1.2,
-        chemical_potential=1.3,
-        nearest_neighbor_interaction=1.4,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
     )
     ham = ffsim.linear_operator(op, norb=4, nelec=(1, 3))
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
-    np.testing.assert_allclose(eigs[0], -4.712924300736)
+    np.testing.assert_allclose(eigs[0], -6.615276287167)
 
     # periodic boundary conditions
     op_periodic = fermi_hubbard_1d(
         norb=4,
-        tunneling=1.1,
-        interaction=1.2,
-        chemical_potential=1.3,
-        nearest_neighbor_interaction=1.4,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
         periodic=True,
     )
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(1, 3))
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
-    np.testing.assert_allclose(eigs_periodic[0], -3.852038128795)
+    np.testing.assert_allclose(eigs_periodic[0], -0.828427124746)
 
 
 def test_fermi_hubbard_1d_hermiticity():
@@ -228,10 +228,10 @@ def test_fermi_hubbard_1d_hermiticity():
     # open boundary conditions
     op = fermi_hubbard_1d(
         norb=n_orbitals,
-        tunneling=0.9,
-        interaction=0.8,
-        chemical_potential=0.7,
-        nearest_neighbor_interaction=0.6,
+        tunneling=1.1,
+        interaction=1.2,
+        chemical_potential=1.3,
+        nearest_neighbor_interaction=1.4,
     )
     ham = ffsim.linear_operator(op, norb=n_orbitals, nelec=n_electrons)
     np.testing.assert_allclose(ham @ np.eye(dim), ham.H @ np.eye(dim))
@@ -239,10 +239,10 @@ def test_fermi_hubbard_1d_hermiticity():
     # periodic boundary conditions
     op_periodic = fermi_hubbard_1d(
         norb=n_orbitals,
-        tunneling=0.9,
-        interaction=0.8,
-        chemical_potential=0.7,
-        nearest_neighbor_interaction=0.6,
+        tunneling=1.1,
+        interaction=1.2,
+        chemical_potential=1.3,
+        nearest_neighbor_interaction=1.4,
         periodic=True,
     )
     ham_periodic = ffsim.linear_operator(
