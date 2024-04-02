@@ -186,24 +186,14 @@ def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsi
             result = ffsim.apply_num_num_interaction(
                 vec, theta, (m, n), norb=norb, nelec=nelec, spin=spin
             )
-            coeffs = {}
+            coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
             if spin & ffsim.Spin.ALPHA:
                 coeffs[
-                    (
-                        ffsim.cre_a(m),
-                        ffsim.des_a(m),
-                        ffsim.cre_a(n),
-                        ffsim.des_a(n),
-                    )
+                    (ffsim.cre_a(m), ffsim.des_a(m), ffsim.cre_a(n), ffsim.des_a(n))
                 ] = theta
             if spin & ffsim.Spin.BETA:
                 coeffs[
-                    (
-                        ffsim.cre_b(m),
-                        ffsim.des_b(m),
-                        ffsim.cre_b(n),
-                        ffsim.des_b(n),
-                    )
+                    (ffsim.cre_b(m), ffsim.des_b(m), ffsim.cre_b(n), ffsim.des_b(n))
                 ] = theta
             generator = ffsim.FermionOperator(coeffs)
             linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
