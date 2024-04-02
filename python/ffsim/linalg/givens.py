@@ -24,7 +24,8 @@ class GivensRotation(NamedTuple):
     # TODO double check matrix definition
     r"""A Givens rotation.
 
-    A Givens rotation acts on a two-dimensional subspace as
+    A Givens rotation acts on a two-dimensional subspace with basis vectors indexed by
+    :math:`(i, j)` as
 
     .. math::
 
@@ -34,7 +35,6 @@ class GivensRotation(NamedTuple):
         \end{pmatrix}
 
     where :math:`c` is a real number and :math:`s` is a complex number.
-
     """
 
     c: float
@@ -93,12 +93,12 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
 
 def givens_decomposition(
     mat: np.ndarray,
-) -> tuple[list[tuple[tuple[float, complex], tuple[int, int]]], np.ndarray]:
+) -> tuple[list[GivensRotation], np.ndarray]:
     """Givens rotation decomposition of a unitary matrix."""
     n, _ = mat.shape
     current_matrix = mat.astype(complex, copy=True)
     left_rotations = []
-    right_rotations: list[tuple[tuple[float, complex], tuple[int, int]]] = []
+    right_rotations: list[GivensRotation] = []
 
     # compute left and right Givens rotations
     for i in range(n - 1):
@@ -113,7 +113,9 @@ def givens_decomposition(
                         current_matrix[row, target_index + 1],
                         current_matrix[row, target_index],
                     )
-                    right_rotations.append(((c, s), (target_index + 1, target_index)))
+                    right_rotations.append(
+                        GivensRotation(c, s, target_index + 1, target_index)
+                    )
                     current_matrix = current_matrix.T.copy()
                     (
                         current_matrix[target_index + 1],
@@ -136,7 +138,9 @@ def givens_decomposition(
                         current_matrix[target_index - 1, col],
                         current_matrix[target_index, col],
                     )
-                    left_rotations.append(((c, s), (target_index - 1, target_index)))
+                    left_rotations.append(
+                        GivensRotation(c, s, target_index - 1, target_index)
+                    )
                     (
                         current_matrix[target_index - 1],
                         current_matrix[target_index],
@@ -148,9 +152,9 @@ def givens_decomposition(
                     )
 
     # convert left rotations to right rotations
-    for (c, s), (i, j) in reversed(left_rotations):
+    for c, s, i, j in reversed(left_rotations):
         c, s = zrotg(c * current_matrix[j, j], s.conjugate() * current_matrix[i, i])
-        right_rotations.append(((c, -s.conjugate()), (i, j)))
+        right_rotations.append(GivensRotation(c, -s.conjugate(), i, j))
 
         givens_mat = np.array([[c, -s], [s.conjugate(), c]])
         givens_mat[:, 0] *= current_matrix[i, i]

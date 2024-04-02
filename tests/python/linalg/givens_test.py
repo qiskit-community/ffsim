@@ -30,7 +30,7 @@ def test_givens_decomposition():
         reconstructed = np.eye(dim, dtype=complex)
         for i, phase_shift in enumerate(phase_shifts):
             reconstructed[i] *= phase_shift
-        for (c, s), (i, j) in givens_rotations[::-1]:
+        for c, s, i, j in givens_rotations[::-1]:
             reconstructed = reconstructed.T.copy()
             reconstructed[j], reconstructed[i] = zrot(
                 reconstructed[j], reconstructed[i], c, s.conjugate()

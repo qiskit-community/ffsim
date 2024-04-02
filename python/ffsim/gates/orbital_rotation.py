@@ -232,9 +232,9 @@ def _apply_orbital_rotation_givens(
 
     if spin & Spin.ALPHA:
         # transform alpha
-        for (c, s), target_orbs in givens_rotations:
+        for c, s, i, j in givens_rotations:
             _apply_orbital_rotation_adjacent_spin_in_place(
-                vec, c, s.conjugate(), target_orbs, norb, n_alpha
+                vec, c, s.conjugate(), (i, j), norb, n_alpha
             )
         for i, phase_shift in enumerate(phase_shifts):
             indices = _one_subspace_indices(norb, n_alpha, (i,))
@@ -244,9 +244,9 @@ def _apply_orbital_rotation_givens(
         # transform beta
         # transpose vector to align memory layout
         vec = vec.T.copy()
-        for (c, s), target_orbs in givens_rotations:
+        for c, s, i, j in givens_rotations:
             _apply_orbital_rotation_adjacent_spin_in_place(
-                vec, c, s.conjugate(), target_orbs, norb, n_beta
+                vec, c, s.conjugate(), (i, j), norb, n_beta
             )
         for i, phase_shift in enumerate(phase_shifts):
             indices = _one_subspace_indices(norb, n_beta, (i,))
