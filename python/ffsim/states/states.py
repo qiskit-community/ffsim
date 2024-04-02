@@ -88,6 +88,9 @@ def slater_determinant(
     Returns:
         The Slater determinant as a statevector.
     """
+    if norb == 0:
+        return np.ones(1, dtype=complex)
+
     alpha_orbitals, beta_orbitals = occupied_orbitals
     n_alpha = len(alpha_orbitals)
     n_beta = len(beta_orbitals)
