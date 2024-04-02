@@ -10,8 +10,9 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
-from scipy.special import comb
 
 import ffsim
 from ffsim import cistring
@@ -26,8 +27,8 @@ def test_apply_num_op_sum_evolution_in_place_slow():
     for _ in range(5):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
-        dim_a = comb(norb, n_alpha, exact=True)
-        dim_b = comb(norb, n_beta, exact=True)
+        dim_a = math.comb(norb, n_alpha)
+        dim_b = math.comb(norb, n_beta)
         occupations = cistring.gen_occslst(range(norb), n_alpha)
         exponents = rng.uniform(0, 2 * np.pi, size=norb)
         phases = np.exp(1j * exponents)

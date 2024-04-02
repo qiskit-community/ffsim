@@ -43,8 +43,8 @@ def _orbital_rotation_generator(
         (np.complex128, 1e-12),
     ],
 )
-def test_apply_orbital_rotation(dtype: type, atol: float):
-    """Test applying orbital basis change."""
+def test_apply_orbital_rotation_random(dtype: type, atol: float):
+    """Test applying a random orbital rotation yields correct output state."""
     norb = 5
     rng = np.random.default_rng()
     for _ in range(5):

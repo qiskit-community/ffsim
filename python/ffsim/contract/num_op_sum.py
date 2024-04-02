@@ -12,9 +12,10 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import scipy.sparse.linalg
-from scipy.special import comb
 
 from ffsim._lib import (
     contract_num_op_sum_spin_into_buffer,
@@ -54,8 +55,8 @@ def contract_num_op_sum(
     occupations_a = gen_occslst(range(norb), n_alpha)
     occupations_b = gen_occslst(range(norb), n_beta)
 
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
     vec = vec.reshape((dim_a, dim_b))
     out = np.zeros_like(vec)
     # apply alpha

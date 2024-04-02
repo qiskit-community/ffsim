@@ -10,9 +10,10 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 from pyscf.fci import cistring
-from scipy.special import comb
 
 import ffsim
 from ffsim._lib import (
@@ -38,8 +39,8 @@ def test_apply_givens_rotation_in_place_slow():
     for _ in range(5):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
-        dim_a = comb(norb, n_alpha, exact=True)
-        dim_b = comb(norb, n_beta, exact=True)
+        dim_a = math.comb(norb, n_alpha)
+        dim_b = math.comb(norb, n_beta)
         vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
@@ -61,8 +62,8 @@ def test_gen_orbital_rotation_index_in_place_slow():
     nocc = rng.integers(1, norb + 1)
     linkstr_index = cistring.gen_linkstr_index(range(norb), nocc)
 
-    dim_diag = comb(norb - 1, nocc - 1, exact=True)
-    dim_off_diag = comb(norb - 1, nocc, exact=True)
+    dim_diag = math.comb(norb - 1, nocc - 1)
+    dim_off_diag = math.comb(norb - 1, nocc)
     dim = dim_diag + dim_off_diag
 
     diag_strings_slow = np.empty((norb, dim_diag), dtype=np.uint)
@@ -105,8 +106,8 @@ def test_apply_single_column_transformation_in_place_slow():
     for _ in range(5):
         n_alpha = rng.integers(1, norb + 1)
         n_beta = rng.integers(1, norb + 1)
-        dim_a = comb(norb, n_alpha, exact=True)
-        dim_b = comb(norb, n_beta, exact=True)
+        dim_a = math.comb(norb, n_alpha)
+        dim_b = math.comb(norb, n_beta)
         orbital_rotation_index = gen_orbital_rotation_index(norb, n_alpha)
         column = rng.uniform(size=norb) + 1j * rng.uniform(size=norb)
         diag_val = rng.uniform() + 1j * rng.uniform()

@@ -12,11 +12,11 @@
 
 from __future__ import annotations
 
+import math
 from functools import lru_cache
 
 import numpy as np
 from pyscf.fci import cistring
-from scipy.special import comb
 
 from ffsim._lib import gen_orbital_rotation_index_in_place
 
@@ -68,8 +68,8 @@ def gen_orbital_rotation_index(
         return diag_strings, off_diag_strings, off_diag_index
 
     linkstr_index = gen_linkstr_index(range(norb), nocc)
-    dim_diag = comb(norb - 1, nocc - 1, exact=True)
-    dim_off_diag = comb(norb - 1, nocc, exact=True)
+    dim_diag = math.comb(norb - 1, nocc - 1)
+    dim_off_diag = math.comb(norb - 1, nocc)
     dim = dim_diag + dim_off_diag
     diag_strings = np.empty((norb, dim_diag), dtype=np.uint)
     off_diag_strings = np.empty((norb, dim_off_diag), dtype=np.uint)

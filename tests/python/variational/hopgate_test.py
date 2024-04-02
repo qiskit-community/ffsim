@@ -11,9 +11,9 @@
 """Tests for hop gate ansatz."""
 
 import itertools
+import math
 
 import numpy as np
-from scipy.special import comb
 
 import ffsim
 
@@ -38,7 +38,7 @@ def test_parameters_roundtrip():
         thetas=thetas,
         final_orbital_rotation=final_orbital_rotation,
     )
-    assert len(operator.to_parameters()) == n_reps * comb(norb, 2) + norb**2
+    assert len(operator.to_parameters()) == n_reps * math.comb(norb, 2) + norb**2
     roundtripped = ffsim.HopGateAnsatzOperator.from_parameters(
         operator.to_parameters(),
         norb=norb,
