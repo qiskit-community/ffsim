@@ -234,6 +234,43 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.testing.generate_norb_nelec">
+<span class="sig-prename descclassname"><span class="pre">ffsim.testing.</span></span><span class="sig-name descname"><span class="pre">generate_norb_nelec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb_range</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/testing/testing.html#generate_norb_nelec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.testing.generate_norb_nelec" title="Link to this definition">#</a></dt>
+<dd><p>Generate (<cite>norb</cite>, <cite>nelec</cite>) tuples for testing.</p>
+<p>Given a range of choices for <cite>norb</cite>, generates all possible (<cite>norb</cite>, <cite>nelec</cite>) pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.testing.generate_norb_nelec_spin">
+<span class="sig-prename descclassname"><span class="pre">ffsim.testing.</span></span><span class="sig-name descname"><span class="pre">generate_norb_nelec_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb_range</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/testing/testing.html#generate_norb_nelec_spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.testing.generate_norb_nelec_spin" title="Link to this definition">#</a></dt>
+<dd><p>Generate (<cite>norb</cite>, <cite>nelec</cite>, <cite>spin</cite>) tuples for testing.</p>
+<p>Given a range of choices for <cite>norb</cite>, generates all possible
+(<cite>norb</cite>, <cite>nelec</cite>, <cite>spin</cite>) triplets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <a class="reference internal" href="ffsim.html#ffsim.Spin" title="ffsim.spin.Spin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spin</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.testing.generate_norb_spin">
+<span class="sig-prename descclassname"><span class="pre">ffsim.testing.</span></span><span class="sig-name descname"><span class="pre">generate_norb_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb_range</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/testing/testing.html#generate_norb_spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.testing.generate_norb_spin" title="Link to this definition">#</a></dt>
+<dd><p>Generate (<cite>norb</cite>, <cite>spin</cite>) tuples for testing.</p>
+<p>Given a range of choices for <cite>norb</cite>, generates all possible (<cite>norb</cite>, <cite>spin</cite>) pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <a class="reference internal" href="ffsim.html#ffsim.Spin" title="ffsim.spin.Spin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spin</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.testing.random_nelec">
 <span class="sig-prename descclassname"><span class="pre">ffsim.testing.</span></span><span class="sig-name descname"><span class="pre">random_nelec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/testing/testing.html#random_nelec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.testing.random_nelec" title="Link to this definition">#</a></dt>
 <dd><p>Return a random pair of (n_alpha, n_beta) particle numbers.</p>
@@ -334,6 +371,9 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
             <ul>
 <li><a class="reference internal" href="#">ffsim.testing</a><ul>
 <li><a class="reference internal" href="#ffsim.testing.assert_allclose_up_to_global_phase"><code class="docutils literal notranslate"><span class="pre">assert_allclose_up_to_global_phase()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.testing.generate_norb_nelec"><code class="docutils literal notranslate"><span class="pre">generate_norb_nelec()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.testing.generate_norb_nelec_spin"><code class="docutils literal notranslate"><span class="pre">generate_norb_nelec_spin()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.testing.generate_norb_spin"><code class="docutils literal notranslate"><span class="pre">generate_norb_spin()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.testing.random_nelec"><code class="docutils literal notranslate"><span class="pre">random_nelec()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.testing.random_occupied_orbitals"><code class="docutils literal notranslate"><span class="pre">random_occupied_orbitals()</span></code></a></li>
 </ul>

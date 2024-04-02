@@ -220,13 +220,13 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">comb</span>
 
 <span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">apply_givens_rotation_in_place</span><span class="p">,</span>
@@ -369,6 +369,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">norb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]])</span>
+
     <span class="k">if</span> <span class="n">permute_rows</span><span class="p">:</span>
         <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">perm</span> <span class="o">=</span> <span class="n">lup</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
     <span class="k">else</span><span class="p">:</span>
@@ -378,8 +381,8 @@
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">orbital_rotation_index_a</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
     <span class="n">orbital_rotation_index_b</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
-    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
         <span class="c1"># transform alpha</span>
@@ -434,8 +437,8 @@
     <span class="n">givens_rotations</span><span class="p">,</span> <span class="n">phase_shifts</span> <span class="o">=</span> <span class="n">givens_decomposition</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
 
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
@@ -497,8 +500,8 @@
     <span class="n">orbitals</span> <span class="o">=</span> <span class="n">_shifted_orbitals</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">)</span>
     <span class="n">strings</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">make_strings</span><span class="p">(</span><span class="n">orbitals</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span>
     <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">strings</span><span class="p">)</span>
-    <span class="n">n00</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nocc</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">n11</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nocc</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">n00</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span>
+    <span class="n">n11</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nocc</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">nocc</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="n">indices</span><span class="p">[</span><span class="n">n00</span> <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">-</span> <span class="n">n11</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
@@ -510,9 +513,9 @@
     <span class="n">orbitals</span> <span class="o">=</span> <span class="n">_shifted_orbitals</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">)</span>
     <span class="n">strings</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">make_strings</span><span class="p">(</span><span class="n">orbitals</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span>
     <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">strings</span><span class="p">)</span>
-    <span class="n">n0</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="n">comb</span><span class="p">(</span>
-        <span class="n">norb</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">),</span> <span class="n">nocc</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">),</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
+    <span class="n">n0</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nocc</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">):</span>
+        <span class="n">n0</span> <span class="o">-=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">),</span> <span class="n">nocc</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">indices</span><span class="p">[</span><span class="n">n0</span><span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 

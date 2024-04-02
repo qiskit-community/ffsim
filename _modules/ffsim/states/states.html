@@ -220,13 +220,13 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci.spin_op</span> <span class="kn">import</span> <span class="n">contract_ss</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">comb</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
 
@@ -245,8 +245,8 @@
 <span class="sd">        alpha- and beta- FCI space.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span></div>
 
 
@@ -307,6 +307,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The Slater determinant as a statevector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">norb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
     <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">occupied_orbitals</span>
     <span class="n">n_alpha</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
     <span class="n">n_beta</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
@@ -424,7 +427,7 @@
 <span class="sd">        #  &#39;100110&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="n">indices_a</span><span class="p">,</span> <span class="n">indices_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span>
     <span class="n">strings_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_a</span><span class="p">)</span>
     <span class="n">strings_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_b</span><span class="p">)</span>

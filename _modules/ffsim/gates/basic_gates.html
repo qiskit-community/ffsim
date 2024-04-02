@@ -225,7 +225,6 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">comb</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">_one_subspace_indices</span><span class="p">,</span> <span class="n">apply_orbital_rotation</span>
 <span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
@@ -248,8 +247,8 @@
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">))</span>
     <span class="n">target_orbs_a</span><span class="p">,</span> <span class="n">target_orbs_b</span> <span class="o">=</span> <span class="n">target_orbs</span>
     <span class="n">indices_a</span> <span class="o">=</span> <span class="n">_one_subspace_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">target_orbs_a</span><span class="p">)</span>
