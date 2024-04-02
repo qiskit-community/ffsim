@@ -10,7 +10,6 @@
 
 """Operators."""
 
-from ffsim._lib import FermionOperator
 from ffsim.operators.common_operators import number_operator
 from ffsim.operators.fermion_action import (
     FermionAction,
@@ -21,6 +20,7 @@ from ffsim.operators.fermion_action import (
     des_a,
     des_b,
 )
+from ffsim.operators.fermion_operator import FermionOperator
 
 __all__ = [
     "FermionAction",
