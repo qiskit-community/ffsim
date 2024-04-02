@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Iterable, Iterator
-from typing import cast
+from typing import Tuple, cast
 
 import numpy as np
 
@@ -33,7 +33,7 @@ def generate_norb_nelec_spin(
     for norb in norb_range:
         for nelec in itertools.product(range(norb + 1), repeat=2):
             for spin in Spin:
-                yield norb, cast(tuple[int, int], nelec), spin
+                yield norb, cast(Tuple[int, int], nelec), spin
 
 
 def generate_norb_nelec(
@@ -45,7 +45,7 @@ def generate_norb_nelec(
     """
     for norb in norb_range:
         for nelec in itertools.product(range(norb + 1), repeat=2):
-            yield norb, cast(tuple[int, int], nelec)
+            yield norb, cast(Tuple[int, int], nelec)
 
 
 def generate_norb_spin(norb_range: Iterable[int]) -> Iterator[tuple[int, Spin]]:
