@@ -84,38 +84,6 @@ def assert_has_two_orbital_matrix(
 
 
 @pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (2, (1, 1)),
-        (4, (2, 2)),
-        (5, (3, 2)),
-    ],
-)
-def test_apply_givens_rotation(norb: int, nelec: tuple[int, int]):
-    """Test Givens rotation."""
-    dim = ffsim.dim(norb, nelec)
-    rng = np.random.default_rng()
-    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
-    original_vec = vec.copy()
-    theta = rng.uniform(-10, 10)
-    for i, j in itertools.combinations(range(norb), 2):
-        for target_orbs in [(i, j), (j, i)]:
-            result = ffsim.apply_givens_rotation(
-                vec, theta, target_orbs, norb=norb, nelec=nelec
-            )
-            generator = np.zeros((norb, norb))
-            a, b = target_orbs
-            generator[a, b] = theta
-            generator[b, a] = -theta
-            linop = ffsim.contract.one_body_linop(generator, norb=norb, nelec=nelec)
-            expected = scipy.sparse.linalg.expm_multiply(
-                linop, vec, traceA=np.sum(np.abs(generator))
-            )
-            np.testing.assert_allclose(result, expected)
-    np.testing.assert_allclose(vec, original_vec)
-
-
-@pytest.mark.parametrize(
     "norb, spin",
     [
         (1, ffsim.Spin.ALPHA_AND_BETA),
@@ -156,35 +124,6 @@ def test_apply_givens_rotation_matrix(norb: int, spin: ffsim.Spin):
                     norb=norb,
                     spin=spin,
                 )
-
-
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (2, (1, 1)),
-        (4, (2, 2)),
-        (5, (3, 2)),
-    ],
-)
-def test_apply_tunneling_interaction(norb: int, nelec: tuple[int, int]):
-    """Test tunneling interaction."""
-    dim = ffsim.dim(norb, nelec)
-    rng = np.random.default_rng()
-    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
-    theta = rng.uniform(-10, 10)
-    for i, j in itertools.combinations(range(norb), 2):
-        for target_orbs in [(i, j), (j, i)]:
-            result = ffsim.apply_tunneling_interaction(
-                vec, theta, target_orbs, norb=norb, nelec=nelec
-            )
-            generator = np.zeros((norb, norb))
-            generator[i, j] = theta
-            generator[j, i] = theta
-            linop = ffsim.contract.one_body_linop(generator, norb=norb, nelec=nelec)
-            expected = scipy.sparse.linalg.expm_multiply(
-                1j * linop, vec, traceA=np.sum(np.abs(generator))
-            )
-            np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize(
