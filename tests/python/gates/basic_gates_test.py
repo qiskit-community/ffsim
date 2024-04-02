@@ -194,40 +194,48 @@ def test_apply_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsim.Sp
 
 
 @pytest.mark.parametrize(
-    "norb, nelec",
+    "norb, nelec, spin",
     [
-        (2, (1, 1)),
-        (3, (2, 1)),
+        (2, (1, 1), ffsim.Spin.ALPHA_AND_BETA),
+        (3, (2, 1), ffsim.Spin.ALPHA_AND_BETA),
+        (3, (1, 2), ffsim.Spin.ALPHA_AND_BETA),
+        (3, (2, 1), ffsim.Spin.ALPHA),
+        (3, (1, 2), ffsim.Spin.ALPHA),
+        (3, (2, 1), ffsim.Spin.BETA),
+        (3, (1, 2), ffsim.Spin.BETA),
     ],
 )
-def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int]):
+def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsim.Spin):
     """Test applying number-number interaction."""
-    dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for i, j in itertools.combinations(range(norb), 2):
-        for target_orbs in [(i, j), (j, i)]:
+        for m, n in [(i, j), (j, i)]:
             result = ffsim.apply_num_num_interaction(
-                vec, theta, target_orbs, norb=norb, nelec=nelec
+                vec, theta, (m, n), norb=norb, nelec=nelec, spin=spin
             )
-            m, n = target_orbs
-            generator = ffsim.FermionOperator(
-                {
+            coeffs = {}
+            if spin & ffsim.Spin.ALPHA:
+                coeffs[
                     (
                         ffsim.cre_a(m),
                         ffsim.des_a(m),
                         ffsim.cre_a(n),
                         ffsim.des_a(n),
-                    ): theta,
+                    )
+                ] = theta
+            if spin & ffsim.Spin.BETA:
+                coeffs[
                     (
                         ffsim.cre_b(m),
                         ffsim.des_b(m),
                         ffsim.cre_b(n),
                         ffsim.des_b(n),
-                    ): theta,
-                }
-            )
+                    )
+                ] = theta
+            generator = ffsim.FermionOperator(coeffs)
             linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
             expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
             np.testing.assert_allclose(result, expected)
