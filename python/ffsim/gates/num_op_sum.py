@@ -12,8 +12,9 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
-from scipy.special import comb
 
 from ffsim._lib import apply_num_op_sum_evolution_in_place
 from ffsim.cistring import gen_occslst
@@ -84,8 +85,8 @@ def apply_num_op_sum_evolution(
         vec = vec.copy()
 
     n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
     occupations_a = gen_occslst(range(norb), n_alpha)
     occupations_b = gen_occslst(range(norb), n_beta)
 

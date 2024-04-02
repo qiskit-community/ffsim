@@ -17,7 +17,6 @@ import math
 from collections.abc import Sequence
 
 import numpy as np
-from scipy.special import comb
 
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin
@@ -40,8 +39,8 @@ def _apply_phase_shift(
     if copy:
         vec = vec.copy()
     n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
     vec = vec.reshape((dim_a, dim_b))
     target_orbs_a, target_orbs_b = target_orbs
     indices_a = _one_subspace_indices(norb, n_alpha, target_orbs_a)

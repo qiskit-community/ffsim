@@ -12,10 +12,10 @@
 
 from __future__ import annotations
 
+import math
 from typing import cast
 
 import numpy as np
-from scipy.special import comb
 
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
@@ -82,8 +82,8 @@ def apply_diag_coulomb_evolution(
         mat_alpha_beta = mat
 
     n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
 
     if orbital_rotation is not None:
         vec, perm0 = apply_orbital_rotation(

@@ -12,13 +12,13 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 
 import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
 from pyscf.fci.spin_op import contract_ss
-from scipy.special import comb
 
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
@@ -35,8 +35,8 @@ def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
         alpha- and beta- FCI space.
     """
     n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
     return dim_a, dim_b
 
 
@@ -199,7 +199,7 @@ def indices_to_strings(
         #  '100110']
     """
     n_alpha, n_beta = nelec
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_b = math.comb(norb, n_beta)
     indices_a, indices_b = np.divmod(indices, dim_b)
     strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)
     strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)
