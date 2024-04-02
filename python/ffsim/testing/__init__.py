@@ -12,12 +12,18 @@
 
 from ffsim.testing.testing import (
     assert_allclose_up_to_global_phase,
+    generate_norb_nelec,
+    generate_norb_nelec_spin,
+    generate_norb_spin,
     random_nelec,
     random_occupied_orbitals,
 )
 
 __all__ = [
     "assert_allclose_up_to_global_phase",
+    "generate_norb_nelec",
+    "generate_norb_nelec_spin",
+    "generate_norb_spin",
     "random_nelec",
     "random_occupied_orbitals",
 ]

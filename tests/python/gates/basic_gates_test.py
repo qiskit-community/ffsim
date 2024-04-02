@@ -83,15 +83,7 @@ def assert_has_two_orbital_matrix(
     np.testing.assert_allclose(actual_mat, expected_mat, rtol=rtol, atol=atol)
 
 
-@pytest.mark.parametrize(
-    "norb, spin",
-    [
-        (1, ffsim.Spin.ALPHA_AND_BETA),
-        (2, ffsim.Spin.ALPHA),
-        (3, ffsim.Spin.BETA),
-        (4, ffsim.Spin.ALPHA_AND_BETA),
-    ],
-)
+@pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_givens_rotation_matrix(norb: int, spin: ffsim.Spin):
     """Test Givens rotation matrix."""
     rng = np.random.default_rng()
@@ -126,15 +118,7 @@ def test_apply_givens_rotation_matrix(norb: int, spin: ffsim.Spin):
                 )
 
 
-@pytest.mark.parametrize(
-    "norb, spin",
-    [
-        (1, ffsim.Spin.ALPHA_AND_BETA),
-        (2, ffsim.Spin.ALPHA),
-        (3, ffsim.Spin.BETA),
-        (4, ffsim.Spin.ALPHA_AND_BETA),
-    ],
-)
+@pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_tunneling_interaction_matrix(norb: int, spin: ffsim.Spin):
     """Test tunneling interaction matrix."""
     rng = np.random.default_rng()
@@ -170,12 +154,7 @@ def test_apply_tunneling_interaction_matrix(norb: int, spin: ffsim.Spin):
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, spin",
-    [
-        (2, (1, 1), ffsim.Spin.ALPHA_AND_BETA),
-        (4, (2, 2), ffsim.Spin.ALPHA),
-        (5, (3, 2), ffsim.Spin.BETA),
-    ],
+    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
 )
 def test_apply_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsim.Spin):
     """Test applying number interaction."""
@@ -194,16 +173,7 @@ def test_apply_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsim.Sp
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, spin",
-    [
-        (2, (1, 1), ffsim.Spin.ALPHA_AND_BETA),
-        (3, (2, 1), ffsim.Spin.ALPHA_AND_BETA),
-        (3, (1, 2), ffsim.Spin.ALPHA_AND_BETA),
-        (3, (2, 1), ffsim.Spin.ALPHA),
-        (3, (1, 2), ffsim.Spin.ALPHA),
-        (3, (2, 1), ffsim.Spin.BETA),
-        (3, (1, 2), ffsim.Spin.BETA),
-    ],
+    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
 )
 def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsim.Spin):
     """Test applying number-number interaction."""
@@ -241,14 +211,7 @@ def test_apply_num_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsi
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (2, (1, 1)),
-        (4, (2, 2)),
-        (5, (3, 2)),
-    ],
-)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
 def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]):
     """Test eigenvalues of number-number interaction."""
     rng = np.random.default_rng()
@@ -273,13 +236,7 @@ def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (2, (1, 1)),
-        (3, (2, 1)),
-    ],
-)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
 def test_apply_on_site_num_num_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying on-site number-number interaction."""
     dim = ffsim.dim(norb, nelec)
@@ -305,14 +262,7 @@ def test_apply_on_site_num_num_interaction(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (2, (1, 1)),
-        (4, (2, 2)),
-        (5, (3, 2)),
-    ],
-)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
 def test_apply_num_op_prod(norb: int, nelec: tuple[int, int]):
     """Test applying number operator product interaction."""
     rng = np.random.default_rng()
@@ -341,15 +291,7 @@ def test_apply_num_op_prod(norb: int, nelec: tuple[int, int]):
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, spin",
-    [
-        (1, ffsim.Spin.ALPHA_AND_BETA),
-        (2, ffsim.Spin.ALPHA),
-        (3, ffsim.Spin.BETA),
-        (4, ffsim.Spin.ALPHA_AND_BETA),
-    ],
-)
+@pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_hop_gate_matrix(norb: int, spin: ffsim.Spin):
     """Test applying hop gate matrix."""
     rng = np.random.default_rng()
@@ -384,15 +326,7 @@ def test_apply_hop_gate_matrix(norb: int, spin: ffsim.Spin):
                 )
 
 
-@pytest.mark.parametrize(
-    "norb, spin",
-    [
-        (1, ffsim.Spin.ALPHA_AND_BETA),
-        (2, ffsim.Spin.ALPHA),
-        (3, ffsim.Spin.BETA),
-        (4, ffsim.Spin.ALPHA_AND_BETA),
-    ],
-)
+@pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_fsim_gate_matrix(norb: int, spin: ffsim.Spin):
     """Test applying fSim gate matrix."""
     rng = np.random.default_rng()

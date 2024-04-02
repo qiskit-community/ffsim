@@ -12,9 +12,50 @@
 
 from __future__ import annotations
 
+import itertools
+from collections.abc import Iterable, Iterator
+from typing import cast
+
 import numpy as np
 
 from ffsim.linalg import match_global_phase
+from ffsim.spin import Spin
+
+
+def generate_norb_nelec_spin(
+    norb_range: Iterable[int],
+) -> Iterator[tuple[int, tuple[int, int], Spin]]:
+    """Generate (`norb`, `nelec`, `spin`) tuples for testing.
+
+    Given a range of choices for `norb`, generates all possible
+    (`norb`, `nelec`, `spin`) triplets.
+    """
+    for norb in norb_range:
+        for nelec in itertools.product(range(norb + 1), repeat=2):
+            for spin in Spin:
+                yield norb, cast(tuple[int, int], nelec), spin
+
+
+def generate_norb_nelec(
+    norb_range: Iterable[int],
+) -> Iterator[tuple[int, tuple[int, int]]]:
+    """Generate (`norb`, `nelec`) tuples for testing.
+
+    Given a range of choices for `norb`, generates all possible (`norb`, `nelec`) pairs.
+    """
+    for norb in norb_range:
+        for nelec in itertools.product(range(norb + 1), repeat=2):
+            yield norb, cast(tuple[int, int], nelec)
+
+
+def generate_norb_spin(norb_range: Iterable[int]) -> Iterator[tuple[int, Spin]]:
+    """Generate (`norb`, `spin`) tuples for testing.
+
+    Given a range of choices for `norb`, generates all possible (`norb`, `spin`) pairs.
+    """
+    for norb in norb_range:
+        for spin in Spin:
+            yield norb, spin
 
 
 def random_nelec(norb: int, *, seed=None) -> tuple[int, int]:
