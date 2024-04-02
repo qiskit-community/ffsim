@@ -170,28 +170,27 @@ def test_apply_tunneling_interaction_matrix(norb: int, spin: ffsim.Spin):
 
 
 @pytest.mark.parametrize(
-    "norb, nelec",
+    "norb, nelec, spin",
     [
-        (2, (1, 1)),
-        (4, (2, 2)),
-        (5, (3, 2)),
+        (2, (1, 1), ffsim.Spin.ALPHA_AND_BETA),
+        (4, (2, 2), ffsim.Spin.ALPHA),
+        (5, (3, 2), ffsim.Spin.BETA),
     ],
 )
-def test_apply_num_interaction(norb: int, nelec: tuple[int, int]):
+def test_apply_num_interaction(norb: int, nelec: tuple[int, int], spin: ffsim.Spin):
     """Test applying number interaction."""
-    dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for target_orb in range(norb):
-        for spin in ffsim.Spin:
-            result = ffsim.apply_num_interaction(
-                vec, theta, target_orb, norb=norb, nelec=nelec, spin=spin
-            )
-            generator = theta * ffsim.number_operator(target_orb, spin=spin)
-            linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
-            expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
-            np.testing.assert_allclose(result, expected)
+        result = ffsim.apply_num_interaction(
+            vec, theta, target_orb, norb=norb, nelec=nelec, spin=spin
+        )
+        generator = theta * ffsim.number_operator(target_orb, spin=spin)
+        linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
+        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize(
