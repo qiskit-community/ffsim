@@ -13,10 +13,34 @@
 from __future__ import annotations
 
 import cmath
+from typing import NamedTuple
 
 import numpy as np
 from scipy.linalg.blas import zrotg as zrotg_
 from scipy.linalg.lapack import zrot
+
+
+class GivensRotation(NamedTuple):
+    # TODO double check matrix definition
+    r"""A Givens rotation.
+
+    A Givens rotation acts on a two-dimensional subspace as
+
+    .. math::
+
+        \begin{pmatrix}
+            c & s \\
+            -s^* & c \\
+        \end{pmatrix}
+
+    where :math:`c` is a real number and :math:`s` is a complex number.
+
+    """
+
+    c: float
+    s: complex
+    i: int
+    j: int
 
 
 def apply_matrix_to_slices(
