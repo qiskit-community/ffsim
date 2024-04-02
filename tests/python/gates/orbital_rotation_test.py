@@ -38,8 +38,8 @@ def _orbital_rotation_generator(
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
-def test_apply_orbital_rotation_random(norb: int, nelec: tuple[int, int]):
-    """Test applying a random orbital rotation yields correct output state."""
+def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]):
+    """Test applying orbital rotation is consistent one-body linear operator."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
@@ -61,10 +61,10 @@ def test_apply_orbital_rotation_random(norb: int, nelec: tuple[int, int]):
 @pytest.mark.parametrize(
     "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
 )
-def test_apply_orbital_rotation_spin(
+def test_apply_orbital_rotation_random(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
 ):
-    """Test applying orbital basis change to different spins."""
+    """Test applying random orbital rotation yields correct output state."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
@@ -95,48 +95,13 @@ def test_apply_orbital_rotation_no_side_effects_vec(norb: int, nelec: tuple[int,
         np.testing.assert_allclose(vec, original_vec)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
-def test_apply_orbital_rotation_lu(norb: int, nelec: tuple[int, int]):
-    """Test applying orbital basis change, LU decomposition method."""
-    rng = np.random.default_rng()
-    dim = ffsim.dim(norb, nelec)
-    for _ in range(3):
-        mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
-
-        result, perm = ffsim.apply_orbital_rotation(
-            vec, mat, norb, nelec, allow_col_permutation=True
-        )
-        np.testing.assert_allclose(np.linalg.norm(result), 1)
-        if norb:
-            op = ffsim.contract.one_body_linop(
-                scipy.linalg.logm(mat @ perm), norb=norb, nelec=nelec
-            )
-            expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=1)
-        else:
-            expected = vec
-        np.testing.assert_allclose(result, expected)
-
-        result, perm = ffsim.apply_orbital_rotation(
-            vec, mat, norb, nelec, allow_row_permutation=True
-        )
-        if norb:
-            op = ffsim.contract.one_body_linop(
-                scipy.linalg.logm(perm @ mat), norb=norb, nelec=nelec
-            )
-            expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=1)
-        else:
-            expected = vec
-        np.testing.assert_allclose(result, expected)
-
-
 @pytest.mark.parametrize(
     "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
 )
-def test_apply_orbital_rotation_spin_lu(
+def test_apply_orbital_rotation_lu_random(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
 ):
-    """Test applying orbital basis, LU decomposition method to different spins."""
+    """Test applying random orbital rotation, LU decomposition method."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
