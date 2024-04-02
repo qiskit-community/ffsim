@@ -29,6 +29,7 @@ def assert_has_two_orbital_matrix(
     phase_00: complex,
     phase_11: complex,
     norb: int,
+    spin: ffsim.Spin = ffsim.Spin.ALPHA_AND_BETA,
     rtol: float = 1e-7,
     atol: float = 0.0,
 ):
@@ -44,32 +45,42 @@ def assert_has_two_orbital_matrix(
     state_01 = ffsim.slater_determinant(norb=norb, occupied_orbitals=([j], []))
     state_11 = ffsim.slater_determinant(norb=norb, occupied_orbitals=([i, j], []))
 
+    expected_phase = phase_11 if spin & ffsim.Spin.ALPHA else 1
     np.testing.assert_allclose(
-        np.vdot(state_11, gate(state_11, norb, (2, 0))), phase_11, rtol=rtol, atol=atol
+        np.vdot(state_11, gate(state_11, norb, (2, 0))),
+        expected_phase,
+        rtol=rtol,
+        atol=atol,
     )
 
     actual_mat = np.zeros((2, 2), dtype=complex)
+    expected_mat = mat if spin & ffsim.Spin.ALPHA else np.eye(2)
     for (a, state_a), (b, state_b) in itertools.product(
         enumerate([state_01, state_10]), repeat=2
     ):
         actual_mat[a, b] = np.vdot(state_a, gate(state_b, norb, (1, 0)))
-    np.testing.assert_allclose(actual_mat, mat, rtol=rtol, atol=atol)
+    np.testing.assert_allclose(actual_mat, expected_mat, rtol=rtol, atol=atol)
 
     # test beta
     state_10 = ffsim.slater_determinant(norb=norb, occupied_orbitals=([], [i]))
     state_01 = ffsim.slater_determinant(norb=norb, occupied_orbitals=([], [j]))
     state_11 = ffsim.slater_determinant(norb=norb, occupied_orbitals=([], [i, j]))
 
+    expected_phase = phase_11 if spin & ffsim.Spin.BETA else 1
     np.testing.assert_allclose(
-        np.vdot(state_11, gate(state_11, norb, (0, 2))), phase_11, rtol=rtol, atol=atol
+        np.vdot(state_11, gate(state_11, norb, (0, 2))),
+        expected_phase,
+        rtol=rtol,
+        atol=atol,
     )
 
     actual_mat = np.zeros((2, 2), dtype=complex)
+    expected_mat = mat if spin & ffsim.Spin.BETA else np.eye(2)
     for (a, state_a), (b, state_b) in itertools.product(
         enumerate([state_01, state_10]), repeat=2
     ):
         actual_mat[a, b] = np.vdot(state_a, gate(state_b, norb, (0, 1)))
-    np.testing.assert_allclose(actual_mat, mat, rtol=rtol, atol=atol)
+    np.testing.assert_allclose(actual_mat, expected_mat, rtol=rtol, atol=atol)
 
 
 @pytest.mark.parametrize(
@@ -104,9 +115,17 @@ def test_apply_givens_rotation(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(vec, original_vec)
 
 
-def test_apply_givens_rotation_matrix():
+@pytest.mark.parametrize(
+    "norb, spin",
+    [
+        (1, ffsim.Spin.ALPHA_AND_BETA),
+        (2, ffsim.Spin.ALPHA),
+        (3, ffsim.Spin.BETA),
+        (4, ffsim.Spin.ALPHA_AND_BETA),
+    ],
+)
+def test_apply_givens_rotation_matrix(norb: int, spin: ffsim.Spin):
     """Test Givens rotation matrix."""
-    norb = 4
     rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
@@ -117,19 +136,25 @@ def test_apply_givens_rotation_matrix():
     phase_00 = 1
     phase_11 = 1
 
-    for _ in range(5):
+    for _ in range(3):
         theta = rng.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
                     lambda vec, norb, nelec: ffsim.apply_givens_rotation(
-                        vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec
+                        vec,
+                        theta,
+                        target_orbs=target_orbs,
+                        norb=norb,
+                        nelec=nelec,
+                        spin=spin,
                     ),
                     target_orbs=target_orbs,
                     mat=mat(theta),
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
+                    spin=spin,
                 )
 
 
@@ -162,9 +187,17 @@ def test_apply_tunneling_interaction(norb: int, nelec: tuple[int, int]):
             np.testing.assert_allclose(result, expected)
 
 
-def test_apply_tunneling_interaction_matrix():
+@pytest.mark.parametrize(
+    "norb, spin",
+    [
+        (1, ffsim.Spin.ALPHA_AND_BETA),
+        (2, ffsim.Spin.ALPHA),
+        (3, ffsim.Spin.BETA),
+        (4, ffsim.Spin.ALPHA_AND_BETA),
+    ],
+)
+def test_apply_tunneling_interaction_matrix(norb: int, spin: ffsim.Spin):
     """Test tunneling interaction matrix."""
-    norb = 4
     rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
@@ -175,19 +208,25 @@ def test_apply_tunneling_interaction_matrix():
     phase_00 = 1
     phase_11 = 1
 
-    for _ in range(5):
+    for _ in range(3):
         theta = rng.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
                     lambda vec, norb, nelec: ffsim.apply_tunneling_interaction(
-                        vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec
+                        vec,
+                        theta,
+                        target_orbs=target_orbs,
+                        norb=norb,
+                        nelec=nelec,
+                        spin=spin,
                     ),
                     target_orbs=target_orbs,
                     mat=mat(theta),
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
+                    spin=spin,
                 )
 
 
@@ -356,9 +395,17 @@ def test_apply_num_op_prod(norb: int, nelec: tuple[int, int]):
             np.testing.assert_allclose(result, expected)
 
 
-def test_apply_hop_gate_matrix():
+@pytest.mark.parametrize(
+    "norb, spin",
+    [
+        (1, ffsim.Spin.ALPHA_AND_BETA),
+        (2, ffsim.Spin.ALPHA),
+        (3, ffsim.Spin.BETA),
+        (4, ffsim.Spin.ALPHA_AND_BETA),
+    ],
+)
+def test_apply_hop_gate_matrix(norb: int, spin: ffsim.Spin):
     """Test applying hop gate matrix."""
-    norb = 4
     rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
@@ -369,25 +416,39 @@ def test_apply_hop_gate_matrix():
     phase_00 = 1
     phase_11 = -1
 
-    for _ in range(5):
+    for _ in range(3):
         theta = rng.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
                     lambda vec, norb, nelec: ffsim.apply_hop_gate(
-                        vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec
+                        vec,
+                        theta,
+                        target_orbs=target_orbs,
+                        norb=norb,
+                        nelec=nelec,
+                        spin=spin,
                     ),
                     target_orbs=target_orbs,
                     mat=mat(theta),
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
+                    spin=spin,
                 )
 
 
-def test_apply_fsim_gate_matrix():
+@pytest.mark.parametrize(
+    "norb, spin",
+    [
+        (1, ffsim.Spin.ALPHA_AND_BETA),
+        (2, ffsim.Spin.ALPHA),
+        (3, ffsim.Spin.BETA),
+        (4, ffsim.Spin.ALPHA_AND_BETA),
+    ],
+)
+def test_apply_fsim_gate_matrix(norb: int, spin: ffsim.Spin):
     """Test applying fSim gate matrix."""
-    norb = 4
     rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
@@ -397,7 +458,7 @@ def test_apply_fsim_gate_matrix():
 
     phase_00 = 1
 
-    for _ in range(5):
+    for _ in range(3):
         theta = rng.uniform(-10, 10)
         phi = rng.uniform(-10, 10)
         phase_11 = np.exp(-1j * phi)
@@ -405,11 +466,18 @@ def test_apply_fsim_gate_matrix():
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
                     lambda vec, norb, nelec: ffsim.apply_fsim_gate(
-                        vec, theta, phi, target_orbs=target_orbs, norb=norb, nelec=nelec
+                        vec,
+                        theta,
+                        phi,
+                        target_orbs=target_orbs,
+                        norb=norb,
+                        nelec=nelec,
+                        spin=spin,
                     ),
                     target_orbs=target_orbs,
                     mat=mat(theta),
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
+                    spin=spin,
                 )
