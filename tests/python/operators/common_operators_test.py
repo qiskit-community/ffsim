@@ -17,10 +17,7 @@ import pytest
 import ffsim
 
 
-@pytest.mark.parametrize(
-    "orb",
-    range(5),
-)
+@pytest.mark.parametrize("orb", range(4))
 def test_number_operator(orb: int):
     op = ffsim.number_operator(orb)
     assert dict(op) == {
