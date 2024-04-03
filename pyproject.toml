@@ -19,6 +19,7 @@ dependencies = [
     "pyscf>=2.3.0",
     "qiskit >= 1.0.0",
     "scipy",
+    "typing-extensions",
 ]
 
 [project.urls]
