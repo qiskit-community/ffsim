@@ -36,7 +36,8 @@ def test_givens_decomposition_definition(dim: int):
                 [c, s],
                 [-s.conjugate(), c],
             ]
-            reconstructed @= givens_mat.conj()
+            # TODO use in-place operator @= after Python 3.9
+            reconstructed = reconstructed @ givens_mat.conj()
         np.testing.assert_allclose(reconstructed, mat)
         assert len(givens_rotations) == dim * (dim - 1) // 2
 
