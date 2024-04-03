@@ -150,7 +150,7 @@ def givens_decomposition(
     n, _ = mat.shape
     current_matrix = mat.astype(complex, copy=True)
     left_rotations = []
-    right_rotations: list[GivensRotation] = []
+    right_rotations = []
 
     # compute left and right Givens rotations
     for i in range(n - 1):
