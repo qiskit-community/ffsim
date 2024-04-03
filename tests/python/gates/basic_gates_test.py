@@ -227,16 +227,14 @@ def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
-def test_apply_on_site_num_num_interaction(norb: int, nelec: tuple[int, int]):
+def test_apply_on_site_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying on-site number-number interaction."""
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
     vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for i in range(norb):
-        result = ffsim.apply_on_site_num_num_interaction(
-            vec, theta, i, norb=norb, nelec=nelec
-        )
+        result = ffsim.apply_on_site_interaction(vec, theta, i, norb=norb, nelec=nelec)
         generator = ffsim.FermionOperator(
             {
                 (
@@ -351,3 +349,12 @@ def test_apply_fsim_gate_matrix(norb: int, spin: ffsim.Spin):
                     norb=norb,
                     spin=spin,
                 )
+
+
+def test_deprecations():
+    """Test deprecation warnings are raised properly."""
+    norb = 2
+    nelec = (1, 1)
+    vec = ffsim.hartree_fock_state(norb, nelec)
+    with pytest.warns(DeprecationWarning):
+        _ = ffsim.apply_on_site_num_num_interaction(vec, 0.1, 0, norb=norb, nelec=nelec)
