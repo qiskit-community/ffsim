@@ -210,6 +210,47 @@
           <section id="module-ffsim.linalg">
 <span id="ffsim-linalg"></span><h1>ffsim.linalg<a class="headerlink" href="#module-ffsim.linalg" title="Link to this heading">#</a></h1>
 <p>Linear algebra utilities.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.linalg.GivensRotation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">GivensRotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">complex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/givens.html#GivensRotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.GivensRotation" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>A Givens rotation.</p>
+<p>A Givens rotation acts on the two-dimensional subspace spanned by the <span class="math notranslate nohighlight">\(i\)</span>-th
+and <span class="math notranslate nohighlight">\(j\)</span>-th basis vectors as</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+    c &amp; s \\
+    -s^* &amp; c \\
+\end{pmatrix}\end{split}\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(c\)</span> is a real number and <span class="math notranslate nohighlight">\(s\)</span> is a complex number.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.linalg.GivensRotation.c">
+<span class="sig-name descname"><span class="pre">c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#ffsim.linalg.GivensRotation.c" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.linalg.GivensRotation.i">
+<span class="sig-name descname"><span class="pre">i</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#ffsim.linalg.GivensRotation.i" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.linalg.GivensRotation.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#ffsim.linalg.GivensRotation.j" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.linalg.GivensRotation.s">
+<span class="sig-name descname"><span class="pre">s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></em><a class="headerlink" href="#ffsim.linalg.GivensRotation.s" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.apply_matrix_to_slices">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">apply_matrix_to_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/givens.html#apply_matrix_to_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.apply_matrix_to_slices" title="Link to this definition">#</a></dt>
@@ -378,9 +419,55 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <dt class="sig sig-object py" id="ffsim.linalg.givens_decomposition">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">givens_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/givens.html#givens_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.givens_decomposition" title="Link to this definition">#</a></dt>
 <dd><p>Givens rotation decomposition of a unitary matrix.</p>
+<p>The Givens rotation decomposition of an <span class="math notranslate nohighlight">\(n \times n\)</span> unitary matrix <span class="math notranslate nohighlight">\(U\)</span>
+is given by</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[U = D G_L^* G_{L-1}^* \cdots G_1^*\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(D\)</span> is a diagonal matrix and each <span class="math notranslate nohighlight">\(G_k\)</span> is a Givens rotation.
+Here, the star <span class="math notranslate nohighlight">\(*\)</span> denotes the element-wise complex conjugate.
+A Givens rotation acts on the two-dimensional subspace spanned by the <span class="math notranslate nohighlight">\(i\)</span>-th
+and <span class="math notranslate nohighlight">\(j\)</span>-th basis vectors as</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+    c &amp; s \\
+    -s^* &amp; c \\
+\end{pmatrix}\end{split}\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(c\)</span> is a real number and <span class="math notranslate nohighlight">\(s\)</span> is a complex number.
+Therefore, a Givens rotation is described by a 4-tuple
+<span class="math notranslate nohighlight">\((c, s, i, j)\)</span>, where <span class="math notranslate nohighlight">\(c\)</span> and <span class="math notranslate nohighlight">\(s\)</span> are the numbers appearing
+in the rotation matrix, and <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> are the
+indices of the basis vectors of the subspace being rotated.
+This function always returns Givens rotations with the property that
+<span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> differ by at most one, that is, either <span class="math notranslate nohighlight">\(j = i + 1\)</span>
+or <span class="math notranslate nohighlight">\(j = i - 1\)</span>.</p>
+<p>The number of Givens rotations <span class="math notranslate nohighlight">\(L\)</span> is at most <span class="math notranslate nohighlight">\(\frac{n (n-1)}{2}\)</span>,
+but it may be less. If we think of Givens rotations acting on disjoint indices
+as operations that can be performed in parallel, then the entire sequence of
+rotations can always be performed using at most <cite>n</cite> layers of parallel operations.
+The decomposition algorithm is described in <a class="reference internal" href="#reference"><span class="std std-ref">[1]</span></a>.</p>
+<p id="reference">[1] William R. Clements et al.
+<a class="reference external" href="https://doi.org/10.1364/OPTICA.3.001460">Optimal design for universal multiport interferometers</a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The unitary matrix to decompose into Givens rotations.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="#ffsim.linalg.GivensRotation" title="ffsim.linalg.givens.GivensRotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">GivensRotation</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>A list containing the Givens rotations <span class="math notranslate nohighlight">\(G_1, \ldots, G_L\)</span>.
+Each Givens rotation is represented as a 4-tuple
+<span class="math notranslate nohighlight">\((c, s, i, j)\)</span>, where <span class="math notranslate nohighlight">\(c\)</span> and <span class="math notranslate nohighlight">\(s\)</span> are the numbers appearing
+in the rotation matrix, and <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> are the
+indices of the basis vectors of the subspace being rotated.</p></li>
+<li><p>A Numpy array containing the diagonal elements of the matrix <span class="math notranslate nohighlight">\(D\)</span>.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -666,6 +753,13 @@ return the matrix M where <span class="math notranslate nohighlight">\(M_{ij} = 
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">ffsim.linalg</a><ul>
+<li><a class="reference internal" href="#ffsim.linalg.GivensRotation"><code class="docutils literal notranslate"><span class="pre">GivensRotation</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.linalg.GivensRotation.c"><code class="docutils literal notranslate"><span class="pre">GivensRotation.c</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.linalg.GivensRotation.i"><code class="docutils literal notranslate"><span class="pre">GivensRotation.i</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.linalg.GivensRotation.j"><code class="docutils literal notranslate"><span class="pre">GivensRotation.j</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.linalg.GivensRotation.s"><code class="docutils literal notranslate"><span class="pre">GivensRotation.s</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.linalg.apply_matrix_to_slices"><code class="docutils literal notranslate"><span class="pre">apply_matrix_to_slices()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linalg.double_factorized"><code class="docutils literal notranslate"><span class="pre">double_factorized()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linalg.double_factorized_t2"><code class="docutils literal notranslate"><span class="pre">double_factorized_t2()</span></code></a></li>

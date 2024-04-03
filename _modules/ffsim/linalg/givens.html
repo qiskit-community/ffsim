@@ -221,10 +221,36 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">cmath</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NamedTuple</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.linalg.blas</span> <span class="kn">import</span> <span class="n">zrotg</span> <span class="k">as</span> <span class="n">zrotg_</span>
 <span class="kn">from</span> <span class="nn">scipy.linalg.lapack</span> <span class="kn">import</span> <span class="n">zrot</span>
+
+
+<div class="viewcode-block" id="GivensRotation">
+<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.GivensRotation">[docs]</a>
+<span class="k">class</span> <span class="nc">GivensRotation</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A Givens rotation.</span>
+
+<span class="sd">    A Givens rotation acts on the two-dimensional subspace spanned by the :math:`i`-th</span>
+<span class="sd">    and :math:`j`-th basis vectors as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \begin{pmatrix}</span>
+<span class="sd">            c &amp; s \\</span>
+<span class="sd">            -s^* &amp; c \\</span>
+<span class="sd">        \end{pmatrix}</span>
+
+<span class="sd">    where :math:`c` is a real number and :math:`s` is a complex number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">c</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">s</span><span class="p">:</span> <span class="nb">complex</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">j</span><span class="p">:</span> <span class="nb">int</span></div>
+
 
 
 <div class="viewcode-block" id="apply_matrix_to_slices">
@@ -282,12 +308,65 @@
 <a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.givens_decomposition">[docs]</a>
 <span class="k">def</span> <span class="nf">givens_decomposition</span><span class="p">(</span>
     <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Givens rotation decomposition of a unitary matrix.&quot;&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">GivensRotation</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Givens rotation decomposition of a unitary matrix.</span>
+
+<span class="sd">    The Givens rotation decomposition of an :math:`n \times n` unitary matrix :math:`U`</span>
+<span class="sd">    is given by</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        U = D G_L^* G_{L-1}^* \cdots G_1^*</span>
+
+<span class="sd">    where :math:`D` is a diagonal matrix and each :math:`G_k` is a Givens rotation.</span>
+<span class="sd">    Here, the star :math:`*` denotes the element-wise complex conjugate.</span>
+<span class="sd">    A Givens rotation acts on the two-dimensional subspace spanned by the :math:`i`-th</span>
+<span class="sd">    and :math:`j`-th basis vectors as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \begin{pmatrix}</span>
+<span class="sd">            c &amp; s \\</span>
+<span class="sd">            -s^* &amp; c \\</span>
+<span class="sd">        \end{pmatrix}</span>
+
+<span class="sd">    where :math:`c` is a real number and :math:`s` is a complex number.</span>
+<span class="sd">    Therefore, a Givens rotation is described by a 4-tuple</span>
+<span class="sd">    :math:`(c, s, i, j)`, where :math:`c` and :math:`s` are the numbers appearing</span>
+<span class="sd">    in the rotation matrix, and :math:`i` and :math:`j` are the</span>
+<span class="sd">    indices of the basis vectors of the subspace being rotated.</span>
+<span class="sd">    This function always returns Givens rotations with the property that</span>
+<span class="sd">    :math:`i` and :math:`j` differ by at most one, that is, either :math:`j = i + 1`</span>
+<span class="sd">    or :math:`j = i - 1`.</span>
+
+<span class="sd">    The number of Givens rotations :math:`L` is at most :math:`\frac{n (n-1)}{2}`,</span>
+<span class="sd">    but it may be less. If we think of Givens rotations acting on disjoint indices</span>
+<span class="sd">    as operations that can be performed in parallel, then the entire sequence of</span>
+<span class="sd">    rotations can always be performed using at most `n` layers of parallel operations.</span>
+<span class="sd">    The decomposition algorithm is described in :ref:`[1] &lt;reference&gt;`.</span>
+
+<span class="sd">    .. _reference:</span>
+<span class="sd">    </span>
+<span class="sd">    [1] William R. Clements et al.</span>
+<span class="sd">    `Optimal design for universal multiport interferometers`_.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mat: The unitary matrix to decompose into Givens rotations.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        - A list containing the Givens rotations :math:`G_1, \ldots, G_L`.</span>
+<span class="sd">          Each Givens rotation is represented as a 4-tuple</span>
+<span class="sd">          :math:`(c, s, i, j)`, where :math:`c` and :math:`s` are the numbers appearing</span>
+<span class="sd">          in the rotation matrix, and :math:`i` and :math:`j` are the</span>
+<span class="sd">          indices of the basis vectors of the subspace being rotated.</span>
+<span class="sd">        - A Numpy array containing the diagonal elements of the matrix :math:`D`.</span>
+
+<span class="sd">    .. _Optimal design for universal multiport interferometers: https://doi.org/10.1364/OPTICA.3.001460</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">left_rotations</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">right_rotations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">right_rotations</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># compute left and right Givens rotations</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
@@ -302,7 +381,9 @@
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">target_index</span><span class="p">],</span>
                     <span class="p">)</span>
-                    <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="p">(</span><span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">)))</span>
+                    <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">GivensRotation</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">)</span>
+                    <span class="p">)</span>
                     <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">current_matrix</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                     <span class="p">(</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
@@ -325,7 +406,9 @@
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span>
                     <span class="p">)</span>
-                    <span class="n">left_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="p">(</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">)))</span>
+                    <span class="n">left_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">GivensRotation</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_index</span><span class="p">)</span>
+                    <span class="p">)</span>
                     <span class="p">(</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
                         <span class="n">current_matrix</span><span class="p">[</span><span class="n">target_index</span><span class="p">],</span>
@@ -337,9 +420,9 @@
                     <span class="p">)</span>
 
     <span class="c1"># convert left rotations to right rotations</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">left_rotations</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">left_rotations</span><span class="p">):</span>
         <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">zrotg</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">current_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span> <span class="o">*</span> <span class="n">current_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span>
-        <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()),</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)))</span>
+        <span class="n">right_rotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GivensRotation</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
 
         <span class="n">givens_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">c</span><span class="p">]])</span>
         <span class="n">givens_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">current_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
