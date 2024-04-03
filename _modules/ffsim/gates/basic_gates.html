@@ -225,6 +225,7 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">_one_subspace_indices</span><span class="p">,</span> <span class="n">apply_orbital_rotation</span>
 <span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
@@ -533,6 +534,7 @@
 
 <div class="viewcode-block" id="apply_on_site_num_num_interaction">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.apply_on_site_num_num_interaction">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;Use apply_on_site_interaction instead.&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">apply_on_site_num_num_interaction</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -542,13 +544,34 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply an on-site number-number interaction gate.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply an on-site interaction gate.</span>
 
-<span class="sd">    The on-site number-number interaction gate is</span>
+<span class="sd">    This function is deprecated. Use :func:`ffsim.apply_on_site_interaction` instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">apply_on_site_interaction</span><span class="p">(</span>
+        <span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="n">theta</span><span class="p">,</span> <span class="n">target_orb</span><span class="o">=</span><span class="n">target_orb</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="apply_on_site_interaction">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.apply_on_site_interaction">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_on_site_interaction</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">target_orb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply an on-site interaction gate.</span>
+
+<span class="sd">    The on-site interaction gate is</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \text{OSNN}(\theta, p) =</span>
+<span class="sd">        \text{OS}(\theta, p) =</span>
 <span class="sd">        \exp\left(i \theta a^\dagger_{\alpha, p} a_{\alpha, p}</span>
 <span class="sd">        a^\dagger_{\beta, p} a_{\beta, p}\right)</span>
 
