@@ -15,36 +15,66 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
 from scipy.linalg.lapack import zrot
 
 import ffsim
 from ffsim.linalg import givens_decomposition
 
 
-def test_givens_decomposition():
-    dim = 5
+@pytest.mark.parametrize("dim", range(6))
+def test_givens_decomposition_definition(dim: int):
+    """Test Givens decomposition definition."""
     rng = np.random.default_rng()
-    for _ in range(5):
+    for _ in range(3):
+        mat = ffsim.random.random_unitary(dim, seed=rng)
+        givens_rotations, phase_shifts = givens_decomposition(mat)
+        reconstructed = np.diag(phase_shifts)
+        for c, s, i, j in givens_rotations[::-1]:
+            givens_mat = np.eye(dim, dtype=complex)
+            givens_mat[np.ix_((i, j), (i, j))] = [
+                [c, s],
+                [-s.conjugate(), c],
+            ]
+            # TODO use in-place operator @= after Python 3.9
+            reconstructed = reconstructed @ givens_mat.conj()
+        np.testing.assert_allclose(reconstructed, mat)
+        assert len(givens_rotations) == dim * (dim - 1) // 2
+
+
+@pytest.mark.parametrize("dim", range(6))
+def test_givens_decomposition_reconstruct(dim: int):
+    """Test Givens decomposition reconstruction of original matrix."""
+    rng = np.random.default_rng()
+    for _ in range(3):
         mat = ffsim.random.random_unitary(dim, seed=rng)
         givens_rotations, phase_shifts = givens_decomposition(mat)
         reconstructed = np.eye(dim, dtype=complex)
         for i, phase_shift in enumerate(phase_shifts):
             reconstructed[i] *= phase_shift
-        for (c, s), (i, j) in givens_rotations[::-1]:
+        for c, s, i, j in givens_rotations[::-1]:
             reconstructed = reconstructed.T.copy()
             reconstructed[j], reconstructed[i] = zrot(
                 reconstructed[j], reconstructed[i], c, s.conjugate()
             )
             reconstructed = reconstructed.T
-
         np.testing.assert_allclose(reconstructed, mat)
 
 
-def test_givens_decomposition_no_side_effects():
+@pytest.mark.parametrize("dim", range(6))
+def test_givens_decomposition_identity(dim: int):
+    """Test Givens decomposition on identity matrix."""
+    mat = np.eye(dim)
+    givens_rotations, phase_shifts = givens_decomposition(mat)
+    assert all(phase_shifts == 1)
+    assert len(givens_rotations) == 0
+
+
+@pytest.mark.parametrize("norb", range(6))
+def test_givens_decomposition_no_side_effects(norb: int):
     """Test that the Givens decomposition doesn't modify the original matrix."""
-    norb = 8
     rng = np.random.default_rng()
-    for _ in range(5):
+    for _ in range(3):
         mat = ffsim.random.random_unitary(norb, seed=rng)
         original_mat = mat.copy()
         _ = givens_decomposition(mat)
