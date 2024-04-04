@@ -10,7 +10,7 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import contract, linalg, optimize, random, testing
+from ffsim import contract, linalg, optimize, qiskit, random, testing
 from ffsim.cistring import init_cache
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
@@ -21,6 +21,7 @@ from ffsim.gates import (
     apply_num_num_interaction,
     apply_num_op_prod_interaction,
     apply_num_op_sum_evolution,
+    apply_on_site_interaction,
     apply_on_site_num_num_interaction,
     apply_orbital_rotation,
     apply_tunneling_interaction,
@@ -104,6 +105,7 @@ __all__ = [
     "apply_num_num_interaction",
     "apply_num_op_prod_interaction",
     "apply_num_op_sum_evolution",
+    "apply_on_site_interaction",
     "apply_on_site_num_num_interaction",
     "apply_orbital_rotation",
     "apply_tunneling_interaction",
@@ -131,6 +133,7 @@ __all__ = [
     "number_operator",
     "one_hot",
     "optimize",
+    "qiskit",
     "random",
     "rdm",
     "simulate_qdrift_double_factorized",

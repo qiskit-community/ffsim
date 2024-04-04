@@ -17,7 +17,7 @@ import math
 from collections.abc import Sequence
 
 import numpy as np
-from scipy.special import comb
+from typing_extensions import deprecated
 
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin
@@ -40,8 +40,8 @@ def _apply_phase_shift(
     if copy:
         vec = vec.copy()
     n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
     vec = vec.reshape((dim_a, dim_b))
     target_orbs_a, target_orbs_b = target_orbs
     indices_a = _one_subspace_indices(norb, n_alpha, target_orbs_a)
@@ -312,6 +312,7 @@ def apply_num_num_interaction(
     return vec
 
 
+@deprecated("Use apply_on_site_interaction instead.")
 def apply_on_site_num_num_interaction(
     vec: np.ndarray,
     theta: float,
@@ -321,13 +322,31 @@ def apply_on_site_num_num_interaction(
     *,
     copy: bool = True,
 ):
-    r"""Apply an on-site number-number interaction gate.
+    r"""Apply an on-site interaction gate.
 
-    The on-site number-number interaction gate is
+    This function is deprecated. Use :func:`ffsim.apply_on_site_interaction` instead.
+    """
+    return apply_on_site_interaction(
+        vec=vec, theta=theta, target_orb=target_orb, norb=norb, nelec=nelec, copy=copy
+    )
+
+
+def apply_on_site_interaction(
+    vec: np.ndarray,
+    theta: float,
+    target_orb: int,
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    copy: bool = True,
+):
+    r"""Apply an on-site interaction gate.
+
+    The on-site interaction gate is
 
     .. math::
 
-        \text{OSNN}(\theta, p) =
+        \text{OS}(\theta, p) =
         \exp\left(i \theta a^\dagger_{\alpha, p} a_{\alpha, p}
         a^\dagger_{\beta, p} a_{\beta, p}\right)
 

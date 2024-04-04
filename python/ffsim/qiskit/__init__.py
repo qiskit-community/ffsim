@@ -1,4 +1,4 @@
-# (C) Copyright IBM 2023.
+# (C) Copyright IBM 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -8,22 +8,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Testing utilities."""
+"""Code that uses Qiskit, e.g. for constructing quantum circuits."""
 
-from ffsim.testing.testing import (
-    assert_allclose_up_to_global_phase,
-    generate_norb_nelec,
-    generate_norb_nelec_spin,
-    generate_norb_spin,
-    random_nelec,
-    random_occupied_orbitals,
-)
+from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
+from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
 
 __all__ = [
-    "assert_allclose_up_to_global_phase",
-    "generate_norb_nelec",
-    "generate_norb_nelec_spin",
-    "generate_norb_spin",
-    "random_nelec",
-    "random_occupied_orbitals",
+    "OrbitalRotationJW",
+    "ffsim_vec_to_qiskit_vec",
+    "qiskit_vec_to_ffsim_vec",
 ]

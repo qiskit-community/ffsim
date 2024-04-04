@@ -12,13 +12,13 @@
 
 from __future__ import annotations
 
+import math
 from functools import lru_cache
 from typing import Literal, overload
 
 import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
-from scipy.special import comb
 
 from ffsim._lib import (
     apply_givens_rotation_in_place,
@@ -158,6 +158,9 @@ def _apply_orbital_rotation_lu(
 ) -> tuple[np.ndarray, np.ndarray]:
     if copy:
         vec = vec.copy()
+    if norb == 0:
+        return vec, np.array([[]])
+
     if permute_rows:
         lower, upper, perm = lup(mat.T.conj())
     else:
@@ -167,8 +170,8 @@ def _apply_orbital_rotation_lu(
     n_alpha, n_beta = nelec
     orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
     orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
     vec = vec.reshape((dim_a, dim_b))
     if spin & Spin.ALPHA:
         # transform alpha
@@ -223,15 +226,15 @@ def _apply_orbital_rotation_givens(
     givens_rotations, phase_shifts = givens_decomposition(mat)
 
     n_alpha, n_beta = nelec
-    dim_a = comb(norb, n_alpha, exact=True)
-    dim_b = comb(norb, n_beta, exact=True)
+    dim_a = math.comb(norb, n_alpha)
+    dim_b = math.comb(norb, n_beta)
     vec = vec.reshape((dim_a, dim_b))
 
     if spin & Spin.ALPHA:
         # transform alpha
-        for (c, s), target_orbs in givens_rotations:
+        for c, s, i, j in givens_rotations:
             _apply_orbital_rotation_adjacent_spin_in_place(
-                vec, c, s.conjugate(), target_orbs, norb, n_alpha
+                vec, c, s.conjugate(), (i, j), norb, n_alpha
             )
         for i, phase_shift in enumerate(phase_shifts):
             indices = _one_subspace_indices(norb, n_alpha, (i,))
@@ -241,9 +244,9 @@ def _apply_orbital_rotation_givens(
         # transform beta
         # transpose vector to align memory layout
         vec = vec.T.copy()
-        for (c, s), target_orbs in givens_rotations:
+        for c, s, i, j in givens_rotations:
             _apply_orbital_rotation_adjacent_spin_in_place(
-                vec, c, s.conjugate(), target_orbs, norb, n_beta
+                vec, c, s.conjugate(), (i, j), norb, n_beta
             )
         for i, phase_shift in enumerate(phase_shifts):
             indices = _one_subspace_indices(norb, n_beta, (i,))
@@ -286,8 +289,8 @@ def _zero_one_subspace_indices(
     orbitals = _shifted_orbitals(norb, target_orbs)
     strings = cistring.make_strings(orbitals, nocc)
     indices = np.argsort(strings)
-    n00 = comb(norb - 2, nocc, exact=True)
-    n11 = comb(norb - 2, nocc - 2, exact=True)
+    n00 = math.comb(norb - 2, nocc)
+    n11 = math.comb(norb - 2, nocc - 2) if nocc >= 2 else 0
     return indices[n00 : len(indices) - n11].astype(np.uint, copy=False)
 
 
@@ -299,9 +302,9 @@ def _one_subspace_indices(
     orbitals = _shifted_orbitals(norb, target_orbs)
     strings = cistring.make_strings(orbitals, nocc)
     indices = np.argsort(strings)
-    n0 = comb(norb, nocc, exact=True) - comb(
-        norb - len(target_orbs), nocc - len(target_orbs), exact=True
-    )
+    n0 = math.comb(norb, nocc)
+    if nocc >= len(target_orbs):
+        n0 -= math.comb(norb - len(target_orbs), nocc - len(target_orbs))
     return indices[n0:].astype(np.uint, copy=False)
 
 
