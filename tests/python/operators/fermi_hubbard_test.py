@@ -1,4 +1,4 @@
-# (C) Copyright IBM 2023.
+# (C) Copyright IBM 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for Fermi-Hubbard model Hamiltonian."""
+"""Tests for the Fermi-Hubbard model Hamiltonian."""
 
 from __future__ import annotations
 
@@ -16,95 +16,172 @@ import numpy as np
 import scipy
 
 import ffsim
-from ffsim._lib import FermionOperator
 from ffsim.operators.fermi_hubbard import fermi_hubbard_1d
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 
-def test_non_interacting_fermi_hubbard_1d():
-    """Test non-interacting one-dimensional Fermi-Hubbard model Hamiltonian."""
+def test_fermi_hubbard_1d():
+    """Test terms of the one-dimensional Fermi-Hubbard model Hamiltonian."""
+
+    # open boundary conditions
+    op = fermi_hubbard_1d(
+        norb=4,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
+    )
+    np.testing.assert_equal(
+        dict(op),
+        {
+            (cre_a(0), des_a(1)): -1,
+            (cre_b(0), des_b(1)): -1,
+            (cre_a(1), des_a(0)): -1,
+            (cre_b(1), des_b(0)): -1,
+            (cre_a(1), des_a(2)): -1,
+            (cre_b(1), des_b(2)): -1,
+            (cre_a(2), des_a(1)): -1,
+            (cre_b(2), des_b(1)): -1,
+            (cre_a(2), des_a(3)): -1,
+            (cre_b(2), des_b(3)): -1,
+            (cre_a(3), des_a(2)): -1,
+            (cre_b(3), des_b(2)): -1,
+            (cre_a(0), des_a(0), cre_b(0), des_b(0)): 1,
+            (cre_b(0), des_b(0), cre_a(0), des_a(0)): 1,
+            (cre_a(1), des_a(1), cre_b(1), des_b(1)): 1,
+            (cre_b(1), des_b(1), cre_a(1), des_a(1)): 1,
+            (cre_a(2), des_a(2), cre_b(2), des_b(2)): 1,
+            (cre_b(2), des_b(2), cre_a(2), des_a(2)): 1,
+            (cre_a(3), des_a(3), cre_b(3), des_b(3)): 1,
+            (cre_b(3), des_b(3), cre_a(3), des_a(3)): 1,
+            (cre_a(0), des_a(0)): -3,
+            (cre_b(0), des_b(0)): -3,
+            (cre_a(1), des_a(1)): -3,
+            (cre_b(1), des_b(1)): -3,
+            (cre_a(2), des_a(2)): -3,
+            (cre_b(2), des_b(2)): -3,
+            (cre_a(3), des_a(3)): -3,
+            (cre_b(3), des_b(3)): -3,
+            (cre_a(0), des_a(0), cre_a(1), des_a(1)): 4,
+            (cre_a(0), des_a(0), cre_b(1), des_b(1)): 4,
+            (cre_b(0), des_b(0), cre_a(1), des_a(1)): 4,
+            (cre_b(0), des_b(0), cre_b(1), des_b(1)): 4,
+            (cre_a(1), des_a(1), cre_a(2), des_a(2)): 4,
+            (cre_a(1), des_a(1), cre_b(2), des_b(2)): 4,
+            (cre_b(1), des_b(1), cre_a(2), des_a(2)): 4,
+            (cre_b(1), des_b(1), cre_b(2), des_b(2)): 4,
+            (cre_a(2), des_a(2), cre_a(3), des_a(3)): 4,
+            (cre_a(2), des_a(2), cre_b(3), des_b(3)): 4,
+            (cre_b(2), des_b(2), cre_a(3), des_a(3)): 4,
+            (cre_b(2), des_b(2), cre_b(3), des_b(3)): 4,
+        },
+    )
+
+    # periodic boundary conditions
+    op_periodic = fermi_hubbard_1d(
+        norb=4,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
+        periodic=True,
+    )
+    np.testing.assert_equal(
+        dict(op_periodic),
+        {
+            (cre_a(0), des_a(1)): -1,
+            (cre_b(0), des_b(1)): -1,
+            (cre_a(1), des_a(0)): -1,
+            (cre_b(1), des_b(0)): -1,
+            (cre_a(1), des_a(2)): -1,
+            (cre_b(1), des_b(2)): -1,
+            (cre_a(2), des_a(1)): -1,
+            (cre_b(2), des_b(1)): -1,
+            (cre_a(2), des_a(3)): -1,
+            (cre_b(2), des_b(3)): -1,
+            (cre_a(3), des_a(2)): -1,
+            (cre_b(3), des_b(2)): -1,
+            (cre_a(3), des_a(0)): -1,
+            (cre_b(3), des_b(0)): -1,
+            (cre_a(0), des_a(3)): -1,
+            (cre_b(0), des_b(3)): -1,
+            (cre_a(0), des_a(0), cre_b(0), des_b(0)): 1,
+            (cre_b(0), des_b(0), cre_a(0), des_a(0)): 1,
+            (cre_a(1), des_a(1), cre_b(1), des_b(1)): 1,
+            (cre_b(1), des_b(1), cre_a(1), des_a(1)): 1,
+            (cre_a(2), des_a(2), cre_b(2), des_b(2)): 1,
+            (cre_b(2), des_b(2), cre_a(2), des_a(2)): 1,
+            (cre_a(3), des_a(3), cre_b(3), des_b(3)): 1,
+            (cre_b(3), des_b(3), cre_a(3), des_a(3)): 1,
+            (cre_a(0), des_a(0)): -3,
+            (cre_b(0), des_b(0)): -3,
+            (cre_a(1), des_a(1)): -3,
+            (cre_b(1), des_b(1)): -3,
+            (cre_a(2), des_a(2)): -3,
+            (cre_b(2), des_b(2)): -3,
+            (cre_a(3), des_a(3)): -3,
+            (cre_b(3), des_b(3)): -3,
+            (cre_a(0), des_a(0), cre_a(1), des_a(1)): 4,
+            (cre_a(0), des_a(0), cre_b(1), des_b(1)): 4,
+            (cre_b(0), des_b(0), cre_a(1), des_a(1)): 4,
+            (cre_b(0), des_b(0), cre_b(1), des_b(1)): 4,
+            (cre_a(1), des_a(1), cre_a(2), des_a(2)): 4,
+            (cre_a(1), des_a(1), cre_b(2), des_b(2)): 4,
+            (cre_b(1), des_b(1), cre_a(2), des_a(2)): 4,
+            (cre_b(1), des_b(1), cre_b(2), des_b(2)): 4,
+            (cre_a(2), des_a(2), cre_a(3), des_a(3)): 4,
+            (cre_a(2), des_a(2), cre_b(3), des_b(3)): 4,
+            (cre_b(2), des_b(2), cre_a(3), des_a(3)): 4,
+            (cre_b(2), des_b(2), cre_b(3), des_b(3)): 4,
+            (cre_a(3), des_a(3), cre_a(0), des_a(0)): 4,
+            (cre_a(3), des_a(3), cre_b(0), des_b(0)): 4,
+            (cre_b(3), des_b(3), cre_a(0), des_a(0)): 4,
+            (cre_b(3), des_b(3), cre_b(0), des_b(0)): 4,
+        },
+    )
+
+
+def test_non_interacting_fermi_hubbard_1d_eigenvalue():
+    """Test ground-state eigenvalue of the non-interacting one-dimensional Fermi-Hubbard
+    model Hamiltonian."""
 
     # open boundary conditions
     op = fermi_hubbard_1d(norb=4, tunneling=1, interaction=0)
     ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(3):
-        coeffs[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs[(cre_b((p + 1) % 4), des_b(p))] = -1
-    np.testing.assert_equal(FermionOperator(coeffs), op)
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
     np.testing.assert_allclose(eigs[0], -4.472135955000)
 
     # periodic boundary conditions
     op_periodic = fermi_hubbard_1d(norb=4, tunneling=1, interaction=0, periodic=True)
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
-    coeffs_periodic: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(4):
-        coeffs_periodic[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs_periodic[(cre_b((p + 1) % 4), des_b(p))] = -1
-    np.testing.assert_equal(FermionOperator(coeffs_periodic), op_periodic)
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -4.000000000000)
 
 
-def test_fermi_hubbard_1d_with_interaction():
-    """Test one-dimensional Fermi-Hubbard model Hamiltonian with onsite interaction."""
+def test_fermi_hubbard_1d_with_interaction_eigenvalue():
+    """Test ground-state eigenvalue of the one-dimensional Fermi-Hubbard model
+    Hamiltonian with onsite interaction."""
 
     # open boundary conditions
     op = fermi_hubbard_1d(norb=4, tunneling=1, interaction=2)
     ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(3):
-        coeffs[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs[(cre_b((p + 1) % 4), des_b(p))] = -1
-    for p in range(4):
-        coeffs[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = 1
-        coeffs[(cre_b(p), des_b(p), cre_a(p), des_a(p))] = 1
-    np.testing.assert_equal(FermionOperator(coeffs), op)
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
     np.testing.assert_allclose(eigs[0], -2.875942809005)
 
     # periodic boundary conditions
     op_periodic = fermi_hubbard_1d(norb=4, tunneling=1, interaction=2, periodic=True)
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
-    coeffs_periodic: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(4):
-        coeffs_periodic[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs_periodic[(cre_b((p + 1) % 4), des_b(p))] = -1
-        coeffs_periodic[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = 1
-        coeffs_periodic[(cre_b(p), des_b(p), cre_a(p), des_a(p))] = 1
-    np.testing.assert_equal(FermionOperator(coeffs_periodic), op_periodic)
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -2.828427124746)
 
 
-def test_fermi_hubbard_1d_with_chemical_potential():
-    """Test one-dimensional Fermi-Hubbard model Hamiltonian with onsite interaction and
-    chemical potential."""
+def test_fermi_hubbard_1d_with_chemical_potential_eigenvalue():
+    """Test ground-state eigenvalue of the one-dimensional Fermi-Hubbard model
+    Hamiltonian with onsite interaction and chemical potential."""
 
     # open boundary conditions
     op = fermi_hubbard_1d(norb=4, tunneling=1, interaction=2, chemical_potential=3)
     ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(3):
-        coeffs[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs[(cre_b((p + 1) % 4), des_b(p))] = -1
-    for p in range(4):
-        coeffs[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = 1
-        coeffs[(cre_b(p), des_b(p), cre_a(p), des_a(p))] = 1
-        coeffs[(cre_a(p), des_a(p))] = -3
-        coeffs[(cre_b(p), des_b(p))] = -3
-    np.testing.assert_equal(FermionOperator(coeffs), op)
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
     np.testing.assert_allclose(eigs[0], -14.875942809005)
 
@@ -113,24 +190,14 @@ def test_fermi_hubbard_1d_with_chemical_potential():
         norb=4, tunneling=1, interaction=2, chemical_potential=3, periodic=True
     )
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
-    coeffs_periodic: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(4):
-        coeffs_periodic[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs_periodic[(cre_b((p + 1) % 4), des_b(p))] = -1
-        coeffs_periodic[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = 1
-        coeffs_periodic[(cre_b(p), des_b(p), cre_a(p), des_a(p))] = 1
-        coeffs_periodic[(cre_a(p), des_a(p))] = -3
-        coeffs_periodic[(cre_b(p), des_b(p))] = -3
-    np.testing.assert_equal(FermionOperator(coeffs_periodic), op_periodic)
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -14.828427124746)
 
 
-def test_fermi_hubbard_1d_with_nearest_neighbor_interaction():
-    """Test one-dimensional Fermi-Hubbard model Hamiltonian with onsite interaction,
-    chemical potential, and nearest-neighbor interaction."""
+def test_fermi_hubbard_1d_with_nearest_neighbor_interaction_eigenvalue():
+    """Test ground-state eigenvalue of the one-dimensional Fermi-Hubbard model
+    Hamiltonian with onsite interaction, chemical potential, and nearest-neighbor
+    interaction."""
 
     # open boundary conditions
     op = fermi_hubbard_1d(
@@ -141,22 +208,6 @@ def test_fermi_hubbard_1d_with_nearest_neighbor_interaction():
         nearest_neighbor_interaction=4,
     )
     ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(3):
-        coeffs[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs[(cre_b((p + 1) % 4), des_b(p))] = -1
-        coeffs[cre_a(p), des_a(p), cre_a((p + 1) % 4), des_a((p + 1) % 4)] = 4
-        coeffs[cre_a(p), des_a(p), cre_b((p + 1) % 4), des_b((p + 1) % 4)] = 4
-        coeffs[cre_b(p), des_b(p), cre_a((p + 1) % 4), des_a((p + 1) % 4)] = 4
-        coeffs[cre_b(p), des_b(p), cre_b((p + 1) % 4), des_b((p + 1) % 4)] = 4
-    for p in range(4):
-        coeffs[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = 1
-        coeffs[(cre_b(p), des_b(p), cre_a(p), des_a(p))] = 1
-        coeffs[(cre_a(p), des_a(p))] = -3
-        coeffs[(cre_b(p), des_b(p))] = -3
-    np.testing.assert_equal(FermionOperator(coeffs), op)
     eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
     np.testing.assert_allclose(eigs[0], -9.961978205599)
 
@@ -170,27 +221,13 @@ def test_fermi_hubbard_1d_with_nearest_neighbor_interaction():
         periodic=True,
     )
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
-    coeffs_periodic: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
-    for p in range(4):
-        coeffs_periodic[(cre_a(p), des_a((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_b(p), des_b((p + 1) % 4))] = -1
-        coeffs_periodic[(cre_a((p + 1) % 4), des_a(p))] = -1
-        coeffs_periodic[(cre_b((p + 1) % 4), des_b(p))] = -1
-        coeffs_periodic[cre_a(p), des_a(p), cre_a((p + 1) % 4), des_a((p + 1) % 4)] = 4
-        coeffs_periodic[cre_a(p), des_a(p), cre_b((p + 1) % 4), des_b((p + 1) % 4)] = 4
-        coeffs_periodic[cre_b(p), des_b(p), cre_a((p + 1) % 4), des_a((p + 1) % 4)] = 4
-        coeffs_periodic[cre_b(p), des_b(p), cre_b((p + 1) % 4), des_b((p + 1) % 4)] = 4
-        coeffs_periodic[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = 1
-        coeffs_periodic[(cre_b(p), des_b(p), cre_a(p), des_a(p))] = 1
-        coeffs_periodic[(cre_a(p), des_a(p))] = -3
-        coeffs_periodic[(cre_b(p), des_b(p))] = -3
-    np.testing.assert_equal(FermionOperator(coeffs_periodic), op_periodic)
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -8.781962448006)
 
 
-def test_fermi_hubbard_1d_with_unequal_filling():
-    """Test one-dimensional Fermi-Hubbard model Hamiltonian with unequal filling."""
+def test_fermi_hubbard_1d_with_unequal_filling_eigenvalue():
+    """Test ground-state eigenvalue of the one-dimensional Fermi-Hubbard model
+    Hamiltonian with unequal filling."""
 
     # open boundary conditions
     op = fermi_hubbard_1d(
@@ -219,7 +256,7 @@ def test_fermi_hubbard_1d_with_unequal_filling():
 
 
 def test_fermi_hubbard_1d_hermiticity():
-    """Test one-dimensional Fermi-Hubbard model Hamiltonian hermiticity."""
+    """Test hermiticity of the one-dimensional Fermi-Hubbard model Hamiltonian."""
 
     n_orbitals = 4
     n_electrons = (3, 1)
