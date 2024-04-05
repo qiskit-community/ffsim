@@ -18,6 +18,7 @@ def fermi_hubbard_1d(
     norb: int,
     tunneling: float,
     interaction: float,
+    *,
     chemical_potential: float = 0,
     nearest_neighbor_interaction: float = 0,
     periodic: bool = False,
