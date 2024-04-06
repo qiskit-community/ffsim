@@ -370,7 +370,7 @@
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">norb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]])</span>
+        <span class="k">return</span> <span class="n">vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">permute_rows</span><span class="p">:</span>
         <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">perm</span> <span class="o">=</span> <span class="n">lup</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
