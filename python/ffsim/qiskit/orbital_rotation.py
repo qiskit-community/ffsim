@@ -31,7 +31,21 @@ from ffsim.spin import Spin
 
 
 class OrbitalRotationJW(Gate):
-    """Orbital rotation under the Jordan-Wigner transformation."""
+    r"""Orbital rotation under the Jordan-Wigner transformation.
+
+    The orbital rotation gate has the unitary
+
+    .. math::
+
+        \prod_{\sigma}
+        \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
+
+    where :math:`U` is a unitary matrix.
+
+    This gate assumes that qubits are ordered such that the first `norb` qubits
+    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    beta orbitals.
+    """
 
     def __init__(
         self,
@@ -42,11 +56,7 @@ class OrbitalRotationJW(Gate):
         rtol: float = 1e-5,
         atol: float = 1e-8,
     ):
-        """Create new orbital rotation gate.
-
-        This gate assumes that qubits are ordered such that the first `norb` qubits
-        correspond to the alpha orbitals and the last `norb` qubits correspond to the
-        beta orbitals.
+        r"""Create new orbital rotation gate.
 
         Args:
             orbital_rotation: The matrix describing the orbital rotation.
