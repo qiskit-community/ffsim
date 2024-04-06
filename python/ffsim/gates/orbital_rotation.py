@@ -159,7 +159,7 @@ def _apply_orbital_rotation_lu(
     if copy:
         vec = vec.copy()
     if norb == 0:
-        return vec, np.array([[]])
+        return vec, np.empty((0, 0))
 
     if permute_rows:
         lower, upper, perm = lup(mat.T.conj())
