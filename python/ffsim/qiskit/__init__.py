@@ -10,11 +10,15 @@
 
 """Code that uses Qiskit, e.g. for constructing quantum circuits."""
 
+from ffsim.qiskit.diag_coulomb import DiagCoulombEvolutionJW
 from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
+from ffsim.qiskit.ucj import UCJOperatorJW
 from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
 
 __all__ = [
+    "DiagCoulombEvolutionJW",
     "OrbitalRotationJW",
+    "UCJOperatorJW",
     "ffsim_vec_to_qiskit_vec",
     "qiskit_vec_to_ffsim_vec",
 ]

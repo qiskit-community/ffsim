@@ -38,6 +38,7 @@ dev = [
     "nbsphinx",
     "pre-commit",
     "pytest == 8.0.0",
+    "qiskit[visualization] >= 1.0.0",
     "ruff == 0.3.4",
     "sphinx",
     "sphinx-autodoc-typehints",
