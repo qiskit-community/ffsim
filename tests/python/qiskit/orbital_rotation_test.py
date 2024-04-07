@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for orbital rotation circuit."""
+"""Tests for orbital rotation gate."""
 
 from __future__ import annotations
 
