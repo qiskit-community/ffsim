@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>ffsim.linalg.linalg - ffsim 0.0.27.dev0 documentation</title>
+        <title>ffsim.qiskit.orbital_rotation - ffsim 0.0.27.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -206,8 +206,8 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for ffsim.linalg.linalg</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) Copyright IBM 2023.</span>
+          <h1>Source code for ffsim.qiskit.orbital_rotation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2024.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
 <span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
@@ -217,97 +217,119 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Linear algebra utilities.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Orbital rotation gate.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">cmath</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CircuitInstruction</span><span class="p">,</span>
+    <span class="n">Gate</span><span class="p">,</span>
+    <span class="n">QuantumCircuit</span><span class="p">,</span>
+    <span class="n">QuantumRegister</span><span class="p">,</span>
+    <span class="n">Qubit</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">PhaseGate</span><span class="p">,</span> <span class="n">XXPlusYYGate</span>
+
+<span class="kn">from</span> <span class="nn">ffsim.linalg</span> <span class="kn">import</span> <span class="n">givens_decomposition</span><span class="p">,</span> <span class="n">is_unitary</span>
+<span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
 
 
-<div class="viewcode-block" id="expm_multiply_taylor">
-<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.expm_multiply_taylor">[docs]</a>
-<span class="k">def</span> <span class="nf">expm_multiply_taylor</span><span class="p">(</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute expm(mat) @ vec using a Taylor series expansion.&quot;&quot;&quot;</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">term</span> <span class="o">=</span> <span class="n">vec</span>
-    <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
-        <span class="n">term</span> <span class="o">=</span> <span class="n">mat</span> <span class="o">@</span> <span class="n">term</span> <span class="o">/</span> <span class="n">denominator</span>
-        <span class="n">result</span> <span class="o">+=</span> <span class="n">term</span>
-        <span class="n">denominator</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">result</span></div>
+<div class="viewcode-block" id="OrbitalRotationJW">
+<a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW">[docs]</a>
+<span class="k">class</span> <span class="nc">OrbitalRotationJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Orbital rotation under the Jordan-Wigner transformation.</span>
 
-
-
-<div class="viewcode-block" id="lup">
-<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.lup">[docs]</a>
-<span class="k">def</span> <span class="nf">lup</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Column-pivoted LU decomposition of a matrix.</span>
-
-<span class="sd">    The decomposition is:</span>
+<span class="sd">    The orbital rotation gate has the unitary</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        A = L U P</span>
+<span class="sd">        \prod_{\sigma}</span>
+<span class="sd">        \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)</span>
 
-<span class="sd">    where L is a lower triangular matrix with unit diagonal elements,</span>
-<span class="sd">    U is upper triangular, and P is a permutation matrix.</span>
+<span class="sd">    where :math:`U` is a unitary matrix.</span>
+
+<span class="sd">    This gate assumes that qubits are ordered such that the first `norb` qubits</span>
+<span class="sd">    correspond to the alpha orbitals and the last `norb` qubits correspond to the</span>
+<span class="sd">    beta orbitals.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">p</span><span class="p">,</span> <span class="n">ell</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lu</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-    <span class="n">ell</span> <span class="o">*=</span> <span class="n">d</span>
-    <span class="n">u</span> <span class="o">/=</span> <span class="n">d</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">ell</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">T</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
+        <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create new orbital rotation gate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            orbital_rotation: The matrix describing the orbital rotation.</span>
+<span class="sd">            spin: Choice of spin sector(s) to act on.</span>
+
+<span class="sd">                - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
+<span class="sd">                - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
+<span class="sd">                - To act on both spin alpha and spin beta, pass</span>
+<span class="sd">                :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+<span class="sd">            label: The label of the gate.</span>
+<span class="sd">            validate: Whether to check that the input matrix is unitary and raise an</span>
+<span class="sd">                error if it isn&#39;t.</span>
+<span class="sd">            rtol: Relative numerical tolerance for input validation.</span>
+<span class="sd">            atol: Absolute numerical tolerance for input validation.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: The input matrix is not unitary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input orbital rotation matrix is not unitary.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">=</span> <span class="n">spin</span>
+        <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">shape</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;orb_rot_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span><span class="n">norb</span><span class="p">]</span>
+        <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="n">norb</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_orbital_rotation_jw</span><span class="p">(</span>
+                <span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span>
+            <span class="p">):</span>
+                <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_orbital_rotation_jw</span><span class="p">(</span><span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="p">):</span>
+                <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span>
+
+<div class="viewcode-block" id="OrbitalRotationJW.inverse">
+<a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW.inverse">[docs]</a>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inverse gate.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">spin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">)</span></div>
+</div>
 
 
 
-<div class="viewcode-block" id="reduced_matrix">
-<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.reduced_matrix">[docs]</a>
-<span class="k">def</span> <span class="nf">reduced_matrix</span><span class="p">(</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">,</span> <span class="n">vecs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute reduced matrix within a subspace spanned by some vectors.</span>
-
-<span class="sd">    Given a linear operator :math:`A` and a list of vectors :math:`\{v_i\}`,</span>
-<span class="sd">    return the matrix M where :math:`M_{ij} = v_i^\dagger A v_j`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vecs</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">state_j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vecs</span><span class="p">):</span>
-        <span class="n">mat_state_j</span> <span class="o">=</span> <span class="n">mat</span> <span class="o">@</span> <span class="n">state_j</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">state_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vecs</span><span class="p">):</span>
-            <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">state_i</span><span class="p">,</span> <span class="n">mat_state_j</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span></div>
-
-
-
-<div class="viewcode-block" id="match_global_phase">
-<a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.match_global_phase">[docs]</a>
-<span class="k">def</span> <span class="nf">match_global_phase</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Phase the given arrays so that their phases match at one entry.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        a: A Numpy array.</span>
-<span class="sd">        b: Another Numpy array.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A pair of arrays (a&#39;, b&#39;) that are equal if and only if a == b * exp(i phi)</span>
-<span class="sd">        for some real number phi.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span>
-    <span class="c1"># use the largest entry of one of the matrices to maximize precision</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-    <span class="n">phase_a</span> <span class="o">=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">phase</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
-    <span class="n">phase_b</span> <span class="o">=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">phase</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">phase_a</span><span class="p">),</span> <span class="n">b</span> <span class="o">*</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">phase_b</span><span class="p">)</span></div>
-
+<span class="k">def</span> <span class="nf">_orbital_rotation_jw</span><span class="p">(</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
+    <span class="n">givens_rotations</span><span class="p">,</span> <span class="n">phase_shifts</span> <span class="o">=</span> <span class="n">givens_decomposition</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">givens_rotations</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
+            <span class="n">XXPlusYYGate</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">cmath</span><span class="o">.</span><span class="n">phase</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">phase_shift</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">phase_shifts</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">PhaseGate</span><span class="p">(</span><span class="n">cmath</span><span class="o">.</span><span class="n">phase</span><span class="p">(</span><span class="n">phase_shift</span><span class="p">)),</span> <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],))</span>
 </pre></div>
         </article>
       </div>

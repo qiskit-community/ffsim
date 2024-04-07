@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>ffsim.protocols.approximate_equality_protocol - ffsim 0.0.27.dev0 documentation</title>
+        <title>ffsim.qiskit.util - ffsim 0.0.27.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -206,8 +206,8 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for ffsim.protocols.approximate_equality_protocol</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) Copyright IBM 2023.</span>
+          <h1>Source code for ffsim.qiskit.util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2024.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
 <span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
@@ -217,70 +217,61 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Approximate equality protocol.&quot;&quot;&quot;</span>
-
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">states</span>
+<span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">make_strings</span>
 
 
-<div class="viewcode-block" id="SupportsApproximateEquality">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.SupportsApproximateEquality">[docs]</a>
-<span class="k">class</span> <span class="nc">SupportsApproximateEquality</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An object that can be compared approximately.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether the object is approximately equal to another object.</span>
-
-<span class="sd">        See the documentation of `np.isclose`_ for the interpretation of the tolerance</span>
-<span class="sd">        parameters ``rtol`` and ``atol``.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            other: The object to compare to.</span>
-<span class="sd">            rtol: Relative numerical tolerance.</span>
-<span class="sd">            atol: Absolute numerical tolerance.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            True if the objects are approximately equal up to the specified tolerance,</span>
-<span class="sd">            and False otherwise.</span>
-
-<span class="sd">        .. _np.isclose: https://numpy.org/doc/stable/reference/generated/numpy.isclose.html</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-
-
-<div class="viewcode-block" id="approx_eq">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.approx_eq">[docs]</a>
-<span class="k">def</span> <span class="nf">approx_eq</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether two objects are approximately equal.</span>
-
-<span class="sd">    See the documentation of `np.isclose`_ for the interpretation of the tolerance</span>
-<span class="sd">    parameters ``rtol`` and ``atol``.</span>
+<div class="viewcode-block" id="qiskit_vec_to_ffsim_vec">
+<a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.qiskit_vec_to_ffsim_vec">[docs]</a>
+<span class="k">def</span> <span class="nf">qiskit_vec_to_ffsim_vec</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a Qiskit statevector to an ffsim statevector.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        obj: The first object.</span>
-<span class="sd">        other: The object to compare to.</span>
-<span class="sd">        rtol: Relative numerical tolerance.</span>
-<span class="sd">        atol: Absolute numerical tolerance.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        True if the objects are approximately equal up to the specified tolerance,</span>
-<span class="sd">        and False otherwise.</span>
-
-<span class="sd">    .. _np.isclose: https://numpy.org/doc/stable/reference/generated/numpy.isclose.html</span>
+<span class="sd">        vec: A statevector in Qiskit format. It should be a one-dimensional vector</span>
+<span class="sd">            of length ``2 ** (2 * norb)``.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_approx_eq_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),)</span>
+    <span class="k">return</span> <span class="n">vec</span><span class="p">[</span><span class="n">_ffsim_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)]</span></div>
 
-    <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s2">&quot;_approx_eq_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
 
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Objects could not be compared for approximate equality: </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">.&quot;</span>
-    <span class="p">)</span></div>
 
+<div class="viewcode-block" id="ffsim_vec_to_qiskit_vec">
+<a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.ffsim_vec_to_qiskit_vec">[docs]</a>
+<span class="k">def</span> <span class="nf">ffsim_vec_to_qiskit_vec</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an ffsim statevector to a Qiskit statevector.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec: A statevector in ffsim/pySCF format. It should be a one-dimensional vector</span>
+<span class="sd">            of length ``comb(norb, n_alpha) * comb(norb, n_beta)``.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">states</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),)</span>
+    <span class="n">qiskit_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">vec</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">qiskit_vec</span><span class="p">[</span><span class="n">_ffsim_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)]</span> <span class="o">=</span> <span class="n">vec</span>
+    <span class="k">return</span> <span class="n">qiskit_vec</span></div>
+
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_ffsim_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="n">strings_a</span> <span class="o">=</span> <span class="n">make_strings</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">strings_b</span> <span class="o">=</span> <span class="n">make_strings</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">norb</span>
+    <span class="c1"># Compute [a + b for a, b in product(strings_a, strings_b)]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">strings_a</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">strings_b</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 </pre></div>
         </article>
       </div>
