@@ -238,6 +238,30 @@ beta orbitals.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.MergeOrbitalRotations">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">MergeOrbitalRotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/merge_orbital_rotations.html#MergeOrbitalRotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.MergeOrbitalRotations" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TransformationPass</span></code></p>
+<p>Merge consecutive orbital rotation gates.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.MergeOrbitalRotations.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/merge_orbital_rotations.html#MergeOrbitalRotations.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.MergeOrbitalRotations.run" title="Link to this definition">#</a></dt>
+<dd><p>Run a pass on the DAGCircuit. This is implemented by the pass developer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dag</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DAGCircuit</span></code></span>) – the dag on which the pass is run.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – when this is left unimplemented for a pass.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DAGCircuit</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.OrbitalRotationJW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">OrbitalRotationJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Spin.ALPHA_AND_BETA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/orbital_rotation.html#OrbitalRotationJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.OrbitalRotationJW" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
@@ -376,6 +400,10 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
 <li><a class="reference internal" href="#">ffsim.qiskit</a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionJW"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionJW.inverse"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionJW.inverse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.MergeOrbitalRotations"><code class="docutils literal notranslate"><span class="pre">MergeOrbitalRotations</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.MergeOrbitalRotations.run"><code class="docutils literal notranslate"><span class="pre">MergeOrbitalRotations.run()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a><ul>
