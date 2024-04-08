@@ -80,7 +80,13 @@ class OrbitalRotationJW(Gate):
         self.orbital_rotation = orbital_rotation
         self.spin = spin
         norb, _ = orbital_rotation.shape
-        super().__init__("orb_rot_jw", 2 * norb, [], label=label)
+        if spin is Spin.ALPHA:
+            name = "orb_rot_jw_a"
+        elif spin is Spin.BETA:
+            name = "orb_rot_jw_b"
+        else:
+            name = "orb_rot_jw"
+        super().__init__(name, 2 * norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
