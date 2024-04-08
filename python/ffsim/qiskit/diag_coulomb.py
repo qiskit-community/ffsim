@@ -23,7 +23,7 @@ from qiskit.circuit import (
     QuantumRegister,
     Qubit,
 )
-from qiskit.circuit.library import CPhaseGate, PhaseGate
+from qiskit.circuit.library import CPhaseGate, PhaseGate, RZZGate
 
 from ffsim import linalg
 
@@ -54,6 +54,7 @@ class DiagCoulombEvolutionJW(Gate):
         time: float,
         *,
         mat_alpha_beta: np.ndarray | None = None,
+        z_representation: bool = False,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -66,6 +67,7 @@ class DiagCoulombEvolutionJW(Gate):
             time: The evolution time.
             mat_alpha_beta: A matrix of coefficients to use for interactions between
                 orbitals with differing spin.
+            z_representation: Whether the input matrices are in the "Z" representation.
             label: The label of the gate.
             validate: Whether to check that the input matrix is real symmetric and
                 raise an error if it isn't.
@@ -85,14 +87,20 @@ class DiagCoulombEvolutionJW(Gate):
         self.mat = mat
         self.time = time
         self.mat_alpha_beta = mat_alpha_beta
+        self.z_representation = z_representation
         norb, _ = mat.shape
         super().__init__("diag_coulomb_jw", 2 * norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
+        generate_instructions = (
+            _diag_coulomb_evo_z_rep_jw
+            if self.z_representation
+            else _diag_coulomb_evo_num_rep_jw
+        )
         self.definition = QuantumCircuit.from_instructions(
-            _diag_coulomb_evo_jw(
+            generate_instructions(
                 qubits,
                 mat=self.mat,
                 time=self.time,
@@ -106,11 +114,15 @@ class DiagCoulombEvolutionJW(Gate):
     def inverse(self):
         """Inverse gate."""
         return DiagCoulombEvolutionJW(
-            self.mat, -self.time, mat_alpha_beta=self.mat_alpha_beta
+            self.mat,
+            -self.time,
+            mat_alpha_beta=self.mat_alpha_beta,
+            z_representation=self.z_representation,
+            validate=False,
         )
 
 
-def _diag_coulomb_evo_jw(
+def _diag_coulomb_evo_num_rep_jw(
     qubits: Sequence[Qubit],
     mat: np.ndarray,
     time: float,
@@ -146,4 +158,20 @@ def _diag_coulomb_evo_jw(
         yield CircuitInstruction(
             CPhaseGate(-mat_alpha_beta[i % norb, j % norb] * time),
             (qubits[i + norb], qubits[j]),
+        )
+
+
+def _diag_coulomb_evo_z_rep_jw(
+    qubits: Sequence[Qubit],
+    mat: np.ndarray,
+    time: float,
+    mat_alpha_beta: np.ndarray,
+) -> Iterator[CircuitInstruction]:
+    norb, _ = mat.shape
+    assert norb == len(qubits) // 2
+    for i, j in itertools.combinations(range(len(qubits)), 2):
+        this_mat = mat if (i < norb) == (j < norb) else mat_alpha_beta
+        yield CircuitInstruction(
+            RZZGate(0.5 * this_mat[i % norb, j % norb] * time),
+            (qubits[i], qubits[j]),
         )
