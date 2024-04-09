@@ -28,7 +28,6 @@ Documentation = "https://qiskit-community.github.io/ffsim/"
 
 [project.optional-dependencies]
 dev = [
-    "asv",
     "coverage",
     "furo",
     "maturin",
