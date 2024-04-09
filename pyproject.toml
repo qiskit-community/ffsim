@@ -16,7 +16,7 @@ classifiers = [
 dependencies = [
     "numpy",
     "opt_einsum",
-    "pyscf>=2.3.0",
+    "pyscf >= 2.3.0",
     "qiskit >= 1.0.0",
     "scipy",
     "typing-extensions",
