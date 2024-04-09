@@ -22,7 +22,7 @@ def random_statevector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         dim: The dimension of the state vector.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
-        dype: The data type to use for the result.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled state vector.
@@ -42,7 +42,7 @@ def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         dim: The width and height of the matrix.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
-        dype: The data type to use for the result.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled unitary matrix.
@@ -110,7 +110,7 @@ def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         rank: The rank of the matrix. If `None`, the maximum rank is used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
-        dype: The data type to use for the result.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled Hermitian matrix.
@@ -151,7 +151,7 @@ def random_antihermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         rank: The rank of the matrix. If `None`, the maximum rank is used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
-        dype: The data type to use for the result.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled anti-Hermitian matrix.
@@ -174,7 +174,7 @@ def random_two_body_tensor(
             the maximum rank, which is `norb * (norb + 1) // 2`.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
-        dype: The data type to use for the result.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled two-body tensor.
@@ -209,7 +209,7 @@ def random_t2_amplitudes(
         nocc: The number of orbitals that are occupied by an electron.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
-        dype: The data type to use for the result.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled t2 amplitudes tensor.
