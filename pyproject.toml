@@ -42,7 +42,6 @@ dev = [
     "ruff == 0.3.4",
     "sphinx",
     "sphinx-autodoc-typehints",
-    "tox",
 ]
 
 [tool.maturin]
