@@ -74,7 +74,7 @@ def _fermion_operator_to_linear_operator(
     def matvec(vec: np.ndarray):
         result = np.zeros(dim, dtype=complex)
         for term, coeff in operator.items():
-            result += coeff * _apply_term(vec, term, norb, nelec)
+            result += coeff * _apply_fermion_term(vec, term, norb, nelec)
         return result
 
     return LinearOperator(
@@ -82,18 +82,43 @@ def _fermion_operator_to_linear_operator(
     )
 
 
-def _apply_term(
+def _apply_fermion_term(
     vec: np.ndarray,
     term: tuple[tuple[bool, bool, int], ...],
     norb: int,
     nelec: tuple[int, int],
 ) -> np.ndarray:
-    result = _apply_term_real(vec.real, term, norb, nelec)
-    result += 1j * _apply_term_real(vec.imag, term, norb, nelec)
+    """Apply a product of ladder operators to a state vector.
+
+    Given a state vector and a string of ladder operators that conserves particle number
+    and total spin Z, return the state vector that results from applying the ladder
+    operators to the given state vector. The string of ladder operators is represented
+    as a sequence of (`action`, `spin`, `orbital`) tuples, where:
+
+    - `action` is a bool. False indicates a destruction operator and True indicates
+      a creation operator.
+    - `spin` is a bool. False indicates spin alpha and True indicates spin beta.
+    - `orbital` is an integer giving the index of the spatial orbital to act on.
+
+    The string of ladder operators acts on a state vector by left multiplication,
+    so the resulting state vector is obtained by applying the ladder operators to the
+    initial vector in the reverse order in which they are given.
+
+    Args:
+        vec: The state vector.
+        term: The product of ladder operators to apply to the state vector.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+
+    Returns:
+        The result of applying the ladder operators to the state vector.
+    """
+    result = _apply_fermion_term_real(vec.real, term, norb, nelec)
+    result += 1j * _apply_fermion_term_real(vec.imag, term, norb, nelec)
     return result
 
 
-def _apply_term_real(
+def _apply_fermion_term_real(
     vec: np.ndarray,
     term: tuple[tuple[bool, bool, int], ...],
     norb: int,
