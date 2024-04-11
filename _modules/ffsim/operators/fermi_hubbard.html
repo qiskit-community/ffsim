@@ -242,13 +242,13 @@
 <span class="sd">    .. math::</span>
 
 <span class="sd">        H = -t \sum_{\sigma} \sum_{p=1}^{N-1}</span>
-<span class="sd">        (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{H.c.})</span>
-<span class="sd">        + \frac{U}{2} \sum_{\sigma, \sigma&#39;} \sum_{p=1}^{N} n_{\sigma, p} n_{\sigma&#39;, p}</span>
-<span class="sd">        - \mu \sum_{\sigma} \sum_{p=1}^N n_{\sigma, p}</span>
+<span class="sd">        (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{h.c.})</span>
+<span class="sd">        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}</span>
+<span class="sd">        - \mu \sum_{p=1}^N (n_{\alpha, p} + n_{\beta, p})</span>
 <span class="sd">        + V \sum_{\sigma, \sigma&#39;} \sum_{p=1}^{N-1} n_{\sigma, p} n_{\sigma&#39;, p+1}</span>
 
-<span class="sd">    where the number operator :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger</span>
-<span class="sd">    a_{\sigma, p}`.</span>
+<span class="sd">    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number</span>
+<span class="sd">    operator on orbital :math:`p` with spin :math:`\sigma`.</span>
 
 <span class="sd">    References:</span>
 <span class="sd">        - `The Hubbard Model`_</span>
@@ -290,8 +290,7 @@
 
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">interaction</span><span class="p">:</span>
-            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">p</span><span class="p">))]</span> <span class="o">=</span> <span class="n">interaction</span> <span class="o">/</span> <span class="mi">2</span>
-            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">p</span><span class="p">))]</span> <span class="o">=</span> <span class="n">interaction</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">p</span><span class="p">))]</span> <span class="o">=</span> <span class="n">interaction</span>
         <span class="k">if</span> <span class="n">chemical_potential</span><span class="p">:</span>
             <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">p</span><span class="p">))]</span> <span class="o">=</span> <span class="o">-</span><span class="n">chemical_potential</span>
             <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">p</span><span class="p">))]</span> <span class="o">=</span> <span class="o">-</span><span class="n">chemical_potential</span>
