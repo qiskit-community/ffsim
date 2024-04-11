@@ -31,12 +31,12 @@ def fermi_hubbard_1d(
     .. math::
 
         H = -t \sum_{\sigma} \sum_{p=1}^{N-1}
-        (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{H.c.})
-        + \frac{U}{2} \sum_{\sigma, \sigma'} \sum_{p=1}^{N} n_{\sigma, p} n_{\sigma', p}
+        (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{h.c.})
+        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
         - \mu \sum_{\sigma} \sum_{p=1}^N n_{\sigma, p}
         + V \sum_{\sigma, \sigma'} \sum_{p=1}^{N-1} n_{\sigma, p} n_{\sigma', p+1}
 
-    where the number operator :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger
+    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger
     a_{\sigma, p}`.
 
     References:
