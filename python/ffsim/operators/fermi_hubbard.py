@@ -33,11 +33,11 @@ def fermi_hubbard_1d(
         H = -t \sum_{\sigma} \sum_{p=1}^{N-1}
         (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{h.c.})
         + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
-        - \mu \sum_{\sigma} \sum_{p=1}^N n_{\sigma, p}
+        - \mu \sum_{p=1}^N (n_{\alpha, p} + n_{\beta, p})
         + V \sum_{\sigma, \sigma'} \sum_{p=1}^{N-1} n_{\sigma, p} n_{\sigma', p+1}
 
-    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger
-    a_{\sigma, p}`.
+    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
+    operator on orbital :math:`p` with spin :math:`\sigma`.
 
     References:
         - `The Hubbard Model`_
@@ -79,8 +79,7 @@ def fermi_hubbard_1d(
 
     for p in range(norb):
         if interaction:
-            coeffs[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = interaction / 2
-            coeffs[(cre_b(p), des_b(p), cre_a(p), des_a(p))] = interaction / 2
+            coeffs[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = interaction
         if chemical_potential:
             coeffs[(cre_a(p), des_a(p))] = -chemical_potential
             coeffs[(cre_b(p), des_b(p))] = -chemical_potential
