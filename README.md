@@ -63,13 +63,30 @@ Installing ffsim from source requires the following system dependencies:
       sudo apt install libopenblas-dev
       ```
 
-Once these dependencies are satisfied, ffsim can be installed by running the command
+Once these dependencies are satisfied, ffsim can be installed by cloning the repository and then using pip to install the package from source. For example:
 
 ```bash
+git clone https://github.com/qiskit-community/ffsim.git
+cd ffsim
 pip install .
 ```
 
-from the root directory of the code repository.
+### Use within Docker
+
+We have provided a [Dockerfile](Dockerfile), which can be used to build a [Docker](https://www.docker.com/) image, as well as a [compose.yaml](compose.yaml) file, which allows one to use the Docker image with just a few simple commands:
+
+```bash
+git clone https://github.com/qiskit-community/ffsim.git
+cd ffsim
+docker compose build
+docker compose up
+```
+
+Depending on your system configuration, you may need to type `sudo` before the `docker` command.
+
+Once the container is running, navigate to <http://localhost:58888> in a web browser to access the Jupyter Notebook interface.
+
+The home directory includes a subdirectory named `persistent-volume`. All work you’d like to save should be placed in this directory, as it is the only one that will be saved across different container runs.
 
 ## Development
 
