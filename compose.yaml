@@ -8,6 +8,7 @@ services:
     restart: unless-stopped
     environment:
       JUPYTER_PORT: 58888
+      NOTEBOOK_ARGS: "--ServerApp.token=''"
     ports:
       - 58888:58888
     volumes:
