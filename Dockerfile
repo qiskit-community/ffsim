@@ -18,9 +18,10 @@ COPY src .src/ffsim/src/
 COPY tests .src/ffsim/tests/
 COPY Cargo.lock Cargo.toml LICENSE pyproject.toml README.md .src/ffsim/
 
-# Fix the permissions of ~/.src
+# Fix file permissions
 USER root
 RUN fix-permissions .src
+RUN mkdir persistent-volume && fix-permissions persistent-volume
 USER ${NB_UID}
 
 # Consolidate the docs into the home directory
