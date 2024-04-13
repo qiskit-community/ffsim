@@ -21,7 +21,9 @@ Documentation is located at the [project website](https://qiskit-community.githu
 
 ## Supported platforms
 
-ffsim is supported on Linux, macOS, and the Windows Subsystem for Linux (WSL). It is not supported on Windows.
+ffsim is supported on Linux and macOS.
+
+ffsim is not supported directly on Windows, but Windows users can use ffsim on the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/), or via [Docker](https://www.docker.com/) (see [these instructions](#use-within-docker)).
 
 ## Installation
 
