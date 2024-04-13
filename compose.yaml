@@ -1,0 +1,18 @@
+# This file exists so users can easily get started with ffsim
+# in a container using Docker Compose.
+
+services:
+  notebook:
+    build: .
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      JUPYTER_PORT: 58888
+      NOTEBOOK_ARGS: "--ServerApp.token=''"
+    ports:
+      - 58888:58888
+    volumes:
+      - ffsim:/home/jovyan/persistent-volume
+
+volumes:
+  ffsim:
