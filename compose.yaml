@@ -6,8 +6,10 @@ services:
     build: .
     platform: linux/amd64
     restart: unless-stopped
+    environment:
+      JUPYTER_PORT: 58888
     ports:
-      - 8888:8888
+      - 58888:58888
     volumes:
       - ffsim:/home/jovyan/persistent-volume
 
