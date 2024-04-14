@@ -1,6 +1,6 @@
 # Developer guide
 
-For ffsim development on Windows, we recommend using [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/) and doing development within the WSL.
+The instructions on this page won't work natively on Windows. For ffsim development on Windows, we recommend using [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/) and doing development within the WSL.
 
 ## Setup
 
