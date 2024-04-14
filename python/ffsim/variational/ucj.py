@@ -47,7 +47,7 @@ class UCJOperator:
 
     .. math::
 
-        \prod_{k = 1}^L \mathcal{W_k} e^{i \mathcal{J}_k} \mathcal{W_k^\dagger}
+        \prod_{k = 1}^L \mathcal{W}_k e^{i \mathcal{J}_k} \mathcal{W}_k^\dagger
 
     where each :math:`\mathcal{W_k}` is an orbital rotation and each :math:`\mathcal{J}`
     is a diagonal Coulomb operator of the form
