@@ -1,0 +1,26 @@
+name: Docker notebook tests
+
+on:
+  push:
+    branches: [ main ]
+    paths: ['Dockerfile', '.dockerignore', 'compose.yaml', '.github/workflows/docker.yml']
+  pull_request:
+    branches: [ main ]
+    paths: ['Dockerfile', '.dockerignore', 'compose.yaml', '.github/workflows/docker.yml']
+  schedule:
+    - cron: '0 20 * * 3'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker compose build
+      - name: Test notebooks
+        shell: bash
+        run: docker compose run notebook "bash" "-c" "pip install pytest nbmake && pytest --nbmake docs"
+      - name: Test that persistent-volume is writable
+        shell: bash
+        run: docker compose run notebook "bash" "-c" "touch persistent-volume/empty-notebook.ipynb"
