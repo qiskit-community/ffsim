@@ -28,7 +28,7 @@ This method won't work natively on Windows, however. Refer to the [installation 
 
 ## Developer guide
 
-See the [developer guide](CONTRIBUTING) for instructions on contributing code to ffsim.
+See the [developer guide](CONTRIBUTING.md) for instructions on contributing code to ffsim.
 
 ## Citing ffsim
 
