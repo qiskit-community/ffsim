@@ -1,28 +1,36 @@
 # ffsim
 
-Faster simulations of fermionic quantum circuits.
-
-## What is ffsim?
-
 ```{include} ../README.md
-:start-after: <!-- start what-is-ffsim -->
-:end-before: <!-- end what-is-ffsim -->
+:start-after: <!-- start introduction -->
+:end-before: <!-- end introduction -->
 ```
 
-## Install from PyPI
+## Installation
 
 ```{include} ../README.md
-:start-after: <!-- start install-from-pypi -->
-:end-before: <!-- end install-from-pypi -->
+:start-after: <!-- start installation -->
+:end-before: <!-- end installation -->
 ```
 
-## Get started
+## Next steps
 
 Check out the [tutorials](tutorials/index.md).
+
+## Developer guide
+
+See the [developer guide](https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md) hosted on GitHub for instructions on contributing code to ffsim.
+
+## Citing ffsim
+
+```{include} ../README.md
+:start-after: <!-- start citing -->
+:end-before: <!-- end citing -->
+```
 
 ```{toctree}
 :hidden:
 
+install
 tutorials/index
 api/index
 ```

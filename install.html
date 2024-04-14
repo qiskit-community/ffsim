@@ -2,9 +2,12 @@
 <html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="#" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Tutorials" href="tutorials/index.html" /><link rel="prev" title="ffsim" href="index.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 --><title>Search - ffsim 0.0.28.dev0 documentation</title><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>Installation - ffsim 0.0.28.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -131,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -145,14 +148,14 @@
   
   <span class="sidebar-brand-text">ffsim 0.0.28.dev0 documentation</span>
   
-</a><form class="sidebar-search-container" method="get" action="#" role="search">
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/01-introduction.html">Introduction to ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
@@ -191,7 +194,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -199,31 +203,104 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          
-<noscript>
-<div class="admonition error">
-  <p class="admonition-title">Error</p>
-  <p>
-    Please activate JavaScript to enable the search functionality.
-  </p>
+          <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
+<p>ffsim is supported directly on Linux and macOS.</p>
+<p>ffsim is not supported directly on Windows. Windows users have two main options:</p>
+<ul class="simple">
+<li><p>Use <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/">Windows Subsystem for Linux (WSL)</a>. WSL provides a Linux environment where ffsim can be pip installed from PyPI or from source.</p></li>
+<li><p>Use ffsim within Docker. See <a class="reference internal" href="#use-within-docker"><span class="std std-ref">Use within Docker</span></a>.</p></li>
+</ul>
+<section id="pip-install">
+<h2>Pip install<a class="headerlink" href="#pip-install" title="Link to this heading">#</a></h2>
+<p>ffsim is available on <a class="reference external" href="https://pypi.org/project/ffsim/">PyPI</a>. It can be installed by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ffsim
+</pre></div>
 </div>
-</noscript>
-
-<div id="search-results"></div>
+</section>
+<section id="install-from-source">
+<h2>Install from source<a class="headerlink" href="#install-from-source" title="Link to this heading">#</a></h2>
+<p>Installing ffsim from source requires the following system dependencies:</p>
+<ul>
+<li><p>A Rust compiler. See <a class="reference external" href="https://www.rust-lang.org/tools/install">these instructions</a>.</p></li>
+<li><p>A BLAS implementation.</p>
+<ul>
+<li><p>On macOS, ffsim uses the <a class="reference external" href="https://developer.apple.com/documentation/accelerate">Accelerate</a> framework that is included with the operating system, so no action is required.</p></li>
+<li><p>On Linux, ffsim uses <a class="reference external" href="https://www.openblas.net/">OpenBLAS</a>. You may be able to install it using your system package manager:</p>
+<ul>
+<li><p>Arch Linux:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>blas-openblas
+</pre></div>
+</div>
+</li>
+<li><p>Fedora:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>openblas-devel
+</pre></div>
+</div>
+</li>
+<li><p>Ubuntu:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>libopenblas-dev
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Once these dependencies are satisfied, ffsim can be installed by cloning the repository and then using pip to install the package from source. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/qiskit-community/ffsim.git
+<span class="nb">cd</span><span class="w"> </span>ffsim
+pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="use-within-docker">
+<h2>Use within Docker<a class="headerlink" href="#use-within-docker" title="Link to this heading">#</a></h2>
+<p>We have provided a <a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/Dockerfile">Dockerfile</a>, which can be used to build a <a class="reference external" href="https://www.docker.com/">Docker</a> image, as well as a <a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/compose.yaml">compose.yaml</a> file, which allows one to use the Docker image with just a few simple commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/qiskit-community/ffsim.git
+<span class="nb">cd</span><span class="w"> </span>ffsim
+docker<span class="w"> </span>compose<span class="w"> </span>build
+docker<span class="w"> </span>compose<span class="w"> </span>up
+</pre></div>
+</div>
+<p>Depending on your system configuration, you may need to type <code class="docutils literal notranslate"><span class="pre">sudo</span></code> before the <code class="docutils literal notranslate"><span class="pre">docker</span></code> command.</p>
+<p>Once the container is running, navigate to <a class="reference external" href="http://localhost:58888">http://localhost:58888</a> in a web browser to access the Jupyter Notebook interface.</p>
+<p>The home directory includes a subdirectory named <code class="docutils literal notranslate"><span class="pre">persistent-volume</span></code>. All work you’d like to save should be placed in this directory, as it is the only one that will be saved across different container runs.</p>
+</section>
+</section>
 
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="tutorials/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Tutorials</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -249,8 +326,29 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#pip-install">Pip install</a></li>
+<li><a class="reference internal" href="#install-from-source">Install from source</a></li>
+<li><a class="reference internal" href="#use-within-docker">Use within Docker</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
@@ -260,8 +358,5 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    
-<script src="_static/searchtools.js"></script>
-<script src="_static/language_data.js"></script>
-<script src="searchindex.js"></script></body>
+    </body>
 </html>

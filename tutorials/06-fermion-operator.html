@@ -156,6 +156,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="01-introduction.html">Introduction to ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
@@ -249,9 +250,9 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
+    (cre_b(1), des_b(5), cre_a(4)): 1+1j,
     (cre_a(0), des_a(3)): 0.5,
-    (cre_a(3), des_a(0)): -0.25,
-    (cre_b(1), des_b(5), cre_a(4)): 1+1j
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div></div>
 </div>
@@ -270,7 +271,7 @@ FermionOperator({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;FermionOperator({((True, False, 0), (False, False, 3)): 0.5+0j, ((True, False, 3), (False, False, 0)): -0.25+0j, ((True, True, 1), (False, True, 5), (True, False, 4)): 1+1j})&#39;
+&#39;FermionOperator({((True, True, 1), (False, True, 5), (True, False, 4)): 1+1j, ((True, False, 0), (False, False, 3)): 0.5+0j, ((True, False, 3), (False, False, 0)): -0.25+0j})&#39;
 </pre></div></div>
 </div>
 <p>FermionOperators support arithmetic operations. Note that when multiplying a FermionOperator by a scalar, the scalar must go on the left, i.e. <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">op</span></code> and not <code class="docutils literal notranslate"><span class="pre">op</span> <span class="pre">*</span> <span class="pre">2</span></code>.</p>
@@ -298,16 +299,16 @@ FermionOperator({
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(3), des_a(0)): -0.5,
     (cre_a(0), des_a(3)): 1,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
     (des_a(3), des_b(3)): 0.0625,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_b(2)): 0-0.25j,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
     (cre_b(1), des_b(5), cre_a(4)): 2+2j
 })
 </pre></div></div>
@@ -333,16 +334,16 @@ FermionOperator({
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
-    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,
-    (cre_a(0), des_a(3), cre_b(2)): 2,
-    (cre_a(3), des_a(0), cre_b(2)): -1,
     (cre_a(3), des_a(0)): 0+3j,
     (cre_a(0), des_a(3)): 0-6j,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
+    (cre_a(0), des_a(3), cre_b(2)): 2,
     (des_a(3), des_b(3)): 0-1.25j,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,
     (cre_b(2)): -5,
+    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,
+    (cre_a(3), des_a(0), cre_b(2)): -1,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
     (cre_b(1), des_b(5), cre_a(4)): 12-12j
 })
 </pre></div></div>
@@ -364,16 +365,16 @@ smaller orbital indices.</p>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_b(1), cre_a(4), des_b(5)): -12+12j,
-    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j,
-    (des_b(3), des_a(3)): 0+1.25j,
+    (cre_a(0), des_a(3)): 0-6j,
     (cre_a(3), des_a(0)): 0+3j,
-    (cre_b(2), cre_a(3), des_a(0)): -1,
     (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
-    (cre_b(2)): -5,
+    (cre_b(2), cre_a(3), des_a(0)): -1,
+    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j,
     (cre_b(2), cre_a(0), des_a(3)): 2,
+    (cre_b(1), cre_a(4), des_b(5)): -12+12j,
     (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,
-    (cre_a(0), des_a(3)): 0-6j
+    (cre_b(2)): -5,
+    (des_b(3), des_a(3)): 0+1.25j
 })
 </pre></div></div>
 </div>
@@ -442,11 +443,11 @@ True
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([ 0.        +0.j        ,  0.        +0.j        ,
-        0.        +0.j        ,  0.        +0.j        ,
-       -0.13204513+0.09459341j,  0.        +0.j        ,
-        0.        +0.j        ,  0.        +0.j        ,
-        0.        +0.j        ])
+array([0.        +0.j        , 0.        +0.j        ,
+       0.        +0.j        , 0.        +0.j        ,
+       0.07133359-0.17842658j, 0.        +0.j        ,
+       0.        +0.j        , 0.        +0.j        ,
+       0.        +0.j        ])
 </pre></div></div>
 </div>
 <p>It can also be passed into most linear algebra routines in <code class="docutils literal notranslate"><span class="pre">scipy.sparse.linalg</span></code>.</p>

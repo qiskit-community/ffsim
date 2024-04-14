@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Tutorials" href="tutorials/index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Installation" href="install.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>ffsim 0.0.28.dev0 documentation</title>
@@ -155,6 +155,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/01-introduction.html">Introduction to ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
@@ -210,25 +211,34 @@
         <article role="main">
           <section id="ffsim">
 <h1>ffsim<a class="headerlink" href="#ffsim" title="Link to this heading">#</a></h1>
-<p>Faster simulations of fermionic quantum circuits.</p>
-<section id="what-is-ffsim">
-<h2>What is ffsim?<a class="headerlink" href="#what-is-ffsim" title="Link to this heading">#</a></h2>
-<p>ffsim is a software library for simulating fermionic quantum circuits that conserve particle number
-and the Z component of spin. This category includes many quantum circuits used for quantum chemistry simulations.
-By exploiting the symmetries and using specialized algorithms, ffsim can simulate these circuits much faster
-than a generic quantum circuit simulator.</p>
+<p>ffsim is a software library for simulating fermionic quantum circuits that conserve particle number and the Z component of spin. This category includes many quantum circuits used for quantum chemistry simulations. By exploiting the symmetries and using specialized algorithms, ffsim can simulate these circuits much faster than a generic quantum circuit simulator.</p>
 <p><strong>Experimental disclaimer</strong>: ffsim is currently an experimental release. Breaking changes may be introduced without warning.</p>
-</section>
-<section id="install-from-pypi">
-<h2>Install from PyPI<a class="headerlink" href="#install-from-pypi" title="Link to this heading">#</a></h2>
-<p>ffsim is available on <a class="reference external" href="https://pypi.org/project/ffsim/">PyPI</a>. It can be installed by running the command</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<p>We recommend installing ffsim using pip, when possible:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ffsim
 </pre></div>
 </div>
+<p>This method won’t work natively on Windows, however. Refer to the <a class="reference external" href="https://qiskit-community.github.io/ffsim/install.html">installation instructions</a> for information about using ffsim on Windows, as well as instructions for installing from source and running ffsim in a container.</p>
 </section>
-<section id="get-started">
-<h2>Get started<a class="headerlink" href="#get-started" title="Link to this heading">#</a></h2>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Check out the <a class="reference internal" href="tutorials/index.html"><span class="std std-doc">tutorials</span></a>.</p>
+</section>
+<section id="developer-guide">
+<h2>Developer guide<a class="headerlink" href="#developer-guide" title="Link to this heading">#</a></h2>
+<p>See the <a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">developer guide</a> hosted on GitHub for instructions on contributing code to ffsim.</p>
+</section>
+<section id="citing-ffsim">
+<h2>Citing ffsim<a class="headerlink" href="#citing-ffsim" title="Link to this heading">#</a></h2>
+<p>You can cite ffsim using the following BibTeX:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@software</span><span class="p">{</span><span class="nl">ffsim</span><span class="p">,</span>
+<span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{{The ffsim developers}}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{ffsim}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://github.com/qiskit-community/ffsim}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -239,12 +249,12 @@ than a generic quantum circuit simulator.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="tutorials/index.html">
+          <a class="next-page" href="install.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Tutorials</div>
+                <div class="title">Installation</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -287,9 +297,10 @@ than a generic quantum circuit simulator.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">ffsim</a><ul>
-<li><a class="reference internal" href="#what-is-ffsim">What is ffsim?</a></li>
-<li><a class="reference internal" href="#install-from-pypi">Install from PyPI</a></li>
-<li><a class="reference internal" href="#get-started">Get started</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#next-steps">Next steps</a></li>
+<li><a class="reference internal" href="#developer-guide">Developer guide</a></li>
+<li><a class="reference internal" href="#citing-ffsim">Citing ffsim</a></li>
 </ul>
 </li>
 </ul>
