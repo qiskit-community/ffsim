@@ -12,18 +12,17 @@ RUN apt update && apt install -y libssl-dev rustc cargo libopenblas-dev pkg-conf
 USER ${NB_UID}
 
 # Copy files
-COPY docs docs/
-RUN mkdir .src
-COPY python .src/ffsim/python/
-COPY src .src/ffsim/src/
-COPY tests .src/ffsim/tests/
-COPY Cargo.lock Cargo.toml LICENSE pyproject.toml README.md .src/ffsim/
+COPY . .src/ffsim
 
-# Fix file permissions
+# Fix the permissions of ~/.src and ~/persistent-volume
 USER root
-RUN fix-permissions docs && fix-permissions .src && \
+RUN fix-permissions .src && \
     mkdir persistent-volume && fix-permissions persistent-volume
 USER ${NB_UID}
+
+# Consolidate the docs into the home directory
+RUN mkdir docs && \
+    cp -a .src/ffsim/docs docs/ffsim
 
 # Pip install ffsim
 RUN pip install -e .src/ffsim
