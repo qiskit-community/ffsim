@@ -26,7 +26,7 @@ from ffsim.protocols.linear_operator_protocol import (
     SupportsLinearOperator,
     linear_operator,
 )
-from ffsim.states import slater_determinant
+from ffsim.states import ProductStateSum, slater_determinant
 
 
 def multireference_state(
@@ -78,7 +78,7 @@ def multireference_state_product_operator(
     nelec: tuple[int, int],
     root: int = 0,  # use lowest eigenvector by default
     tol: float = 1e-8,
-) -> tuple[float, list[tuple[np.ndarray, np.ndarray]], np.ndarray]:
+) -> tuple[float, ProductStateSum]:
     """Compute multireference state for a product ansatz operator.
 
     Args:
@@ -126,4 +126,4 @@ def multireference_state_product_operator(
     _, vecs = scipy.linalg.eigh(mat)
     coeffs = vecs[:, root]
     energy = np.real(np.sum(np.outer(coeffs, coeffs) * mat))
-    return energy, coeffs, basis_states
+    return energy, ProductStateSum(coeffs=coeffs, states=basis_states)
