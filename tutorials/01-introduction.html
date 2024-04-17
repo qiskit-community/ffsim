@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Orbital rotations and quadratic Hamiltonians" href="02-orbital-rotation.html" /><link rel="prev" title="Tutorials" href="index.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>Introduction to ffsim - ffsim 0.0.29.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -211,7 +211,7 @@
         </div>
         <article role="main">
           <section id="Introduction-to-ffsim">
-<h1>Introduction to ffsim<a class="headerlink" href="#Introduction-to-ffsim" title="Link to this heading">#</a></h1>
+<h1>Introduction to ffsim<a class="headerlink" href="#Introduction-to-ffsim" title="Link to this heading">¶</a></h1>
 <p>ffsim is a software library for simulating fermionic quantum circuits that conserve particle number and the Z component of spin. By taking advantage of these symmetries, it can simulate these circuits much more efficiently than a generic quantum circuit simulator.</p>
 <p>The primary way of using ffsim is by calling functions that transform statevectors represented directly as NumPy arrays. As an example, the following code shows how to create a vector representing the Hartree-Fock state with 6 spatial orbitals, 3 alpha electrons and 2 beta electrons, and then apply an orbital rotation to it. It also shows an equivalent way to construct the resulting state as a Slater determinant.</p>
 <div class="nbinput nblast docutils container">
@@ -290,7 +290,7 @@ On the other hand, 2 ** (2 * norb) = 4096.
 </pre></div>
 </div>
 </div>
-<p>The statevector representation depends on a choice of ordering for the <span class="math notranslate nohighlight">\(\alpha\)</span>- and <span class="math notranslate nohighlight">\(\beta\)</span>-strings. ffsim uses the same ordering as pySCF’s FCI module, <code class="docutils literal notranslate"><span class="pre">pyscf.fci</span></code>. You can use the <code class="docutils literal notranslate"><span class="pre">indices_to_strings</span></code> function to convert a list of statevector indices to the corresponding bitstrings. The left half of a bitstring is the <span class="math notranslate nohighlight">\(\alpha\)</span>-string, and the right half is the <span class="math notranslate nohighlight">\(\beta\)</span>-string.</p>
+<p>The statevector representation depends on a choice of ordering for the <span class="math notranslate nohighlight">\(\alpha\)</span>- and <span class="math notranslate nohighlight">\(\beta\)</span>-strings. ffsim uses the same ordering as pySCF’s FCI module, <code class="docutils literal notranslate"><span class="pre">pyscf.fci</span></code>. You can use the <code class="docutils literal notranslate"><span class="pre">indices_to_strings</span></code> function to convert a list of statevector indices to the corresponding bitstrings. The right half of a bitstring is the <span class="math notranslate nohighlight">\(\alpha\)</span>-string, and the left half is the <span class="math notranslate nohighlight">\(\beta\)</span>-string.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -388,7 +388,7 @@ On the other hand, 2 ** (2 * norb) = 4096.
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=482dcbc7"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

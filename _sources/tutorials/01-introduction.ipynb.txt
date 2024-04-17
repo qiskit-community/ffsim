@@ -107,7 +107,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The statevector representation depends on a choice of ordering for the $\\alpha$- and $\\beta$-strings. ffsim uses the same ordering as pySCF's FCI module, `pyscf.fci`. You can use the `indices_to_strings` function to convert a list of statevector indices to the corresponding bitstrings. The left half of a bitstring is the $\\alpha$-string, and the right half is the $\\beta$-string."
+    "The statevector representation depends on a choice of ordering for the $\\alpha$- and $\\beta$-strings. ffsim uses the same ordering as pySCF's FCI module, `pyscf.fci`. You can use the `indices_to_strings` function to convert a list of statevector indices to the corresponding bitstrings. The right half of a bitstring is the $\\alpha$-string, and the left half is the $\\beta$-string."
    ]
   },
   {
@@ -168,7 +168,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.10.12"
+   "version": "3.11.8"
   },
   "orig_nbformat": 4
  },
