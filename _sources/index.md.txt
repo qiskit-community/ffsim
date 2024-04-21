@@ -14,7 +14,10 @@
 
 ## Next steps
 
-Check out the [tutorials](tutorials/index.md).
+Check out the following resources:
+
+- [Tutorials](tutorials/index.md)
+- [How-to guides](how-to-guides/index.md)
 
 ## Developer guide
 
@@ -32,5 +35,6 @@ See the [developer guide](https://github.com/qiskit-community/ffsim/blob/main/CO
 
 install
 tutorials/index
+how-to-guides/index
 api/index
 ```

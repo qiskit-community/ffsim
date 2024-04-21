@@ -160,12 +160,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/01-introduction.html">Introduction to ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/04-lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/05-entanglement-forging.html">Entanglement forging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/06-fermion-operator.html">The FermionOperator class</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.contract.html">ffsim.contract</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.linalg.html">ffsim.linalg</a></li>
@@ -433,7 +436,7 @@ the terms in the linear combination to their associated coefficients. FermionOpe
 Can be added, subtracted, and multiplied, and they support multiplication and division
 by scalars. When multiplying by a scalar, the scalar should go on the left side of the
 multiplication operator, e.g. <code class="docutils literal notranslate"><span class="pre">scalar</span> <span class="pre">*</span> <span class="pre">op</span></code>, not <code class="docutils literal notranslate"><span class="pre">op</span> <span class="pre">*</span> <span class="pre">scalar</span></code>.</p>
-<p>See <a class="reference internal" href="../tutorials/06-fermion-operator.html"><span class="doc">The FermionOperator class</span></a> for a demonstration of how to use this class.</p>
+<p>See <a class="reference internal" href="../how-to-guides/fermion-operator.html"><span class="doc">How to use the FermionOperator class</span></a> for an explanation of how to use this class.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: Since FermionOperator is an unordered mapping, the order of</span>
 <span class="c1"># the terms in the print outputs below may vary between runs.</span>

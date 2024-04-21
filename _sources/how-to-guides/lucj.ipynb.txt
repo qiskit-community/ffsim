@@ -4,9 +4,9 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# The local unitary cluster Jastrow (LUCJ) ansatz\n",
+    "# How to simulate the local unitary cluster Jastrow (LUCJ) ansatz\n",
     "\n",
-    "In this tutorial, we show how to use ffsim to simulate the local unitary cluster Jastrow (LUCJ) ansatz. We'll use it to calculate the ground state energy of an ethene molecule at a stretched bond length."
+    "In this guide, we show how to use ffsim to simulate the local unitary cluster Jastrow (LUCJ) ansatz. We'll use it to calculate the ground state energy of an ethene molecule at a stretched bond length."
    ]
   },
   {
@@ -76,13 +76,13 @@
     "  \\lvert \\Psi \\rangle = \\prod_{k = 1}^L \\mathcal{W}_k e^{i \\mathcal{J}_k} \\mathcal{W}_k^\\dagger \\lvert \\Phi_0 \\rangle\n",
     "$$\n",
     "\n",
-    "where $\\lvert \\Phi_0 \\rangle$ is a reference state, often taken as the Hartree-Fock state, each $\\mathcal{W_k}$ is an [orbital rotation](./02-orbital-rotation.ipynb), and each $\\mathcal{J}_k$ is a diagonal Coulomb operator of the form\n",
+    "where $\\lvert \\Phi_0 \\rangle$ is a reference state, often taken as the Hartree-Fock state, each $\\mathcal{W_k}$ is an [orbital rotation](../tutorials/02-orbital-rotation.ipynb), and each $\\mathcal{J}_k$ is a diagonal Coulomb operator of the form\n",
     "\n",
     "$$\n",
     "    \\mathcal{J} = \\frac12\\sum_{ij,\\sigma \\tau} \\mathbf{J}^{\\sigma \\tau}_{ij} n_{i,\\sigma} n_{j,\\tau}.\n",
     "$$\n",
     "\n",
-    "Note that this expression for the diagonal Coulomb operator is more general than the one introduced in [the previous tutorial](./03-double-factorized.ipynb) because the matrices $\\mathbf{J}^{\\sigma \\tau}$ are indexed by the spins $\\sigma$ and $\\tau$. In order that the operator commutes with the total spin Z operator, we enforce that $\\mathbf{J}^{\\alpha\\alpha} = \\mathbf{J}^{\\beta\\beta}$ and $\\mathbf{J}^{\\alpha\\beta} = \\mathbf{J}^{\\beta\\alpha}$. As a result, we have two sets of matrices for describing the diagonal Coulomb operators: \"alpha-alpha\" matrices containing coefficients for terms involving the same spin, and \"alpha-beta\" matrices containing coefficients for terms involving different spins.\n",
+    "In order that the operator commutes with the total spin Z operator, we enforce that $\\mathbf{J}^{\\alpha\\alpha} = \\mathbf{J}^{\\beta\\beta}$ and $\\mathbf{J}^{\\alpha\\beta} = \\mathbf{J}^{\\beta\\alpha}$. As a result, we have two sets of matrices for describing the diagonal Coulomb operators: \"alpha-alpha\" matrices containing coefficients for terms involving the same spin, and \"alpha-beta\" matrices containing coefficients for terms involving different spins.\n",
     "\n",
     "In ffsim, the UCJ ansatz operator $\\prod_{k = 1}^L \\mathcal{W_k} e^{i \\mathcal{J}_k} \\mathcal{W_k^\\dagger}$ is represented by the `UCJOperator` class, which is just a dataclass that stores the diagonal Coulomb matrices and orbital rotations. A constructor method is provided to initialize the operator from a truncated double factorization of t2 amplitudes (e.g. from CCSD or MP2).\n",
     "\n",

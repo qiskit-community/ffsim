@@ -4,9 +4,9 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Entanglement forging\n",
+    "# How to simulate entanglement forging\n",
     "\n",
-    "In this tutorial, we show how to simulate entanglement forging for a water molecule at equilibrium."
+    "In this guide, we show how to simulate entanglement forging for a water molecule at equilibrium."
    ]
   },
   {

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Entanglement forging" href="05-entanglement-forging.html" /><link rel="prev" title="Diagonal Coulomb operators and double-factorized Trotter simulation" href="03-double-factorized.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>The local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.29.dev0 documentation</title>
+        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.29.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -157,16 +157,19 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="01-introduction.html">Introduction to ffsim</a></li>
-<li class="toctree-l2"><a class="reference internal" href="02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05-entanglement-forging.html">Entanglement forging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06-fermion-operator.html">The FermionOperator class</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/01-introduction.html">Introduction to ffsim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/02-orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/03-double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/ffsim.html">ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/ffsim.contract.html">ffsim.contract</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/ffsim.linalg.html">ffsim.linalg</a></li>
@@ -210,9 +213,9 @@
           </label>
         </div>
         <article role="main">
-          <section id="The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
-<h1>The local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h1>
-<p>In this tutorial, we show how to use ffsim to simulate the local unitary cluster Jastrow (LUCJ) ansatz. We’ll use it to calculate the ground state energy of an ethene molecule at a stretched bond length.</p>
+          <section id="How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
+<h1>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h1>
+<p>In this guide, we show how to use ffsim to simulate the local unitary cluster Jastrow (LUCJ) ansatz. We’ll use it to calculate the ground state energy of an ethene molecule at a stretched bond length.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -262,7 +265,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643963
+converged SCF energy = -77.4456267643962
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -280,13 +283,12 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 <div class="math notranslate nohighlight">
 \[\lvert \Psi \rangle = \prod_{k = 1}^L \mathcal{W}_k e^{i \mathcal{J}_k} \mathcal{W}_k^\dagger \lvert \Phi_0 \rangle\]</div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(\lvert \Phi_0 \rangle\)</span> is a reference state, often taken as the Hartree-Fock state, each <span class="math notranslate nohighlight">\(\mathcal{W_k}\)</span> is an <a class="reference internal" href="02-orbital-rotation.html"><span class="doc">orbital rotation</span></a>, and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a diagonal Coulomb operator of the form</p>
+<p>where <span class="math notranslate nohighlight">\(\lvert \Phi_0 \rangle\)</span> is a reference state, often taken as the Hartree-Fock state, each <span class="math notranslate nohighlight">\(\mathcal{W_k}\)</span> is an <a class="reference internal" href="../tutorials/02-orbital-rotation.html"><span class="doc">orbital rotation</span></a>, and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a diagonal Coulomb operator of the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\mathcal{J} = \frac12\sum_{ij,\sigma \tau} \mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.\]</div>
 </div>
-<p>Note that this expression for the diagonal Coulomb operator is more general than the one introduced in <a class="reference internal" href="03-double-factorized.html"><span class="doc">the previous tutorial</span></a> because the matrices <span class="math notranslate nohighlight">\(\mathbf{J}^{\sigma \tau}\)</span> are indexed by the spins <span class="math notranslate nohighlight">\(\sigma\)</span> and <span class="math notranslate nohighlight">\(\tau\)</span>. In order that the operator commutes with the total spin Z operator, we enforce that <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}\)</span>. As a result, we
-have two sets of matrices for describing the diagonal Coulomb operators: “alpha-alpha” matrices containing coefficients for terms involving the same spin, and “alpha-beta” matrices containing coefficients for terms involving different spins.</p>
+<p>In order that the operator commutes with the total spin Z operator, we enforce that <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}\)</span>. As a result, we have two sets of matrices for describing the diagonal Coulomb operators: “alpha-alpha” matrices containing coefficients for terms involving the same spin, and “alpha-beta” matrices containing coefficients for terms involving different spins.</p>
 <p>In ffsim, the UCJ ansatz operator <span class="math notranslate nohighlight">\(\prod_{k = 1}^L \mathcal{W_k} e^{i \mathcal{J}_k} \mathcal{W_k^\dagger}\)</span> is represented by the <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> class, which is just a dataclass that stores the diagonal Coulomb matrices and orbital rotations. A constructor method is provided to initialize the operator from a truncated double factorization of t2 amplitudes (e.g. from CCSD or MP2).</p>
 <p>In the code cell below, we run CCSD to get the t2 amplitudes for initializing the ansatz. We’ll create an ansatz operator with 2 repetitions (<span class="math notranslate nohighlight">\(L = 2\)</span>). For our reference state, we’ll use the Hartree-Fock state. Since <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> defines a unitary effect, we can use the function <code class="docutils literal notranslate"><span class="pre">apply_unitary</span></code> to apply the ansatz operator to the reference state to obtain the ansatz state. Finally, we compute the energy of the ansatz state.</p>
 <div class="nbinput docutils container">
@@ -325,7 +327,7 @@ have two sets of matrices for describing the diagonal Coulomb operators: “alph
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754479  E_corr = -0.04824536314851506
+E(CCSD) = -77.49387212754471  E_corr = -0.04824536314851283
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -333,7 +335,7 @@ E(CCSD) = -77.49387212754479  E_corr = -0.04824536314851506
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialization: -77.46975600021706
+Energy at initialization: -77.46975600021712
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -372,18 +374,18 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50963394010215
-        x: [ 1.263e+00  4.689e-01 ...  8.695e-02  1.365e-01]
+      fun: -77.50959507133409
+        x: [ 1.252e+00  6.199e-01 ...  8.725e-02  1.372e-01]
       nit: 5
-      jac: [-6.253e-05 -6.608e-04 ... -3.573e-03 -4.522e-03]
+      jac: [ 1.563e-04 -5.343e-04 ... -3.678e-03 -4.744e-03]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
 </section>
-<section id="id1">
-<h2>The local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<section id="The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
+<h2>The local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h2>
 <p>Implementing the <span class="math notranslate nohighlight">\(e^{i \mathcal{J}_k}\)</span> term of the UCJ ansatz requires either all-to-all connectivity or the use of a fermionic swap network, making it challenging for noisy pre-fault-tolerant quantum processors that have limited connectivity. The idea of the <em>local</em> UCJ ansatz is to impose sparsity constraints on the <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta}\)</span> matrices which allow them to be implemented in constant depth on qubit topologies with limited
 connectivity. The constraints are specified by a list of indices indicating which matrix entries in the upper triangle are allowed to be nonzero (since the matrices are symmetric, only the upper triangle needs to be specified).</p>
 <p>As an example, consider a square lattice qubit topology. We can place the <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> orbitals in parallel lines on the lattice, with connections between these lines forming “rungs” of a ladder shape. With this setup, orbitals with the same spin are connected with a line topology, while orbitals with different spins are connected when they share the same spatial orbital. This yields the following index constraints on the <span class="math notranslate nohighlight">\(\mathbf{J}\)</span> matrices:</p>
@@ -438,10 +440,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.4574141414117
-        x: [ 1.266e+00  4.813e-01 ...  8.426e-03  8.367e-03]
+      fun: -77.45741390801217
+        x: [ 1.251e+00  6.265e-01 ... -1.416e-03  1.502e-02]
       nit: 5
-      jac: [ 1.677e-04  6.537e-05 ... -1.229e-03 -3.416e-03]
+      jac: [-4.263e-05  5.400e-05 ... -2.544e-03 -2.572e-03]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -525,34 +527,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.46974988453292
-       x: [ 1.382e+00  4.268e-01 ...  1.482e-01 -4.029e-01]
+     fun: -77.4628411937908
+       x: [ 1.314e+00  6.781e-01 ...  5.922e-02 -2.659e-01]
      nit: 5
-     jac: [-5.207e-03 -1.245e-03 ...  7.977e-06  1.717e-03]
-    nfev: 748
+     jac: [-4.051e-04  1.933e-04 ... -9.787e-04 -1.575e-03]
+    nfev: 652
     njev: 5
-  nlinop: 518
+  nlinop: 422
 
 Iteration 1
-    Energy: -77.45709328648962
-    Norm of gradient: 0.012262817320645242
-    Regularization hyperparameter: 0.025872757431624635
-    Variation hyperparameter: 0.7770478269289365
+    Energy: -77.45026213677019
+    Norm of gradient: 0.0204458318627981
+    Regularization hyperparameter: 0.9910251045944498
+    Variation hyperparameter: 0.5468576031630399
 Iteration 2
-    Energy: -77.45820270540717
-    Norm of gradient: 0.008160112622092024
-    Regularization hyperparameter: 0.0004159358469614985
-    Variation hyperparameter: 0.7812462846271242
+    Energy: -77.4570096612583
+    Norm of gradient: 0.013369493304542311
+    Regularization hyperparameter: 0.025204466338500417
+    Variation hyperparameter: 0.6218802628300091
 Iteration 3
-    Energy: -77.45822897350243
-    Norm of gradient: 0.007995558124765658
-    Regularization hyperparameter: 1.0411058630161811
-    Variation hyperparameter: 0.7778706279750662
+    Energy: -77.45805575500422
+    Norm of gradient: 0.00825895324397095
+    Regularization hyperparameter: 0.0003998730087016616
+    Variation hyperparameter: 0.6273087366071513
 Iteration 4
-    Energy: -77.46296609531986
-    Norm of gradient: 0.023458619569407417
-    Regularization hyperparameter: 0.003622356886029416
-    Variation hyperparameter: 0.8760857254915919
+    Energy: -77.45808138583607
+    Norm of gradient: 0.007973132098963118
+    Regularization hyperparameter: 0.9603975709505502
+    Variation hyperparameter: 0.6281221738957464
 </pre></div></div>
 </div>
 </section>
@@ -563,23 +565,23 @@ Iteration 4
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="05-entanglement-forging.html">
+          <a class="next-page" href="entanglement-forging.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Entanglement forging</div>
+                <div class="title">How to simulate entanglement forging</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="03-double-factorized.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Diagonal Coulomb operators and double-factorized Trotter simulation</div>
+                <div class="title">How-to guides</div>
                 
               </div>
             </a>
@@ -620,9 +622,9 @@ Iteration 4
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">The local unitary cluster Jastrow (LUCJ) ansatz</a><ul>
+<li><a class="reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a><ul>
 <li><a class="reference internal" href="#The-unitary-cluster-Jastrow-(UCJ)-ansatz">The unitary cluster Jastrow (UCJ) ansatz</a></li>
-<li><a class="reference internal" href="#id1">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li><a class="reference internal" href="#The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li><a class="reference internal" href="#Optimize-with-the-linear-method">Optimize with the linear method</a></li>
 </ul>
 </li>
