@@ -58,6 +58,7 @@ from ffsim.protocols import (
 )
 from ffsim.spin import Spin
 from ffsim.states import (
+    ProductStateSum,
     dim,
     dims,
     expectation_one_body_power,
@@ -79,6 +80,7 @@ from ffsim.variational import (
     RealUCJOperator,
     UCJOperator,
     multireference_state,
+    multireference_state_prod,
 )
 
 __all__ = [
@@ -88,6 +90,7 @@ __all__ = [
     "HopGateAnsatzOperator",
     "MolecularData",
     "MolecularHamiltonian",
+    "ProductStateSum",
     "RealUCJOperator",
     "SingleFactorizedHamiltonian",
     "Spin",
@@ -130,6 +133,7 @@ __all__ = [
     "linalg",
     "linear_operator",
     "multireference_state",
+    "multireference_state_prod",
     "number_operator",
     "one_hot",
     "optimize",

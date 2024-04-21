@@ -14,6 +14,8 @@ import itertools
 
 import numpy as np
 
+from ffsim import hamiltonians
+
 
 def random_statevector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     """Return a random state vector sampled from the uniform distribution.
@@ -236,3 +238,32 @@ def random_t2_amplitudes(
         )
         t2 = t2_large[:nocc, :nocc, nocc:, nocc:]
     return t2
+
+
+def random_molecular_hamiltonian(
+    norb: int, seed=None, dtype=complex
+) -> hamiltonians.MolecularHamiltonian:
+    """Sample a random molecular Hamiltonian.
+
+    Args:
+        norb: The number of orbitals.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the one- and two-body tensors. The constant
+            term will always be of type ``float``.
+
+    Returns:
+        The sampled molecular Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    if np.issubdtype(dtype, np.complexfloating):
+        one_body_tensor = random_hermitian(norb, seed=rng, dtype=dtype)
+    else:
+        one_body_tensor = random_real_symmetric_matrix(norb, seed=rng, dtype=dtype)
+    two_body_tensor = random_two_body_tensor(norb, seed=rng, dtype=dtype)
+    constant = rng.standard_normal()
+    return hamiltonians.MolecularHamiltonian(
+        one_body_tensor=one_body_tensor,
+        two_body_tensor=two_body_tensor,
+        constant=constant,
+    )

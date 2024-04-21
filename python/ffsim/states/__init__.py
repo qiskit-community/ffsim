@@ -10,6 +10,7 @@
 
 """States."""
 
+from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm
 from ffsim.states.states import (
     dim,
@@ -24,6 +25,7 @@ from ffsim.states.states import (
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
 __all__ = [
+    "ProductStateSum",
     "dim",
     "dims",
     "expectation_one_body_power",
