@@ -18,7 +18,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "converged SCF energy = -75.6787887956296\n",
+      "converged SCF energy = -75.6787887956297\n",
       "CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000\n"
      ]
     }
@@ -56,12 +56,10 @@
     "\n",
     "# Get molecular data and molecular Hamiltonian (one- and two-body tensors)\n",
     "mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)\n",
+    "mol_data.run_fci()\n",
     "norb = mol_data.norb\n",
     "nelec = mol_data.nelec\n",
-    "mol_hamiltonian = mol_data.hamiltonian\n",
-    "\n",
-    "# Compute FCI energy\n",
-    "mol_data.run_fci()"
+    "mol_hamiltonian = mol_data.hamiltonian"
    ]
   },
   {
@@ -73,7 +71,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Energy at initialialization: -74.20656273321593\n"
+      "Energy at initialialization: -74.20656273321636\n"
      ]
     }
    ],
@@ -99,8 +97,8 @@
     "reference_occupations = list(\n",
     "    zip(reference_occupations_spatial, reference_occupations_spatial)\n",
     ")\n",
-    "energy, ansatz_state = ffsim.multireference_state(\n",
-    "    mol_hamiltonian, operator, reference_occupations, norb=norb, nelec=nelec\n",
+    "energy, _ = ffsim.multireference_state_prod(\n",
+    "    mol_hamiltonian, (operator, operator), reference_occupations, norb=norb, nelec=nelec\n",
     ")\n",
     "\n",
     "print(f\"Energy at initialialization: {energy}\")"
@@ -119,10 +117,10 @@
       "  message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT\n",
       "  success: False\n",
       "   status: 1\n",
-      "      fun: -75.68085348348217\n",
+      "      fun: -75.68085338640815\n",
       "        x: [ 2.996e+00 -7.549e-01 ...  2.650e+00  8.012e-01]\n",
       "      nit: 6\n",
-      "      jac: [ 1.771e-03  9.121e-03 ... -1.192e-02  9.578e-04]\n",
+      "      jac: [ 1.759e-03  9.115e-03 ... -1.192e-02  9.393e-04]\n",
       "     nfev: 112\n",
       "     njev: 7\n",
       " hess_inv: <15x15 LbfgsInvHessProduct with dtype=float64>\n"
@@ -137,8 +135,12 @@
     "    # Initialize the ansatz operator from the parameter vector\n",
     "    operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, x)\n",
     "    # Compute energy\n",
-    "    energy, _ = ffsim.multireference_state(\n",
-    "        mol_hamiltonian, operator, reference_occupations, norb=norb, nelec=nelec\n",
+    "    energy, _ = ffsim.multireference_state_prod(\n",
+    "        mol_hamiltonian,\n",
+    "        (operator, operator),\n",
+    "        reference_occupations,\n",
+    "        norb=norb,\n",
+    "        nelec=nelec,\n",
     "    )\n",
     "    return energy\n",
     "\n",
@@ -168,7 +170,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.10.12"
+   "version": "3.11.8"
   },
   "orig_nbformat": 4
  },

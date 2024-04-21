@@ -221,6 +221,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">LinearOperator</span>
@@ -308,11 +309,19 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The single-factorized Hamiltonian.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norb</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">norb</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">norb</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SingleFactorizedHamiltonian</span><span class="p">(</span>
+                <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="n">one_body_squares</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="n">constant</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
             <span class="s2">&quot;prqr&quot;</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span>
         <span class="p">)</span>
 
-        <span class="n">norb</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">norb</span>
         <span class="n">reshaped_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">norb</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">cholesky</span><span class="p">:</span>
@@ -350,7 +359,135 @@
 
         <span class="k">return</span> <span class="n">LinearOperator</span><span class="p">(</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dim_</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SingleFactorizedHamiltonian.reduced_matrix_product_states">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.SingleFactorizedHamiltonian.reduced_matrix_product_states">[docs]</a>
+    <span class="k">def</span> <span class="nf">reduced_matrix_product_states</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">vecs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return reduced matrix within a subspace spanned by some product states.</span>
+
+<span class="sd">        Given a list of product states :math:`\{\lvert \alpha_i, \beta_i \rangle\}`,</span>
+<span class="sd">        returns the matrix M where</span>
+<span class="sd">        :math:`M_{ij} = \langle \alpha_i, \beta_i \rvert</span>
+<span class="sd">        H \lvert \alpha_j, \beta_j \rangle`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vecs: The product states, as a list of pairs `(vec_a, vec_b)` containing</span>
+<span class="sd">                the alpha and beta components of each state.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            nelec: The number of alpha and beta electrons.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The reduced matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+        <span class="n">one_body_tensor_linop_a</span> <span class="o">=</span> <span class="n">one_body_linop</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">one_body_tensor_linop_b</span> <span class="o">=</span> <span class="n">one_body_linop</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">one_body_square_linops_a</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">one_body_linop</span><span class="p">(</span><span class="n">one_body</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">one_body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_squares</span>
+        <span class="p">]</span>
+        <span class="n">one_body_square_linops_b</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">one_body_linop</span><span class="p">(</span><span class="n">one_body</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">one_body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_squares</span>
+        <span class="p">]</span>
+
+        <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vecs</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">vec_a_j</span><span class="p">,</span> <span class="n">vec_b_j</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vecs</span><span class="p">):</span>
+            <span class="c1"># vec 0 is A @ vec where A is the one-body term of teh Hamiltonian</span>
+            <span class="n">vec_0_a</span> <span class="o">=</span> <span class="n">one_body_tensor_linop_a</span> <span class="o">@</span> <span class="n">vec_a_j</span>
+            <span class="n">vec_0_b</span> <span class="o">=</span> <span class="n">one_body_tensor_linop_b</span> <span class="o">@</span> <span class="n">vec_b_j</span>
+            <span class="c1"># vec 1 is M @ vec where M is a term that is squared in the Hamiltonian</span>
+            <span class="n">vecs_1_a</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">vecs_1_b</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># vec 2 is M**2 @ vec where M is a term that is squared in the Hamiltonian</span>
+            <span class="n">vecs_2_a</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">vecs_2_b</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">linop_a</span><span class="p">,</span> <span class="n">linop_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">one_body_square_linops_a</span><span class="p">,</span> <span class="n">one_body_square_linops_b</span>
+            <span class="p">):</span>
+                <span class="n">vec_1_a</span> <span class="o">=</span> <span class="n">linop_a</span> <span class="o">@</span> <span class="n">vec_a_j</span>
+                <span class="n">vec_2_a</span> <span class="o">=</span> <span class="n">linop_a</span> <span class="o">@</span> <span class="n">vec_1_a</span>
+                <span class="n">vec_1_b</span> <span class="o">=</span> <span class="n">linop_b</span> <span class="o">@</span> <span class="n">vec_b_j</span>
+                <span class="n">vec_2_b</span> <span class="o">=</span> <span class="n">linop_b</span> <span class="o">@</span> <span class="n">vec_1_b</span>
+                <span class="n">vecs_1_a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec_1_a</span><span class="p">)</span>
+                <span class="n">vecs_2_a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec_2_a</span><span class="p">)</span>
+                <span class="n">vecs_1_b</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec_1_b</span><span class="p">)</span>
+                <span class="n">vecs_2_b</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec_2_b</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">vec_a_i</span><span class="p">,</span> <span class="n">vec_b_i</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vecs</span><span class="p">):</span>
+                <span class="n">overlap_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_a_i</span><span class="p">,</span> <span class="n">vec_a_j</span><span class="p">)</span>
+                <span class="n">overlap_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_b_i</span><span class="p">,</span> <span class="n">vec_b_j</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">constant</span> <span class="o">*</span> <span class="n">overlap_a</span> <span class="o">*</span> <span class="n">overlap_b</span>
+                    <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_a_i</span><span class="p">,</span> <span class="n">vec_0_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">overlap_b</span>
+                    <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_b_i</span><span class="p">,</span> <span class="n">vec_0_b</span><span class="p">)</span> <span class="o">*</span> <span class="n">overlap_a</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">vec_1_a</span><span class="p">,</span> <span class="n">vec_1_b</span><span class="p">,</span> <span class="n">vec_2_a</span><span class="p">,</span> <span class="n">vec_2_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">vecs_1_a</span><span class="p">,</span> <span class="n">vecs_1_b</span><span class="p">,</span> <span class="n">vecs_2_a</span><span class="p">,</span> <span class="n">vecs_2_b</span>
+                <span class="p">):</span>
+                    <span class="n">val</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_a_i</span><span class="p">,</span> <span class="n">vec_2_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">overlap_b</span>
+                        <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_b_i</span><span class="p">,</span> <span class="n">vec_2_b</span><span class="p">)</span> <span class="o">*</span> <span class="n">overlap_a</span>
+                    <span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_a_i</span><span class="p">,</span> <span class="n">vec_1_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_b_i</span><span class="p">,</span> <span class="n">vec_1_b</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="SingleFactorizedHamiltonian.expectation_product_state">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.SingleFactorizedHamiltonian.expectation_product_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">expectation_product_state</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return expectation value with respect to a product state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vec: The product state, as a pair `(vec_a, vec_b)` containing the alpha and</span>
+<span class="sd">                beta components of the state.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+        <span class="n">one_body_tensor_linop_a</span> <span class="o">=</span> <span class="n">one_body_linop</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">one_body_tensor_linop_b</span> <span class="o">=</span> <span class="n">one_body_linop</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">one_body_square_linops_a</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">one_body_linop</span><span class="p">(</span><span class="n">one_body</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">one_body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_squares</span>
+        <span class="p">]</span>
+        <span class="n">one_body_square_linops_b</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">one_body_linop</span><span class="p">(</span><span class="n">one_body</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">one_body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_squares</span>
+        <span class="p">]</span>
+
+        <span class="n">vec_a</span><span class="p">,</span> <span class="n">vec_b</span> <span class="o">=</span> <span class="n">vec</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">constant</span>
+            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_a</span><span class="p">,</span> <span class="n">one_body_tensor_linop_a</span> <span class="o">@</span> <span class="n">vec_a</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_b</span><span class="p">,</span> <span class="n">one_body_tensor_linop_b</span> <span class="o">@</span> <span class="n">vec_b</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">linop_a</span><span class="p">,</span> <span class="n">linop_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">one_body_square_linops_a</span><span class="p">,</span> <span class="n">one_body_square_linops_b</span><span class="p">):</span>
+            <span class="n">vec_1_a</span> <span class="o">=</span> <span class="n">linop_a</span> <span class="o">@</span> <span class="n">vec_a</span>
+            <span class="n">vec_2_a</span> <span class="o">=</span> <span class="n">linop_a</span> <span class="o">@</span> <span class="n">vec_1_a</span>
+            <span class="n">vec_1_b</span> <span class="o">=</span> <span class="n">linop_b</span> <span class="o">@</span> <span class="n">vec_b</span>
+            <span class="n">vec_2_b</span> <span class="o">=</span> <span class="n">linop_b</span> <span class="o">@</span> <span class="n">vec_1_b</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_a</span><span class="p">,</span> <span class="n">vec_2_a</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_b</span><span class="p">,</span> <span class="n">vec_2_b</span><span class="p">)</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_a</span><span class="p">,</span> <span class="n">vec_1_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec_b</span><span class="p">,</span> <span class="n">vec_1_b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">real</span></div>
+</div>
 
 </pre></div>
         </article>

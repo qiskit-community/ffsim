@@ -875,6 +875,35 @@ the two-body tensor.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.ProductStateSum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">ProductStateSum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/product_state_sum.html#ProductStateSum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.ProductStateSum" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>A linear combination of product states.</p>
+<p>Given a ProductStateSum <code class="docutils literal notranslate"><span class="pre">prod_state_sum</span></code>, the full state vector can be
+reconstructed as</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">sum</span><span class="p">(</span>
+    <span class="n">coeff</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">vec_a</span><span class="p">,</span> <span class="n">vec_b</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">coeff</span><span class="p">,</span> <span class="p">(</span><span class="n">vec_a</span><span class="p">,</span> <span class="n">vec_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">prod_state_sum</span><span class="o">.</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">prod_state_sum</span><span class="o">.</span><span class="n">states</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.ProductStateSum.coeffs">
+<span class="sig-name descname"><span class="pre">coeffs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></em><a class="headerlink" href="#ffsim.ProductStateSum.coeffs" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.ProductStateSum.states">
+<span class="sig-name descname"><span class="pre">states</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">]]</span></em><a class="headerlink" href="#ffsim.ProductStateSum.states" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.RealUCJOperator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">RealUCJOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#RealUCJOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.RealUCJOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -1109,6 +1138,25 @@ squares are summed in the Hamiltonian.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.expectation_product_state">
+<span class="sig-name descname"><span class="pre">expectation_product_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/single_factorized_hamiltonian.html#SingleFactorizedHamiltonian.expectation_product_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.expectation_product_state" title="Link to this definition">¶</a></dt>
+<dd><p>Return expectation value with respect to a product state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The product state, as a pair <cite>(vec_a, vec_b)</cite> containing the alpha and
+beta components of the state.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_molecular_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cholesky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/single_factorized_hamiltonian.html#SingleFactorizedHamiltonian.from_molecular_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a SingleFactorizedHamiltonian from a MolecularHamiltonian.</p>
@@ -1146,6 +1194,32 @@ instead, which can be much more expensive.</p></li>
 <dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.norb">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian.reduced_matrix_product_states">
+<span class="sig-name descname"><span class="pre">reduced_matrix_product_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/single_factorized_hamiltonian.html#SingleFactorizedHamiltonian.reduced_matrix_product_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian.reduced_matrix_product_states" title="Link to this definition">¶</a></dt>
+<dd><p>Return reduced matrix within a subspace spanned by some product states.</p>
+<p>Given a list of product states <span class="math notranslate nohighlight">\(\{\lvert \alpha_i, \beta_i \rangle\}\)</span>,
+returns the matrix M where
+<span class="math notranslate nohighlight">\(M_{ij} = \langle \alpha_i, \beta_i \rvert
+H \lvert \alpha_j, \beta_j \rangle\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]</span>) – The product states, as a list of pairs <cite>(vec_a, vec_b)</cite> containing
+the alpha and beta components of each state.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The reduced matrix.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -2410,6 +2484,34 @@ lowest-energy state.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.multireference_state_prod">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">multireference_state_prod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ansatz_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_occupations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/multireference.html#multireference_state_prod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.multireference_state_prod" title="Link to this definition">¶</a></dt>
+<dd><p>Compute multireference state for a product ansatz operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a> | <a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian" title="ffsim.hamiltonians.single_factorized_hamiltonian.SingleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian</span></code></a></span>) – The Hamiltonian.</p></li>
+<li><p><strong>ansatz_operator</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="#ffsim.SupportsApplyUnitary" title="ffsim.protocols.apply_unitary_protocol.SupportsApplyUnitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a>, <a class="reference internal" href="#ffsim.SupportsApplyUnitary" title="ffsim.protocols.apply_unitary_protocol.SupportsApplyUnitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a>]</span>) – The alpha and beta parts of the ansatz operator.</p></li>
+<li><p><strong>reference_occupations</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]</span>) – The orbital occupations of the reference states.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>root</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The index of the desired eigenvector. Defaults to 0, which yields the
+lowest-energy state.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Numerical tolerance to use for the single factorization of the molecular
+Hamiltonian. If the input is already a SingleFactorizedHamiltonian,
+this argument is ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <a class="reference internal" href="#ffsim.ProductStateSum" title="ffsim.states.product_state_sum.ProductStateSum"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProductStateSum</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The energy of the multireference state, and the state itself.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.number_operator">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">number_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/common_operators.html#number_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.number_operator" title="Link to this definition">¶</a></dt>
 <dd><p>Occupation number operator.</p>
@@ -2797,6 +2899,11 @@ describes the orbitals of the Slater determinant.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.rotated"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.rotated()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#ffsim.ProductStateSum"><code class="docutils literal notranslate"><span class="pre">ProductStateSum</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.ProductStateSum.coeffs"><code class="docutils literal notranslate"><span class="pre">ProductStateSum.coeffs</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.ProductStateSum.states"><code class="docutils literal notranslate"><span class="pre">ProductStateSum.states</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.diag_coulomb_mats_alpha_alpha"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.diag_coulomb_mats_alpha_alpha</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.RealUCJOperator.diag_coulomb_mats_alpha_beta"><code class="docutils literal notranslate"><span class="pre">RealUCJOperator.diag_coulomb_mats_alpha_beta</span></code></a></li>
@@ -2815,8 +2922,10 @@ describes the orbitals of the Slater determinant.</p></li>
 <li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian.one_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian.one_body_squares"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian.one_body_squares</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian.constant</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian.expectation_product_state"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian.expectation_product_state()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian.from_molecular_hamiltonian()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian.reduced_matrix_product_states"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian.reduced_matrix_product_states()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.Spin"><code class="docutils literal notranslate"><span class="pre">Spin</span></code></a><ul>
@@ -2875,6 +2984,7 @@ describes the orbitals of the Slater determinant.</p></li>
 <li><a class="reference internal" href="#ffsim.init_cache"><code class="docutils literal notranslate"><span class="pre">init_cache()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.multireference_state"><code class="docutils literal notranslate"><span class="pre">multireference_state()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.multireference_state_prod"><code class="docutils literal notranslate"><span class="pre">multireference_state_prod()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.number_operator"><code class="docutils literal notranslate"><span class="pre">number_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.one_hot"><code class="docutils literal notranslate"><span class="pre">one_hot()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.rdm"><code class="docutils literal notranslate"><span class="pre">rdm()</span></code></a></li>
