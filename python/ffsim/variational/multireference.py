@@ -71,7 +71,7 @@ def multireference_state(
 
 
 def multireference_state_prod(
-    hamiltonian: MolecularHamiltonian,
+    hamiltonian: MolecularHamiltonian | SingleFactorizedHamiltonian,
     ansatz_operator: tuple[SupportsApplyUnitary, SupportsApplyUnitary],
     reference_occupations: Sequence[tuple[Sequence[int], Sequence[int]]],
     norb: int,
@@ -90,14 +90,19 @@ def multireference_state_prod(
         root: The index of the desired eigenvector. Defaults to 0, which yields the
             lowest-energy state.
         tol: Numerical tolerance to use for the single factorization of the molecular
-            Hamiltonian.
+            Hamiltonian. If the input is already a SingleFactorizedHamiltonian,
+            this argument is ignored.
 
     Returns:
         The energy of the multireference state, and the state itself.
     """
-    sf_hamiltonian = SingleFactorizedHamiltonian.from_molecular_hamiltonian(
-        hamiltonian, tol=tol
-    )
+    if isinstance(hamiltonian, MolecularHamiltonian):
+        sf_hamiltonian = SingleFactorizedHamiltonian.from_molecular_hamiltonian(
+            hamiltonian, tol=tol
+        )
+    else:
+        sf_hamiltonian = hamiltonian
+
     n_alpha, n_beta = nelec
     ansatz_operator_a, ansatz_operator_b = ansatz_operator
     basis_states = [
