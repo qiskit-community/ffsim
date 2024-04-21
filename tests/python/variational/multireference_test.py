@@ -17,6 +17,7 @@ import ffsim.random.random
 
 
 def test_multireference_state_prod():
+    """Test multireference state for product operator."""
     rng = np.random.default_rng(1234)
 
     norb = 8
