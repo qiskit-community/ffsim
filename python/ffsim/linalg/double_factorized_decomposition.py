@@ -56,6 +56,9 @@ def modified_cholesky(
     """
     dim, _ = mat.shape
 
+    if not dim:
+        return np.empty((0, 0))
+
     if max_vecs is None:
         max_vecs = dim
 
@@ -187,6 +190,10 @@ def double_factorized(
     _validate_diag_coulomb_indices(diag_coulomb_indices)
 
     n_modes, _, _, _ = two_body_tensor.shape
+
+    if not n_modes:
+        return np.empty((0, 0, 0)), np.empty((0, 0, 0))
+
     if max_vecs is None:
         max_vecs = n_modes * (n_modes + 1) // 2
     if optimize:
