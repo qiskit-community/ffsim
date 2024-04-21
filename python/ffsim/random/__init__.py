@@ -13,6 +13,7 @@
 from ffsim.random.random import (
     random_antihermitian,
     random_hermitian,
+    random_molecular_hamiltonian,
     random_orthogonal,
     random_real_symmetric_matrix,
     random_special_orthogonal,
@@ -25,6 +26,7 @@ from ffsim.random.random import (
 __all__ = [
     "random_antihermitian",
     "random_hermitian",
+    "random_molecular_hamiltonian",
     "random_orthogonal",
     "random_real_symmetric_matrix",
     "random_special_orthogonal",

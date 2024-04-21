@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import pytest
 from pyscf import ao2mo, cc, gto, mcscf, scf
@@ -49,7 +51,7 @@ def _reconstruct_t2(
     return t2[:nocc, :nocc, nocc:, nocc:]
 
 
-@pytest.mark.parametrize("dim", [4, 5])
+@pytest.mark.parametrize("dim", range(6))
 def test_modified_cholesky(dim: int):
     """Test modified Cholesky decomposition on a random tensor."""
     rng = np.random.default_rng(4088)
@@ -62,9 +64,7 @@ def test_modified_cholesky(dim: int):
     np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
 
 
-@pytest.mark.parametrize(
-    "dim, cholesky", [(4, True), (4, False), (5, True), (5, False)]
-)
+@pytest.mark.parametrize("dim, cholesky", itertools.product(range(6), [False, True]))
 def test_double_factorized_random(dim: int, cholesky: bool):
     """Test double-factorized decomposition on a random tensor."""
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=9825, dtype=float)

@@ -95,11 +95,19 @@ class SingleFactorizedHamiltonian:
         Returns:
             The single-factorized Hamiltonian.
         """
+        norb = hamiltonian.norb
+
+        if not norb:
+            return SingleFactorizedHamiltonian(
+                one_body_tensor=np.empty((0, 0)),
+                one_body_squares=np.empty((0, 0, 0)),
+                constant=hamiltonian.constant,
+            )
+
         one_body_tensor = hamiltonian.one_body_tensor - 0.5 * np.einsum(
             "prqr", hamiltonian.two_body_tensor
         )
 
-        norb = hamiltonian.norb
         reshaped_tensor = np.reshape(hamiltonian.two_body_tensor, (norb**2, norb**2))
 
         if cholesky:

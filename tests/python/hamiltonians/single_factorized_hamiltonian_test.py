@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import pytest
 
@@ -21,26 +23,20 @@ import ffsim
 @pytest.mark.parametrize(
     "norb, nelec, cholesky",
     [
-        (4, (2, 2), False),
-        (4, (2, 2), True),
-        (4, (2, 1), False),
-        (4, (2, 1), True),
-        (4, (2, 0), False),
-        (4, (2, 0), True),
+        (norb, nelec, z_representation)
+        for (norb, nelec), z_representation in itertools.product(
+            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+        )
     ],
 )
 def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     """Test linear operator."""
     rng = np.random.default_rng(2474)
 
-    dim = ffsim.dim(norb, nelec)
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
-    constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant
+    # TODO remove dtype=float once complex two-body is supported
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
+        norb, seed=rng, dtype=float
     )
-
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian, cholesky=cholesky
     )
@@ -57,26 +53,14 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (2, 2)),
-        (4, (2, 1)),
-        (4, (2, 1)),
-        (4, (2, 0)),
-        (4, (2, 0)),
-    ],
-)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
     """Test computing reduced matrix on product states."""
     rng = np.random.default_rng(7869)
 
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
-    constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant
+    # TODO remove dtype=float once complex two-body is supported
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
+        norb, seed=rng, dtype=float
     )
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian
@@ -113,28 +97,16 @@ def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (2, 2)),
-        (4, (2, 1)),
-        (4, (2, 1)),
-        (4, (2, 0)),
-        (4, (2, 0)),
-    ],
-)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_expectation_product_state_slater_determinant(
     norb: int, nelec: tuple[int, int]
 ):
     """Test computing expectation value on Slater determinant product state."""
     rng = np.random.default_rng(3400)
 
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
-    constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant
+    # TODO remove dtype=float once complex two-body is supported
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
+        norb, seed=rng, dtype=float
     )
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian
@@ -160,26 +132,14 @@ def test_expectation_product_state_slater_determinant(
         np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (2, 2)),
-        (4, (2, 1)),
-        (4, (2, 1)),
-        (4, (2, 0)),
-        (4, (2, 0)),
-    ],
-)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     """Test computing expectation value on product state."""
-    rng = np.random.default_rng(3400)
+    rng = np.random.default_rng(6775)
 
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
-    constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant
+    # TODO remove dtype=float once complex two-body is supported
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
+        norb, seed=rng, dtype=float
     )
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian

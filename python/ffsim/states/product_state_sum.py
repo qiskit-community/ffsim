@@ -18,6 +18,18 @@ import numpy as np
 class ProductStateSum(NamedTuple):
     """A linear combination of product states.
 
+    Given a ProductStateSum `prod_state_sum`, the full state vector can be
+    reconstructed as
+
+    .. code-block:: python
+
+        sum(
+            coeff * np.kron(vec_a, vec_b)
+            for coeff, (vec_a, vec_b) in zip(
+                prod_state_sum.coeffs, prod_state_sum.states
+            )
+        )
+
     Attributes:
         coeffs: The coefficients of the linear combination.
         states: The product states appearing in the linear combination. Each product
