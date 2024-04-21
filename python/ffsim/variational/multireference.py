@@ -70,7 +70,7 @@ def multireference_state(
     return energy, np.tensordot(coeffs, basis_states, axes=1)
 
 
-def multireference_state_product_operator(
+def multireference_state_prod(
     hamiltonian: MolecularHamiltonian,
     ansatz_operator: tuple[SupportsApplyUnitary, SupportsApplyUnitary],
     reference_occupations: Sequence[tuple[Sequence[int], Sequence[int]]],
