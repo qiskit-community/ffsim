@@ -93,10 +93,7 @@ def multireference_state_prod(
             Hamiltonian.
 
     Returns:
-        The energy of the multireference state, the coefficients of the basis vectors
-        in the multireference state, and the basis vectors themselves, as a list of
-        pairs of vectors, where each pair contains the alpha and the beta components of
-        the full basis vector.
+        The energy of the multireference state, and the state itself.
     """
     sf_hamiltonian = SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         hamiltonian, tol=tol

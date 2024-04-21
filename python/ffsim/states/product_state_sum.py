@@ -18,7 +18,7 @@ import numpy as np
 class ProductStateSum(NamedTuple):
     """A linear combination of product states.
 
-    Given a ProductStateSum `prod_state_sum`, the full state vector can be
+    Given a ProductStateSum ``prod_state_sum``, the full state vector can be
     reconstructed as
 
     .. code-block:: python
@@ -29,12 +29,6 @@ class ProductStateSum(NamedTuple):
                 prod_state_sum.coeffs, prod_state_sum.states
             )
         )
-
-    Attributes:
-        coeffs: The coefficients of the linear combination.
-        states: The product states appearing in the linear combination. Each product
-            state is represented as a pair of state vectors, with the first state vector
-            storing the spin alpha state and the second storing the spin beta state.
     """
 
     coeffs: np.ndarray

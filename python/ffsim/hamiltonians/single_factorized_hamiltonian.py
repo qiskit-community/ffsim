@@ -152,7 +152,22 @@ class SingleFactorizedHamiltonian:
         norb: int,
         nelec: tuple[int, int],
     ) -> np.ndarray:
-        """Return reduced matrix within a subspace spanned by some product states."""
+        r"""Return reduced matrix within a subspace spanned by some product states.
+
+        Given a list of product states :math:`\{\lvert \alpha_i, \beta_i \rangle\}`,
+        returns the matrix M where
+        :math:`M_{ij} = \langle \alpha_i, \beta_i \rvert
+        H \lvert \alpha_j, \beta_j \rangle`.
+
+        Args:
+            vecs: The product states, as a list of pairs `(vec_a, vec_b)` containing
+                the alpha and beta components of each state.
+            norb: The number of spatial orbitals.
+            nelec: The number of alpha and beta electrons.
+
+        Returns:
+            The reduced matrix.
+        """
         n_alpha, n_beta = nelec
         one_body_tensor_linop_a = one_body_linop(
             self.one_body_tensor, norb, (n_alpha, 0)
@@ -213,7 +228,14 @@ class SingleFactorizedHamiltonian:
     def expectation_product_state(
         self, vec: tuple[np.ndarray, np.ndarray], norb: int, nelec: tuple[int, int]
     ) -> float:
-        """Return expectation value with respect to a product state."""
+        """Return expectation value with respect to a product state.
+
+        Args:
+            vec: The product state, as a pair `(vec_a, vec_b)` containing the alpha and
+                beta components of the state.
+            norb: The number of spatial orbitals.
+            nelec: The number of alpha and beta electrons.
+        """
         n_alpha, n_beta = nelec
         one_body_tensor_linop_a = one_body_linop(
             self.one_body_tensor, norb, (n_alpha, 0)
