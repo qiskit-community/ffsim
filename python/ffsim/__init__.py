@@ -42,6 +42,7 @@ from ffsim.operators import (
     des_a,
     des_b,
     fermi_hubbard_1d,
+    fermi_hubbard_2d,
     number_operator,
 )
 from ffsim.protocols import (

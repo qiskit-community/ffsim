@@ -11,7 +11,7 @@
 """Operators."""
 
 from ffsim.operators.common_operators import number_operator
-from ffsim.operators.fermi_hubbard import fermi_hubbard_1d
+from ffsim.operators.fermi_hubbard import fermi_hubbard_1d, fermi_hubbard_2d
 from ffsim.operators.fermion_action import (
     FermionAction,
     cre,
