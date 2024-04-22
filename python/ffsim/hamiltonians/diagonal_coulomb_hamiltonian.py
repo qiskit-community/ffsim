@@ -27,15 +27,21 @@ from ffsim.states import dim
 @dataclasses.dataclass(frozen=True)
 class DiagonalCoulombHamiltonian:
     r"""A diagonal Coulomb Hamiltonian.
+
     A Hamiltonian of the form
+
     .. math::
+
         H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
             + \frac12 \sum_{\sigma \tau, pq} V_{pq} n_{\sigma, p} n_{\tau, q}
             + \text{constant}.
+
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
+
     Here :math:`h_{pq}` is called the one-body tensor and :math:`V_{pq}` is called the
     diagonal Coulomb matrix.
+
     Attributes:
         one_body_tensor (np.ndarray): The one-body tensor.
         diag_coulomb_mat (np.ndarray): The diagonal Coulomb matrix.
@@ -53,10 +59,14 @@ class DiagonalCoulombHamiltonian:
 
     def rotated(self, orbital_rotation: np.ndarray) -> DiagonalCoulombHamiltonian:
         r"""Return the Hamiltonian in a rotated orbital basis.
+
         Given an orbital rotation :math:`\mathcal{U}`, returns the operator
+
         .. math::
             \mathcal{U} H \mathcal{U}^\dagger
+
         where :math:`H` is the original Hamiltonian.
+
         Args:
             orbital_rotation: The orbital rotation.
         Returns:
@@ -149,6 +159,7 @@ class DiagonalCoulombHamiltonian:
         print("op = ", op)
         print("op (norm) = ", op.normal_ordered())
 
+        # normal ordering
         op_norm = op.normal_ordered()
         dict_op = dict(op_norm)
 
@@ -165,27 +176,38 @@ class DiagonalCoulombHamiltonian:
 
         # populate tensors
         for p, q in itertools.product(range(norb), repeat=2):
-            one_body_list = [(cre_a(p), des_a(q)),
-                             (cre_b(p), des_a(q)),
-                             (cre_a(p), des_b(q)),
-                             (cre_b(p), des_b(q))]
-            # diag_coulomb_list = [(cre_a(p), cre_a(q), des_a(q), des_a(p)),
-            #                      (cre_a(p), cre_b(q), des_b(q), des_a(p)),
-            #                      (cre_b(p), cre_a(q), des_a(q), des_b(p)),
-            #                      (cre_b(p), cre_b(q), des_b(q), des_b(p))]
-            diag_coulomb_list = [(cre_a(p), cre_a(q), des_a(q), des_a(p)),
-                                 (cre_b(p), cre_a(q), des_b(q), des_a(p)),
-                                 (cre_b(p), cre_b(q), des_b(q), des_b(p))]
+            # normal-ordered one-body terms
+            one_body_list = [
+                (cre_a(p), des_a(q)),
+                (cre_b(p), des_b(q)),
+            ]
+            # normal-ordered two-body terms
+            diag_coulomb_list = [
+                (cre_a(p), cre_a(q), des_a(q), des_a(p)),
+                (cre_a(q), cre_a(p), des_a(q), des_a(p)),  # rearrangement
+                (cre_b(p), cre_a(q), des_b(q), des_a(p)),
+                (cre_b(q), cre_a(p), des_b(q), des_a(p)),  # rearrangement
+                (cre_b(p), cre_b(q), des_b(q), des_b(p)),
+                (cre_b(q), cre_b(p), des_b(q), des_b(p)),  # rearrangement
+            ]
+            # excluded terms
+            excluded_list = [
+                (cre_b(p), des_a(q)),
+                (cre_a(p), des_b(q)),
+            ]
             for key in dict(op_norm):
                 if key in one_body_list:
-                    factor = 1 if p == q else 0.5
-                    one_body_tensor[p, q] += factor * dict_op.pop(key)
+                    one_body_tensor[p, q] += 0.5 * dict_op.pop(key)
                 if key in diag_coulomb_list:
                     diag_coulomb_mat[p, q] += 0.5 * dict_op.pop(key)
+                if key in excluded_list:
+                    del dict_op[key]
 
         if dict_op:
             print(f"Incompatible terms = {dict_op}")
-            raise ValueError("FermionOperator cannot be converted to DiagonalCoulombHamiltonian")
+            raise ValueError(
+                "FermionOperator cannot be converted to DiagonalCoulombHamiltonian"
+            )
 
         return DiagonalCoulombHamiltonian(
             one_body_tensor=one_body_tensor,
