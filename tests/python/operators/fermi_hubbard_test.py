@@ -16,7 +16,7 @@ import numpy as np
 import scipy
 
 import ffsim
-from ffsim.operators.fermi_hubbard import fermi_hubbard_1d
+from ffsim.operators.fermi_hubbard import fermi_hubbard_1d, fermi_hubbard_2d
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 
@@ -148,6 +148,24 @@ def test_non_interacting_fermi_hubbard_1d_eigenvalue():
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -4.000000000000)
+
+
+def test_non_interacting_fermi_hubbard_2d_eigenvalue():
+    """Test ground-state eigenvalue of the non-interacting two-dimensional Fermi-Hubbard
+    model Hamiltonian."""
+
+    # open boundary conditions
+    op = fermi_hubbard_2d(norb_x=2, norb_y=2, tunneling=1, interaction=0)
+    ham = ffsim.linear_operator(op, norb=4, nelec=(2, 2))
+    eigs, _ = scipy.sparse.linalg.eigsh(ham, which="SA", k=1)
+    np.testing.assert_allclose(eigs[0], -4.000000000000)
+
+    # periodic boundary conditions
+    op_periodic = fermi_hubbard_2d(norb_x=3, norb_y=3, tunneling=1, interaction=0, periodic=True)
+    ham_periodic = ffsim.linear_operator(op_periodic, norb=9, nelec=(5, 4))
+    eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
+    print(eigs_periodic)
+    np.testing.assert_allclose(eigs_periodic[0], -15.000000000000)
 
 
 def test_fermi_hubbard_1d_with_interaction_eigenvalue():

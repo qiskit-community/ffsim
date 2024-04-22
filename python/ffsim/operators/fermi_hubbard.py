@@ -85,3 +85,76 @@ def fermi_hubbard_1d(
             coeffs[(cre_b(p), des_b(p))] = -chemical_potential
 
     return FermionOperator(coeffs)
+
+
+def fermi_hubbard_2d(
+    norb_x: int,
+    norb_y: int,
+    tunneling: float,
+    interaction: float,
+    *,
+    chemical_potential: float = 0,
+    nearest_neighbor_interaction: float = 0,
+    periodic: bool = False,
+) -> FermionOperator:
+    r"""Two-dimensional Fermi-Hubbard model Hamiltonian.
+
+    The Hamiltonian for the two-dimensional Fermi-Hubbard model on a square lattice with
+    :math:`N = N_x \times N_y` spatial orbitals is given by
+
+    .. math::
+
+        H = -t \sum_{\sigma} \sum_{\braket{pq}}
+        (a^\dagger_{\sigma, p} a_{\sigma, q} + \text{h.c.})
+        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
+        - \mu \sum_{p=1}^{N} (n_{\alpha, p} + n_{\beta, p})
+        + V \sum_{\sigma, \sigma'} \sum_{\braket{pq}} n_{\sigma, p} n_{\sigma', q}
+
+    where :math:`\braket{\dots}` denotes nearest-neighbor pairs and
+    :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number operator
+    on orbital :math:`p` with spin :math:`\sigma`.
+
+    References:
+        - `The Hubbard Model`_
+
+    Args:
+        norb_x: The number of spatial orbitals in the x-direction :math:`N_x`.
+        norb_y: The number of spatial orbitals in the y-direction :math:`N_y`.
+        tunneling: The tunneling amplitude :math:`t`.
+        interaction: The onsite interaction strength :math:`U`.
+        chemical_potential: The chemical potential :math:`\mu`.
+        nearest_neighbor_interaction: The nearest-neighbor interaction strength
+            :math:`V`.
+        periodic: Whether to use periodic boundary conditions.
+
+    Returns:
+        The two-dimensional Fermi-Hubbard model Hamiltonian.
+
+    .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
+    """
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
+
+    for x in range(norb_x):
+        for y in range(norb_y):
+            x_right = (x + 1) % norb_x
+            y_up = (y + 1) % norb_y
+
+            p = norb_y * x + y
+            p_right = norb_y * x_right + y
+            p_up = norb_y * x + y_up
+
+            print(f"(p, u, r) = ({p}, {p_up}, {p_right})")
+
+            if y != norb_y - 1 or periodic:
+                coeffs[(cre_a(p), des_a(p_up))] = -tunneling
+                coeffs[(cre_a(p_up), des_a(p))] = -tunneling
+                coeffs[(cre_b(p), des_b(p_up))] = -tunneling
+                coeffs[(cre_b(p_up), des_b(p))] = -tunneling
+
+            if x != norb_x - 1 or periodic:
+                coeffs[(cre_a(p), des_a(p_right))] = -tunneling
+                coeffs[(cre_a(p_right), des_a(p))] = -tunneling
+                coeffs[(cre_b(p), des_b(p_right))] = -tunneling
+                coeffs[(cre_b(p_right), des_b(p))] = -tunneling
+
+    return FermionOperator(coeffs)
