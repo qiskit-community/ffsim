@@ -14,10 +14,11 @@
 
 ## Next steps
 
-Check out the following resources:
+We recommend starting with [State vectors and gates](explanations/state-vectors-and-gates.ipynb). Then, you can check out the following resources:
 
 - [Tutorials](tutorials/index.md)
 - [How-to guides](how-to-guides/index.md)
+- [Explanations](explanations/index.md)
 
 ## Developer guide
 
@@ -36,5 +37,6 @@ See the [developer guide](https://github.com/qiskit-community/ffsim/blob/main/CO
 install
 tutorials/index
 how-to-guides/index
+explanations/index
 api/index
 ```
