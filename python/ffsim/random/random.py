@@ -201,6 +201,41 @@ def random_two_body_tensor(
     return two_body_tensor
 
 
+def random_diag_coulomb_mat(
+    dim: int, *, rank: int | None = None, seed=None, dtype=complex
+) -> np.ndarray:
+    """Sample a random diagonal Coulomb matrix.
+
+    Args:
+        dim: The dimension of the tensor. The shape of the returned tensor will be
+            (dim, dim).
+        rank: Rank of the sampled tensor. The default behavior is to use
+            the maximum rank, which is `norb * (norb + 1) // 2`.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the result.
+
+    Returns:
+        The sampled diagonal Coulomb matrix.
+    """
+    rng = np.random.default_rng(seed)
+    if rank is None:
+        rank = dim * (dim + 1) // 2
+    cholesky_vecs = rng.standard_normal((rank, dim)).astype(dtype, copy=False)
+    cholesky_vecs += cholesky_vecs
+    diag_coulomb_mat = np.einsum("ip,iq->pq", cholesky_vecs, cholesky_vecs)
+    if np.issubdtype(dtype, np.complexfloating):
+        orbital_rotation = random_unitary(dim, seed=rng)
+        diag_coulomb_mat = np.einsum(
+            "ab,aA,bB->AB",
+            diag_coulomb_mat,
+            orbital_rotation,
+            orbital_rotation.conj(),
+            optimize=True,
+        )
+    return diag_coulomb_mat
+
+
 def random_t2_amplitudes(
     norb: int, nocc: int, *, seed=None, dtype=complex
 ) -> np.ndarray:
