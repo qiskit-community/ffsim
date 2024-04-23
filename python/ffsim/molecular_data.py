@@ -125,13 +125,13 @@ class MolecularData:
 
     @property
     def mole(self) -> gto.Mole:
-        """The pySCF Mole class for this molecular data."""
+        """The PySCF Mole class for this molecular data."""
         mol = gto.Mole()
         return mol.build(atom=self.atom, basis=self.basis, symmetry=self.symmetry)
 
     @property
     def scf(self) -> gto.Mole:
-        """The pySCF SCF class for this molecular data."""
+        """The PySCF SCF class for this molecular data."""
         hartree_fock = pyscf.scf.RHF(self.mole)
         hartree_fock.mo_occ = self.mo_occ
         hartree_fock.mo_coeff = self.mo_coeff
@@ -205,12 +205,12 @@ class MolecularData:
         active_space: Iterable[int] | None = None,
         scf_func=pyscf.scf.RHF,
     ) -> "MolecularData":
-        """Initialize a MolecularData object from a pySCF molecule.
+        """Initialize a MolecularData object from a PySCF molecule.
 
         Args:
             molecule: The molecule.
             active_space: An optional list of orbitals to use for the active space.
-            scf_func: The pySCF SCF function to use for the Hartree-Fock calculation.
+            scf_func: The PySCF SCF function to use for the Hartree-Fock calculation.
         """
         hartree_fock = scf_func(molecule)
         hartree_fock.run()

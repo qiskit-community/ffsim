@@ -39,7 +39,7 @@ def ffsim_vec_to_qiskit_vec(
     """Convert an ffsim statevector to a Qiskit statevector.
 
     Args:
-        vec: A statevector in ffsim/pySCF format. It should be a one-dimensional vector
+        vec: A statevector in ffsim/PySCF format. It should be a one-dimensional vector
             of length ``comb(norb, n_alpha) * comb(norb, n_beta)``.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
