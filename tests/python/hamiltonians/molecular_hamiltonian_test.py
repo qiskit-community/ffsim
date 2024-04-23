@@ -50,7 +50,7 @@ def test_linear_operator():
     # Define active space
     active_space = [1, 2, 4, 5, 6]
 
-    # Compute FCI energy using pySCF
+    # Compute FCI energy using PySCF
     norb = len(active_space)
     n_electrons = int(np.sum(hartree_fock.mo_occ[active_space]))
     n_alpha = (n_electrons + mol.spin) // 2
