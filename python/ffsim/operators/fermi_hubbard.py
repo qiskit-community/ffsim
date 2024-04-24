@@ -134,7 +134,7 @@ def fermi_hubbard_2d(
 
     .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(lambda: 0)
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
     for x in range(norb_x):
         for y in range(norb_y):
