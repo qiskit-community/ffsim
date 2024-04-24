@@ -10,6 +10,8 @@
 
 """Fermi-Hubbard model Hamiltonian."""
 
+from collections import defaultdict
+
 from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
@@ -56,16 +58,8 @@ def fermi_hubbard_1d(
 
     .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(lambda: 0)
 
-    # initialize tunneling keys
-    for p in range(norb - 1 + periodic):
-        coeffs[(cre_a(p), des_a((p + 1) % norb))] = 0
-        coeffs[(cre_b(p), des_b((p + 1) % norb))] = 0
-        coeffs[(cre_a((p + 1) % norb), des_a(p))] = 0
-        coeffs[(cre_b((p + 1) % norb), des_b(p))] = 0
-
-    # populate keys
     for p in range(norb - 1 + periodic):
         coeffs[(cre_a(p), des_a((p + 1) % norb))] -= tunneling
         coeffs[(cre_b(p), des_b((p + 1) % norb))] -= tunneling
