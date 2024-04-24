@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="API Reference" href="../api/index.html" /><link rel="prev" title="Hamiltonians" href="hamiltonians.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Orbital rotations and quadratic Hamiltonians" href="orbital-rotation.html" /><link rel="prev" title="State vectors and gates" href="state-vectors-and-gates.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>Orbital rotations and quadratic Hamiltonians - ffsim 0.0.29.dev0 documentation</title>
+        <title>Hamiltonians - ffsim 0.0.29.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -169,8 +169,8 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Explanations</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="state-vectors-and-gates.html">State vectors and gates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hamiltonians.html">Hamiltonians</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -211,58 +211,30 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="Orbital-rotations-and-quadratic-Hamiltonians">
-<h1>Orbital rotations and quadratic Hamiltonians<a class="headerlink" href="#Orbital-rotations-and-quadratic-Hamiltonians" title="Link to this heading">¶</a></h1>
-<p>In this page, we discuss orbital rotations and how they can be used to implement time evolution by a quadratic Hamiltonian.</p>
-<section id="Orbital-rotations">
-<h2>Orbital rotations<a class="headerlink" href="#Orbital-rotations" title="Link to this heading">¶</a></h2>
-<p>The orbital rotation is a fundamental operation in the simulation of a system of fermionic modes. An orbital rotation is described by an <span class="math notranslate nohighlight">\(N \times N\)</span> unitary matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> (here <span class="math notranslate nohighlight">\(N\)</span> is the number spatial orbitals), and we denote the corresponding operator as <span class="math notranslate nohighlight">\(\mathcal{W}\)</span>. This operator has the following action on the fermionic creation operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span>:</p>
+          <section id="Hamiltonians">
+<h1>Hamiltonians<a class="headerlink" href="#Hamiltonians" title="Link to this heading">¶</a></h1>
+<p>This page explains how ffsim represents Hamiltonians.</p>
+<p>ffsim includes several classes for representing Hamiltonians in different forms. In this page we’ll focus on the molecular Hamiltonian of the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\mathcal{W} a^\dagger_{\sigma, i} \mathcal{W}^\dagger = \sum_j \mathbf{W}_{ji} a^\dagger_{\sigma, j}.\]</div>
+\[H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+    + \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}
+    a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
+    + \text{constant}.\]</div>
 </div>
-<p>That is, <span class="math notranslate nohighlight">\(a^\dagger_{\sigma, i}\)</span> is mapped to a new operator <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> where <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> is a linear combination of the operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span> with coefficients given by the <span class="math notranslate nohighlight">\(i\)</span>-th column of <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>. The <span class="math notranslate nohighlight">\(\set{b^\dagger_{\sigma, i}}\)</span> also satisfy the fermionic anticommutation relations, so they are creation operators in a rotated basis. The mapping <span class="math notranslate nohighlight">\(\mathbf{W} \mapsto \mathcal{W}\)</span> satisfies the
-properties</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{align*}
-    \mathbf{W}^\dagger &amp;\mapsto \mathcal{W}^\dagger, \\
-    \mathbf{W}_1 \mathbf{W}_2 &amp;\mapsto \mathcal{W}_1 \mathcal{W}_2
-\end{align*}\end{split}\]</div>
-</div>
-<p>for any unitary matrices <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{W}_1\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{W}_2\)</span>.</p>
-</section>
-<section id="Time-evolution-by-a-quadratic-Hamiltonian">
-<h2>Time evolution by a quadratic Hamiltonian<a class="headerlink" href="#Time-evolution-by-a-quadratic-Hamiltonian" title="Link to this heading">¶</a></h2>
-<p>Orbital rotations can be used to implement time evolution by a quadratic Hamiltonian. A quadratic Hamiltonian is an operator of the form (here we only consider Hamiltonians with particle number and spin Z symmetry)</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\mathcal{M} = \sum_{\sigma, ij} \mathbf{M}_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\]</div>
-</div>
-<p>where <span class="math notranslate nohighlight">\(\mathbf{M}\)</span> is a Hermitian matrix. A quadratic Hamiltonian can always be rewritten as</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\mathcal{M} = \mathcal{W} \left(\sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)\mathcal{W}^\dagger\]</div>
-</div>
-<p>where the <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> are real numbers which we’ll refer to as orbital energies, <span class="math notranslate nohighlight">\(\mathcal{W}\)</span> is an orbital rotation, and we have introduced the occupation number operator <span class="math notranslate nohighlight">\(n_{\sigma, i} = a^\dagger_{\sigma, i} a_{\sigma, i}\)</span>. The <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the unitary matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> describing the orbital rotation are obtained from an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>:</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\mathbf{M}_{ij} = \sum_k \lambda_k \mathbf{W}_{ik} \mathbf{W}_{jk}^*.\]</div>
-</div>
-<p>Time evolution by <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> can be implemented with the following steps:</p>
+<p>To represent this Hamiltonian, the information that needs to be stored consists of (<span class="math notranslate nohighlight">\(N\)</span> is the number of spatial orbitals):</p>
 <ul class="simple">
-<li><p>Compute the orbital energies <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the orbital rotation matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> by performing an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>.</p></li>
-<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}^\dagger\)</span>.</p></li>
-<li><p>Perform time evolution by the operator <span class="math notranslate nohighlight">\(\sum_{\sigma, i} \lambda_i n_{\sigma, i}\)</span>.</p></li>
-<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>.</p></li>
+<li><p>The one-body tensor <span class="math notranslate nohighlight">\(h_{pq}\)</span>, which is an <span class="math notranslate nohighlight">\(N \times N\)</span> matrix (stored as a NumPy array).</p></li>
+<li><p>The two-body tensor <span class="math notranslate nohighlight">\(h_{pqrs}\)</span>, which is an <span class="math notranslate nohighlight">\(N \times N \times N \times N\)</span> tensor (stored as a NumPy array).</p></li>
+<li><p>The constant, which is a real number (stored as a float).</p></li>
 </ul>
-<p>This logic can be implemented in ffsim as follows:</p>
+<p>In order to have some concrete objects to work with, we sample some random instances of these data in the following code cell.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -271,24 +243,109 @@ properties</p>
 
 <span class="kn">import</span> <span class="nn">ffsim</span>
 
+<span class="c1"># Use 4 spatial orbitals, as an example.</span>
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">4</span>
 
-<span class="k">def</span> <span class="nf">apply_quad_ham_evolution</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply time evolution by a quadratic Hamiltonian to a state vector.&quot;&quot;&quot;</span>
-    <span class="n">energies</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
-        <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
-    <span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_num_op_sum_evolution</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">vec</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="c1"># Pass dtype=float to obtain a real-valued two-body tensor.</span>
+<span class="c1"># Complex tensors are not fully supported yet.</span>
+<span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_two_body_tensor</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">constant</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
-<p>ffsim already includes a function called <a class="reference internal" href="../api/ffsim.html#ffsim.apply_num_op_sum_evolution"><span class="std std-ref">apply_num_op_sum_evolution</span></a> for performing this operation, but it accepts the orbital energies and rotation as arguments rather than the matrix <span class="math notranslate nohighlight">\(M\)</span>. The reason for this design is that many applications involve applying time evolution by the same Hamiltonian repeatedly as part of a subroutine. Since the orbital energies and rotation are the same every time, they should be computed only once at
-the beginning, and then passed to the function that applies the time evolution.</p>
-</section>
+<p>The molecular Hamiltonian is represented in ffsim using the <a class="reference internal" href="../api/ffsim.html#ffsim.MolecularHamiltonian"><span class="std std-ref">MolecularHamiltonian</span></a> class. You initialize the class by passing the three pieces of information (the constant is optional and defaults to zero if not specified):</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularHamiltonian</span><span class="p">(</span>
+    <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
+    <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">two_body_tensor</span><span class="p">,</span>
+    <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The arguments passed to the initialization are now available as attributes of the same name, i.e., <code class="docutils literal notranslate"><span class="pre">mol_hamiltonian.one_body_tensor</span></code> accesses the one-body tensor.</p>
+<p>The basic operation that a Hamiltonian represention should support is applying its action, as a linear operator, to a vector. This basic operation can be used to implement more complex ones, such as operator exponentiation and eigenvalue computation. ffsim uses Scipy’s <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html">LinearOperator</a> class to support these operations for Hamiltonians. To obtain a LinearOperator, call the <code class="docutils literal notranslate"><span class="pre">linear_operator</span></code>
+function:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use 2 alpha electrons and 2 beta electrons, as an example.</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">linop</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">linear_operator</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">linear_operator</span></code> function requires the number of orbitals and the number of alpha and beta electrons to be passed because this information is needed to fully specify the vector space on which the linear operator acts.</p>
+<p>LinearOperators support matrix multiplication with a vector:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">linop</span> <span class="o">@</span> <span class="n">vec</span>
+</pre></div>
+</div>
+</div>
+<p>They also work with many of Scipy’s sparse linear algebra routines. For example, you can compute the ground state energy using the <code class="docutils literal notranslate"><span class="pre">eigsh</span></code> eigenvalue routine:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
+
+<span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigsh</span><span class="p">(</span><span class="n">linop</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;SA&quot;</span><span class="p">)</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">energy</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+-99.5571707255153
+</pre></div></div>
+</div>
+<p>Time evolution by the Hamiltonian can be computed using <code class="docutils literal notranslate"><span class="pre">expm_multiply</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">time</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">evolved_vec</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm_multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">linop</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_4365/2190712273.py:2: UserWarning: Trace of LinearOperator not available, it will be estimated. Provide `traceA` to ensure performance.
+  evolved_vec = scipy.sparse.linalg.expm_multiply(-1j * time * linop, vec)
+</pre></div></div>
+</div>
+<p>When passing a LinearOperator to <code class="docutils literal notranslate"><span class="pre">expm_multiply</span></code>, Scipy issues a warning if an estimate of the trace is not provided via the <code class="docutils literal notranslate"><span class="pre">traceA</span></code> argument. You can avoid this warning by passing an estimate of the trace. For Hamiltonians with real-valued tensors, the <code class="docutils literal notranslate"><span class="pre">trace</span></code> function can compute the exact trace (complex-valued tensors are not supported yet):</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trace</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+<span class="n">evolved_vec</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm_multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">linop</span><span class="p">,</span> <span class="n">vec</span><span class="p">,</span> <span class="n">traceA</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </section>
 
         </article>
@@ -296,23 +353,23 @@ the beginning, and then passed to the function that applies the time evolution.<
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../api/index.html">
+          <a class="next-page" href="orbital-rotation.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">API Reference</div>
+                <div class="title">Orbital rotations and quadratic Hamiltonians</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="hamiltonians.html">
+          <a class="prev-page" href="state-vectors-and-gates.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Hamiltonians</div>
+                <div class="title">State vectors and gates</div>
                 
               </div>
             </a>
@@ -341,28 +398,8 @@ the beginning, and then passed to the function that applies the time evolution.<
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Orbital rotations and quadratic Hamiltonians</a><ul>
-<li><a class="reference internal" href="#Orbital-rotations">Orbital rotations</a></li>
-<li><a class="reference internal" href="#Time-evolution-by-a-quadratic-Hamiltonian">Time evolution by a quadratic Hamiltonian</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
