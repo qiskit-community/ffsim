@@ -8,6 +8,8 @@
     "\n",
     "This page explains how ffsim represents Hamiltonians.\n",
     "\n",
+    "## Data representation\n",
+    "\n",
     "ffsim includes several classes for representing Hamiltonians in different forms. In this page we'll focus on the molecular Hamiltonian of the form\n",
     "\n",
     "$$\n",
@@ -72,6 +74,8 @@
    "metadata": {},
    "source": [
     "The arguments passed to the initialization are now available as attributes of the same name, i.e., `mol_hamiltonian.one_body_tensor` accesses the one-body tensor.\n",
+    "\n",
+    "## Operator action via SciPy LinearOperators\n",
     "\n",
     "The basic operation that a Hamiltonian represention should support is applying its action, as a linear operator, to a vector. This basic operation can be used to implement more complex ones, such as operator exponentiation and eigenvalue computation. ffsim uses Scipy's [LinearOperator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html) class to support these operations for Hamiltonians. To obtain a LinearOperator, call the `linear_operator` function:"
    ]

@@ -6,7 +6,7 @@
    "source": [
     "# Orbital rotations and quadratic Hamiltonians\n",
     "\n",
-    "In this page, we discuss orbital rotations and how they can be used to implement time evolution by a quadratic Hamiltonian.\n",
+    "This page discusses orbital rotations and how they can be used to implement time evolution by a quadratic Hamiltonian.\n",
     "\n",
     "## Orbital rotations\n",
     "\n",
