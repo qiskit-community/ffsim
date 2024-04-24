@@ -228,19 +228,6 @@
 </div>
 <p>This method won’t work natively on Windows, however. Refer to the <a class="reference external" href="https://qiskit-community.github.io/ffsim/install.html">installation instructions</a> for information about using ffsim on Windows, as well as instructions for installing from source and running ffsim in a container.</p>
 </section>
-<section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
-<p>We recommend starting with <a class="reference internal" href="explanations/state-vectors-and-gates.html"><span class="std std-doc">State vectors and gates</span></a>. Then, you can check out the following resources:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="tutorials/index.html"><span class="std std-doc">Tutorials</span></a></p></li>
-<li><p><a class="reference internal" href="how-to-guides/index.html"><span class="std std-doc">How-to guides</span></a></p></li>
-<li><p><a class="reference internal" href="explanations/index.html"><span class="std std-doc">Explanations</span></a></p></li>
-</ul>
-</section>
-<section id="developer-guide">
-<h2>Developer guide<a class="headerlink" href="#developer-guide" title="Link to this heading">¶</a></h2>
-<p>See the <a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">developer guide</a> hosted on GitHub for instructions on contributing code to ffsim.</p>
-</section>
 <section id="citing-ffsim">
 <h2>Citing ffsim<a class="headerlink" href="#citing-ffsim" title="Link to this heading">¶</a></h2>
 <p>You can cite ffsim using the following BibTeX:</p>
@@ -251,7 +238,54 @@
 <span class="p">}</span>
 </pre></div>
 </div>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<p>We recommend starting with <a class="reference internal" href="explanations/state-vectors-and-gates.html"><span class="std std-doc">State vectors and gates</span></a>. Then, you can check out the following resources:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="tutorials/index.html"><span class="std std-doc">Tutorials</span></a></p></li>
+<li><p><a class="reference internal" href="explanations/index.html"><span class="std std-doc">Explanations</span></a></p></li>
+<li><p><a class="reference internal" href="how-to-guides/index.html"><span class="std std-doc">How-to guides</span></a></p></li>
+<li><p><a class="reference internal" href="api/index.html"><span class="std std-doc">API Reference</span></a></p></li>
+</ul>
+</section>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#pip-install">Pip install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-from-source">Install from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#use-within-docker">Use within Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="explanations/index.html">Explanations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/hamiltonians.html">Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="how-to-guides/index.html">How-to guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.html">ffsim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.contract.html">ffsim.contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html">ffsim.linalg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.optimize.html">ffsim.optimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.qiskit.html">ffsim.qiskit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html">ffsim.random</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.testing.html">ffsim.testing</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </section>
 </section>
@@ -310,9 +344,9 @@
             <ul>
 <li><a class="reference internal" href="#">ffsim</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
-<li><a class="reference internal" href="#next-steps">Next steps</a></li>
-<li><a class="reference internal" href="#developer-guide">Developer guide</a></li>
 <li><a class="reference internal" href="#citing-ffsim">Citing ffsim</a></li>
+<li><a class="reference internal" href="#next-steps">Next steps</a></li>
+<li><a class="reference internal" href="#contents">Contents</a></li>
 </ul>
 </li>
 </ul>
