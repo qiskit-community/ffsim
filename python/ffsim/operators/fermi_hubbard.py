@@ -65,6 +65,7 @@ def fermi_hubbard_1d(
         coeffs[(cre_a((p + 1) % norb), des_a(p))] = 0
         coeffs[(cre_b((p + 1) % norb), des_b(p))] = 0
 
+    # populate keys
     for p in range(norb - 1 + periodic):
         coeffs[(cre_a(p), des_a((p + 1) % norb))] -= tunneling
         coeffs[(cre_b(p), des_b((p + 1) % norb))] -= tunneling
