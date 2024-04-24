@@ -10,6 +10,8 @@
 
 """Fermi-Hubbard model Hamiltonian."""
 
+from collections import defaultdict
+
 from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
@@ -132,33 +134,8 @@ def fermi_hubbard_2d(
 
     .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(lambda: 0)
 
-    # initialize tunneling keys
-    for x in range(norb_x):
-        for y in range(norb_y):
-            # position in Cartesian coordinates
-            x_right = (x + 1) % norb_x
-            y_up = (y + 1) % norb_y
-
-            # position on C-style chain
-            p = norb_y * x + y
-            p_right = norb_y * x_right + y
-            p_up = norb_y * x + y_up
-
-            if x != norb_x - 1 or periodic:
-                coeffs[(cre_a(p), des_a(p_right))] = 0
-                coeffs[(cre_a(p_right), des_a(p))] = 0
-                coeffs[(cre_b(p), des_b(p_right))] = 0
-                coeffs[(cre_b(p_right), des_b(p))] = 0
-
-            if y != norb_y - 1 or periodic:
-                coeffs[(cre_a(p), des_a(p_up))] = 0
-                coeffs[(cre_a(p_up), des_a(p))] = 0
-                coeffs[(cre_b(p), des_b(p_up))] = 0
-                coeffs[(cre_b(p_up), des_b(p))] = 0
-
-    # populate keys
     for x in range(norb_x):
         for y in range(norb_y):
             # position in Cartesian coordinates
