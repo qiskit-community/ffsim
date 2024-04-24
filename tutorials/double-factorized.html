@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-to guides" href="../how-to-guides/index.html" /><link rel="prev" title="Orbital rotations and quadratic Hamiltonians" href="orbital-rotation.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-to guides" href="../how-to-guides/index.html" /><link rel="prev" title="Tutorials" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>Diagonal Coulomb operators and double-factorized Trotter simulation - ffsim 0.0.29.dev0 documentation</title>
@@ -158,7 +158,6 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
 </ul>
 </li>
@@ -170,6 +169,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -236,7 +236,7 @@
 + \sum_{k=1}^L \mathcal{W}_k \mathcal{J}_k \mathcal{W}_k^\dagger
 + \text{constant}'.\]</div>
 </div>
-<p>Here each <span class="math notranslate nohighlight">\(\mathcal{W}_k\)</span> is an <a class="reference internal" href="orbital-rotation.html"><span class="doc">orbital rotation</span></a> and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a so-called diagonal Coulomb operator, which is an operator of the form</p>
+<p>Here each <span class="math notranslate nohighlight">\(\mathcal{W}_k\)</span> is an <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">orbital rotation</span></a> and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a so-called diagonal Coulomb operator, which is an operator of the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\mathcal{J} = \frac12\sum_{\sigma \tau, ij} \mathbf{J}_{ij} n_{\sigma, i} n_{\tau, j},\]</div>
@@ -291,7 +291,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643963
+converged SCF energy = -77.4456267643961
 </pre></div></div>
 </div>
 <p>Here, <code class="docutils literal notranslate"><span class="pre">mol_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code>, a dataclass that stores the one- and two-body tensors, and <code class="docutils literal notranslate"><span class="pre">df_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code>, a dataclass that stores the updated one-body-tensor, diagonal Coulomb matrices, and orbital rotations. In the cell below, we print out the shapes of the tensors describing the original and double-factorized representations.</p>
@@ -382,7 +382,8 @@ Orbital rotations shape:
 \[H = \sum_{\sigma, pq} h'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
 + \sum_{k=1}^L \mathcal{W}_k \mathcal{J}_k \mathcal{W}_k^\dagger\]</div>
 </div>
-<p>We think of this Hamiltonian as composed of <span class="math notranslate nohighlight">\(L + 1\)</span> terms: the one-body term, which is a quadratic Hamiltonian, and the <span class="math notranslate nohighlight">\(L\)</span> “rotated diagonal Coulomb operators.” As described in <a class="reference internal" href="orbital-rotation.html"><span class="doc">this tutorial</span></a>, time evolution by the quadratic Hamiltonian can be implemented using the <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code> function. Similarly, time evolution by a rotated diagonal coulomb operator can be implemented using the <code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution</span></code> function.</p>
+<p>We think of this Hamiltonian as composed of <span class="math notranslate nohighlight">\(L + 1\)</span> terms: the one-body term, which is a quadratic Hamiltonian, and the <span class="math notranslate nohighlight">\(L\)</span> “rotated diagonal Coulomb operators.” As described in <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">Orbital rotations and quadratic Hamiltonians</span></a>, time evolution by the quadratic Hamiltonian can be implemented using the <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code> function. Similarly, time evolution by a rotated diagonal coulomb operator can be implemented using the
+<code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution</span></code> function.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -474,7 +475,7 @@ Orbital rotations shape:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Hartree Fock energy: -77.44562676439625
+Hartree Fock energy: -77.44562676439628
 </pre></div></div>
 </div>
 <p>Now, we set the evolution time and calculate the exact result of time evolution by directly exponentiating the Hamiltonian using SciPy. Later, we will compare the result of our approximate time evolution with this exact result.</p>
@@ -502,7 +503,7 @@ Hartree Fock energy: -77.44562676439625
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of evolved state w.r.t. initial state: 0.9315062301400697
+Fidelity of evolved state w.r.t. initial state: 0.9315062301398135
 </pre></div></div>
 </div>
 <p>Now, let’s test our implementation.</p>
@@ -529,7 +530,7 @@ Fidelity of evolved state w.r.t. initial state: 0.9315062301400697
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9928527668214502
+Fidelity of Trotter-evolved state with exact state: 0.9928527668211736
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
@@ -556,7 +557,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9928527668214502
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999320851287987
+Fidelity of Trotter-evolved state with exact state: 0.9999320851285256
 </pre></div></div>
 </div>
 <p>As mentioned above, ffsim already includes functionality for Trotter simulation of double-factorized Hamiltonians. The implementation in ffsim includes higher-order Trotter-Suzuki formulas. The first-order asymmetric formula that we just implemented corresponds to <code class="docutils literal notranslate"><span class="pre">order=0</span></code> in ffsim’s implementation. <code class="docutils literal notranslate"><span class="pre">order=1</span></code> corresponds to the first-order symmetric (commonly known as the second-order) formula, <code class="docutils literal notranslate"><span class="pre">order=2</span></code> corresponds to the second-order symmetric (fourth-order) formula, and so on.</p>
@@ -585,7 +586,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9999320851287987
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999320851287987
+Fidelity of Trotter-evolved state with exact state: 0.9999320851285256
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -613,7 +614,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9999320851287987
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999913261308868
+Fidelity of Trotter-evolved state with exact state: 0.9999913261306057
 </pre></div></div>
 </div>
 </section>
@@ -634,14 +635,14 @@ Fidelity of Trotter-evolved state with exact state: 0.9999913261308868
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="orbital-rotation.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Orbital rotations and quadratic Hamiltonians</div>
+                <div class="title">Tutorials</div>
                 
               </div>
             </a>

@@ -76,7 +76,7 @@
     "  \\lvert \\Psi \\rangle = \\prod_{k = 1}^L \\mathcal{W}_k e^{i \\mathcal{J}_k} \\mathcal{W}_k^\\dagger \\lvert \\Phi_0 \\rangle\n",
     "$$\n",
     "\n",
-    "where $\\lvert \\Phi_0 \\rangle$ is a reference state, often taken as the Hartree-Fock state, each $\\mathcal{W_k}$ is an [orbital rotation](../tutorials/orbital-rotation.ipynb), and each $\\mathcal{J}_k$ is a diagonal Coulomb operator of the form\n",
+    "where $\\lvert \\Phi_0 \\rangle$ is a reference state, often taken as the Hartree-Fock state, each $\\mathcal{W_k}$ is an [orbital rotation](../explanations/orbital-rotation.ipynb), and each $\\mathcal{J}_k$ is a diagonal Coulomb operator of the form\n",
     "\n",
     "$$\n",
     "    \\mathcal{J} = \\frac12\\sum_{ij,\\sigma \\tau} \\mathbf{J}^{\\sigma \\tau}_{ij} n_{i,\\sigma} n_{j,\\tau}.\n",

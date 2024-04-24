@@ -158,7 +158,6 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
 </ul>
 </li>
@@ -170,6 +169,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -286,7 +286,7 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 <div class="math notranslate nohighlight">
 \[\lvert \Psi \rangle = \prod_{k = 1}^L \mathcal{W}_k e^{i \mathcal{J}_k} \mathcal{W}_k^\dagger \lvert \Phi_0 \rangle\]</div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(\lvert \Phi_0 \rangle\)</span> is a reference state, often taken as the Hartree-Fock state, each <span class="math notranslate nohighlight">\(\mathcal{W_k}\)</span> is an <a class="reference internal" href="../tutorials/orbital-rotation.html"><span class="doc">orbital rotation</span></a>, and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a diagonal Coulomb operator of the form</p>
+<p>where <span class="math notranslate nohighlight">\(\lvert \Phi_0 \rangle\)</span> is a reference state, often taken as the Hartree-Fock state, each <span class="math notranslate nohighlight">\(\mathcal{W_k}\)</span> is an <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">orbital rotation</span></a>, and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a diagonal Coulomb operator of the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\mathcal{J} = \frac12\sum_{ij,\sigma \tau} \mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.\]</div>
@@ -330,7 +330,7 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851274
+E(CCSD) = -77.49387212754471  E_corr = -0.0482453631485141
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -377,10 +377,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50962075683414
-        x: [ 1.246e+00 -6.254e-01 ...  8.786e-02  1.383e-01]
+      fun: -77.5096172926093
+        x: [ 1.246e+00 -6.260e-01 ...  8.780e-02  1.382e-01]
       nit: 5
-      jac: [-4.405e-04  1.235e-03 ... -3.826e-03 -2.913e-03]
+      jac: [-4.547e-04  1.235e-03 ... -3.803e-03 -2.932e-03]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -443,10 +443,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.45743246610489
-        x: [ 1.247e+00 -6.341e-01 ...  1.606e-05  1.448e-02]
+      fun: -77.4574362256874
+        x: [ 1.251e+00 -6.323e-01 ...  1.290e-03  1.497e-02]
       nit: 5
-      jac: [ 6.821e-05 -4.263e-06 ... -2.012e-03 -2.784e-03]
+      jac: [ 7.105e-05 -2.302e-04 ... -1.688e-03 -2.994e-03]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -530,34 +530,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.47029759485766
-       x: [ 1.311e+00 -5.713e-01 ...  2.254e-01 -5.714e-01]
+     fun: -77.46220678390338
+       x: [ 1.276e+00 -5.766e-01 ...  9.117e-02 -3.226e-01]
      nit: 5
-     jac: [-3.312e-03 -1.391e-03 ...  1.423e-03  5.378e-03]
-    nfev: 919
+     jac: [-4.180e-03 -5.920e-04 ...  2.099e-03  7.686e-03]
+    nfev: 841
     njev: 5
-  nlinop: 689
+  nlinop: 611
 
 Iteration 1
-    Energy: -77.45684807237669
-    Norm of gradient: 0.01528137288621534
-    Regularization hyperparameter: 0.024509320529278802
-    Variation hyperparameter: 0.48214877771239245
+    Energy: -77.45677380930493
+    Norm of gradient: 0.016085018101832615
+    Regularization hyperparameter: 0.02410490542011868
+    Variation hyperparameter: 0.4026564352843983
 Iteration 2
-    Energy: -77.45786695930424
-    Norm of gradient: 0.010168289743498194
-    Regularization hyperparameter: 0.00030114830567193644
-    Variation hyperparameter: 0.09057048961583236
+    Energy: -77.45768820296952
+    Norm of gradient: 0.010069471838542036
+    Regularization hyperparameter: 0.0004586371533943797
+    Variation hyperparameter: 0.4098364080898668
 Iteration 3
-    Energy: -77.45789178629198
-    Norm of gradient: 0.009720604399574157
-    Regularization hyperparameter: 0.9659224556070992
-    Variation hyperparameter: 0.05642213631802612
+    Energy: -77.45771704988508
+    Norm of gradient: 0.009651923744890972
+    Regularization hyperparameter: 0.9878060953974287
+    Variation hyperparameter: 0.3035966905550106
 Iteration 4
-    Energy: -77.46137567523384
-    Norm of gradient: 0.02284833258747655
-    Regularization hyperparameter: 0.0025190295003313418
-    Variation hyperparameter: 0.07558198161667273
+    Energy: -77.46191630823473
+    Norm of gradient: 0.02845516011810937
+    Regularization hyperparameter: 0.0028693416826476793
+    Variation hyperparameter: 0.7776077422705299
 </pre></div></div>
 </div>
 </section>

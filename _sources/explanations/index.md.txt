@@ -4,4 +4,5 @@
 :maxdepth: 1
 
 state-vectors-and-gates
+orbital-rotation
 ```
