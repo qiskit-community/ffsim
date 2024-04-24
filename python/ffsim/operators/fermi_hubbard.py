@@ -58,7 +58,7 @@ def fermi_hubbard_1d(
 
     .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(lambda: 0)
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
     for p in range(norb - 1 + periodic):
         coeffs[(cre_a(p), des_a((p + 1) % norb))] -= tunneling
