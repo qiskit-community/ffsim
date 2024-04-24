@@ -26,10 +26,6 @@ This method won't work natively on Windows, however. Refer to the [installation 
 
 <!-- end installation -->
 
-## Developer guide
-
-See the [developer guide](CONTRIBUTING.md) for instructions on contributing code to ffsim.
-
 ## Citing ffsim
 
 <!-- start citing -->
@@ -45,3 +41,7 @@ You can cite ffsim using the following BibTeX:
 ```
 
 <!-- end citing -->
+
+## Developer guide
+
+See the [developer guide](CONTRIBUTING.md) for instructions on contributing code to ffsim.
