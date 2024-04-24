@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-to guides" href="../how-to-guides/index.html" /><link rel="prev" title="Tutorials" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Explanations" href="../explanations/index.html" /><link rel="prev" title="Tutorials" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>Diagonal Coulomb operators and double-factorized Trotter simulation - ffsim 0.0.29.dev0 documentation</title>
@@ -161,16 +161,16 @@
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -292,7 +292,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643962
+converged SCF energy = -77.4456267643963
 </pre></div></div>
 </div>
 <p>Here, <code class="docutils literal notranslate"><span class="pre">mol_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code>, a dataclass that stores the one- and two-body tensors, and <code class="docutils literal notranslate"><span class="pre">df_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code>, a dataclass that stores the updated one-body-tensor, diagonal Coulomb matrices, and orbital rotations. In the cell below, we print out the shapes of the tensors describing the original and double-factorized representations.</p>
@@ -504,7 +504,7 @@ Hartree Fock energy: -77.44562676439627
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of evolved state w.r.t. initial state: 0.931506230139706
+Fidelity of evolved state w.r.t. initial state: 0.93150623014006
 </pre></div></div>
 </div>
 <p>Now, let’s test our implementation.</p>
@@ -531,7 +531,7 @@ Fidelity of evolved state w.r.t. initial state: 0.931506230139706
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9928527668210921
+Fidelity of Trotter-evolved state with exact state: 0.9928527668214251
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
@@ -558,7 +558,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9928527668210921
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.999932085128466
+Fidelity of Trotter-evolved state with exact state: 0.9999320851287457
 </pre></div></div>
 </div>
 <p>As mentioned above, ffsim already includes functionality for Trotter simulation of double-factorized Hamiltonians. The implementation in ffsim includes higher-order Trotter-Suzuki formulas. The first-order asymmetric formula that we just implemented corresponds to <code class="docutils literal notranslate"><span class="pre">order=0</span></code> in ffsim’s implementation. <code class="docutils literal notranslate"><span class="pre">order=1</span></code> corresponds to the first-order symmetric (commonly known as the second-order) formula, <code class="docutils literal notranslate"><span class="pre">order=2</span></code> corresponds to the second-order symmetric (fourth-order) formula, and so on.</p>
@@ -587,7 +587,7 @@ Fidelity of Trotter-evolved state with exact state: 0.999932085128466
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.999932085128466
+Fidelity of Trotter-evolved state with exact state: 0.9999320851287457
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -615,7 +615,7 @@ Fidelity of Trotter-evolved state with exact state: 0.999932085128466
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9999913261305375
+Fidelity of Trotter-evolved state with exact state: 0.999991326130849
 </pre></div></div>
 </div>
 </section>
@@ -627,12 +627,12 @@ Fidelity of Trotter-evolved state with exact state: 0.9999913261305375
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../how-to-guides/index.html">
+          <a class="next-page" href="../explanations/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">How-to guides</div>
+                <div class="title">Explanations</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

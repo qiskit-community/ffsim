@@ -36,7 +36,7 @@ See the [developer guide](https://github.com/qiskit-community/ffsim/blob/main/CO
 
 install
 tutorials/index
-how-to-guides/index
 explanations/index
+how-to-guides/index
 api/index
 ```

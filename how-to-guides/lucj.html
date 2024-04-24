@@ -161,16 +161,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/double-factorized.html">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -269,7 +269,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643962
+converged SCF energy = -77.4456267643963
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -277,7 +277,7 @@ converged SCF energy = -77.4456267643962
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -331,7 +331,7 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754468  E_corr = -0.04824536314851544
+E(CCSD) = -77.49387212754476  E_corr = -0.04824536314851349
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -339,7 +339,7 @@ E(CCSD) = -77.49387212754468  E_corr = -0.04824536314851544
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialization: -77.46975600021707
+Energy at initialization: -77.46975600021699
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -378,10 +378,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50964180496058
-        x: [ 1.262e+00  4.694e-01 ...  8.691e-02  1.366e-01]
+      fun: -77.50963982505083
+        x: [ 1.377e+00 -5.945e-01 ...  8.766e-02  1.397e-01]
       nit: 5
-      jac: [-7.816e-05 -6.196e-04 ... -3.617e-03 -4.488e-03]
+      jac: [-6.963e-05  8.299e-04 ... -4.161e-03 -3.079e-03]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -444,10 +444,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.45741509166481
-        x: [ 1.261e+00  4.805e-01 ...  8.055e-03  8.157e-03]
+      fun: -77.4573876180965
+        x: [ 1.379e+00 -5.841e-01 ...  1.335e-03  1.164e-02]
       nit: 5
-      jac: [ 1.876e-04  6.963e-05 ... -1.320e-03 -3.342e-03]
+      jac: [-2.785e-04  1.043e-03 ... -1.458e-03 -3.206e-03]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -531,34 +531,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.45818447456564
-       x: [ 1.287e+00  4.532e-01 ...  3.552e-02 -8.566e-03]
+     fun: -77.47175561491798
+       x: [ 1.257e+00 -6.227e-01 ...  1.571e-01 -4.884e-01]
      nit: 5
-     jac: [-5.629e-04  3.020e-04 ...  7.026e-04 -1.219e-03]
-    nfev: 634
+     jac: [ 1.432e-03  3.994e-03 ... -1.628e-03  3.073e-03]
+    nfev: 811
     njev: 5
-  nlinop: 404
+  nlinop: 581
 
 Iteration 1
-    Energy: -77.45029302626645
-    Norm of gradient: 0.02020004370995382
-    Regularization hyperparameter: 0.8826379901342593
-    Variation hyperparameter: 0.6648183897123532
+    Energy: -77.45722852885665
+    Norm of gradient: 0.010438531340874496
+    Regularization hyperparameter: 0.026774080397317174
+    Variation hyperparameter: 0.9756423838465609
 Iteration 2
-    Energy: -77.45045534010309
-    Norm of gradient: 0.018881646064850023
-    Regularization hyperparameter: 0.8823610881773326
-    Variation hyperparameter: 0.6648238632610717
+    Energy: -77.45809401560325
+    Norm of gradient: 0.007688124706737847
+    Regularization hyperparameter: 0.0006148678602191823
+    Variation hyperparameter: 0.9755488167407622
 Iteration 3
-    Energy: -77.45711181898201
-    Norm of gradient: 0.01200729687112761
-    Regularization hyperparameter: 0.025598521789727345
-    Variation hyperparameter: 0.6940657521578105
+    Energy: -77.45812036241128
+    Norm of gradient: 0.007483502338004985
+    Regularization hyperparameter: 1.0501985117388104
+    Variation hyperparameter: 0.975492191556643
 Iteration 4
-    Energy: -77.45816307257847
-    Norm of gradient: 0.007591266502855039
-    Regularization hyperparameter: 0.00041396927536031585
-    Variation hyperparameter: 0.6982897824464199
+    Energy: -77.46252943879958
+    Norm of gradient: 0.02612332292389617
+    Regularization hyperparameter: 0.0033002348706717304
+    Variation hyperparameter: 0.9857004057142639
 </pre></div></div>
 </div>
 </section>
