@@ -3,5 +3,5 @@
 ```{toctree}
 :maxdepth: 1
 
-double-factorized
+double-factorized-trotter
 ```
