@@ -72,7 +72,7 @@ def test_double_factorized_random(dim: int, cholesky: bool):
         two_body_tensor, cholesky=cholesky
     )
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats,
@@ -103,7 +103,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
         two_body_tensor, max_vecs=max_vecs, cholesky=cholesky
     )
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats,
@@ -117,7 +117,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
     tol = 1e-4
     diag_coulomb_mats, orbital_rotations = double_factorized(two_body_tensor, tol=tol)
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats,
@@ -132,7 +132,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
         two_body_tensor, tol=tol, max_vecs=max_vecs
     )
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats,
@@ -153,7 +153,7 @@ def test_optimal_diag_coulomb_mats_exact():
         two_body_tensor, orbital_rotations
     )
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats_optimal,
@@ -175,7 +175,7 @@ def test_optimal_diag_coulomb_mats_approximate():
         two_body_tensor, orbital_rotations
     )
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats,
@@ -183,7 +183,7 @@ def test_optimal_diag_coulomb_mats_approximate():
         orbital_rotations,
     )
     reconstructed_optimal = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats_optimal,
@@ -208,7 +208,7 @@ def test_double_factorized_compressed():
         two_body_tensor, max_vecs=2, optimize=True
     )
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats,
@@ -216,7 +216,7 @@ def test_double_factorized_compressed():
         orbital_rotations,
     )
     reconstructed_optimal = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations_optimized,
         orbital_rotations_optimized,
         diag_coulomb_mats_optimized,
@@ -254,7 +254,7 @@ def test_double_factorized_compressed_constrained():
         diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
     )
     reconstructed = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
         diag_coulomb_mats,
@@ -262,7 +262,7 @@ def test_double_factorized_compressed_constrained():
         orbital_rotations,
     )
     reconstructed_optimal = np.einsum(
-        "tpk,tqk,tkl,trl,tsl->pqrs",
+        "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations_optimized,
         orbital_rotations_optimized,
         diag_coulomb_mats_optimized,

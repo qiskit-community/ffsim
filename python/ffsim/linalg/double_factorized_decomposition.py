@@ -348,7 +348,7 @@ def _double_factorized_compressed(
             x, n_tensors, n_modes, diag_coulomb_mask
         )
         diff = two_body_tensor - contract(
-            "tpk,tqk,tkl,trl,tsl->pqrs",
+            "kpi,kqi,kij,krj,ksj->pqrs",
             orbital_rotations,
             orbital_rotations,
             diag_coulomb_mats,
@@ -363,7 +363,7 @@ def _double_factorized_compressed(
             x, n_tensors, n_modes, diag_coulomb_mask
         )
         diff = two_body_tensor - contract(
-            "tpk,tqk,tkl,trl,tsl->pqrs",
+            "kpi,kqi,kij,krj,ksj->pqrs",
             orbital_rotations,
             orbital_rotations,
             diag_coulomb_mats,
