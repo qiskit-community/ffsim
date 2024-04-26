@@ -571,7 +571,7 @@
             <span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">diag_coulomb_mask</span>
         <span class="p">)</span>
         <span class="n">diff</span> <span class="o">=</span> <span class="n">two_body_tensor</span> <span class="o">-</span> <span class="n">contract</span><span class="p">(</span>
-            <span class="s2">&quot;tpk,tqk,tkl,trl,tsl-&gt;pqrs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kpi,kqi,kij,krj,ksj-&gt;pqrs&quot;</span><span class="p">,</span>
             <span class="n">orbital_rotations</span><span class="p">,</span>
             <span class="n">orbital_rotations</span><span class="p">,</span>
             <span class="n">diag_coulomb_mats</span><span class="p">,</span>
@@ -586,7 +586,7 @@
             <span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">,</span> <span class="n">diag_coulomb_mask</span>
         <span class="p">)</span>
         <span class="n">diff</span> <span class="o">=</span> <span class="n">two_body_tensor</span> <span class="o">-</span> <span class="n">contract</span><span class="p">(</span>
-            <span class="s2">&quot;tpk,tqk,tkl,trl,tsl-&gt;pqrs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kpi,kqi,kij,krj,ksj-&gt;pqrs&quot;</span><span class="p">,</span>
             <span class="n">orbital_rotations</span><span class="p">,</span>
             <span class="n">orbital_rotations</span><span class="p">,</span>
             <span class="n">diag_coulomb_mats</span><span class="p">,</span>
