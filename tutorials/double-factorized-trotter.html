@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Explanations" href="../explanations/index.html" /><link rel="prev" title="Tutorials" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>Diagonal Coulomb operators and double-factorized Trotter simulation - ffsim 0.0.29.dev0 documentation</title>
+        <title>Implementing Trotter simulation of the double-factorized Hamiltonian - ffsim 0.0.29.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -158,13 +158,14 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Diagonal Coulomb operators and double-factorized Trotter simulation</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Implementing Trotter simulation of the double-factorized Hamiltonian</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -217,33 +218,13 @@
           </label>
         </div>
         <article role="main">
-          <section id="Diagonal-Coulomb-operators-and-double-factorized-Trotter-simulation">
-<h1>Diagonal Coulomb operators and double-factorized Trotter simulation<a class="headerlink" href="#Diagonal-Coulomb-operators-and-double-factorized-Trotter-simulation" title="Link to this heading">¶</a></h1>
-<p>In this tutorial, we show how to use ffsim to simulate diagonal Coulomb operators and approximate time evolution by a molecular Hamiltonian in the double-factorized representation.</p>
-<section id="Double-factorized-representation-of-the-molecular-Hamiltonian">
-<h2>Double-factorized representation of the molecular Hamiltonian<a class="headerlink" href="#Double-factorized-representation-of-the-molecular-Hamiltonian" title="Link to this heading">¶</a></h2>
-<p>The molecular Hamiltonian is</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-    + \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}
-    a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
-    + \text{constant}.\]</div>
-</div>
-<p>This representation of the Hamiltonian is daunting for quantum simulations because the number of terms scales as <span class="math notranslate nohighlight">\(N^4\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of spatial orbitals. An alternative representation can be obtained by performing a “double-factorization” of the two-body tensor <span class="math notranslate nohighlight">\(h_{pqrs}\)</span>:</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[H = \sum_{\sigma, pq} h'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-+ \sum_{k=1}^L \mathcal{W}_k \mathcal{J}_k \mathcal{W}_k^\dagger
-+ \text{constant}'.\]</div>
-</div>
-<p>Here each <span class="math notranslate nohighlight">\(\mathcal{W}_k\)</span> is an <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">orbital rotation</span></a> and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a so-called diagonal Coulomb operator, which is an operator of the form</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij} \mathbf{J}_{ij} n_{\sigma, i} n_{\tau, j},\]</div>
-</div>
-<p>where <span class="math notranslate nohighlight">\(n_{\sigma, i} = a^\dagger_{\sigma, i} a_{\sigma, i}\)</span> is the occupation number operator and <span class="math notranslate nohighlight">\(\mathbf{J}_{ij}\)</span> is a real symmetric matrix.</p>
-<p>In the cell below, we construct the Hamiltonian for a nitrogen molecule in a (10e, 8o) active space and then get the double-factorized representation of the Hamiltonian.</p>
+          <section id="Implementing-Trotter-simulation-of-the-double-factorized-Hamiltonian">
+<h1>Implementing Trotter simulation of the double-factorized Hamiltonian<a class="headerlink" href="#Implementing-Trotter-simulation-of-the-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h1>
+<p>In this tutorial, we’ll write a function to implement approximate time evolution of the double-factorized Hamiltonian via a Trotter-Suzuki formula. See <a class="reference internal" href="../explanations/double-factorized.html"><span class="doc">Double-factorized representation of the molecular Hamiltonian</span></a> for background information. We’ll compare our implementation with exact time evolution computed using direct operator exponentiation, as well as ffsim’s built-in implementation
+<a class="reference internal" href="../api/ffsim.html#ffsim.simulate_trotter_double_factorized"><span class="std std-ref">simulate_trotter_double_factorized</span></a>.</p>
+<section id="Build-the-Hamiltonian">
+<h2>Build the Hamiltonian<a class="headerlink" href="#Build-the-Hamiltonian" title="Link to this heading">¶</a></h2>
+<p>We begin by building a molecular Hamiltonian to test our code on. We’ll create a nitrogen molecule in an active space of 8 orbitals and 10 electrons. We use ffsim’s <a class="reference internal" href="../api/ffsim.html#ffsim.MolecularData"><span class="std std-ref">MolecularData</span></a> class, which implements a simplistic wrapper around PySCF to compute a representation of the Hamiltonian as an instance of <a class="reference internal" href="../api/ffsim.html#ffsim.MolecularHamiltonian"><span class="std std-ref">MolecularHamiltonian</span></a>, which we store in the <code class="docutils literal notranslate"><span class="pre">mol_hamiltonian</span></code> variable.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -264,20 +245,17 @@
 <span class="n">n_frozen</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">chemcore</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_frozen</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span>
 
-<span class="c1"># Get molecular data and molecular Hamiltonian (one- and two-body tensors)</span>
+<span class="c1"># Get molecular data and Hamiltonian</span>
 <span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_mole</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
-<span class="n">norb</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span>
-<span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
+<span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
 
-<span class="c1"># Get the Hamiltonian in the double-factorized representation</span>
-<span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">DoubleFactorizedHamiltonian</span><span class="o">.</span><span class="n">from_molecular_hamiltonian</span><span class="p">(</span>
-    <span class="n">mol_hamiltonian</span>
-<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nelec = </span><span class="si">{</span><span class="n">nelec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -285,9 +263,30 @@
 converged SCF energy = -108.464957764796
 </pre></div></div>
 </div>
-<p>Here, <code class="docutils literal notranslate"><span class="pre">mol_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code>, a dataclass that stores the one- and two-body tensors, and <code class="docutils literal notranslate"><span class="pre">df_hamiltonian</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code>, a dataclass that stores the updated one-body-tensor, diagonal Coulomb matrices, and orbital rotations. In the cell below, we print out the shapes of the tensors describing the original and double-factorized representations.</p>
-<div class="nbinput docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+norb = 8
+nelec = (5, 5)
+</pre></div></div>
+</div>
+<p>Next, we compute the double-factorized representation of the Hamiltonian. In ffsim, the <a class="reference internal" href="../api/ffsim.html#ffsim.DoubleFactorizedHamiltonian"><span class="std std-ref">DoubleFactorizedHamiltonian</span></a> class is used to store this Hamiltonian representation.</p>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the Hamiltonian in the double-factorized representation</span>
+<span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">DoubleFactorizedHamiltonian</span><span class="o">.</span><span class="n">from_molecular_hamiltonian</span><span class="p">(</span>
+    <span class="n">mol_hamiltonian</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To get a sense of how the two different Hamiltonian representations differ, let’s print out the shapes of the tensors describing the original and double-factorized representations.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original representation&quot;</span><span class="p">)</span>
@@ -337,46 +336,98 @@ Orbital rotations shape:
 (35, 8, 8)
 </pre></div></div>
 </div>
+<p>We see that instead of an <span class="math notranslate nohighlight">\(N \times N \times N \times N\)</span> two-body tensor (<span class="math notranslate nohighlight">\(N\)</span> is the number of spatial orbitals), the double-factorized representation stores a list of <span class="math notranslate nohighlight">\(L\)</span> diagonal Coulomb matrices as well as a list of <span class="math notranslate nohighlight">\(L\)</span> orbital rotations. Here, <span class="math notranslate nohighlight">\(L = 35\)</span>. The value of <span class="math notranslate nohighlight">\(L\)</span> depends on the per-tensor-entry error tolerance allowed in the double factorization, which defaults to <span class="math notranslate nohighlight">\(10^{-8}\)</span>. Setting a higher error tolerance may yield a more compact
+representation with a smaller <span class="math notranslate nohighlight">\(L\)</span>. Let’s see this in action by setting the error tolerance to <span class="math notranslate nohighlight">\(10^{-3}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_hamiltonian_alt</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">DoubleFactorizedHamiltonian</span><span class="o">.</span><span class="n">from_molecular_hamiltonian</span><span class="p">(</span>
+    <span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of terms: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df_hamiltonian_alt</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of terms: 26
+</pre></div></div>
+</div>
+<p>With an error tolerance of <span class="math notranslate nohighlight">\(10^{-3}\)</span>, the factorization results in <span class="math notranslate nohighlight">\(L = 26\)</span>.</p>
+<p>In addition to setting the error tolerance, you can also specify a maximum value for <span class="math notranslate nohighlight">\(L\)</span> via the <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> argument. Bear in mind that setting a low value for the maximum number of terms may introduce significant error in the decomposition. The <code class="docutils literal notranslate"><span class="pre">max_vecs</span></code> argument is always respected, so the resulting decomposition may exceed the error tolerance specified by the <code class="docutils literal notranslate"><span class="pre">tol</span></code> argument. Let’s try setting the maximum number of terms to 10.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_hamiltonian_alt</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">DoubleFactorizedHamiltonian</span><span class="o">.</span><span class="n">from_molecular_hamiltonian</span><span class="p">(</span>
+    <span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of terms: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df_hamiltonian_alt</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of terms: 10
+</pre></div></div>
+</div>
+<p>The error in the decomposition can be computed by reconstructing the two-body tensor from its factorized form. The following code cell performs this reconstruction using <code class="docutils literal notranslate"><span class="pre">np.einsum</span></code>, then prints out the maximum error in one of the tensor entries.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">reconstructed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+    <span class="s2">&quot;kij,kpi,kqi,krj,ksj-&gt;pqrs&quot;</span><span class="p">,</span>
+    <span class="n">df_hamiltonian_alt</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+    <span class="n">df_hamiltonian_alt</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+    <span class="n">df_hamiltonian_alt</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+    <span class="n">df_hamiltonian_alt</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+    <span class="n">df_hamiltonian_alt</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">max_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">reconstructed</span> <span class="o">-</span> <span class="n">mol_hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Maximum error in a tensor entry: </span><span class="si">{</span><span class="n">max_error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Maximum error in a tensor entry: 0.03668541730983621
+</pre></div></div>
+</div>
 </section>
-<section id="Trotter-simulation-of-the-double-factorized-Hamiltonian">
-<h2>Trotter simulation of the double-factorized Hamiltonian<a class="headerlink" href="#Trotter-simulation-of-the-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h2>
-<p>In the rest of this tutorial, we’ll show how to use ffsim to implement time evolution of the double-factorized Hamiltonian via Trotter-Suzuki formulas. Although ffsim already has this functionality built-in, we will first manually implement a first-order asymmetric product formula to demonstrate the use of ffsim’s basic operations.</p>
-<section id="Brief-background-on-Trotter-Suzuki-formulas">
-<h3>Brief background on Trotter-Suzuki formulas<a class="headerlink" href="#Brief-background-on-Trotter-Suzuki-formulas" title="Link to this heading">¶</a></h3>
-<p>Trotter-Suzuki formulas are used to approximate time evolution by a Hamiltonian <span class="math notranslate nohighlight">\(H\)</span> which is decomposed as a sum of terms:</p>
+<section id="Implement-Trotter-simulation">
+<h2>Implement Trotter simulation<a class="headerlink" href="#Implement-Trotter-simulation" title="Link to this heading">¶</a></h2>
+<p>As explained in <a class="reference internal" href="../explanations/double-factorized.html#Application-to-the-double-factorized-Hamiltonian"><span class="std std-ref">Double-factorized representation of the molecular Hamiltonian</span></a>, the doubled-factorized Hamiltonian can be expressed as a sum of <span class="math notranslate nohighlight">\(L + 1\)</span> terms,</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[H = \sum_k H_k.\]</div>
+\[H = \sum_{k=0}^L H_k,\]</div>
 </div>
-<p>Time evolution by time <span class="math notranslate nohighlight">\(t\)</span> is given by the unitary operator</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[e^{i H t}.\]</div>
-</div>
-<p>To approximate this operator, the total evolution time is first divided into a number of smaller time steps, called “Trotter steps”:</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[e^{i H t} = (e^{i H t / r})^r.\]</div>
-</div>
-<p>The time evolution for a single Trotter step is then approximated using a product formula, which approximates the exponential of a sum of terms by a product of exponentials of the individual terms. The formulas are approximate because the terms do not in general commute. A first-order asymmetric product formula has the form</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[e^{i H \tau} \approx \prod_k e^{i H_k \tau}.\]</div>
-</div>
-<p>Higher-order formulas can be derived which yield better approximations.</p>
-</section>
-<section id="Implementing-Trotter-simulation-of-the-double-factorized-Hamiltonian">
-<h3>Implementing Trotter simulation of the double-factorized Hamiltonian<a class="headerlink" href="#Implementing-Trotter-simulation-of-the-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h3>
-<p>First, we’ll write a function to simulate a single Trotter step of the Hamiltonian. Recall the form of the Hamiltonian (ignoring the additive constant):</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[H = \sum_{\sigma, pq} h'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-+ \sum_{k=1}^L \mathcal{W}_k \mathcal{J}_k \mathcal{W}_k^\dagger\]</div>
-</div>
-<p>We think of this Hamiltonian as composed of <span class="math notranslate nohighlight">\(L + 1\)</span> terms: the one-body term, which is a quadratic Hamiltonian, and the <span class="math notranslate nohighlight">\(L\)</span> “rotated diagonal Coulomb operators.” As described in <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">Orbital rotations and quadratic Hamiltonians</span></a>, time evolution by the quadratic Hamiltonian can be implemented using the <code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution</span></code> function. Similarly, time evolution by a rotated diagonal coulomb operator can be implemented using the
-<code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution</span></code> function.</p>
+<p>where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(H_0\)</span> is a <a class="reference internal" href="../explanations/orbital-rotation.html#Time-evolution-by-a-quadratic-Hamiltonian"><span class="std std-ref">quadratic Hamiltonian</span></a>, and</p></li>
+<li><p><span class="math notranslate nohighlight">\(H_k\)</span> is a rotated <a class="reference internal" href="../explanations/double-factorized.html#Double-factorized-representation"><span class="std std-ref">diagonal Coulomb operator</span></a> for <span class="math notranslate nohighlight">\(k = 1, \ldots, L\)</span>.</p></li>
+</ul>
+<p>Let’s write a function to simulate a single Trotter step of the Hamiltonian. Our function will perform the following steps:</p>
+<ol class="arabic simple">
+<li><p>Diagonalize <span class="math notranslate nohighlight">\(H_0\)</span> to obtain the orbital energies and rotation needed to simulate it.</p></li>
+<li><p>Apply time evolution by <span class="math notranslate nohighlight">\(H_0\)</span> using the function <a class="reference internal" href="../api/ffsim.html#ffsim.apply_num_op_sum_evolution"><span class="std std-ref">apply_num_op_sum_evolution</span></a>.</p></li>
+<li><p>For <span class="math notranslate nohighlight">\(k = 1, \ldots, L\)</span>, apply time evolution by <span class="math notranslate nohighlight">\(H_k\)</span> using the function <a class="reference internal" href="../api/ffsim.html#ffsim.apply_diag_coulomb_evolution"><span class="std std-ref">apply_diag_coulomb_evolution</span></a>.</p></li>
+</ol>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -418,9 +469,9 @@ Orbital rotations shape:
 </pre></div>
 </div>
 </div>
-<p>We finish by writing a higher-level function that handles splitting the total time evolution into multiple Trotter steps, simulating each Trotter step using the function we just wrote.</p>
+<p>To finish, we need to write a higher-level function that handles splitting the total time evolution into multiple Trotter steps and simulates each Trotter step using the function we just wrote.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_trotter_double_factorized</span><span class="p">(</span>
@@ -444,62 +495,35 @@ Orbital rotations shape:
 </pre></div>
 </div>
 </div>
-<p>To test our implementation, we’ll apply the time evolution to the Hartree-Fock state, which is a Slater determinant with electrons occupying the lowest-energy molecular orbitals. In the following code cell, we’ll create this state and calculate its energy. It should match the value output by pySCF when we first created the molecule. To calculate the energy, we convert the Hamiltonian to a SciPy <code class="docutils literal notranslate"><span class="pre">LinearOperator</span></code>.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Construct the Hartree-Fock state</span>
-<span class="n">initial_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-
-<span class="c1"># Get the Hamiltonian as a LinearOperator</span>
-<span class="n">linop</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">linear_operator</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
-
-<span class="c1"># Check the energy ⟨ψ|H|ψ⟩ of the Hartree-Fock state</span>
-<span class="n">hf_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">linop</span> <span class="o">@</span> <span class="n">initial_state</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hartree Fock energy: </span><span class="si">{</span><span class="n">hf_energy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Hartree Fock energy: -108.46495776479554
-</pre></div></div>
-</div>
-<p>Now, we set the evolution time and calculate the exact result of time evolution by directly exponentiating the Hamiltonian using SciPy. Later, we will compare the result of our approximate time evolution with this exact result.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<p>To test our implementation, let’s apply time evolution to the Hartree-Fock state. Before calling our Trotter simulation function, let’s first compute the exact result of time evolution by directly exponentiating the Hamiltonian using SciPy. Later, we’ll compare the result of our approximate time evolution with this exact result. In order to perform the operator exponentiation, we convert the Hamiltonian to a Scipy
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html">LinearOperator</a> (see <a class="reference internal" href="../explanations/hamiltonians.html"><span class="doc">Hamiltonians</span></a>).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
 
+<span class="c1"># Construct the initial state.</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+
+<span class="c1"># Set the evolution time.</span>
 <span class="n">time</span> <span class="o">=</span> <span class="mf">1.0</span>
 
+<span class="c1"># Convert the Hamiltonian to a LinearOperator</span>
+<span class="n">linop</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">linear_operator</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+<span class="c1"># Compute the exact result of time evolution</span>
 <span class="n">exact_state</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm_multiply</span><span class="p">(</span>
     <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">linop</span><span class="p">,</span>
     <span class="n">initial_state</span><span class="p">,</span>
     <span class="n">traceA</span><span class="o">=</span><span class="n">ffsim</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">),</span>
 <span class="p">)</span>
-
-<span class="n">fidelity</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">exact_state</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fidelity of evolved state w.r.t. initial state: </span><span class="si">{</span><span class="n">fidelity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Fidelity of evolved state w.r.t. initial state: 0.9233248450909798
-</pre></div></div>
-</div>
-<p>Now, let’s test our implementation.</p>
+<p>Now, let’s test our implementation. First, let’s evolve the initial state using a single Trotter step.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">final_state</span> <span class="o">=</span> <span class="n">simulate_trotter_double_factorized</span><span class="p">(</span>
@@ -521,12 +545,12 @@ Fidelity of evolved state w.r.t. initial state: 0.9233248450909798
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9402393562171001
+Fidelity of Trotter-evolved state with exact state: 0.9402393963408698
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">final_state</span> <span class="o">=</span> <span class="n">simulate_trotter_double_factorized</span><span class="p">(</span>
@@ -548,13 +572,12 @@ Fidelity of Trotter-evolved state with exact state: 0.9402393562171001
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9985211214228267
+Fidelity of Trotter-evolved state with exact state: 0.9985211223917133
 </pre></div></div>
 </div>
-<p>As mentioned above, ffsim already includes functionality for Trotter simulation of double-factorized Hamiltonians. The implementation in ffsim includes higher-order Trotter-Suzuki formulas. The first-order asymmetric formula that we just implemented corresponds to <code class="docutils literal notranslate"><span class="pre">order=0</span></code> in ffsim’s implementation. <code class="docutils literal notranslate"><span class="pre">order=1</span></code> corresponds to the first-order symmetric (commonly known as the second-order) formula, <code class="docutils literal notranslate"><span class="pre">order=2</span></code> corresponds to the second-order symmetric (fourth-order) formula, and so on.</p>
 <p>In the code cell below, we reproduce the results of our manually implemented function using ffsim’s built-in implementation.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">simulate_trotter_double_factorized</span><span class="p">(</span>
@@ -577,12 +600,12 @@ Fidelity of Trotter-evolved state with exact state: 0.9985211214228267
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9985211214228267
+Fidelity of Trotter-evolved state with exact state: 0.9985211223917133
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">simulate_trotter_double_factorized</span><span class="p">(</span>
@@ -605,10 +628,10 @@ Fidelity of Trotter-evolved state with exact state: 0.9985211214228267
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9996731166931845
+Fidelity of Trotter-evolved state with exact state: 0.9996731166932737
 </pre></div></div>
 </div>
-</section>
+<p>You’ve made it to the end of this tutorial!</p>
 </section>
 </section>
 
@@ -674,13 +697,9 @@ Fidelity of Trotter-evolved state with exact state: 0.9996731166931845
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Diagonal Coulomb operators and double-factorized Trotter simulation</a><ul>
-<li><a class="reference internal" href="#Double-factorized-representation-of-the-molecular-Hamiltonian">Double-factorized representation of the molecular Hamiltonian</a></li>
-<li><a class="reference internal" href="#Trotter-simulation-of-the-double-factorized-Hamiltonian">Trotter simulation of the double-factorized Hamiltonian</a><ul>
-<li><a class="reference internal" href="#Brief-background-on-Trotter-Suzuki-formulas">Brief background on Trotter-Suzuki formulas</a></li>
-<li><a class="reference internal" href="#Implementing-Trotter-simulation-of-the-double-factorized-Hamiltonian">Implementing Trotter simulation of the double-factorized Hamiltonian</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">Implementing Trotter simulation of the double-factorized Hamiltonian</a><ul>
+<li><a class="reference internal" href="#Build-the-Hamiltonian">Build the Hamiltonian</a></li>
+<li><a class="reference internal" href="#Implement-Trotter-simulation">Implement Trotter simulation</a></li>
 </ul>
 </li>
 </ul>

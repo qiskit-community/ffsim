@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate the local unitary cluster Jastrow (LUCJ) ansatz" href="lucj.html" /><link rel="prev" title="Double-factorized representation of the molecular Hamiltonian" href="../explanations/double-factorized.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-to guides" href="../how-to-guides/index.html" /><link rel="prev" title="Orbital rotations and quadratic Hamiltonians" href="orbital-rotation.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>How-to guides - ffsim 0.0.29.dev0 documentation</title>
+        <title>Double-factorized representation of the molecular Hamiltonian - ffsim 0.0.29.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -160,17 +160,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/double-factorized-trotter.html">Implementing Trotter simulation of the double-factorized Hamiltonian</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Explanations</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hamiltonians.html">Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Double-factorized representation of the molecular Hamiltonian</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -211,21 +211,94 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="how-to-guides">
-<h1>How-to guides<a class="headerlink" href="#how-to-guides" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l1"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
-</ul>
+          <section id="Double-factorized-representation-of-the-molecular-Hamiltonian">
+<h1>Double-factorized representation of the molecular Hamiltonian<a class="headerlink" href="#Double-factorized-representation-of-the-molecular-Hamiltonian" title="Link to this heading">¶</a></h1>
+<p>This page discusses the double-factorized representation of the molecular Hamiltonian.</p>
+<section id="Double-factorized-representation">
+<h2>Double-factorized representation<a class="headerlink" href="#Double-factorized-representation" title="Link to this heading">¶</a></h2>
+<p>The molecular Hamiltonian is commonly written in the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+    + \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}
+    a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
+    + \text{constant}.\]</div>
 </div>
+<p>This representation of the Hamiltonian is daunting for quantum simulations because the number of terms in the two-body part scales as <span class="math notranslate nohighlight">\(N^4\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of spatial orbitals. An alternative representation can be obtained by performing a “double-factorization” of the two-body tensor <span class="math notranslate nohighlight">\(h_{pqrs}\)</span>:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = \sum_{\sigma, pq} h'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
++ \sum_{k=1}^L \mathcal{W}_k \mathcal{J}_k \mathcal{W}_k^\dagger
++ \text{constant}'.\]</div>
+</div>
+<p>Here each <span class="math notranslate nohighlight">\(\mathcal{W}_k\)</span> is an <a class="reference internal" href="orbital-rotation.html"><span class="doc">orbital rotation</span></a> and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a so-called diagonal Coulomb operator of the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij} \mathbf{J}_{ij} n_{\sigma, i} n_{\tau, j},\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(n_{\sigma, i} = a^\dagger_{\sigma, i} a_{\sigma, i}\)</span> is the occupation number operator and <span class="math notranslate nohighlight">\(\mathbf{J}_{ij}\)</span> is a real symmetric matrix. The one-body tensor and the constant have been updated to accomodate extra terms that arise from reordering fermionic ladder operators.</p>
+<p>For an exact factorization, <span class="math notranslate nohighlight">\(L\)</span> is proportional to <span class="math notranslate nohighlight">\(N^2\)</span>. However, the two-body tensor often has low-rank structure, and the decomposition can be truncated while still maintaining an accurate representation. Thus, in practice, <span class="math notranslate nohighlight">\(L\)</span> often scales only linearly with <span class="math notranslate nohighlight">\(N\)</span>, resulting in a much more compact representation that gives rise to more efficient schemes for simulating and measuring the Hamiltonian, which utilize efficient quantum circuits for orbital rotations and time
+evolution by a diagonal Coulomb operator.</p>
+</section>
+<section id="Application-to-time-evolution-via-Trotter-Suzuki-formulas">
+<h2>Application to time evolution via Trotter-Suzuki formulas<a class="headerlink" href="#Application-to-time-evolution-via-Trotter-Suzuki-formulas" title="Link to this heading">¶</a></h2>
+<p>In this section, we discuss how the double-factorized Hamiltonian can be simulated using Trotter-Suzuki formulas.</p>
+<section id="Brief-background-on-Trotter-Suzuki-formulas">
+<h3>Brief background on Trotter-Suzuki formulas<a class="headerlink" href="#Brief-background-on-Trotter-Suzuki-formulas" title="Link to this heading">¶</a></h3>
+<p>Trotter-Suzuki formulas are used to approximate time evolution by a Hamiltonian <span class="math notranslate nohighlight">\(H\)</span> which is decomposed as a sum of terms:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = \sum_k H_k.\]</div>
+</div>
+<p>Time evolution by time <span class="math notranslate nohighlight">\(t\)</span> is given by the unitary operator</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[e^{i H t}.\]</div>
+</div>
+<p>To approximate this operator, the total evolution time is first divided into a number of smaller time steps, called “Trotter steps”:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[e^{i H t} = (e^{i H t / r})^r.\]</div>
+</div>
+<p>The time evolution for a single Trotter step is then approximated using a product formula, which approximates the exponential of a sum of terms by a product of exponentials of the individual terms. The formulas are approximate because the terms do not in general commute. A first-order asymmetric product formula has the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[e^{i H \tau} \approx \prod_k e^{i H_k \tau}.\]</div>
+</div>
+<p>Higher-order formulas can be derived which yield better approximations.</p>
+</section>
+<section id="Application-to-the-double-factorized-Hamiltonian">
+<h3>Application to the double-factorized Hamiltonian<a class="headerlink" href="#Application-to-the-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h3>
+<p>Using the double-factorized representation, the Hamiltonian is decomposed into <span class="math notranslate nohighlight">\(L+1\)</span> terms (ignoring the constant term),</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = \sum_{k=0}^L H_k,\]</div>
+</div>
+<p>where</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H_0 = \sum_{\sigma, pq} h'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}\]</div>
+</div>
+<p>and for <span class="math notranslate nohighlight">\(k = 1, \ldots, L\)</span>,</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H_k = \mathcal{W}_k \mathcal{J}_k \mathcal{W}_k^\dagger.\]</div>
+</div>
+<p>We have that</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(H_0\)</span> is a quadratic Hamiltonian and can be simulated as described in <a class="reference internal" href="orbital-rotation.html#Time-evolution-by-a-quadratic-Hamiltonian"><span class="std std-ref">Orbital rotations and quadratic Hamiltonians</span></a>, and</p></li>
+<li><p><span class="math notranslate nohighlight">\(H_k\)</span> is a diagonal Coulomb operator (up to an orbital rotation) for <span class="math notranslate nohighlight">\(k = 1, \ldots, L\)</span>, and ffsim includes the function <a class="reference internal" href="../api/ffsim.html#ffsim.apply_diag_coulomb_evolution"><span class="std std-ref">apply_diag_coulomb_evolution</span></a> for simulating time evolution by such an operator.</p></li>
+</ul>
+<p>Given the ability to simulate each of the individual terms, we can implement Trotter-Suzuki formulas for time evolution by the entire Hamiltonian. This is implemented in ffsim by the function <a class="reference internal" href="../api/ffsim.html#ffsim.simulate_trotter_double_factorized"><span class="std std-ref">simulate_trotter_double_factorized</span></a>, which implements higher-order Trotter-Suzuki formulas in addition to the first-order asymmetric formula mentioned previously. The first-order asymmetric formula corresponds to setting the argument
+<code class="docutils literal notranslate"><span class="pre">order=0</span></code>, which is the default. <code class="docutils literal notranslate"><span class="pre">order=1</span></code> corresponds to the first-order symmetric (commonly known as the second-order) formula, <code class="docutils literal notranslate"><span class="pre">order=2</span></code> corresponds to the second-order symmetric (fourth-order) formula, and so on.</p>
+</section>
+</section>
 </section>
 
         </article>
@@ -233,23 +306,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="lucj.html">
+          <a class="next-page" href="../how-to-guides/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</div>
+                <div class="title">How-to guides</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../explanations/double-factorized.html">
+          <a class="prev-page" href="orbital-rotation.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Double-factorized representation of the molecular Hamiltonian</div>
+                <div class="title">Orbital rotations and quadratic Hamiltonians</div>
                 
               </div>
             </a>
@@ -278,8 +351,32 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Double-factorized representation of the molecular Hamiltonian</a><ul>
+<li><a class="reference internal" href="#Double-factorized-representation">Double-factorized representation</a></li>
+<li><a class="reference internal" href="#Application-to-time-evolution-via-Trotter-Suzuki-formulas">Application to time evolution via Trotter-Suzuki formulas</a><ul>
+<li><a class="reference internal" href="#Brief-background-on-Trotter-Suzuki-formulas">Brief background on Trotter-Suzuki formulas</a></li>
+<li><a class="reference internal" href="#Application-to-the-double-factorized-Hamiltonian">Application to the double-factorized Hamiltonian</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

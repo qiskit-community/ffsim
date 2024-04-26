@@ -6,4 +6,5 @@
 state-vectors-and-gates
 hamiltonians
 orbital-rotation
+double-factorized
 ```
