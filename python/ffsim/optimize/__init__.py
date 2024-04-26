@@ -11,7 +11,11 @@
 """Optimization algorithms."""
 
 from ffsim.optimize.linear_method import minimize_linear_method
+from ffsim.optimize.stochastic_reconfiguration import (
+    minimize_stochastic_reconfiguration,
+)
 
 __all__ = [
     "minimize_linear_method",
+    "minimize_stochastic_reconfiguration",
 ]
