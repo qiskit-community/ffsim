@@ -20,45 +20,12 @@ from pyscf.lib.linalg_helper import safe_eigh
 from scipy.optimize import OptimizeResult, minimize
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim.states import one_hot
-
-
-class _WrappedCallable:
-    """Callable wrapper used to count function calls."""
-
-    def __init__(
-        self, func: Callable[[np.ndarray], np.ndarray], optimize_result: OptimizeResult
-    ):
-        self.func = func
-        self.optimize_result = optimize_result
-
-    def __call__(self, x: np.ndarray) -> np.ndarray:
-        self.optimize_result.nfev += 1
-        return self.func(x)
-
-
-class _WrappedLinearOperator:
-    """LinearOperator wrapper used to count LinearOperator applications."""
-
-    def __init__(self, linop: LinearOperator, optimize_result: OptimizeResult):
-        self.linop = linop
-        self.optimize_result = optimize_result
-
-    def __matmul__(self, other: np.ndarray):
-        if len(other.shape) == 1:
-            self.optimize_result.nlinop += 1
-        else:
-            _, n = other.shape
-            self.optimize_result.nlinop += n
-        return self.linop @ other
-
-    def __rmatmul__(self, other: np.ndarray):
-        if len(other.shape) == 1:
-            self.optimize_result.nlinop += 1
-        else:
-            n, _ = other.shape
-            self.optimize_result.nlinop += n
-        return other @ self.linop
+from ffsim.optimize._util import (
+    WrappedCallable,
+    WrappedLinearOperator,
+    jacobian_finite_diff,
+    orthogonalize_columns,
+)
 
 
 def minimize_linear_method(
@@ -165,12 +132,13 @@ def minimize_linear_method(
         x=None, fun=None, jac=None, nfev=0, njev=0, nit=0, nlinop=0
     )
 
-    params_to_vec = _WrappedCallable(params_to_vec, intermediate_result)
-    hamiltonian = _WrappedLinearOperator(hamiltonian, intermediate_result)
+    params_to_vec = WrappedCallable(params_to_vec, intermediate_result)
+    hamiltonian = WrappedLinearOperator(hamiltonian, intermediate_result)
 
     for i in range(maxiter):
         vec = params_to_vec(params)
-        jac = _jac(params_to_vec, params, vec, epsilon=epsilon)
+        jac = jacobian_finite_diff(params_to_vec, params, len(vec), epsilon=epsilon)
+        jac = orthogonalize_columns(jac, vec)
 
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
         energy = energy_mat[0, 0]
@@ -291,32 +259,6 @@ def _solve_linear_method_eigensystem(
     vec /= vec[0]
     vec = vec.real
     return eig, vec
-
-
-def _jac(
-    params_to_vec: Callable[[np.ndarray], np.ndarray],
-    theta: np.ndarray,
-    vec: np.ndarray,
-    epsilon: float,
-) -> np.ndarray:
-    jac = np.zeros((len(vec), len(theta)), dtype=complex)
-    for i in range(len(theta)):
-        grad = _grad(params_to_vec, theta, i, epsilon)
-        grad -= np.vdot(vec, grad) * vec
-        jac[:, i] = grad
-    return jac
-
-
-def _grad(
-    params_to_vec: Callable[[np.ndarray], np.ndarray],
-    theta: np.ndarray,
-    index: int,
-    epsilon: float,
-) -> np.ndarray:
-    unit = one_hot(len(theta), index, dtype=float)
-    plus = theta + epsilon * unit
-    minus = theta - epsilon * unit
-    return (params_to_vec(plus) - params_to_vec(minus)) / (2 * epsilon)
 
 
 def _get_param_update(

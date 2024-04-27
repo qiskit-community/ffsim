@@ -81,7 +81,7 @@ def test_minimize_linear_method():
     assert result.nit <= 7
     assert result.nit < result.nlinop < result.nfev
 
-    # optimization with optimizing hyperparameters
+    # optimization without optimizing hyperparameters
     info = defaultdict(list)
     result = ffsim.optimize.minimize_linear_method(
         params_to_vec,
