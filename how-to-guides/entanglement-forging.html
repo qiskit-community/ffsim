@@ -137,7 +137,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -214,7 +214,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -222,7 +222,10 @@
         <article role="main" id="furo-main-content">
           <section id="How-to-simulate-entanglement-forging">
 <h1>How to simulate entanglement forging<a class="headerlink" href="#How-to-simulate-entanglement-forging" title="Link to this heading">¶</a></h1>
-<p>In this guide, we show how to simulate entanglement forging for a water molecule at equilibrium.</p>
+<p>In this guide, we show how to simulate <a class="reference external" href="https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309">entanglement forging</a>.</p>
+<section id="Build-a-molecule">
+<h2>Build a molecule<a class="headerlink" href="#Build-a-molecule" title="Link to this heading">¶</a></h2>
+<p>We’ll use, as an example, a water molecule at equilibrium bond length in an active space of 6 orbitals and 8 electrons.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -235,9 +238,9 @@
 <span class="kn">import</span> <span class="nn">ffsim</span>
 
 <span class="c1"># Build a water molecule</span>
-<span class="n">radius_1</span> <span class="o">=</span> <span class="mf">0.958</span>  <span class="c1"># position for the first H atom</span>
-<span class="n">radius_2</span> <span class="o">=</span> <span class="mf">0.958</span>  <span class="c1"># position for the second H atom</span>
-<span class="n">bond_angle_deg</span> <span class="o">=</span> <span class="mf">104.478</span>  <span class="c1"># bond angles.</span>
+<span class="n">radius_1</span> <span class="o">=</span> <span class="mf">0.958</span>
+<span class="n">radius_2</span> <span class="o">=</span> <span class="mf">0.958</span>
+<span class="n">bond_angle_deg</span> <span class="o">=</span> <span class="mf">104.478</span>
 
 <span class="n">h1_x</span> <span class="o">=</span> <span class="n">radius_1</span>
 <span class="n">h2_x</span> <span class="o">=</span> <span class="n">radius_2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span> <span class="o">*</span> <span class="n">bond_angle_deg</span><span class="p">)</span>
@@ -257,12 +260,16 @@
 <span class="c1"># Define active space</span>
 <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span>
 
-<span class="c1"># Get molecular data and molecular Hamiltonian (one- and two-body tensors)</span>
+<span class="c1"># Get molecular data and molecular Hamiltonian</span>
 <span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_mole</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
-<span class="n">mol_data</span><span class="o">.</span><span class="n">run_fci</span><span class="p">()</span>
-<span class="n">norb</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span>
-<span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
+<span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
+
+<span class="c1"># Compute the FCI energy</span>
+<span class="n">mol_data</span><span class="o">.</span><span class="n">run_fci</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nelec = </span><span class="si">{</span><span class="n">nelec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -274,7 +281,7 @@
 converged SCF energy = -75.6787887956297
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -282,14 +289,27 @@ converged SCF energy = -75.6787887956297
 CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 </pre></div></div>
 </div>
-<div class="nbinput docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+norb = 6
+nelec = (4, 4)
+</pre></div></div>
+</div>
+</section>
+<section id="Initialize-ansatz-operator">
+<h2>Initialize ansatz operator<a class="headerlink" href="#Initialize-ansatz-operator" title="Link to this heading">¶</a></h2>
+<p>For our ansatz, we’ll use a dense “brickwork” pattern of “hop gates.” This is implemented in ffsim as the <a class="reference internal" href="../api/ffsim.html#ffsim.HopGateAnsatzOperator"><span class="std std-ref">HopGateAnsatzOperator</span></a> class.</p>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<span class="c1"># Construct ansatz operator</span>
+<span class="c1"># Define the pattern of two-qubit gates to use</span>
 <span class="k">def</span> <span class="nf">brickwork</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_layers</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_layers</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
@@ -298,15 +318,44 @@ CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 
 <span class="n">n_layers</span> <span class="o">=</span> <span class="n">norb</span>
 <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">brickwork</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_layers</span><span class="p">))</span>
-<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
-<span class="n">thetas</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">))</span>
-<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">HopGateAnsatzOperator</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">)</span>
 
-<span class="c1"># Compute energy of ansatz state</span>
+<span class="c1"># Generate random initial parameters</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">thetas</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">))</span>
+
+<span class="c1"># Construct the ansatz operator</span>
+<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">HopGateAnsatzOperator</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Choose-reference-occupations">
+<h2>Choose reference occupations<a class="headerlink" href="#Choose-reference-occupations" title="Link to this heading">¶</a></h2>
+<p>The next step is to choose the reference occupations to use. We’ll use 3 reference occupations, and these will be constructed using the same occupations for the alpha and beta spin orbitals.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Specify the reference occupations as &quot;spatial&quot; since we&#39;ll use the same occupations</span>
+<span class="c1"># for both alpha and beta spin orbitals</span>
 <span class="n">reference_occupations_spatial</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+
+<span class="c1"># Construct the full reference occupations, including alpha and beta parts</span>
 <span class="n">reference_occupations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
     <span class="nb">zip</span><span class="p">(</span><span class="n">reference_occupations_spatial</span><span class="p">,</span> <span class="n">reference_occupations_spatial</span><span class="p">)</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Compute-energy">
+<h2>Compute energy<a class="headerlink" href="#Compute-energy" title="Link to this heading">¶</a></h2>
+<p>The entanglement forging energy is computed using the <a class="reference internal" href="../api/ffsim.html#ffsim.multireference_state_prod"><span class="std std-ref">multireference_state_prod</span></a> function. The <code class="docutils literal notranslate"><span class="pre">prod</span></code> suffix refers to the fact that our ansatz operator is a product operator which acts on the alpha and beta spin sectors independently. In this case, we choose to use the same ansatz operator for both spin sectors, so we pass a tuple <code class="docutils literal notranslate"><span class="pre">(operator,</span> <span class="pre">operator)</span></code> of the same ansatz operator repeated twice.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the energy of the ansatz</span>
 <span class="n">energy</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">multireference_state_prod</span><span class="p">(</span>
     <span class="n">mol_hamiltonian</span><span class="p">,</span> <span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">operator</span><span class="p">),</span> <span class="n">reference_occupations</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
 <span class="p">)</span>
@@ -320,11 +369,15 @@ CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialialization: -74.20656273321637
+Energy at initialialization: -75.67794403659724
 </pre></div></div>
 </div>
+</section>
+<section id="Optimize-energy">
+<h2>Optimize energy<a class="headerlink" href="#Optimize-energy" title="Link to this heading">¶</a></h2>
+<p>Now that we know how to initialize an ansatz operator and compute its energy, we can put this logic in a function and minimize the function. Here, we minimizze the function using Scipy’s optimization module.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.optimize</span>
@@ -362,15 +415,16 @@ Number of parameters: 15
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -75.68085223489683
-        x: [ 2.996e+00 -7.549e-01 ...  2.650e+00  8.012e-01]
-      nit: 6
-      jac: [ 1.761e-03  9.119e-03 ... -1.192e-02  9.649e-04]
+      fun: -75.68381569163964
+        x: [-1.603e-01  6.422e-03 ...  5.748e-02 -1.005e-01]
+      nit: 3
+      jac: [ 2.146e-04  1.066e-04 ... -4.749e-03  7.427e-03]
      nfev: 112
      njev: 7
  hess_inv: &lt;15x15 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
+</section>
 </section>
 
         </article>
@@ -423,8 +477,31 @@ Number of parameters: 15
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">How to simulate entanglement forging</a><ul>
+<li><a class="reference internal" href="#Build-a-molecule">Build a molecule</a></li>
+<li><a class="reference internal" href="#Initialize-ansatz-operator">Initialize ansatz operator</a></li>
+<li><a class="reference internal" href="#Choose-reference-occupations">Choose reference occupations</a></li>
+<li><a class="reference internal" href="#Compute-energy">Compute energy</a></li>
+<li><a class="reference internal" href="#Optimize-energy">Optimize energy</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

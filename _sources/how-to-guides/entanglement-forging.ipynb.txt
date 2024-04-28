@@ -6,7 +6,11 @@
    "source": [
     "# How to simulate entanglement forging\n",
     "\n",
-    "In this guide, we show how to simulate entanglement forging for a water molecule at equilibrium."
+    "In this guide, we show how to simulate [entanglement forging](https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309).\n",
+    "\n",
+    "## Build a molecule\n",
+    "\n",
+    "We'll use, as an example, a water molecule at equilibrium bond length in an active space of 6 orbitals and 8 electrons."
    ]
   },
   {
@@ -18,8 +22,10 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "converged SCF energy = -75.6787887956297\n",
-      "CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000\n"
+      "converged SCF energy = -75.6787887956296\n",
+      "CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000\n",
+      "norb = 6\n",
+      "nelec = (4, 4)\n"
      ]
     }
    ],
@@ -32,9 +38,9 @@
     "import ffsim\n",
     "\n",
     "# Build a water molecule\n",
-    "radius_1 = 0.958  # position for the first H atom\n",
-    "radius_2 = 0.958  # position for the second H atom\n",
-    "bond_angle_deg = 104.478  # bond angles.\n",
+    "radius_1 = 0.958\n",
+    "radius_2 = 0.958\n",
+    "bond_angle_deg = 104.478\n",
     "\n",
     "h1_x = radius_1\n",
     "h2_x = radius_2 * math.cos(math.pi / 180 * bond_angle_deg)\n",
@@ -54,32 +60,37 @@
     "# Define active space\n",
     "active_space = range(1, mol.nao_nr())\n",
     "\n",
-    "# Get molecular data and molecular Hamiltonian (one- and two-body tensors)\n",
+    "# Get molecular data and molecular Hamiltonian\n",
     "mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)\n",
+    "norb, nelec = mol_data.norb, mol_data.nelec\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "\n",
+    "# Compute the FCI energy\n",
     "mol_data.run_fci()\n",
-    "norb = mol_data.norb\n",
-    "nelec = mol_data.nelec\n",
-    "mol_hamiltonian = mol_data.hamiltonian"
+    "\n",
+    "print(f\"norb = {norb}\")\n",
+    "print(f\"nelec = {nelec}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Initialize ansatz operator\n",
+    "\n",
+    "For our ansatz, we'll use a dense \"brickwork\" pattern of \"hop gates.\" This is implemented in ffsim as the [HopGateAnsatzOperator](../api/ffsim.rst#ffsim.HopGateAnsatzOperator) class."
    ]
   },
   {
    "cell_type": "code",
    "execution_count": 2,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Energy at initialialization: -74.20656273321636\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "import numpy as np\n",
     "\n",
     "\n",
-    "# Construct ansatz operator\n",
+    "# Define the pattern of two-qubit gates to use\n",
     "def brickwork(norb: int, n_layers: int):\n",
     "    for i in range(n_layers):\n",
     "        for j in range(i % 2, norb - 1, 2):\n",
@@ -88,15 +99,64 @@
     "\n",
     "n_layers = norb\n",
     "interaction_pairs = list(brickwork(norb, n_layers))\n",
-    "rng = np.random.default_rng(1234)\n",
-    "thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))\n",
-    "operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, thetas)\n",
     "\n",
-    "# Compute energy of ansatz state\n",
+    "# Generate random initial parameters\n",
+    "rng = np.random.default_rng(1234)\n",
+    "thetas = rng.normal(scale=1e-1, size=len(interaction_pairs))\n",
+    "\n",
+    "# Construct the ansatz operator\n",
+    "operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, thetas)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Choose reference occupations\n",
+    "\n",
+    "The next step is to choose the reference occupations to use. We'll use 3 reference occupations, and these will be constructed using the same occupations for the alpha and beta spin orbitals."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Specify the reference occupations as \"spatial\" since we'll use the same occupations\n",
+    "# for both alpha and beta spin orbitals\n",
     "reference_occupations_spatial = [(0, 1, 2, 3), (1, 2, 3, 4), (0, 1, 2, 4)]\n",
+    "\n",
+    "# Construct the full reference occupations, including alpha and beta parts\n",
     "reference_occupations = list(\n",
     "    zip(reference_occupations_spatial, reference_occupations_spatial)\n",
-    ")\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Compute energy\n",
+    "\n",
+    "The entanglement forging energy is computed using the [multireference_state_prod](../api/ffsim.rst#ffsim.multireference_state_prod) function. The `prod` suffix refers to the fact that our ansatz operator is a product operator which acts on the alpha and beta spin sectors independently. In this case, we choose to use the same ansatz operator for both spin sectors, so we pass a tuple `(operator, operator)` of the same ansatz operator repeated twice."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Energy at initialialization: -75.67794403659722\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Compute the energy of the ansatz\n",
     "energy, _ = ffsim.multireference_state_prod(\n",
     "    mol_hamiltonian, (operator, operator), reference_occupations, norb=norb, nelec=nelec\n",
     ")\n",
@@ -105,8 +165,17 @@
    ]
   },
   {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Optimize energy\n",
+    "\n",
+    "Now that we know how to initialize an ansatz operator and compute its energy, we can put this logic in a function and minimize the function. Here, we minimizze the function using Scipy's optimization module."
+   ]
+  },
+  {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": 5,
    "metadata": {},
    "outputs": [
     {
@@ -117,10 +186,10 @@
       "  message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT\n",
       "  success: False\n",
       "   status: 1\n",
-      "      fun: -75.68085338640815\n",
-      "        x: [ 2.996e+00 -7.549e-01 ...  2.650e+00  8.012e-01]\n",
-      "      nit: 6\n",
-      "      jac: [ 1.759e-03  9.115e-03 ... -1.192e-02  9.393e-04]\n",
+      "      fun: -75.68381563931977\n",
+      "        x: [-1.603e-01  6.417e-03 ...  5.748e-02 -1.005e-01]\n",
+      "      nit: 3\n",
+      "      jac: [ 2.146e-04  1.094e-04 ... -4.754e-03  7.401e-03]\n",
       "     nfev: 112\n",
       "     njev: 7\n",
       " hess_inv: <15x15 LbfgsInvHessProduct with dtype=float64>\n"
