@@ -263,15 +263,15 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">orbital_symmetries</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">:</span> <span class="n">SCF</span><span class="p">,</span> <span class="n">orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">symmetry</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">orbital_symmetries</span><span class="p">(</span>
+    <span class="n">mol</span><span class="p">:</span> <span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mol</span><span class="o">.</span><span class="n">symmetry</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">coeff</span> <span class="o">=</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">[:,</span> <span class="n">orbitals</span><span class="p">]</span>
-    <span class="n">idx</span> <span class="o">=</span> <span class="n">symm</span><span class="o">.</span><span class="n">label_orb_symm</span><span class="p">(</span>
-        <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">irrep_name</span><span class="p">,</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">symm_orb</span><span class="p">,</span> <span class="n">coeff</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">MOLPRO_ID</span><span class="p">[</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">groupname</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">]</span>
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">mo_coeff</span><span class="p">[:,</span> <span class="n">orbitals</span><span class="p">]</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">symm</span><span class="o">.</span><span class="n">label_orb_symm</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">irrep_name</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">symm_orb</span><span class="p">,</span> <span class="n">coeff</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">MOLPRO_ID</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">groupname</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="MolecularData">
@@ -403,7 +403,9 @@
             <span class="s2">&quot;xij,ip,jq-&gt;xpq&quot;</span><span class="p">,</span> <span class="n">dipole_integrals</span><span class="p">,</span> <span class="n">mo_coeffs</span><span class="p">,</span> <span class="n">mo_coeffs</span>
         <span class="p">)</span>
 
-        <span class="n">orbsym</span> <span class="o">=</span> <span class="n">orbital_symmetries</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="p">)</span>
+        <span class="n">orbsym</span> <span class="o">=</span> <span class="n">orbital_symmetries</span><span class="p">(</span>
+            <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">active_space</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
             <span class="n">atom</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
