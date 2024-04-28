@@ -432,7 +432,7 @@ impl FermionOperator {
     }
 }
 
-fn _normal_ordered_term(term: &Vec<(bool, bool, i32)>, coeff: &Complex64) -> FermionOperator {
+fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> FermionOperator {
     let mut coeffs = HashMap::new();
     let mut stack = vec![(term.to_vec(), *coeff)];
     while let Some((mut term, coeff)) = stack.pop() {
