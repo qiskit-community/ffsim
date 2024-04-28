@@ -33,14 +33,19 @@ from ffsim.spin import Spin
 class OrbitalRotationJW(Gate):
     r"""Orbital rotation under the Jordan-Wigner transformation.
 
-    The orbital rotation gate has the unitary
+    An orbital rotation maps creation operators as
+
+    .. math::
+
+        a^\dagger_{\sigma, i} \mapsto \sum_{j} U_{ji} a^\dagger_{\sigma, j}
+
+    where :math:`U` is a unitary matrix. This is equivalent to applying the
+    transformation given by
 
     .. math::
 
         \prod_{\sigma}
         \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
-
-    where :math:`U` is a unitary matrix.
 
     This gate assumes that qubits are ordered such that the first `norb` qubits
     correspond to the alpha orbitals and the last `norb` qubits correspond to the
