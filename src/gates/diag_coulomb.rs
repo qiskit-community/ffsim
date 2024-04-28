@@ -88,6 +88,7 @@ pub fn apply_diag_coulomb_evolution_in_place_num_rep(
 }
 
 /// Apply time evolution by a diagonal Coulomb operator in-place, Z representation.
+#[allow(clippy::too_many_arguments)]
 #[pyfunction]
 pub fn apply_diag_coulomb_evolution_in_place_z_rep(
     mut vec: PyReadwriteArray2<Complex64>,

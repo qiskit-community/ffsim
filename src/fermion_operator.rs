@@ -14,6 +14,7 @@ use pyo3::exceptions::PyKeyError;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 #[pyclass]
@@ -202,11 +203,11 @@ impl FermionOperator {
             .copied()
     }
 
-    fn __setitem__(&mut self, key: Vec<(bool, bool, i32)>, value: Complex64) -> () {
+    fn __setitem__(&mut self, key: Vec<(bool, bool, i32)>, value: Complex64) {
         self.coeffs.insert(key, value);
     }
 
-    fn __delitem__(&mut self, key: Vec<(bool, bool, i32)>) -> () {
+    fn __delitem__(&mut self, key: Vec<(bool, bool, i32)>) {
         self.coeffs.remove(&key);
     }
 
@@ -223,12 +224,9 @@ impl FermionOperator {
         Py::new(slf.py(), KeysIterator { keys })
     }
 
-    fn __iadd__(&mut self, other: &Self) -> () {
+    fn __iadd__(&mut self, other: &Self) {
         for (term, coeff) in &other.coeffs {
-            let val = self
-                .coeffs
-                .entry(term.to_vec())
-                .or_insert(Complex64::default());
+            let val = self.coeffs.entry(term.to_vec()).or_default();
             *val += coeff;
         }
     }
@@ -239,12 +237,9 @@ impl FermionOperator {
         result
     }
 
-    fn __isub__(&mut self, other: &Self) -> () {
+    fn __isub__(&mut self, other: &Self) {
         for (term, coeff) in &other.coeffs {
-            let val = self
-                .coeffs
-                .entry(term.to_vec())
-                .or_insert(Complex64::default());
+            let val = self.coeffs.entry(term.to_vec()).or_default();
             *val -= coeff;
         }
     }
@@ -261,7 +256,7 @@ impl FermionOperator {
         result
     }
 
-    fn __itruediv__(&mut self, other: Complex64) -> () {
+    fn __itruediv__(&mut self, other: Complex64) {
         for coeff in self.coeffs.values_mut() {
             *coeff /= other
         }
@@ -275,7 +270,7 @@ impl FermionOperator {
         Self { coeffs }
     }
 
-    fn __imul__(&mut self, other: Complex64) -> () {
+    fn __imul__(&mut self, other: Complex64) {
         for coeff in self.coeffs.values_mut() {
             *coeff *= other
         }
@@ -428,11 +423,11 @@ impl FermionOperator {
                 return false;
             }
         }
-        return true;
+        true
     }
 }
 
-fn _normal_ordered_term(term: &Vec<(bool, bool, i32)>, coeff: &Complex64) -> FermionOperator {
+fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> FermionOperator {
     let mut coeffs = HashMap::new();
     let mut stack = vec![(term.to_vec(), *coeff)];
     while let Some((mut term, coeff)) = stack.pop() {
@@ -444,15 +439,19 @@ fn _normal_ordered_term(term: &Vec<(bool, bool, i32)>, coeff: &Complex64) -> Fer
                 let (action_left, spin_left, index_left) = term[j - 1];
                 if action_right == action_left {
                     // both create or both destroy
-                    if (spin_right, index_right) == (spin_left, index_left) {
-                        // operators are the same, so product is zero
-                        return FermionOperator {
-                            coeffs: HashMap::new(),
-                        };
-                    } else if (spin_right, index_right) > (spin_left, index_left) {
-                        // swap operators and update sign
-                        term.swap(j - 1, j);
-                        parity = !parity;
+                    match (spin_right, index_right).cmp(&(spin_left, index_left)) {
+                        Ordering::Equal => {
+                            // operators are the same, so product is zero
+                            return FermionOperator {
+                                coeffs: HashMap::new(),
+                            };
+                        }
+                        Ordering::Greater => {
+                            // swap operators and update sign
+                            term.swap(j - 1, j);
+                            parity = !parity;
+                        }
+                        Ordering::Less => {}
                     }
                 } else if action_right && !action_left {
                     // create on right and destroy on left
