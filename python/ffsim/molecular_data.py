@@ -43,15 +43,15 @@ MOLPRO_ID = {
 }
 
 
-def orbital_symmetries(hartree_fock: SCF, orbitals: Sequence[int]) -> list[int] | None:
-    if not hartree_fock.mol.symmetry:
+def orbital_symmetries(
+    mol: gto.Mole, mo_coeff: np.ndarray, orbitals: Sequence[int]
+) -> list[int] | None:
+    if not mol.symmetry:
         return None
 
-    coeff = hartree_fock.mo_coeff[:, orbitals]
-    idx = symm.label_orb_symm(
-        hartree_fock.mol, hartree_fock.mol.irrep_name, hartree_fock.mol.symm_orb, coeff
-    )
-    return [MOLPRO_ID[hartree_fock.mol.groupname][i] for i in idx]
+    coeff = mo_coeff[:, orbitals]
+    idx = symm.label_orb_symm(mol, mol.irrep_name, mol.symm_orb, coeff)
+    return [MOLPRO_ID[mol.groupname][i] for i in idx]
 
 
 @dataclasses.dataclass
@@ -179,7 +179,9 @@ class MolecularData:
             "xij,ip,jq->xpq", dipole_integrals, mo_coeffs, mo_coeffs
         )
 
-        orbsym = orbital_symmetries(hartree_fock, active_space)
+        orbsym = orbital_symmetries(
+            hartree_fock.mol, hartree_fock.mo_coeff, active_space
+        )
 
         return MolecularData(
             atom=hartree_fock.mol.atom,
