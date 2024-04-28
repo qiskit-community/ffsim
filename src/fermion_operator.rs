@@ -14,6 +14,7 @@ use pyo3::exceptions::PyKeyError;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 #[pyclass]
@@ -225,10 +226,7 @@ impl FermionOperator {
 
     fn __iadd__(&mut self, other: &Self) {
         for (term, coeff) in &other.coeffs {
-            let val = self
-                .coeffs
-                .entry(term.to_vec())
-                .or_default();
+            let val = self.coeffs.entry(term.to_vec()).or_default();
             *val += coeff;
         }
     }
@@ -241,10 +239,7 @@ impl FermionOperator {
 
     fn __isub__(&mut self, other: &Self) {
         for (term, coeff) in &other.coeffs {
-            let val = self
-                .coeffs
-                .entry(term.to_vec())
-                .or_default();
+            let val = self.coeffs.entry(term.to_vec()).or_default();
             *val -= coeff;
         }
     }
@@ -444,15 +439,19 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
                 let (action_left, spin_left, index_left) = term[j - 1];
                 if action_right == action_left {
                     // both create or both destroy
-                    if (spin_right, index_right) == (spin_left, index_left) {
-                        // operators are the same, so product is zero
-                        return FermionOperator {
-                            coeffs: HashMap::new(),
-                        };
-                    } else if (spin_right, index_right) > (spin_left, index_left) {
-                        // swap operators and update sign
-                        term.swap(j - 1, j);
-                        parity = !parity;
+                    match (spin_right, index_right).cmp(&(spin_left, index_left)) {
+                        Ordering::Equal => {
+                            // operators are the same, so product is zero
+                            return FermionOperator {
+                                coeffs: HashMap::new(),
+                            };
+                        }
+                        Ordering::Greater => {
+                            // swap operators and update sign
+                            term.swap(j - 1, j);
+                            parity = !parity;
+                        }
+                        Ordering::Less => {}
                     }
                 } else if action_right && !action_left {
                     // create on right and destroy on left
