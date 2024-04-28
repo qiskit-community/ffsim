@@ -301,13 +301,18 @@ beta orbitals.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">OrbitalRotationJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol=1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol=1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/orbital_rotation.html#OrbitalRotationJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.OrbitalRotationJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
 <p>Orbital rotation under the Jordan-Wigner transformation.</p>
-<p>The orbital rotation gate has the unitary</p>
+<p>An orbital rotation maps creation operators as</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[a^\dagger_{\sigma, i} \mapsto \sum_{j} U_{ji} a^\dagger_{\sigma, j}\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(U\)</span> is a unitary matrix. This is equivalent to applying the
+transformation given by</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\prod_{\sigma}
 \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)\]</div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(U\)</span> is a unitary matrix.</p>
 <p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
 correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
 beta orbitals.</p>
