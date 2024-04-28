@@ -202,11 +202,11 @@ impl FermionOperator {
             .copied()
     }
 
-    fn __setitem__(&mut self, key: Vec<(bool, bool, i32)>, value: Complex64) -> () {
+    fn __setitem__(&mut self, key: Vec<(bool, bool, i32)>, value: Complex64) {
         self.coeffs.insert(key, value);
     }
 
-    fn __delitem__(&mut self, key: Vec<(bool, bool, i32)>) -> () {
+    fn __delitem__(&mut self, key: Vec<(bool, bool, i32)>) {
         self.coeffs.remove(&key);
     }
 
@@ -223,12 +223,12 @@ impl FermionOperator {
         Py::new(slf.py(), KeysIterator { keys })
     }
 
-    fn __iadd__(&mut self, other: &Self) -> () {
+    fn __iadd__(&mut self, other: &Self) {
         for (term, coeff) in &other.coeffs {
             let val = self
                 .coeffs
                 .entry(term.to_vec())
-                .or_insert(Complex64::default());
+                .or_default();
             *val += coeff;
         }
     }
@@ -239,12 +239,12 @@ impl FermionOperator {
         result
     }
 
-    fn __isub__(&mut self, other: &Self) -> () {
+    fn __isub__(&mut self, other: &Self) {
         for (term, coeff) in &other.coeffs {
             let val = self
                 .coeffs
                 .entry(term.to_vec())
-                .or_insert(Complex64::default());
+                .or_default();
             *val -= coeff;
         }
     }
@@ -261,7 +261,7 @@ impl FermionOperator {
         result
     }
 
-    fn __itruediv__(&mut self, other: Complex64) -> () {
+    fn __itruediv__(&mut self, other: Complex64) {
         for coeff in self.coeffs.values_mut() {
             *coeff /= other
         }
@@ -275,7 +275,7 @@ impl FermionOperator {
         Self { coeffs }
     }
 
-    fn __imul__(&mut self, other: Complex64) -> () {
+    fn __imul__(&mut self, other: Complex64) {
         for coeff in self.coeffs.values_mut() {
             *coeff *= other
         }
@@ -428,7 +428,7 @@ impl FermionOperator {
                 return false;
             }
         }
-        return true;
+        true
     }
 }
 
