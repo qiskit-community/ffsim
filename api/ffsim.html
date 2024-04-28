@@ -572,10 +572,79 @@ appear before smaller orbital indices.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">HopGateAnsatzOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.HopGateAnsatzOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A hop gate ansatz operator.</p>
+<p>The hop gate ansatz consists of a sequence of <a class="reference external" href="ffsim.html#ffsim.apply_hop_gate">hop gates</a>.</p>
+<p>Note that this ansatz does not implement any interactions between spin alpha and
+spin beta orbitals. It was designed to be used with <a class="reference external" href="https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309">entanglement forging</a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator.norb">
+<span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.HopGateAnsatzOperator.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator.interaction_pairs">
+<span class="sig-name descname"><span class="pre">interaction_pairs</span></span><a class="headerlink" href="#ffsim.HopGateAnsatzOperator.interaction_pairs" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital pairs to apply the hop
+gates to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[tuple[int, int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator.thetas">
+<span class="sig-name descname"><span class="pre">thetas</span></span><a class="headerlink" href="#ffsim.HopGateAnsatzOperator.thetas" title="Link to this definition">¶</a></dt>
+<dd><p>The rotation angles for the hop gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator.final_orbital_rotation">
+<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.HopGateAnsatzOperator.final_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>An optional final orbital rotation to
+append to the ansatz, used to optimize the orbital basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.HopGateAnsatzOperator.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The orbital pairs to apply the hop gates to.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the ansatz operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.HopGateAnsatzOperator" title="ffsim.variational.hopgate.HopGateAnsatzOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">HopGateAnsatzOperator</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.HopGateAnsatzOperator.to_parameters">
 <span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/hopgate.html#HopGateAnsatzOperator.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.HopGateAnsatzOperator.to_parameters" title="Link to this definition">¶</a></dt>
-<dd><p>Convert the hop gate ansatz operator to a real-valued parameter vector.</p>
+<dd><p>Convert the operator to a real-valued parameter vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
@@ -1323,25 +1392,47 @@ orbital rotation can be included in the operator, to be performed at the end.</p
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.UCJOperator.diag_coulomb_mats_alpha_alpha">
 <span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span><a class="headerlink" href="#ffsim.UCJOperator.diag_coulomb_mats_alpha_alpha" title="Link to this definition">¶</a></dt>
-<dd><p>The “alpha-alpha” diagonal Coulomb matrices.</p>
+<dd><p>The “alpha-alpha” diagonal Coulomb
+matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.UCJOperator.diag_coulomb_mats_alpha_beta">
 <span class="sig-name descname"><span class="pre">diag_coulomb_mats_alpha_beta</span></span><a class="headerlink" href="#ffsim.UCJOperator.diag_coulomb_mats_alpha_beta" title="Link to this definition">¶</a></dt>
-<dd><p>The “alpha-beta” diagonal Coulomb matrices.</p>
+<dd><p>The “alpha-beta” diagonal Coulomb
+matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.UCJOperator.orbital_rotations">
 <span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.UCJOperator.orbital_rotations" title="Link to this definition">¶</a></dt>
 <dd><p>The orbital rotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.UCJOperator.final_orbital_rotation">
 <span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOperator.final_orbital_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>The optional final orbital rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -2865,6 +2956,11 @@ describes the orbitals of the Slater determinant.</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.HopGateAnsatzOperator"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.HopGateAnsatzOperator.norb"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.HopGateAnsatzOperator.interaction_pairs"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator.interaction_pairs</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.HopGateAnsatzOperator.thetas"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator.thetas</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.HopGateAnsatzOperator.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator.final_orbital_rotation</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.HopGateAnsatzOperator.from_parameters"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator.from_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.HopGateAnsatzOperator.to_parameters"><code class="docutils literal notranslate"><span class="pre">HopGateAnsatzOperator.to_parameters()</span></code></a></li>
 </ul>
 </li>

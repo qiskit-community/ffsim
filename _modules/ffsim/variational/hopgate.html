@@ -248,7 +248,24 @@
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.HopGateAnsatzOperator">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">HopGateAnsatzOperator</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A hop gate ansatz operator.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A hop gate ansatz operator.</span>
+
+<span class="sd">    The hop gate ansatz consists of a sequence of `hop gates`_.</span>
+
+<span class="sd">    Note that this ansatz does not implement any interactions between spin alpha and</span>
+<span class="sd">    spin beta orbitals. It was designed to be used with `entanglement forging`_.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        norb (int): The number of spatial orbitals.</span>
+<span class="sd">        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the hop</span>
+<span class="sd">            gates to.</span>
+<span class="sd">        thetas (np.ndarray): The rotation angles for the hop gates.</span>
+<span class="sd">        final_orbital_rotation (np.ndarray): An optional final orbital rotation to</span>
+<span class="sd">            append to the ansatz, used to optimize the orbital basis.</span>
+
+<span class="sd">    .. _hop gates: ffsim.html#ffsim.apply_hop_gate</span>
+<span class="sd">    .. _entanglement forging: https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
@@ -280,7 +297,7 @@
 <div class="viewcode-block" id="HopGateAnsatzOperator.to_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.HopGateAnsatzOperator.to_parameters">[docs]</a>
     <span class="k">def</span> <span class="nf">to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the hop gate ansatz operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
         <span class="n">num_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">num_params</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="o">**</span><span class="mi">2</span>
@@ -293,6 +310,8 @@
         <span class="k">return</span> <span class="n">params</span></div>
 
 
+<div class="viewcode-block" id="HopGateAnsatzOperator.from_parameters">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.HopGateAnsatzOperator.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -300,6 +319,15 @@
         <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
         <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HopGateAnsatzOperator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the operator from a real-valued parameter vector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params: The real-valued parameter vector.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            interaction_pairs: The orbital pairs to apply the hop gates to.</span>
+<span class="sd">            with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">                in the ansatz operator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
             <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation_from_parameters</span><span class="p">(</span>
@@ -312,6 +340,7 @@
             <span class="n">thetas</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
             <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
         <span class="p">)</span></div>
+</div>
 
 </pre></div>
         </article>
