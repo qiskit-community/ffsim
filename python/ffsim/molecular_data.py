@@ -8,50 +8,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""The MolecularData class."""
+
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 
 import numpy as np
 import pyscf.scf
 from pyscf import ao2mo, cc, gto, mcscf, mp, symm
 from pyscf.scf.hf import SCF
+from pyscf.symm.param import IRREP_ID_MOLPRO
 
 from ffsim.hamiltonians import MolecularHamiltonian
-
-MOLPRO_ID = {
-    "D2h": {
-        "Ag": 1,
-        "B1g": 4,
-        "B2g": 6,
-        "B3g": 7,
-        "Au": 8,
-        "B1u": 5,
-        "B2u": 3,
-        "B3u": 2,
-    },
-    "C2v": {"A1": 1, "A2": 4, "B1": 2, "B2": 3},
-    "C2h": {"Ag": 1, "Bg": 4, "Au": 2, "Bu": 3},
-    "D2": {"A ": 1, "B1": 4, "B2": 3, "B3": 2},
-    "Cs": {"A'": 1, 'A"': 2},
-    "C2": {"A": 1, "B": 2},
-    "Ci": {"Ag": 1, "Au": 2},
-    "C1": {
-        "A": 1,
-    },
-}
-
-
-def orbital_symmetries(
-    mol: gto.Mole, mo_coeff: np.ndarray, orbitals: Sequence[int]
-) -> list[int] | None:
-    if not mol.symmetry:
-        return None
-
-    coeff = mo_coeff[:, orbitals]
-    idx = symm.label_orb_symm(mol, mol.irrep_name, mol.symm_orb, coeff)
-    return [MOLPRO_ID[mol.groupname][i] for i in idx]
 
 
 @dataclasses.dataclass
@@ -154,40 +124,46 @@ class MolecularData:
             )
         hf_energy = hartree_fock.e_tot
 
-        # get core energy and one- and two-body integrals
+        mol: gto.Mole = hartree_fock.mol
+
+        # Get core energy and one- and two-body integrals.
         if active_space is None:
-            norb = hartree_fock.mol.nao_nr()
+            norb = mol.nao_nr()
             active_space = range(norb)
         active_space = list(active_space)
         norb = len(active_space)
         n_electrons = int(sum(hartree_fock.mo_occ[active_space]))
-        n_alpha = (n_electrons + hartree_fock.mol.spin) // 2
-        n_beta = (n_electrons - hartree_fock.mol.spin) // 2
+        n_alpha = (n_electrons + mol.spin) // 2
+        n_beta = (n_electrons - mol.spin) // 2
         cas = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
         mo = cas.sort_mo(active_space, base=0)
         one_body_tensor, core_energy = cas.get_h1cas(mo)
         two_body_integrals = cas.get_h2cas(mo)
 
-        # compute dipole integrals
-        charges = hartree_fock.mol.atom_charges()
-        coords = hartree_fock.mol.atom_coords()
+        # Get dipole integrals.
+        charges = mol.atom_charges()
+        coords = mol.atom_coords()
         nuc_charge_center = np.einsum("z,zx->x", charges, coords) / charges.sum()
-        hartree_fock.mol.set_common_orig_(nuc_charge_center)
+        mol.set_common_orig_(nuc_charge_center)
         mo_coeffs = hartree_fock.mo_coeff[:, active_space]
-        dipole_integrals = hartree_fock.mol.intor("cint1e_r_sph", comp=3)
+        dipole_integrals = mol.intor("cint1e_r_sph", comp=3)
         dipole_integrals = np.einsum(
             "xij,ip,jq->xpq", dipole_integrals, mo_coeffs, mo_coeffs
         )
 
-        orbsym = orbital_symmetries(
-            hartree_fock.mol, hartree_fock.mo_coeff, active_space
-        )
+        # Get orbital symmetries.
+        orbsym = None
+        if mol.symmetry:
+            idx = symm.label_orb_symm(
+                mol, mol.irrep_id, mol.symm_orb, hartree_fock.mo_coeff[:, active_space]
+            )
+            orbsym = [IRREP_ID_MOLPRO[mol.groupname][i] for i in idx]
 
         return MolecularData(
-            atom=hartree_fock.mol.atom,
-            basis=hartree_fock.mol.basis,
-            spin=hartree_fock.mol.spin,
-            symmetry=hartree_fock.mol.symmetry or None,
+            atom=mol.atom,
+            basis=mol.basis,
+            spin=mol.spin,
+            symmetry=mol.symmetry or None,
             norb=norb,
             nelec=(n_alpha, n_beta),
             mo_coeff=hartree_fock.mo_coeff,
