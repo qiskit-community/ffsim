@@ -26,7 +26,24 @@ from ffsim.variational.util import (
 
 @dataclass(frozen=True)
 class HopGateAnsatzOperator:
-    r"""A hop gate ansatz operator."""
+    """A hop gate ansatz operator.
+
+    The hop gate ansatz consists of a sequence of `hop gates`_.
+
+    Note that this ansatz does not implement any interactions between spin alpha and
+    spin beta orbitals. It was designed to be used with `entanglement forging`_.
+
+    Attributes:
+        norb (int): The number of spatial orbitals.
+        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the hop
+            gates to.
+        thetas (np.ndarray): The rotation angles for the hop gates.
+        final_orbital_rotation (np.ndarray): An optional final orbital rotation to
+            append to the ansatz, used to optimize the orbital basis.
+
+    .. _hop gates: ffsim.html#ffsim.apply_hop_gate
+    .. _entanglement forging: https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309
+    """
 
     norb: int
     interaction_pairs: list[tuple[int, int]]
@@ -56,7 +73,7 @@ class HopGateAnsatzOperator:
         return vec
 
     def to_parameters(self) -> np.ndarray:
-        """Convert the hop gate ansatz operator to a real-valued parameter vector."""
+        """Convert the operator to a real-valued parameter vector."""
         num_params = len(self.thetas)
         if self.final_orbital_rotation is not None:
             num_params += self.norb**2
@@ -75,6 +92,15 @@ class HopGateAnsatzOperator:
         interaction_pairs: list[tuple[int, int]],
         with_final_orbital_rotation: bool = False,
     ) -> HopGateAnsatzOperator:
+        """Initialize the operator from a real-valued parameter vector.
+
+        Args:
+            params: The real-valued parameter vector.
+            norb: The number of spatial orbitals.
+            interaction_pairs: The orbital pairs to apply the hop gates to.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the ansatz operator.
+        """
         final_orbital_rotation = None
         if with_final_orbital_rotation:
             final_orbital_rotation = orbital_rotation_from_parameters(

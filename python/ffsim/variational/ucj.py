@@ -69,10 +69,12 @@ class UCJOperator:
     orbital rotation can be included in the operator, to be performed at the end.
 
     Attributes:
-        diag_coulomb_mats_alpha_alpha: The "alpha-alpha" diagonal Coulomb matrices.
-        diag_coulomb_mats_alpha_beta: The "alpha-beta" diagonal Coulomb matrices.
-        orbital_rotations: The orbital rotations.
-        final_orbital_rotation: The optional final orbital rotation.
+        diag_coulomb_mats_alpha_alpha (np.ndarray): The "alpha-alpha" diagonal Coulomb
+            matrices.
+        diag_coulomb_mats_alpha_beta (np.ndarray): The "alpha-beta" diagonal Coulomb
+            matrices.
+        orbital_rotations (np.ndarray): The orbital rotations.
+        final_orbital_rotation (np.ndarray): The optional final orbital rotation.
     """
 
     diag_coulomb_mats_alpha_alpha: np.ndarray
