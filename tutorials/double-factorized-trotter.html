@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Explanations" href="../explanations/index.html" /><link rel="prev" title="Tutorials" href="index.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
         <title>Implementing Trotter simulation of the double-factorized Hamiltonian - ffsim 0.0.29.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -112,6 +112,8 @@
 <label class="overlay toc-overlay" for="__toc">
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -217,7 +219,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="Implementing-Trotter-simulation-of-the-double-factorized-Hamiltonian">
 <h1>Implementing Trotter simulation of the double-factorized Hamiltonian<a class="headerlink" href="#Implementing-Trotter-simulation-of-the-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h1>
 <p>In this tutorial, we’ll write a function to implement approximate time evolution of the double-factorized Hamiltonian via a Trotter-Suzuki formula. See <a class="reference internal" href="../explanations/double-factorized.html"><span class="doc">Double-factorized representation of the molecular Hamiltonian</span></a> for background information. We’ll compare our implementation with exact time evolution computed using direct operator exponentiation, as well as ffsim’s built-in implementation
@@ -404,7 +406,7 @@ Number of terms: 10
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Maximum error in a tensor entry: 0.03668541730983621
+Maximum error in a tensor entry: 0.03668541730983654
 </pre></div></div>
 </div>
 </section>
@@ -545,7 +547,7 @@ Maximum error in a tensor entry: 0.03668541730983621
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9402393963408698
+Fidelity of Trotter-evolved state with exact state: 0.9402393562170944
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
@@ -572,7 +574,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9402393963408698
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9985211223917133
+Fidelity of Trotter-evolved state with exact state: 0.9985211214227874
 </pre></div></div>
 </div>
 <p>In the code cell below, we reproduce the results of our manually implemented function using ffsim’s built-in implementation.</p>
@@ -600,7 +602,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9985211223917133
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9985211223917133
+Fidelity of Trotter-evolved state with exact state: 0.9985211214227874
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -628,7 +630,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9985211223917133
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9996731166932737
+Fidelity of Trotter-evolved state with exact state: 0.9996731166931656
 </pre></div></div>
 </div>
 <p>You’ve made it to the end of this tutorial!</p>
@@ -714,7 +716,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9996731166932737
 </div><script src="../_static/documentation_options.js?v=482dcbc7"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>

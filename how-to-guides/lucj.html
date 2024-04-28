@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.04.27 -->
         <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.29.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=437aa6ec" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
@@ -112,6 +112,8 @@
 <label class="overlay toc-overlay" for="__toc">
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -217,7 +219,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
 <h1>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h1>
 <p>In this guide, we show how to use ffsim to simulate the local unitary cluster Jastrow (LUCJ) ansatz. We’ll use it to calculate the ground state energy of an ethene molecule at a stretched bond length.</p>
@@ -278,7 +280,7 @@ converged SCF energy = -77.4456267643962
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -332,7 +334,7 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754471  E_corr = -0.04824536314851204
+E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851426
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -340,7 +342,7 @@ E(CCSD) = -77.49387212754471  E_corr = -0.04824536314851204
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialization: -77.46975600021713
+Energy at initialization: -77.46975600021682
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -379,10 +381,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50959849386176
-        x: [ 1.252e+00  6.197e-01 ...  8.735e-02  1.372e-01]
+      fun: -77.50964208921543
+        x: [ 1.377e+00 -5.944e-01 ...  8.757e-02  1.396e-01]
       nit: 5
-      jac: [ 1.478e-04 -5.457e-04 ... -3.664e-03 -4.749e-03]
+      jac: [-1.293e-04  7.887e-04 ... -4.161e-03 -3.082e-03]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -445,10 +447,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.45740351690795
-        x: [ 1.249e+00  6.247e-01 ... -1.960e-03  1.489e-02]
+      fun: -77.45740688502646
+        x: [ 1.381e+00 -5.826e-01 ...  1.481e-03  1.330e-02]
       nit: 5
-      jac: [-1.151e-04  2.416e-04 ... -2.838e-03 -2.326e-03]
+      jac: [-2.913e-04  8.384e-04 ... -1.411e-03 -3.195e-03]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -532,34 +534,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.45802987903667
-       x: [ 1.252e+00  6.075e-01 ...  1.258e-02  2.615e-02]
+     fun: -77.45817253012555
+       x: [ 1.353e+00 -6.009e-01 ...  1.455e-02 -2.196e-03]
      nit: 5
-     jac: [-4.664e-04  2.288e-04 ... -1.905e-03 -1.598e-03]
-    nfev: 634
+     jac: [ 9.659e-05 -7.160e-04 ...  3.922e-04 -3.942e-04]
+    nfev: 685
     njev: 5
-  nlinop: 404
+  nlinop: 455
 
 Iteration 1
-    Energy: -77.45025618217252
-    Norm of gradient: 0.020493545259546123
-    Regularization hyperparameter: 0.9999798384263393
-    Variation hyperparameter: 0.5002314208443519
+    Energy: -77.45723850532458
+    Norm of gradient: 0.010240565713798751
+    Regularization hyperparameter: 0.026872259692431563
+    Variation hyperparameter: 0.9896763297657888
 Iteration 2
-    Energy: -77.45038989765435
-    Norm of gradient: 0.01941478845053228
-    Regularization hyperparameter: 0.9998714140765431
-    Variation hyperparameter: 0.5002360992253183
+    Energy: -77.45809695179406
+    Norm of gradient: 0.007656010499425012
+    Regularization hyperparameter: 0.0006212634243098846
+    Variation hyperparameter: 0.9896497484571569
 Iteration 3
-    Energy: -77.45697091760127
-    Norm of gradient: 0.013827106764811749
-    Regularization hyperparameter: 0.024723574022556444
-    Variation hyperparameter: 0.51657040904096
+    Energy: -77.45812333181996
+    Norm of gradient: 0.007452930369547866
+    Regularization hyperparameter: 1.0504713037666764
+    Variation hyperparameter: 0.9896391785068874
 Iteration 4
-    Energy: -77.45800531227616
-    Norm of gradient: 0.008868752518927958
-    Regularization hyperparameter: 0.0003720915743346747
-    Variation hyperparameter: 0.5247193003580154
+    Energy: -77.4581484149855
+    Norm of gradient: 0.007274039439093667
+    Regularization hyperparameter: 1.0504713037920423
+    Variation hyperparameter: 0.989639178506126
 </pre></div></div>
 </div>
 </section>
@@ -645,7 +647,7 @@ Iteration 4
 </div><script src="../_static/documentation_options.js?v=482dcbc7"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
