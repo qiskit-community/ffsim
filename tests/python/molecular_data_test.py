@@ -14,7 +14,7 @@ import pyscf.data.elements
 import ffsim
 
 
-def test_molecular_data():
+def test_molecular_data_sym():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
@@ -31,3 +31,21 @@ def test_molecular_data():
     mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
 
     assert mol_data.orbital_symmetries == [1, 5, 3, 2, 1, 6, 7, 5]
+
+
+def test_molecular_data_no_sym():
+    # Build N2 molecule
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        basis="sto-6g",
+    )
+
+    # Define active space
+    n_frozen = pyscf.data.elements.chemcore(mol)
+    active_space = range(n_frozen, mol.nao_nr())
+
+    # Get molecular data and Hamiltonian
+    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
+
+    assert mol_data.orbital_symmetries is None
