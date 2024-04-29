@@ -21,6 +21,7 @@ from pyscf.fci import cistring
 from pyscf.fci.spin_op import contract_ss
 
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
+from ffsim.spin import Spin
 
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
@@ -72,18 +73,30 @@ def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
 def slater_determinant(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray | None = None,
+    orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None,
 ) -> np.ndarray:
-    """Return a Slater determinant.
+    r"""Return a Slater determinant.
+
+    A Slater determinant is a state of the form
+
+    .. math::
+
+        \mathcal{U} \lvert x \rangle,
+
+    where :math:`\mathcal{U}` is an
+    :doc:`orbital rotation </explanations/orbital-rotation>` and
+    :math:`\lvert x \rangle` is an electronic configuration.
 
     Args:
         norb: The number of spatial orbitals.
-        occupied_orbitals: A pair of lists of integers. The first list specifies
-            the occupied alpha orbitals and the second list specifies the occupied
-            beta orbitals.
-        orbital_rotation: An optional orbital rotation to apply to the
-            electron configuration. In other words, this is a unitary matrix that
-            describes the orbitals of the Slater determinant.
+        occupied_orbitals: The occupied orbitals in the electonic configuration.
+            This is a pair of lists of integers, where the first list specifies the
+            spin alpha orbitals and the second list specifies the spin beta
+            orbitals.
+        orbital_rotation: The orbital rotation. You can pass either a single Numpy
+            array specifying the orbital rotation to apply to both spin sectors, or
+            you can pass a pair of Numpy arrays to specify independent orbital
+            rotations for spin alpha and spin beta.
 
     Returns:
         The Slater determinant as a statevector.
@@ -106,7 +119,28 @@ def slater_determinant(
     beta_index = cistring.str2addr(norb, n_beta, beta_string)
     vec = one_hot((dim1, dim2), (alpha_index, beta_index), dtype=complex).reshape(-1)
     if orbital_rotation is not None:
-        vec = apply_orbital_rotation(vec, orbital_rotation, norb=norb, nelec=nelec)
+        if isinstance(orbital_rotation, np.ndarray):
+            vec = apply_orbital_rotation(
+                vec, orbital_rotation, norb=norb, nelec=nelec, copy=False
+            )
+        else:
+            orbital_rotation_a, orbital_rotation_b = orbital_rotation
+            vec = apply_orbital_rotation(
+                vec,
+                orbital_rotation_a,
+                norb=norb,
+                nelec=nelec,
+                spin=Spin.ALPHA,
+                copy=False,
+            )
+            vec = apply_orbital_rotation(
+                vec,
+                orbital_rotation_b,
+                norb=norb,
+                nelec=nelec,
+                spin=Spin.BETA,
+                copy=False,
+            )
     return vec
 
 
@@ -129,28 +163,33 @@ def hartree_fock_state(norb: int, nelec: tuple[int, int]) -> np.ndarray:
 def slater_determinant_rdm(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray | None = None,
+    orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None,
     rank: int = 1,
     spin_summed: bool = True,
 ) -> np.ndarray:
-    """Return the reduced density matrix of a Slater determinant.
+    """Return the reduced density matrix of a `Slater determinant`_.
 
     Note:
         Currently, only rank 1 is supported.
 
     Args:
         norb: The number of spatial orbitals.
-        occupied_orbitals: A tuple of two sequences of integers. The first
-            sequence contains the indices of the occupied alpha orbitals, and
-            the second sequence similarly for the beta orbitals.
-        orbital_rotation: An optional orbital rotation to apply to the
-            electron configuration. In other words, this is a unitary matrix that
-            describes the orbitals of the Slater determinant.
-        rank: The rank of the reduced density matrix.
+        occupied_orbitals: The occupied orbitals in the electonic configuration.
+            This is a pair of lists of integers, where the first list specifies the
+            spin alpha orbitals and the second list specifies the spin beta
+            orbitals.
+        orbital_rotation: The orbital rotation. You can pass either a single Numpy
+            array specifying the orbital rotation to apply to both spin sectors, or
+            you can pass a pair of Numpy arrays to specify independent orbital
+            rotations for spin alpha and spin beta.
+        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the
+            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.
         spin_summed: Whether to sum over the spin index.
 
     Returns:
         The reduced density matrix of the Slater determinant.
+
+    .. _Slater determinant: ffsim.html#ffsim.slater_determinant
     """
     if rank == 1:
         rdm_a = np.zeros((norb, norb), dtype=complex)
@@ -162,8 +201,13 @@ def slater_determinant_rdm(
         if len(beta_orbitals):
             rdm_b[(beta_orbitals, beta_orbitals)] = 1
         if orbital_rotation is not None:
-            rdm_a = orbital_rotation.conj() @ rdm_a @ orbital_rotation.T
-            rdm_b = orbital_rotation.conj() @ rdm_b @ orbital_rotation.T
+            if isinstance(orbital_rotation, np.ndarray):
+                orbital_rotation_a = orbital_rotation
+                orbital_rotation_b = orbital_rotation
+            else:
+                orbital_rotation_a, orbital_rotation_b = orbital_rotation
+            rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
+            rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
         if spin_summed:
             return rdm_a + rdm_b
         return scipy.linalg.block_diag(rdm_a, rdm_b)
