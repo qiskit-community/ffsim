@@ -15,6 +15,7 @@ from __future__ import annotations
 import numpy as np
 import pyscf
 import pytest
+import scipy.linalg
 
 import ffsim
 
@@ -27,7 +28,7 @@ def test_slater_determinant():
     occ_a, occ_b = occupied_orbitals
 
     one_body_tensor = ffsim.random.random_hermitian(norb)
-    eigs, orbital_rotation = np.linalg.eigh(one_body_tensor)
+    eigs, orbital_rotation = scipy.linalg.eigh(one_body_tensor)
     eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
     state = ffsim.slater_determinant(
         norb, occupied_orbitals, orbital_rotation=orbital_rotation

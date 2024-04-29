@@ -86,7 +86,7 @@ def simulate_qdrift_double_factorized(
         probabilities /= sum(probabilities)
 
     rng = np.random.default_rng(seed)
-    one_body_energies, one_body_basis_change = np.linalg.eigh(
+    one_body_energies, one_body_basis_change = scipy.linalg.eigh(
         hamiltonian.one_body_tensor
     )
     step_time = time / n_steps
@@ -443,7 +443,7 @@ def one_body_square_decomposition(
     """
     if orbital_rotation is None:
         orbital_rotation = np.eye(diag_coulomb_mat.shape[0])
-    eigs, vecs = np.linalg.eigh(diag_coulomb_mat)
+    eigs, vecs = scipy.linalg.eigh(diag_coulomb_mat)
     index = np.abs(eigs) >= truncation_threshold
     eigs = eigs[index]
     vecs = vecs[:, index]
