@@ -392,50 +392,42 @@ error if it isn’t.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.PrepareSlaterDeterminantJW">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareSlaterDeterminantJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol=1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol=1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareSlaterDeterminantJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantJW" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareSlaterDeterminantJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareSlaterDeterminantJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
 <p>Gate that prepares a Slater determinant (under JWT) from the all zeros state.</p>
+<p>This gate assumes the Jordan-Wigner transformation (JWT).</p>
 <p>A Slater determinant is a state of the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\prod_\sigma b^\dagger_{\sigma, 1} \cdots b^\dagger_{\sigma, N_f}
-\lvert \text{vac} \rangle,\]</div>
+\[\mathcal{U} \lvert x \rangle,\]</div>
 </div>
-<p>where</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[b^\dagger_{\sigma, i} = \sum_{k = 1}^N Q_{ji} a^\dagger_{\sigma, j}.\]</div>
-</div>
-<ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(Q\)</span> is an <span class="math notranslate nohighlight">\(N \times N_f\)</span> matrix with orthonormal columns.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\lvert \text{vac} \rangle\)</span> is the vacuum state.</p></li>
-</ul>
-<p>This gate assumes the Jordan-Wigner transformation (JWT).</p>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an
+<a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">orbital rotation</span></a> and
+<span class="math notranslate nohighlight">\(\lvert x \rangle\)</span> is a computational basis state. The reason this gate
+exists (when <a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW" title="ffsim.qiskit.OrbitalRotationJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a> already exists) is that the preparation
+of a Slater determinant has a more optimized circuit than a generic orbital
+rotation.</p>
 <p>This gate is meant to be applied to the all zeros state. Its behavior when applied
 to any other state is not guaranteed. The global phase of the prepared state may
-differ from the given equation.</p>
+be arbitrary.</p>
 <p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
 correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
 beta orbitals.</p>
 <p>Reference: <a class="reference external" href="https://arxiv.org/abs/1711.05395">arXiv:1711.05395</a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.qiskit.PrepareSlaterDeterminantJW.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol=1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol=1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareSlaterDeterminantJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantJW.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareSlaterDeterminantJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantJW.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>Create new Slater determinant preparation gate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>orbital_coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The matrix <span class="math notranslate nohighlight">\(Q\)</span> that specifies the coefficients of the
-new creation operators in terms of the original creation operators.
-The columns of the matrix must be orthonormal.</p></li>
-<li><p><strong>spin</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.Spin" title="ffsim.spin.Spin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spin</span></code></a></span>) – <p>Choice of spin sector(s) to act on.</p>
-<ul>
-<li><p>To act on only spin alpha, pass <a class="reference internal" href="ffsim.html#ffsim.Spin.ALPHA" title="ffsim.Spin.ALPHA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA</span></code></a>.</p></li>
-<li><p>To act on only spin beta, pass <a class="reference internal" href="ffsim.html#ffsim.Spin.BETA" title="ffsim.Spin.BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.BETA</span></code></a>.</p></li>
-<li><p>To act on both spin alpha and spin beta, pass
-<a class="reference internal" href="ffsim.html#ffsim.Spin.ALPHA_AND_BETA" title="ffsim.Spin.ALPHA_AND_BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA_AND_BETA</span></code></a> (this is the default value).</p></li>
-</ul>
-</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – A pair of lists of integers. The first list specifies
+the occupied alpha orbitals and the second list specifies the occupied
+beta orbitals.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional orbital rotation to apply to the
+electron configuration. In other words, this is a unitary matrix that
+describes the orbitals of the Slater determinant.</p></li>
 <li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
 <li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to validate the inputs.</p></li>
 <li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance for input validation.</p></li>
