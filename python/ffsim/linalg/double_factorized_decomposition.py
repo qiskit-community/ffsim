@@ -230,16 +230,9 @@ def _double_factorized_explicit_cholesky(
     n_modes, _, _, _ = two_body_tensor.shape
     reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
     cholesky_vecs = modified_cholesky(reshaped_tensor, tol=tol, max_vecs=max_vecs)
-
-    _, rank = cholesky_vecs.shape
-    diag_coulomb_mats = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
-    orbital_rotations = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
-    for i in range(rank):
-        mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
-        eigs, vecs = scipy.linalg.eigh(mat)
-        diag_coulomb_mats[i] = np.outer(eigs, eigs)
-        orbital_rotations[i] = vecs
-
+    mats = cholesky_vecs.T.reshape((-1, n_modes, n_modes))
+    eigs, orbital_rotations = np.linalg.eigh(mats)
+    diag_coulomb_mats = eigs[:, :, None] * eigs[:, None, :]
     return diag_coulomb_mats, orbital_rotations
 
 
