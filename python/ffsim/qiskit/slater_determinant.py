@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Slater determinant preparation gate."""
+"""Slater determinant and Hartree-Fock preparation gates."""
 
 from __future__ import annotations
 
