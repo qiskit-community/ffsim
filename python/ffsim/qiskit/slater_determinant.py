@@ -22,34 +22,31 @@ from qiskit.circuit import CircuitInstruction, Gate, Qubit
 from qiskit.circuit.library import XGate, XXPlusYYGate
 from scipy.linalg.lapack import zrot
 
+from ffsim import linalg
 from ffsim.linalg.givens import GivensRotation, zrotg
-from ffsim.spin import Spin
 
 
 class PrepareSlaterDeterminantJW(Gate):
     r"""Gate that prepares a Slater determinant (under JWT) from the all zeros state.
 
+    This gate assumes the Jordan-Wigner transformation (JWT).
+
     A Slater determinant is a state of the form
 
     .. math::
 
-        \prod_\sigma b^\dagger_{\sigma, 1} \cdots b^\dagger_{\sigma, N_f}
-        \lvert \text{vac} \rangle,
+        \mathcal{U} \lvert x \rangle,
 
-    where
-
-    .. math::
-
-        b^\dagger_{\sigma, i} = \sum_{k = 1}^N Q_{ji} a^\dagger_{\sigma, j}.
-
-    - :math:`Q` is an :math:`N \times N_f` matrix with orthonormal columns.
-    - :math:`\lvert \text{vac} \rangle` is the vacuum state.
-
-    This gate assumes the Jordan-Wigner transformation (JWT).
+    where :math:`\mathcal{U}` is an
+    :doc:`orbital rotation </explanations/orbital-rotation>` and
+    :math:`\lvert x \rangle` is a computational basis state. The reason this gate
+    exists (when :class:`OrbitalRotationJW` already exists) is that the preparation
+    of a Slater determinant has a more optimized circuit than a generic orbital
+    rotation.
 
     This gate is meant to be applied to the all zeros state. Its behavior when applied
     to any other state is not guaranteed. The global phase of the prepared state may
-    differ from the given equation.
+    be arbitrary.
 
     This gate assumes that qubits are ordered such that the first `norb` qubits
     correspond to the alpha orbitals and the last `norb` qubits correspond to the
@@ -62,8 +59,9 @@ class PrepareSlaterDeterminantJW(Gate):
 
     def __init__(
         self,
-        orbital_coeffs: np.ndarray,
-        spin: Spin = Spin.ALPHA_AND_BETA,
+        norb: int,
+        occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+        orbital_rotation: np.ndarray | None = None,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -72,16 +70,13 @@ class PrepareSlaterDeterminantJW(Gate):
         """Create new Slater determinant preparation gate.
 
         Args:
-            orbital_coeffs: The matrix :math:`Q` that specifies the coefficients of the
-                new creation operators in terms of the original creation operators.
-                The columns of the matrix must be orthonormal.
-            spin: Choice of spin sector(s) to act on.
-
-                - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-                - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-                - To act on both spin alpha and spin beta, pass
-                  :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
-
+            norb: The number of spatial orbitals.
+            occupied_orbitals: A pair of lists of integers. The first list specifies
+                the occupied alpha orbitals and the second list specifies the occupied
+                beta orbitals.
+            orbital_rotation: An optional orbital rotation to apply to the
+                electron configuration. In other words, this is a unitary matrix that
+                describes the orbitals of the Slater determinant.
             label: The label of the gate.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
@@ -91,22 +86,15 @@ class PrepareSlaterDeterminantJW(Gate):
             ValueError: orbital_coeffs must be a 2-dimensional array.
             ValueError: orbital_coeffs must have orthonormal columns.
         """
-        if validate and not _columns_are_orthonormal(
-            orbital_coeffs, rtol=rtol, atol=atol
+        if (
+            validate
+            and orbital_rotation is not None
+            and not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol)
         ):
-            raise ValueError(
-                "The input orbital_coeffs did not have orthonormal columns."
-            )
-        self.orbital_coeffs = orbital_coeffs
-        self.spin = spin
-        norb, _ = orbital_coeffs.shape
-        if spin is Spin.ALPHA:
-            name = "slater_jw_a"
-        elif spin is Spin.BETA:
-            name = "slater_jw_b"
-        else:
-            name = "slater_jw"
-        super().__init__(name, 2 * norb, [], label=label)
+            raise ValueError("The input orbital rotation matrix was not unitary.")
+        self.occupied_orbitals = occupied_orbitals
+        self.orbital_rotation = orbital_rotation
+        super().__init__("slater_jw", 2 * norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
@@ -115,24 +103,30 @@ class PrepareSlaterDeterminantJW(Gate):
         norb = len(qubits) // 2
         alpha_qubits = qubits[:norb]
         beta_qubits = qubits[norb:]
-        if self.spin & Spin.ALPHA:
+        occ_a, occ_b = self.occupied_orbitals
+
+        if self.orbital_rotation is None:
+            for instruction in _prepare_configuration_jw(alpha_qubits, occ_a):
+                circuit.append(instruction)
+            for instruction in _prepare_configuration_jw(beta_qubits, occ_b):
+                circuit.append(instruction)
+        else:
             for instruction in _prepare_slater_determinant_jw(
-                alpha_qubits, self.orbital_coeffs.T
+                alpha_qubits, self.orbital_rotation.T[list(occ_a)]
             ):
                 circuit.append(instruction)
-        if self.spin & Spin.BETA:
             for instruction in _prepare_slater_determinant_jw(
-                beta_qubits, self.orbital_coeffs.T
+                beta_qubits, self.orbital_rotation.T[list(occ_b)]
             ):
                 circuit.append(instruction)
         self.definition = circuit
 
 
-def _columns_are_orthonormal(
-    mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8
-) -> bool:
-    _, n = mat.shape
-    return np.allclose(mat.T.conj() @ mat, np.eye(n), rtol=rtol, atol=atol)
+def _prepare_configuration_jw(
+    qubits: Sequence[Qubit], occupied_orbitals: Sequence[int]
+) -> Iterator[CircuitInstruction]:
+    for orb in occupied_orbitals:
+        yield CircuitInstruction(XGate(), (qubits[orb],))
 
 
 def _prepare_slater_determinant_jw(
@@ -141,8 +135,7 @@ def _prepare_slater_determinant_jw(
     m, n = orbital_coeffs.shape
 
     # set the first n_particles qubits to 1
-    for i in range(m):
-        yield CircuitInstruction(XGate(), (qubits[i],))
+    yield from _prepare_configuration_jw(qubits, range(m))
 
     # if all orbitals are filled, no further operations are needed
     if m == n:
