@@ -190,18 +190,18 @@ def double_factorized(
     """
     _validate_diag_coulomb_indices(diag_coulomb_indices)
 
-    n_modes, _, _, _ = two_body_tensor.shape
+    norb, _, _, _ = two_body_tensor.shape
 
-    if not n_modes:
+    if not norb:
         return np.empty((0, 0, 0)), np.empty((0, 0, 0))
 
     if max_vecs is None:
-        max_vecs = n_modes * (n_modes + 1) // 2
+        max_vecs = norb * (norb + 1) // 2
     if optimize:
         if diag_coulomb_indices is None:
             diag_coulomb_mask = None
         else:
-            diag_coulomb_mask = np.zeros((n_modes, n_modes), dtype=bool)
+            diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
             rows, cols = zip(*diag_coulomb_indices)
             diag_coulomb_mask[rows, cols] = True
             diag_coulomb_mask[cols, rows] = True
@@ -227,10 +227,10 @@ def _double_factorized_explicit_cholesky(
     tol: float,
     max_vecs: int,
 ) -> tuple[np.ndarray, np.ndarray]:
-    n_modes, _, _, _ = two_body_tensor.shape
-    reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
+    norb, _, _, _ = two_body_tensor.shape
+    reshaped_tensor = np.reshape(two_body_tensor, (norb**2, norb**2))
     cholesky_vecs = modified_cholesky(reshaped_tensor, tol=tol, max_vecs=max_vecs)
-    mats = cholesky_vecs.T.reshape((-1, n_modes, n_modes))
+    mats = cholesky_vecs.T.reshape((-1, norb, norb))
     eigs, orbital_rotations = np.linalg.eigh(mats)
     diag_coulomb_mats = eigs[:, :, None] * eigs[:, None, :]
     return diag_coulomb_mats, orbital_rotations
@@ -281,10 +281,10 @@ def optimal_diag_coulomb_mats(
     tol: float = 1e-8,
 ) -> np.ndarray:
     """Compute optimal diagonal Coulomb matrices given fixed orbital rotations."""
-    n_modes, _, _, _ = two_body_tensor.shape
+    norb, _, _, _ = two_body_tensor.shape
     n_tensors, _, _ = orbital_rotations.shape
 
-    dim = n_tensors * n_modes**2
+    dim = n_tensors * norb**2
     target = contract(
         "pqrs,tpk,tqk,trl,tsl->tkl",
         two_body_tensor,
@@ -295,7 +295,7 @@ def optimal_diag_coulomb_mats(
         optimize="greedy",
     )
     target = np.reshape(target, (dim,))
-    coeffs = np.zeros((n_tensors, n_modes, n_modes, n_tensors, n_modes, n_modes))
+    coeffs = np.zeros((n_tensors, norb, norb, n_tensors, norb, norb))
     for i in range(n_tensors):
         for j in range(i, n_tensors):
             metric = (orbital_rotations[i].T @ orbital_rotations[j]) ** 2
@@ -308,7 +308,7 @@ def optimal_diag_coulomb_mats(
     pseudoinverse[eigs > tol] = eigs[eigs > tol] ** -1
     solution = vecs @ (vecs.T @ target * pseudoinverse)
 
-    return np.reshape(solution, (n_tensors, n_modes, n_modes))
+    return np.reshape(solution, (n_tensors, norb, norb))
 
 
 def _double_factorized_compressed(
@@ -324,14 +324,14 @@ def _double_factorized_compressed(
     diag_coulomb_mats, orbital_rotations = _double_factorized_explicit_cholesky(
         two_body_tensor, tol=tol, max_vecs=max_vecs
     )
-    n_tensors, n_modes, _ = orbital_rotations.shape
+    n_tensors, norb, _ = orbital_rotations.shape
     if diag_coulomb_mask is None:
-        diag_coulomb_mask = np.ones((n_modes, n_modes), dtype=bool)
+        diag_coulomb_mask = np.ones((norb, norb), dtype=bool)
     diag_coulomb_mask = np.triu(diag_coulomb_mask)
 
     def fun(x):
         diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
-            x, n_tensors, n_modes, diag_coulomb_mask
+            x, n_tensors, norb, diag_coulomb_mask
         )
         diff = two_body_tensor - contract(
             "kpi,kqi,kij,krj,ksj->pqrs",
@@ -346,7 +346,7 @@ def _double_factorized_compressed(
 
     def jac(x):
         diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
-            x, n_tensors, n_modes, diag_coulomb_mask
+            x, n_tensors, norb, diag_coulomb_mask
         )
         diff = two_body_tensor - contract(
             "kpi,kqi,kij,krj,ksj->pqrs",
@@ -366,7 +366,7 @@ def _double_factorized_compressed(
             orbital_rotations,
             optimize="greedy",
         )
-        leaf_logs = _params_to_leaf_logs(x, n_tensors, n_modes)
+        leaf_logs = _params_to_leaf_logs(x, n_tensors, norb)
         grad_leaf_log = np.ravel(
             [_grad_leaf_log(log, grad) for log, grad in zip(leaf_logs, grad_leaf)]
         )
@@ -379,7 +379,7 @@ def _double_factorized_compressed(
             orbital_rotations,
             optimize="greedy",
         )
-        grad_core[:, range(n_modes), range(n_modes)] /= 2
+        grad_core[:, range(norb), range(norb)] /= 2
         param_indices = np.nonzero(diag_coulomb_mask)
         grad_core = np.ravel([mat[param_indices] for mat in grad_core])
         return np.concatenate([grad_leaf_log, grad_core])
@@ -389,7 +389,7 @@ def _double_factorized_compressed(
         fun, x0, method=method, jac=jac, callback=callback, options=options
     )
     diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
-        result.x, n_tensors, n_modes, diag_coulomb_mask
+        result.x, n_tensors, norb, diag_coulomb_mask
     )
 
     return diag_coulomb_mats, orbital_rotations
@@ -400,9 +400,9 @@ def _df_tensors_to_params(
     orbital_rotations: np.ndarray,
     diag_coulomb_mat_mask: np.ndarray,
 ):
-    _, n_modes, _ = orbital_rotations.shape
+    _, norb, _ = orbital_rotations.shape
     leaf_logs = [scipy.linalg.logm(mat) for mat in orbital_rotations]
-    leaf_param_indices = np.triu_indices(n_modes, k=1)
+    leaf_param_indices = np.triu_indices(norb, k=1)
     # TODO this discards the imaginary part of the logarithm, see if we can do better
     leaf_params = np.real(
         np.ravel([leaf_log[leaf_param_indices] for leaf_log in leaf_logs])
@@ -414,9 +414,9 @@ def _df_tensors_to_params(
     return np.concatenate([leaf_params, core_params])
 
 
-def _params_to_leaf_logs(params: np.ndarray, n_tensors: int, n_modes: int):
-    leaf_logs = np.zeros((n_tensors, n_modes, n_modes))
-    triu_indices = np.triu_indices(n_modes, k=1)
+def _params_to_leaf_logs(params: np.ndarray, n_tensors: int, norb: int):
+    leaf_logs = np.zeros((n_tensors, norb, norb))
+    triu_indices = np.triu_indices(norb, k=1)
     param_length = len(triu_indices[0])
     for i in range(n_tensors):
         leaf_logs[i][triu_indices] = params[i * param_length : (i + 1) * param_length]
@@ -425,22 +425,22 @@ def _params_to_leaf_logs(params: np.ndarray, n_tensors: int, n_modes: int):
 
 
 def _params_to_df_tensors(
-    params: np.ndarray, n_tensors: int, n_modes: int, diag_coulomb_mat_mask: np.ndarray
+    params: np.ndarray, n_tensors: int, norb: int, diag_coulomb_mat_mask: np.ndarray
 ):
-    leaf_logs = _params_to_leaf_logs(params, n_tensors, n_modes)
+    leaf_logs = _params_to_leaf_logs(params, n_tensors, norb)
     orbital_rotations = np.array([_expm_antisymmetric(mat) for mat in leaf_logs])
 
-    n_leaf_params = n_tensors * n_modes * (n_modes - 1) // 2
+    n_leaf_params = n_tensors * norb * (norb - 1) // 2
     core_params = np.real(params[n_leaf_params:])
     param_indices = np.nonzero(diag_coulomb_mat_mask)
     param_length = len(param_indices[0])
-    diag_coulomb_mats = np.zeros((n_tensors, n_modes, n_modes))
+    diag_coulomb_mats = np.zeros((n_tensors, norb, norb))
     for i in range(n_tensors):
         diag_coulomb_mats[i][param_indices] = core_params[
             i * param_length : (i + 1) * param_length
         ]
         diag_coulomb_mats[i] += diag_coulomb_mats[i].T
-        diag_coulomb_mats[i][range(n_modes), range(n_modes)] /= 2
+        diag_coulomb_mats[i][range(norb), range(norb)] /= 2
     return diag_coulomb_mats, orbital_rotations
 
 
@@ -457,8 +457,8 @@ def _grad_leaf_log(mat: np.ndarray, grad_leaf: np.ndarray) -> np.ndarray:
     coeffs[eig_i == eig_j] = np.exp(1j * eig_i[eig_i == eig_j])
     grad = vecs.conj() @ (vecs.T @ grad_leaf @ vecs.conj() * coeffs) @ vecs.T
     grad -= grad.T
-    n_modes, _ = mat.shape
-    triu_indices = np.triu_indices(n_modes, k=1)
+    norb, _ = mat.shape
+    triu_indices = np.triu_indices(norb, k=1)
     return np.real(grad[triu_indices])
 
 
