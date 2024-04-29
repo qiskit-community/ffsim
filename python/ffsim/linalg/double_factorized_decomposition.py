@@ -509,18 +509,13 @@ def double_factorized_t2(
 
     two_body_tensor = np.zeros((norb, norb, norb, norb))
     two_body_tensor[:nocc, :nocc, nocc:, nocc:] = t2_amplitudes
-    two_body_tensor = np.transpose(two_body_tensor, (2, 0, 3, 1))
+    two_body_tensor = two_body_tensor.transpose((2, 0, 3, 1))
     t2_mat = two_body_tensor.reshape((norb**2, norb**2))
     outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=max_vecs)
 
-    diag_coulomb_mats = []
-    orbital_rotations = []
-    for outer_eig, outer_vec in zip(outer_eigs, outer_vecs.T):
-        mat = np.reshape(outer_vec, (norb, norb))
-        mat = 0.5 * (1 - 1j) * (mat + 1j * mat.T)
-        inner_eigs, inner_vecs = scipy.linalg.eigh(mat)
-        diag_coulomb_mat = outer_eig * np.outer(inner_eigs, inner_eigs)
-        diag_coulomb_mats.append(diag_coulomb_mat)
-        orbital_rotations.append(inner_vecs)
+    mats = outer_vecs.T.reshape((-1, norb, norb))
+    mats = 0.5 * (1 - 1j) * (mats + 1j * mats.transpose((0, 2, 1)))
+    eigs, orbital_rotations = np.linalg.eigh(mats)
+    diag_coulomb_mats = outer_eigs[:, None, None] * eigs[:, :, None] * eigs[:, None, :]
 
-    return np.stack(diag_coulomb_mats), np.stack(orbital_rotations)
+    return diag_coulomb_mats, orbital_rotations
