@@ -241,6 +241,7 @@
 <span class="kn">from</span> <span class="nn">pyscf.fci.spin_op</span> <span class="kn">import</span> <span class="n">contract_ss</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
+<span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
 
 
 <div class="viewcode-block" id="dims">
@@ -303,18 +304,30 @@
 <span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a Slater determinant.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a Slater determinant.</span>
+
+<span class="sd">    A Slater determinant is a state of the form</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \mathcal{U} \lvert x \rangle,</span>
+
+<span class="sd">    where :math:`\mathcal{U}` is an</span>
+<span class="sd">    :doc:`orbital rotation &lt;/explanations/orbital-rotation&gt;` and</span>
+<span class="sd">    :math:`\lvert x \rangle` is an electronic configuration.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        occupied_orbitals: A pair of lists of integers. The first list specifies</span>
-<span class="sd">            the occupied alpha orbitals and the second list specifies the occupied</span>
-<span class="sd">            beta orbitals.</span>
-<span class="sd">        orbital_rotation: An optional orbital rotation to apply to the</span>
-<span class="sd">            electron configuration. In other words, this is a unitary matrix that</span>
-<span class="sd">            describes the orbitals of the Slater determinant.</span>
+<span class="sd">        occupied_orbitals: The occupied orbitals in the electonic configuration.</span>
+<span class="sd">            This is a pair of lists of integers, where the first list specifies the</span>
+<span class="sd">            spin alpha orbitals and the second list specifies the spin beta</span>
+<span class="sd">            orbitals.</span>
+<span class="sd">        orbital_rotation: The orbital rotation. You can pass either a single Numpy</span>
+<span class="sd">            array specifying the orbital rotation to apply to both spin sectors, or</span>
+<span class="sd">            you can pass a pair of Numpy arrays to specify independent orbital</span>
+<span class="sd">            rotations for spin alpha and spin beta.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The Slater determinant as a statevector.</span>
@@ -337,7 +350,28 @@
     <span class="n">beta_index</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">str2addr</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">beta_string</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">one_hot</span><span class="p">((</span><span class="n">dim1</span><span class="p">,</span> <span class="n">dim2</span><span class="p">),</span> <span class="p">(</span><span class="n">alpha_index</span><span class="p">,</span> <span class="n">beta_index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">orbital_rotation_a</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">spin</span><span class="o">=</span><span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span>
+                <span class="n">orbital_rotation_b</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">spin</span><span class="o">=</span><span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span></div>
 
 
@@ -366,28 +400,33 @@
 <span class="k">def</span> <span class="nf">slater_determinant_rdm</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">spin_summed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrix of a Slater determinant.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrix of a `Slater determinant`_.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        Currently, only rank 1 is supported.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        occupied_orbitals: A tuple of two sequences of integers. The first</span>
-<span class="sd">            sequence contains the indices of the occupied alpha orbitals, and</span>
-<span class="sd">            the second sequence similarly for the beta orbitals.</span>
-<span class="sd">        orbital_rotation: An optional orbital rotation to apply to the</span>
-<span class="sd">            electron configuration. In other words, this is a unitary matrix that</span>
-<span class="sd">            describes the orbitals of the Slater determinant.</span>
-<span class="sd">        rank: The rank of the reduced density matrix.</span>
+<span class="sd">        occupied_orbitals: The occupied orbitals in the electonic configuration.</span>
+<span class="sd">            This is a pair of lists of integers, where the first list specifies the</span>
+<span class="sd">            spin alpha orbitals and the second list specifies the spin beta</span>
+<span class="sd">            orbitals.</span>
+<span class="sd">        orbital_rotation: The orbital rotation. You can pass either a single Numpy</span>
+<span class="sd">            array specifying the orbital rotation to apply to both spin sectors, or</span>
+<span class="sd">            you can pass a pair of Numpy arrays to specify independent orbital</span>
+<span class="sd">            rotations for spin alpha and spin beta.</span>
+<span class="sd">        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the</span>
+<span class="sd">            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</span>
 <span class="sd">        spin_summed: Whether to sum over the spin index.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The reduced density matrix of the Slater determinant.</span>
+
+<span class="sd">    .. _Slater determinant: ffsim.html#ffsim.slater_determinant</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
@@ -399,8 +438,13 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">):</span>
             <span class="n">rdm_b</span><span class="p">[(</span><span class="n">beta_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_a</span> <span class="o">@</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_b</span> <span class="o">@</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_a</span> <span class="o">@</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_b</span> <span class="o">@</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span>
         <span class="k">if</span> <span class="n">spin_summed</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">rdm_a</span> <span class="o">+</span> <span class="n">rdm_b</span>
         <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">rdm_a</span><span class="p">,</span> <span class="n">rdm_b</span><span class="p">)</span>

@@ -306,10 +306,10 @@
 
 <span class="sd">    where :math:`\mathcal{U}` is an</span>
 <span class="sd">    :doc:`orbital rotation &lt;/explanations/orbital-rotation&gt;` and</span>
-<span class="sd">    :math:`\lvert x \rangle` is a computational basis state. The reason this gate</span>
-<span class="sd">    exists (when :class:`OrbitalRotationJW` already exists) is that the preparation</span>
-<span class="sd">    of a Slater determinant has a more optimized circuit than a generic orbital</span>
-<span class="sd">    rotation.</span>
+<span class="sd">    :math:`\lvert x \rangle` is an electronic configuration (computational basis state).</span>
+<span class="sd">    The reason this gate exists (when :class:`OrbitalRotationJW` already exists) is that</span>
+<span class="sd">    the preparation of a Slater determinant has a more optimized circuit than a generic</span>
+<span class="sd">    orbital rotation.</span>
 
 <span class="sd">    This gate is meant to be applied to the all zeros state. Its behavior when applied</span>
 <span class="sd">    to any other state is not guaranteed. The global phase of the prepared state may</span>
@@ -330,7 +330,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-        <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
@@ -340,12 +340,14 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            norb: The number of spatial orbitals.</span>
-<span class="sd">            occupied_orbitals: A pair of lists of integers. The first list specifies</span>
-<span class="sd">                the occupied alpha orbitals and the second list specifies the occupied</span>
-<span class="sd">                beta orbitals.</span>
-<span class="sd">            orbital_rotation: An optional orbital rotation to apply to the</span>
-<span class="sd">                electron configuration. In other words, this is a unitary matrix that</span>
-<span class="sd">                describes the orbitals of the Slater determinant.</span>
+<span class="sd">            occupied_orbitals: The occupied orbitals in the electonic configuration.</span>
+<span class="sd">                This is a pair of lists of integers, where the first list specifies the</span>
+<span class="sd">                spin alpha orbitals and the second list specifies the spin beta</span>
+<span class="sd">                orbitals.</span>
+<span class="sd">            orbital_rotation: The orbital rotation. You can pass either a single Numpy</span>
+<span class="sd">                array specifying the orbital rotation to apply to both spin sectors, or</span>
+<span class="sd">                you can pass a pair of Numpy arrays to specify independent orbital</span>
+<span class="sd">                rotations for spin alpha and spin beta.</span>
 <span class="sd">            label: The label of the gate.</span>
 <span class="sd">            validate: Whether to validate the inputs.</span>
 <span class="sd">            rtol: Relative numerical tolerance for input validation.</span>
@@ -355,12 +357,23 @@
 <span class="sd">            ValueError: orbital_coeffs must be a 2-dimensional array.</span>
 <span class="sd">            ValueError: orbital_coeffs must have orthonormal columns.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">validate</span>
-            <span class="ow">and</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input orbital rotation matrix was not unitary.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The input orbital rotation matrix was not unitary.&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The orbital rotation matrix for spin alpha was not unitary.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation_b</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The orbital rotation matrix for spin beta was not unitary.&quot;</span>
+                    <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">=</span> <span class="n">norb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="n">occupied_orbitals</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
@@ -381,12 +394,17 @@
             <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_prepare_configuration_jw</span><span class="p">(</span><span class="n">beta_qubits</span><span class="p">,</span> <span class="n">occ_b</span><span class="p">):</span>
                 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span>
+                <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span>
             <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_prepare_slater_determinant_jw</span><span class="p">(</span>
-                <span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">occ_a</span><span class="p">)]</span>
+                <span class="n">alpha_qubits</span><span class="p">,</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">occ_a</span><span class="p">)]</span>
             <span class="p">):</span>
                 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_prepare_slater_determinant_jw</span><span class="p">(</span>
-                <span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">occ_b</span><span class="p">)]</span>
+                <span class="n">beta_qubits</span><span class="p">,</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">occ_b</span><span class="p">)]</span>
             <span class="p">):</span>
                 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span></div>

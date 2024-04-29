@@ -431,10 +431,10 @@ beta orbitals.</p>
 </div>
 <p>where <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an
 <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">orbital rotation</span></a> and
-<span class="math notranslate nohighlight">\(\lvert x \rangle\)</span> is a computational basis state. The reason this gate
-exists (when <a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW" title="ffsim.qiskit.OrbitalRotationJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a> already exists) is that the preparation
-of a Slater determinant has a more optimized circuit than a generic orbital
-rotation.</p>
+<span class="math notranslate nohighlight">\(\lvert x \rangle\)</span> is an electronic configuration (computational basis state).
+The reason this gate exists (when <a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW" title="ffsim.qiskit.OrbitalRotationJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a> already exists) is that
+the preparation of a Slater determinant has a more optimized circuit than a generic
+orbital rotation.</p>
 <p>This gate is meant to be applied to the all zeros state. Its behavior when applied
 to any other state is not guaranteed. The global phase of the prepared state may
 be arbitrary.</p>
@@ -450,12 +450,14 @@ beta orbitals.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – A pair of lists of integers. The first list specifies
-the occupied alpha orbitals and the second list specifies the occupied
-beta orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional orbital rotation to apply to the
-electron configuration. In other words, this is a unitary matrix that
-describes the orbitals of the Slater determinant.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The occupied orbitals in the electonic configuration.
+This is a pair of lists of integers, where the first list specifies the
+spin alpha orbitals and the second list specifies the spin beta
+orbitals.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The orbital rotation. You can pass either a single Numpy
+array specifying the orbital rotation to apply to both spin sectors, or
+you can pass a pair of Numpy arrays to specify independent orbital
+rotations for spin alpha and spin beta.</p></li>
 <li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
 <li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to validate the inputs.</p></li>
 <li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance for input validation.</p></li>
