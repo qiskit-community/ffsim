@@ -61,7 +61,7 @@ class OrbitalRotationJW(Gate):
         rtol: float = 1e-5,
         atol: float = 1e-8,
     ):
-        r"""Create new orbital rotation gate.
+        """Create new orbital rotation gate.
 
         Args:
             orbital_rotation: The matrix describing the orbital rotation.
@@ -70,7 +70,7 @@ class OrbitalRotationJW(Gate):
                 - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
                 - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
                 - To act on both spin alpha and spin beta, pass
-                :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+                  :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
             label: The label of the gate.
             validate: Whether to check that the input matrix is unitary and raise an
                 error if it isn't.
@@ -81,7 +81,7 @@ class OrbitalRotationJW(Gate):
             ValueError: The input matrix is not unitary.
         """
         if validate and not is_unitary(orbital_rotation, rtol=rtol, atol=atol):
-            raise ValueError("The input orbital rotation matrix is not unitary.")
+            raise ValueError("The input orbital rotation matrix was not unitary.")
         self.orbital_rotation = orbital_rotation
         self.spin = spin
         norb, _ = orbital_rotation.shape
