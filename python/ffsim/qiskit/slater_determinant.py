@@ -114,10 +114,10 @@ class PrepareSlaterDeterminantJW(Gate):
                 This is a pair of lists of integers, where the first list specifies the
                 spin alpha orbitals and the second list specifies the spin beta
                 orbitals.
-            orbital_rotation: The orbital rotation. You can pass either a single Numpy
-                array specifying the orbital rotation to apply to both spin sectors, or
-                you can pass a pair of Numpy arrays to specify independent orbital
-                rotations for spin alpha and spin beta.
+            orbital_rotation: The optional orbital rotation. You can pass either a
+                single Numpy array specifying the orbital rotation to apply to both
+                spin sectors, or you can pass a pair of Numpy arrays to specify
+                independent orbital rotations for spin alpha and spin beta.
             label: The label of the gate.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
