@@ -391,6 +391,34 @@ error if it isn’t.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.PrepareHartreeFockJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareHartreeFockJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareHartreeFockJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Gate that prepares the Hartree-Fock state (under JWT) from the all zeros state.</p>
+<p>This gate assumes the Jordan-Wigner transformation (JWT).</p>
+<p>This gate is meant to be applied to the all zeros state. It decomposes simply as
+a sequence of X gates that prepares the Hartree-Fock electronic configuration.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.PrepareHartreeFockJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareHartreeFockJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create new Hartree-Fock state preparation gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.PrepareSlaterDeterminantJW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareSlaterDeterminantJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareSlaterDeterminantJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
@@ -590,6 +618,10 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW.__init__"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW.inverse"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW.inverse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockJW"><code class="docutils literal notranslate"><span class="pre">PrepareHartreeFockJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareHartreeFockJW.__init__()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantJW"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantJW</span></code></a><ul>

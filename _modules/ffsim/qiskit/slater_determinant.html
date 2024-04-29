@@ -246,6 +246,51 @@
 <span class="kn">from</span> <span class="nn">ffsim.linalg.givens</span> <span class="kn">import</span> <span class="n">GivensRotation</span><span class="p">,</span> <span class="n">zrotg</span>
 
 
+<div class="viewcode-block" id="PrepareHartreeFockJW">
+<a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockJW">[docs]</a>
+<span class="k">class</span> <span class="nc">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Gate that prepares the Hartree-Fock state (under JWT) from the all zeros state.</span>
+
+<span class="sd">    This gate assumes the Jordan-Wigner transformation (JWT).</span>
+
+<span class="sd">    This gate is meant to be applied to the all zeros state. It decomposes simply as</span>
+<span class="sd">    a sequence of X gates that prepares the Hartree-Fock electronic configuration.</span>
+
+<span class="sd">    This gate assumes that qubits are ordered such that the first `norb` qubits</span>
+<span class="sd">    correspond to the alpha orbitals and the last `norb` qubits correspond to the</span>
+<span class="sd">    beta orbitals.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PrepareHartreeFockJW.__init__">
+<a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockJW.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new Hartree-Fock state preparation gate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            nelec: The number of alpha and beta electrons.</span>
+<span class="sd">            label: The label of the gate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">=</span> <span class="n">norb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nelec</span> <span class="o">=</span> <span class="n">nelec</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;hartree_fock_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelec</span>
+        <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">PrepareSlaterDeterminantJW</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">))),</span>
+            <span class="n">qubits</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span></div>
+
+
+
 <div class="viewcode-block" id="PrepareSlaterDeterminantJW">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantJW">[docs]</a>
 <span class="k">class</span> <span class="nc">PrepareSlaterDeterminantJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
@@ -316,6 +361,7 @@
             <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input orbital rotation matrix was not unitary.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">=</span> <span class="n">norb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="n">occupied_orbitals</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;slater_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
@@ -323,11 +369,10 @@
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
-        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-        <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span><span class="n">norb</span><span class="p">]</span>
-        <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="n">norb</span><span class="p">:]</span>
+        <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">]</span>
+        <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="p">:]</span>
         <span class="n">occ_a</span><span class="p">,</span> <span class="n">occ_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupied_orbitals</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
