@@ -243,22 +243,14 @@ def _double_factorized_explicit_eigh(
     max_vecs: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     norb, _, _, _ = two_body_tensor.shape
-
     reshaped_tensor = np.reshape(two_body_tensor, (norb**2, norb**2))
     outer_eigs, outer_vecs = _truncated_eigh(
         reshaped_tensor, tol=tol, max_vecs=max_vecs
     )
-
-    diag_coulomb_mats = []
-    orbital_rotations = []
-    for outer_eig, outer_vec in zip(outer_eigs, outer_vecs.T):
-        mat = np.reshape(outer_vec, (norb, norb))
-        inner_eigs, inner_vecs = scipy.linalg.eigh(mat)
-        diag_coulomb_mat = outer_eig * np.outer(inner_eigs, inner_eigs)
-        diag_coulomb_mats.append(diag_coulomb_mat)
-        orbital_rotations.append(inner_vecs)
-
-    return np.stack(diag_coulomb_mats), np.stack(orbital_rotations)
+    mats = outer_vecs.T.reshape((-1, norb, norb))
+    eigs, orbital_rotations = np.linalg.eigh(mats)
+    diag_coulomb_mats = outer_eigs[:, None, None] * eigs[:, :, None] * eigs[:, None, :]
+    return diag_coulomb_mats, orbital_rotations
 
 
 def _truncated_eigh(
