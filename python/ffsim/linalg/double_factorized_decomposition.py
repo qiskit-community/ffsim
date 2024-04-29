@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import numpy as np
+import scipy.linalg
 import scipy.optimize
 from opt_einsum import contract
 
@@ -235,7 +236,7 @@ def _double_factorized_explicit_cholesky(
     orbital_rotations = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
     for i in range(rank):
         mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
-        eigs, vecs = np.linalg.eigh(mat)
+        eigs, vecs = scipy.linalg.eigh(mat)
         diag_coulomb_mats[i] = np.outer(eigs, eigs)
         orbital_rotations[i] = vecs
 
@@ -259,7 +260,7 @@ def _double_factorized_explicit_eigh(
     orbital_rotations = []
     for outer_eig, outer_vec in zip(outer_eigs, outer_vecs.T):
         mat = np.reshape(outer_vec, (norb, norb))
-        inner_eigs, inner_vecs = np.linalg.eigh(mat)
+        inner_eigs, inner_vecs = scipy.linalg.eigh(mat)
         diag_coulomb_mat = outer_eig * np.outer(inner_eigs, inner_eigs)
         diag_coulomb_mats.append(diag_coulomb_mat)
         orbital_rotations.append(inner_vecs)
@@ -273,7 +274,7 @@ def _truncated_eigh(
     tol: float,
     max_vecs: int | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    eigs, vecs = np.linalg.eigh(mat)
+    eigs, vecs = scipy.linalg.eigh(mat)
     # sort by absolute value
     indices = np.argsort(np.abs(eigs))
     eigs = eigs[indices]
@@ -317,7 +318,7 @@ def optimal_diag_coulomb_mats(
             coeffs[j, :, :, i, :, :] = np.einsum("kl,mn->kmln", metric.T, metric.T)
     coeffs = np.reshape(coeffs, (dim, dim))
 
-    eigs, vecs = np.linalg.eigh(coeffs)
+    eigs, vecs = scipy.linalg.eigh(coeffs)
     pseudoinverse = np.zeros_like(eigs)
     pseudoinverse[eigs > tol] = eigs[eigs > tol] ** -1
     solution = vecs @ (vecs.T @ target * pseudoinverse)
@@ -459,12 +460,12 @@ def _params_to_df_tensors(
 
 
 def _expm_antisymmetric(mat: np.ndarray) -> np.ndarray:
-    eigs, vecs = np.linalg.eigh(-1j * mat)
+    eigs, vecs = scipy.linalg.eigh(-1j * mat)
     return np.real(vecs @ np.diag(np.exp(1j * eigs)) @ vecs.T.conj())
 
 
 def _grad_leaf_log(mat: np.ndarray, grad_leaf: np.ndarray) -> np.ndarray:
-    eigs, vecs = np.linalg.eigh(-1j * mat)
+    eigs, vecs = scipy.linalg.eigh(-1j * mat)
     eig_i, eig_j = np.meshgrid(eigs, eigs, indexing="ij")
     with np.errstate(divide="ignore", invalid="ignore"):
         coeffs = -1j * (np.exp(1j * eig_i) - np.exp(1j * eig_j)) / (eig_i - eig_j)
