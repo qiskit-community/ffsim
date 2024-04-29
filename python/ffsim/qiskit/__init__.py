@@ -14,6 +14,7 @@ from ffsim.qiskit.diag_coulomb import DiagCoulombEvolutionJW
 from ffsim.qiskit.drop_negligible import DropNegligible
 from ffsim.qiskit.merge_orbital_rotations import MergeOrbitalRotations
 from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
+from ffsim.qiskit.slater_determinant import PrepareSlaterDeterminantJW
 from ffsim.qiskit.ucj import UCJOperatorJW
 from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
 
@@ -22,6 +23,7 @@ __all__ = [
     "DropNegligible",
     "MergeOrbitalRotations",
     "OrbitalRotationJW",
+    "PrepareSlaterDeterminantJW",
     "UCJOperatorJW",
     "ffsim_vec_to_qiskit_vec",
     "qiskit_vec_to_ffsim_vec",
