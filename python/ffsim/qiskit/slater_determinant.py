@@ -27,7 +27,7 @@ from ffsim.spin import Spin
 
 
 class PrepareSlaterDeterminantJW(Gate):
-    r"""Gate that prepares a Slater determinant from the all zeros state.
+    r"""Gate that prepares a Slater determinant (under JWT) from the all zeros state.
 
     A Slater determinant is a state of the form
 
@@ -45,9 +45,11 @@ class PrepareSlaterDeterminantJW(Gate):
     - :math:`Q` is an :math:`N \times N_f` matrix with orthonormal columns.
     - :math:`\lvert \text{vac} \rangle` is the vacuum state.
 
-    This gate assumes the Jordan-Wigner transformation, and it is meant to be applied
-    to the all zeros state. Its behavior when applied to any other state is not
-    guaranteed.
+    This gate assumes the Jordan-Wigner transformation (JWT).
+
+    This gate is meant to be applied to the all zeros state. Its behavior when applied
+    to any other state is not guaranteed. The global phase of the prepared state may
+    differ from the given equation.
 
     This gate assumes that qubits are ordered such that the first `norb` qubits
     correspond to the alpha orbitals and the last `norb` qubits correspond to the
