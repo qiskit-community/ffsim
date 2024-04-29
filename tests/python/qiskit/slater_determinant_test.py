@@ -35,7 +35,7 @@ def test_prepare_hartree_fock_jw(norb: int, nelec: tuple[int, int]):
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
-def test_random_slater_determinant(norb: int, nelec: tuple[int, int]):
+def test_random_slater_determinant_same_rotation(norb: int, nelec: tuple[int, int]):
     """Test random Slater determinant circuit gives correct output state."""
     rng = np.random.default_rng()
     for _ in range(3):
@@ -52,6 +52,35 @@ def test_random_slater_determinant(norb: int, nelec: tuple[int, int]):
 
         expected = ffsim.slater_determinant(
             norb, occupied_orbitals, orbital_rotation=orbital_rotation
+        )
+
+        ffsim.testing.assert_allclose_up_to_global_phase(result, expected)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_random_slater_determinant_diff_rotation(norb: int, nelec: tuple[int, int]):
+    """Test random Slater determinant circuit with independent orbital rotations."""
+    rng = np.random.default_rng()
+    for _ in range(3):
+        occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
+        orbital_rotation_a = ffsim.random.random_unitary(norb, seed=rng)
+        orbital_rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+
+        gate = ffsim.qiskit.PrepareSlaterDeterminantJW(
+            norb,
+            occupied_orbitals,
+            orbital_rotation=(orbital_rotation_a, orbital_rotation_b),
+        )
+
+        statevec = Statevector.from_int(0, 2 ** (2 * norb)).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+
+        expected = ffsim.slater_determinant(
+            norb,
+            occupied_orbitals,
+            orbital_rotation=(orbital_rotation_a, orbital_rotation_b),
         )
 
         ffsim.testing.assert_allclose_up_to_global_phase(result, expected)
