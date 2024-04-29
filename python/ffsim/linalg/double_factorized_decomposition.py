@@ -428,7 +428,7 @@ def _params_to_df_tensors(
     params: np.ndarray, n_tensors: int, norb: int, diag_coulomb_mat_mask: np.ndarray
 ):
     leaf_logs = _params_to_leaf_logs(params, n_tensors, norb)
-    orbital_rotations = np.array([_expm_antisymmetric(mat) for mat in leaf_logs])
+    orbital_rotations = _expm_antisymmetric(leaf_logs)
 
     n_leaf_params = n_tensors * norb * (norb - 1) // 2
     core_params = np.real(params[n_leaf_params:])
@@ -444,9 +444,9 @@ def _params_to_df_tensors(
     return diag_coulomb_mats, orbital_rotations
 
 
-def _expm_antisymmetric(mat: np.ndarray) -> np.ndarray:
-    eigs, vecs = scipy.linalg.eigh(-1j * mat)
-    return np.real(vecs @ np.diag(np.exp(1j * eigs)) @ vecs.T.conj())
+def _expm_antisymmetric(mats: np.ndarray) -> np.ndarray:
+    eigs, vecs = np.linalg.eigh(-1j * mats)
+    return np.einsum("tij,tj,tkj->tik", vecs, np.exp(1j * eigs), vecs.conj()).real
 
 
 def _grad_leaf_log(mat: np.ndarray, grad_leaf: np.ndarray) -> np.ndarray:
