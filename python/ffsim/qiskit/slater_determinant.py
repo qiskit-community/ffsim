@@ -78,10 +78,10 @@ class PrepareSlaterDeterminantJW(Gate):
 
     where :math:`\mathcal{U}` is an
     :doc:`orbital rotation </explanations/orbital-rotation>` and
-    :math:`\lvert x \rangle` is a computational basis state. The reason this gate
-    exists (when :class:`OrbitalRotationJW` already exists) is that the preparation
-    of a Slater determinant has a more optimized circuit than a generic orbital
-    rotation.
+    :math:`\lvert x \rangle` is an electronic configuration (computational basis state).
+    The reason this gate exists (when :class:`OrbitalRotationJW` already exists) is that
+    the preparation of a Slater determinant has a more optimized circuit than a generic
+    orbital rotation.
 
     This gate is meant to be applied to the all zeros state. Its behavior when applied
     to any other state is not guaranteed. The global phase of the prepared state may
@@ -100,7 +100,7 @@ class PrepareSlaterDeterminantJW(Gate):
         self,
         norb: int,
         occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-        orbital_rotation: np.ndarray | None = None,
+        orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -110,12 +110,14 @@ class PrepareSlaterDeterminantJW(Gate):
 
         Args:
             norb: The number of spatial orbitals.
-            occupied_orbitals: A pair of lists of integers. The first list specifies
-                the occupied alpha orbitals and the second list specifies the occupied
-                beta orbitals.
-            orbital_rotation: An optional orbital rotation to apply to the
-                electron configuration. In other words, this is a unitary matrix that
-                describes the orbitals of the Slater determinant.
+            occupied_orbitals: The occupied orbitals in the electonic configuration.
+                This is a pair of lists of integers, where the first list specifies the
+                spin alpha orbitals and the second list specifies the spin beta
+                orbitals.
+            orbital_rotation: The orbital rotation. You can pass either a single Numpy
+                array specifying the orbital rotation to apply to both spin sectors, or
+                you can pass a pair of Numpy arrays to specify independent orbital
+                rotations for spin alpha and spin beta.
             label: The label of the gate.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
@@ -125,12 +127,23 @@ class PrepareSlaterDeterminantJW(Gate):
             ValueError: orbital_coeffs must be a 2-dimensional array.
             ValueError: orbital_coeffs must have orthonormal columns.
         """
-        if (
-            validate
-            and orbital_rotation is not None
-            and not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol)
-        ):
-            raise ValueError("The input orbital rotation matrix was not unitary.")
+        if validate and orbital_rotation is not None:
+            if isinstance(orbital_rotation, np.ndarray):
+                if not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol):
+                    raise ValueError(
+                        "The input orbital rotation matrix was not unitary."
+                    )
+            else:
+                orbital_rotation_a, orbital_rotation_b = orbital_rotation
+                if not linalg.is_unitary(orbital_rotation_a, rtol=rtol, atol=atol):
+                    raise ValueError(
+                        "The orbital rotation matrix for spin alpha was not unitary."
+                    )
+                if not linalg.is_unitary(orbital_rotation_b, rtol=rtol, atol=atol):
+                    raise ValueError(
+                        "The orbital rotation matrix for spin beta was not unitary."
+                    )
+
         self.norb = norb
         self.occupied_orbitals = occupied_orbitals
         self.orbital_rotation = orbital_rotation
@@ -150,12 +163,17 @@ class PrepareSlaterDeterminantJW(Gate):
             for instruction in _prepare_configuration_jw(beta_qubits, occ_b):
                 circuit.append(instruction)
         else:
+            if isinstance(self.orbital_rotation, np.ndarray):
+                orbital_rotation_a = self.orbital_rotation
+                orbital_rotation_b = self.orbital_rotation
+            else:
+                orbital_rotation_a, orbital_rotation_b = self.orbital_rotation
             for instruction in _prepare_slater_determinant_jw(
-                alpha_qubits, self.orbital_rotation.T[list(occ_a)]
+                alpha_qubits, orbital_rotation_a.T[list(occ_a)]
             ):
                 circuit.append(instruction)
             for instruction in _prepare_slater_determinant_jw(
-                beta_qubits, self.orbital_rotation.T[list(occ_b)]
+                beta_qubits, orbital_rotation_b.T[list(occ_b)]
             ):
                 circuit.append(instruction)
         self.definition = circuit

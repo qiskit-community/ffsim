@@ -12,23 +12,25 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import pyscf
 import pytest
-import scipy.linalg
 
 import ffsim
 
 
-def test_slater_determinant():
-    """Test Slater determinant."""
-    norb = 5
-    nelec = ffsim.testing.random_nelec(norb)
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_slater_determinant_same_rotation(norb: int, nelec: tuple[int, int]):
+    """Test Slater determinant with same rotation for both spins."""
+    rng = np.random.default_rng()
+
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
     occ_a, occ_b = occupied_orbitals
 
-    one_body_tensor = ffsim.random.random_hermitian(norb)
-    eigs, orbital_rotation = scipy.linalg.eigh(one_body_tensor)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    eigs, orbital_rotation = np.linalg.eigh(one_body_tensor)
     eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
     state = ffsim.slater_determinant(
         norb, occupied_orbitals, orbital_rotation=orbital_rotation
@@ -36,6 +38,36 @@ def test_slater_determinant():
 
     hamiltonian = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
     np.testing.assert_allclose(hamiltonian @ state, eig * state)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_slater_determinant_diff_rotation(norb: int, nelec: tuple[int, int]):
+    """Test Slater determinant with different rotations for each spin."""
+    rng = np.random.default_rng()
+
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    occ_a, occ_b = occupied_orbitals
+
+    orbital_rotation_a = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+
+    state = ffsim.slater_determinant(
+        norb,
+        occupied_orbitals,
+        orbital_rotation=(orbital_rotation_a, orbital_rotation_b),
+    )
+    state_a = ffsim.slater_determinant(
+        norb,
+        (occ_a, []),
+        orbital_rotation=orbital_rotation_a,
+    )
+    state_b = ffsim.slater_determinant(
+        norb,
+        ([], occ_b),
+        orbital_rotation=orbital_rotation_b,
+    )
+
+    np.testing.assert_allclose(state, np.kron(state_a, state_b))
 
 
 def test_hartree_fock_state():
@@ -60,24 +92,24 @@ def test_hartree_fock_state():
 
 
 @pytest.mark.parametrize(
-    "norb, occupied_orbitals, spin_summed",
+    "norb, nelec, spin_summed",
     [
-        (4, ([0, 1], [0, 1]), True),
-        (4, ([0, 1], [0, 1]), False),
-        (3, ([0], [1, 2]), True),
-        (3, ([0], [1, 2]), False),
-        (2, ([], [0]), True),
-        (2, ([], [0]), False),
+        (norb, nelec, spin_summed)
+        for (norb, nelec), spin_summed in itertools.product(
+            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+        )
     ],
 )
-def test_slater_determinant_one_rdm(
-    norb: int, occupied_orbitals: tuple[list[int], list[int]], spin_summed: bool
+def test_slater_determinant_one_rdm_same_rotation(
+    norb: int, nelec: tuple[int, int], spin_summed: bool
 ):
     """Test Slater determinant 1-RDM."""
+    rng = np.random.default_rng()
+
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
     occ_a, occ_b = occupied_orbitals
     nelec = len(occ_a), len(occ_b)
 
-    rng = np.random.default_rng()
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
 
     vec = ffsim.slater_determinant(
@@ -87,6 +119,44 @@ def test_slater_determinant_one_rdm(
         norb,
         occupied_orbitals,
         orbital_rotation=orbital_rotation,
+        spin_summed=spin_summed,
+    )
+    expected = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
+
+    np.testing.assert_allclose(rdm, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec, spin_summed",
+    [
+        (norb, nelec, spin_summed)
+        for (norb, nelec), spin_summed in itertools.product(
+            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+        )
+    ],
+)
+def test_slater_determinant_one_rdm_diff_rotation(
+    norb: int, nelec: tuple[int, int], spin_summed: bool
+):
+    """Test Slater determinant 1-RDM."""
+    rng = np.random.default_rng()
+
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    occ_a, occ_b = occupied_orbitals
+    nelec = len(occ_a), len(occ_b)
+
+    orbital_rotation_a = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+
+    vec = ffsim.slater_determinant(
+        norb,
+        occupied_orbitals,
+        orbital_rotation=(orbital_rotation_a, orbital_rotation_b),
+    )
+    rdm = ffsim.slater_determinant_rdm(
+        norb,
+        occupied_orbitals,
+        orbital_rotation=(orbital_rotation_a, orbital_rotation_b),
         spin_summed=spin_summed,
     )
     expected = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
