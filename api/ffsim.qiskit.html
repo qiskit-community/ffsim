@@ -394,7 +394,7 @@ error if it isn’t.</p></li>
 <dt class="sig sig-object py" id="ffsim.qiskit.PrepareSlaterDeterminantJW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareSlaterDeterminantJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol=1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol=1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/slater_determinant.html#PrepareSlaterDeterminantJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
-<p>Gate that prepares a Slater determinant from the all zeros state.</p>
+<p>Gate that prepares a Slater determinant (under JWT) from the all zeros state.</p>
 <p>A Slater determinant is a state of the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -410,9 +410,10 @@ error if it isn’t.</p></li>
 <li><p><span class="math notranslate nohighlight">\(Q\)</span> is an <span class="math notranslate nohighlight">\(N \times N_f\)</span> matrix with orthonormal columns.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\lvert \text{vac} \rangle\)</span> is the vacuum state.</p></li>
 </ul>
-<p>This gate assumes the Jordan-Wigner transformation, and it is meant to be applied
-to the all zeros state. Its behavior when applied to any other state is not
-guaranteed.</p>
+<p>This gate assumes the Jordan-Wigner transformation (JWT).</p>
+<p>This gate is meant to be applied to the all zeros state. Its behavior when applied
+to any other state is not guaranteed. The global phase of the prepared state may
+differ from the given equation.</p>
 <p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
 correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
 beta orbitals.</p>
