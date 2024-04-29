@@ -26,6 +26,45 @@ from ffsim import linalg
 from ffsim.linalg.givens import GivensRotation, zrotg
 
 
+class PrepareHartreeFockJW(Gate):
+    r"""Gate that prepares the Hartree-Fock state (under JWT) from the all zeros state.
+
+    This gate assumes the Jordan-Wigner transformation (JWT).
+
+    This gate is meant to be applied to the all zeros state. It decomposes simply as
+    a sequence of X gates that prepares the Hartree-Fock electronic configuration.
+
+    This gate assumes that qubits are ordered such that the first `norb` qubits
+    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    beta orbitals.
+    """
+
+    def __init__(
+        self, norb: int, nelec: tuple[int, int], label: str | None = None
+    ) -> None:
+        """Create new Hartree-Fock state preparation gate.
+
+        Args:
+            norb: The number of spatial orbitals.
+            nelec: The number of alpha and beta electrons.
+            label: The label of the gate.
+        """
+        self.norb = norb
+        self.nelec = nelec
+        super().__init__("hartree_fock_jw", 2 * norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(2 * self.norb)
+        circuit = QuantumCircuit(qubits, name=self.name)
+        n_alpha, n_beta = self.nelec
+        circuit.append(
+            PrepareSlaterDeterminantJW(self.norb, (range(n_alpha), range(n_beta))),
+            qubits,
+        )
+        self.definition = circuit
+
+
 class PrepareSlaterDeterminantJW(Gate):
     r"""Gate that prepares a Slater determinant (under JWT) from the all zeros state.
 
@@ -92,17 +131,17 @@ class PrepareSlaterDeterminantJW(Gate):
             and not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol)
         ):
             raise ValueError("The input orbital rotation matrix was not unitary.")
+        self.norb = norb
         self.occupied_orbitals = occupied_orbitals
         self.orbital_rotation = orbital_rotation
         super().__init__("slater_jw", 2 * norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(2 * self.norb)
         circuit = QuantumCircuit(qubits, name=self.name)
-        norb = len(qubits) // 2
-        alpha_qubits = qubits[:norb]
-        beta_qubits = qubits[norb:]
+        alpha_qubits = qubits[: self.norb]
+        beta_qubits = qubits[self.norb :]
         occ_a, occ_b = self.occupied_orbitals
 
         if self.orbital_rotation is None:

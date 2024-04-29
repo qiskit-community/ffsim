@@ -20,6 +20,21 @@ import ffsim
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_prepare_hartree_fock_jw(norb: int, nelec: tuple[int, int]):
+    """Test preparing Hartree-Fock state."""
+    gate = ffsim.qiskit.PrepareHartreeFockJW(norb, nelec)
+
+    statevec = Statevector.from_int(0, 2 ** (2 * norb)).evolve(gate)
+    result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        np.array(statevec), norb=norb, nelec=nelec
+    )
+
+    expected = ffsim.hartree_fock_state(norb, nelec)
+
+    np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_random_slater_determinant(norb: int, nelec: tuple[int, int]):
     """Test random Slater determinant circuit gives correct output state."""
     rng = np.random.default_rng()
