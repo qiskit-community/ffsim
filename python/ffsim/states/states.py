@@ -93,10 +93,10 @@ def slater_determinant(
             This is a pair of lists of integers, where the first list specifies the
             spin alpha orbitals and the second list specifies the spin beta
             orbitals.
-        orbital_rotation: The orbital rotation. You can pass either a single Numpy
-            array specifying the orbital rotation to apply to both spin sectors, or
-            you can pass a pair of Numpy arrays to specify independent orbital
-            rotations for spin alpha and spin beta.
+        orbital_rotation: The optional orbital rotation. You can pass either a
+            single Numpy array specifying the orbital rotation to apply to both
+            spin sectors, or you can pass a pair of Numpy arrays to specify
+            independent orbital rotations for spin alpha and spin beta.
 
     Returns:
         The Slater determinant as a statevector.
@@ -178,10 +178,10 @@ def slater_determinant_rdm(
             This is a pair of lists of integers, where the first list specifies the
             spin alpha orbitals and the second list specifies the spin beta
             orbitals.
-        orbital_rotation: The orbital rotation. You can pass either a single Numpy
-            array specifying the orbital rotation to apply to both spin sectors, or
-            you can pass a pair of Numpy arrays to specify independent orbital
-            rotations for spin alpha and spin beta.
+        orbital_rotation: The optional orbital rotation. You can pass either a
+            single Numpy array specifying the orbital rotation to apply to both
+            spin sectors, or you can pass a pair of Numpy arrays to specify
+            independent orbital rotations for spin alpha and spin beta.
         rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the
             one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.
         spin_summed: Whether to sum over the spin index.
