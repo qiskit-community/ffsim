@@ -63,13 +63,17 @@ def _ucj_jw(
         ucj_op.diag_coulomb_mats_alpha_beta,
         ucj_op.orbital_rotations,
     ):
-        yield CircuitInstruction(OrbitalRotationJW(orbital_rotation.T.conj()), qubits)
+        yield CircuitInstruction(
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj()), qubits
+        )
         yield CircuitInstruction(
             DiagCoulombEvolutionJW(mat, -1.0, mat_alpha_beta=mat_alpha_beta),
             qubits,
         )
-        yield CircuitInstruction(OrbitalRotationJW(orbital_rotation), qubits)
+        yield CircuitInstruction(
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation), qubits
+        )
     if ucj_op.final_orbital_rotation is not None:
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.final_orbital_rotation), qubits
+            OrbitalRotationJW(ucj_op.norb, ucj_op.final_orbital_rotation), qubits
         )

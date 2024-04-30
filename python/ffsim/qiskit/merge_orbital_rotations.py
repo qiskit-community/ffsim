@@ -17,29 +17,25 @@ from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.basepasses import TransformationPass
 
 from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
-from ffsim.spin import Spin
 
 
 class MergeOrbitalRotations(TransformationPass):
     """Merge consecutive orbital rotation gates."""
 
     def run(self, dag: DAGCircuit) -> DAGCircuit:
-        for gate_name, spin in [
-            ("orb_rot_jw", Spin.ALPHA_AND_BETA),
-            ("orb_rot_jw_a", Spin.ALPHA),
-            ("orb_rot_jw_b", Spin.BETA),
-        ]:
-            for run in dag.collect_runs([gate_name]):
-                node = run[0]
-                qubits = node.qargs
-                norb = len(qubits) // 2
-                combined_mat = np.eye(norb)
-                for node in run:
-                    combined_mat = node.op.orbital_rotation @ combined_mat
-                dag.replace_block_with_op(
-                    run,
-                    OrbitalRotationJW(combined_mat, spin=spin),
-                    {q: i for i, q in enumerate(qubits)},
-                    cycle_check=False,
-                )
+        for run in dag.collect_runs(["orb_rot_jw"]):
+            node = run[0]
+            qubits = node.qargs
+            norb = node.op.norb
+            combined_mat_a = np.eye(norb)
+            combined_mat_b = np.eye(norb)
+            for node in run:
+                combined_mat_a = node.op.orbital_rotation_a @ combined_mat_a
+                combined_mat_b = node.op.orbital_rotation_b @ combined_mat_b
+            dag.replace_block_with_op(
+                run,
+                OrbitalRotationJW(norb, (combined_mat_a, combined_mat_b)),
+                {q: i for i, q in enumerate(qubits)},
+                cycle_check=False,
+            )
         return dag

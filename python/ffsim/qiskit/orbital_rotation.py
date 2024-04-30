@@ -26,8 +26,7 @@ from qiskit.circuit import (
 )
 from qiskit.circuit.library import PhaseGate, XXPlusYYGate
 
-from ffsim.linalg import givens_decomposition, is_unitary
-from ffsim.spin import Spin
+from ffsim import linalg
 
 
 class OrbitalRotationJW(Gate):
@@ -54,8 +53,8 @@ class OrbitalRotationJW(Gate):
 
     def __init__(
         self,
-        orbital_rotation: np.ndarray,
-        spin: Spin = Spin.ALPHA_AND_BETA,
+        norb: int,
+        orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray],
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -64,34 +63,44 @@ class OrbitalRotationJW(Gate):
         """Create new orbital rotation gate.
 
         Args:
-            orbital_rotation: The matrix describing the orbital rotation.
-            spin: Choice of spin sector(s) to act on.
-
-                - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-                - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-                - To act on both spin alpha and spin beta, pass
-                  :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+            norb: The number of spatial orbitals.
+            orbital_rotation: The orbital rotation. You can pass either a
+                single Numpy array specifying the orbital rotation to apply to both
+                spin sectors, or you can pass a pair of Numpy arrays to specify
+                independent orbital rotations for spin alpha and spin beta.
             label: The label of the gate.
-            validate: Whether to check that the input matrix is unitary and raise an
-                error if it isn't.
+            validate: Whether to check that the input orbital rotation(s) is unitary
+                and raise an error if it isn't.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
 
         Raises:
             ValueError: The input matrix is not unitary.
         """
-        if validate and not is_unitary(orbital_rotation, rtol=rtol, atol=atol):
-            raise ValueError("The input orbital rotation matrix was not unitary.")
-        self.orbital_rotation = orbital_rotation
-        self.spin = spin
-        norb, _ = orbital_rotation.shape
-        if spin is Spin.ALPHA:
-            name = "orb_rot_jw_a"
-        elif spin is Spin.BETA:
-            name = "orb_rot_jw_b"
+        if validate and orbital_rotation is not None:
+            if isinstance(orbital_rotation, np.ndarray):
+                if not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol):
+                    raise ValueError(
+                        "The input orbital rotation matrix was not unitary."
+                    )
+            else:
+                orbital_rotation_a, orbital_rotation_b = orbital_rotation
+                if not linalg.is_unitary(orbital_rotation_a, rtol=rtol, atol=atol):
+                    raise ValueError(
+                        "The orbital rotation matrix for spin alpha was not unitary."
+                    )
+                if not linalg.is_unitary(orbital_rotation_b, rtol=rtol, atol=atol):
+                    raise ValueError(
+                        "The orbital rotation matrix for spin beta was not unitary."
+                    )
+
+        self.norb = norb
+        if isinstance(orbital_rotation, np.ndarray):
+            self.orbital_rotation_a = orbital_rotation
+            self.orbital_rotation_b = orbital_rotation
         else:
-            name = "orb_rot_jw"
-        super().__init__(name, 2 * norb, [], label=label)
+            self.orbital_rotation_a, self.orbital_rotation_b = orbital_rotation
+        super().__init__("orb_rot_jw", 2 * norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
@@ -100,25 +109,24 @@ class OrbitalRotationJW(Gate):
         norb = len(qubits) // 2
         alpha_qubits = qubits[:norb]
         beta_qubits = qubits[norb:]
-        if self.spin & Spin.ALPHA:
-            for instruction in _orbital_rotation_jw(
-                alpha_qubits, self.orbital_rotation
-            ):
-                circuit.append(instruction)
-        if self.spin & Spin.BETA:
-            for instruction in _orbital_rotation_jw(beta_qubits, self.orbital_rotation):
-                circuit.append(instruction)
+        for instruction in _orbital_rotation_jw(alpha_qubits, self.orbital_rotation_a):
+            circuit.append(instruction)
+        for instruction in _orbital_rotation_jw(beta_qubits, self.orbital_rotation_b):
+            circuit.append(instruction)
         self.definition = circuit
 
     def inverse(self):
         """Inverse gate."""
-        return OrbitalRotationJW(self.orbital_rotation.T.conj(), spin=self.spin)
+        return OrbitalRotationJW(
+            self.norb,
+            (self.orbital_rotation_a.T.conj(), self.orbital_rotation_b.T.conj()),
+        )
 
 
 def _orbital_rotation_jw(
     qubits: Sequence[Qubit], orbital_rotation: np.ndarray
 ) -> Iterator[CircuitInstruction]:
-    givens_rotations, phase_shifts = givens_decomposition(orbital_rotation)
+    givens_rotations, phase_shifts = linalg.givens_decomposition(orbital_rotation)
     for c, s, i, j in givens_rotations:
         yield CircuitInstruction(
             XXPlusYYGate(2 * math.acos(c), cmath.phase(s) - 0.5 * math.pi),
