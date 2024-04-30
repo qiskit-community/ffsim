@@ -119,7 +119,8 @@ class PrepareSlaterDeterminantJW(Gate):
                 spin sectors, or you can pass a pair of Numpy arrays to specify
                 independent orbital rotations for spin alpha and spin beta.
             label: The label of the gate.
-            validate: Whether to validate the inputs.
+            validate: Whether to check that the input orbital rotation(s) is unitary
+                and raise an error if it isn't.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
 
@@ -146,7 +147,14 @@ class PrepareSlaterDeterminantJW(Gate):
 
         self.norb = norb
         self.occupied_orbitals = occupied_orbitals
-        self.orbital_rotation = orbital_rotation
+        if orbital_rotation is None:
+            self.orbital_rotation_a = np.eye(norb)
+            self.orbital_rotation_b = np.eye(norb)
+        elif isinstance(orbital_rotation, np.ndarray):
+            self.orbital_rotation_a = orbital_rotation
+            self.orbital_rotation_b = orbital_rotation
+        else:
+            self.orbital_rotation_a, self.orbital_rotation_b = orbital_rotation
         super().__init__("slater_jw", 2 * norb, [], label=label)
 
     def _define(self):
@@ -157,23 +165,21 @@ class PrepareSlaterDeterminantJW(Gate):
         beta_qubits = qubits[self.norb :]
         occ_a, occ_b = self.occupied_orbitals
 
-        if self.orbital_rotation is None:
+        if np.array_equal(self.orbital_rotation_a, np.eye(self.norb)):
             for instruction in _prepare_configuration_jw(alpha_qubits, occ_a):
                 circuit.append(instruction)
+        else:
+            for instruction in _prepare_slater_determinant_jw(
+                alpha_qubits, self.orbital_rotation_a.T[list(occ_a)]
+            ):
+                circuit.append(instruction)
+
+        if np.array_equal(self.orbital_rotation_b, np.eye(self.norb)):
             for instruction in _prepare_configuration_jw(beta_qubits, occ_b):
                 circuit.append(instruction)
         else:
-            if isinstance(self.orbital_rotation, np.ndarray):
-                orbital_rotation_a = self.orbital_rotation
-                orbital_rotation_b = self.orbital_rotation
-            else:
-                orbital_rotation_a, orbital_rotation_b = self.orbital_rotation
             for instruction in _prepare_slater_determinant_jw(
-                alpha_qubits, orbital_rotation_a.T[list(occ_a)]
-            ):
-                circuit.append(instruction)
-            for instruction in _prepare_slater_determinant_jw(
-                beta_qubits, orbital_rotation_b.T[list(occ_b)]
+                beta_qubits, self.orbital_rotation_b.T[list(occ_b)]
             ):
                 circuit.append(instruction)
         self.definition = circuit
@@ -210,7 +216,7 @@ def _prepare_slater_determinant_jw(
 def _givens_decomposition_slater(orbital_coeffs: np.ndarray) -> list[GivensRotation]:
     m, n = orbital_coeffs.shape
 
-    current_matrix = orbital_coeffs.copy()
+    current_matrix = orbital_coeffs.astype(complex, copy=True)
 
     # zero out top right corner by rotating rows; this is a no-op
     for j in reversed(range(n - m + 1, n)):

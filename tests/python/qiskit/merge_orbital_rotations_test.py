@@ -19,35 +19,31 @@ import ffsim
 def test_yields_equivalent_circuit():
     """Test merging orbital rotations results in an equivalent circuit."""
     rng = np.random.default_rng()
-    qubits = QuantumRegister(6)
+    norb = 3
+    qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
     for _ in range(3):
         circuit.append(
-            ffsim.qiskit.OrbitalRotationJW(ffsim.random.random_unitary(3, seed=rng)),
+            ffsim.qiskit.OrbitalRotationJW(
+                norb, ffsim.random.random_unitary(3, seed=rng)
+            ),
             qubits,
         )
     for _ in range(4):
         circuit.append(
             ffsim.qiskit.OrbitalRotationJW(
-                ffsim.random.random_unitary(3, seed=rng), ffsim.Spin.ALPHA
-            ),
-            qubits,
-        )
-    for _ in range(5):
-        circuit.append(
-            ffsim.qiskit.OrbitalRotationJW(
-                ffsim.random.random_unitary(3, seed=rng), ffsim.Spin.BETA
+                norb,
+                (
+                    ffsim.random.random_unitary(3, seed=rng),
+                    ffsim.random.random_unitary(3, seed=rng),
+                ),
             ),
             qubits,
         )
     pass_manager = PassManager([ffsim.qiskit.MergeOrbitalRotations()])
     transpiled = pass_manager.run(circuit)
-    assert circuit.count_ops()["orb_rot_jw"] == 3
+    assert circuit.count_ops()["orb_rot_jw"] == 7
     assert transpiled.count_ops()["orb_rot_jw"] == 1
-    assert circuit.count_ops()["orb_rot_jw_a"] == 4
-    assert transpiled.count_ops()["orb_rot_jw_a"] == 1
-    assert circuit.count_ops()["orb_rot_jw_b"] == 5
-    assert transpiled.count_ops()["orb_rot_jw_b"] == 1
     np.testing.assert_allclose(
         np.array(Operator(circuit)), np.array(Operator(transpiled))
     )
