@@ -134,31 +134,35 @@ def _diag_coulomb_evo_num_rep_jw(
     # gates that involve a single spin sector
     for sigma in range(2):
         for i in range(norb):
-            yield CircuitInstruction(
-                PhaseGate(-0.5 * mat[i % norb, i % norb] * time),
-                (qubits[i + sigma * norb],),
-            )
+            if mat[i % norb, i % norb]:
+                yield CircuitInstruction(
+                    PhaseGate(-0.5 * mat[i % norb, i % norb] * time),
+                    (qubits[i + sigma * norb],),
+                )
         for i, j in itertools.combinations(range(norb), 2):
-            yield CircuitInstruction(
-                CPhaseGate(-mat[i % norb, j % norb] * time),
-                (qubits[i + sigma * norb], qubits[j + sigma * norb]),
-            )
+            if mat[i % norb, j % norb]:
+                yield CircuitInstruction(
+                    CPhaseGate(-mat[i % norb, j % norb] * time),
+                    (qubits[i + sigma * norb], qubits[j + sigma * norb]),
+                )
 
     # gates that involve both spin sectors
     for i in range(norb):
-        yield CircuitInstruction(
-            CPhaseGate(-mat_alpha_beta[i % norb, i % norb] * time),
-            (qubits[i], qubits[i + norb]),
-        )
+        if mat_alpha_beta[i % norb, i % norb]:
+            yield CircuitInstruction(
+                CPhaseGate(-mat_alpha_beta[i % norb, i % norb] * time),
+                (qubits[i], qubits[i + norb]),
+            )
     for i, j in itertools.combinations(range(norb), 2):
-        yield CircuitInstruction(
-            CPhaseGate(-mat_alpha_beta[i % norb, j % norb] * time),
-            (qubits[i], qubits[j + norb]),
-        )
-        yield CircuitInstruction(
-            CPhaseGate(-mat_alpha_beta[i % norb, j % norb] * time),
-            (qubits[i + norb], qubits[j]),
-        )
+        if mat_alpha_beta[i % norb, j % norb]:
+            yield CircuitInstruction(
+                CPhaseGate(-mat_alpha_beta[i % norb, j % norb] * time),
+                (qubits[i], qubits[j + norb]),
+            )
+            yield CircuitInstruction(
+                CPhaseGate(-mat_alpha_beta[i % norb, j % norb] * time),
+                (qubits[i + norb], qubits[j]),
+            )
 
 
 def _diag_coulomb_evo_z_rep_jw(
@@ -171,7 +175,8 @@ def _diag_coulomb_evo_z_rep_jw(
     assert norb == len(qubits) // 2
     for i, j in itertools.combinations(range(len(qubits)), 2):
         this_mat = mat if (i < norb) == (j < norb) else mat_alpha_beta
-        yield CircuitInstruction(
-            RZZGate(0.5 * this_mat[i % norb, j % norb] * time),
-            (qubits[i], qubits[j]),
-        )
+        if this_mat[i % norb, j % norb]:
+            yield CircuitInstruction(
+                RZZGate(0.5 * this_mat[i % norb, j % norb] * time),
+                (qubits[i], qubits[j]),
+            )
