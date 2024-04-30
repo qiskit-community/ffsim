@@ -17,12 +17,14 @@ from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.basepasses import TransformationPass
 
 from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
+from ffsim.qiskit.slater_determinant import PrepareSlaterDeterminantJW
 
 
 class MergeOrbitalRotations(TransformationPass):
     """Merge consecutive orbital rotation gates."""
 
     def run(self, dag: DAGCircuit) -> DAGCircuit:
+        # Merge orbital rotation gates
         for run in dag.collect_runs(["orb_rot_jw"]):
             node = run[0]
             qubits = node.qargs
@@ -38,4 +40,30 @@ class MergeOrbitalRotations(TransformationPass):
                 {q: i for i, q in enumerate(qubits)},
                 cycle_check=False,
             )
+
+        # Merge Slater determinant preparation followed by orbital rotation
+        # into a single Slater determinant preparation gate
+        for node in dag.named_nodes("slater_jw"):
+            successors = list(dag.successors(node))
+            if len(successors) == 1 and successors[0].op.name == "orb_rot_jw":
+                successor_node = successors[0]
+
+                combined_mat_a = (
+                    successor_node.op.orbital_rotation_a @ node.op.orbital_rotation_a
+                )
+                combined_mat_b = (
+                    successor_node.op.orbital_rotation_b @ node.op.orbital_rotation_b
+                )
+
+                dag.substitute_node(
+                    node,
+                    PrepareSlaterDeterminantJW(
+                        node.op.norb,
+                        node.op.occupied_orbitals,
+                        orbital_rotation=(combined_mat_a, combined_mat_b),
+                    ),
+                    inplace=True,
+                )
+                dag.remove_op_node(successor_node)
+
         return dag
