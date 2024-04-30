@@ -237,7 +237,6 @@
 <span class="kn">from</span> <span class="nn">qiskit.transpiler.basepasses</span> <span class="kn">import</span> <span class="n">TransformationPass</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.qiskit.orbital_rotation</span> <span class="kn">import</span> <span class="n">OrbitalRotationJW</span>
-<span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
 
 
 <div class="viewcode-block" id="MergeOrbitalRotations">
@@ -248,24 +247,21 @@
 <div class="viewcode-block" id="MergeOrbitalRotations.run">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.MergeOrbitalRotations.run">[docs]</a>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DAGCircuit</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">gate_name</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;orb_rot_jw&quot;</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;orb_rot_jw_a&quot;</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;orb_rot_jw_b&quot;</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">),</span>
-        <span class="p">]:</span>
-            <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">dag</span><span class="o">.</span><span class="n">collect_runs</span><span class="p">([</span><span class="n">gate_name</span><span class="p">]):</span>
-                <span class="n">node</span> <span class="o">=</span> <span class="n">run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">qubits</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">qargs</span>
-                <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-                <span class="n">combined_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">run</span><span class="p">:</span>
-                    <span class="n">combined_mat</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="o">@</span> <span class="n">combined_mat</span>
-                <span class="n">dag</span><span class="o">.</span><span class="n">replace_block_with_op</span><span class="p">(</span>
-                    <span class="n">run</span><span class="p">,</span>
-                    <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">combined_mat</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">),</span>
-                    <span class="p">{</span><span class="n">q</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">qubits</span><span class="p">)},</span>
-                    <span class="n">cycle_check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="p">)</span>
+        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">dag</span><span class="o">.</span><span class="n">collect_runs</span><span class="p">([</span><span class="s2">&quot;orb_rot_jw&quot;</span><span class="p">]):</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">qubits</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">qargs</span>
+            <span class="n">norb</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">norb</span>
+            <span class="n">combined_mat_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
+            <span class="n">combined_mat_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">run</span><span class="p">:</span>
+                <span class="n">combined_mat_a</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_a</span> <span class="o">@</span> <span class="n">combined_mat_a</span>
+                <span class="n">combined_mat_b</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_b</span> <span class="o">@</span> <span class="n">combined_mat_b</span>
+            <span class="n">dag</span><span class="o">.</span><span class="n">replace_block_with_op</span><span class="p">(</span>
+                <span class="n">run</span><span class="p">,</span>
+                <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">combined_mat_a</span><span class="p">,</span> <span class="n">combined_mat_b</span><span class="p">)),</span>
+                <span class="p">{</span><span class="n">q</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">qubits</span><span class="p">)},</span>
+                <span class="n">cycle_check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">dag</span></div>
 </div>
 

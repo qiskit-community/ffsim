@@ -289,15 +289,19 @@
         <span class="n">ucj_op</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
         <span class="n">ucj_op</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span> <span class="n">qubits</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
+            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span> <span class="n">qubits</span>
+        <span class="p">)</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
             <span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">),</span>
             <span class="n">qubits</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
+            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">ucj_op</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span>
+            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">ucj_op</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span>
         <span class="p">)</span>
 </pre></div>
         </article>

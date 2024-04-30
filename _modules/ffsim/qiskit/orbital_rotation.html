@@ -246,8 +246,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">PhaseGate</span><span class="p">,</span> <span class="n">XXPlusYYGate</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.linalg</span> <span class="kn">import</span> <span class="n">givens_decomposition</span><span class="p">,</span> <span class="n">is_unitary</span>
-<span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
 
 
 <div class="viewcode-block" id="OrbitalRotationJW">
@@ -278,8 +277,8 @@
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
@@ -288,34 +287,44 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new orbital rotation gate.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            orbital_rotation: The matrix describing the orbital rotation.</span>
-<span class="sd">            spin: Choice of spin sector(s) to act on.</span>
-
-<span class="sd">                - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">                - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">                - To act on both spin alpha and spin beta, pass</span>
-<span class="sd">                  :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            orbital_rotation: The orbital rotation. You can pass either a</span>
+<span class="sd">                single Numpy array specifying the orbital rotation to apply to both</span>
+<span class="sd">                spin sectors, or you can pass a pair of Numpy arrays to specify</span>
+<span class="sd">                independent orbital rotations for spin alpha and spin beta.</span>
 <span class="sd">            label: The label of the gate.</span>
-<span class="sd">            validate: Whether to check that the input matrix is unitary and raise an</span>
-<span class="sd">                error if it isn&#39;t.</span>
+<span class="sd">            validate: Whether to check that the input orbital rotation(s) is unitary</span>
+<span class="sd">                and raise an error if it isn&#39;t.</span>
 <span class="sd">            rtol: Relative numerical tolerance for input validation.</span>
 <span class="sd">            atol: Absolute numerical tolerance for input validation.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: The input matrix is not unitary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input orbital rotation matrix was not unitary.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">=</span> <span class="n">spin</span>
-        <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">shape</span>
-        <span class="k">if</span> <span class="n">spin</span> <span class="ow">is</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;orb_rot_jw_a&quot;</span>
-        <span class="k">elif</span> <span class="n">spin</span> <span class="ow">is</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;orb_rot_jw_b&quot;</span>
+        <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The input orbital rotation matrix was not unitary.&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The orbital rotation matrix for spin alpha was not unitary.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation_b</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The orbital rotation matrix for spin beta was not unitary.&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">=</span> <span class="n">norb</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;orb_rot_jw&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;orb_rot_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -325,21 +334,20 @@
         <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span><span class="n">norb</span><span class="p">]</span>
         <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="n">norb</span><span class="p">:]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_orbital_rotation_jw</span><span class="p">(</span>
-                <span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span>
-            <span class="p">):</span>
-                <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_orbital_rotation_jw</span><span class="p">(</span><span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="p">):</span>
-                <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_orbital_rotation_jw</span><span class="p">(</span><span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_orbital_rotation_jw</span><span class="p">(</span><span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span>
 
 <div class="viewcode-block" id="OrbitalRotationJW.inverse">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW.inverse">[docs]</a>
     <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Inverse gate.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">spin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">OrbitalRotationJW</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -347,7 +355,7 @@
 <span class="k">def</span> <span class="nf">_orbital_rotation_jw</span><span class="p">(</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-    <span class="n">givens_rotations</span><span class="p">,</span> <span class="n">phase_shifts</span> <span class="o">=</span> <span class="n">givens_decomposition</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">)</span>
+    <span class="n">givens_rotations</span><span class="p">,</span> <span class="n">phase_shifts</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">givens_decomposition</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">givens_rotations</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
             <span class="n">XXPlusYYGate</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">cmath</span><span class="o">.</span><span class="n">phase</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
