@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -93,11 +94,16 @@ def test_slater_determinant_no_rotation(norb: int, nelec: tuple[int, int]):
 
     gate = ffsim.qiskit.PrepareSlaterDeterminantJW(norb, occupied_orbitals)
 
+    # Check state vector is correct
     statevec = Statevector.from_int(0, 2 ** (2 * norb)).evolve(gate)
     result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
         np.array(statevec), norb=norb, nelec=nelec
     )
-
     expected = ffsim.slater_determinant(norb, occupied_orbitals)
+    np.testing.assert_allclose(result, expected)
 
-    ffsim.testing.assert_allclose_up_to_global_phase(result, expected)
+    # Check that the circuit only contains X gates
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    assert circuit.decompose().count_ops().keys() in [set(), {"x"}]
