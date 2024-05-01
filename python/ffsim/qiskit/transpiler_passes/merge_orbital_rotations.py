@@ -16,8 +16,7 @@ import numpy as np
 from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.basepasses import TransformationPass
 
-from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
-from ffsim.qiskit.slater_determinant import PrepareSlaterDeterminantJW
+from ffsim.qiskit.gates import OrbitalRotationJW, PrepareSlaterDeterminantJW
 
 
 class MergeOrbitalRotations(TransformationPass):

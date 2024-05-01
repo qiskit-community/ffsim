@@ -27,7 +27,6 @@ from qiskit.quantum_info import Operator
 from qiskit.transpiler import PassManager
 
 import ffsim
-import ffsim.qiskit.drop_negligible
 
 
 def test_drops_negligible_gates():
