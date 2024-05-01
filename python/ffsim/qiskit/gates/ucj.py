@@ -22,8 +22,8 @@ from qiskit.circuit import (
     Qubit,
 )
 
-from ffsim.qiskit.diag_coulomb import DiagCoulombEvolutionJW
-from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
+from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
+from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
 from ffsim.variational import UCJOperator
 
 
