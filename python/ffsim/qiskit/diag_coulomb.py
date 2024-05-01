@@ -50,6 +50,7 @@ class DiagCoulombEvolutionJW(Gate):
 
     def __init__(
         self,
+        norb: int,
         mat: np.ndarray,
         time: float,
         *,
@@ -63,6 +64,7 @@ class DiagCoulombEvolutionJW(Gate):
         r"""Create new diagonal Coulomb evolution gate.
 
         Args:
+            norb: The number of spatial orbitals.
             mat: The real symmetric matrix :math:`Z`.
             time: The evolution time.
             mat_alpha_beta: A matrix of coefficients to use for interactions between
@@ -84,6 +86,7 @@ class DiagCoulombEvolutionJW(Gate):
                 mat_alpha_beta, rtol=rtol, atol=atol
             ):
                 raise ValueError("The input alpha-beta matrix is not real symmetric.")
+        self.norb = norb
         self.mat = mat
         self.time = time
         self.mat_alpha_beta = mat_alpha_beta
@@ -114,6 +117,7 @@ class DiagCoulombEvolutionJW(Gate):
     def inverse(self):
         """Inverse gate."""
         return DiagCoulombEvolutionJW(
+            self.norb,
             self.mat,
             -self.time,
             mat_alpha_beta=self.mat_alpha_beta,
