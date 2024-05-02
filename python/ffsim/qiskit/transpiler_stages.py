@@ -10,6 +10,8 @@
 
 """Tools for constructing Qiskit transpiler pass managers and stages."""
 
+from __future__ import annotations
+
 from collections.abc import Iterator
 
 from qiskit.transpiler.basepasses import BasePass
