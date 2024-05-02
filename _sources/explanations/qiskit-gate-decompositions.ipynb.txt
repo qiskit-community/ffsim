@@ -389,7 +389,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Note that the MergeOrbitalRotations needs to be run on the decomposed circuit. Running it on the original circuit will have no effect because the orbital rotations are not exposed:"
+    "Note that the MergeOrbitalRotations pass needs to be run on the decomposed circuit. Running it on the original circuit will have no effect because the orbital rotations are not exposed:"
    ]
   },
   {
