@@ -518,6 +518,21 @@ of length <code class="docutils literal notranslate"><span class="pre">comb(norb
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.qiskit.pre_init_passes">
+<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">pre_init_passes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/transpiler_stages.html#pre_init_passes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.pre_init_passes" title="Link to this definition">¶</a></dt>
+<dd><p>Yield transpiler passes recommended for the Qiskit transpiler <code class="docutils literal notranslate"><span class="pre">pre_init</span></code> stage.</p>
+<p>The following transpiler passes are yielded:
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BasePass</span></code>]</span></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.passes.Decompose#decompose">Decompose</a> pass that decomposes <a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockJW" title="ffsim.qiskit.PrepareHartreeFockJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrepareHartreeFockJW</span></code></a> and
+<a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW" title="ffsim.qiskit.UCJOperatorJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperatorJW</span></code></a> gates to expose the underlying
+<a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantJW" title="ffsim.qiskit.PrepareSlaterDeterminantJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantJW</span></code></a> and <a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW" title="ffsim.qiskit.OrbitalRotationJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a> gates.</p></li>
+<li><p><a class="reference internal" href="#ffsim.qiskit.MergeOrbitalRotations" title="ffsim.qiskit.MergeOrbitalRotations"><code class="xref py py-class docutils literal notranslate"><span class="pre">MergeOrbitalRotations</span></code></a> pass to merge the Slater determinant preparation
+and orbital rotation gates.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.qiskit_vec_to_ffsim_vec">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">qiskit_vec_to_ffsim_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/util.html#qiskit_vec_to_ffsim_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec" title="Link to this definition">¶</a></dt>
 <dd><p>Convert a Qiskit statevector to an ffsim statevector.</p>
@@ -633,6 +648,7 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec"><code class="docutils literal notranslate"><span class="pre">ffsim_vec_to_qiskit_vec()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.pre_init_passes"><code class="docutils literal notranslate"><span class="pre">pre_init_passes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec"><code class="docutils literal notranslate"><span class="pre">qiskit_vec_to_ffsim_vec()</span></code></a></li>
 </ul>
 </li>
