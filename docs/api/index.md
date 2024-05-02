@@ -1,6 +1,7 @@
 # API Reference
 
 ```{toctree}
+:maxdepth: 2
 
 ffsim
 ffsim.contract
