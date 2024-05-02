@@ -96,6 +96,13 @@ class MolecularHamiltonian:
 
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
+        if np.iscomplexobj(self.two_body_tensor):
+            raise NotImplementedError(
+                "This Hamiltonian has a complex-valued two-body tensor. "
+                "LinearOperator support for complex two-body tensors is not yet "
+                "implemented. See https://github.com/qiskit-community/ffsim/issues/81."
+            )
+
         n_alpha, n_beta = nelec
         linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
         linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
