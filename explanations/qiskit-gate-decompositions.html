@@ -225,7 +225,8 @@
           <section id="Qubit-gate-decompositions-of-fermionic-gates">
 <h1>Qubit gate decompositions of fermionic gates<a class="headerlink" href="#Qubit-gate-decompositions-of-fermionic-gates" title="Link to this heading">¶</a></h1>
 <p>In this page, we discuss the gate decompositions of the fermionic gates included in ffsim.</p>
-<div class="nbinput nblast docutils container">
+<p>The following code cell constructs and draws an example circuit that uses some of the gates in ffsim. In the circuit drawing, the gates appear as opaque boxes. In the rest of this page, we’ll see how these gates decompose into more basic gates.</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -243,7 +244,33 @@
 
 <span class="c1"># Initialize random number generator</span>
 <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="c1"># Create some random objects</span>
+<span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="n">diag_coulomb_mat</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+
+<span class="c1"># Create an example circuit</span>
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+<span class="c1"># Prepare the Hartree-Fock state</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<span class="c1"># Apply an orbital rotation</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<span class="c1"># Apply a diagonal Coulomb evolution</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">qubits</span>
+<span class="p">)</span>
+
+<span class="c1"># Draw the circuit</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/explanations_qiskit-gate-decompositions_1_0.png" src="../_images/explanations_qiskit-gate-decompositions_1_0.png" />
 </div>
 </div>
 <section id="Hartree-Fock-and-Slater-determinant-preparation">
@@ -345,7 +372,9 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
 
 <span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -576,7 +605,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Gate counts without pre_init passes:
-OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 48, &#39;p&#39;: 32, &#39;x&#39;: 4})
+OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 48, &#39;p&#39;: 40, &#39;x&#39;: 4})
 
 Gate counts with pre_init passes:
 OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 32, &#39;p&#39;: 24, &#39;x&#39;: 4})
