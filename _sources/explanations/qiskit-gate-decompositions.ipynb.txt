@@ -44,7 +44,7 @@
     "# Initialize random number generator\n",
     "rng = np.random.default_rng(1234)\n",
     "\n",
-    "# Create some random objects\n",
+    "# Generate some random data\n",
     "orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)\n",
     "diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)\n",
     "\n",
