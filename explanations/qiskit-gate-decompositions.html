@@ -251,11 +251,8 @@
 
 <span class="c1"># Create an example circuit</span>
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
-<span class="c1"># Prepare the Hartree-Fock state</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
-<span class="c1"># Apply an orbital rotation</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
-<span class="c1"># Apply a diagonal Coulomb evolution</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
     <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">qubits</span>
 <span class="p">)</span>
