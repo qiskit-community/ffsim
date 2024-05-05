@@ -3,7 +3,7 @@ name: Build and deploy documentation
 on:
   push:
     branches:
-      - main
+      - stable
 
 jobs:
   build_and_deploy_docs:
