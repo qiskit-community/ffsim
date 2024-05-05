@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 
+from qiskit.transpiler import PassManager
 from qiskit.transpiler.basepasses import BasePass
 from qiskit.transpiler.passes import Decompose
 
@@ -35,3 +36,11 @@ def pre_init_passes() -> Iterator[BasePass]:
     """
     yield Decompose(["hartree_fock_jw", "ucj_jw"])
     yield MergeOrbitalRotations()
+
+
+PRE_INIT = PassManager(list(pre_init_passes()))
+"""Pass manager recommended for the Qiskit transpiler ``pre_init`` stage.
+
+See :func:`pre_init_passes` for a description of the transpiler passes included in this
+pass manager.
+"""
