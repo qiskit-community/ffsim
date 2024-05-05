@@ -10,6 +10,8 @@
 
 """Code that uses Qiskit, e.g. for constructing quantum circuits."""
 
+from qiskit.transpiler import PassManager
+
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
     OrbitalRotationJW,
@@ -21,11 +23,20 @@ from ffsim.qiskit.transpiler_passes import DropNegligible, MergeOrbitalRotations
 from ffsim.qiskit.transpiler_stages import pre_init_passes
 from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
 
+PRE_INIT = PassManager(list(pre_init_passes()))
+"""Pass manager recommended for the Qiskit transpiler ``pre_init`` stage.
+
+See :func:`pre_init_passes` for a description of the transpiler passes included in this
+pass manager.
+"""
+
+
 __all__ = [
     "DiagCoulombEvolutionJW",
     "DropNegligible",
     "MergeOrbitalRotations",
     "OrbitalRotationJW",
+    "PRE_INIT",
     "PrepareHartreeFockJW",
     "PrepareSlaterDeterminantJW",
     "UCJOperatorJW",
