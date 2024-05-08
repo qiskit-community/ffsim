@@ -168,17 +168,15 @@ def givens_decomposition(
                     right_rotations.append(
                         GivensRotation(c, s, target_index + 1, target_index)
                     )
-                    current_matrix = current_matrix.T.copy()
                     (
-                        current_matrix[target_index + 1],
-                        current_matrix[target_index],
+                        current_matrix[:, target_index + 1],
+                        current_matrix[:, target_index],
                     ) = zrot(
-                        current_matrix[target_index + 1],
-                        current_matrix[target_index],
+                        current_matrix[:, target_index + 1],
+                        current_matrix[:, target_index],
                         c,
                         s,
                     )
-                    current_matrix = current_matrix.T
         else:
             # rotate rows by left multiplication
             for j in range(i + 1):
