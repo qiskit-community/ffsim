@@ -244,16 +244,14 @@ def _givens_decomposition_slater(orbital_coeffs: np.ndarray) -> list[GivensRotat
                 # zero out element j of row i
                 c, s = zrotg(current_matrix[i, j - 1], current_matrix[i, j])
                 rotations.append(GivensRotation(c, s, j, j - 1))
-                current_matrix = current_matrix.T.copy()
                 (
-                    current_matrix[j - 1],
-                    current_matrix[j],
+                    current_matrix[:, j - 1],
+                    current_matrix[:, j],
                 ) = zrot(
-                    current_matrix[j - 1],
-                    current_matrix[j],
+                    current_matrix[:, j - 1],
+                    current_matrix[:, j],
                     c,
                     s,
                 )
-                current_matrix = current_matrix.T
 
     return rotations[::-1]
