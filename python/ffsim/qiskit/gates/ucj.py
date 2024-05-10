@@ -37,7 +37,7 @@ class UCJOperatorJW(Gate):
     beta orbitals.
     """
 
-    def __init__(self, ucj_operator: UCJOperator, label: str | None = None):
+    def __init__(self, ucj_operator: UCJOperator, *, label: str | None = None):
         """Create a new unitary cluster Jastrow (UCJ) gate.
 
         Args:

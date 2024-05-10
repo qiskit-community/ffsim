@@ -101,6 +101,7 @@ class PrepareSlaterDeterminantJW(Gate):
         norb: int,
         occupied_orbitals: tuple[Sequence[int], Sequence[int]],
         orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None,
+        *,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,

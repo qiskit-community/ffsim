@@ -55,6 +55,7 @@ class OrbitalRotationJW(Gate):
         self,
         norb: int,
         orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray],
+        *,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
