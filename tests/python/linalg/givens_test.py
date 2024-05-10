@@ -22,7 +22,7 @@ import ffsim
 from ffsim.linalg import givens_decomposition
 
 
-@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("dim", range(6))
 def test_givens_decomposition_definition(dim: int):
     """Test Givens decomposition definition."""
     rng = np.random.default_rng()
@@ -42,7 +42,7 @@ def test_givens_decomposition_definition(dim: int):
         assert len(givens_rotations) == dim * (dim - 1) // 2
 
 
-@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("dim", range(6))
 def test_givens_decomposition_reconstruct(dim: int):
     """Test Givens decomposition reconstruction of original matrix."""
     rng = np.random.default_rng()
@@ -59,7 +59,7 @@ def test_givens_decomposition_reconstruct(dim: int):
         np.testing.assert_allclose(reconstructed, mat)
 
 
-@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("dim", range(6))
 def test_givens_decomposition_identity(dim: int):
     """Test Givens decomposition on identity matrix."""
     mat = np.eye(dim)
@@ -68,7 +68,7 @@ def test_givens_decomposition_identity(dim: int):
     assert len(givens_rotations) == 0
 
 
-@pytest.mark.parametrize("norb", range(5))
+@pytest.mark.parametrize("norb", range(6))
 def test_givens_decomposition_no_side_effects(norb: int):
     """Test that the Givens decomposition doesn't modify the original matrix."""
     rng = np.random.default_rng()
