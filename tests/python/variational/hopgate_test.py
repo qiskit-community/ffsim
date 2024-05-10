@@ -19,6 +19,7 @@ import ffsim
 
 
 def test_parameters_roundtrip():
+    """Test converting to and back from parameters gives consistent results."""
     norb = 5
     n_reps = 2
     rng = np.random.default_rng()
