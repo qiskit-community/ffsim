@@ -39,8 +39,9 @@ def minimize_linear_method(
     lindep: float = 1e-8,
     epsilon: float = 1e-8,
     gtol: float = 1e-5,
-    optimize_hyperparameters: bool = True,
-    optimize_hyperparameters_args: dict | None = None,
+    optimize_regularization: bool = True,
+    optimize_variation: bool = True,
+    optimize_kwargs: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
 ) -> OptimizeResult:
     """Minimize the energy of a variational ansatz using the linear method.
@@ -67,18 +68,20 @@ def minimize_linear_method(
         epsilon: Increment to use for approximating the gradient using
             finite difference.
         gtol: Convergence threshold for the norm of the projected gradient.
-        optimize_hyperparameters: Whether to optimize the `regularization` and
-            `variation` hyperparameters in each iteration. Optimizing the
-            hyperparameters incurs more function and energy evaluations in each
-            iteration, but may speed up convergence, leading to fewer iterations
-            overall. The optimization is performed using `scipy.optimize.minimize`_.
-        optimize_hyperparameters_args: Arguments to use when calling
-            `scipy.optimize.minimize`_ to optimize the hyperparameters. The call is
-            constructed as
+        optimize_regularization: Whether to optimize the `regularization` hyperparameter
+            in each iteration. Optimizing hyperparameters incurs more function and
+            energy evaluations in each iteration, but may improve convergence.
+            The optimization is performed using `scipy.optimize.minimize`_.
+        optimize_variation; Whether to optimize the `variation` hyperparameter
+            in each iteration. Optimizing hyperparameters incurs more function and
+            energy evaluations in each iteration, but may improve convergence.
+            The optimization is performed using `scipy.optimize.minimize`_.
+        optimize_kwargs: Arguments to use when calling `scipy.optimize.minimize`_ to
+            optimize hyperparameters. The call is constructed as
 
             .. code::
 
-                scipy.optimize.minimize(f, x0, **scipy_optimize_minimize_args)
+                scipy.optimize.minimize(f, x0, **optimize_kwargs)
 
             If not specified, the default value of `dict(method="L-BFGS-B")` will be
             used.
@@ -121,8 +124,8 @@ def minimize_linear_method(
     if maxiter < 1:
         raise ValueError(f"maxiter must be at least 1. Got {maxiter}.")
 
-    if optimize_hyperparameters_args is None:
-        optimize_hyperparameters_args = dict(method="L-BFGS-B")
+    if optimize_kwargs is None:
+        optimize_kwargs = dict(method="L-BFGS-B")
 
     regularization_param = math.sqrt(regularization)
     variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
@@ -159,7 +162,7 @@ def minimize_linear_method(
             converged = True
             break
 
-        if optimize_hyperparameters:
+        if optimize_regularization and optimize_variation:
 
             def f(x: np.ndarray) -> float:
                 regularization_param, variation_param = x
@@ -178,10 +181,56 @@ def minimize_linear_method(
             result = minimize(
                 f,
                 x0=[regularization_param, variation_param],
-                **optimize_hyperparameters_args,
+                **optimize_kwargs,
             )
             regularization_param, variation_param = result.x
             regularization = regularization_param**2
+            variation = 0.5 * (1 + math.tanh(variation_param))
+
+        elif optimize_regularization:
+
+            def f(x: np.ndarray) -> float:
+                (regularization_param,) = x
+                regularization = regularization_param**2
+                param_update = _get_param_update(
+                    energy_mat,
+                    overlap_mat,
+                    regularization,
+                    variation,
+                    lindep,
+                )
+                vec = params_to_vec(params + param_update)
+                return np.vdot(vec, hamiltonian @ vec).real
+
+            result = minimize(
+                f,
+                x0=[regularization_param],
+                **optimize_kwargs,
+            )
+            (regularization_param,) = result.x
+            regularization = regularization_param**2
+
+        elif optimize_variation:
+
+            def f(x: np.ndarray) -> float:
+                (variation_param,) = x
+                variation = 0.5 * (1 + math.tanh(variation_param))
+                param_update = _get_param_update(
+                    energy_mat,
+                    overlap_mat,
+                    regularization,
+                    variation,
+                    lindep,
+                )
+                vec = params_to_vec(params + param_update)
+                return np.vdot(vec, hamiltonian @ vec).real
+
+            result = minimize(
+                f,
+                x0=[variation_param],
+                **optimize_kwargs,
+            )
+            (variation_param,) = result.x
             variation = 0.5 * (1 + math.tanh(variation_param))
 
         param_update = _get_param_update(
