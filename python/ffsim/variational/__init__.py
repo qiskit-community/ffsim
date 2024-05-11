@@ -10,6 +10,7 @@
 
 """Variational ansatzes."""
 
+from ffsim.variational.givens import GivensAnsatzOperator
 from ffsim.variational.hopgate import HopGateAnsatzOperator
 from ffsim.variational.multireference import (
     multireference_state,
@@ -18,6 +19,7 @@ from ffsim.variational.multireference import (
 from ffsim.variational.ucj import RealUCJOperator, UCJOperator
 
 __all__ = [
+    "GivensAnsatzOperator",
     "HopGateAnsatzOperator",
     "RealUCJOperator",
     "UCJOperator",
