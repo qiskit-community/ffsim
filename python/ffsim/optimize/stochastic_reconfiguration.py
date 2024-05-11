@@ -35,7 +35,7 @@ def minimize_stochastic_reconfiguration(
     *,
     maxiter: int = 1000,
     variation: float = 1.0,
-    cond: float = 1e-8,
+    cond: float = 1e-4,
     epsilon: float = 1e-8,
     gtol: float = 1e-5,
     optimize_hyperparameters: bool = True,
