@@ -34,11 +34,11 @@ def minimize_linear_method(
     x0: np.ndarray,
     *,
     maxiter: int = 1000,
-    regularization: float = 0.0,
-    variation: float = 0.5,
     lindep: float = 1e-8,
     epsilon: float = 1e-8,
     gtol: float = 1e-5,
+    regularization: float = 0.0,
+    variation: float = 0.5,
     optimize_regularization: bool = True,
     optimize_variation: bool = True,
     optimize_kwargs: dict | None = None,
@@ -57,17 +57,17 @@ def minimize_linear_method(
         hamiltonian: The Hamiltonian representing the energy to be minimized.
         x0: Initial guess for the parameters.
         maxiter: Maximum number of optimization iterations to perform.
+        lindep: Linear dependency threshold to use when solving the generalized
+            eigenvalue problem.
+        epsilon: Increment to use for approximating the gradient using
+            finite difference.
+        gtol: Convergence threshold for the norm of the projected gradient.
         regularization: Hyperparameter controlling regularization of the
             energy matrix. Its value must be positive. A larger value results in
             greater regularization.
         variation: Hyperparameter controlling the size of parameter variations
             used in the linear expansion of the wavefunction. Its value must be
             strictly between 0 and 1. A larger value results in larger variations.
-        lindep: Linear dependency threshold to use when solving the generalized
-            eigenvalue problem.
-        epsilon: Increment to use for approximating the gradient using
-            finite difference.
-        gtol: Convergence threshold for the norm of the projected gradient.
         optimize_regularization: Whether to optimize the `regularization` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
