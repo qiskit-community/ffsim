@@ -80,6 +80,8 @@ def test_minimize_linear_method():
         np.testing.assert_allclose(energy(params), fun)
     assert result.nit <= 7
     assert result.nit < result.nlinop < result.nfev
+    assert len(set(info["regularization"])) > 1
+    assert len(set(info["variation"])) > 1
 
     # optimization without optimizing hyperparameters
     info = defaultdict(list)
@@ -89,7 +91,8 @@ def test_minimize_linear_method():
         hamiltonian=hamiltonian,
         regularization=0.01,
         variation=0.9,
-        optimize_hyperparameters=False,
+        optimize_regularization=False,
+        optimize_variation=False,
         callback=callback,
     )
     np.testing.assert_allclose(energy(result.x), result.fun)
@@ -99,6 +102,46 @@ def test_minimize_linear_method():
     assert result.nit <= 11
     assert result.nit < result.nlinop < result.nfev
     assert set(info["regularization"]) == {0.01}
+    assert set(info["variation"]) == {0.9}
+
+    # optimization without optimizing regularization
+    info = defaultdict(list)
+    result = ffsim.optimize.minimize_linear_method(
+        params_to_vec,
+        x0=x0,
+        hamiltonian=hamiltonian,
+        regularization=0.01,
+        variation=0.9,
+        optimize_regularization=False,
+        callback=callback,
+    )
+    np.testing.assert_allclose(energy(result.x), result.fun)
+    np.testing.assert_allclose(result.fun, -0.970773)
+    for params, fun in zip(info["x"], info["fun"]):
+        np.testing.assert_allclose(energy(params), fun)
+    assert result.nit <= 11
+    assert result.nit < result.nlinop < result.nfev
+    assert set(info["regularization"]) == {0.01}
+    assert len(set(info["variation"])) > 1
+
+    # optimization without optimizing variation
+    info = defaultdict(list)
+    result = ffsim.optimize.minimize_linear_method(
+        params_to_vec,
+        x0=x0,
+        hamiltonian=hamiltonian,
+        regularization=0.01,
+        variation=0.9,
+        optimize_variation=False,
+        callback=callback,
+    )
+    np.testing.assert_allclose(energy(result.x), result.fun)
+    np.testing.assert_allclose(result.fun, -0.970773)
+    for params, fun in zip(info["x"], info["fun"]):
+        np.testing.assert_allclose(energy(params), fun)
+    assert result.nit <= 11
+    assert result.nit < result.nlinop < result.nfev
+    assert len(set(info["regularization"])) > 1
     assert set(info["variation"]) == {0.9}
 
     # optimization with maxiter
