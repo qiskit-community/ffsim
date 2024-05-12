@@ -279,7 +279,7 @@ def _linear_method_matrices(
     energy_mat = np.zeros((n_params + 1, n_params + 1), dtype=complex)
     overlap_mat = np.zeros_like(energy_mat)
 
-    energy_mat[0, 0] = np.vdot(vec, hamiltonian @ vec).real
+    energy_mat[0, 0] = np.vdot(vec, hamiltonian @ vec)
     ham_jac = hamiltonian @ jac
     energy_mat[0, 1:] = vec.conj() @ ham_jac
     energy_mat[1:, 0] = energy_mat[0, 1:].conj()
