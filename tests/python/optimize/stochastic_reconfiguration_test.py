@@ -85,7 +85,7 @@ def test_minimize_stochastic_reconfiguration():
         params_to_vec,
         x0=x0,
         hamiltonian=hamiltonian,
-        optimize_hyperparameters=False,
+        optimize_variation=False,
         callback=callback,
     )
     np.testing.assert_allclose(energy(result.x), result.fun)

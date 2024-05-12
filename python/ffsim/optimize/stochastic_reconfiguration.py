@@ -34,12 +34,12 @@ def minimize_stochastic_reconfiguration(
     x0: np.ndarray,
     *,
     maxiter: int = 1000,
-    variation: float = 1.0,
     cond: float = 1e-4,
     epsilon: float = 1e-8,
     gtol: float = 1e-5,
-    optimize_hyperparameters: bool = True,
-    optimize_hyperparameters_args: dict | None = None,
+    variation: float = 1.0,
+    optimize_variation: bool = True,
+    optimize_kwargs: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
 ) -> OptimizeResult:
     """Minimize the energy of a variational ansatz using stochastic reconfiguration.
@@ -55,26 +55,24 @@ def minimize_stochastic_reconfiguration(
         hamiltonian: The Hamiltonian representing the energy to be minimized.
         x0: Initial guess for the parameters.
         maxiter: Maximum number of optimization iterations to perform.
-        variation: Hyperparameter controlling the size of parameter variations
-            used in the linear expansion of the wavefunction. Its value must be
-            strictly between 0 and 1. A larger value results in larger variations.
         cond: `cond` argument to pass to `scipy.linalg.lstsq`_, which is called to
             solve for the parameter update.
         epsilon: Increment to use for approximating the gradient using
             finite difference.
         gtol: Convergence threshold for the norm of the projected gradient.
-        optimize_hyperparameters: Whether to optimize the `variation` hyperparameter in
-            each iteration. Optimizing the hyperparameter incurs more function and
-            energy evaluations in each iteration, but may speed up convergence, leading
-            to fewer iterations overall. The optimization is performed using
-            `scipy.optimize.minimize`_.
-        optimize_hyperparameters_args: Arguments to use when calling
-            `scipy.optimize.minimize`_ to optimize the hyperparameters. The call is
-            constructed as
+        variation: Hyperparameter controlling the size of parameter variations
+            used in the linear expansion of the wavefunction. Its value must be
+            strictly between 0 and 1. A larger value results in larger variations.
+        optimize_variation; Whether to optimize the `variation` hyperparameter
+            in each iteration. Optimizing hyperparameters incurs more function and
+            energy evaluations in each iteration, but may improve convergence.
+            The optimization is performed using `scipy.optimize.minimize`_.
+        optimize_kwargs: Arguments to use when calling `scipy.optimize.minimize`_ to
+            optimize hyperparameters. The call is constructed as
 
             .. code::
 
-                scipy.optimize.minimize(f, x0, **scipy_optimize_minimize_args)
+                scipy.optimize.minimize(f, x0, **optimize_kwargs)
 
             If not specified, the default value of `dict(method="L-BFGS-B")` will be
             used.
@@ -116,8 +114,8 @@ def minimize_stochastic_reconfiguration(
     if maxiter < 1:
         raise ValueError(f"maxiter must be at least 1. Got {maxiter}.")
 
-    if optimize_hyperparameters_args is None:
-        optimize_hyperparameters_args = dict(method="L-BFGS-B")
+    if optimize_kwargs is None:
+        optimize_kwargs = dict(method="L-BFGS-B")
 
     variation_param = math.sqrt(variation)
     params = x0.copy()
@@ -149,7 +147,7 @@ def minimize_stochastic_reconfiguration(
             converged = True
             break
 
-        if optimize_hyperparameters:
+        if optimize_variation:
 
             def f(x: np.ndarray) -> float:
                 (variation_param,) = x
@@ -166,7 +164,7 @@ def minimize_stochastic_reconfiguration(
             result = minimize(
                 f,
                 x0=[variation_param],
-                **optimize_hyperparameters_args,
+                **optimize_kwargs,
             )
             (variation_param,) = result.x
             variation = variation_param**2
