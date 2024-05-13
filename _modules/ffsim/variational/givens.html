@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.states.wick - ffsim 0.0.31 documentation</title>
+        <title>ffsim.variational.givens - ffsim 0.0.31 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -277,8 +277,8 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for ffsim.states.wick</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) Copyright IBM 2022.</span>
+          <h1>Source code for ffsim.variational.givens</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2024.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
 <span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
@@ -288,133 +288,98 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Wick&#39;s theorem utilities.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Givens rotation ansatz.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">opt_einsum</span> <span class="kn">import</span> <span class="n">contract</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg.blas</span> <span class="kn">import</span> <span class="n">drot</span>
+
+<span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_givens_rotation</span>
 
 
-<div class="viewcode-block" id="expectation_one_body_product">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.expectation_one_body_product">[docs]</a>
-<span class="k">def</span> <span class="nf">expectation_one_body_product</span><span class="p">(</span>
-    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">one_body_tensors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">complex</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Expectation of product of one-body operators w.r.t. a Slater determinant.</span>
+<div class="viewcode-block" id="GivensAnsatzOperator">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOperator">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GivensAnsatzOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Givens rotation ansatz operator.</span>
 
-<span class="sd">    A one-body operator :math:`O` has the form</span>
+<span class="sd">    The Givens rotation ansatz consists of a sequence of `Givens rotations`_.</span>
 
-<span class="sd">    .. math::</span>
+<span class="sd">    Note that this ansatz does not implement any interactions between spin alpha and</span>
+<span class="sd">    spin beta orbitals.</span>
 
-<span class="sd">        O = \sum_{pq} M_{pq} a_p^\dagger a_q.</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        norb (int): The number of spatial orbitals.</span>
+<span class="sd">        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the Givens</span>
+<span class="sd">            rotations to.</span>
+<span class="sd">        thetas (np.ndarray): The angles for the Givens rotations.</span>
 
-<span class="sd">    This function takes a list of the matrices :math:`M` as its first argument.</span>
-<span class="sd">    Let :math:`(O_1, O_2, \dots O_k)` be the list of one-body operators,</span>
-<span class="sd">    and :math:`\lvert \psi \rangle` be the Slater determinant.</span>
-<span class="sd">    Then this function returns the quantity</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        \langle \psi \rvert O_1 O_2 \dots O_k \lvert \psi \rangle.</span>
-
-<span class="sd">    Note: Unlike most functions in ffsim, the inputs to this function are specified</span>
-<span class="sd">        in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm</span>
-<span class="sd">        and the one-body tensors should have the same shape, and all orbitals are</span>
-<span class="sd">        treated on an equal footing. The 1-RDM passed here should not be spin-summed,</span>
-<span class="sd">        and the one-body tensors should be expanded when compared to the usual</span>
-<span class="sd">        one-body tensors elsewhere in ffsim, i.e.,</span>
-<span class="sd">        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        one_rdm: The one-body reduced density matrix of the Slater determinant.</span>
-<span class="sd">        one_body_tensors: The matrices for the one-body operators.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The expectation value.</span>
+<span class="sd">    .. _Givens rotations: ffsim.html#ffsim.apply_givens_rotation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">n_tensors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_body_tensors</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">n_tensors</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">1.0</span>
 
-    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">one_rdm</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">anti_one_rdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span> <span class="o">-</span> <span class="n">one_rdm</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+    <span class="n">thetas</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
-    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span>
-    <span class="n">indices</span> <span class="o">=</span> <span class="n">alphabet</span><span class="p">[:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_tensors</span><span class="p">]</span>
-    <span class="n">creation_indices</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">annihilation_indices</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">for</span> <span class="n">perm</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">annihilation_indices</span><span class="p">):</span>
-        <span class="n">tensors</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">pairings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">creation_indices</span><span class="p">,</span> <span class="n">annihilation_indices</span><span class="p">))</span>
-        <span class="p">)</span>
-        <span class="n">subscripts</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c_i</span><span class="si">}{</span><span class="n">a_i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="p">(</span><span class="n">c_i</span><span class="p">,</span> <span class="n">a_i</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">creation_indices</span><span class="p">,</span> <span class="n">annihilation_indices</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">c_i</span><span class="p">,</span> <span class="n">a_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">creation_indices</span><span class="p">,</span> <span class="n">perm</span><span class="p">):</span>
-            <span class="n">sign</span> <span class="o">*=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">pairings</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">c_i</span><span class="p">)</span> <span class="o">-</span> <span class="n">pairings</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">a_i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">pairings</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c_i</span><span class="p">)</span>
-            <span class="n">pairings</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">a_i</span><span class="p">)</span>
-            <span class="n">subscripts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c_i</span><span class="si">}{</span><span class="n">a_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">one_rdm</span> <span class="k">if</span> <span class="n">indices</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">c_i</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">indices</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">a_i</span><span class="p">)</span> <span class="k">else</span> <span class="n">anti_one_rdm</span>
+    <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the operator to a vector.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">target_orbs</span><span class="p">,</span> <span class="n">theta</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">thetas</span>
+        <span class="p">):</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_givens_rotation</span><span class="p">(</span>
+                <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span>
-        <span class="n">result</span> <span class="o">+=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subscripts</span><span class="p">)</span><span class="si">}</span><span class="s1">-&gt;&#39;</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">one_body_tensors</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">tensors</span><span class="p">[:</span><span class="n">n_tensors</span><span class="p">],</span>
-            <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span></div>
+        <span class="k">return</span> <span class="n">vec</span>
+
+<div class="viewcode-block" id="GivensAnsatzOperator.to_parameters">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOperator.to_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
+        <span class="n">num_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_params</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thetas</span>
+        <span class="k">return</span> <span class="n">params</span></div>
 
 
+<div class="viewcode-block" id="GivensAnsatzOperator.from_parameters">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOperator.from_parameters">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GivensAnsatzOperator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the operator from a real-valued parameter vector.</span>
 
-<div class="viewcode-block" id="expectation_one_body_power">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.expectation_one_body_power">[docs]</a>
-<span class="k">def</span> <span class="nf">expectation_one_body_power</span><span class="p">(</span>
-    <span class="n">one_rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">power</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">complex</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Expectation of power of one-body operator w.r.t. a Slater determinant.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            params: The real-valued parameter vector.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            interaction_pairs: The orbital pairs to apply the hop gates to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">GivensAnsatzOperator</span><span class="p">(</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="n">params</span>
+        <span class="p">)</span></div>
 
-<span class="sd">    A one-body operator :math:`O` has the form</span>
 
-<span class="sd">    .. math::</span>
-
-<span class="sd">        O = \sum_{pq} M_{pq} a_p^\dagger a_q.</span>
-
-<span class="sd">    This function takes the matrix :math:`M` as its first argument.</span>
-<span class="sd">    Let :math:`\lvert \psi \rangle` be the Slater determinant.</span>
-<span class="sd">    Then this function returns the quantity</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        \langle \psi \rvert O^k \lvert \psi \rangle.</span>
-
-<span class="sd">    Note: Unlike most functions in ffsim, the inputs to this function are specified</span>
-<span class="sd">        in terms of spin-orbitals, not spatial orbitals. In other words, the one-rdm</span>
-<span class="sd">        and the one-body tensors should have the same shape, and all orbitals are</span>
-<span class="sd">        treated on an equal footing. The 1-RDM passed here should not be spin-summed,</span>
-<span class="sd">        and the one-body tensors should be expanded when compared to the usual</span>
-<span class="sd">        one-body tensors elsewhere in ffsim, i.e.,</span>
-<span class="sd">        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        one_rdm: The one-body reduced density matrix of the Slater determinant.</span>
-<span class="sd">        one_body_tensor: The one-body operator.</span>
-<span class="sd">        power: The power.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The expectation value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">expectation_one_body_product</span><span class="p">(</span><span class="n">one_rdm</span><span class="p">,</span> <span class="p">[</span><span class="n">one_body_tensor</span><span class="p">]</span> <span class="o">*</span> <span class="n">power</span><span class="p">)</span></div>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">orbital_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">drot</span><span class="p">(</span>
+                <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span>
+                <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">orbital_rotation</span></div>
 
 </pre></div>
         </article>
