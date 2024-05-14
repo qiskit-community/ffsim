@@ -65,7 +65,7 @@ def test_orbital_rotation(norb: int, nelec: tuple[int, int]):
 
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_orbital_rotation(
-        vec, operator.orbital_rotation, norb=norb, nelec=nelec
+        vec, operator.to_orbital_rotation(), norb=norb, nelec=nelec
     )
     expected = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
 
