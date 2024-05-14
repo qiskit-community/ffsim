@@ -320,7 +320,8 @@ strictly between 0 and 1. A larger value results in larger variations.</p></li>
 in each iteration. Optimizing hyperparameters incurs more function and
 energy evaluations in each iteration, but may improve convergence.
 The optimization is performed using <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>.</p></li>
-<li><p><strong>hyperparameter</strong> (<em>optimize_variation; Whether to optimize the variation</em>) – in each iteration. Optimizing hyperparameters incurs more function and
+<li><p><strong>optimize_variation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the <cite>variation</cite> hyperparameter
+in each iteration. Optimizing hyperparameters incurs more function and
 energy evaluations in each iteration, but may improve convergence.
 The optimization is performed using <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>.</p></li>
 <li><p><strong>optimize_kwargs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – <p>Arguments to use when calling <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> to
