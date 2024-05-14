@@ -55,7 +55,7 @@ class PrepareHartreeFockJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(2 * self.norb)
+        qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
         n_alpha, n_beta = self.nelec
         circuit.append(
@@ -81,11 +81,11 @@ class PrepareHartreeFockSpinlessJW(Gate):
         """
         self.norb = norb
         self.nocc = nocc
-        super().__init__("hartree_fock_spinless_jw", 2 * norb, [], label=label)
+        super().__init__("hartree_fock_spinless_jw", norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(2 * self.norb)
+        qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
         circuit.append(
             PrepareSlaterDeterminantSpinlessJW(self.norb, range(self.nocc)),
@@ -188,7 +188,7 @@ class PrepareSlaterDeterminantJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(2 * self.norb)
+        qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
         alpha_qubits = qubits[: self.norb]
         beta_qubits = qubits[self.norb :]
@@ -256,11 +256,11 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
             self.orbital_rotation = np.eye(norb)
         else:
             self.orbital_rotation = orbital_rotation
-        super().__init__("slater_spinless_jw", 2 * norb, [], label=label)
+        super().__init__("slater_spinless_jw", norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(2 * self.norb)
+        qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
 
         if np.array_equal(self.orbital_rotation, np.eye(self.norb)):

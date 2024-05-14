@@ -160,7 +160,7 @@ class OrbitalRotationSpinlessJW(Gate):
 
         self.norb = norb
         self.orbital_rotation = orbital_rotation
-        super().__init__("orb_rot_spinless_jw", 2 * norb, [], label=label)
+        super().__init__("orb_rot_spinless_jw", norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
