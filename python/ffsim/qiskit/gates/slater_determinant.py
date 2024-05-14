@@ -65,6 +65,35 @@ class PrepareHartreeFockJW(Gate):
         self.definition = circuit
 
 
+class PrepareHartreeFockSpinlessJW(Gate):
+    r"""Prepare the Hartree-Fock state (under JWT) from the zero state, spinless.
+
+    Like :class:`PrepareHartreeFockJW` but only acts on a single spin species.
+    """
+
+    def __init__(self, norb: int, nocc: int, label: str | None = None) -> None:
+        """Create new Hartree-Fock state preparation gate.
+
+        Args:
+            norb: The number of spatial orbitals.
+            nocc: The number of electrons.
+            label: The label of the gate.
+        """
+        self.norb = norb
+        self.nocc = nocc
+        super().__init__("hartree_fock_spinless_jw", 2 * norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(2 * self.norb)
+        circuit = QuantumCircuit(qubits, name=self.name)
+        circuit.append(
+            PrepareSlaterDeterminantSpinlessJW(self.norb, range(self.nocc)),
+            qubits,
+        )
+        self.definition = circuit
+
+
 class PrepareSlaterDeterminantJW(Gate):
     r"""Gate that prepares a Slater determinant (under JWT) from the all zeros state.
 
@@ -183,6 +212,70 @@ class PrepareSlaterDeterminantJW(Gate):
                 beta_qubits, self.orbital_rotation_b.T[list(occ_b)]
             ):
                 circuit.append(instruction)
+        self.definition = circuit
+
+
+class PrepareSlaterDeterminantSpinlessJW(Gate):
+    r"""Prepare a Slater determinant (under JWT) from the zero state, spinless version.
+
+    Like :class:`PrepareSlaterDeterminantJW` but only acts on a single spin species.
+    """
+
+    def __init__(
+        self,
+        norb: int,
+        occupied_orbitals: Sequence[int],
+        orbital_rotation: np.ndarray | None = None,
+        *,
+        label: str | None = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
+    ) -> None:
+        """Create new Slater determinant preparation gate.
+
+        Args:
+            norb: The number of spatial orbitals.
+            occupied_orbitals: The occupied orbitals in the electonic configuration.
+            orbital_rotation: The optional orbital rotation.
+            label: The label of the gate.
+            validate: Whether to check that the input orbital rotation(s) is unitary
+                and raise an error if it isn't.
+            rtol: Relative numerical tolerance for input validation.
+            atol: Absolute numerical tolerance for input validation.
+
+        Raises:
+            ValueError: orbital_coeffs must be a 2-dimensional array.
+            ValueError: orbital_coeffs must have orthonormal columns.
+        """
+        if validate and orbital_rotation is not None:
+            if not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol):
+                raise ValueError("The input orbital rotation matrix was not unitary.")
+
+        self.norb = norb
+        self.occupied_orbitals = occupied_orbitals
+        if orbital_rotation is None:
+            self.orbital_rotation = np.eye(norb)
+        else:
+            self.orbital_rotation = orbital_rotation
+        super().__init__("slater_spinless_jw", 2 * norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(2 * self.norb)
+        circuit = QuantumCircuit(qubits, name=self.name)
+
+        if np.array_equal(self.orbital_rotation, np.eye(self.norb)):
+            for instruction in _prepare_configuration_jw(
+                qubits, self.occupied_orbitals
+            ):
+                circuit.append(instruction)
+        else:
+            for instruction in _prepare_slater_determinant_jw(
+                qubits, self.orbital_rotation.T[list(self.occupied_orbitals)]
+            ):
+                circuit.append(instruction)
+
         self.definition = circuit
 
 

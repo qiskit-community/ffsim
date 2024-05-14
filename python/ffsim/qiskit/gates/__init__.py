@@ -17,7 +17,9 @@ from ffsim.qiskit.gates.orbital_rotation import (
 )
 from ffsim.qiskit.gates.slater_determinant import (
     PrepareHartreeFockJW,
+    PrepareHartreeFockSpinlessJW,
     PrepareSlaterDeterminantJW,
+    PrepareSlaterDeterminantSpinlessJW,
 )
 from ffsim.qiskit.gates.ucj import UCJOperatorJW
 
@@ -26,6 +28,8 @@ __all__ = [
     "OrbitalRotationJW",
     "OrbitalRotationSpinlessJW",
     "PrepareHartreeFockJW",
+    "PrepareHartreeFockSpinlessJW",
     "PrepareSlaterDeterminantJW",
+    "PrepareSlaterDeterminantSpinlessJW",
     "UCJOperatorJW",
 ]
