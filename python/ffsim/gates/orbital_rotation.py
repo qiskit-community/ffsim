@@ -20,6 +20,7 @@ import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
 
+from ffsim import linalg
 from ffsim._lib import (
     apply_givens_rotation_in_place,
     apply_phase_shift_in_place,
@@ -78,6 +79,9 @@ def apply_orbital_rotation(
     allow_row_permutation: bool = False,
     allow_col_permutation: bool = False,
     copy: bool = True,
+    validate: bool = True,
+    rtol: float = 1e-5,
+    atol: float = 1e-8,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     r"""Apply an orbital rotation to a vector.
 
@@ -118,6 +122,10 @@ def apply_orbital_rotation(
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
+        validate: Whether to check that the input matrix is unitary and raise an error
+            if it isn't.
+        rtol: Relative numerical tolerance for input validation.
+        atol: Absolute numerical tolerance for input validation.
 
     Returns:
         The transformed vector. If a row or column permutation was allowed,
@@ -129,11 +137,15 @@ def apply_orbital_rotation(
     Raises:
         ValueError: If both `allow_row_permutation` and `allow_col_permutation`
             are set to True. Only one of these can be set to True, not both.
+        ValueError: The input matrix is not unitary.
     """
     if allow_row_permutation and allow_col_permutation:
         raise ValueError(
             "You can choose to allow either row or column permutations, but not both."
         )
+    if validate and not linalg.is_unitary(mat, rtol=rtol, atol=atol):
+        raise ValueError("The input orbital rotation matrix is not unitary.")
+
     if allow_row_permutation or allow_col_permutation:
         return _apply_orbital_rotation_lu(
             vec,
