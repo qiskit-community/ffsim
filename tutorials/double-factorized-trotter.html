@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Explanations" href="../explanations/index.html" /><link rel="prev" title="Tutorials" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>Implementing Trotter simulation of the double-factorized Hamiltonian - ffsim 0.0.31 documentation</title>
+        <title>Implementing Trotter simulation of the double-factorized Hamiltonian - ffsim 0.0.32 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.31 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.32 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.31 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.32 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -245,6 +245,7 @@
 </li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development Branch Docs</a></li>
 </ul>
 
 </div>
@@ -464,7 +465,7 @@ Number of terms: 10
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Maximum error in a tensor entry: 0.03668541730983521
+Maximum error in a tensor entry: 0.03668541730983488
 </pre></div></div>
 </div>
 </section>
@@ -605,7 +606,7 @@ Maximum error in a tensor entry: 0.03668541730983521
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9402435115158553
+Fidelity of Trotter-evolved state with exact state: 0.940243511515825
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
@@ -632,7 +633,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9402435115158553
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.99852128542002
+Fidelity of Trotter-evolved state with exact state: 0.9985212854198613
 </pre></div></div>
 </div>
 <p>In the code cell below, we reproduce the results of our manually implemented function using ffsim’s built-in implementation.</p>
@@ -660,7 +661,7 @@ Fidelity of Trotter-evolved state with exact state: 0.99852128542002
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9985212854200362
+Fidelity of Trotter-evolved state with exact state: 0.998521285419877
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -688,7 +689,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9985212854200362
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9996731164188276
+Fidelity of Trotter-evolved state with exact state: 0.9996731164187036
 </pre></div></div>
 </div>
 <p>You’ve made it to the end of this tutorial!</p>
@@ -771,7 +772,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9996731164188276
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=c5dbc6bb"></script>
+</div><script src="../_static/documentation_options.js?v=f2234cd1"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

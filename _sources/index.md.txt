@@ -31,4 +31,5 @@ how-to-guides/index
 api/index
 Developer Guide <https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md>
 GitHub <https://github.com/qiskit-community/ffsim>
+Development Branch Docs <https://qiskit-community.github.io/ffsim/dev/>
 ```
