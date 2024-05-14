@@ -335,6 +335,23 @@
 
 
 
+<div class="viewcode-block" id="generate_norb_nocc">
+<a class="viewcode-back" href="../../../api/ffsim.testing.html#ffsim.testing.generate_norb_nocc">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_norb_nocc</span><span class="p">(</span>
+    <span class="n">norb_range</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate (`norb`, `nocc`) tuples for testing.</span>
+
+<span class="sd">    Given a range of choices for `norb`, generates all possible (`norb`, `nocc`) pairs.</span>
+<span class="sd">    `nocc` refers to the occupation of a single spin species, so it ranges from 0 to</span>
+<span class="sd">    `norb`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">norb</span> <span class="ow">in</span> <span class="n">norb_range</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nocc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span></div>
+
+
+
 <div class="viewcode-block" id="generate_norb_spin">
 <a class="viewcode-back" href="../../../api/ffsim.testing.html#ffsim.testing.generate_norb_spin">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_norb_spin</span><span class="p">(</span><span class="n">norb_range</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Spin</span><span class="p">]]:</span>

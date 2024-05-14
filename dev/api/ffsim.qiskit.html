@@ -453,6 +453,42 @@ and raise an error if it isn’t.</p></li>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.OrbitalRotationSpinlessJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">OrbitalRotationSpinlessJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/orbital_rotation.html#OrbitalRotationSpinlessJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.OrbitalRotationSpinlessJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Orbital rotation under the Jordan-Wigner transformation, spinless version.</p>
+<p>Like <a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW" title="ffsim.qiskit.OrbitalRotationJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a> but only acts on a single spin species.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.OrbitalRotationSpinlessJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/orbital_rotation.html#OrbitalRotationSpinlessJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.OrbitalRotationSpinlessJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create new orbital rotation gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The orbital rotation.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+<li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to check that the input orbital rotation(s) is unitary
+and raise an error if it isn’t.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance for input validation.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance for input validation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – The input matrix is not unitary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.OrbitalRotationSpinlessJW.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/orbital_rotation.html#OrbitalRotationSpinlessJW.inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.OrbitalRotationSpinlessJW.inverse" title="Link to this definition">¶</a></dt>
+<dd><p>Inverse gate.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py data">
 <dt class="sig sig-object py" id="ffsim.qiskit.PRE_INIT">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PRE_INIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;qiskit.transpiler.passmanager.PassManager</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#ffsim.qiskit.PRE_INIT" title="Link to this definition">¶</a></dt>
@@ -481,6 +517,29 @@ beta orbitals.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.PrepareHartreeFockSpinlessJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareHartreeFockSpinlessJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareHartreeFockSpinlessJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Prepare the Hartree-Fock state (under JWT) from the zero state, spinless.</p>
+<p>Like <a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockJW" title="ffsim.qiskit.PrepareHartreeFockJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrepareHartreeFockJW</span></code></a> but only acts on a single spin species.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareHartreeFockSpinlessJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create new Hartree-Fock state preparation gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nocc</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of electrons.</p></li>
 <li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
 </ul>
 </dd>
@@ -537,10 +596,38 @@ and raise an error if it isn’t.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – orbital_coeffs must be a 2-dimensional array.</p></li>
-<li><p><strong>ValueError</strong> – orbital_coeffs must have orthonormal columns.</p></li>
+<dd class="field-even"><p><strong>ValueError</strong> – The input orbital rotation matrix is not unitary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareSlaterDeterminantSpinlessJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareSlaterDeterminantSpinlessJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Prepare a Slater determinant (under JWT) from the zero state, spinless version.</p>
+<p>Like <a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantJW" title="ffsim.qiskit.PrepareSlaterDeterminantJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantJW</span></code></a> but only acts on a single spin species.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareSlaterDeterminantSpinlessJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create new Slater determinant preparation gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The occupied orbitals in the electonic configuration.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+<li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to check that the input orbital rotation(s) is unitary
+and raise an error if it isn’t.</p></li>
+<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance for input validation.</p></li>
+<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance for input validation.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – The input orbital rotation matrix is not unitary.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -709,13 +796,26 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW.inverse"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW.inverse()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationSpinlessJW"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationSpinlessJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationSpinlessJW.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationSpinlessJW.inverse"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationSpinlessJW.inverse()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.qiskit.PRE_INIT"><code class="docutils literal notranslate"><span class="pre">PRE_INIT</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockJW"><code class="docutils literal notranslate"><span class="pre">PrepareHartreeFockJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareHartreeFockJW.__init__()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW"><code class="docutils literal notranslate"><span class="pre">PrepareHartreeFockSpinlessJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareHartreeFockSpinlessJW.__init__()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantJW"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantJW.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantSpinlessJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantSpinlessJW.__init__()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW"><code class="docutils literal notranslate"><span class="pre">UCJOperatorJW</span></code></a><ul>
