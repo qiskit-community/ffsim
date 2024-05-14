@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for unitary cluster Jastrow circuit."""
+"""Tests for unitary cluster Jastrow gate."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ import ffsim
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_random_ucj_operator(norb: int, nelec: tuple[int, int]):
-    """Test random orbital rotation circuit gives correct output state."""
+    """Test random UCJ gate gives correct output state."""
     rng = np.random.default_rng()
     n_reps = 3
     dim = ffsim.dim(norb, nelec)
