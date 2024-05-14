@@ -60,10 +60,10 @@ def minimize_stochastic_reconfiguration(
         epsilon: Increment to use for approximating the gradient using
             finite difference.
         gtol: Convergence threshold for the norm of the projected gradient.
-        variation: Hyperparameter controlling the size of parameter variations
+        variation: TODO Hyperparameter controlling the size of parameter variations
             used in the linear expansion of the wavefunction. Its value must be
-            strictly between 0 and 1. A larger value results in larger variations.
-        optimize_variation; Whether to optimize the `variation` hyperparameter
+            positive.
+        optimize_variation: Whether to optimize the `variation` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
             The optimization is performed using `scipy.optimize.minimize`_.
