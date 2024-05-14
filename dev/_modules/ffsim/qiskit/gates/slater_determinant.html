@@ -341,7 +341,7 @@
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
-        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelec</span>
         <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -372,12 +372,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">=</span> <span class="n">norb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nocc</span> <span class="o">=</span> <span class="n">nocc</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;hartree_fock_spinless_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;hartree_fock_spinless_jw&quot;</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
-        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">PrepareSlaterDeterminantSpinlessJW</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nocc</span><span class="p">)),</span>
@@ -486,7 +486,7 @@
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
-        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">]</span>
         <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="p">:]</span>
@@ -559,12 +559,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;slater_spinless_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;slater_spinless_jw&quot;</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
-        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)):</span>
