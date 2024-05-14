@@ -15,7 +15,6 @@ from __future__ import annotations
 import itertools
 import math
 from dataclasses import dataclass
-from functools import cached_property
 
 import numpy as np
 from scipy.linalg.blas import drot
@@ -81,8 +80,7 @@ class GivensAnsatzOperator:
             norb=norb, interaction_pairs=interaction_pairs, thetas=params
         )
 
-    @cached_property
-    def orbital_rotation(self) -> np.ndarray:
+    def to_orbital_rotation(self) -> np.ndarray:
         orbital_rotation = np.eye(self.norb)
         for (i, j), theta in zip(self.interaction_pairs[::-1], self.thetas[::-1]):
             orbital_rotation[:, j], orbital_rotation[:, i] = drot(
