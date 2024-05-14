@@ -14,6 +14,7 @@ from qiskit.transpiler import PassManager
 
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
+    GivensAnsatzOperatorSpinlessJW,
     OrbitalRotationJW,
     OrbitalRotationSpinlessJW,
     PrepareHartreeFockJW,
@@ -37,6 +38,7 @@ pass manager.
 __all__ = [
     "DiagCoulombEvolutionJW",
     "DropNegligible",
+    "GivensAnsatzOperatorSpinlessJW",
     "MergeOrbitalRotations",
     "OrbitalRotationJW",
     "OrbitalRotationSpinlessJW",
