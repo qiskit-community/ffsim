@@ -336,7 +336,7 @@
 </div>
 <section id="Hartree-Fock-and-Slater-determinant-preparation">
 <h2>Hartree-Fock and Slater determinant preparation<a class="headerlink" href="#Hartree-Fock-and-Slater-determinant-preparation" title="Link to this heading">¶</a></h2>
-<p>Let’s create a circuit with a Hartree-Fock state preparation gate. Then, let’s decompose the circuit once and draw the output.</p>
+<p>Let’s create a circuit with a Hartree-Fock state preparation gate, <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockJW"><span class="std std-ref">PrepareHartreeFockJW</span></a>. Then, let’s decompose the circuit once and draw the output.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -356,7 +356,7 @@
 <img alt="../_images/explanations_qiskit-gate-decompositions_3_0.png" src="../_images/explanations_qiskit-gate-decompositions_3_0.png" />
 </div>
 </div>
-<p>The Hartree-Fock gate has decomposed into a Slater determinant gate. This makes sense, because the Hartree-Fock state is a special case of a Slater determinant. Let’s go further and decompose the circuit using two repetitions.</p>
+<p>The Hartree-Fock preparation gate has decomposed into a Slater determinant preparation gate, <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantJW"><span class="std std-ref">PrepareSlaterDeterminantJW</span></a>. This makes sense, because the Hartree-Fock state is a special case of a Slater determinant. Let’s go further and decompose the circuit using two repetitions.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -396,7 +396,7 @@
 <img alt="../_images/explanations_qiskit-gate-decompositions_7_0.png" src="../_images/explanations_qiskit-gate-decompositions_7_0.png" />
 </div>
 </div>
-<p>A general Slater determinant is obtained by applying an <a class="reference internal" href="orbital-rotation.html"><span class="doc">orbital rotation</span></a> to an electronic configuration. Let’s generate a random orbital rotation and use it to initialize the gate.</p>
+<p>A general Slater determinant is obtained by applying an <a class="reference internal" href="orbital-rotation.html"><span class="doc">orbital rotation</span></a> to an electronic configuration. Let’s generate a random orbital rotation and use it to initialize the Slater determinant preparation gate, <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantJW"><span class="std std-ref">PrepareSlaterDeterminantJW</span></a>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -428,7 +428,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </section>
 <section id="Orbital-rotation">
 <h2>Orbital rotation<a class="headerlink" href="#Orbital-rotation" title="Link to this heading">¶</a></h2>
-<p>A general orbital rotation decomposes into a sequence of XXPlusYYGates followed by a layer of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PhaseGate#phasegate">PhaseGates</a>. As with the Slater determinant preparation, the pattern of XXPlusYYGates requires only linear qubit connectivity.</p>
+<p>A general orbital rotation decomposes into a sequence of XXPlusYYGates followed by a layer of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PhaseGate#phasegate">PhaseGates</a>. As with the Slater determinant preparation, the pattern of XXPlusYYGates requires only linear qubit connectivity. Let’s create a circuit with an <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW"><span class="std std-ref">OrbitalRotationJW</span></a> gate and see its decomposition.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -453,7 +453,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </section>
 <section id="Diagonal-Coulomb-evolution">
 <h2>Diagonal Coulomb evolution<a class="headerlink" href="#Diagonal-Coulomb-evolution" title="Link to this heading">¶</a></h2>
-<p>Time evolution by a diagonal Coulomb Hamiltonian decomposes into a layer of PhaseGates followed by a sequence of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CPhaseGate#cphasegate">CPhaseGates</a></p>
+<p>Time evolution by a diagonal Coulomb Hamiltonian is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW"><span class="std std-ref">DiagCoulombEvolutionJW</span></a> gate. This gate decomposes into a layer of PhaseGates followed by a sequence of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CPhaseGate#cphasegate">CPhaseGates</a>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -480,7 +480,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </section>
 <section id="Unitary-cluster-Jastrow-(UCJ)-operator">
 <h2>Unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h2>
-<p>A UCJ operator decomposes into a sequence of diagonal Coulomb evolutions sandwiched by orbital rotations. The number of diagonal Coulomb evolutions is equal to the number of ansatz repetitions (in this example, two).</p>
+<p>A UCJ operator is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOperatorJW"><span class="std std-ref">UCJOperatorJW</span></a> gate. This gate decomposes into a sequence of diagonal Coulomb evolutions sandwiched by orbital rotations. The number of diagonal Coulomb evolutions is equal to the number of ansatz repetitions (in this example, two).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -666,7 +666,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Gate counts without pre_init passes:
-OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 48, &#39;p&#39;: 32, &#39;x&#39;: 4})
+OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 48, &#39;p&#39;: 36, &#39;x&#39;: 4})
 
 Gate counts with pre_init passes:
 OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 32, &#39;p&#39;: 24, &#39;x&#39;: 4})
