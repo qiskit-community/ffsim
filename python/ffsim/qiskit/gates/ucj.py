@@ -51,7 +51,7 @@ class UCJOperatorJW(Gate):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _ucj_jw(qubits, self.ucj_operator), qubits=qubits
+            _ucj_jw(qubits, self.ucj_operator), qubits=qubits, name=self.name
         )
 
 
