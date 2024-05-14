@@ -155,8 +155,7 @@ class PrepareSlaterDeterminantJW(Gate):
             atol: Absolute numerical tolerance for input validation.
 
         Raises:
-            ValueError: orbital_coeffs must be a 2-dimensional array.
-            ValueError: orbital_coeffs must have orthonormal columns.
+            ValueError: The input orbital rotation matrix is not unitary.
         """
         if validate and orbital_rotation is not None:
             if isinstance(orbital_rotation, np.ndarray):
@@ -245,8 +244,7 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
             atol: Absolute numerical tolerance for input validation.
 
         Raises:
-            ValueError: orbital_coeffs must be a 2-dimensional array.
-            ValueError: orbital_coeffs must have orthonormal columns.
+            ValueError: The input orbital rotation matrix is not unitary.
         """
         if validate and orbital_rotation is not None:
             if not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol):
