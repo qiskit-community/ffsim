@@ -56,7 +56,7 @@ def test_yields_equivalent_circuit_spinful(norb: int):
 def test_yields_equivalent_circuit_spinless(norb: int):
     """Test merging orbital rotations results in an equivalent circuit, spinless."""
     rng = np.random.default_rng()
-    qubits = QuantumRegister(2 * norb)
+    qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
     for _ in range(3):
         circuit.append(
@@ -123,7 +123,7 @@ def test_merge_slater_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Slater determinant preparation, spinless."""
     rng = np.random.default_rng()
 
-    qubits = QuantumRegister(2 * norb)
+    qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
 
     circuit.append(
@@ -196,7 +196,7 @@ def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Hartree-Fock state preparation."""
     rng = np.random.default_rng()
 
-    qubits = QuantumRegister(2 * norb)
+    qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
 
     circuit.append(
