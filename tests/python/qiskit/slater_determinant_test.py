@@ -35,6 +35,22 @@ def test_prepare_hartree_fock_jw(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(result, expected)
 
 
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+def test_prepare_hartree_fock_spinless_jw(norb: int, nocc: int):
+    """Test preparing Hartree-Fock state."""
+    gate = ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc)
+
+    nelec = (nocc, 0)
+    statevec = Statevector.from_int(0, 2 ** (2 * norb)).evolve(gate)
+    result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        np.array(statevec), norb=norb, nelec=nelec
+    )
+
+    expected = ffsim.hartree_fock_state(norb, nelec)
+
+    np.testing.assert_allclose(result, expected)
+
+
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_random_slater_determinant_same_rotation(norb: int, nelec: tuple[int, int]):
     """Test random Slater determinant circuit gives correct output state."""
@@ -107,3 +123,32 @@ def test_slater_determinant_no_rotation(norb: int, nelec: tuple[int, int]):
     circuit = QuantumCircuit(qubits)
     circuit.append(gate, qubits)
     assert circuit.decompose().count_ops().keys() in [set(), {"x"}]
+
+
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+def test_random_slater_determinant_spinless(norb: int, nocc: int):
+    """Test random Slater determinant circuit, spinless."""
+    rng = np.random.default_rng()
+    nelec = (nocc, 0)
+    for _ in range(3):
+        occupied_orbitals, _ = ffsim.testing.random_occupied_orbitals(norb, nelec)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+
+        gate = ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+            norb,
+            occupied_orbitals,
+            orbital_rotation=orbital_rotation,
+        )
+
+        statevec = Statevector.from_int(0, 2 ** (2 * norb)).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+
+        expected = ffsim.slater_determinant(
+            norb,
+            (occupied_orbitals, []),
+            orbital_rotation=orbital_rotation,
+        )
+
+        ffsim.testing.assert_allclose_up_to_global_phase(result, expected)

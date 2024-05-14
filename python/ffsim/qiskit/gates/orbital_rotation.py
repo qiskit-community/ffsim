@@ -124,6 +124,57 @@ class OrbitalRotationJW(Gate):
         )
 
 
+class OrbitalRotationSpinlessJW(Gate):
+    r"""Orbital rotation under the Jordan-Wigner transformation, spinless version.
+
+    Like :class:`OrbitalRotationJW` but only acts on a single spin species.
+    """
+
+    def __init__(
+        self,
+        norb: int,
+        orbital_rotation: np.ndarray,
+        *,
+        label: str | None = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
+    ):
+        """Create new orbital rotation gate.
+
+        Args:
+            norb: The number of spatial orbitals.
+            orbital_rotation: The orbital rotation.
+            label: The label of the gate.
+            validate: Whether to check that the input orbital rotation(s) is unitary
+                and raise an error if it isn't.
+            rtol: Relative numerical tolerance for input validation.
+            atol: Absolute numerical tolerance for input validation.
+
+        Raises:
+            ValueError: The input matrix is not unitary.
+        """
+        if validate and orbital_rotation is not None:
+            if not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol):
+                raise ValueError("The input orbital rotation matrix was not unitary.")
+
+        self.norb = norb
+        self.orbital_rotation = orbital_rotation
+        super().__init__("orb_rot_spinless_jw", 2 * norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(self.num_qubits)
+        circuit = QuantumCircuit(qubits, name=self.name)
+        for instruction in _orbital_rotation_jw(qubits, self.orbital_rotation):
+            circuit.append(instruction)
+        self.definition = circuit
+
+    def inverse(self):
+        """Inverse gate."""
+        return OrbitalRotationSpinlessJW(self.norb, self.orbital_rotation.T.conj())
+
+
 def _orbital_rotation_jw(
     qubits: Sequence[Qubit], orbital_rotation: np.ndarray
 ) -> Iterator[CircuitInstruction]:
