@@ -28,10 +28,44 @@ from qiskit.circuit.library import XXPlusYYGate
 from ffsim.variational import GivensAnsatzOperator
 
 
-class GivensAnsatzOperatorSpinlessJW(Gate):
+class GivensAnsatzOperatorJW(Gate):
     """Givens rotation ansatz operator under the Jordan-Wigner transformation.
 
     See :class:`ffsim.GivensAnsatzOperator` for a description of this gate's unitary.
+    """
+
+    def __init__(
+        self, givens_ansatz_operator: GivensAnsatzOperator, *, label: str | None = None
+    ):
+        """Create a new Givens ansatz operator gate.
+
+        Args:
+            givens_ansatz_operator: The Givens rotation ansatz operator.
+            label: The label of the gate.
+        """
+        self.givens_ansatz_operator = givens_ansatz_operator
+        super().__init__(
+            "givens_ansatz_jw", 2 * givens_ansatz_operator.norb, [], label=label
+        )
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(self.num_qubits)
+        circuit = QuantumCircuit(qubits, name=self.name)
+        norb = len(qubits) // 2
+        alpha_qubits = qubits[:norb]
+        beta_qubits = qubits[norb:]
+        for instruction in _givens_ansatz_jw(alpha_qubits, self.givens_ansatz_operator):
+            circuit.append(instruction)
+        for instruction in _givens_ansatz_jw(beta_qubits, self.givens_ansatz_operator):
+            circuit.append(instruction)
+        self.definition = circuit
+
+
+class GivensAnsatzOperatorSpinlessJW(Gate):
+    """Givens rotation ansatz operator under the Jordan-Wigner transformation, spinless.
+
+    Like :class:`GivensAnsatzOperatorJW` but only acts on a single spin species.
     """
 
     def __init__(
@@ -52,7 +86,9 @@ class GivensAnsatzOperatorSpinlessJW(Gate):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _givens_ansatz_jw(qubits, self.givens_ansatz_operator), qubits=qubits
+            _givens_ansatz_jw(qubits, self.givens_ansatz_operator),
+            qubits=qubits,
+            name=self.name,
         )
 
 

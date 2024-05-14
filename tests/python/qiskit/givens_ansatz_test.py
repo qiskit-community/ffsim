@@ -25,14 +25,43 @@ def brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
-def test_random_givens_ansatz_operator(norb: int, nocc: int):
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_random_givens_ansatz_operator_spinful(norb: int, nelec: tuple[int, int]):
     """Test random Givens rotation ansatz gives correct output state."""
+    rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        n_layers = 2 * norb
+        interaction_pairs = list(brickwork(norb, n_layers))
+        thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+        givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
+        gate = ffsim.qiskit.GivensAnsatzOperatorJW(givens_ansatz_op)
+
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+
+        expected = ffsim.apply_unitary(
+            small_vec, givens_ansatz_op, norb=norb, nelec=nelec
+        )
+
+        np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+def test_random_givens_ansatz_operator_spinless(norb: int, nocc: int):
+    """Test random spinless Givens rotation ansatz gives correct output state."""
     rng = np.random.default_rng()
     nelec = (nocc, 0)
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        n_layers = norb
+        n_layers = 2 * norb
         interaction_pairs = list(brickwork(norb, n_layers))
         thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
         givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
