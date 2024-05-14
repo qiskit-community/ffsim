@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.qiskit.gates.ucj - ffsim 0.0.33.dev0 documentation</title>
+        <title>ffsim.qiskit.gates.givens_ansatz - ffsim 0.0.33.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -278,7 +278,7 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for ffsim.qiskit.gates.ucj</h1><div class="highlight"><pre>
+          <h1>Source code for ffsim.qiskit.gates.givens_ansatz</h1><div class="highlight"><pre>
 <span></span><span class="c1"># (C) Copyright IBM 2024.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
@@ -289,10 +289,12 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;(Local) unitary cluster Jastrow ansatz gate.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Givens rotation ansatz gate.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="p">(</span>
@@ -302,69 +304,96 @@
     <span class="n">QuantumRegister</span><span class="p">,</span>
     <span class="n">Qubit</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">XXPlusYYGate</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.qiskit.gates.diag_coulomb</span> <span class="kn">import</span> <span class="n">DiagCoulombEvolutionJW</span>
-<span class="kn">from</span> <span class="nn">ffsim.qiskit.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">OrbitalRotationJW</span>
-<span class="kn">from</span> <span class="nn">ffsim.variational</span> <span class="kn">import</span> <span class="n">UCJOperator</span>
+<span class="kn">from</span> <span class="nn">ffsim.variational</span> <span class="kn">import</span> <span class="n">GivensAnsatzOperator</span>
 
 
-<div class="viewcode-block" id="UCJOperatorJW">
-<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.UCJOperatorJW">[docs]</a>
-<span class="k">class</span> <span class="nc">UCJOperatorJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unitary cluster Jastrow operator under the Jordan-Wigner transformation.</span>
+<div class="viewcode-block" id="GivensAnsatzOperatorJW">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorJW">[docs]</a>
+<span class="k">class</span> <span class="nc">GivensAnsatzOperatorJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Givens rotation ansatz operator under the Jordan-Wigner transformation.</span>
 
-<span class="sd">    See :class:`ffsim.UCJOperator` for a description of this gate&#39;s unitary.</span>
-
-<span class="sd">    This gate assumes that qubits are ordered such that the first `norb` qubits</span>
-<span class="sd">    correspond to the alpha orbitals and the last `norb` qubits correspond to the</span>
-<span class="sd">    beta orbitals.</span>
+<span class="sd">    See :class:`ffsim.GivensAnsatzOperator` for a description of this gate&#39;s unitary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UCJOperatorJW.__init__">
-<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.UCJOperatorJW.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ucj_operator</span><span class="p">:</span> <span class="n">UCJOperator</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new unitary cluster Jastrow (UCJ) gate.</span>
+<div class="viewcode-block" id="GivensAnsatzOperatorJW.__init__">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorJW.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">givens_ansatz_operator</span><span class="p">:</span> <span class="n">GivensAnsatzOperator</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Givens ansatz operator gate.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ucj_operator: The UCJ operator.</span>
+<span class="sd">            givens_ansatz_operator: The Givens rotation ansatz operator.</span>
 <span class="sd">            label: The label of the gate.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ucj_operator</span> <span class="o">=</span> <span class="n">ucj_operator</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ucj_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ucj_operator</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span> <span class="o">=</span> <span class="n">givens_ansatz_operator</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;givens_ansatz_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">givens_ansatz_operator</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span><span class="n">norb</span><span class="p">]</span>
+        <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="n">norb</span><span class="p">:]</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span></div>
+
+
+
+<div class="viewcode-block" id="GivensAnsatzOperatorSpinlessJW">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorSpinlessJW">[docs]</a>
+<span class="k">class</span> <span class="nc">GivensAnsatzOperatorSpinlessJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Givens rotation ansatz operator under the Jordan-Wigner transformation, spinless.</span>
+
+<span class="sd">    Like :class:`GivensAnsatzOperatorJW` but only acts on a single spin species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GivensAnsatzOperatorSpinlessJW.__init__">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorSpinlessJW.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">givens_ansatz_operator</span><span class="p">:</span> <span class="n">GivensAnsatzOperator</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Givens ansatz operator gate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            givens_ansatz_operator: The Givens rotation ansatz operator.</span>
+<span class="sd">            label: The label of the gate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span> <span class="o">=</span> <span class="n">givens_ansatz_operator</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;givens_ansatz_jw&quot;</span><span class="p">,</span> <span class="n">givens_ansatz_operator</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span>
+        <span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="o">.</span><span class="n">from_instructions</span><span class="p">(</span>
-            <span class="n">_ucj_jw</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ucj_operator</span><span class="p">),</span> <span class="n">qubits</span><span class="o">=</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">),</span>
+            <span class="n">qubits</span><span class="o">=</span><span class="n">qubits</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_ucj_jw</span><span class="p">(</span>
-    <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">ucj_op</span><span class="p">:</span> <span class="n">UCJOperator</span>
+<span class="k">def</span> <span class="nf">_givens_ansatz_jw</span><span class="p">(</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">givens_ansatz_operator</span><span class="p">:</span> <span class="n">GivensAnsatzOperator</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-    <span class="k">for</span> <span class="n">mat</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-        <span class="n">ucj_op</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
-        <span class="n">ucj_op</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
-        <span class="n">ucj_op</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">givens_ansatz_operator</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">),</span>
+        <span class="n">givens_ansatz_operator</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span> <span class="n">qubits</span>
-        <span class="p">)</span>
-        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-            <span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span>
-                <span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">mat</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span>
-            <span class="p">),</span>
-            <span class="n">qubits</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">ucj_op</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">ucj_op</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">),</span> <span class="n">qubits</span>
+            <span class="n">XXPlusYYGate</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
         <span class="p">)</span>
 </pre></div>
         </article>
