@@ -72,7 +72,7 @@ def minimize_linear_method(
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
             The optimization is performed using `scipy.optimize.minimize`_.
-        optimize_variation; Whether to optimize the `variation` hyperparameter
+        optimize_variation: Whether to optimize the `variation` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
             The optimization is performed using `scipy.optimize.minimize`_.
