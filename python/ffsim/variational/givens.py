@@ -12,14 +12,13 @@
 
 from __future__ import annotations
 
-import itertools
 import math
 from dataclasses import dataclass
 
 import numpy as np
 from scipy.linalg.blas import drot
 
-from ffsim.gates import apply_givens_rotation
+from ffsim.gates import apply_orbital_rotation
 
 
 @dataclass(frozen=True)
@@ -49,15 +48,9 @@ class GivensAnsatzOperator:
         self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
-        if copy:
-            vec = vec.copy()
-        for target_orbs, theta in zip(
-            itertools.cycle(self.interaction_pairs), self.thetas
-        ):
-            vec = apply_givens_rotation(
-                vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
-            )
-        return vec
+        return apply_orbital_rotation(
+            vec, self.to_orbital_rotation(), norb=norb, nelec=nelec, copy=copy
+        )
 
     def to_parameters(self) -> np.ndarray:
         """Convert the operator to a real-valued parameter vector."""
