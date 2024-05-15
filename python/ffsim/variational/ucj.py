@@ -19,6 +19,7 @@ from typing import List, Tuple, cast
 import numpy as np
 import scipy.linalg
 from opt_einsum import contract
+from typing_extensions import deprecated
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
 from ffsim.linalg import double_factorized_t2
@@ -308,6 +309,7 @@ class UCJOperator:
         return vec
 
 
+@deprecated("Use UCJOperator instead.")
 @dataclass
 class RealUCJOperator:
     r"""Real-valued unitary cluster Jastrow operator.
