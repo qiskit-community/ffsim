@@ -129,7 +129,7 @@ class UCJOperator:
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
     ) -> UCJOperator:
-        """Initialize the UCJ operator from a real-valued parameter vector.
+        r"""Initialize the UCJ operator from a real-valued parameter vector.
 
         Args:
             params: The real-valued parameter vector.
@@ -177,7 +177,7 @@ class UCJOperator:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
     ) -> np.ndarray:
-        """Convert the UCJ operator to a real-valued parameter vector.
+        r"""Convert the UCJ operator to a real-valued parameter vector.
 
         If `alpha_alpha_indices` or `alpha_beta_indices` is specified, the returned
         parameter vector will incorporate only the diagonal Coulomb matrix entries
@@ -396,7 +396,7 @@ class RealUCJOperator:
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
     ) -> "RealUCJOperator":
-        """Initialize the real UCJ operator from a real-valued parameter vector.
+        r"""Initialize the real UCJ operator from a real-valued parameter vector.
 
         Args:
             params: The real-valued parameter vector.
@@ -444,7 +444,7 @@ class RealUCJOperator:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
     ) -> np.ndarray:
-        """Convert the real UCJ operator to a real-valued parameter vector.
+        r"""Convert the real UCJ operator to a real-valued parameter vector.
 
         If `alpha_alpha_indices` or `alpha_beta_indices` is specified, the returned
         parameter vector will incorporate only the diagonal Coulomb matrix entries
