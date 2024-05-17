@@ -38,7 +38,7 @@
     "mol.build(\n",
     "    atom=[[\"N\", (0, 0, 0)], [\"N\", (1.0, 0, 0)]],\n",
     "    basis=\"sto-6g\",\n",
-    "    symmetry=\"d2h\",\n",
+    "    symmetry=\"Dooh\",\n",
     ")\n",
     "\n",
     "# Define active space\n",
@@ -204,7 +204,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Maximum error in a tensor entry: 0.03668541730983643\n"
+      "Maximum error in a tensor entry: 0.03668541730983477\n"
      ]
     }
    ],
@@ -373,7 +373,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.940243511515844\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9402393562196509\n"
      ]
     }
    ],
@@ -407,7 +407,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.9985212854199639\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9985211214230503\n"
      ]
     }
    ],
@@ -441,7 +441,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.9985212854199639\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9985211214230567\n"
      ]
     }
    ],
@@ -476,7 +476,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Fidelity of Trotter-evolved state with exact state: 0.9996731164187629\n"
+      "Fidelity of Trotter-evolved state with exact state: 0.9996731166933112\n"
      ]
     }
    ],
@@ -519,7 +519,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.11.8"
+   "version": "3.12.3"
   }
  },
  "nbformat": 4,
