@@ -217,7 +217,7 @@ def slater_determinant_rdm(
 
 
 def indices_to_strings(
-    indices: Sequence[int], norb: int, nelec: tuple[int, int]
+    indices: Sequence[int] | np.ndarray, norb: int, nelec: tuple[int, int]
 ) -> list[str]:
     """Convert statevector indices to bitstrings.
 
