@@ -295,7 +295,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span>
+<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">variational</span>
 
 
 <div class="viewcode-block" id="random_statevector">
@@ -576,6 +576,50 @@
         <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
         <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">two_body_tensor</span><span class="p">,</span>
         <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_ucj_operator">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_operator">[docs]</a>
+<span class="k">def</span> <span class="nf">random_ucj_operator</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random unitary cluster Jastrow operator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of orbitals.</span>
+<span class="sd">        n_reps: The number of ansatz repetitions.</span>
+<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">            in the operator.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled molecular Hamiltonian.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">diag_coulomb_mats_alpha_alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">diag_coulomb_mats_alpha_beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
+        <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOperator</span><span class="p">(</span>
+        <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
+        <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
+        <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 </pre></div>
