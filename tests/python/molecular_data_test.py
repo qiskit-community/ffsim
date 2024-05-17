@@ -20,7 +20,7 @@ def test_molecular_data_sym():
     mol.build(
         atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
         basis="sto-6g",
-        symmetry="Dooh",
+        symmetry="D2h",
     )
 
     # Define active space
