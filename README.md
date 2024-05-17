@@ -42,4 +42,4 @@ You can cite ffsim using the following BibTeX:
 
 ## Developer guide
 
-See the [developer guide](CONTRIBUTING.md) for instructions on contributing code to ffsim.
+See the [developer guide](https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md) for instructions on contributing code to ffsim.
