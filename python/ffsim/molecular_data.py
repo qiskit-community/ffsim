@@ -153,7 +153,7 @@ class MolecularData:
 
         # Get orbital symmetries.
         orbsym = None
-        if mol.symmetry:
+        if mol.symmetry and mol.groupname in IRREP_ID_MOLPRO:
             idx = symm.label_orb_symm(
                 mol, mol.irrep_id, mol.symm_orb, hartree_fock.mo_coeff[:, active_space]
             )
