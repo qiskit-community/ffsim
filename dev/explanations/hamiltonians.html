@@ -231,6 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -388,7 +389,7 @@ function:</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
--99.55717072551596
+-99.55717072551549
 </pre></div></div>
 </div>
 <p>Time evolution by the Hamiltonian can be computed using <code class="docutils literal notranslate"><span class="pre">expm_multiply</span></code>:</p>
@@ -406,7 +407,7 @@ function:</p>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/tmp/ipykernel_4164/2190712273.py:2: UserWarning: Trace of LinearOperator not available, it will be estimated. Provide `traceA` to ensure performance.
+/tmp/ipykernel_4178/2190712273.py:2: UserWarning: Trace of LinearOperator not available, it will be estimated. Provide `traceA` to ensure performance.
   evolved_vec = scipy.sparse.linalg.expm_multiply(-1j * time * linop, vec)
 </pre></div></div>
 </div>
