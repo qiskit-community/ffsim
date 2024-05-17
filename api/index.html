@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim" href="ffsim.html" /><link rel="prev" title="How to build and transpile Qiskit quantum circuits" href="../how-to-guides/qiskit-circuits.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim" href="ffsim.html" /><link rel="prev" title="How to use the ffsim Sampler primitive" href="../how-to-guides/qiskit-sampler.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>API Reference - ffsim 0.0.33 documentation</title>
+        <title>API Reference - ffsim 0.0.34 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.33 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.33 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -230,6 +230,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -385,6 +386,7 @@
 <li class="toctree-l1"><a class="reference internal" href="ffsim.qiskit.html">ffsim.qiskit</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionJW</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.qiskit.html#ffsim.qiskit.DropNegligible"><code class="docutils literal notranslate"><span class="pre">DropNegligible</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.qiskit.html#ffsim.qiskit.FfsimSampler"><code class="docutils literal notranslate"><span class="pre">FfsimSampler</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorJW"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOperatorJW</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorSpinlessJW"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOperatorSpinlessJW</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.qiskit.html#ffsim.qiskit.MergeOrbitalRotations"><code class="docutils literal notranslate"><span class="pre">MergeOrbitalRotations</span></code></a></li>
@@ -411,6 +413,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ffsim.random.html#ffsim.random.random_statevector"><code class="docutils literal notranslate"><span class="pre">random_statevector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.random.html#ffsim.random.random_t2_amplitudes"><code class="docutils literal notranslate"><span class="pre">random_t2_amplitudes()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.random.html#ffsim.random.random_two_body_tensor"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffsim.random.html#ffsim.random.random_ucj_operator"><code class="docutils literal notranslate"><span class="pre">random_ucj_operator()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ffsim.random.html#ffsim.random.random_unitary"><code class="docutils literal notranslate"><span class="pre">random_unitary()</span></code></a></li>
 </ul>
 </li>
@@ -442,14 +445,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../how-to-guides/qiskit-circuits.html">
+          <a class="prev-page" href="../how-to-guides/qiskit-sampler.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">How to build and transpile Qiskit quantum circuits</div>
+                <div class="title">How to use the ffsim Sampler primitive</div>
                 
               </div>
             </a>
@@ -484,7 +487,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=565bc8c8"></script>
+</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

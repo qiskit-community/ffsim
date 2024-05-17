@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-to guides" href="../how-to-guides/index.html" /><link rel="prev" title="Double-factorized representation of the molecular Hamiltonian" href="double-factorized.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>Qubit gate decompositions of fermionic gates - ffsim 0.0.33 documentation</title>
+        <title>Qubit gate decompositions of fermionic gates - ffsim 0.0.34 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.33 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.33 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,6 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -485,13 +486,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_reps</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">t2</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_t2_amplitudes</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span><span class="o">=</span><span class="n">nelec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-<span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-    <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(),</span>
-    <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-    <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_operator</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOperatorJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
@@ -666,7 +661,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Gate counts without pre_init passes:
-OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 48, &#39;p&#39;: 36, &#39;x&#39;: 4})
+OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 48, &#39;p&#39;: 32, &#39;x&#39;: 4})
 
 Gate counts with pre_init passes:
 OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 32, &#39;p&#39;: 24, &#39;x&#39;: 4})
@@ -682,13 +677,7 @@ of swap gates. The following code cell decomposes the diagonal Coulomb evolution
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_reps</span> <span class="o">=</span> <span class="mi">1</span>
-
-<span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-    <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(),</span>
-    <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-    <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_operator</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOperatorJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
@@ -716,9 +705,9 @@ of swap gates. The following code cell decomposes the diagonal Coulomb evolution
 <span class="n">alpha_beta_indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span>
 
 <span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-    <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(),</span>
+    <span class="n">ucj_op</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(),</span>
     <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-    <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
+    <span class="n">n_reps</span><span class="o">=</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">n_reps</span><span class="p">,</span>
     <span class="n">alpha_alpha_indices</span><span class="o">=</span><span class="n">alpha_alpha_indices</span><span class="p">,</span>
     <span class="n">alpha_beta_indices</span><span class="o">=</span><span class="n">alpha_beta_indices</span><span class="p">,</span>
 <span class="p">)</span>
@@ -825,7 +814,7 @@ of swap gates. The following code cell decomposes the diagonal Coulomb evolution
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=565bc8c8"></script>
+</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
