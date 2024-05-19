@@ -301,7 +301,6 @@
 <span class="kn">import</span> <span class="nn">pyscf.scf</span>
 <span class="kn">from</span> <span class="nn">pyscf</span> <span class="kn">import</span> <span class="n">ao2mo</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="n">gto</span><span class="p">,</span> <span class="n">mcscf</span><span class="p">,</span> <span class="n">mp</span><span class="p">,</span> <span class="n">symm</span>
 <span class="kn">from</span> <span class="nn">pyscf.scf.hf</span> <span class="kn">import</span> <span class="n">SCF</span>
-<span class="kn">from</span> <span class="nn">pyscf.symm.param</span> <span class="kn">import</span> <span class="n">IRREP_ID_MOLPRO</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
 
@@ -366,7 +365,7 @@
     <span class="n">fci_vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># other information</span>
     <span class="n">dipole_integrals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">orbital_symmetries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">orbital_symmetries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
@@ -439,11 +438,15 @@
 
         <span class="c1"># Get orbital symmetries.</span>
         <span class="n">orbsym</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">symmetry</span> <span class="ow">and</span> <span class="n">mol</span><span class="o">.</span><span class="n">groupname</span> <span class="ow">in</span> <span class="n">IRREP_ID_MOLPRO</span><span class="p">:</span>
-            <span class="n">idx</span> <span class="o">=</span> <span class="n">symm</span><span class="o">.</span><span class="n">label_orb_symm</span><span class="p">(</span>
-                <span class="n">mol</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">irrep_id</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">symm_orb</span><span class="p">,</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">[:,</span> <span class="n">active_space</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">symmetry</span><span class="p">:</span>
+            <span class="n">orbsym</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">symm</span><span class="o">.</span><span class="n">label_orb_symm</span><span class="p">(</span>
+                    <span class="n">mol</span><span class="p">,</span>
+                    <span class="n">mol</span><span class="o">.</span><span class="n">irrep_name</span><span class="p">,</span>
+                    <span class="n">mol</span><span class="o">.</span><span class="n">symm_orb</span><span class="p">,</span>
+                    <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">[:,</span> <span class="n">active_space</span><span class="p">],</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">orbsym</span> <span class="o">=</span> <span class="p">[</span><span class="n">IRREP_ID_MOLPRO</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">groupname</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
             <span class="n">atom</span><span class="o">=</span><span class="n">mol</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
