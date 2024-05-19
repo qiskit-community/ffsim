@@ -17,7 +17,6 @@ import math
 from collections.abc import Sequence
 
 import numpy as np
-from typing_extensions import deprecated
 
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin
@@ -310,25 +309,6 @@ def apply_num_num_interaction(
             copy=False,
         )
     return vec
-
-
-@deprecated("Use apply_on_site_interaction instead.")
-def apply_on_site_num_num_interaction(
-    vec: np.ndarray,
-    theta: float,
-    target_orb: int,
-    norb: int,
-    nelec: tuple[int, int],
-    *,
-    copy: bool = True,
-):
-    r"""Apply an on-site interaction gate.
-
-    This function is deprecated. Use :func:`ffsim.apply_on_site_interaction` instead.
-    """
-    return apply_on_site_interaction(
-        vec=vec, theta=theta, target_orb=target_orb, norb=norb, nelec=nelec, copy=copy
-    )
 
 
 def apply_on_site_interaction(
