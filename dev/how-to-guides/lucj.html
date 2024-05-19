@@ -231,7 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -339,8 +339,8 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643962
-CASCI E = -77.6290254326718  E(CI) = -3.57322412553863  S^2 = 0.0000000
+converged SCF energy = -77.4456267643963
+CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </pre></div></div>
 </div>
 <section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
@@ -394,8 +394,8 @@ CASCI E = -77.6290254326718  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754471  E_corr = -0.04824536314851506
-Energy at initialization: -77.46975600021763
+E(CCSD) = -77.49387212754476  E_corr = -0.04824536314851323
+Energy at initialization: -77.46975600021695
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -434,10 +434,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50963958845003
-        x: [ 1.263e+00 -4.691e-01 ...  8.693e-02  1.366e-01]
+      fun: -77.50963603176446
+        x: [ 1.263e+00 -4.685e-01 ...  8.692e-02  1.366e-01]
       nit: 5
-      jac: [-5.826e-05  6.253e-04 ... -3.604e-03 -4.492e-03]
+      jac: [-8.100e-05  6.196e-04 ... -3.612e-03 -4.491e-03]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -500,10 +500,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.45741101999931
-        x: [ 1.263e+00 -4.815e-01 ...  8.774e-03  8.080e-03]
+      fun: -77.45741084240237
+        x: [ 1.264e+00 -4.805e-01 ...  7.759e-03  8.219e-03]
       nit: 5
-      jac: [ 1.734e-04 -9.095e-05 ... -1.140e-03 -3.487e-03]
+      jac: [ 1.677e-04 -7.248e-05 ... -1.289e-03 -3.416e-03]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -587,34 +587,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.46235943344004
-       x: [ 1.298e+00 -4.395e-01 ...  6.016e-02 -2.664e-01]
+     fun: -77.4581864349516
+       x: [ 1.288e+00 -4.531e-01 ...  3.529e-02 -7.202e-03]
      nit: 5
-     jac: [-4.792e-03  1.433e-03 ... -8.272e-04  1.267e-03]
+     jac: [-5.818e-04 -2.931e-04 ...  6.181e-04 -1.238e-03]
     nfev: 637
     njev: 5
   nlinop: 407
 
 Iteration 1
-    Energy: -77.45716682962421
-    Norm of gradient: 0.011224543915945082
-    Regularization hyperparameter: 0.026327362484131627
-    Variation hyperparameter: 0.8768258675819076
+    Energy: -77.45028739979949
+    Norm of gradient: 0.020244824287864033
+    Regularization hyperparameter: 0.9036276939267351
+    Variation hyperparameter: 0.6498985781138222
 Iteration 2
-    Energy: -77.45818602680635
-    Norm of gradient: 0.008161740256404567
-    Regularization hyperparameter: 0.0004778773819069735
-    Variation hyperparameter: 0.8799350404400841
+    Energy: -77.45044541029151
+    Norm of gradient: 0.0189624763974419
+    Regularization hyperparameter: 0.9036273928895977
+    Variation hyperparameter: 0.6498985977077565
 Iteration 3
-    Energy: -77.45821400707273
-    Norm of gradient: 0.007968991134556257
-    Regularization hyperparameter: 1.0436934567401501
-    Variation hyperparameter: 0.8789095325261268
+    Energy: -77.45710237960209
+    Norm of gradient: 0.012135808153529734
+    Regularization hyperparameter: 0.025541904275794336
+    Variation hyperparameter: 0.6829568336612457
 Iteration 4
-    Energy: -77.46221315969893
-    Norm of gradient: 0.022553729233642933
-    Regularization hyperparameter: 0.0029613086229784563
-    Variation hyperparameter: 0.45314020039614117
+    Energy: -77.45816510880918
+    Norm of gradient: 0.007611110890094704
+    Regularization hyperparameter: 0.00040553710574170514
+    Variation hyperparameter: 0.6835156927676107
 </pre></div></div>
 </div>
 </section>

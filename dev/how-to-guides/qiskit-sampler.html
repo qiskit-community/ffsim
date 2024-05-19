@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="API Reference" href="../api/index.html" /><link rel="prev" title="How to build and transpile Qiskit quantum circuits" href="qiskit-circuits.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>How to use the ffsim Sampler primitive - ffsim 0.0.35.dev0 documentation</title>
+        <title>How to use ffsim’s Qiskit Sampler primitive - ffsim 0.0.35.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -231,7 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -287,8 +287,8 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="How-to-use-the-ffsim-Sampler-primitive">
-<h1>How to use the ffsim Sampler primitive<a class="headerlink" href="#How-to-use-the-ffsim-Sampler-primitive" title="Link to this heading">¶</a></h1>
+          <section id="How-to-use-ffsim's-Qiskit-Sampler-primitive">
+<h1>How to use ffsim’s Qiskit Sampler primitive<a class="headerlink" href="#How-to-use-ffsim's-Qiskit-Sampler-primitive" title="Link to this heading">¶</a></h1>
 <p>In this guide, we show how to use <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.FfsimSampler"><span class="std std-ref">FfsimSampler</span></a>, ffsim’s implementation of the Qiskit <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2">Sampler primitive</a>, to sample from quantum circuits built from fermionic gates.</p>
 <section id="Example-of-using-FfsimSampler">
 <h2>Example of using FfsimSampler<a class="headerlink" href="#Example-of-using-FfsimSampler" title="Link to this heading">¶</a></h2>
@@ -470,10 +470,10 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -108.835236570774
+converged SCF energy = -108.835236570775
 norb = 16
 nelec = (5, 5)
-E(CCSD) = -109.0398256929733  E_corr = -0.2045891221988309
+E(CCSD) = -109.0398256929734  E_corr = -0.2045891221988311
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -482,16 +482,16 @@ E(CCSD) = -109.0398256929733  E_corr = -0.2045891221988309
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;00000000000111110000000000011111&#39;: 9897,
- &#39;00000000001101110000000000011111&#39;: 27,
- &#39;00000000000111110000000000110111&#39;: 21,
- &#39;10000000000011110000000000011111&#39;: 7,
- &#39;00010000000101110000000000011111&#39;: 5,
- &#39;00000000000111110001000000010111&#39;: 5,
- &#39;00000000000111110000000001011011&#39;: 4,
- &#39;00000000010110110000000001011011&#39;: 3,
+{&#39;00000000000111110000000000011111&#39;: 9898,
+ &#39;00000000001101110000000000011111&#39;: 19,
+ &#39;00000000000111110000000000110111&#39;: 15,
+ &#39;00000000000111110000000001011011&#39;: 9,
+ &#39;00000000010110110000000000011111&#39;: 7,
+ &#39;00000000000111111000000000001111&#39;: 4,
+ &#39;01000000000111100000000000011111&#39;: 4,
+ &#39;00010000000101110000000000011111&#39;: 3,
  &#39;01000000000011110000000000011111&#39;: 3,
- &#39;00000000000111111000000000001111&#39;: 3}
+ &#39;00100000000110110000000000011111&#39;: 3}
 </pre></div></div>
 </div>
 </section>
@@ -559,7 +559,7 @@ E(CCSD) = -109.0398256929733  E_corr = -0.2045891221988309
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">How to use the ffsim Sampler primitive</a><ul>
+<li><a class="reference internal" href="#">How to use ffsim’s Qiskit Sampler primitive</a><ul>
 <li><a class="reference internal" href="#Example-of-using-FfsimSampler">Example of using FfsimSampler</a></li>
 <li><a class="reference internal" href="#Criteria-for-circuits-that-FfsimSampler-can-sample">Criteria for circuits that FfsimSampler can sample</a></li>
 <li><a class="reference internal" href="#Example-of-sampling-from-an-LUCJ-circuit-for-a-nitrogen-molecule">Example of sampling from an LUCJ circuit for a nitrogen molecule</a></li>
