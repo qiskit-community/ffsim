@@ -19,6 +19,7 @@ import numpy as np
 import pyscf.scf
 from pyscf import ao2mo, cc, gto, mcscf, mp, symm
 from pyscf.scf.hf import SCF
+from typing_extensions import deprecated
 
 from ffsim.hamiltonians import MolecularHamiltonian
 
@@ -177,6 +178,7 @@ class MolecularData:
         )
 
     @staticmethod
+    @deprecated("Pass an SCF object directly to from_scf instead.")
     def from_mole(
         molecule: gto.Mole,
         active_space: Iterable[int] | None = None,
