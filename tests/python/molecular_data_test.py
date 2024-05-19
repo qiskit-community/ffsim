@@ -29,7 +29,8 @@ def test_molecular_data_sym():
     active_space = range(n_frozen, mol.nao_nr())
 
     # Get molecular data and Hamiltonian
-    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
 
     assert mol_data.orbital_symmetries == [
         "A1g",
@@ -56,7 +57,8 @@ def test_molecular_data_no_sym():
     active_space = range(n_frozen, mol.nao_nr())
 
     # Get molecular data and Hamiltonian
-    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
 
     assert mol_data.orbital_symmetries is None
 
@@ -75,7 +77,8 @@ def test_molecular_data_run_methods():
     active_space = range(n_frozen, mol.nao_nr())
 
     # Get molecular data and Hamiltonian
-    mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
 
     # Run calculations
     mol_data.run_mp2()
