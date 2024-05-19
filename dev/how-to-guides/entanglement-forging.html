@@ -328,7 +328,8 @@
 <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span>
 
 <span class="c1"># Get molecular data and molecular Hamiltonian</span>
-<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_mole</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
+<span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
 <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
 
@@ -468,10 +469,10 @@ Number of parameters: 15
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -75.6838156800966
+      fun: -75.68381564816609
         x: [-1.603e-01  6.419e-03 ...  5.747e-02 -1.005e-01]
       nit: 3
-      jac: [ 2.132e-04  1.080e-04 ... -4.752e-03  7.381e-03]
+      jac: [ 2.217e-04  1.009e-04 ... -4.742e-03  7.378e-03]
      nfev: 112
      njev: 7
  hess_inv: &lt;15x15 LbfgsInvHessProduct with dtype=float64&gt;

@@ -420,17 +420,15 @@
 <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_frozen</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span>
 
 <span class="c1"># Get molecular data and Hamiltonian</span>
-<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_mole</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
+<span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
 <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nelec = </span><span class="si">{</span><span class="n">nelec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get CCSD t2 amplitudes for initializing the ansatz</span>
-<span class="n">ccsd</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">CCSD</span><span class="p">(</span>
-    <span class="n">mol_data</span><span class="o">.</span><span class="n">scf</span><span class="p">,</span>
-    <span class="n">frozen</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">active_space</span><span class="p">],</span>
-<span class="p">)</span>
+<span class="n">ccsd</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">CCSD</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">active_space</span><span class="p">])</span>
 <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">ccsd</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 
 <span class="c1"># Construct LUCJ operator using indices for a square lattice mapping</span>
@@ -470,10 +468,10 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -108.835236570774
+converged SCF energy = -108.835236570775
 norb = 16
 nelec = (5, 5)
-E(CCSD) = -109.0398256929732  E_corr = -0.2045891221988308
+E(CCSD) = -109.0398256929734  E_corr = -0.2045891221988315
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -486,8 +484,8 @@ E(CCSD) = -109.0398256929732  E_corr = -0.2045891221988308
  &#39;00000000010110110000000000011111&#39;: 28,
  &#39;00000000000111110000000001011011&#39;: 20,
  &#39;00100000000110110000000000011111&#39;: 7,
+ &#39;10000000000011110000000000011111&#39;: 7,
  &#39;00000000000111110000000000110111&#39;: 6,
- &#39;10000000000011110000000000011111&#39;: 6,
  &#39;00000000000111110010000000011011&#39;: 6,
  &#39;00000000001101110000000000110111&#39;: 3,
  &#39;01000000000011110000000000011111&#39;: 3,

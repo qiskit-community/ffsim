@@ -144,23 +144,23 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "converged SCF energy = -108.835236570775\n",
+      "converged SCF energy = -108.835236570774\n",
       "norb = 16\n",
       "nelec = (5, 5)\n",
-      "E(CCSD) = -109.0398256929734  E_corr = -0.2045891221988307\n"
+      "E(CCSD) = -109.0398256929733  E_corr = -0.2045891221988306\n"
      ]
     },
     {
      "data": {
       "text/plain": [
        "{'00000000000111110000000000011111': 9897,\n",
-       " '00000000010110110000000000011111': 28,\n",
-       " '00000000000111110000000001011011': 20,\n",
-       " '00100000000110110000000000011111': 7,\n",
+       " '00000000001101110000000000011111': 27,\n",
+       " '00000000000111110000000000110111': 21,\n",
        " '10000000000011110000000000011111': 7,\n",
-       " '00000000000111110000000000110111': 6,\n",
-       " '00000000000111110010000000011011': 6,\n",
-       " '00000000001101110000000000110111': 3,\n",
+       " '00010000000101110000000000011111': 5,\n",
+       " '00000000000111110001000000010111': 5,\n",
+       " '00000000000111110000000001011011': 4,\n",
+       " '00000000010110110000000001011011': 3,\n",
        " '01000000000011110000000000011111': 3,\n",
        " '00000000000111111000000000001111': 3}"
       ]
@@ -187,17 +187,15 @@
     "active_space = range(n_frozen, mol.nao_nr())\n",
     "\n",
     "# Get molecular data and Hamiltonian\n",
-    "mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)\n",
     "norb, nelec = mol_data.norb, mol_data.nelec\n",
     "mol_hamiltonian = mol_data.hamiltonian\n",
     "print(f\"norb = {norb}\")\n",
     "print(f\"nelec = {nelec}\")\n",
     "\n",
     "# Get CCSD t2 amplitudes for initializing the ansatz\n",
-    "ccsd = cc.CCSD(\n",
-    "    mol_data.scf,\n",
-    "    frozen=[i for i in range(mol.nao_nr()) if i not in active_space],\n",
-    ")\n",
+    "ccsd = cc.CCSD(scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space])\n",
     "_, _, t2 = ccsd.kernel()\n",
     "\n",
     "# Construct LUCJ operator using indices for a square lattice mapping\n",
@@ -248,7 +246,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.12.3"
+   "version": "3.12.1"
   }
  },
  "nbformat": 4,
