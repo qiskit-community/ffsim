@@ -203,8 +203,8 @@ class MolecularData:
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
         mp2_solver = mp.MP2(self.scf, frozen=frozen)
-        mp2_energy, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
-        self.mp2_energy = mp2_energy
+        _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
+        self.mp2_energy = mp2_solver.e_tot
         if store_t2:
             self.mp2_t2 = mp2_t2
 
@@ -212,8 +212,8 @@ class MolecularData:
         """Run FCI and store results."""
         cas = mcscf.CASCI(self.scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
-        fci_energy, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
-        self.fci_energy = fci_energy
+        _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
+        self.fci_energy = cas.e_tot
         if store_fci_vec:
             self.fci_vec = fci_vec
 
@@ -228,8 +228,8 @@ class MolecularData:
         """Run CCSD and store results."""
         frozen = [i for i in range(self.norb) if i not in self.active_space]
         ccsd_solver = cc.CCSD(self.scf, frozen=frozen)
-        ccsd_energy, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
-        self.ccsd_energy = ccsd_energy + self.hf_energy
+        _, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
+        self.ccsd_energy = ccsd_solver.e_tot
         if store_t1:
             self.ccsd_t1 = ccsd_t1
         if store_t2:
