@@ -66,9 +66,9 @@ class MolecularData:
     mo_occ: np.ndarray
     active_space: list[int]
     # molecular integrals
-    core_energy: float | None = None
-    one_body_integrals: np.ndarray | None = None
-    two_body_integrals: np.ndarray | None = None
+    core_energy: float
+    one_body_integrals: np.ndarray
+    two_body_integrals: np.ndarray
     # Hartree-Fock data
     hf_energy: float | None = None
     hf_mo_coeff: np.ndarray | None = None
