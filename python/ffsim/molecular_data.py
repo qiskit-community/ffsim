@@ -32,15 +32,17 @@ class MolecularData:
         basis: The basis set, e.g. "sto-6g".
         spin: The spin of the molecule.
         symmetry: The symmetry of the molecule.
-        mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
-        mo_occ: Hartree-Fock canonical orbital occupancies.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        active_space: The orbitals included in the active space.
+        mo_coeff: Molecular orbital coefficients in the AO basis.
+        mo_occ: Molecular orbital occupancies.
+        active_space: The molecular orbitals included in the active space.
         core_energy: The core energy.
         one_body_tensor: The one-body tensor.
         two_body_integrals: The two-body integrals in compressed format.
         hf_energy: The Hartree-Fock energy.
+        hf_mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
+        hf_mo_occ: Hartree-Fock canonical orbital occupancies.
         mp2_energy: The MP2 energy.
         mp2_t2: The MP2 t2 amplitudes.
         ccsd_energy: The CCSD energy.
@@ -57,18 +59,20 @@ class MolecularData:
     basis: str
     spin: int
     symmetry: str | None
-    # Hartree-Fock data
-    mo_coeff: np.ndarray
-    mo_occ: np.ndarray
-    hf_energy: float
     # active space information
     norb: int
     nelec: tuple[int, int]
+    mo_coeff: np.ndarray
+    mo_occ: np.ndarray
     active_space: list[int]
     # molecular integrals
-    core_energy: float
-    one_body_integrals: np.ndarray
-    two_body_integrals: np.ndarray
+    core_energy: float | None = None
+    one_body_integrals: np.ndarray | None = None
+    two_body_integrals: np.ndarray | None = None
+    # Hartree-Fock data
+    hf_energy: float | None = None
+    hf_mo_coeff: np.ndarray | None = None
+    hf_mo_occ: np.ndarray | None = None
     # MP2 data
     mp2_energy: float | None = None
     mp2_t2: np.ndarray | None = None
@@ -97,14 +101,6 @@ class MolecularData:
         """The PySCF Mole class for this molecular data."""
         mol = gto.Mole()
         return mol.build(atom=self.atom, basis=self.basis, symmetry=self.symmetry)
-
-    @property
-    def scf(self) -> gto.Mole:
-        """The PySCF SCF class for this molecular data."""
-        hartree_fock = pyscf.scf.RHF(self.mole)
-        hartree_fock.mo_occ = self.mo_occ
-        hartree_fock.mo_coeff = self.mo_coeff
-        return hartree_fock
 
     @staticmethod
     def from_scf(
@@ -199,10 +195,14 @@ class MolecularData:
 
     def run_mp2(self, *, store_t2: bool = False):
         """Run MP2 and store results."""
-        cas = mcscf.CASCI(self.scf, ncas=self.norb, nelecas=self.nelec)
+        # TODO support SCF other than RHF
+        scf = pyscf.scf.RHF(self.mole)
+        cas = mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
-        mp2_solver = mp.MP2(self.scf, frozen=frozen)
+        mp2_solver = mp.MP2(
+            scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+        )
         _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
         self.mp2_energy = mp2_solver.e_tot
         if store_t2:
@@ -210,7 +210,9 @@ class MolecularData:
 
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
-        cas = mcscf.CASCI(self.scf, ncas=self.norb, nelecas=self.nelec)
+        # TODO support SCF other than RHF
+        scf = pyscf.scf.RHF(self.mole)
+        cas = mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
         self.fci_energy = cas.e_tot
@@ -226,8 +228,12 @@ class MolecularData:
         store_t2: bool = False,
     ) -> None:
         """Run CCSD and store results."""
+        # TODO support SCF other than RHF
+        scf = pyscf.scf.RHF(self.mole)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
-        ccsd_solver = cc.CCSD(self.scf, frozen=frozen)
+        ccsd_solver = cc.CCSD(
+            scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+        )
         _, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
         self.ccsd_energy = ccsd_solver.e_tot
         if store_t1:

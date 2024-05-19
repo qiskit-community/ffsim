@@ -81,6 +81,7 @@ def test_molecular_data_run_methods():
     mol_data.run_mp2()
     mol_data.run_fci()
     mol_data.run_ccsd()
+
     np.testing.assert_allclose(mol_data.mp2_energy, -108.58852784026)
     np.testing.assert_allclose(mol_data.fci_energy, -108.595987350986)
     np.testing.assert_allclose(mol_data.ccsd_energy, -108.5933309085008)
