@@ -349,12 +349,3 @@ def test_apply_fsim_gate_matrix(norb: int, spin: ffsim.Spin):
                     norb=norb,
                     spin=spin,
                 )
-
-
-def test_deprecations():
-    """Test deprecation warnings are raised properly."""
-    norb = 2
-    nelec = (1, 1)
-    vec = ffsim.hartree_fock_state(norb, nelec)
-    with pytest.warns(DeprecationWarning):
-        _ = ffsim.apply_on_site_num_num_interaction(vec, 0.1, 0, norb=norb, nelec=nelec)
