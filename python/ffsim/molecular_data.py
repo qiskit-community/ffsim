@@ -19,7 +19,6 @@ import numpy as np
 import pyscf.scf
 from pyscf import ao2mo, cc, gto, mcscf, mp, symm
 from pyscf.scf.hf import SCF
-from pyscf.symm.param import IRREP_ID_MOLPRO
 
 from ffsim.hamiltonians import MolecularHamiltonian
 
@@ -82,7 +81,7 @@ class MolecularData:
     fci_vec: np.ndarray | None = None
     # other information
     dipole_integrals: np.ndarray | None = None
-    orbital_symmetries: list[int] | None = None
+    orbital_symmetries: list[str] | None = None
 
     @property
     def hamiltonian(self) -> MolecularHamiltonian:
@@ -153,11 +152,15 @@ class MolecularData:
 
         # Get orbital symmetries.
         orbsym = None
-        if mol.symmetry and mol.groupname in IRREP_ID_MOLPRO:
-            idx = symm.label_orb_symm(
-                mol, mol.irrep_id, mol.symm_orb, hartree_fock.mo_coeff[:, active_space]
+        if mol.symmetry:
+            orbsym = list(
+                symm.label_orb_symm(
+                    mol,
+                    mol.irrep_name,
+                    mol.symm_orb,
+                    hartree_fock.mo_coeff[:, active_space],
+                )
             )
-            orbsym = [IRREP_ID_MOLPRO[mol.groupname][i] for i in idx]
 
         return MolecularData(
             atom=mol.atom,

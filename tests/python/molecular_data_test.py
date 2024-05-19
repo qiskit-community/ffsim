@@ -20,7 +20,7 @@ def test_molecular_data_sym():
     mol.build(
         atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
         basis="sto-6g",
-        symmetry="D2h",
+        symmetry="Dooh",
     )
 
     # Define active space
@@ -30,7 +30,16 @@ def test_molecular_data_sym():
     # Get molecular data and Hamiltonian
     mol_data = ffsim.MolecularData.from_mole(mol, active_space=active_space)
 
-    assert mol_data.orbital_symmetries == [1, 5, 3, 2, 1, 6, 7, 5]
+    assert mol_data.orbital_symmetries == [
+        "A1g",
+        "A1u",
+        "E1uy",
+        "E1ux",
+        "A1g",
+        "E1gx",
+        "E1gy",
+        "A1u",
+    ]
 
 
 def test_molecular_data_no_sym():
