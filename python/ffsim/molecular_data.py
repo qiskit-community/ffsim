@@ -140,12 +140,12 @@ class MolecularData:
         charges = mol.atom_charges()
         coords = mol.atom_coords()
         nuc_charge_center = np.einsum("z,zx->x", charges, coords) / charges.sum()
-        mol.set_common_orig_(nuc_charge_center)
-        mo_coeffs = hartree_fock.mo_coeff[:, active_space]
-        dipole_integrals = mol.intor("cint1e_r_sph", comp=3)
-        dipole_integrals = np.einsum(
-            "xij,ip,jq->xpq", dipole_integrals, mo_coeffs, mo_coeffs
-        )
+        with mol.with_common_origin(nuc_charge_center):
+            dipole_integrals = mol.intor("cint1e_r_sph", comp=3)
+            mo_coeffs = hartree_fock.mo_coeff[:, active_space]
+            dipole_integrals = np.einsum(
+                "xij,ip,jq->xpq", dipole_integrals, mo_coeffs, mo_coeffs
+            )
 
         # Get orbital symmetries.
         orbsym = None
