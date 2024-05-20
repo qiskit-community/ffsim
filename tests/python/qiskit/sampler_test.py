@@ -49,7 +49,7 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     ucj_op = ffsim.random.random_ucj_operator(
-        norb, n_reps=2, with_final_orbital_rotation=True
+        norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
     )
     interaction_pairs = list(_brickwork(norb, norb))
     thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
