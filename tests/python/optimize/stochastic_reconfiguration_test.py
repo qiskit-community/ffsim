@@ -63,6 +63,8 @@ def test_minimize_stochastic_reconfiguration():
         )
         if hasattr(intermediate_result, "jac"):
             info["jac"].append(intermediate_result.jac)
+        if hasattr(intermediate_result, "regularization"):
+            info["regularization"].append(intermediate_result.regularization)
         if hasattr(intermediate_result, "variation"):
             info["variation"].append(intermediate_result.variation)
 
@@ -85,6 +87,9 @@ def test_minimize_stochastic_reconfiguration():
         params_to_vec,
         x0=x0,
         hamiltonian=hamiltonian,
+        regularization=1e-4,
+        variation=0.9,
+        optimize_regularization=False,
         optimize_variation=False,
         callback=callback,
     )
@@ -94,7 +99,48 @@ def test_minimize_stochastic_reconfiguration():
         np.testing.assert_allclose(energy(params), fun)
     assert result.nit <= 30
     assert result.nit < result.nlinop < result.nfev
-    assert set(info["variation"]) == {1.0}
+    assert set(info["regularization"]) == {1e-4}
+    assert set(info["variation"]) == {0.9}
+
+    # optimization without optimizing regularization
+    info = defaultdict(list)
+    result = ffsim.optimize.minimize_stochastic_reconfiguration(
+        params_to_vec,
+        x0=x0,
+        hamiltonian=hamiltonian,
+        regularization=1e-4,
+        variation=0.9,
+        optimize_regularization=False,
+        callback=callback,
+    )
+    np.testing.assert_allclose(energy(result.x), result.fun)
+    np.testing.assert_allclose(result.fun, -0.970773)
+    for params, fun in zip(info["x"], info["fun"]):
+        np.testing.assert_allclose(energy(params), fun)
+    assert result.nit <= 30
+    assert result.nit < result.nlinop < result.nfev
+    assert set(info["regularization"]) == {1e-4}
+    assert len(set(info["variation"])) > 1
+
+    # optimization without optimizing variation
+    info = defaultdict(list)
+    result = ffsim.optimize.minimize_stochastic_reconfiguration(
+        params_to_vec,
+        x0=x0,
+        hamiltonian=hamiltonian,
+        regularization=1e-4,
+        variation=0.9,
+        optimize_variation=False,
+        callback=callback,
+    )
+    np.testing.assert_allclose(energy(result.x), result.fun)
+    np.testing.assert_allclose(result.fun, -0.970773)
+    for params, fun in zip(info["x"], info["fun"]):
+        np.testing.assert_allclose(energy(params), fun)
+    assert result.nit <= 30
+    assert result.nit < result.nlinop < result.nfev
+    assert set(info["regularization"]) != {1e-4}
+    assert set(info["variation"]) == {0.9}
 
     # optimization with maxiter
     info = defaultdict(list)

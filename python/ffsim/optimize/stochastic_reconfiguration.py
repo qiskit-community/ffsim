@@ -37,7 +37,9 @@ def minimize_stochastic_reconfiguration(
     cond: float = 1e-4,
     epsilon: float = 1e-8,
     gtol: float = 1e-5,
+    regularization: float = 0.0,
     variation: float = 1.0,
+    optimize_regularization: bool = True,
     optimize_variation: bool = True,
     optimize_kwargs: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
@@ -60,9 +62,16 @@ def minimize_stochastic_reconfiguration(
         epsilon: Increment to use for approximating the gradient using
             finite difference.
         gtol: Convergence threshold for the norm of the projected gradient.
+        regularization: Hyperparameter controlling regularization of the
+            overlap matrix. Its value must be positive. A larger value results in
+            greater regularization.
         variation: TODO Hyperparameter controlling the size of parameter variations
             used in the linear expansion of the wavefunction. Its value must be
             positive.
+        optimize_regularization: Whether to optimize the `regularization` hyperparameter
+            in each iteration. Optimizing hyperparameters incurs more function and
+            energy evaluations in each iteration, but may improve convergence.
+            The optimization is performed using `scipy.optimize.minimize`_.
         optimize_variation: Whether to optimize the `variation` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
@@ -117,7 +126,6 @@ def minimize_stochastic_reconfiguration(
     if optimize_kwargs is None:
         optimize_kwargs = dict(method="L-BFGS-B")
 
-    variation_param = math.sqrt(variation)
     params = x0.copy()
     converged = False
     intermediate_result = OptimizeResult(
@@ -140,6 +148,7 @@ def minimize_stochastic_reconfiguration(
             intermediate_result.fun = energy
             intermediate_result.jac = grad
             intermediate_result.overlap_mat = overlap_mat
+            intermediate_result.regularization = regularization
             intermediate_result.variation = variation
             callback(intermediate_result)
 
@@ -147,7 +156,58 @@ def minimize_stochastic_reconfiguration(
             converged = True
             break
 
-        if optimize_variation:
+        if optimize_regularization and optimize_variation:
+
+            def f(x: np.ndarray) -> float:
+                (regularization_param, variation_param) = x
+                regularization = regularization_param**2
+                variation = variation_param**2
+                param_update = _get_param_update(
+                    grad,
+                    overlap_mat,
+                    regularization=regularization,
+                    variation=variation,
+                    cond=cond,
+                )
+                vec = params_to_vec(params + param_update)
+                return np.vdot(vec, hamiltonian @ vec).real
+
+            regularization_param = math.sqrt(regularization)
+            variation_param = math.sqrt(variation)
+            result = minimize(
+                f,
+                x0=[regularization_param, variation_param],
+                **optimize_kwargs,
+            )
+            (regularization_param, variation_param) = result.x
+            regularization = regularization_param**2
+            variation = variation_param**2
+
+        elif optimize_regularization:
+
+            def f(x: np.ndarray) -> float:
+                (regularization_param,) = x
+                regularization = regularization_param**2
+                param_update = _get_param_update(
+                    grad,
+                    overlap_mat,
+                    regularization=regularization,
+                    variation=variation,
+                    cond=cond,
+                )
+                vec = params_to_vec(params + param_update)
+                return np.vdot(vec, hamiltonian @ vec).real
+
+            regularization_param = math.sqrt(regularization)
+            result = minimize(
+                f,
+                x0=[regularization_param],
+                **optimize_kwargs,
+            )
+            (regularization_param,) = result.x
+            regularization = regularization_param**2
+
+        elif optimize_variation:
 
             def f(x: np.ndarray) -> float:
                 (variation_param,) = x
@@ -155,12 +215,14 @@ def minimize_stochastic_reconfiguration(
                 param_update = _get_param_update(
                     grad,
                     overlap_mat,
-                    variation,
+                    regularization=regularization,
+                    variation=variation,
                     cond=cond,
                 )
                 vec = params_to_vec(params + param_update)
                 return np.vdot(vec, hamiltonian @ vec).real
 
+            variation_param = math.sqrt(variation)
             result = minimize(
                 f,
                 x0=[variation_param],
@@ -172,7 +234,8 @@ def minimize_stochastic_reconfiguration(
         param_update = _get_param_update(
             grad,
             overlap_mat,
-            variation,
+            regularization=regularization,
+            variation=variation,
             cond=cond,
         )
         params = params + param_update
@@ -217,7 +280,15 @@ def _sr_matrices(
 
 
 def _get_param_update(
-    grad: np.ndarray, overlap_mat: np.ndarray, variation: float, cond: float
+    grad: np.ndarray,
+    overlap_mat: np.ndarray,
+    regularization: float,
+    variation: float,
+    cond: float,
 ) -> np.ndarray:
-    x, _, _, _ = scipy.linalg.lstsq(overlap_mat, -0.5 * variation * grad, cond=cond)
+    x, _, _, _ = scipy.linalg.lstsq(
+        overlap_mat + regularization * np.eye(overlap_mat.shape[0]),
+        -0.5 * variation * grad,
+        cond=cond,
+    )
     return x
