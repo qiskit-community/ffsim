@@ -127,8 +127,6 @@ def minimize_linear_method(
     if optimize_kwargs is None:
         optimize_kwargs = dict(method="L-BFGS-B")
 
-    regularization_param = math.sqrt(regularization)
-    variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
     params = x0.copy()
     converged = False
     intermediate_result = OptimizeResult(
@@ -178,6 +176,8 @@ def minimize_linear_method(
                 vec = params_to_vec(params + param_update)
                 return np.vdot(vec, hamiltonian @ vec).real
 
+            regularization_param = math.sqrt(regularization)
+            variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
             result = minimize(
                 f,
                 x0=[regularization_param, variation_param],
@@ -202,6 +202,7 @@ def minimize_linear_method(
                 vec = params_to_vec(params + param_update)
                 return np.vdot(vec, hamiltonian @ vec).real
 
+            regularization_param = math.sqrt(regularization)
             result = minimize(
                 f,
                 x0=[regularization_param],
@@ -225,6 +226,7 @@ def minimize_linear_method(
                 vec = params_to_vec(params + param_update)
                 return np.vdot(vec, hamiltonian @ vec).real
 
+            variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
             result = minimize(
                 f,
                 x0=[variation_param],
