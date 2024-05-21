@@ -134,7 +134,7 @@ def fermi_hubbard_2d(
 
     .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], float] = defaultdict(float)
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
     for orb in range(norb_x * norb_y):
         # position in Cartesian coordinates
