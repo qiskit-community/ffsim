@@ -134,62 +134,61 @@ def fermi_hubbard_2d(
 
     .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], float] = defaultdict(float)
 
-    for x in range(norb_x):
-        for y in range(norb_y):
-            # position in Cartesian coordinates
-            x_right = (x + 1) % norb_x
-            y_up = (y + 1) % norb_y
+    for orb in range(norb_x * norb_y):
+        # position in Cartesian coordinates
+        x = orb // norb_y
+        y = orb % norb_y
+        x_right = (x + 1) % norb_x
+        y_up = (y + 1) % norb_y
 
-            # position on C-style chain
-            p = norb_y * x + y
-            p_right = norb_y * x_right + y
-            p_up = norb_y * x + y_up
+        # position on C-style chain
+        orb_right = norb_y * x_right + y
+        orb_up = norb_y * x + y_up
 
-            if x != norb_x - 1 or periodic:
-                coeffs[(cre_a(p), des_a(p_right))] -= tunneling
-                coeffs[(cre_a(p_right), des_a(p))] -= tunneling
-                coeffs[(cre_b(p), des_b(p_right))] -= tunneling
-                coeffs[(cre_b(p_right), des_b(p))] -= tunneling
-                if nearest_neighbor_interaction:
-                    coeffs[(cre_a(p), des_a(p), cre_a(p_right), des_a(p_right))] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[(cre_a(p), des_a(p), cre_b(p_right), des_b(p_right))] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[(cre_b(p), des_b(p), cre_a(p_right), des_a(p_right))] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[(cre_b(p), des_b(p), cre_b(p_right), des_b(p_right))] = (
-                        nearest_neighbor_interaction
-                    )
+        if x != norb_x - 1 or periodic:
+            coeffs[(cre_a(orb), des_a(orb_right))] -= tunneling
+            coeffs[(cre_a(orb_right), des_a(orb))] -= tunneling
+            coeffs[(cre_b(orb), des_b(orb_right))] -= tunneling
+            coeffs[(cre_b(orb_right), des_b(orb))] -= tunneling
+            if nearest_neighbor_interaction:
+                coeffs[(cre_a(orb), des_a(orb), cre_a(orb_right), des_a(orb_right))] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[(cre_a(orb), des_a(orb), cre_b(orb_right), des_b(orb_right))] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[(cre_b(orb), des_b(orb), cre_a(orb_right), des_a(orb_right))] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[(cre_b(orb), des_b(orb), cre_b(orb_right), des_b(orb_right))] = (
+                    nearest_neighbor_interaction
+                )
 
-            if y != norb_y - 1 or periodic:
-                coeffs[(cre_a(p), des_a(p_up))] -= tunneling
-                coeffs[(cre_a(p_up), des_a(p))] -= tunneling
-                coeffs[(cre_b(p), des_b(p_up))] -= tunneling
-                coeffs[(cre_b(p_up), des_b(p))] -= tunneling
-                if nearest_neighbor_interaction:
-                    coeffs[(cre_a(p), des_a(p), cre_a(p_up), des_a(p_up))] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[(cre_a(p), des_a(p), cre_b(p_up), des_b(p_up))] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[(cre_b(p), des_b(p), cre_a(p_up), des_a(p_up))] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[(cre_b(p), des_b(p), cre_b(p_up), des_b(p_up))] = (
-                        nearest_neighbor_interaction
-                    )
+        if y != norb_y - 1 or periodic:
+            coeffs[(cre_a(orb), des_a(orb_up))] -= tunneling
+            coeffs[(cre_a(orb_up), des_a(orb))] -= tunneling
+            coeffs[(cre_b(orb), des_b(orb_up))] -= tunneling
+            coeffs[(cre_b(orb_up), des_b(orb))] -= tunneling
+            if nearest_neighbor_interaction:
+                coeffs[(cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up))] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[(cre_a(orb), des_a(orb), cre_b(orb_up), des_b(orb_up))] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[(cre_b(orb), des_b(orb), cre_a(orb_up), des_a(orb_up))] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[(cre_b(orb), des_b(orb), cre_b(orb_up), des_b(orb_up))] = (
+                    nearest_neighbor_interaction
+                )
 
-    for p in range(norb_x * norb_y):
         if interaction:
-            coeffs[(cre_a(p), des_a(p), cre_b(p), des_b(p))] = interaction
+            coeffs[(cre_a(orb), des_a(orb), cre_b(orb), des_b(orb))] = interaction
         if chemical_potential:
-            coeffs[(cre_a(p), des_a(p))] = -chemical_potential
-            coeffs[(cre_b(p), des_b(p))] = -chemical_potential
+            coeffs[(cre_a(orb), des_a(orb))] = -chemical_potential
+            coeffs[(cre_b(orb), des_b(orb))] = -chemical_potential
 
     return FermionOperator(coeffs)
