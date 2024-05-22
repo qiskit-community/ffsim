@@ -372,6 +372,113 @@
 
     <span class="k">return</span> <span class="n">FermionOperator</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span></div>
 
+
+
+<div class="viewcode-block" id="fermi_hubbard_2d">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.fermi_hubbard_2d">[docs]</a>
+<span class="k">def</span> <span class="nf">fermi_hubbard_2d</span><span class="p">(</span>
+    <span class="n">norb_x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">norb_y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">tunneling</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">interaction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">chemical_potential</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">nearest_neighbor_interaction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Two-dimensional Fermi-Hubbard model Hamiltonian.</span>
+
+<span class="sd">    The Hamiltonian for the two-dimensional Fermi-Hubbard model on a square lattice with</span>
+<span class="sd">    :math:`N = N_x \times N_y` spatial orbitals is given by</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        H = -t \sum_{\sigma} \sum_{\braket{pq}}</span>
+<span class="sd">        (a^\dagger_{\sigma, p} a_{\sigma, q} + \text{h.c.})</span>
+<span class="sd">        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}</span>
+<span class="sd">        - \mu \sum_{p=1}^{N} (n_{\alpha, p} + n_{\beta, p})</span>
+<span class="sd">        + V \sum_{\sigma, \sigma&#39;} \sum_{\braket{pq}} n_{\sigma, p} n_{\sigma&#39;, q}</span>
+
+<span class="sd">    where :math:`\braket{\dots}` denotes nearest-neighbor pairs and</span>
+<span class="sd">    :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number operator</span>
+<span class="sd">    on orbital :math:`p` with spin :math:`\sigma`.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - `The Hubbard Model`_</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb_x: The number of spatial orbitals in the x-direction :math:`N_x`.</span>
+<span class="sd">        norb_y: The number of spatial orbitals in the y-direction :math:`N_y`.</span>
+<span class="sd">        tunneling: The tunneling amplitude :math:`t`.</span>
+<span class="sd">        interaction: The onsite interaction strength :math:`U`.</span>
+<span class="sd">        chemical_potential: The chemical potential :math:`\mu`.</span>
+<span class="sd">        nearest_neighbor_interaction: The nearest-neighbor interaction strength</span>
+<span class="sd">            :math:`V`.</span>
+<span class="sd">        periodic: Whether to use periodic boundary conditions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The two-dimensional Fermi-Hubbard model Hamiltonian.</span>
+
+<span class="sd">    .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coeffs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="nb">complex</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb_x</span> <span class="o">*</span> <span class="n">norb_y</span><span class="p">):</span>
+        <span class="c1"># map from row-major ordering to Cartesian coordinates</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">norb_x</span><span class="p">)</span>
+
+        <span class="c1"># get the coordinates/orbitals to the right and up</span>
+        <span class="n">x_right</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">norb_x</span>
+        <span class="n">y_up</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">norb_y</span>
+        <span class="n">orb_right</span> <span class="o">=</span> <span class="n">x_right</span> <span class="o">+</span> <span class="n">norb_x</span> <span class="o">*</span> <span class="n">y</span>
+        <span class="n">orb_up</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">norb_x</span> <span class="o">*</span> <span class="n">y_up</span>
+
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">norb_x</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="k">if</span> <span class="n">nearest_neighbor_interaction</span><span class="p">:</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">norb_y</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">))]</span> <span class="o">-=</span> <span class="n">tunneling</span>
+            <span class="k">if</span> <span class="n">nearest_neighbor_interaction</span><span class="p">:</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+                <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">))]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">nearest_neighbor_interaction</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">interaction</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">))]</span> <span class="o">=</span> <span class="n">interaction</span>
+        <span class="k">if</span> <span class="n">chemical_potential</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">))]</span> <span class="o">=</span> <span class="o">-</span><span class="n">chemical_potential</span>
+            <span class="n">coeffs</span><span class="p">[(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">))]</span> <span class="o">=</span> <span class="o">-</span><span class="n">chemical_potential</span>
+
+    <span class="k">return</span> <span class="n">FermionOperator</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span></div>
+
 </pre></div>
         </article>
       </div>

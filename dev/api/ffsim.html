@@ -2597,6 +2597,49 @@ operator on orbital <span class="math notranslate nohighlight">\(p\)</span> with
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermi_hubbard_2d">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">fermi_hubbard_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tunneling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chemical_potential</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearest_neighbor_interaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermi_hubbard.html#fermi_hubbard_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermi_hubbard_2d" title="Link to this definition">¶</a></dt>
+<dd><p>Two-dimensional Fermi-Hubbard model Hamiltonian.</p>
+<p>The Hamiltonian for the two-dimensional Fermi-Hubbard model on a square lattice with
+<span class="math notranslate nohighlight">\(N = N_x \times N_y\)</span> spatial orbitals is given by</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = -t \sum_{\sigma} \sum_{\braket{pq}}
+(a^\dagger_{\sigma, p} a_{\sigma, q} + \text{h.c.})
++ U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
+- \mu \sum_{p=1}^{N} (n_{\alpha, p} + n_{\beta, p})
++ V \sum_{\sigma, \sigma'} \sum_{\braket{pq}} n_{\sigma, p} n_{\sigma', q}\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(\braket{\dots}\)</span> denotes nearest-neighbor pairs and
+<span class="math notranslate nohighlight">\(n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}\)</span> is the number operator
+on orbital <span class="math notranslate nohighlight">\(p\)</span> with spin <span class="math notranslate nohighlight">\(\sigma\)</span>.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.1146/annurev-conmatphys-031620-102024">The Hubbard Model</a></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb_x</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals in the x-direction <span class="math notranslate nohighlight">\(N_x\)</span>.</p></li>
+<li><p><strong>norb_y</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals in the y-direction <span class="math notranslate nohighlight">\(N_y\)</span>.</p></li>
+<li><p><strong>tunneling</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The tunneling amplitude <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p><strong>interaction</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The onsite interaction strength <span class="math notranslate nohighlight">\(U\)</span>.</p></li>
+<li><p><strong>chemical_potential</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The chemical potential <span class="math notranslate nohighlight">\(\mu\)</span>.</p></li>
+<li><p><strong>nearest_neighbor_interaction</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The nearest-neighbor interaction strength
+<span class="math notranslate nohighlight">\(V\)</span>.</p></li>
+<li><p><strong>periodic</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to use periodic boundary conditions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The two-dimensional Fermi-Hubbard model Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.fermion_operator">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/fermion_operator_protocol.html#fermion_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermion_operator" title="Link to this definition">¶</a></dt>
 <dd><p>Return a FermionOperator representing the object.</p>
@@ -3251,6 +3294,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.expectation_one_body_power"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_power()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.expectation_one_body_product"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_product()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.fermi_hubbard_1d"><code class="docutils literal notranslate"><span class="pre">fermi_hubbard_1d()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.fermi_hubbard_2d"><code class="docutils literal notranslate"><span class="pre">fermi_hubbard_2d()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.fermion_operator"><code class="docutils literal notranslate"><span class="pre">fermion_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.hartree_fock_state"><code class="docutils literal notranslate"><span class="pre">hartree_fock_state()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
