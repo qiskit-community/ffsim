@@ -61,36 +61,24 @@ def fermi_hubbard_1d(
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
     for orb in range(norb):
-        if orb != norb - 1 or periodic:
+        if tunneling and (orb != norb - 1 or periodic):
             coeffs[cre_a(orb), des_a((orb + 1) % norb)] -= tunneling
             coeffs[cre_b(orb), des_b((orb + 1) % norb)] -= tunneling
             coeffs[cre_a((orb + 1) % norb), des_a(orb)] -= tunneling
             coeffs[cre_b((orb + 1) % norb), des_b(orb)] -= tunneling
-            if nearest_neighbor_interaction:
-                coeffs[
-                    cre_a(orb),
-                    des_a(orb),
-                    cre_a((orb + 1) % norb),
-                    des_a((orb + 1) % norb),
-                ] = nearest_neighbor_interaction
-                coeffs[
-                    cre_a(orb),
-                    des_a(orb),
-                    cre_b((orb + 1) % norb),
-                    des_b((orb + 1) % norb),
-                ] = nearest_neighbor_interaction
-                coeffs[
-                    cre_b(orb),
-                    des_b(orb),
-                    cre_a((orb + 1) % norb),
-                    des_a((orb + 1) % norb),
-                ] = nearest_neighbor_interaction
-                coeffs[
-                    cre_b(orb),
-                    des_b(orb),
-                    cre_b((orb + 1) % norb),
-                    des_b((orb + 1) % norb),
-                ] = nearest_neighbor_interaction
+        if nearest_neighbor_interaction and (orb != norb - 1 or periodic):
+            coeffs[
+                cre_a(orb), des_a(orb), cre_a((orb + 1) % norb), des_a((orb + 1) % norb)
+            ] = nearest_neighbor_interaction
+            coeffs[
+                cre_a(orb), des_a(orb), cre_b((orb + 1) % norb), des_b((orb + 1) % norb)
+            ] = nearest_neighbor_interaction
+            coeffs[
+                cre_b(orb), des_b(orb), cre_a((orb + 1) % norb), des_a((orb + 1) % norb)
+            ] = nearest_neighbor_interaction
+            coeffs[
+                cre_b(orb), des_b(orb), cre_b((orb + 1) % norb), des_b((orb + 1) % norb)
+            ] = nearest_neighbor_interaction
         if interaction:
             coeffs[cre_a(orb), des_a(orb), cre_b(orb), des_b(orb)] = interaction
         if chemical_potential:
@@ -148,21 +136,28 @@ def fermi_hubbard_2d(
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
     for orb in range(norb_x * norb_y):
-        # map from row-major ordering to Cartesian coordinates
+        # Get x and y coordinates of this orbital
         y, x = divmod(orb, norb_x)
 
-        # get the coordinates/orbitals to the right and up
+        # Get the orbitals to the right and up
         x_right = (x + 1) % norb_x
         y_up = (y + 1) % norb_y
         orb_right = norb_x * y + x_right
         orb_up = norb_x * y_up + x
 
-        if x != norb_x - 1 or periodic:
-            coeffs[cre_a(orb), des_a(orb_right)] -= tunneling
-            coeffs[cre_a(orb_right), des_a(orb)] -= tunneling
-            coeffs[cre_b(orb), des_b(orb_right)] -= tunneling
-            coeffs[cre_b(orb_right), des_b(orb)] -= tunneling
-            if nearest_neighbor_interaction:
+        if tunneling:
+            if x != norb_x - 1 or periodic:
+                coeffs[cre_a(orb), des_a(orb_right)] -= tunneling
+                coeffs[cre_a(orb_right), des_a(orb)] -= tunneling
+                coeffs[cre_b(orb), des_b(orb_right)] -= tunneling
+                coeffs[cre_b(orb_right), des_b(orb)] -= tunneling
+            if y != norb_y - 1 or periodic:
+                coeffs[cre_a(orb), des_a(orb_up)] -= tunneling
+                coeffs[cre_a(orb_up), des_a(orb)] -= tunneling
+                coeffs[cre_b(orb), des_b(orb_up)] -= tunneling
+                coeffs[cre_b(orb_up), des_b(orb)] -= tunneling
+        if nearest_neighbor_interaction:
+            if x != norb_x - 1 or periodic:
                 coeffs[cre_a(orb), des_a(orb), cre_a(orb_right), des_a(orb_right)] = (
                     nearest_neighbor_interaction
                 )
@@ -175,24 +170,20 @@ def fermi_hubbard_2d(
                 coeffs[cre_b(orb), des_b(orb), cre_b(orb_right), des_b(orb_right)] = (
                     nearest_neighbor_interaction
                 )
-        if y != norb_y - 1 or periodic:
-            coeffs[cre_a(orb), des_a(orb_up)] -= tunneling
-            coeffs[cre_a(orb_up), des_a(orb)] -= tunneling
-            coeffs[cre_b(orb), des_b(orb_up)] -= tunneling
-            coeffs[cre_b(orb_up), des_b(orb)] -= tunneling
-            if nearest_neighbor_interaction:
-                coeffs[cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up)] = (
-                    nearest_neighbor_interaction
-                )
-                coeffs[cre_a(orb), des_a(orb), cre_b(orb_up), des_b(orb_up)] = (
-                    nearest_neighbor_interaction
-                )
-                coeffs[cre_b(orb), des_b(orb), cre_a(orb_up), des_a(orb_up)] = (
-                    nearest_neighbor_interaction
-                )
-                coeffs[cre_b(orb), des_b(orb), cre_b(orb_up), des_b(orb_up)] = (
-                    nearest_neighbor_interaction
-                )
+            if y != norb_y - 1 or periodic:
+                if nearest_neighbor_interaction:
+                    coeffs[cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up)] = (
+                        nearest_neighbor_interaction
+                    )
+                    coeffs[cre_a(orb), des_a(orb), cre_b(orb_up), des_b(orb_up)] = (
+                        nearest_neighbor_interaction
+                    )
+                    coeffs[cre_b(orb), des_b(orb), cre_a(orb_up), des_a(orb_up)] = (
+                        nearest_neighbor_interaction
+                    )
+                    coeffs[cre_b(orb), des_b(orb), cre_b(orb_up), des_b(orb_up)] = (
+                        nearest_neighbor_interaction
+                    )
         if interaction:
             coeffs[cre_a(orb), des_a(orb), cre_b(orb), des_b(orb)] = interaction
         if chemical_potential:
