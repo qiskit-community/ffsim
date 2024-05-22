@@ -171,19 +171,18 @@ def fermi_hubbard_2d(
                     nearest_neighbor_interaction
                 )
             if y != norb_y - 1 or periodic:
-                if nearest_neighbor_interaction:
-                    coeffs[cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up)] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[cre_a(orb), des_a(orb), cre_b(orb_up), des_b(orb_up)] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[cre_b(orb), des_b(orb), cre_a(orb_up), des_a(orb_up)] = (
-                        nearest_neighbor_interaction
-                    )
-                    coeffs[cre_b(orb), des_b(orb), cre_b(orb_up), des_b(orb_up)] = (
-                        nearest_neighbor_interaction
-                    )
+                coeffs[cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up)] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[cre_a(orb), des_a(orb), cre_b(orb_up), des_b(orb_up)] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[cre_b(orb), des_b(orb), cre_a(orb_up), des_a(orb_up)] = (
+                    nearest_neighbor_interaction
+                )
+                coeffs[cre_b(orb), des_b(orb), cre_b(orb_up), des_b(orb_up)] = (
+                    nearest_neighbor_interaction
+                )
         if interaction:
             coeffs[cre_a(orb), des_a(orb), cre_b(orb), des_b(orb)] = interaction
         if chemical_potential:
