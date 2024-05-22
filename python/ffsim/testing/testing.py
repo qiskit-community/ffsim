@@ -32,7 +32,7 @@ def generate_norb_nelec_spin(
     """
     for norb in norb_range:
         for nelec in itertools.product(range(norb + 1), repeat=2):
-            for spin in Spin:
+            for spin in Spin.__members__.values():
                 yield norb, cast(Tuple[int, int], nelec), spin
 
 
@@ -48,13 +48,27 @@ def generate_norb_nelec(
             yield norb, cast(Tuple[int, int], nelec)
 
 
+def generate_norb_nocc(
+    norb_range: Iterable[int],
+) -> Iterator[tuple[int, int]]:
+    """Generate (`norb`, `nocc`) tuples for testing.
+
+    Given a range of choices for `norb`, generates all possible (`norb`, `nocc`) pairs.
+    `nocc` refers to the occupation of a single spin species, so it ranges from 0 to
+    `norb`.
+    """
+    for norb in norb_range:
+        for nocc in range(norb + 1):
+            yield norb, nocc
+
+
 def generate_norb_spin(norb_range: Iterable[int]) -> Iterator[tuple[int, Spin]]:
     """Generate (`norb`, `spin`) tuples for testing.
 
     Given a range of choices for `norb`, generates all possible (`norb`, `spin`) pairs.
     """
     for norb in norb_range:
-        for spin in Spin:
+        for spin in Spin.__members__.values():
             yield norb, spin
 
 

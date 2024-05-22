@@ -5,21 +5,29 @@ build-backend = "maturin"
 [project]
 name = "ffsim"
 requires-python = ">=3.8"
-version = "0.0.29.dev"
+version = "0.0.35.dev"
 description = "Faster simulations of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Rust",
-    "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
     "numpy",
     "opt_einsum",
-    "pyscf >= 2.3.0",
-    "qiskit >= 1.0.0",
+    "pyscf >= 2.3",
+    "qiskit >= 1.1",
     "scipy",
     "typing-extensions",
 ]
@@ -33,14 +41,14 @@ dev = [
     "coverage",
     "furo",
     "maturin",
-    "mypy == 1.8.0",
+    "mypy",
     "myst-parser",
     "nbmake",
     "nbsphinx",
     "pre-commit",
-    "pytest == 8.0.0",
-    "qiskit[visualization] >= 1.0.0",
-    "ruff == 0.3.4",
+    "pytest",
+    "qiskit[visualization]",
+    "ruff == 0.4.4",
     "sphinx",
     "sphinx-autodoc-typehints",
 ]

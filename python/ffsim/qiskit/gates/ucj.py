@@ -22,8 +22,8 @@ from qiskit.circuit import (
     Qubit,
 )
 
-from ffsim.qiskit.diag_coulomb import DiagCoulombEvolutionJW
-from ffsim.qiskit.orbital_rotation import OrbitalRotationJW
+from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
+from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
 from ffsim.variational import UCJOperator
 
 
@@ -37,7 +37,7 @@ class UCJOperatorJW(Gate):
     beta orbitals.
     """
 
-    def __init__(self, ucj_operator: UCJOperator, label: str | None = None):
+    def __init__(self, ucj_operator: UCJOperator, *, label: str | None = None):
         """Create a new unitary cluster Jastrow (UCJ) gate.
 
         Args:
@@ -51,7 +51,7 @@ class UCJOperatorJW(Gate):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _ucj_jw(qubits, self.ucj_operator), qubits=qubits
+            _ucj_jw(qubits, self.ucj_operator), qubits=qubits, name=self.name
         )
 
 
@@ -63,13 +63,19 @@ def _ucj_jw(
         ucj_op.diag_coulomb_mats_alpha_beta,
         ucj_op.orbital_rotations,
     ):
-        yield CircuitInstruction(OrbitalRotationJW(orbital_rotation.T.conj()), qubits)
         yield CircuitInstruction(
-            DiagCoulombEvolutionJW(mat, -1.0, mat_alpha_beta=mat_alpha_beta),
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj()), qubits
+        )
+        yield CircuitInstruction(
+            DiagCoulombEvolutionJW(
+                ucj_op.norb, mat, -1.0, mat_alpha_beta=mat_alpha_beta
+            ),
             qubits,
         )
-        yield CircuitInstruction(OrbitalRotationJW(orbital_rotation), qubits)
+        yield CircuitInstruction(
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation), qubits
+        )
     if ucj_op.final_orbital_rotation is not None:
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.final_orbital_rotation), qubits
+            OrbitalRotationJW(ucj_op.norb, ucj_op.final_orbital_rotation), qubits
         )

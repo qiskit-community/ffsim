@@ -14,7 +14,7 @@ import itertools
 
 import numpy as np
 
-from ffsim import hamiltonians
+from ffsim import hamiltonians, variational
 
 
 def random_statevector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
@@ -201,41 +201,6 @@ def random_two_body_tensor(
     return two_body_tensor
 
 
-def random_diag_coulomb_mat(
-    dim: int, *, rank: int | None = None, seed=None, dtype=complex
-) -> np.ndarray:
-    """Sample a random diagonal Coulomb matrix.
-
-    Args:
-        dim: The dimension of the tensor. The shape of the returned tensor will be
-            (dim, dim).
-        rank: Rank of the sampled tensor. The default behavior is to use
-            the maximum rank, which is `norb * (norb + 1) // 2`.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-        dtype: The data type to use for the result.
-
-    Returns:
-        The sampled diagonal Coulomb matrix.
-    """
-    rng = np.random.default_rng(seed)
-    if rank is None:
-        rank = dim * (dim + 1) // 2
-    cholesky_vecs = rng.standard_normal((rank, dim)).astype(dtype, copy=False)
-    cholesky_vecs += cholesky_vecs
-    diag_coulomb_mat = np.einsum("ip,iq->pq", cholesky_vecs, cholesky_vecs)
-    if np.issubdtype(dtype, np.complexfloating):
-        orbital_rotation = random_unitary(dim, seed=rng)
-        diag_coulomb_mat = np.einsum(
-            "ab,aA,bB->AB",
-            diag_coulomb_mat,
-            orbital_rotation,
-            orbital_rotation.conj(),
-            optimize=True,
-        )
-    return diag_coulomb_mat
-
-
 def random_t2_amplitudes(
     norb: int, nocc: int, *, seed=None, dtype=complex
 ) -> np.ndarray:
@@ -301,4 +266,45 @@ def random_molecular_hamiltonian(
         one_body_tensor=one_body_tensor,
         two_body_tensor=two_body_tensor,
         constant=constant,
+    )
+
+
+def random_ucj_operator(
+    norb: int,
+    *,
+    n_reps: int = 1,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCJOperator:
+    """Sample a random unitary cluster Jastrow operator.
+
+    Args:
+        norb: The number of orbitals.
+        n_reps: The number of ansatz repetitions.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled molecular Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    diag_coulomb_mats_alpha_alpha = np.stack(
+        [random_real_symmetric_matrix(norb, seed=rng) for _ in range(n_reps)]
+    )
+    diag_coulomb_mats_alpha_beta = np.stack(
+        [random_real_symmetric_matrix(norb, seed=rng) for _ in range(n_reps)]
+    )
+    orbital_rotations = np.stack(
+        [random_unitary(norb, seed=rng) for _ in range(n_reps)]
+    )
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = random_unitary(norb, seed=rng)
+    return variational.UCJOperator(
+        diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
+        diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
+        orbital_rotations=orbital_rotations,
+        final_orbital_rotation=final_orbital_rotation,
     )

@@ -19,16 +19,40 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
-@pytest.mark.parametrize(
-    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(5))
-)
-def test_random_orbital_rotation(norb: int, nelec: tuple[int, int], spin: ffsim.Spin):
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_random_orbital_rotation_same_rotation(norb: int, nelec: tuple[int, int]):
     """Test random orbital rotation circuit gives correct output state."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         mat = ffsim.random.random_unitary(norb, seed=rng)
-        gate = ffsim.qiskit.OrbitalRotationJW(mat, spin=spin)
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, mat)
+
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+
+        expected = ffsim.apply_orbital_rotation(small_vec, mat, norb=norb, nelec=nelec)
+
+        np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_random_orbital_rotation_diff_rotation(norb: int, nelec: tuple[int, int]):
+    """Test random orbital rotation circuit with different rotation for each spin."""
+    rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        mat_a = ffsim.random.random_unitary(norb, seed=rng)
+        mat_b = ffsim.random.random_unitary(norb, seed=rng)
+
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, (mat_a, mat_b))
 
         small_vec = ffsim.random.random_statevector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
@@ -41,22 +65,89 @@ def test_random_orbital_rotation(norb: int, nelec: tuple[int, int], spin: ffsim.
         )
 
         expected = ffsim.apply_orbital_rotation(
-            small_vec, mat, norb=norb, nelec=nelec, spin=spin
+            small_vec, mat_a, norb=norb, nelec=nelec, spin=ffsim.Spin.ALPHA
+        )
+        expected = ffsim.apply_orbital_rotation(
+            expected, mat_b, norb=norb, nelec=nelec, spin=ffsim.Spin.BETA
         )
 
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(5))
-)
-def test_inverse(norb: int, nelec: tuple[int, int], spin: ffsim.Spin):
-    """Test inverse."""
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+def test_random_orbital_rotation_spinless(norb: int, nocc: int):
+    """Test random spinless orbital rotation circuit gives correct output state."""
+    rng = np.random.default_rng()
+    nelec = (nocc, 0)
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        mat = ffsim.random.random_unitary(norb, seed=rng)
+        gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, mat)
+
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+
+        expected = ffsim.apply_orbital_rotation(small_vec, mat, norb=norb, nelec=nelec)
+
+        np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_inverse_same_rotation(norb: int, nelec: tuple[int, int]):
+    """Test inverse with the same rotation for each spin."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         mat = ffsim.random.random_unitary(norb, seed=rng)
-        gate = ffsim.qiskit.OrbitalRotationJW(mat, spin=spin)
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, mat)
+
+        vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec
+        )
+
+        statevec = Statevector(vec).evolve(gate)
+        statevec = statevec.evolve(gate.inverse())
+
+        np.testing.assert_allclose(np.array(statevec), vec)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_inverse_diff_rotation(norb: int, nelec: tuple[int, int]):
+    """Test inverse with different rotations for each spin."""
+    rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        mat_a = ffsim.random.random_unitary(norb, seed=rng)
+        mat_b = ffsim.random.random_unitary(norb, seed=rng)
+
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, (mat_a, mat_b))
+
+        vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec
+        )
+
+        statevec = Statevector(vec).evolve(gate)
+        statevec = statevec.evolve(gate.inverse())
+
+        np.testing.assert_allclose(np.array(statevec), vec)
+
+
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+def test_inverse_spinless(norb: int, nocc: int):
+    """Test inverse for spinless orbital rotation."""
+    rng = np.random.default_rng()
+    nelec = (nocc, 0)
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        mat = ffsim.random.random_unitary(norb, seed=rng)
+        gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, mat)
 
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec

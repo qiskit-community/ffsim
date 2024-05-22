@@ -60,7 +60,7 @@ docker compose build
 docker compose up
 ```
 
-Depending on your system configuration, you may need to type `sudo` before the `docker` command.
+Depending on your system configuration, you may need to type `sudo` before each `docker` command.
 
 Once the container is running, navigate to <http://localhost:58888> in a web browser to access the Jupyter Notebook interface.
 

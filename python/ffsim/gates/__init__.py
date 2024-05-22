@@ -18,7 +18,6 @@ from ffsim.gates.basic_gates import (
     apply_num_num_interaction,
     apply_num_op_prod_interaction,
     apply_on_site_interaction,
-    apply_on_site_num_num_interaction,
     apply_tunneling_interaction,
 )
 from ffsim.gates.diag_coulomb import apply_diag_coulomb_evolution
@@ -35,7 +34,6 @@ __all__ = [
     "apply_num_op_prod_interaction",
     "apply_num_op_sum_evolution",
     "apply_on_site_interaction",
-    "apply_on_site_num_num_interaction",
     "apply_orbital_rotation",
     "apply_tunneling_interaction",
 ]

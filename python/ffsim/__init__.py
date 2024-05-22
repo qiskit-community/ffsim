@@ -22,7 +22,6 @@ from ffsim.gates import (
     apply_num_op_prod_interaction,
     apply_num_op_sum_evolution,
     apply_on_site_interaction,
-    apply_on_site_num_num_interaction,
     apply_orbital_rotation,
     apply_tunneling_interaction,
 )
@@ -77,6 +76,7 @@ from ffsim.trotter import (
     simulate_trotter_double_factorized,
 )
 from ffsim.variational import (
+    GivensAnsatzOperator,
     HopGateAnsatzOperator,
     RealUCJOperator,
     UCJOperator,
@@ -89,6 +89,7 @@ __all__ = [
     "DoubleFactorizedHamiltonian",
     "FermionAction",
     "FermionOperator",
+    "GivensAnsatzOperator",
     "HopGateAnsatzOperator",
     "MolecularData",
     "MolecularHamiltonian",
@@ -111,7 +112,6 @@ __all__ = [
     "apply_num_op_prod_interaction",
     "apply_num_op_sum_evolution",
     "apply_on_site_interaction",
-    "apply_on_site_num_num_interaction",
     "apply_orbital_rotation",
     "apply_tunneling_interaction",
     "apply_unitary",

@@ -150,7 +150,7 @@ def test_apply_orbital_rotation_eigenstates():
         )
         occ_a, occ_b = occupied_orbitals
         one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-        eigs, vecs = np.linalg.eigh(one_body_tensor)
+        eigs, vecs = scipy.linalg.eigh(one_body_tensor)
         eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
@@ -176,7 +176,7 @@ def test_apply_orbital_rotation_eigenstates_lu():
         )
         occ_a, occ_b = occupied_orbitals
         one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-        eigs, vecs = np.linalg.eigh(one_body_tensor)
+        eigs, vecs = scipy.linalg.eigh(one_body_tensor)
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
         final_state, perm = ffsim.apply_orbital_rotation(

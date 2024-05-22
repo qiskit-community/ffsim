@@ -6,4 +6,6 @@
 lucj
 entanglement-forging
 fermion-operator
+qiskit-circuits
+qiskit-sampler
 ```
