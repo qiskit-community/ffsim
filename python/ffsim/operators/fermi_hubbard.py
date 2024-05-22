@@ -137,15 +137,14 @@ def fermi_hubbard_2d(
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
     for orb in range(norb_x * norb_y):
-        # position in Cartesian coordinates
-        x = orb // norb_y
-        y = orb % norb_y
+        # map from row-major ordering to Cartesian coordinates
+        y, x = divmod(orb, norb_x)
+
+        # get the coordinates/orbitals to the right and up
         x_right = (x + 1) % norb_x
         y_up = (y + 1) % norb_y
-
-        # position on C-style chain
-        orb_right = norb_y * x_right + y
-        orb_up = norb_y * x + y_up
+        orb_right = x_right + norb_x * y
+        orb_up = x + norb_x * y_up
 
         if x != norb_x - 1 or periodic:
             coeffs[(cre_a(orb), des_a(orb_right))] -= tunneling
