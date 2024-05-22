@@ -1,6 +1,7 @@
-name: Build and deploy documentation
+name: Build and deploy documentation for development branch
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,8 +12,8 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
       - name: Install dependencies
@@ -25,7 +26,7 @@ jobs:
         run: |
           tox run -e docs
       - name: Deploy docs
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/_build/html/
+          folder: docs/_build/html/
+          target-folder: dev/

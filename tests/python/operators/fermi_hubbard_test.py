@@ -132,6 +132,39 @@ def test_fermi_hubbard_1d():
         },
     )
 
+    # periodic boundary conditions (edge case)
+    op_periodic_edge = fermi_hubbard_1d(
+        norb=2,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
+        periodic=True,
+    )
+    np.testing.assert_equal(
+        dict(op_periodic_edge),
+        {
+            (cre_a(0), des_a(1)): -2,
+            (cre_b(0), des_b(1)): -2,
+            (cre_a(1), des_a(0)): -2,
+            (cre_b(1), des_b(0)): -2,
+            (cre_a(0), des_a(0), cre_b(0), des_b(0)): 2,
+            (cre_a(1), des_a(1), cre_b(1), des_b(1)): 2,
+            (cre_a(0), des_a(0)): -3,
+            (cre_b(0), des_b(0)): -3,
+            (cre_a(1), des_a(1)): -3,
+            (cre_b(1), des_b(1)): -3,
+            (cre_a(0), des_a(0), cre_a(1), des_a(1)): 4,
+            (cre_a(0), des_a(0), cre_b(1), des_b(1)): 4,
+            (cre_b(0), des_b(0), cre_a(1), des_a(1)): 4,
+            (cre_b(0), des_b(0), cre_b(1), des_b(1)): 4,
+            (cre_a(1), des_a(1), cre_a(0), des_a(0)): 4,
+            (cre_a(1), des_a(1), cre_b(0), des_b(0)): 4,
+            (cre_b(1), des_b(1), cre_a(0), des_a(0)): 4,
+            (cre_b(1), des_b(1), cre_b(0), des_b(0)): 4,
+        },
+    )
+
 
 def test_fermi_hubbard_2d():
     """Test terms of the two-dimensional Fermi-Hubbard model Hamiltonian."""
@@ -475,6 +508,14 @@ def test_non_interacting_fermi_hubbard_1d_eigenvalue():
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -4.000000000000)
 
+    # periodic boundary conditions (edge case)
+    op_periodic_edge = fermi_hubbard_1d(
+        norb=2, tunneling=1, interaction=0, periodic=True
+    )
+    ham_periodic = ffsim.linear_operator(op_periodic_edge, norb=2, nelec=(1, 1))
+    eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
+    np.testing.assert_allclose(eigs_periodic[0], -4.000000000000)
+
 
 def test_non_interacting_fermi_hubbard_2d_eigenvalue():
     """Test ground-state eigenvalue of the non-interacting two-dimensional Fermi-Hubbard
@@ -511,6 +552,14 @@ def test_fermi_hubbard_1d_with_interaction_eigenvalue():
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -2.828427124746)
+
+    # periodic boundary conditions (edge case)
+    op_periodic_edge = fermi_hubbard_1d(
+        norb=2, tunneling=1, interaction=2, periodic=True
+    )
+    ham_periodic = ffsim.linear_operator(op_periodic_edge, norb=2, nelec=(1, 1))
+    eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
+    np.testing.assert_allclose(eigs_periodic[0], -3.123105625618)
 
 
 def test_fermi_hubbard_2d_with_interaction_eigenvalue():
@@ -549,6 +598,14 @@ def test_fermi_hubbard_1d_with_chemical_potential_eigenvalue():
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -14.828427124746)
+
+    # periodic boundary conditions (edge case)
+    op_periodic_edge = fermi_hubbard_1d(
+        norb=2, tunneling=1, interaction=2, chemical_potential=3, periodic=True
+    )
+    ham_periodic = ffsim.linear_operator(op_periodic_edge, norb=2, nelec=(1, 1))
+    eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
+    np.testing.assert_allclose(eigs_periodic[0], -9.123105625618)
 
 
 def test_fermi_hubbard_2d_with_chemical_potential_eigenvalue():
@@ -606,6 +663,19 @@ def test_fermi_hubbard_1d_with_nearest_neighbor_interaction_eigenvalue():
     ham_periodic = ffsim.linear_operator(op_periodic, norb=4, nelec=(2, 2))
     eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
     np.testing.assert_allclose(eigs_periodic[0], -8.781962448006)
+
+    # periodic boundary conditions (edge case)
+    op_periodic_edge = fermi_hubbard_1d(
+        norb=2,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
+        periodic=True,
+    )
+    ham_periodic = ffsim.linear_operator(op_periodic_edge, norb=2, nelec=(1, 1))
+    eigs_periodic, _ = scipy.sparse.linalg.eigsh(ham_periodic, which="SA", k=1)
+    np.testing.assert_allclose(eigs_periodic[0], -6.000000000000)
 
 
 def test_fermi_hubbard_2d_with_nearest_neighbor_interaction_eigenvalue():

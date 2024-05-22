@@ -13,6 +13,7 @@ from __future__ import annotations
 import dataclasses
 
 import numpy as np
+import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
@@ -218,7 +219,7 @@ class DoubleFactorizedHamiltonian:
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         dim_ = dim(norb, nelec)
-        eigs, vecs = np.linalg.eigh(self.one_body_tensor)
+        eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
         num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
         diag_coulomb_linops = [
             diag_coulomb_linop(

@@ -20,45 +20,12 @@ from pyscf.lib.linalg_helper import safe_eigh
 from scipy.optimize import OptimizeResult, minimize
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim.states import one_hot
-
-
-class _WrappedCallable:
-    """Callable wrapper used to count function calls."""
-
-    def __init__(
-        self, func: Callable[[np.ndarray], np.ndarray], optimize_result: OptimizeResult
-    ):
-        self.func = func
-        self.optimize_result = optimize_result
-
-    def __call__(self, x: np.ndarray) -> np.ndarray:
-        self.optimize_result.nfev += 1
-        return self.func(x)
-
-
-class _WrappedLinearOperator:
-    """LinearOperator wrapper used to count LinearOperator applications."""
-
-    def __init__(self, linop: LinearOperator, optimize_result: OptimizeResult):
-        self.linop = linop
-        self.optimize_result = optimize_result
-
-    def __matmul__(self, other: np.ndarray):
-        if len(other.shape) == 1:
-            self.optimize_result.nlinop += 1
-        else:
-            _, n = other.shape
-            self.optimize_result.nlinop += n
-        return self.linop @ other
-
-    def __rmatmul__(self, other: np.ndarray):
-        if len(other.shape) == 1:
-            self.optimize_result.nlinop += 1
-        else:
-            n, _ = other.shape
-            self.optimize_result.nlinop += n
-        return other @ self.linop
+from ffsim.optimize._util import (
+    WrappedCallable,
+    WrappedLinearOperator,
+    jacobian_finite_diff,
+    orthogonalize_columns,
+)
 
 
 def minimize_linear_method(
@@ -67,13 +34,14 @@ def minimize_linear_method(
     x0: np.ndarray,
     *,
     maxiter: int = 1000,
-    regularization: float = 0.0,
-    variation: float = 0.5,
     lindep: float = 1e-8,
     epsilon: float = 1e-8,
     gtol: float = 1e-5,
-    optimize_hyperparameters: bool = True,
-    optimize_hyperparameters_args: dict | None = None,
+    regularization: float = 0.0,
+    variation: float = 0.5,
+    optimize_regularization: bool = True,
+    optimize_variation: bool = True,
+    optimize_kwargs: dict | None = None,
     callback: Callable[[OptimizeResult], Any] | None = None,
 ) -> OptimizeResult:
     """Minimize the energy of a variational ansatz using the linear method.
@@ -89,29 +57,31 @@ def minimize_linear_method(
         hamiltonian: The Hamiltonian representing the energy to be minimized.
         x0: Initial guess for the parameters.
         maxiter: Maximum number of optimization iterations to perform.
+        lindep: Linear dependency threshold to use when solving the generalized
+            eigenvalue problem.
+        epsilon: Increment to use for approximating the gradient using
+            finite difference.
+        gtol: Convergence threshold for the norm of the projected gradient.
         regularization: Hyperparameter controlling regularization of the
             energy matrix. Its value must be positive. A larger value results in
             greater regularization.
         variation: Hyperparameter controlling the size of parameter variations
             used in the linear expansion of the wavefunction. Its value must be
             strictly between 0 and 1. A larger value results in larger variations.
-        lindep: Linear dependency threshold to use when solving the generalized
-            eigenvalue problem.
-        epsilon: Increment to use for approximating the gradient using
-            finite difference.
-        gtol: Convergence threshold for the norm of the projected gradient.
-        optimize_hyperparameters: Whether to optimize the `regularization` and
-            `variation` hyperparameters in each iteration. Optimizing the
-            hyperparameters incurs more function and energy evaluations in each
-            iteration, but may speed up convergence, leading to fewer iterations
-            overall. The optimization is performed using `scipy.optimize.minimize`_.
-        optimize_hyperparameters_args: Arguments to use when calling
-            `scipy.optimize.minimize`_ to optimize the hyperparameters. The call is
-            constructed as
+        optimize_regularization: Whether to optimize the `regularization` hyperparameter
+            in each iteration. Optimizing hyperparameters incurs more function and
+            energy evaluations in each iteration, but may improve convergence.
+            The optimization is performed using `scipy.optimize.minimize`_.
+        optimize_variation: Whether to optimize the `variation` hyperparameter
+            in each iteration. Optimizing hyperparameters incurs more function and
+            energy evaluations in each iteration, but may improve convergence.
+            The optimization is performed using `scipy.optimize.minimize`_.
+        optimize_kwargs: Arguments to use when calling `scipy.optimize.minimize`_ to
+            optimize hyperparameters. The call is constructed as
 
             .. code::
 
-                scipy.optimize.minimize(f, x0, **scipy_optimize_minimize_args)
+                scipy.optimize.minimize(f, x0, **optimize_kwargs)
 
             If not specified, the default value of `dict(method="L-BFGS-B")` will be
             used.
@@ -154,23 +124,22 @@ def minimize_linear_method(
     if maxiter < 1:
         raise ValueError(f"maxiter must be at least 1. Got {maxiter}.")
 
-    if optimize_hyperparameters_args is None:
-        optimize_hyperparameters_args = dict(method="L-BFGS-B")
+    if optimize_kwargs is None:
+        optimize_kwargs = dict(method="L-BFGS-B")
 
-    regularization_param = math.sqrt(regularization)
-    variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
     params = x0.copy()
     converged = False
     intermediate_result = OptimizeResult(
         x=None, fun=None, jac=None, nfev=0, njev=0, nit=0, nlinop=0
     )
 
-    params_to_vec = _WrappedCallable(params_to_vec, intermediate_result)
-    hamiltonian = _WrappedLinearOperator(hamiltonian, intermediate_result)
+    params_to_vec = WrappedCallable(params_to_vec, intermediate_result)
+    hamiltonian = WrappedLinearOperator(hamiltonian, intermediate_result)
 
     for i in range(maxiter):
         vec = params_to_vec(params)
-        jac = _jac(params_to_vec, params, vec, epsilon=epsilon)
+        jac = jacobian_finite_diff(params_to_vec, params, len(vec), epsilon=epsilon)
+        jac = orthogonalize_columns(jac, vec)
 
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
         energy = energy_mat[0, 0]
@@ -191,7 +160,7 @@ def minimize_linear_method(
             converged = True
             break
 
-        if optimize_hyperparameters:
+        if optimize_regularization and optimize_variation:
 
             def f(x: np.ndarray) -> float:
                 regularization_param, variation_param = x
@@ -207,13 +176,63 @@ def minimize_linear_method(
                 vec = params_to_vec(params + param_update)
                 return np.vdot(vec, hamiltonian @ vec).real
 
+            regularization_param = math.sqrt(regularization)
+            variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
             result = minimize(
                 f,
                 x0=[regularization_param, variation_param],
-                **optimize_hyperparameters_args,
+                **optimize_kwargs,
             )
             regularization_param, variation_param = result.x
             regularization = regularization_param**2
+            variation = 0.5 * (1 + math.tanh(variation_param))
+
+        elif optimize_regularization:
+
+            def f(x: np.ndarray) -> float:
+                (regularization_param,) = x
+                regularization = regularization_param**2
+                param_update = _get_param_update(
+                    energy_mat,
+                    overlap_mat,
+                    regularization,
+                    variation,
+                    lindep,
+                )
+                vec = params_to_vec(params + param_update)
+                return np.vdot(vec, hamiltonian @ vec).real
+
+            regularization_param = math.sqrt(regularization)
+            result = minimize(
+                f,
+                x0=[regularization_param],
+                **optimize_kwargs,
+            )
+            (regularization_param,) = result.x
+            regularization = regularization_param**2
+
+        elif optimize_variation:
+
+            def f(x: np.ndarray) -> float:
+                (variation_param,) = x
+                variation = 0.5 * (1 + math.tanh(variation_param))
+                param_update = _get_param_update(
+                    energy_mat,
+                    overlap_mat,
+                    regularization,
+                    variation,
+                    lindep,
+                )
+                vec = params_to_vec(params + param_update)
+                return np.vdot(vec, hamiltonian @ vec).real
+
+            variation_param = math.atanh(2 * min(1 - 1e-8, max(1e-8, variation)) - 1)
+            result = minimize(
+                f,
+                x0=[variation_param],
+                **optimize_kwargs,
+            )
+            (variation_param,) = result.x
             variation = 0.5 * (1 + math.tanh(variation_param))
 
         param_update = _get_param_update(
@@ -262,7 +281,7 @@ def _linear_method_matrices(
     energy_mat = np.zeros((n_params + 1, n_params + 1), dtype=complex)
     overlap_mat = np.zeros_like(energy_mat)
 
-    energy_mat[0, 0] = np.vdot(vec, hamiltonian @ vec).real
+    energy_mat[0, 0] = np.vdot(vec, hamiltonian @ vec)
     ham_jac = hamiltonian @ jac
     energy_mat[0, 1:] = vec.conj() @ ham_jac
     energy_mat[1:, 0] = energy_mat[0, 1:].conj()
@@ -291,32 +310,6 @@ def _solve_linear_method_eigensystem(
     vec /= vec[0]
     vec = vec.real
     return eig, vec
-
-
-def _jac(
-    params_to_vec: Callable[[np.ndarray], np.ndarray],
-    theta: np.ndarray,
-    vec: np.ndarray,
-    epsilon: float,
-) -> np.ndarray:
-    jac = np.zeros((len(vec), len(theta)), dtype=complex)
-    for i in range(len(theta)):
-        grad = _grad(params_to_vec, theta, i, epsilon)
-        grad -= np.vdot(vec, grad) * vec
-        jac[:, i] = grad
-    return jac
-
-
-def _grad(
-    params_to_vec: Callable[[np.ndarray], np.ndarray],
-    theta: np.ndarray,
-    index: int,
-    epsilon: float,
-) -> np.ndarray:
-    unit = one_hot(len(theta), index, dtype=float)
-    plus = theta + epsilon * unit
-    minus = theta - epsilon * unit
-    return (params_to_vec(plus) - params_to_vec(minus)) / (2 * epsilon)
 
 
 def _get_param_update(

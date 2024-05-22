@@ -8,50 +8,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""The MolecularData class."""
+
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 
 import numpy as np
 import pyscf.scf
 from pyscf import ao2mo, cc, gto, mcscf, mp, symm
 from pyscf.scf.hf import SCF
+from typing_extensions import deprecated
 
 from ffsim.hamiltonians import MolecularHamiltonian
-
-MOLPRO_ID = {
-    "D2h": {
-        "Ag": 1,
-        "B1g": 4,
-        "B2g": 6,
-        "B3g": 7,
-        "Au": 8,
-        "B1u": 5,
-        "B2u": 3,
-        "B3u": 2,
-    },
-    "C2v": {"A1": 1, "A2": 4, "B1": 2, "B2": 3},
-    "C2h": {"Ag": 1, "Bg": 4, "Au": 2, "Bu": 3},
-    "D2": {"A ": 1, "B1": 4, "B2": 3, "B3": 2},
-    "Cs": {"A'": 1, 'A"': 2},
-    "C2": {"A": 1, "B": 2},
-    "Ci": {"Ag": 1, "Au": 2},
-    "C1": {
-        "A": 1,
-    },
-}
-
-
-def orbital_symmetries(hartree_fock: SCF, orbitals: Sequence[int]) -> list[int] | None:
-    if not hartree_fock.mol.symmetry:
-        return None
-
-    coeff = hartree_fock.mo_coeff[:, orbitals]
-    idx = symm.label_orb_symm(
-        hartree_fock.mol, hartree_fock.mol.irrep_name, hartree_fock.mol.symm_orb, coeff
-    )
-    return [MOLPRO_ID[hartree_fock.mol.groupname][i] for i in idx]
 
 
 @dataclasses.dataclass
@@ -63,15 +33,17 @@ class MolecularData:
         basis: The basis set, e.g. "sto-6g".
         spin: The spin of the molecule.
         symmetry: The symmetry of the molecule.
-        mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
-        mo_occ: Hartree-Fock canonical orbital occupancies.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        active_space: The orbitals included in the active space.
+        mo_coeff: Molecular orbital coefficients in the AO basis.
+        mo_occ: Molecular orbital occupancies.
+        active_space: The molecular orbitals included in the active space.
         core_energy: The core energy.
         one_body_tensor: The one-body tensor.
         two_body_integrals: The two-body integrals in compressed format.
         hf_energy: The Hartree-Fock energy.
+        hf_mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
+        hf_mo_occ: Hartree-Fock canonical orbital occupancies.
         mp2_energy: The MP2 energy.
         mp2_t2: The MP2 t2 amplitudes.
         ccsd_energy: The CCSD energy.
@@ -88,18 +60,20 @@ class MolecularData:
     basis: str
     spin: int
     symmetry: str | None
-    # Hartree-Fock data
-    mo_coeff: np.ndarray
-    mo_occ: np.ndarray
-    hf_energy: float
     # active space information
     norb: int
     nelec: tuple[int, int]
+    mo_coeff: np.ndarray
+    mo_occ: np.ndarray
     active_space: list[int]
     # molecular integrals
     core_energy: float
     one_body_integrals: np.ndarray
     two_body_integrals: np.ndarray
+    # Hartree-Fock data
+    hf_energy: float | None = None
+    hf_mo_coeff: np.ndarray | None = None
+    hf_mo_occ: np.ndarray | None = None
     # MP2 data
     mp2_energy: float | None = None
     mp2_t2: np.ndarray | None = None
@@ -112,7 +86,7 @@ class MolecularData:
     fci_vec: np.ndarray | None = None
     # other information
     dipole_integrals: np.ndarray | None = None
-    orbital_symmetries: list[int] | None = None
+    orbital_symmetries: list[str] | None = None
 
     @property
     def hamiltonian(self) -> MolecularHamiltonian:
@@ -125,17 +99,9 @@ class MolecularData:
 
     @property
     def mole(self) -> gto.Mole:
-        """The pySCF Mole class for this molecular data."""
+        """The PySCF Mole class for this molecular data."""
         mol = gto.Mole()
         return mol.build(atom=self.atom, basis=self.basis, symmetry=self.symmetry)
-
-    @property
-    def scf(self) -> gto.Mole:
-        """The pySCF SCF class for this molecular data."""
-        hartree_fock = pyscf.scf.RHF(self.mole)
-        hartree_fock.mo_occ = self.mo_occ
-        hartree_fock.mo_coeff = self.mo_coeff
-        return hartree_fock
 
     @staticmethod
     def from_scf(
@@ -154,38 +120,50 @@ class MolecularData:
             )
         hf_energy = hartree_fock.e_tot
 
-        # get core energy and one- and two-body integrals
+        mol: gto.Mole = hartree_fock.mol
+
+        # Get core energy and one- and two-body integrals.
         if active_space is None:
-            norb = hartree_fock.mol.nao_nr()
+            norb = mol.nao_nr()
             active_space = range(norb)
         active_space = list(active_space)
         norb = len(active_space)
         n_electrons = int(sum(hartree_fock.mo_occ[active_space]))
-        n_alpha = (n_electrons + hartree_fock.mol.spin) // 2
-        n_beta = (n_electrons - hartree_fock.mol.spin) // 2
+        n_alpha = (n_electrons + mol.spin) // 2
+        n_beta = (n_electrons - mol.spin) // 2
         cas = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
         mo = cas.sort_mo(active_space, base=0)
         one_body_tensor, core_energy = cas.get_h1cas(mo)
         two_body_integrals = cas.get_h2cas(mo)
 
-        # compute dipole integrals
-        charges = hartree_fock.mol.atom_charges()
-        coords = hartree_fock.mol.atom_coords()
+        # Get dipole integrals.
+        charges = mol.atom_charges()
+        coords = mol.atom_coords()
         nuc_charge_center = np.einsum("z,zx->x", charges, coords) / charges.sum()
-        hartree_fock.mol.set_common_orig_(nuc_charge_center)
-        mo_coeffs = hartree_fock.mo_coeff[:, active_space]
-        dipole_integrals = hartree_fock.mol.intor("cint1e_r_sph", comp=3)
-        dipole_integrals = np.einsum(
-            "xij,ip,jq->xpq", dipole_integrals, mo_coeffs, mo_coeffs
-        )
+        with mol.with_common_origin(nuc_charge_center):
+            dipole_integrals = mol.intor("cint1e_r_sph", comp=3)
+            mo_coeffs = hartree_fock.mo_coeff[:, active_space]
+            dipole_integrals = np.einsum(
+                "xij,ip,jq->xpq", dipole_integrals, mo_coeffs, mo_coeffs
+            )
 
-        orbsym = orbital_symmetries(hartree_fock, active_space)
+        # Get orbital symmetries.
+        orbsym = None
+        if mol.symmetry:
+            orbsym = list(
+                symm.label_orb_symm(
+                    mol,
+                    mol.irrep_name,
+                    mol.symm_orb,
+                    hartree_fock.mo_coeff[:, active_space],
+                )
+            )
 
         return MolecularData(
-            atom=hartree_fock.mol.atom,
-            basis=hartree_fock.mol.basis,
-            spin=hartree_fock.mol.spin,
-            symmetry=hartree_fock.mol.symmetry or None,
+            atom=mol.atom,
+            basis=mol.basis,
+            spin=mol.spin,
+            symmetry=mol.symmetry or None,
             norb=norb,
             nelec=(n_alpha, n_beta),
             mo_coeff=hartree_fock.mo_coeff,
@@ -200,17 +178,18 @@ class MolecularData:
         )
 
     @staticmethod
+    @deprecated("Pass an SCF object directly to from_scf instead.")
     def from_mole(
         molecule: gto.Mole,
         active_space: Iterable[int] | None = None,
         scf_func=pyscf.scf.RHF,
     ) -> "MolecularData":
-        """Initialize a MolecularData object from a pySCF molecule.
+        """Initialize a MolecularData object from a PySCF molecule.
 
         Args:
             molecule: The molecule.
             active_space: An optional list of orbitals to use for the active space.
-            scf_func: The pySCF SCF function to use for the Hartree-Fock calculation.
+            scf_func: The PySCF SCF function to use for the Hartree-Fock calculation.
         """
         hartree_fock = scf_func(molecule)
         hartree_fock.run()
@@ -218,21 +197,27 @@ class MolecularData:
 
     def run_mp2(self, *, store_t2: bool = False):
         """Run MP2 and store results."""
-        cas = mcscf.CASCI(self.scf, ncas=self.norb, nelecas=self.nelec)
+        # TODO support SCF other than RHF
+        scf = pyscf.scf.RHF(self.mole)
+        cas = mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
-        mp2_solver = mp.MP2(self.scf, frozen=frozen)
-        mp2_energy, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
-        self.mp2_energy = mp2_energy
+        mp2_solver = mp.MP2(
+            scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+        )
+        _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
+        self.mp2_energy = mp2_solver.e_tot
         if store_t2:
             self.mp2_t2 = mp2_t2
 
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
-        cas = mcscf.CASCI(self.scf, ncas=self.norb, nelecas=self.nelec)
+        # TODO support SCF other than RHF
+        scf = pyscf.scf.RHF(self.mole)
+        cas = mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
-        fci_energy, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
-        self.fci_energy = fci_energy
+        _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
+        self.fci_energy = cas.e_tot
         if store_fci_vec:
             self.fci_vec = fci_vec
 
@@ -245,10 +230,14 @@ class MolecularData:
         store_t2: bool = False,
     ) -> None:
         """Run CCSD and store results."""
+        # TODO support SCF other than RHF
+        scf = pyscf.scf.RHF(self.mole)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
-        ccsd_solver = cc.CCSD(self.scf, frozen=frozen)
-        ccsd_energy, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
-        self.ccsd_energy = ccsd_energy + self.hf_energy
+        ccsd_solver = cc.CCSD(
+            scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+        )
+        _, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
+        self.ccsd_energy = ccsd_solver.e_tot
         if store_t1:
             self.ccsd_t1 = ccsd_t1
         if store_t2:

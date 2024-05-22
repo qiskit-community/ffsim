@@ -58,13 +58,13 @@ def fermi_hubbard_1d(
 
     .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
-    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
+    coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
     for p in range(norb - 1 + periodic):
-        coeffs[(cre_a(p), des_a((p + 1) % norb))] = -tunneling
-        coeffs[(cre_b(p), des_b((p + 1) % norb))] = -tunneling
-        coeffs[(cre_a((p + 1) % norb), des_a(p))] = -tunneling
-        coeffs[(cre_b((p + 1) % norb), des_b(p))] = -tunneling
+        coeffs[(cre_a(p), des_a((p + 1) % norb))] -= tunneling
+        coeffs[(cre_b(p), des_b((p + 1) % norb))] -= tunneling
+        coeffs[(cre_a((p + 1) % norb), des_a(p))] -= tunneling
+        coeffs[(cre_b((p + 1) % norb), des_b(p))] -= tunneling
         if nearest_neighbor_interaction:
             coeffs[
                 (cre_a(p), des_a(p), cre_a((p + 1) % norb), des_a((p + 1) % norb))

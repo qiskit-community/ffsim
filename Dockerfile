@@ -25,4 +25,4 @@ RUN mkdir docs && \
     cp -a .src/ffsim/docs docs/ffsim
 
 # Pip install ffsim
-RUN pip install -e .src/ffsim
+RUN pip install -e ".src/ffsim[dev]"

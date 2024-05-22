@@ -12,18 +12,6 @@
 :end-before: <!-- end installation -->
 ```
 
-## Next steps
-
-We recommend starting with [State vectors and gates](explanations/state-vectors-and-gates.ipynb). Then, you can check out the following resources:
-
-- [Tutorials](tutorials/index.md)
-- [How-to guides](how-to-guides/index.md)
-- [Explanations](explanations/index.md)
-
-## Developer guide
-
-See the [developer guide](https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md) hosted on GitHub for instructions on contributing code to ffsim.
-
 ## Citing ffsim
 
 ```{include} ../README.md
@@ -31,12 +19,17 @@ See the [developer guide](https://github.com/qiskit-community/ffsim/blob/main/CO
 :end-before: <!-- end citing -->
 ```
 
+## Contents
+
 ```{toctree}
-:hidden:
+:maxdepth: 2
 
 install
 tutorials/index
-how-to-guides/index
 explanations/index
+how-to-guides/index
 api/index
+Developer Guide <https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md>
+GitHub <https://github.com/qiskit-community/ffsim>
+Development Branch Docs <https://qiskit-community.github.io/ffsim/dev/>
 ```

@@ -13,6 +13,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 import numpy as np
+import scipy.linalg
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
@@ -94,7 +95,7 @@ def simulate_trotter_double_factorized(
     if n_steps == 0:
         return vec
 
-    one_body_energies, one_body_basis_change = np.linalg.eigh(
+    one_body_energies, one_body_basis_change = scipy.linalg.eigh(
         hamiltonian.one_body_tensor
     )
     step_time = time / n_steps

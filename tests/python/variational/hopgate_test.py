@@ -19,6 +19,7 @@ import ffsim
 
 
 def test_parameters_roundtrip():
+    """Test converting to and back from parameters gives consistent results."""
     norb = 5
     n_reps = 2
     rng = np.random.default_rng()
@@ -46,11 +47,7 @@ def test_parameters_roundtrip():
         with_final_orbital_rotation=True,
     )
 
+    np.testing.assert_allclose(roundtripped.thetas, operator.thetas)
     np.testing.assert_allclose(
-        roundtripped.thetas,
-        operator.thetas,
-    )
-    np.testing.assert_allclose(
-        roundtripped.final_orbital_rotation,
-        operator.final_orbital_rotation,
+        roundtripped.final_orbital_rotation, operator.final_orbital_rotation
     )

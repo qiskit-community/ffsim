@@ -49,5 +49,5 @@ html_theme_options = {
 }
 
 # nbsphinx options (for tutorials)
-nbsphinx_timeout = 500
+nbsphinx_timeout = 300
 nbsphinx_execute = "always"

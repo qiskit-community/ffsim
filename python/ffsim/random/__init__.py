@@ -20,6 +20,7 @@ from ffsim.random.random import (
     random_statevector,
     random_t2_amplitudes,
     random_two_body_tensor,
+    random_ucj_operator,
     random_unitary,
 )
 
@@ -33,5 +34,6 @@ __all__ = [
     "random_statevector",
     "random_t2_amplitudes",
     "random_two_body_tensor",
+    "random_ucj_operator",
     "random_unitary",
 ]
