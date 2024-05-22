@@ -393,8 +393,8 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553863  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754468  E_corr = -0.04824536314851309
-Energy at initialization: -77.46975600021705
+E(CCSD) = -77.49387212754473  E_corr = -0.04824536314851259
+Energy at initialization: -77.46975600021791
 </pre></div></div>
 </div>
 <p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
@@ -433,10 +433,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50963789842024
-        x: [ 1.263e+00 -4.693e-01 ...  8.675e-02  1.366e-01]
+      fun: -77.50963652147688
+        x: [ 1.263e+00 -4.691e-01 ...  8.682e-02  1.366e-01]
       nit: 5
-      jac: [-5.400e-05  6.111e-04 ... -3.644e-03 -4.482e-03]
+      jac: [-6.679e-05  6.452e-04 ... -3.602e-03 -4.511e-03]
      nfev: 584
      njev: 8
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -499,10 +499,10 @@ Number of parameters: 46
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.4574087158291
-        x: [ 1.265e+00 -4.808e-01 ...  8.439e-03  7.973e-03]
+      fun: -77.45740643956324
+        x: [ 1.265e+00 -4.812e-01 ...  7.798e-03  8.734e-03]
       nit: 5
-      jac: [ 1.194e-04 -1.180e-04 ... -1.347e-03 -3.408e-03]
+      jac: [ 1.421e-04 -1.435e-04 ... -1.320e-03 -3.445e-03]
      nfev: 423
      njev: 9
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -586,34 +586,34 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.46231725326254
-       x: [ 1.295e+00 -4.369e-01 ...  5.813e-02 -2.645e-01]
+     fun: -77.45822080634763
+       x: [ 1.288e+00 -4.538e-01 ...  3.540e-02 -1.365e-02]
      nit: 5
-     jac: [-4.909e-03  1.503e-03 ... -1.447e-03  1.610e-03]
-    nfev: 745
+     jac: [-5.244e-04 -3.186e-04 ...  8.356e-04 -1.202e-03]
+    nfev: 673
     njev: 5
-  nlinop: 515
+  nlinop: 443
 
 Iteration 1
-    Energy: -77.45724469166777
-    Norm of gradient: 0.00999431980268821
-    Regularization hyperparameter: 0.026870433686640622
-    Variation hyperparameter: 0.9889061608920515
+    Energy: -77.45032733293834
+    Norm of gradient: 0.019927219144993482
+    Regularization hyperparameter: 0.7620989175199337
+    Variation hyperparameter: 0.7261446619133572
 Iteration 2
-    Energy: -77.45816645257163
-    Norm of gradient: 0.007991728403496566
-    Regularization hyperparameter: 0.000562111327480393
-    Variation hyperparameter: 0.988965231505403
+    Energy: -77.45712817853624
+    Norm of gradient: 0.011782657454345013
+    Regularization hyperparameter: 0.025890135305259136
+    Variation hyperparameter: 0.764227486046164
 Iteration 3
-    Energy: -77.45819801452349
-    Norm of gradient: 0.007775466757525605
-    Regularization hyperparameter: 0.9531409464400644
-    Variation hyperparameter: 0.988980754186814
+    Energy: -77.45817463360443
+    Norm of gradient: 0.007779656103229229
+    Regularization hyperparameter: 0.0004368365852053704
+    Variation hyperparameter: 0.7680211727999615
 Iteration 4
-    Energy: -77.46211743273028
-    Norm of gradient: 0.022071732441819782
-    Regularization hyperparameter: 0.00400519273922801
-    Variation hyperparameter: 0.9916084321443983
+    Energy: -77.45819818608938
+    Norm of gradient: 0.007609829743845768
+    Regularization hyperparameter: 1.0421274089310542
+    Variation hyperparameter: 0.7642922535319732
 </pre></div></div>
 </div>
 </section>
