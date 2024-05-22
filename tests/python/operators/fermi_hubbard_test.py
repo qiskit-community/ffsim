@@ -16,8 +16,7 @@ import numpy as np
 import scipy
 
 import ffsim
-from ffsim.operators.fermi_hubbard import fermi_hubbard_1d, fermi_hubbard_2d
-from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
+from ffsim import cre_a, cre_b, des_a, des_b, fermi_hubbard_1d, fermi_hubbard_2d
 
 
 def test_fermi_hubbard_1d():
