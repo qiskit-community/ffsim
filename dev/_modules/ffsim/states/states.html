@@ -556,6 +556,50 @@
 
 
 
+<div class="viewcode-block" id="strings_to_indices">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.strings_to_indices">[docs]</a>
+<span class="k">def</span> <span class="nf">strings_to_indices</span><span class="p">(</span>
+    <span class="n">strings</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bitstrings to statevector indices.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">        import ffsim</span>
+
+<span class="sd">        norb = 3</span>
+<span class="sd">        nelec = (2, 1)</span>
+<span class="sd">        dim = ffsim.dim(norb, nelec)</span>
+<span class="sd">        ffsim.strings_to_indices(</span>
+<span class="sd">            [</span>
+<span class="sd">                &quot;001011&quot;,</span>
+<span class="sd">                &quot;010011&quot;,</span>
+<span class="sd">                &quot;100011&quot;,</span>
+<span class="sd">                &quot;001101&quot;,</span>
+<span class="sd">                &quot;010101&quot;,</span>
+<span class="sd">                &quot;100101&quot;,</span>
+<span class="sd">                &quot;001110&quot;,</span>
+<span class="sd">                &quot;010110&quot;,</span>
+<span class="sd">                &quot;100110&quot;,</span>
+<span class="sd">            ],</span>
+<span class="sd">            norb,</span>
+<span class="sd">            nelec,</span>
+<span class="sd">        )</span>
+<span class="sd">        # output:</span>
+<span class="sd">        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="n">strings_a</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">norb</span><span class="p">:],</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
+    <span class="n">strings_b</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="n">norb</span><span class="p">],</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
+    <span class="n">addrs_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_a</span><span class="p">)</span>
+    <span class="n">addrs_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_b</span><span class="p">)</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">addrs_a</span> <span class="o">*</span> <span class="n">dim_b</span> <span class="o">+</span> <span class="n">addrs_b</span></div>
+
+
+
 <span class="c1"># source: pyscf.fci.spin_op.spin_square0</span>
 <span class="c1"># modified to support complex wavefunction</span>
 <div class="viewcode-block" id="spin_square">
