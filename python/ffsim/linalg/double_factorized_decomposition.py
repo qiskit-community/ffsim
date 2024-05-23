@@ -521,3 +521,53 @@ def double_factorized_t2(
     diag_coulomb_mats = outer_eigs[:, None, None] * eigs[:, :, None] * eigs[:, None, :]
 
     return diag_coulomb_mats, orbital_rotations
+
+
+def double_factorized_t2_alpha_beta(
+    t2ab: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
+) -> tuple[np.ndarray, np.ndarray]:
+    nocc_a, nocc_b, nvrt_a, nvrt_b = t2ab.shape
+    norb = nocc_a + nvrt_a
+    orbs_a, orbs_b = range(norb), range(norb, 2 * norb)
+    occ_a, vrt_a = orbs_a[:nocc_a], orbs_a[nocc_a:]
+    occ_b, vrt_b = orbs_b[:nocc_b], orbs_b[nocc_b:]
+
+    reshaped_t2 = np.zeros((nocc_a * nvrt_a, nocc_b * nvrt_b))
+    ind = [super_index(nocc_a, nvrt_a), super_index(nocc_b, nvrt_b)]
+    for m, i, a in ind[0]:
+        for n, j, b in ind[1]:
+            reshaped_t2[m, n] = t2ab[i, j, a, b]
+    U, s, Vh = scipy.linalg.svd(reshaped_t2, full_matrices=False)
+    # print("svd check ", np.abs(X_mat - np.einsum("mx,x,xn->mn", U, s, Vh)).max())
+    cut = np.where(np.abs(s) > tol)[0]
+    U, s, Vh = U[:, cut], s[cut], Vh[cut, :]
+    nsvd = len(s)
+    print("svd check ", np.abs(reshaped_t2 - np.einsum("mx,x,xn->mn", U, s, Vh)).max())
+    U_mat = np.zeros((2 * norb, 2 * norb, nsvd))
+    V_mat = np.zeros((2 * norb, 2 * norb, nsvd))
+    for mu in range(nsvd):
+        for m, i, a in ind[0]:
+            U_mat[vrt_a[a], occ_a[i], mu] = U[m, mu] * np.sqrt(s[mu])
+        for n, j, b in ind[1]:
+            V_mat[vrt_b[b], occ_b[j], mu] = Vh[mu, n] * np.sqrt(s[mu])
+    one_body_tensors = np.zeros((norb, norb, 2, 2, 2, nsvd), dtype=complex)
+    coeffs = np.zeros((2, 2, nsvd))
+    for m in range(nsvd):
+        for q in range(2):
+            X_q = U_mat[:, :, m] + V_mat[:, :, m] * (-1) ** q
+            for p in range(2):
+                QUAD_Xq_p = quadrature(X_q, p)
+                coeffs[p, q, m] = (-1) ** p * (-1) ** q / 4.0
+                one_body_tensors[:, :, 0, p, q, m] = QUAD_Xq_p[np.ix_(orbs_a, orbs_a)]
+                one_body_tensors[:, :, 1, p, q, m] = QUAD_Xq_p[np.ix_(orbs_b, orbs_b)]
+    return one_body_tensors, coeffs
+
+
+def super_index(occ, vir):
+    L = [(i, a) for i in range(occ) for a in range(vir)]
+    return [(m, i, a) for m, (i, a) in enumerate(L)]
+
+
+def quadrature(X, p):
+    Q = (1.0 - 1j * (-1) ** p) / 2.0 * (X + 1j * np.conj(X.T) * (-1) ** p)
+    return Q

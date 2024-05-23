@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pyscf
 import pytest
 from pyscf import ao2mo, cc, gto, mcscf, scf
 
@@ -49,6 +50,63 @@ def _reconstruct_t2(
         expanded_orbital_rotations.conj(),
     )
     return t2[:nocc, :nocc, nocc:, nocc:]
+
+
+def _validate_t2_alpha_beta_decomposition(t2ab, Y, F):
+    nocc_a, nocc_b, nvrt_a, nvrt_b = t2ab.shape
+    norb = nocc_a + nvrt_a
+    orbs_a, orbs_b = range(norb), range(norb, 2 * norb)
+    orbs = [orbs_a, orbs_b]
+    occ_a, vrt_a = orbs_a[:nocc_a], orbs_a[nocc_a:]
+    occ_b, vrt_b = orbs_b[:nocc_b], orbs_b[nocc_b:]
+    nsvd = Y.shape[5]
+
+    UCCSD = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb))
+    UCCSD[np.ix_(vrt_a, occ_a, vrt_b, occ_b)] += np.einsum("iJaB->aiBJ", t2ab) / 2.0
+    UCCSD[np.ix_(vrt_b, occ_b, vrt_a, occ_a)] += np.einsum("iJaB->BJai", t2ab) / 2.0
+    UCCSD[np.ix_(occ_b, vrt_b, occ_a, vrt_a)] -= np.einsum("iJaB->JBia", t2ab) / 2.0
+    UCCSD[np.ix_(occ_a, vrt_a, occ_b, vrt_b)] -= np.einsum("iJaB->iaJB", t2ab) / 2.0
+
+    CHECK_tb = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=complex)
+    CHECK_ob = np.zeros((2 * norb, 2 * norb), dtype=complex)
+    for m in range(nsvd):
+        for p in range(2):
+            for q in range(2):
+                Ypqm = Y[:, :, :, p, q, m]
+                for sigma in range(2):
+                    CHECK_ob[np.ix_(orbs[sigma], orbs[sigma])] += (
+                        1j * F[p, q, m] * np.dot(Ypqm[:, :, sigma], Ypqm[:, :, sigma])
+                    )
+                    CHECK_tb[
+                        np.ix_(
+                            orbs[sigma],
+                            orbs[sigma],
+                            orbs[sigma],
+                            orbs[sigma],
+                        )
+                    ] += (
+                        1j
+                        * F[p, q, m]
+                        * np.einsum("pr,qs->prqs", Ypqm[:, :, sigma], Ypqm[:, :, sigma])
+                    )
+                    for tau in range(2):
+                        CHECK_tb[
+                            np.ix_(
+                                orbs[sigma],
+                                orbs[sigma],
+                                orbs[tau],
+                                orbs[tau],
+                            )
+                        ] += (
+                            1j
+                            * F[p, q, m]
+                            * np.einsum(
+                                "pr,qs->prqs", Ypqm[:, :, sigma], Ypqm[:, :, tau]
+                            )
+                        )
+
+    np.testing.assert_allclose(CHECK_ob, 0, atol=1e-12)
+    np.testing.assert_allclose(UCCSD - CHECK_tb, 0, atol=1e-12)
 
 
 @pytest.mark.parametrize("dim", range(6))
@@ -322,3 +380,13 @@ def test_double_factorized_t2_tol_max_vecs():
     reconstructed = _reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     assert len(orbital_rotations) <= 7
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
+
+
+def test_double_factorized_t2_alpha_beta_beh():
+    """Test double factorization of opposite-spin t2 amplitudes."""
+    mol = pyscf.M(atom="H 0 0 0; Be 0 0 1.1", basis="6-31g", spin=1)
+    scf = mol.ROHF().run()
+    this_cc = scf.CCSD().run()
+    t2aa, t2ab, t2bb = this_cc.t2
+    Y, F = ffsim.linalg.double_factorized_t2_alpha_beta(t2ab)
+    _validate_t2_alpha_beta_decomposition(t2ab, Y, F)
