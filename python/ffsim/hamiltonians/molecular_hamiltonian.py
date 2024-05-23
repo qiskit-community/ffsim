@@ -132,10 +132,11 @@ class MolecularHamiltonian:
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
 
-    def _trace_(self, norb: int, nelec: tuple[int, int]) -> float:
-        """Return the trace of the object."""
-        return self.constant * dim(norb, nelec) + np.sum(
+    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+        """Return the diagonal entries of the Hamiltonian."""
+        return (
             make_hdiag(self.one_body_tensor, self.two_body_tensor, norb, nelec)
+            + self.constant
         )
 
     def _fermion_operator_(self) -> FermionOperator:
