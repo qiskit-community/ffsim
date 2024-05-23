@@ -182,3 +182,38 @@ def test_indices_to_strings():
         "010110",
         "100110",
     ]
+
+
+def test_strings_to_indices():
+    """Test converting statevector indices to strings."""
+    norb = 3
+    nelec = (2, 1)
+
+    dim = ffsim.dim(norb, nelec)
+    indices = ffsim.strings_to_indices(
+        [
+            "001011",
+            "010011",
+            "100011",
+            "001101",
+            "010101",
+            "100101",
+            "001110",
+            "010110",
+            "100110",
+        ],
+        norb,
+        nelec,
+    )
+    np.testing.assert_array_equal(indices, np.arange(dim))
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 6)))
+def test_indices_and_strings_roundtrip(norb: int, nelec: tuple[int, int]):
+    """Test converting statevector indices to strings."""
+    rng = np.random.default_rng(26390)
+    dim = ffsim.dim(norb, nelec)
+    indices = rng.choice(dim, size=10)
+    strings = ffsim.indices_to_strings(indices, norb=norb, nelec=nelec)
+    indices_again = ffsim.strings_to_indices(strings, norb=norb, nelec=nelec)
+    np.testing.assert_array_equal(indices_again, indices)

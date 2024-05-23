@@ -253,6 +253,47 @@ def indices_to_strings(
     ]
 
 
+def strings_to_indices(
+    strings: Sequence[str] | np.ndarray, norb: int, nelec: tuple[int, int]
+) -> np.ndarray:
+    """Convert bitstrings to statevector indices.
+
+    Example:
+
+    .. code::
+
+        import ffsim
+
+        norb = 3
+        nelec = (2, 1)
+        dim = ffsim.dim(norb, nelec)
+        ffsim.strings_to_indices(
+            [
+                "001011",
+                "010011",
+                "100011",
+                "001101",
+                "010101",
+                "100101",
+                "001110",
+                "010110",
+                "100110",
+            ],
+            norb,
+            nelec,
+        )
+        # output:
+        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
+    """
+    n_alpha, n_beta = nelec
+    strings_a = [int(s[norb:], base=2) for s in strings]
+    strings_b = [int(s[:norb], base=2) for s in strings]
+    addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
+    addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
+    dim_b = math.comb(norb, n_beta)
+    return addrs_a * dim_b + addrs_b
+
+
 # source: pyscf.fci.spin_op.spin_square0
 # modified to support complex wavefunction
 def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
