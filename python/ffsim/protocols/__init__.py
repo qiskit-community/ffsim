@@ -15,6 +15,7 @@ from ffsim.protocols.approximate_equality_protocol import (
     SupportsApproximateEquality,
     approx_eq,
 )
+from ffsim.protocols.diagonal_protocol import SupportsDiagonal, diag
 from ffsim.protocols.fermion_operator_protocol import (
     SupportsFermionOperator,
     fermion_operator,
@@ -28,11 +29,13 @@ from ffsim.protocols.trace_protocol import SupportsTrace, trace
 __all__ = [
     "SupportsApplyUnitary",
     "SupportsApproximateEquality",
+    "SupportsDiagonal",
     "SupportsFermionOperator",
     "SupportsLinearOperator",
     "SupportsTrace",
     "apply_unitary",
     "approx_eq",
+    "diag",
     "fermion_operator",
     "linear_operator",
     "trace",
