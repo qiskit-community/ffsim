@@ -1489,6 +1489,13 @@ the alpha and beta components of each state.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.SupportsDiagonal">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsDiagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/diagonal_protocol.html#SupportsDiagonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsDiagonal" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A linear operator whose diagonal entries can be returned.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.SupportsFermionOperator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsFermionOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/fermion_operator_protocol.html#SupportsFermionOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsFermionOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
@@ -2431,6 +2438,17 @@ and False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.diag">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/diagonal_protocol.html#diag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.diag" title="Link to this definition">¶</a></dt>
+<dd><p>Return the diagonal entries of the linear operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.dim">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.dim" title="Link to this definition">¶</a></dt>
 <dd><p>Get the dimension of the FCI space.</p>
@@ -3095,7 +3113,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.trace">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/trace_protocol.html#trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.trace" title="Link to this definition">¶</a></dt>
-<dd><p>Return the trace of the object.</p>
+<dd><p>Return the trace of the linear operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
@@ -3289,6 +3307,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 </li>
 <li><a class="reference internal" href="#ffsim.SupportsApplyUnitary"><code class="docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsApproximateEquality"><code class="docutils literal notranslate"><span class="pre">SupportsApproximateEquality</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.SupportsDiagonal"><code class="docutils literal notranslate"><span class="pre">SupportsDiagonal</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsFermionOperator"><code class="docutils literal notranslate"><span class="pre">SupportsFermionOperator</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsLinearOperator"><code class="docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsTrace"><code class="docutils literal notranslate"><span class="pre">SupportsTrace</span></code></a></li>
@@ -3325,6 +3344,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.des"><code class="docutils literal notranslate"><span class="pre">des()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.des_a"><code class="docutils literal notranslate"><span class="pre">des_a()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.des_b"><code class="docutils literal notranslate"><span class="pre">des_b()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.diag"><code class="docutils literal notranslate"><span class="pre">diag()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.dim"><code class="docutils literal notranslate"><span class="pre">dim()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.expectation_one_body_power"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_power()</span></code></a></li>
