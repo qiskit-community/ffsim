@@ -230,13 +230,8 @@ class UCJOperator:
         norb = nocc + nvrt
 
         diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
-        n_vecs, norb, _ = diag_coulomb_mats.shape
-        expanded_diag_coulomb_mats = np.zeros((2 * n_vecs, norb, norb))
-        expanded_orbital_rotations = np.zeros((2 * n_vecs, norb, norb), dtype=complex)
-        expanded_diag_coulomb_mats[::2] = diag_coulomb_mats
-        expanded_diag_coulomb_mats[1::2] = -diag_coulomb_mats
-        expanded_orbital_rotations[::2] = orbital_rotations
-        expanded_orbital_rotations[1::2] = orbital_rotations.conj()
+        diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
+        orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
         final_orbital_rotation = None
         if t1 is not None:
@@ -246,9 +241,9 @@ class UCJOperator:
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return UCJOperator(
-            diag_coulomb_mats_alpha_alpha=expanded_diag_coulomb_mats[:n_reps],
-            diag_coulomb_mats_alpha_beta=expanded_diag_coulomb_mats[:n_reps],
-            orbital_rotations=expanded_orbital_rotations[:n_reps],
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats,
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats,
+            orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
         )
 
@@ -496,7 +491,8 @@ class RealUCJOperator:
         norb = nocc + nvrt
 
         diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
-        _, norb, _ = diag_coulomb_mats.shape
+        diag_coulomb_mats = diag_coulomb_mats[:n_reps, 0]
+        orbital_rotations = orbital_rotations[:n_reps, 0]
 
         final_orbital_rotation = None
         if t1 is not None:
@@ -506,9 +502,9 @@ class RealUCJOperator:
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return RealUCJOperator(
-            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats[:n_reps],
-            diag_coulomb_mats_alpha_beta=diag_coulomb_mats[:n_reps],
-            orbital_rotations=orbital_rotations[:n_reps],
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats,
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats,
+            orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
         )
 

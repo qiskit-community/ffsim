@@ -83,6 +83,7 @@ from ffsim.variational import (
     HopGateAnsatzOperator,
     RealUCJOperator,
     UCJOperator,
+    UCJOperatorOpenShell,
     multireference_state,
     multireference_state_prod,
 )
@@ -106,6 +107,7 @@ __all__ = [
     "SupportsLinearOperator",
     "SupportsTrace",
     "UCJOperator",
+    "UCJOperatorOpenShell",
     "apply_diag_coulomb_evolution",
     "apply_fsim_gate",
     "apply_givens_rotation",

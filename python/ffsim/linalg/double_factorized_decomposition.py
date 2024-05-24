@@ -12,12 +12,45 @@
 
 from __future__ import annotations
 
+import itertools
 import math
+from typing import cast
 
 import numpy as np
 import scipy.linalg
 import scipy.optimize
 from opt_einsum import contract
+
+
+def _truncated_eigh(
+    mat: np.ndarray,
+    *,
+    tol: float,
+    max_vecs: int | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    eigs, vecs = scipy.linalg.eigh(mat)
+    if max_vecs is None:
+        max_vecs = len(eigs)
+    indices = np.argsort(np.abs(eigs))[::-1]
+    eigs = eigs[indices]
+    vecs = vecs[:, indices]
+    n_discard = np.searchsorted(np.cumsum(np.abs(eigs[::-1])), tol)
+    n_vecs = cast(int, min(max_vecs, len(eigs) - n_discard))
+    return eigs[:n_vecs], vecs[:, :n_vecs]
+
+
+def _truncated_svd(
+    mat: np.ndarray,
+    *,
+    tol: float,
+    max_vecs: int | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    left_vecs, singular_vals, right_vecs = scipy.linalg.svd(mat, full_matrices=False)
+    if max_vecs is None:
+        max_vecs = len(singular_vals)
+    n_discard = np.searchsorted(np.cumsum(singular_vals[::-1]), tol)
+    n_vecs = cast(int, min(max_vecs, len(singular_vals) - n_discard))
+    return left_vecs[:, :n_vecs], singular_vals[:n_vecs], right_vecs[:n_vecs]
 
 
 def modified_cholesky(
@@ -255,28 +288,6 @@ def _double_factorized_explicit_eigh(
     return diag_coulomb_mats, orbital_rotations
 
 
-def _truncated_eigh(
-    mat: np.ndarray,
-    *,
-    tol: float,
-    max_vecs: int | None = None,
-) -> tuple[np.ndarray, np.ndarray]:
-    eigs, vecs = scipy.linalg.eigh(mat)
-    # sort by absolute value
-    indices = np.argsort(np.abs(eigs))
-    eigs = eigs[indices]
-    vecs = vecs[:, indices]
-    # get index to truncate at
-    index = int(np.searchsorted(np.cumsum(np.abs(eigs)), tol))
-    # truncate, then reverse to put into descending order of absolute value
-    eigs = eigs[index:][::-1]
-    vecs = vecs[:, index:][:, ::-1]
-    # truncate to final rank
-    eigs = eigs[:max_vecs]
-    vecs = vecs[:, :max_vecs]
-    return eigs, vecs
-
-
 def optimal_diag_coulomb_mats(
     two_body_tensor: np.ndarray,
     orbital_rotations: np.ndarray,
@@ -473,13 +484,13 @@ def double_factorized_t2(
 
     .. math::
 
-        t_{ijab} = i \sum_{k=1}^L \sum_{pq} (
-            Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip} U^{k}_{bq} {U^{k}}^*_{jq}
-            - Z^{k}_{pq} {U^{k}}^*_{ap} U^{k}_{ip} {U^{k}}^*_{bq} U^{k}_{jq})
+        t_{ijab} = i \sum_{m=1}^L \sum_{k=1}^2 \sum_{pq} (
+            Z^{(m,k)}_{pq}
+            U^{(m,k)}_{ap} {U^{(m,k)}}^*_{ip} U^{(m,k)}_{bq} {U^{(m,k)}}^*_{jq}
 
-    Here each :math:`Z^{(k)}` is a real-valued matrix, referred to as a
-    "diagonal Coulomb matrix," and each :math:`U^{k}` is a unitary matrix, referred to
-    as an "orbital rotation."
+    Here each :math:`Z^{(m,k)}` is a real-valued matrix, referred to as a
+    "diagonal Coulomb matrix," and each :math:`U^{(m,k)}` is a unitary matrix,
+    referred to as an "orbital rotation."
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
@@ -497,77 +508,182 @@ def double_factorized_t2(
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
         max_vecs: An optional limit on the number of terms to keep in the decomposition
-            of the t2 amplitudes tensor. This argument overrides ``tol``.
+            of the t2 amplitudes tensor. This argument overrides `tol`.
 
     Returns:
-        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
-        is collected into a Numpy array, so this method returns a tuple of two Numpy
-        arrays, the first containing the diagonal Coulomb matrices and the second
-        containing the orbital rotations. Each Numpy array will have shape (L, n, n)
-        where L is the rank of the decomposition and n is the number of orbitals.
+        - The diagonal Coulomb matrices, as a Numpy array of shape
+          `(n_vecs, 2, norb, norb)`.
+          The last two axes index the rows and columns of the matrices.
+          The first axis indexes the eigenvectors of the decomposition and the
+          second axis exists because each eigenvector gives rise to 2 terms in the
+          decomposition.
+        - The orbital rotations, as a Numpy array of shape
+          `(n_vecs, 2, norb, norb)`.
+          The last two axes index the rows and columns of the orbital rotations.
+          The first axis indexes the eigenvectors of the decomposition and the
+          second axis exists because each eigenvector gives rise to 2 terms in the
+          decomposition.
     """
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
 
-    two_body_tensor = np.zeros((norb, norb, norb, norb))
-    two_body_tensor[:nocc, :nocc, nocc:, nocc:] = t2_amplitudes
-    two_body_tensor = two_body_tensor.transpose((2, 0, 3, 1))
-    t2_mat = two_body_tensor.reshape((norb**2, norb**2))
-    outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=max_vecs)
+    occ, vrt = np.meshgrid(range(nocc), range(nvrt), indexing="ij")
+    occ = occ.reshape(-1)
+    vrt = vrt.reshape(-1)
+    t2_mat = t2_amplitudes[occ[:, None], occ[None, :], vrt[:, None], vrt[None, :]]
 
-    mats = outer_vecs.T.reshape((-1, norb, norb))
-    mats = 0.5 * (1 - 1j) * (mats + 1j * mats.transpose((0, 2, 1)))
-    eigs, orbital_rotations = np.linalg.eigh(mats)
-    diag_coulomb_mats = outer_eigs[:, None, None] * eigs[:, :, None] * eigs[:, None, :]
+    outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=max_vecs)
+    n_vecs = len(outer_eigs)
+
+    one_body_tensors = np.zeros((n_vecs, 2, norb, norb), dtype=complex)
+    for outer_vec, one_body_tensor in zip(outer_vecs.T, one_body_tensors):
+        mat = np.zeros((norb, norb))
+        col, row = zip(*itertools.product(range(nocc), range(nocc, nocc + nvrt)))
+        mat[row, col] = outer_vec
+        one_body_tensor[0] = _quadrature(mat, sign=1)
+        one_body_tensor[1] = _quadrature(mat, sign=-1)
+
+    eigs, orbital_rotations = np.linalg.eigh(one_body_tensors)
+    coeffs = np.array([1, -1]) * outer_eigs[:, None]
+    diag_coulomb_mats = (
+        coeffs[:, :, None, None] * eigs[:, :, :, None] * eigs[:, :, None, :]
+    )
 
     return diag_coulomb_mats, orbital_rotations
 
 
 def double_factorized_t2_alpha_beta(
-    t2ab: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
+    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
-    nocc_a, nocc_b, nvrt_a, nvrt_b = t2ab.shape
+    r"""Double-factorized decomposition of alpha-beta t2 amplitudes.
+
+    Decompose alpha-beta t2 amplitudes into diagonal Coulomb matrices with orbital
+    rotations. This function returns two arrays:
+
+    - `diagonal_coulomb_mats`, with shape `(n_vecs, 4, 3, norb, norb)`.
+    - `orbital_rotations`, with shape `(n_vecs, 4, 2, norb, norb)`.
+
+    The value of `n_vecs` depends on the error tolerance `tol`. A larger error tolerance
+    might yield a smaller value for `n_vecs`. You can also set an optional upper bound
+    on `n_vecs` using the `max_vecs` argument.
+
+    The original t2 amplitudes tensor can be reconstructed, up to the error tolerance,
+    using the following function:
+
+    .. code::
+
+        def reconstruct_t2_alpha_beta(
+            diag_coulomb_mats: np.ndarray,
+            orbital_rotations: np.ndarray,
+            norb: int,
+            nocc_a: int,
+            nocc_b: int,
+        ) -> np.ndarray:
+            n_vecs = diag_coulomb_mats.shape[0]
+            expanded_diag_coulomb_mats = np.zeros((n_vecs, 4, 2 * norb, 2 * norb))
+            expanded_orbital_rotations = np.zeros(
+                (n_vecs, 4, 2 * norb, 2 * norb), dtype=complex
+            )
+            for m, k in itertools.product(range(n_vecs), range(4)):
+                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m, k]
+                expanded_diag_coulomb_mats[m, k] = np.block(
+                    [[mat_aa, mat_ab], [mat_ab.T, mat_bb]]
+                )
+                orbital_rotation_a, orbital_rotation_b = orbital_rotations[m, k]
+                expanded_orbital_rotations[m, k] = scipy.linalg.block_diag(
+                    orbital_rotation_a, orbital_rotation_b
+                )
+            return (
+                2j
+                * contract(
+                    "mkpq,mkap,mkip,mkbq,mkjq->ijab",
+                    expanded_diag_coulomb_mats,
+                    expanded_orbital_rotations,
+                    expanded_orbital_rotations.conj(),
+                    expanded_orbital_rotations,
+                    expanded_orbital_rotations.conj(),
+                )[:nocc_a, norb : norb + nocc_b, nocc_a:norb, norb + nocc_b :]
+            )
+
+    Note: Currently, only real-valued t2 amplitudes are supported.
+
+    Args:
+        t2_amplitudes: The t2 amplitudes tensor.
+        tol: Tolerance for error in the decomposition.
+            The error is defined as the maximum absolute difference between
+            an element of the original tensor and the corresponding element of
+            the reconstructed tensor.
+        max_vecs: An optional limit on the number of terms to keep in the decomposition
+            of the t2 amplitudes tensor. This argument overrides `tol`.
+
+
+    Returns:
+        - The diagonal Coulomb matrices, as a Numpy array of shape
+          `(n_vecs, 4, 3, norb, norb)`.
+          The last two axes index the rows and columns of
+          the matrices, and the third from last axis, which has 3 dimensions, indexes
+          the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
+          beta-beta (in that order).
+          The first axis indexes the singular vectors of the decomposition and the
+          second axis exists because each singular vector gives rise to 4 terms in the
+          decomposition.
+        - The orbital rotations, as a Numpy array of shape
+          `(n_vecs, 4, 2, norb, norb)`. The last two axes index the rows and columns of
+          the orbital rotations, and the third from last axis, which has 2 dimensions,
+          indexes the spin sector of the orbital rotation: first alpha, then beta.
+          The first axis indexes the singular vectors of the decomposition and the
+          second axis exists because each singular vector gives rise to 4 terms in the
+          decomposition.
+    """
+    nocc_a, nocc_b, nvrt_a, nvrt_b = t2_amplitudes.shape
     norb = nocc_a + nvrt_a
-    orbs_a, orbs_b = range(norb), range(norb, 2 * norb)
-    occ_a, vrt_a = orbs_a[:nocc_a], orbs_a[nocc_a:]
-    occ_b, vrt_b = orbs_b[:nocc_b], orbs_b[nocc_b:]
 
-    reshaped_t2 = np.zeros((nocc_a * nvrt_a, nocc_b * nvrt_b))
-    ind = [super_index(nocc_a, nvrt_a), super_index(nocc_b, nvrt_b)]
-    for m, i, a in ind[0]:
-        for n, j, b in ind[1]:
-            reshaped_t2[m, n] = t2ab[i, j, a, b]
-    U, s, Vh = scipy.linalg.svd(reshaped_t2, full_matrices=False)
-    # print("svd check ", np.abs(X_mat - np.einsum("mx,x,xn->mn", U, s, Vh)).max())
-    cut = np.where(np.abs(s) > tol)[0]
-    U, s, Vh = U[:, cut], s[cut], Vh[cut, :]
-    nsvd = len(s)
-    print("svd check ", np.abs(reshaped_t2 - np.einsum("mx,x,xn->mn", U, s, Vh)).max())
-    U_mat = np.zeros((2 * norb, 2 * norb, nsvd))
-    V_mat = np.zeros((2 * norb, 2 * norb, nsvd))
-    for mu in range(nsvd):
-        for m, i, a in ind[0]:
-            U_mat[vrt_a[a], occ_a[i], mu] = U[m, mu] * np.sqrt(s[mu])
-        for n, j, b in ind[1]:
-            V_mat[vrt_b[b], occ_b[j], mu] = Vh[mu, n] * np.sqrt(s[mu])
-    one_body_tensors = np.zeros((norb, norb, 2, 2, 2, nsvd), dtype=complex)
-    coeffs = np.zeros((2, 2, nsvd))
-    for m in range(nsvd):
-        for q in range(2):
-            X_q = U_mat[:, :, m] + V_mat[:, :, m] * (-1) ** q
-            for p in range(2):
-                QUAD_Xq_p = quadrature(X_q, p)
-                coeffs[p, q, m] = (-1) ** p * (-1) ** q / 4.0
-                one_body_tensors[:, :, 0, p, q, m] = QUAD_Xq_p[np.ix_(orbs_a, orbs_a)]
-                one_body_tensors[:, :, 1, p, q, m] = QUAD_Xq_p[np.ix_(orbs_b, orbs_b)]
-    return one_body_tensors, coeffs
+    occ_a, vrt_a = np.meshgrid(range(nocc_a), range(nvrt_a), indexing="ij")
+    occ_b, vrt_b = np.meshgrid(range(nocc_b), range(nvrt_b), indexing="ij")
+    occ_a = occ_a.reshape(-1)
+    vrt_a = vrt_a.reshape(-1)
+    occ_b = occ_b.reshape(-1)
+    vrt_b = vrt_b.reshape(-1)
+    t2_mat = t2_amplitudes[
+        occ_a[:, None], occ_b[None, :], vrt_a[:, None], vrt_b[None, :]
+    ]
+
+    left_vecs, singular_vals, right_vecs = _truncated_svd(
+        t2_mat, tol=tol, max_vecs=max_vecs
+    )
+    n_vecs = len(singular_vals)
+
+    one_body_tensors = np.zeros((n_vecs, 2, 2, 2, norb, norb), dtype=complex)
+    for left_vec, right_vec, these_one_body_tensors in zip(
+        left_vecs.T, right_vecs, one_body_tensors
+    ):
+        left_mat = np.zeros((norb, norb))
+        col, row = zip(*itertools.product(range(nocc_a), range(nocc_a, norb)))
+        left_mat[row, col] = left_vec
+        right_mat = np.zeros((norb, norb))
+        col, row = zip(*itertools.product(range(nocc_b), range(nocc_b, norb)))
+        right_mat[row, col] = right_vec
+        these_one_body_tensors[0, :, 0] = _quadrature(left_mat, 1)
+        these_one_body_tensors[0, 0, 1] = _quadrature(right_mat, 1)
+        these_one_body_tensors[0, 1, 1] = _quadrature(-right_mat, 1)
+        these_one_body_tensors[1, :, 0] = _quadrature(left_mat, -1)
+        these_one_body_tensors[1, 0, 1] = _quadrature(right_mat, -1)
+        these_one_body_tensors[1, 1, 1] = _quadrature(-right_mat, -1)
+    one_body_tensors = one_body_tensors.reshape((n_vecs, 4, 2, norb, norb))
+
+    eigs, orbital_rotations = np.linalg.eigh(one_body_tensors)
+    eigs = np.concatenate([eigs[:, :, 0], eigs[:, :, 1]], axis=-1)
+    coeffs = 0.25 * np.array([1, -1, -1, 1]) * singular_vals[:, None]
+    big_diag_coulomb_mats = (
+        coeffs[:, :, None, None] * eigs[:, :, :, None] * eigs[:, :, None, :]
+    )
+    mats_aa = big_diag_coulomb_mats[:, :, :norb, :norb]
+    mats_ab = big_diag_coulomb_mats[:, :, :norb, norb:]
+    mats_bb = big_diag_coulomb_mats[:, :, norb:, norb:]
+    diag_coulomb_mats = np.stack([mats_aa, mats_ab, mats_bb], axis=2)
+
+    return diag_coulomb_mats, orbital_rotations
 
 
-def super_index(occ, vir):
-    L = [(i, a) for i in range(occ) for a in range(vir)]
-    return [(m, i, a) for m, (i, a) in enumerate(L)]
-
-
-def quadrature(X, p):
-    Q = (1.0 - 1j * (-1) ** p) / 2.0 * (X + 1j * np.conj(X.T) * (-1) ** p)
-    return Q
+def _quadrature(mat: np.ndarray, sign: int):
+    return 0.5 * (1 - sign * 1j) * (mat + sign * 1j * mat.T.conj())
