@@ -69,16 +69,16 @@ def fermi_hubbard_1d(
         if nearest_neighbor_interaction and (orb != norb - 1 or periodic):
             coeffs[
                 cre_a(orb), des_a(orb), cre_a((orb + 1) % norb), des_a((orb + 1) % norb)
-            ] = nearest_neighbor_interaction
+            ] += nearest_neighbor_interaction
             coeffs[
                 cre_a(orb), des_a(orb), cre_b((orb + 1) % norb), des_b((orb + 1) % norb)
-            ] = nearest_neighbor_interaction
+            ] += nearest_neighbor_interaction
             coeffs[
                 cre_b(orb), des_b(orb), cre_a((orb + 1) % norb), des_a((orb + 1) % norb)
-            ] = nearest_neighbor_interaction
+            ] += nearest_neighbor_interaction
             coeffs[
                 cre_b(orb), des_b(orb), cre_b((orb + 1) % norb), des_b((orb + 1) % norb)
-            ] = nearest_neighbor_interaction
+            ] += nearest_neighbor_interaction
         if interaction:
             coeffs[cre_a(orb), des_a(orb), cre_b(orb), des_b(orb)] = interaction
         if chemical_potential:
@@ -158,29 +158,29 @@ def fermi_hubbard_2d(
                 coeffs[cre_b(orb_up), des_b(orb)] -= tunneling
         if nearest_neighbor_interaction:
             if x != norb_x - 1 or periodic:
-                coeffs[cre_a(orb), des_a(orb), cre_a(orb_right), des_a(orb_right)] = (
+                coeffs[cre_a(orb), des_a(orb), cre_a(orb_right), des_a(orb_right)] += (
                     nearest_neighbor_interaction
                 )
-                coeffs[cre_a(orb), des_a(orb), cre_b(orb_right), des_b(orb_right)] = (
+                coeffs[cre_a(orb), des_a(orb), cre_b(orb_right), des_b(orb_right)] += (
                     nearest_neighbor_interaction
                 )
-                coeffs[cre_b(orb), des_b(orb), cre_a(orb_right), des_a(orb_right)] = (
+                coeffs[cre_b(orb), des_b(orb), cre_a(orb_right), des_a(orb_right)] += (
                     nearest_neighbor_interaction
                 )
-                coeffs[cre_b(orb), des_b(orb), cre_b(orb_right), des_b(orb_right)] = (
+                coeffs[cre_b(orb), des_b(orb), cre_b(orb_right), des_b(orb_right)] += (
                     nearest_neighbor_interaction
                 )
             if y != norb_y - 1 or periodic:
-                coeffs[cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up)] = (
+                coeffs[cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up)] += (
                     nearest_neighbor_interaction
                 )
-                coeffs[cre_a(orb), des_a(orb), cre_b(orb_up), des_b(orb_up)] = (
+                coeffs[cre_a(orb), des_a(orb), cre_b(orb_up), des_b(orb_up)] += (
                     nearest_neighbor_interaction
                 )
-                coeffs[cre_b(orb), des_b(orb), cre_a(orb_up), des_a(orb_up)] = (
+                coeffs[cre_b(orb), des_b(orb), cre_a(orb_up), des_a(orb_up)] += (
                     nearest_neighbor_interaction
                 )
-                coeffs[cre_b(orb), des_b(orb), cre_b(orb_up), des_b(orb_up)] = (
+                coeffs[cre_b(orb), des_b(orb), cre_b(orb_up), des_b(orb_up)] += (
                     nearest_neighbor_interaction
                 )
         if interaction:
