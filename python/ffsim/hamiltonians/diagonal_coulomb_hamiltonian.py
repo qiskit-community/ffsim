@@ -59,6 +59,12 @@ class DiagonalCoulombHamiltonian:
 
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
+        if np.iscomplexobj(self.diag_coulomb_mat):
+            raise NotImplementedError(
+                "This Hamiltonian has a complex-valued diagonal Coulomb matrix. "
+                "LinearOperator support for complex diagonal Coulomb matrices is not yet "
+                "implemented. See https://github.com/qiskit-community/ffsim/issues/81."
+            )
         n_alpha, n_beta = nelec
         linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
         linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
@@ -66,10 +72,7 @@ class DiagonalCoulombHamiltonian:
 
         two_body = absorb_h1e(
             self.one_body_tensor.real, self.diag_coulomb_mat, norb, nelec, 0.5
-        )  # Modify 2e Hamiltonian to include 1e Hamiltonian contribution.
-
-        # two_body = self.diag_coulomb_mat
-
+        )
         dim_ = dim(norb, nelec)
 
         def matvec(vec: np.ndarray):
@@ -86,9 +89,6 @@ class DiagonalCoulombHamiltonian:
             result += 1j * contract_2e(
                 two_body, vec.imag, norb, nelec, link_index=link_index
             )
-
-            # matrix = self.one_body_tensor + self.constant * np.eye(norb)
-
             return result
 
         return LinearOperator(
@@ -107,7 +107,7 @@ class DiagonalCoulombHamiltonian:
                 }
             )
         for p, q in itertools.product(range(self.norb), repeat=2):
-            coeff = 0.5 * self.diag_coulomb_mat[p, q]
+            coeff = 0.5 * self.diag_coulomb_mat[p, p, q, q]
             op += FermionOperator(
                 {
                     (cre_a(p), cre_a(q), des_a(q), des_a(p)): coeff,
@@ -137,8 +137,10 @@ class DiagonalCoulombHamiltonian:
                 orb_list.append(orb)
         norb = max(orb_list) + 1
 
+        # initialize variables
+        constant = 0
         one_body_tensor = np.zeros((norb, norb), dtype=complex)
-        diag_coulomb_mat = np.zeros((norb, norb), dtype=complex)
+        diag_coulomb_mat = np.zeros((norb, norb, norb, norb), dtype=float)
 
         # populate tensors
         for p, q in itertools.product(range(norb), repeat=2):
@@ -156,19 +158,28 @@ class DiagonalCoulombHamiltonian:
                 (cre_b(p), cre_b(q), des_b(q), des_b(p)),
                 (cre_b(q), cre_b(p), des_b(q), des_b(p)),  # rearrangement
             ]
-            # excluded terms
-            excluded_list = [
-                (cre_b(p), des_a(q)),
-                (cre_a(p), des_b(q)),
-            ]
             for key in dict(op_norm):
+                if key == ():
+                    constant = dict_op[key]
                 if key in one_body_list:
                     one_body_tensor[p, q] += 0.5 * dict_op.pop(key)
                 if key in diag_coulomb_list:
-                    diag_coulomb_mat[p, q] += 0.5 * dict_op.pop(key)
-                if key in excluded_list:
-                    del dict_op[key]
+                    diag_coulomb_mat[p, p, q, q] = -np.real(dict_op.pop(key))
 
+        # remove constant term
+        if () in dict_op:
+            del dict_op[()]
+
+        # remove excluded terms
+        excluded_list = [
+            (cre_b(p), des_a(q)),
+            (cre_a(p), des_b(q)),
+        ]
+        for key in excluded_list:
+            if key in dict_op:
+                del dict_op[key]
+
+        # check for incompatible terms
         if dict_op:
             print(f"Incompatible terms = {dict_op}")
             raise ValueError(
@@ -178,5 +189,5 @@ class DiagonalCoulombHamiltonian:
         return DiagonalCoulombHamiltonian(
             one_body_tensor=one_body_tensor,
             diag_coulomb_mat=diag_coulomb_mat,
-            constant=0,
+            constant=constant,
         )
