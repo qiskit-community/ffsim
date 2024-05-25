@@ -26,14 +26,6 @@ fn _lib(_py: Python, m: &PyModule) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        gates::orbital_rotation::gen_orbital_rotation_index_in_place,
-        m
-    )?)?;
-    m.add_function(wrap_pyfunction!(
-        gates::orbital_rotation::apply_single_column_transformation_in_place,
-        m
-    )?)?;
-    m.add_function(wrap_pyfunction!(
         gates::num_op_sum::apply_num_op_sum_evolution_in_place,
         m
     )?)?;
