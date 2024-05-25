@@ -21,6 +21,7 @@ from ffsim.states.states import (
     slater_determinant,
     slater_determinant_rdm,
     spin_square,
+    strings_to_indices,
 )
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
@@ -37,4 +38,5 @@ __all__ = [
     "slater_determinant",
     "slater_determinant_rdm",
     "spin_square",
+    "strings_to_indices",
 ]

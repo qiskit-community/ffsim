@@ -34,23 +34,6 @@ def apply_phase_shift_in_place(
 def apply_givens_rotation_in_place(
     vec: np.ndarray, c: float, s: complex, slice1: np.ndarray, slice2: np.ndarray
 ) -> None: ...
-def gen_orbital_rotation_index_in_place(
-    norb: int,
-    nocc: int,
-    linkstr_index: np.ndarray,
-    diag_strings: np.ndarray,
-    off_diag_strings: np.ndarray,
-    off_diag_strings_index: np.ndarray,
-    off_diag_index: np.ndarray,
-) -> None: ...
-def apply_single_column_transformation_in_place(
-    vec: np.ndarray,
-    column: np.ndarray,
-    diag_val: complex,
-    diag_strings: np.ndarray,
-    off_diag_strings: np.ndarray,
-    off_diag_index: np.ndarray,
-) -> None: ...
 def apply_num_op_sum_evolution_in_place(
     vec: np.ndarray,
     phases: np.ndarray,

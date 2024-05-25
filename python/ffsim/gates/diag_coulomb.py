@@ -86,16 +86,13 @@ def apply_diag_coulomb_evolution(
     dim_b = math.comb(norb, n_beta)
 
     if orbital_rotation is not None:
-        vec, perm0 = apply_orbital_rotation(
+        vec = apply_orbital_rotation(
             vec,
             orbital_rotation.T.conj(),
             norb,
             nelec,
-            allow_row_permutation=True,
             copy=False,
         )
-        mat = perm0 @ mat @ perm0.T
-        mat_alpha_beta = perm0 @ mat_alpha_beta @ perm0.T
 
     mat_exp = mat.copy()
     mat_alpha_beta_exp = cast(np.ndarray, mat_alpha_beta).copy()
@@ -134,14 +131,12 @@ def apply_diag_coulomb_evolution(
     vec = vec.reshape(-1)
 
     if orbital_rotation is not None:
-        vec, perm1 = apply_orbital_rotation(
+        vec = apply_orbital_rotation(
             vec,
             orbital_rotation,
             norb,
             nelec,
-            allow_col_permutation=True,
             copy=False,
         )
-        np.testing.assert_allclose(perm0, perm1.T)
 
     return vec

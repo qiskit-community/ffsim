@@ -189,15 +189,12 @@ def diag_coulomb_linop(
         this_mat = mat
         this_mat_alpha_beta = mat_alpha_beta
         if orbital_rotation is not None:
-            vec, perm0 = apply_orbital_rotation(
+            vec = apply_orbital_rotation(
                 vec,
                 orbital_rotation.T.conj(),
                 norb,
                 nelec,
-                allow_row_permutation=True,
             )
-            this_mat = perm0 @ mat @ perm0.T
-            this_mat_alpha_beta = perm0 @ mat_alpha_beta @ perm0.T
         vec = contract_diag_coulomb(
             vec,
             this_mat,
@@ -207,15 +204,13 @@ def diag_coulomb_linop(
             z_representation=z_representation,
         )
         if orbital_rotation is not None:
-            vec, perm1 = apply_orbital_rotation(
+            vec = apply_orbital_rotation(
                 vec,
                 orbital_rotation,
                 norb,
                 nelec,
-                allow_col_permutation=True,
                 copy=False,
             )
-            np.testing.assert_allclose(perm0, perm1.T)
         return vec
 
     return scipy.sparse.linalg.LinearOperator(

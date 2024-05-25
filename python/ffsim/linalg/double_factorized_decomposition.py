@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import scipy.linalg
 import scipy.optimize
@@ -76,7 +78,7 @@ def modified_cholesky(
                 cholesky_vecs[:, 0:index]
                 @ cholesky_vecs[max_error_index, 0:index].conj()
             )
-        cholesky_vecs[:, index] /= np.sqrt(max_error)
+        cholesky_vecs[:, index] /= math.sqrt(max_error)
         errors -= np.abs(cholesky_vecs[:, index]) ** 2
 
     return cholesky_vecs[:, :index]
