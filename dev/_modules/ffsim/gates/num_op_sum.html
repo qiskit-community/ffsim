@@ -301,20 +301,33 @@
 <span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="n">apply_num_op_sum_evolution_in_place</span>
 <span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">gen_occslst</span>
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
-<span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
+
+
+<span class="k">def</span> <span class="nf">_conjugate_orbital_rotation</span><span class="p">(</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+    <span class="k">if</span> <span class="n">orbital_rotation_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">orbital_rotation_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="apply_num_op_sum_evolution">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.apply_num_op_sum_evolution">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_num_op_sum_evolution</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply time evolution by a (rotated) linear combination of number operators.</span>
@@ -324,7 +337,7 @@
 <span class="sd">    .. math::</span>
 
 <span class="sd">        \mathcal{U}</span>
-<span class="sd">        \exp\left(-i t \sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)</span>
+<span class="sd">        \exp\left(-i t \sum_{\sigma, i} \lambda^{(\sigma)}_i n_{\sigma, i}\right)</span>
 <span class="sd">        \mathcal{U}^\dagger</span>
 
 <span class="sd">    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`</span>
@@ -334,16 +347,22 @@
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
 <span class="sd">        coeffs: The coefficients of the linear combination.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the coefficients</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent coefficients for spin alpha and spin beta.</span>
+<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to that</span>
+<span class="sd">            spin sector.</span>
 <span class="sd">        time: The evolution time.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
-<span class="sd">        spin: Choice of spin sector(s) to act on.</span>
-
-<span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
-<span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
-<span class="sd">            - To act on both spin alpha and spin beta, pass</span>
-<span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
-<span class="sd">        orbital_rotation: A unitary matrix describing the optional orbital rotation.</span>
+<span class="sd">        orbital_rotation: The optional orbital rotation.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to that</span>
+<span class="sd">            spin sector.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
 
 <span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
@@ -359,15 +378,12 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: ``coeffs`` must be a one-dimensional vector with length ``norb``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">norb</span><span class="p">,):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;coeffs must be a one-dimensional vector with length norb. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Got norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2"> but coeffs had shape </span><span class="si">{</span><span class="n">coeffs</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+    <span class="n">_validate_coeffs</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">norb</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
+    <span class="n">phases_a</span><span class="p">,</span> <span class="n">phases_b</span> <span class="o">=</span> <span class="n">_get_phases</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
     <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
@@ -377,23 +393,20 @@
     <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span>
-            <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="n">_conjugate_orbital_rotation</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">),</span>
             <span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="p">,</span>
-            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
             <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">coeffs</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">phases_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># apply alpha</span>
-        <span class="n">apply_num_op_sum_evolution_in_place</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="n">occupations</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">:</span>
+        <span class="n">apply_num_op_sum_evolution_in_place</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">phases_a</span><span class="p">,</span> <span class="n">occupations</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">phases_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># apply beta</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span>
-        <span class="n">apply_num_op_sum_evolution_in_place</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="n">occupations</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">)</span>
+        <span class="n">apply_num_op_sum_evolution_in_place</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">phases_b</span><span class="p">,</span> <span class="n">occupations</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
@@ -403,12 +416,53 @@
             <span class="n">orbital_rotation</span><span class="p">,</span>
             <span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="p">,</span>
-            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
             <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">vec</span></div>
 
+
+
+<span class="k">def</span> <span class="nf">_validate_coeffs</span><span class="p">(</span>
+    <span class="n">coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">norb</span><span class="p">,):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;coeffs must be a one-dimensional vector with length norb. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2"> but coeffs had shape </span><span class="si">{</span><span class="n">coeffs</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coeffs_a</span><span class="p">,</span> <span class="n">coeffs_b</span> <span class="o">=</span> <span class="n">coeffs</span>
+        <span class="k">if</span> <span class="n">coeffs_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coeffs_a</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">norb</span><span class="p">,):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;coeffs must be a one-dimensional vector with length norb. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2"> but coeffs for spin alpha had shape &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">coeffs_a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">coeffs_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coeffs_b</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">norb</span><span class="p">,):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;coeffs must be a one-dimensional vector with length norb. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2"> but coeffs for spin beta had shape &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">coeffs_b</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_phases</span><span class="p">(</span>
+    <span class="n">coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">coeffs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">phases</span><span class="p">,</span> <span class="n">phases</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coeffs_a</span><span class="p">,</span> <span class="n">coeffs_b</span> <span class="o">=</span> <span class="n">coeffs</span>
+        <span class="n">phases_a</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">phases_b</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">coeffs_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">phases_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">coeffs_a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coeffs_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">phases_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">coeffs_b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">phases_a</span><span class="p">,</span> <span class="n">phases_b</span>
 </pre></div>
         </article>
       </div>
