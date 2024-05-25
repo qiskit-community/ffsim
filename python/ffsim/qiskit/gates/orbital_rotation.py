@@ -65,10 +65,10 @@ class OrbitalRotationJW(Gate):
 
         Args:
             norb: The number of spatial orbitals.
-            orbital_rotation: The orbital rotation. You can pass either a
-                single Numpy array specifying the orbital rotation to apply to both
-                spin sectors, or you can pass a pair of Numpy arrays to specify
-                independent orbital rotations for spin alpha and spin beta.
+            orbital_rotation: The orbital rotation.
+                You can pass either a single Numpy array specifying the orbital rotation
+                to apply to both spin sectors, or you can pass a pair of Numpy arrays
+                specifying independent orbital rotations for spin alpha and spin beta.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
