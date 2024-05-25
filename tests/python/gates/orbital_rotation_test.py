@@ -21,6 +21,7 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
+from ffsim.spin import pair_for_spin
 from ffsim.states import slater_determinant
 
 
@@ -71,7 +72,9 @@ def test_apply_orbital_rotation_random(
         mat = ffsim.random.random_unitary(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim, seed=rng)
 
-        result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec, spin=spin)
+        result = ffsim.apply_orbital_rotation(
+            vec, pair_for_spin(mat, spin), norb, nelec
+        )
         if norb:
             generator = _orbital_rotation_generator(scipy.linalg.logm(mat), spin)
             op = ffsim.linear_operator(generator, norb=norb, nelec=nelec)

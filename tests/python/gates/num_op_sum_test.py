@@ -18,6 +18,7 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
+from ffsim.spin import pair_for_spin
 
 
 def test_apply_num_op_sum_evolution():
@@ -38,7 +39,7 @@ def test_apply_num_op_sum_evolution():
 
     for spin in ffsim.Spin:
         result = ffsim.apply_num_op_sum_evolution(
-            state, coeffs, time, norb, nelec, spin
+            state, pair_for_spin(coeffs, spin), time, norb, nelec
         )
 
         eig = 0

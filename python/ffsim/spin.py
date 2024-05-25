@@ -10,7 +10,10 @@
 
 """Enumeration for indicating alpha, beta, or both spins."""
 
+from __future__ import annotations
+
 from enum import Flag, auto
+from typing import TypeVar
 
 
 class Spin(Flag):
@@ -24,3 +27,20 @@ class Spin(Flag):
 
     ALPHA_AND_BETA = ALPHA | BETA
     """Use this to indicate both spin alpha and spin beta."""
+
+
+T = TypeVar("T")
+
+
+def pair_for_spin(obj: T, spin: Spin) -> tuple[T | None, T | None]:
+    """Create a pair of objects for a given spin setting.
+
+    Given an object, return a pair where each element of the pair is either the object
+    or `None`, depending on the specified `spin`. The first element of the pair
+    corresponds to spin alpha and the second corresponds to spin beta.
+    """
+    if spin is Spin.ALPHA:
+        return (obj, None)
+    if spin is Spin.BETA:
+        return (None, obj)
+    return (obj, obj)
