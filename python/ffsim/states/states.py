@@ -21,7 +21,6 @@ from pyscf.fci import cistring
 from pyscf.fci.spin_op import contract_ss
 
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
-from ffsim.spin import Spin
 
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
@@ -73,7 +72,9 @@ def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
 def slater_determinant(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None,
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
 ) -> np.ndarray:
     r"""Return a Slater determinant.
 
@@ -93,10 +94,13 @@ def slater_determinant(
             This is a pair of lists of integers, where the first list specifies the
             spin alpha orbitals and the second list specifies the spin beta
             orbitals.
-        orbital_rotation: The optional orbital rotation. You can pass either a
-            single Numpy array specifying the orbital rotation to apply to both
-            spin sectors, or you can pass a pair of Numpy arrays to specify
-            independent orbital rotations for spin alpha and spin beta.
+        orbital_rotation: The optional orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to that
+            spin sector.
 
     Returns:
         The Slater determinant as a statevector.
@@ -119,28 +123,9 @@ def slater_determinant(
     beta_index = cistring.str2addr(norb, n_beta, beta_string)
     vec = one_hot((dim1, dim2), (alpha_index, beta_index), dtype=complex).reshape(-1)
     if orbital_rotation is not None:
-        if isinstance(orbital_rotation, np.ndarray):
-            vec = apply_orbital_rotation(
-                vec, orbital_rotation, norb=norb, nelec=nelec, copy=False
-            )
-        else:
-            orbital_rotation_a, orbital_rotation_b = orbital_rotation
-            vec = apply_orbital_rotation(
-                vec,
-                orbital_rotation_a,
-                norb=norb,
-                nelec=nelec,
-                spin=Spin.ALPHA,
-                copy=False,
-            )
-            vec = apply_orbital_rotation(
-                vec,
-                orbital_rotation_b,
-                norb=norb,
-                nelec=nelec,
-                spin=Spin.BETA,
-                copy=False,
-            )
+        vec = apply_orbital_rotation(
+            vec, orbital_rotation, norb=norb, nelec=nelec, copy=False
+        )
     return vec
 
 
@@ -163,7 +148,9 @@ def hartree_fock_state(norb: int, nelec: tuple[int, int]) -> np.ndarray:
 def slater_determinant_rdm(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None,
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
     rank: int = 1,
     spin_summed: bool = True,
 ) -> np.ndarray:
@@ -178,10 +165,13 @@ def slater_determinant_rdm(
             This is a pair of lists of integers, where the first list specifies the
             spin alpha orbitals and the second list specifies the spin beta
             orbitals.
-        orbital_rotation: The optional orbital rotation. You can pass either a
-            single Numpy array specifying the orbital rotation to apply to both
-            spin sectors, or you can pass a pair of Numpy arrays to specify
-            independent orbital rotations for spin alpha and spin beta.
+        orbital_rotation: The optional orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to that
+            spin sector.
         rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the
             one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.
         spin_summed: Whether to sum over the spin index.
@@ -202,12 +192,14 @@ def slater_determinant_rdm(
             rdm_b[(beta_orbitals, beta_orbitals)] = 1
         if orbital_rotation is not None:
             if isinstance(orbital_rotation, np.ndarray):
-                orbital_rotation_a = orbital_rotation
-                orbital_rotation_b = orbital_rotation
+                orbital_rotation_a: np.ndarray | None = orbital_rotation
+                orbital_rotation_b: np.ndarray | None = orbital_rotation
             else:
                 orbital_rotation_a, orbital_rotation_b = orbital_rotation
-            rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
-            rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
+            if orbital_rotation_a is not None:
+                rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
+            if orbital_rotation_b is not None:
+                rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
         if spin_summed:
             return rdm_a + rdm_b
         return scipy.linalg.block_diag(rdm_a, rdm_b)

@@ -19,7 +19,7 @@ from collections.abc import Sequence
 import numpy as np
 
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
-from ffsim.spin import Spin
+from ffsim.spin import Spin, pair_for_spin
 
 
 def _apply_phase_shift(
@@ -109,7 +109,7 @@ def apply_givens_rotation(
     mat = np.eye(norb)
     mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
     return apply_orbital_rotation(
-        vec, mat, norb=norb, nelec=nelec, spin=spin, copy=copy
+        vec, pair_for_spin(mat, spin=spin), norb=norb, nelec=nelec, copy=copy
     )
 
 
