@@ -65,10 +65,10 @@ def test_random_orbital_rotation_diff_rotation(norb: int, nelec: tuple[int, int]
         )
 
         expected = ffsim.apply_orbital_rotation(
-            small_vec, mat_a, norb=norb, nelec=nelec, spin=ffsim.Spin.ALPHA
+            small_vec, (mat_a, None), norb=norb, nelec=nelec
         )
         expected = ffsim.apply_orbital_rotation(
-            expected, mat_b, norb=norb, nelec=nelec, spin=ffsim.Spin.BETA
+            expected, (None, mat_b), norb=norb, nelec=nelec
         )
 
         np.testing.assert_allclose(result, expected)
