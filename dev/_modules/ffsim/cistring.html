@@ -294,13 +294,10 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
-
-<span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="n">gen_orbital_rotation_index_in_place</span>
 
 
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -321,55 +318,6 @@
     <span class="k">return</span> <span class="n">cistring</span><span class="o">.</span><span class="n">gen_linkstr_index</span><span class="p">(</span><span class="n">orbitals</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span>
 
 
-<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">gen_orbital_rotation_index</span><span class="p">(</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate string index used for performing orbital rotations.</span>
-
-<span class="sd">    Returns a tuple (diag_strings, off_diag_strings, off_diag_index)</span>
-<span class="sd">    of three Numpy arrays.</span>
-
-<span class="sd">    diag_strings is a norb x binom(norb - 1, nocc - 1) array.</span>
-<span class="sd">    The i-th row of this array contains all the strings with orbital i occupied.</span>
-
-<span class="sd">    off_diag_strings is a norb x binom(norb - 1, nocc) array.</span>
-<span class="sd">    The i-th row of this array contains all the strings with orbital i unoccupied.</span>
-
-<span class="sd">    off_diag_index is a norb x binom(norb - 1, nocc) x nocc x 3 array.</span>
-<span class="sd">    The first two axes of this array are in one-to-one correspondence with</span>
-<span class="sd">    off_diag_strings. For a fixed choice (i, str0) for the first two axes,</span>
-<span class="sd">    the last two axes form a nocc x 3 array. Each row of this array is a tuple</span>
-<span class="sd">    (j, str1, sign) where str1 is formed by annihilating orbital j in str0 and creating</span>
-<span class="sd">    orbital i, with sign giving the fermionic parity of this operation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">nocc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">diag_strings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">)</span>
-        <span class="n">off_diag_strings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">)</span>
-        <span class="n">off_diag_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">diag_strings</span><span class="p">,</span> <span class="n">off_diag_strings</span><span class="p">,</span> <span class="n">off_diag_index</span>
-
-    <span class="n">linkstr_index</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">nocc</span><span class="p">)</span>
-    <span class="n">dim_diag</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nocc</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">dim_off_diag</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="n">dim_diag</span> <span class="o">+</span> <span class="n">dim_off_diag</span>
-    <span class="n">diag_strings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">dim_diag</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">)</span>
-    <span class="n">off_diag_strings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">dim_off_diag</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">)</span>
-    <span class="c1"># TODO should this be int64? pyscf uses int32 for linkstr_index though</span>
-    <span class="n">off_diag_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">dim_off_diag</span><span class="p">,</span> <span class="n">nocc</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-    <span class="n">off_diag_strings_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint</span><span class="p">)</span>
-    <span class="n">gen_orbital_rotation_index_in_place</span><span class="p">(</span>
-        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-        <span class="n">nocc</span><span class="o">=</span><span class="n">nocc</span><span class="p">,</span>
-        <span class="n">linkstr_index</span><span class="o">=</span><span class="n">linkstr_index</span><span class="p">,</span>
-        <span class="n">diag_strings</span><span class="o">=</span><span class="n">diag_strings</span><span class="p">,</span>
-        <span class="n">off_diag_strings</span><span class="o">=</span><span class="n">off_diag_strings</span><span class="p">,</span>
-        <span class="n">off_diag_strings_index</span><span class="o">=</span><span class="n">off_diag_strings_index</span><span class="p">,</span>
-        <span class="n">off_diag_index</span><span class="o">=</span><span class="n">off_diag_index</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">diag_strings</span><span class="p">,</span> <span class="n">off_diag_strings</span><span class="p">,</span> <span class="n">off_diag_index</span>
-
-
 <div class="viewcode-block" id="init_cache">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.init_cache">[docs]</a>
 <span class="k">def</span> <span class="nf">init_cache</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -387,8 +335,7 @@
     <span class="k">for</span> <span class="n">nocc</span> <span class="ow">in</span> <span class="n">nelec</span><span class="p">:</span>
         <span class="n">make_strings</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">nocc</span><span class="p">)</span>
         <span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">nocc</span><span class="p">)</span>
-        <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">nocc</span><span class="p">)</span>
-        <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span></div>
+        <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">nocc</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
