@@ -91,16 +91,14 @@ def apply_num_op_sum_evolution(
     occupations_b = gen_occslst(range(norb), n_beta)
 
     if orbital_rotation is not None:
-        vec, perm0 = apply_orbital_rotation(
+        vec = apply_orbital_rotation(
             vec,
             orbital_rotation.T.conj(),
             norb,
             nelec,
             spin=spin,
-            allow_row_permutation=True,
             copy=False,
         )
-        coeffs = perm0 @ coeffs
 
     phases = np.exp(-1j * time * coeffs)
     vec = vec.reshape((dim_a, dim_b))
@@ -116,15 +114,13 @@ def apply_num_op_sum_evolution(
     vec = vec.reshape(-1)
 
     if orbital_rotation is not None:
-        vec, perm1 = apply_orbital_rotation(
+        vec = apply_orbital_rotation(
             vec,
             orbital_rotation,
             norb,
             nelec,
             spin=spin,
-            allow_col_permutation=True,
             copy=False,
         )
-        np.testing.assert_allclose(perm1.T, perm0)
 
     return vec
