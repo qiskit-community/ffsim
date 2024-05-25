@@ -296,59 +296,17 @@
 
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
 
 <span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
 <span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">apply_givens_rotation_in_place</span><span class="p">,</span>
     <span class="n">apply_phase_shift_in_place</span><span class="p">,</span>
-    <span class="n">apply_single_column_transformation_in_place</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">gen_orbital_rotation_index</span>
-<span class="kn">from</span> <span class="nn">ffsim.linalg</span> <span class="kn">import</span> <span class="n">givens_decomposition</span><span class="p">,</span> <span class="n">lup</span>
+<span class="kn">from</span> <span class="nn">ffsim.linalg</span> <span class="kn">import</span> <span class="n">givens_decomposition</span>
 <span class="kn">from</span> <span class="nn">ffsim.spin</span> <span class="kn">import</span> <span class="n">Spin</span>
-
-
-<span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">apply_orbital_rotation</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
-
-
-<span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">apply_orbital_rotation</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">allow_row_permutation</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span> <span class="o">...</span>
-
-
-<span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">apply_orbital_rotation</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">allow_col_permutation</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span> <span class="o">...</span>
 
 
 <div class="viewcode-block" id="apply_orbital_rotation">
@@ -360,13 +318,11 @@
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">allow_row_permutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">allow_col_permutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
     <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply an orbital rotation to a vector.</span>
 
 <span class="sd">    An orbital rotation maps creation operators as</span>
@@ -394,10 +350,6 @@
 <span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
 <span class="sd">            - To act on both spin alpha and spin beta, pass</span>
 <span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
-<span class="sd">        allow_row_permutation: Whether to allow a permutation of the rows</span>
-<span class="sd">            of the orbital rotation matrix.</span>
-<span class="sd">        allow_col_permutation: Whether to allow a permutation of the columns</span>
-<span class="sd">            of the orbital rotation matrix.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
 
 <span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
@@ -412,116 +364,17 @@
 <span class="sd">        atol: Absolute numerical tolerance for input validation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The transformed vector. If a row or column permutation was allowed,</span>
-<span class="sd">        the permutation matrix ``P`` is returned as well.</span>
-<span class="sd">        If a row permutation was allowed, then the transformation</span>
-<span class="sd">        actually effected is given by the matrix ``P @ mat``. If a column</span>
-<span class="sd">        permutation was allowed, then it is ``mat @ P``.</span>
+<span class="sd">        The transformed vector.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If both `allow_row_permutation` and `allow_col_permutation`</span>
-<span class="sd">            are set to True. Only one of these can be set to True, not both.</span>
 <span class="sd">        ValueError: The input matrix is not unitary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">allow_row_permutation</span> <span class="ow">and</span> <span class="n">allow_col_permutation</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;You can choose to allow either row or column permutations, but not both.&quot;</span>
-        <span class="p">)</span>
     <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input orbital rotation matrix is not unitary.&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">allow_row_permutation</span> <span class="ow">or</span> <span class="n">allow_col_permutation</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_apply_orbital_rotation_lu</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">mat</span><span class="p">,</span>
-            <span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="p">,</span>
-            <span class="n">spin</span><span class="p">,</span>
-            <span class="n">permute_rows</span><span class="o">=</span><span class="n">allow_row_permutation</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_apply_orbital_rotation_givens</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">mat</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span></div>
-
-
-
-<span class="k">def</span> <span class="nf">_apply_orbital_rotation_lu</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span><span class="p">,</span>
-    <span class="n">permute_rows</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">norb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">permute_rows</span><span class="p">:</span>
-        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">perm</span> <span class="o">=</span> <span class="n">lup</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">perm</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lu</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
-    <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-    <span class="n">transformation_mat</span> <span class="o">=</span> <span class="n">eye</span> <span class="o">-</span> <span class="n">lower</span> <span class="o">+</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve_triangular</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">eye</span><span class="p">)</span>
-    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">orbital_rotation_index_a</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
-    <span class="n">orbital_rotation_index_b</span> <span class="o">=</span> <span class="n">gen_orbital_rotation_index</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
-    <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
-        <span class="c1"># transform alpha</span>
-        <span class="n">_apply_orbital_rotation_spin_in_place</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">transformation_mat</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index</span><span class="o">=</span><span class="n">orbital_rotation_index_a</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">:</span>
-        <span class="c1"># transform beta</span>
-        <span class="c1"># transpose vector to align memory layout</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">_apply_orbital_rotation_spin_in_place</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">transformation_mat</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">orbital_rotation_index</span><span class="o">=</span><span class="n">orbital_rotation_index_b</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">perm</span>
-
-
-<span class="k">def</span> <span class="nf">_apply_orbital_rotation_spin_in_place</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">transformation_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">orbital_rotation_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">diag_strings</span><span class="p">,</span> <span class="n">off_diag_strings</span><span class="p">,</span> <span class="n">off_diag_index</span> <span class="o">=</span> <span class="n">orbital_rotation_index</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">):</span>
-        <span class="n">apply_single_column_transformation_in_place</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">transformation_mat</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span>
-            <span class="n">diag_val</span><span class="o">=</span><span class="n">transformation_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span>
-            <span class="n">diag_strings</span><span class="o">=</span><span class="n">diag_strings</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-            <span class="n">off_diag_strings</span><span class="o">=</span><span class="n">off_diag_strings</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-            <span class="n">off_diag_index</span><span class="o">=</span><span class="n">off_diag_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-        <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_apply_orbital_rotation_givens</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span><span class="p">,</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">givens_rotations</span><span class="p">,</span> <span class="n">phase_shifts</span> <span class="o">=</span> <span class="n">givens_decomposition</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
-
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
     <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
@@ -550,7 +403,8 @@
             <span class="n">apply_phase_shift_in_place</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">phase_shift</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_apply_orbital_rotation_adjacent_spin_in_place</span><span class="p">(</span>

@@ -2165,7 +2165,7 @@ modified in-place.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_orbital_rotation">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_orbital_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_row_permutation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_col_permutation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol=1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol=1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/orbital_rotation.html#apply_orbital_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_orbital_rotation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_orbital_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol=1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol=1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/orbital_rotation.html#apply_orbital_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_orbital_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>Apply an orbital rotation to a vector.</p>
 <p>An orbital rotation maps creation operators as</p>
 <div class="math-wrapper docutils container">
@@ -2194,10 +2194,6 @@ transformation given by</p>
 <a class="reference internal" href="#ffsim.Spin.ALPHA_AND_BETA" title="ffsim.Spin.ALPHA_AND_BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA_AND_BETA</span></code></a> (this is the default value).</p></li>
 </ul>
 </p></li>
-<li><p><strong>allow_row_permutation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to allow a permutation of the rows
-of the orbital rotation matrix.</p></li>
-<li><p><strong>allow_col_permutation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to allow a permutation of the columns
-of the orbital rotation matrix.</p></li>
 <li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
 <ul>
 <li><p>If <cite>copy=True</cite> then this function always returns a newly allocated
@@ -2215,21 +2211,13 @@ if it isn’t.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The transformed vector. If a row or column permutation was allowed,
-the permutation matrix <code class="docutils literal notranslate"><span class="pre">P</span></code> is returned as well.
-If a row permutation was allowed, then the transformation
-actually effected is given by the matrix <code class="docutils literal notranslate"><span class="pre">P</span> <span class="pre">&#64;</span> <span class="pre">mat</span></code>. If a column
-permutation was allowed, then it is <code class="docutils literal notranslate"><span class="pre">mat</span> <span class="pre">&#64;</span> <span class="pre">P</span></code>.</p>
+<dd class="field-odd"><p>The transformed vector.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – If both <cite>allow_row_permutation</cite> and <cite>allow_col_permutation</cite>
-    are set to True. Only one of these can be set to True, not both.</p></li>
-<li><p><strong>ValueError</strong> – The input matrix is not unitary.</p></li>
-</ul>
+<dd class="field-even"><p><strong>ValueError</strong> – The input matrix is not unitary.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -476,15 +476,12 @@
         <span class="n">this_mat</span> <span class="o">=</span> <span class="n">mat</span>
         <span class="n">this_mat_alpha_beta</span> <span class="o">=</span> <span class="n">mat_alpha_beta</span>
         <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">vec</span><span class="p">,</span> <span class="n">perm0</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
                 <span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="p">,</span>
-                <span class="n">allow_row_permutation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">this_mat</span> <span class="o">=</span> <span class="n">perm0</span> <span class="o">@</span> <span class="n">mat</span> <span class="o">@</span> <span class="n">perm0</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">this_mat_alpha_beta</span> <span class="o">=</span> <span class="n">perm0</span> <span class="o">@</span> <span class="n">mat_alpha_beta</span> <span class="o">@</span> <span class="n">perm0</span><span class="o">.</span><span class="n">T</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">contract_diag_coulomb</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span>
             <span class="n">this_mat</span><span class="p">,</span>
@@ -494,15 +491,13 @@
             <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">vec</span><span class="p">,</span> <span class="n">perm1</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="p">,</span>
                 <span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="p">,</span>
-                <span class="n">allow_col_permutation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">perm0</span><span class="p">,</span> <span class="n">perm1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">vec</span>
 
     <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">(</span>
