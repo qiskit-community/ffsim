@@ -19,18 +19,31 @@ import numpy as np
 from ffsim._lib import apply_num_op_sum_evolution_in_place
 from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
-from ffsim.spin import Spin
+
+
+def _conjugate_orbital_rotation(
+    orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+) -> np.ndarray | tuple[np.ndarray | None, np.ndarray | None]:
+    if isinstance(orbital_rotation, np.ndarray):
+        return orbital_rotation.T.conj()
+    orbital_rotation_a, orbital_rotation_b = orbital_rotation
+    if orbital_rotation_a is not None:
+        orbital_rotation_a = orbital_rotation_a.T.conj()
+    if orbital_rotation_b is not None:
+        orbital_rotation_b = orbital_rotation_b.T.conj()
+    return (orbital_rotation_a, orbital_rotation_b)
 
 
 def apply_num_op_sum_evolution(
     vec: np.ndarray,
-    coeffs: np.ndarray,
+    coeffs: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
     time: float,
     norb: int,
     nelec: tuple[int, int],
-    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
-    orbital_rotation: np.ndarray | None = None,
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
     copy: bool = True,
 ) -> np.ndarray:
     r"""Apply time evolution by a (rotated) linear combination of number operators.
@@ -40,7 +53,7 @@ def apply_num_op_sum_evolution(
     .. math::
 
         \mathcal{U}
-        \exp\left(-i t \sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)
+        \exp\left(-i t \sum_{\sigma, i} \lambda^{(\sigma)}_i n_{\sigma, i}\right)
         \mathcal{U}^\dagger
 
     where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
@@ -50,16 +63,22 @@ def apply_num_op_sum_evolution(
     Args:
         vec: The state vector to be transformed.
         coeffs: The coefficients of the linear combination.
+            You can pass either a single Numpy array specifying the coefficients
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent coefficients for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to that
+            spin sector.
         time: The evolution time.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        spin: Choice of spin sector(s) to act on.
-
-            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            - To act on both spin alpha and spin beta, pass
-              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
-        orbital_rotation: A unitary matrix describing the optional orbital rotation.
+        orbital_rotation: The optional orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to that
+            spin sector.
         copy: Whether to copy the vector before operating on it.
 
             - If `copy=True` then this function always returns a newly allocated
@@ -75,15 +94,12 @@ def apply_num_op_sum_evolution(
     Raises:
         ValueError: ``coeffs`` must be a one-dimensional vector with length ``norb``.
     """
-    if coeffs.shape != (norb,):
-        raise ValueError(
-            "coeffs must be a one-dimensional vector with length norb. "
-            f"Got norb = {norb} but coeffs had shape {coeffs.shape}"
-        )
+    _validate_coeffs(coeffs, norb)
 
     if copy:
         vec = vec.copy()
 
+    phases_a, phases_b = _get_phases(coeffs, time=time)
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
@@ -93,23 +109,20 @@ def apply_num_op_sum_evolution(
     if orbital_rotation is not None:
         vec = apply_orbital_rotation(
             vec,
-            orbital_rotation.T.conj(),
+            _conjugate_orbital_rotation(orbital_rotation),
             norb,
             nelec,
-            spin=spin,
             copy=False,
         )
 
-    phases = np.exp(-1j * time * coeffs)
     vec = vec.reshape((dim_a, dim_b))
-
-    if spin & Spin.ALPHA:
+    if phases_a is not None:
         # apply alpha
-        apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_a)
-    if spin & Spin.BETA:
+        apply_num_op_sum_evolution_in_place(vec, phases_a, occupations=occupations_a)
+    if phases_b is not None:
         # apply beta
         vec = vec.T
-        apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations_b)
+        apply_num_op_sum_evolution_in_place(vec, phases_b, occupations=occupations_b)
         vec = vec.T
     vec = vec.reshape(-1)
 
@@ -119,8 +132,49 @@ def apply_num_op_sum_evolution(
             orbital_rotation,
             norb,
             nelec,
-            spin=spin,
             copy=False,
         )
 
     return vec
+
+
+def _validate_coeffs(
+    coeffs: np.ndarray | tuple[np.ndarray | None, np.ndarray | None], norb: int
+) -> None:
+    if isinstance(coeffs, np.ndarray):
+        if coeffs.shape != (norb,):
+            raise ValueError(
+                "coeffs must be a one-dimensional vector with length norb. "
+                f"Got norb = {norb} but coeffs had shape {coeffs.shape}"
+            )
+    else:
+        coeffs_a, coeffs_b = coeffs
+        if coeffs_a is not None and coeffs_a.shape != (norb,):
+            raise ValueError(
+                "coeffs must be a one-dimensional vector with length norb. "
+                f"Got norb = {norb} but coeffs for spin alpha had shape "
+                f"{coeffs_a.shape}"
+            )
+        if coeffs_b is not None and coeffs_b.shape != (norb,):
+            raise ValueError(
+                "coeffs must be a one-dimensional vector with length norb. "
+                f"Got norb = {norb} but coeffs for spin beta had shape "
+                f"{coeffs_b.shape}"
+            )
+
+
+def _get_phases(
+    coeffs: np.ndarray | tuple[np.ndarray | None, np.ndarray | None], time: float
+) -> tuple[np.ndarray | None, np.ndarray | None]:
+    if isinstance(coeffs, np.ndarray):
+        phases = np.exp(-1j * time * coeffs)
+        return phases, phases
+    else:
+        coeffs_a, coeffs_b = coeffs
+        phases_a = None
+        phases_b = None
+        if coeffs_a is not None:
+            phases_a = np.exp(-1j * time * coeffs_a)
+        if coeffs_b is not None:
+            phases_b = np.exp(-1j * time * coeffs_b)
+        return phases_a, phases_b

@@ -23,16 +23,14 @@ from ffsim._lib import (
     apply_givens_rotation_in_place,
     apply_phase_shift_in_place,
 )
-from ffsim.linalg import givens_decomposition
-from ffsim.spin import Spin
+from ffsim.linalg import GivensRotation, givens_decomposition
 
 
 def apply_orbital_rotation(
     vec: np.ndarray,
-    mat: np.ndarray,
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
     norb: int,
     nelec: tuple[int, int],
-    spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
     validate: bool = True,
@@ -45,27 +43,29 @@ def apply_orbital_rotation(
 
     .. math::
 
-        a^\dagger_{\sigma, i} \mapsto \sum_{j} U_{ji} a^\dagger_{\sigma, j}
+        a^\dagger_{\sigma, i} \mapsto \sum_{j} U^{(\sigma)}_{ji} a^\dagger_{\sigma, j}
 
-    where :math:`U` is a unitary matrix. This is equivalent to applying the
-    transformation given by
+    where :math:`U^{(\sigma)}` is a unitary matrix representing the action of the
+    orbital rotation on spin sector :math:`\sigma`.
+    This is equivalent to applying the transformation given by
 
     .. math::
 
         \prod_{\sigma}
-        \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
+        \exp\left(\sum_{ij}
+        \log(U^{(\sigma)})_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
 
     Args:
         vec: The state vector to be transformed.
         mat: The unitary matrix :math:`U` describing the orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to that
+            spin sector.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        spin: Choice of spin sector(s) to act on.
-
-            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
-            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
-            - To act on both spin alpha and spin beta, pass
-              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
             - If `copy=True` then this function always returns a newly allocated
@@ -83,21 +83,23 @@ def apply_orbital_rotation(
         The transformed vector.
 
     Raises:
-        ValueError: The input matrix is not unitary.
+        ValueError: The input matrix was not unitary.
     """
-    if validate and not linalg.is_unitary(mat, rtol=rtol, atol=atol):
-        raise ValueError("The input orbital rotation matrix is not unitary.")
+    if validate:
+        _validate_orbital_rotation(mat, rtol=rtol, atol=atol)
+
     if copy:
         vec = vec.copy()
 
-    givens_rotations, phase_shifts = givens_decomposition(mat)
+    givens_decomp_a, givens_decomp_b = _get_givens_decomposition(mat)
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
     vec = vec.reshape((dim_a, dim_b))
 
-    if spin & Spin.ALPHA:
+    if givens_decomp_a is not None:
         # transform alpha
+        givens_rotations, phase_shifts = givens_decomp_a
         for c, s, i, j in givens_rotations:
             _apply_orbital_rotation_adjacent_spin_in_place(
                 vec, c, s.conjugate(), (i, j), norb, n_alpha
@@ -106,10 +108,12 @@ def apply_orbital_rotation(
             indices = _one_subspace_indices(norb, n_alpha, (i,))
             apply_phase_shift_in_place(vec, phase_shift, indices)
 
-    if spin & Spin.BETA:
+    if givens_decomp_b is not None:
         # transform beta
-        # transpose vector to align memory layout
+        # copy transposed vector to align memory layout for performance
+        # TODO check again if copying is needed
         vec = vec.T.copy()
+        givens_rotations, phase_shifts = givens_decomp_b
         for c, s, i, j in givens_rotations:
             _apply_orbital_rotation_adjacent_spin_in_place(
                 vec, c, s.conjugate(), (i, j), norb, n_beta
@@ -120,6 +124,46 @@ def apply_orbital_rotation(
         vec = vec.T.copy()
 
     return vec.reshape(-1)
+
+
+def _validate_orbital_rotation(
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    rtol: float,
+    atol: float,
+) -> None:
+    if isinstance(mat, np.ndarray):
+        if not linalg.is_unitary(mat, rtol=rtol, atol=atol):
+            raise ValueError("The input orbital rotation matrix was not unitary.")
+    else:
+        mat_a, mat_b = mat
+        if mat_a is not None and not linalg.is_unitary(mat_a, rtol=rtol, atol=atol):
+            raise ValueError(
+                "The input orbital rotation matrix for spin alpha was not unitary."
+            )
+        if mat_b is not None and not linalg.is_unitary(mat_b, rtol=rtol, atol=atol):
+            raise ValueError(
+                "The input orbital rotation matrix for spin beta was not unitary."
+            )
+
+
+def _get_givens_decomposition(
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+) -> tuple[
+    tuple[list[GivensRotation], np.ndarray] | None,
+    tuple[list[GivensRotation], np.ndarray] | None,
+]:
+    if isinstance(mat, np.ndarray):
+        decomp = givens_decomposition(mat)
+        return decomp, decomp
+    else:
+        mat_a, mat_b = mat
+        decomp_a = None
+        decomp_b = None
+        if mat_a is not None:
+            decomp_a = givens_decomposition(mat_a)
+        if mat_b is not None:
+            decomp_b = givens_decomposition(mat_b)
+        return decomp_a, decomp_b
 
 
 def _apply_orbital_rotation_adjacent_spin_in_place(

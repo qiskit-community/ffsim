@@ -31,7 +31,6 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
 )
-from ffsim.spin import Spin
 
 
 @dataclass
@@ -178,18 +177,16 @@ def _evolve_statevector(
             )
         vec = gates.apply_orbital_rotation(
             vec,
-            op.orbital_rotation_a,
+            (op.orbital_rotation_a, None),
             norb=norb,
             nelec=nelec,
-            spin=Spin.ALPHA,
             copy=False,
         )
         vec = gates.apply_orbital_rotation(
             vec,
-            op.orbital_rotation_b,
+            (None, op.orbital_rotation_b),
             norb=norb,
             nelec=nelec,
-            spin=Spin.BETA,
             copy=False,
         )
         return Statevector(vec=vec, norb=norb, nelec=nelec)
