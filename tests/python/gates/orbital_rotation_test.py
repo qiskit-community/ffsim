@@ -95,50 +95,6 @@ def test_apply_orbital_rotation_no_side_effects_vec(norb: int, nelec: tuple[int,
         np.testing.assert_allclose(vec, original_vec)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
-)
-def test_apply_orbital_rotation_lu_random(
-    norb: int, nelec: tuple[int, int], spin: ffsim.Spin
-):
-    """Test applying random orbital rotation, LU decomposition method."""
-    rng = np.random.default_rng()
-    dim = ffsim.dim(norb, nelec)
-    for _ in range(3):
-        mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
-
-        result, perm = ffsim.apply_orbital_rotation(
-            vec, mat, norb, nelec, spin, allow_col_permutation=True
-        )
-        np.testing.assert_allclose(np.linalg.norm(result), 1)
-
-        if norb:
-            generator = _orbital_rotation_generator(
-                scipy.linalg.logm(mat @ perm), spin=spin
-            )
-            op = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
-            expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=1)
-        else:
-            expected = vec
-        np.testing.assert_allclose(result, expected)
-
-        result, perm = ffsim.apply_orbital_rotation(
-            vec, mat, norb, nelec, spin, allow_row_permutation=True
-        )
-        np.testing.assert_allclose(np.linalg.norm(result), 1)
-
-        if norb:
-            generator = _orbital_rotation_generator(
-                scipy.linalg.logm(perm @ mat), spin=spin
-            )
-            op = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
-            expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=1)
-        else:
-            expected = vec
-        np.testing.assert_allclose(result, expected)
-
-
 def test_apply_orbital_rotation_eigenstates():
     """Test applying orbital basis change prepares eigenstates of one-body tensor."""
     norb = 5
@@ -155,35 +111,6 @@ def test_apply_orbital_rotation_eigenstates():
         state = slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
         final_state = ffsim.apply_orbital_rotation(state, vecs, norb, nelec)
-        np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
-        result = ffsim.contract.contract_one_body(
-            final_state, one_body_tensor, norb, nelec
-        )
-        expected = eig * final_state
-        np.testing.assert_allclose(result, expected)
-        # check that the state was not modified
-        np.testing.assert_allclose(state, original_state)
-
-
-def test_apply_orbital_rotation_eigenstates_lu():
-    """Test applying LU orbital basis change prepares eigenstates of one-body tensor."""
-    norb = 5
-    rng = np.random.default_rng()
-    for _ in range(5):
-        nelec = ffsim.testing.random_nelec(norb, seed=rng)
-        occupied_orbitals = ffsim.testing.random_occupied_orbitals(
-            norb, nelec, seed=rng
-        )
-        occ_a, occ_b = occupied_orbitals
-        one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-        eigs, vecs = scipy.linalg.eigh(one_body_tensor)
-        state = slater_determinant(norb, occupied_orbitals)
-        original_state = state.copy()
-        final_state, perm = ffsim.apply_orbital_rotation(
-            state, vecs, norb, nelec, allow_col_permutation=True
-        )
-        eigs = eigs @ perm
-        eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
         np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
         result = ffsim.contract.contract_one_body(
             final_state, one_body_tensor, norb, nelec

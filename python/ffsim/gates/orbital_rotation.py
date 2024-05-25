@@ -14,24 +14,19 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import Literal, overload
 
 import numpy as np
-import scipy.linalg
 from pyscf.fci import cistring
 
 from ffsim import linalg
 from ffsim._lib import (
     apply_givens_rotation_in_place,
     apply_phase_shift_in_place,
-    apply_single_column_transformation_in_place,
 )
-from ffsim.cistring import gen_orbital_rotation_index
-from ffsim.linalg import givens_decomposition, lup
+from ffsim.linalg import givens_decomposition
 from ffsim.spin import Spin
 
 
-@overload
 def apply_orbital_rotation(
     vec: np.ndarray,
     mat: np.ndarray,
@@ -39,50 +34,11 @@ def apply_orbital_rotation(
     nelec: tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
-    copy: bool = True,
-) -> np.ndarray: ...
-
-
-@overload
-def apply_orbital_rotation(
-    vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    spin: Spin = Spin.ALPHA_AND_BETA,
-    *,
-    allow_row_permutation: Literal[True],
-    copy: bool = True,
-) -> tuple[np.ndarray, np.ndarray]: ...
-
-
-@overload
-def apply_orbital_rotation(
-    vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    spin: Spin = Spin.ALPHA_AND_BETA,
-    *,
-    allow_col_permutation: Literal[True],
-    copy: bool = True,
-) -> tuple[np.ndarray, np.ndarray]: ...
-
-
-def apply_orbital_rotation(
-    vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    spin: Spin = Spin.ALPHA_AND_BETA,
-    *,
-    allow_row_permutation: bool = False,
-    allow_col_permutation: bool = False,
     copy: bool = True,
     validate: bool = True,
     rtol: float = 1e-5,
     atol: float = 1e-8,
-) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
+) -> np.ndarray:
     r"""Apply an orbital rotation to a vector.
 
     An orbital rotation maps creation operators as
@@ -110,10 +66,6 @@ def apply_orbital_rotation(
             - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
             - To act on both spin alpha and spin beta, pass
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
-        allow_row_permutation: Whether to allow a permutation of the rows
-            of the orbital rotation matrix.
-        allow_col_permutation: Whether to allow a permutation of the columns
-            of the orbital rotation matrix.
         copy: Whether to copy the vector before operating on it.
 
             - If `copy=True` then this function always returns a newly allocated
@@ -128,115 +80,17 @@ def apply_orbital_rotation(
         atol: Absolute numerical tolerance for input validation.
 
     Returns:
-        The transformed vector. If a row or column permutation was allowed,
-        the permutation matrix ``P`` is returned as well.
-        If a row permutation was allowed, then the transformation
-        actually effected is given by the matrix ``P @ mat``. If a column
-        permutation was allowed, then it is ``mat @ P``.
+        The transformed vector.
 
     Raises:
-        ValueError: If both `allow_row_permutation` and `allow_col_permutation`
-            are set to True. Only one of these can be set to True, not both.
         ValueError: The input matrix is not unitary.
     """
-    if allow_row_permutation and allow_col_permutation:
-        raise ValueError(
-            "You can choose to allow either row or column permutations, but not both."
-        )
     if validate and not linalg.is_unitary(mat, rtol=rtol, atol=atol):
         raise ValueError("The input orbital rotation matrix is not unitary.")
-
-    if allow_row_permutation or allow_col_permutation:
-        return _apply_orbital_rotation_lu(
-            vec,
-            mat,
-            norb,
-            nelec,
-            spin,
-            permute_rows=allow_row_permutation,
-            copy=copy,
-        )
-    return _apply_orbital_rotation_givens(vec, mat, norb, nelec, spin, copy=copy)
-
-
-def _apply_orbital_rotation_lu(
-    vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    spin: Spin,
-    permute_rows: bool,
-    copy: bool,
-) -> tuple[np.ndarray, np.ndarray]:
     if copy:
         vec = vec.copy()
-    if norb == 0:
-        return vec, np.empty((0, 0))
 
-    if permute_rows:
-        lower, upper, perm = lup(mat.T.conj())
-    else:
-        perm, lower, upper = scipy.linalg.lu(mat.T.conj())
-    eye = np.eye(norb, dtype=complex)
-    transformation_mat = eye - lower + scipy.linalg.solve_triangular(upper, eye)
-    n_alpha, n_beta = nelec
-    orbital_rotation_index_a = gen_orbital_rotation_index(norb, n_alpha)
-    orbital_rotation_index_b = gen_orbital_rotation_index(norb, n_beta)
-    dim_a = math.comb(norb, n_alpha)
-    dim_b = math.comb(norb, n_beta)
-    vec = vec.reshape((dim_a, dim_b))
-    if spin & Spin.ALPHA:
-        # transform alpha
-        _apply_orbital_rotation_spin_in_place(
-            vec,
-            transformation_mat,
-            norb=norb,
-            orbital_rotation_index=orbital_rotation_index_a,
-        )
-    if spin & Spin.BETA:
-        # transform beta
-        # transpose vector to align memory layout
-        vec = vec.T.copy()
-        _apply_orbital_rotation_spin_in_place(
-            vec,
-            transformation_mat,
-            norb=norb,
-            orbital_rotation_index=orbital_rotation_index_b,
-        )
-        vec = vec.T.copy()
-    return vec.reshape(-1), perm
-
-
-def _apply_orbital_rotation_spin_in_place(
-    vec: np.ndarray,
-    transformation_mat: np.ndarray,
-    norb: int,
-    orbital_rotation_index: tuple[np.ndarray, np.ndarray, np.ndarray],
-) -> None:
-    diag_strings, off_diag_strings, off_diag_index = orbital_rotation_index
-    for i in range(norb):
-        apply_single_column_transformation_in_place(
-            vec,
-            transformation_mat[:, i],
-            diag_val=transformation_mat[i, i],
-            diag_strings=diag_strings[i],
-            off_diag_strings=off_diag_strings[i],
-            off_diag_index=off_diag_index[i],
-        )
-
-
-def _apply_orbital_rotation_givens(
-    vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    spin: Spin,
-    copy: bool,
-) -> np.ndarray:
-    if copy:
-        vec = vec.copy()
     givens_rotations, phase_shifts = givens_decomposition(mat)
-
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
