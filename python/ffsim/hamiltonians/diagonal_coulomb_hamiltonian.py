@@ -14,8 +14,7 @@ import dataclasses
 import itertools
 
 import numpy as np
-from opt_einsum import contract
-from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hdiag
+from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim._lib import FermionOperator
@@ -62,8 +61,9 @@ class DiagonalCoulombHamiltonian:
         if np.iscomplexobj(self.diag_coulomb_mat):
             raise NotImplementedError(
                 "This Hamiltonian has a complex-valued diagonal Coulomb matrix. "
-                "LinearOperator support for complex diagonal Coulomb matrices is not yet "
-                "implemented. See https://github.com/qiskit-community/ffsim/issues/81."
+                "LinearOperator support for complex diagonal Coulomb matrices is not "
+                "yet implemented. "
+                "See https://github.com/qiskit-community/ffsim/issues/81."
             )
         n_alpha, n_beta = nelec
         linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
@@ -122,9 +122,6 @@ class DiagonalCoulombHamiltonian:
     def from_fermion_operator(op: FermionOperator) -> DiagonalCoulombHamiltonian:
         """Convert a FermionOperator to a DiagonalCoulombHamiltonian."""
 
-        print("op = ", op)
-        print("op (norm) = ", op.normal_ordered())
-
         # normal ordering
         op_norm = op.normal_ordered()
         dict_op = dict(op_norm)
@@ -138,7 +135,7 @@ class DiagonalCoulombHamiltonian:
         norb = max(orb_list) + 1
 
         # initialize variables
-        constant = 0
+        constant: float = 0
         one_body_tensor = np.zeros((norb, norb), dtype=complex)
         diag_coulomb_mat = np.zeros((norb, norb, norb, norb), dtype=float)
 
@@ -160,7 +157,7 @@ class DiagonalCoulombHamiltonian:
             ]
             for key in dict(op_norm):
                 if key == ():
-                    constant = dict_op[key]
+                    constant = np.real(dict_op[key])
                 if key in one_body_list:
                     one_body_tensor[p, q] += 0.5 * dict_op.pop(key)
                 if key in diag_coulomb_list:
