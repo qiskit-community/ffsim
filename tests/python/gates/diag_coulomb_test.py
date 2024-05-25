@@ -87,7 +87,7 @@ def test_apply_diag_coulomb_evolution_random(
 def test_apply_diag_coulomb_evolution_spin(
     norb: int, nelec: tuple[int, int], z_representation: bool
 ):
-    """Test applying time evolution of diagonal Coulomb operator."""
+    """Test diagonal Coulomb evolution conserves spin squared."""
     rng = np.random.default_rng(8222)
     dim = ffsim.dim(norb, nelec)
 
