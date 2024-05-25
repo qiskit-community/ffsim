@@ -22,7 +22,7 @@ import ffsim
 
 
 @pytest.mark.parametrize("norb", [4, 5])
-def test_contract_diag_coulomb(norb: int):
+def test_contract_diag_coulomb_num_rep(norb: int):
     """Test contracting a diagonal Coulomb matrix."""
     rng = np.random.default_rng()
     mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
