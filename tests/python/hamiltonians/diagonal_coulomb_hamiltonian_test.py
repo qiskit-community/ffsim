@@ -129,3 +129,30 @@ def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_from_fermion_operator_failure(norb: int, nelec: tuple[int, int]):
+    """Test from_fermion_operator method failure."""
+    rng = np.random.default_rng()
+
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
+
+    constant = rng.standard_normal()
+    mol_hamiltonian = ffsim.MolecularHamiltonian(
+        one_body_tensor, two_body_tensor, constant=constant
+    )
+
+    op = ffsim.fermion_operator(mol_hamiltonian)
+
+    with pytest.raises(ValueError):
+        DiagonalCoulombHamiltonian.from_fermion_operator(op)
