@@ -588,11 +588,10 @@
         <span class="p">):</span>
             <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
-                <span class="n">mat</span><span class="o">=</span><span class="n">mat</span><span class="p">,</span>
+                <span class="n">mat</span><span class="o">=</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="n">mat</span><span class="p">),</span>
                 <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
                 <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="p">,</span>
                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
@@ -875,21 +874,19 @@
         <span class="p">):</span>
             <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
-                <span class="n">mat</span><span class="o">=</span><span class="n">mat</span><span class="p">,</span>
+                <span class="n">mat</span><span class="o">=</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="n">mat</span><span class="p">),</span>
                 <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
                 <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="p">,</span>
                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
-                <span class="n">mat</span><span class="o">=-</span><span class="n">mat</span><span class="p">,</span>
+                <span class="n">mat</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">mat</span><span class="p">,</span> <span class="o">-</span><span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="o">-</span><span class="n">mat</span><span class="p">),</span>
                 <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
                 <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">mat_alpha_beta</span><span class="o">=-</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
