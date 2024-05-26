@@ -39,8 +39,9 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
         dim_b = math.comb(norb, n_beta)
         occupations_a = cistring.gen_occslst(range(norb), n_alpha)
         occupations_b = cistring.gen_occslst(range(norb), n_beta)
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
@@ -48,18 +49,20 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
         out_fast = np.zeros_like(vec)
         contract_diag_coulomb_into_buffer_num_rep_slow(
             vec,
-            mat,
+            mat_aa,
+            mat_ab,
+            mat_bb,
             norb=norb,
-            mat_alpha_beta=mat_alpha_beta,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
             out=out_slow,
         )
         contract_diag_coulomb_into_buffer_num_rep(
             vec,
-            mat,
+            mat_aa,
+            mat_ab,
+            mat_bb,
             norb=norb,
-            mat_alpha_beta=mat_alpha_beta,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
             out=out_fast,
@@ -78,8 +81,9 @@ def test_contract_diag_coulomb_into_buffer_z_rep_slow():
         dim_b = math.comb(norb, n_beta)
         strings_a = cistring.make_strings(range(norb), n_alpha)
         strings_b = cistring.make_strings(range(norb), n_beta)
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
@@ -87,18 +91,20 @@ def test_contract_diag_coulomb_into_buffer_z_rep_slow():
         out_fast = np.zeros_like(vec)
         contract_diag_coulomb_into_buffer_z_rep_slow(
             vec,
-            mat,
+            mat_aa,
+            mat_ab,
+            mat_bb,
             norb=norb,
-            mat_alpha_beta=mat_alpha_beta,
             strings_a=strings_a,
             strings_b=strings_b,
             out=out_slow,
         )
         contract_diag_coulomb_into_buffer_z_rep(
             vec,
-            mat,
+            mat_aa,
+            mat_ab,
+            mat_bb,
             norb=norb,
-            mat_alpha_beta=mat_alpha_beta,
             strings_a=strings_a,
             strings_b=strings_b,
             out=out_fast,

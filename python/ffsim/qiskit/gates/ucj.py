@@ -67,9 +67,7 @@ def _ucj_jw(
             OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj()), qubits
         )
         yield CircuitInstruction(
-            DiagCoulombEvolutionJW(
-                ucj_op.norb, mat, -1.0, mat_alpha_beta=mat_alpha_beta
-            ),
+            DiagCoulombEvolutionJW(ucj_op.norb, (mat, mat_alpha_beta, mat), -1.0),
             qubits,
         )
         yield CircuitInstruction(

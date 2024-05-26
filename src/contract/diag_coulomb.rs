@@ -17,19 +17,22 @@ use numpy::PyReadwriteArray2;
 use pyo3::prelude::*;
 
 /// Contract a diagonal Coulomb operator into a buffer.
+#[allow(clippy::too_many_arguments)]
 #[pyfunction]
 pub fn contract_diag_coulomb_into_buffer_num_rep(
     vec: PyReadonlyArray2<Complex64>,
-    mat: PyReadonlyArray2<f64>,
+    mat_aa: PyReadonlyArray2<f64>,
+    mat_ab: PyReadonlyArray2<f64>,
+    mat_bb: PyReadonlyArray2<f64>,
     norb: usize,
-    mat_alpha_beta: PyReadonlyArray2<f64>,
     occupations_a: PyReadonlyArray2<usize>,
     occupations_b: PyReadonlyArray2<usize>,
     mut out: PyReadwriteArray2<Complex64>,
 ) {
     let vec = vec.as_array();
-    let mat = mat.as_array();
-    let mat_alpha_beta = mat_alpha_beta.as_array();
+    let mat_aa = mat_aa.as_array();
+    let mat_ab = mat_ab.as_array();
+    let mat_bb = mat_bb.as_array();
     let occupations_a = occupations_a.as_array();
     let occupations_b = occupations_b.as_array();
     let mut out = out.as_array_mut();
@@ -52,7 +55,7 @@ pub fn contract_diag_coulomb_into_buffer_num_rep(
                 let orb_1 = orbs[j];
                 for k in j..n_beta {
                     let orb_2 = orbs[k];
-                    coeff += mat[(orb_1, orb_2)];
+                    coeff += mat_bb[(orb_1, orb_2)];
                 }
             }
             *val = coeff;
@@ -65,10 +68,10 @@ pub fn contract_diag_coulomb_into_buffer_num_rep(
             let mut coeff = Complex64::new(0.0, 0.0);
             for j in 0..n_alpha {
                 let orb_1 = orbs[j];
-                row += &mat_alpha_beta.row(orb_1);
+                row += &mat_ab.row(orb_1);
                 for k in j..n_alpha {
                     let orb_2 = orbs[k];
-                    coeff += mat[(orb_1, orb_2)];
+                    coeff += mat_aa[(orb_1, orb_2)];
                 }
             }
             *val = coeff;
@@ -92,19 +95,22 @@ pub fn contract_diag_coulomb_into_buffer_num_rep(
 }
 
 /// Contract a diagonal Coulomb operator into a buffer, Z representation.
+#[allow(clippy::too_many_arguments)]
 #[pyfunction]
 pub fn contract_diag_coulomb_into_buffer_z_rep(
     vec: PyReadonlyArray2<Complex64>,
-    mat: PyReadonlyArray2<f64>,
+    mat_aa: PyReadonlyArray2<f64>,
+    mat_ab: PyReadonlyArray2<f64>,
+    mat_bb: PyReadonlyArray2<f64>,
     norb: usize,
-    mat_alpha_beta: PyReadonlyArray2<f64>,
     strings_a: PyReadonlyArray1<i64>,
     strings_b: PyReadonlyArray1<i64>,
     mut out: PyReadwriteArray2<Complex64>,
 ) {
     let vec = vec.as_array();
-    let mat = mat.as_array();
-    let mat_alpha_beta = mat_alpha_beta.as_array();
+    let mat_aa = mat_aa.as_array();
+    let mat_ab = mat_ab.as_array();
+    let mat_bb = mat_bb.as_array();
     let strings_a = strings_a.as_array();
     let strings_b = strings_b.as_array();
     let mut out = out.as_array_mut();
@@ -125,7 +131,7 @@ pub fn contract_diag_coulomb_into_buffer_z_rep(
                 let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
                 for k in j + 1..norb {
                     let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 } as f64;
-                    coeff += sign_j * sign_k * mat[(j, k)];
+                    coeff += sign_j * sign_k * mat_bb[(j, k)];
                 }
             }
             *val = coeff;
@@ -138,10 +144,10 @@ pub fn contract_diag_coulomb_into_buffer_z_rep(
             let mut coeff = Complex64::new(0.0, 0.0);
             for j in 0..norb {
                 let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
-                row += &(sign_j * &mat_alpha_beta.row(j));
+                row += &(sign_j * &mat_ab.row(j));
                 for k in j + 1..norb {
                     let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 } as f64;
-                    coeff += sign_j * sign_k * mat[(j, k)];
+                    coeff += sign_j * sign_k * mat_aa[(j, k)];
                 }
             }
             *val = coeff;

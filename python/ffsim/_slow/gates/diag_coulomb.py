@@ -19,30 +19,32 @@ from ffsim.gates.basic_gates import _apply_phase_shift
 
 def apply_diag_coulomb_evolution_in_place_num_rep_slow(
     vec: np.ndarray,
-    mat_exp: np.ndarray,
+    mat_exp_aa: np.ndarray,
+    mat_exp_ab: np.ndarray,
+    mat_exp_bb: np.ndarray,
     norb: int,
-    mat_alpha_beta_exp: np.ndarray,
     occupations_a: np.ndarray,
     occupations_b: np.ndarray,
 ) -> None:
     """Apply time evolution by a diagonal Coulomb operator in-place."""
     dim_a, dim_b = vec.shape
-    alpha_phases = np.empty((dim_a,), dtype=complex)
-    beta_phases = np.empty((dim_b,), dtype=complex)
+    alpha_phases = np.ones((dim_a,), dtype=complex)
+    beta_phases = np.ones((dim_b,), dtype=complex)
     phase_map = np.ones((dim_a, norb), dtype=complex)
 
-    for i, orbs in enumerate(occupations_b):
-        phase = 1
-        for orb_1, orb_2 in itertools.combinations_with_replacement(orbs, 2):
-            phase *= mat_exp[orb_1, orb_2]
-        beta_phases[i] = phase
+    if not np.allclose(mat_exp_bb, 1):
+        for i, orbs in enumerate(occupations_b):
+            phase = 1
+            for orb_1, orb_2 in itertools.combinations_with_replacement(orbs, 2):
+                phase *= mat_exp_bb[orb_1, orb_2]
+            beta_phases[i] = phase
 
     for i, (row, orbs) in enumerate(zip(phase_map, occupations_a)):
         phase = 1
         for j in range(len(orbs)):
-            row *= mat_alpha_beta_exp[orbs[j]]
+            row *= mat_exp_ab[orbs[j]]
             for k in range(j, len(orbs)):
-                phase *= mat_exp[orbs[j], orbs[k]]
+                phase *= mat_exp_aa[orbs[j], orbs[k]]
         alpha_phases[i] = phase
 
     for row, alpha_phase, phase_map in zip(vec, alpha_phases, phase_map):
@@ -55,39 +57,44 @@ def apply_diag_coulomb_evolution_in_place_num_rep_slow(
 
 def apply_diag_coulomb_evolution_in_place_z_rep_slow(
     vec: np.ndarray,
-    mat_exp: np.ndarray,
-    mat_exp_conj: np.ndarray,
+    mat_exp_aa: np.ndarray,
+    mat_exp_ab: np.ndarray,
+    mat_exp_bb: np.ndarray,
+    # TODO don't pass the conjugates separately
+    mat_exp_aa_conj: np.ndarray,
+    mat_exp_ab_conj: np.ndarray,
+    mat_exp_bb_conj: np.ndarray,
     norb: int,
-    mat_alpha_beta_exp: np.ndarray,
-    mat_alpha_beta_exp_conj: np.ndarray,
     strings_a: np.ndarray,
     strings_b: np.ndarray,
 ) -> None:
     """Apply time evolution by a diagonal Coulomb operator in-place."""
     dim_a, dim_b = vec.shape
-    alpha_phases = np.empty((dim_a,), dtype=complex)
-    beta_phases = np.empty((dim_b,), dtype=complex)
+    alpha_phases = np.ones((dim_a,), dtype=complex)
+    beta_phases = np.ones((dim_b,), dtype=complex)
     phase_map = np.ones((dim_a, norb), dtype=complex)
 
-    for i, str0 in enumerate(strings_b):
-        phase = 1
-        for j in range(norb):
-            sign_j = str0 >> j & 1
-            for k in range(j + 1, norb):
-                sign_k = str0 >> k & 1
-                mat = mat_exp_conj if sign_j ^ sign_k else mat_exp
-                phase *= mat[j, k]
-        beta_phases[i] = phase
+    if not np.allclose(mat_exp_bb, 1):
+        assert mat_exp_bb_conj is not None
+        for i, str0 in enumerate(strings_b):
+            phase = 1
+            for j in range(norb):
+                sign_j = str0 >> j & 1
+                for k in range(j + 1, norb):
+                    sign_k = str0 >> k & 1
+                    mat = mat_exp_bb_conj if sign_j ^ sign_k else mat_exp_bb
+                    phase *= mat[j, k]
+            beta_phases[i] = phase
 
     for i, (row, str0) in enumerate(zip(phase_map, strings_a)):
         phase = 1
         for j in range(norb):
             sign_j = str0 >> j & 1
-            mat = mat_alpha_beta_exp_conj if sign_j else mat_alpha_beta_exp
+            mat = mat_exp_ab_conj if sign_j else mat_exp_ab
             row *= mat[j]
             for k in range(j + 1, norb):
                 sign_k = str0 >> k & 1
-                mat = mat_exp_conj if sign_j ^ sign_k else mat_exp
+                mat = mat_exp_aa_conj if sign_j ^ sign_k else mat_exp_aa
                 phase *= mat[j, k]
         alpha_phases[i] = phase
 
@@ -104,17 +111,17 @@ def apply_diag_coulomb_evolution_in_place_z_rep_slow(
 
 def apply_diag_coulomb_evolution_in_place_num_rep_numpy(
     vec: np.ndarray,
-    mat_exp: np.ndarray,
+    mat_exp_aa: np.ndarray,
+    mat_exp_ab: np.ndarray,
+    mat_exp_bb: np.ndarray,
     norb: int,
     nelec: tuple[int, int],
-    *,
-    mat_alpha_beta_exp: np.ndarray,
 ) -> None:
     """Apply time evolution by a diagonal Coulomb operator in-place."""
-    mat_alpha_beta_exp = mat_alpha_beta_exp.copy()
-    mat_alpha_beta_exp[np.diag_indices(norb)] **= 0.5
+    mat_exp_ab = mat_exp_ab.copy()
+    mat_exp_ab[np.diag_indices(norb)] **= 0.5
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
-        for sigma in range(2):
+        for sigma, mat_exp in enumerate([mat_exp_aa, mat_exp_bb]):
             orbitals: list[set[int]] = [set(), set()]
             orbitals[sigma].add(i)
             orbitals[sigma].add(j)
@@ -131,7 +138,7 @@ def apply_diag_coulomb_evolution_in_place_num_rep_numpy(
             orbitals[1 - sigma].add(j)
             _apply_phase_shift(
                 vec,
-                mat_alpha_beta_exp[i, j],
+                mat_exp_ab[i, j],
                 (tuple(orbitals[0]), tuple(orbitals[1])),
                 norb=norb,
                 nelec=nelec,
