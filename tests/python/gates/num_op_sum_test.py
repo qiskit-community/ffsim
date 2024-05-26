@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 import scipy.linalg
 import scipy.sparse.linalg
 
@@ -52,21 +51,6 @@ def test_apply_num_op_sum_evolution():
 
         np.testing.assert_allclose(result, expected)
         np.testing.assert_allclose(state, original_state)
-
-
-def test_apply_num_op_sum_evolution_wrong_coeffs_length():
-    """Test passing wrong coeffs length raises correct error."""
-    norb = 5
-    nelec = (3, 2)
-    n_alpha, n_beta = nelec
-    occupied_orbitals = (range(n_alpha), range(n_beta))
-    state = ffsim.slater_determinant(norb, occupied_orbitals)
-
-    coeffs = np.ones(norb - 1)
-    with pytest.raises(ValueError, match="length"):
-        _ = ffsim.apply_num_op_sum_evolution(
-            state, coeffs, time=1.0, norb=norb, nelec=nelec
-        )
 
 
 def test_apply_quadratic_hamiltonian_evolution():

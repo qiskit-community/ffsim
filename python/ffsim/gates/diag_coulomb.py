@@ -16,7 +16,6 @@ import math
 
 import numpy as np
 
-from ffsim import linalg
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
@@ -50,9 +49,6 @@ def apply_diag_coulomb_evolution(
     | None = None,
     z_representation: bool = False,
     copy: bool = True,
-    validate: bool = True,
-    rtol: float = 1e-5,
-    atol: float = 1e-8,
 ) -> np.ndarray:
     r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
 
@@ -97,20 +93,10 @@ def apply_diag_coulomb_evolution(
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
-        validate: Whether to check that the input matrix is real symmetric and raise an
-            error if it isn't.
-        rtol: Relative numerical tolerance for input validation.
-        atol: Absolute numerical tolerance for input validation.
 
     Returns:
         The evolved state vector.
-
-    Raises:
-        ValueError: The input matrix was not real symmetric.
     """
-    if validate:
-        _validate_diag_coulomb_mat(mat, rtol=rtol, atol=atol)
-
     if copy:
         vec = vec.copy()
 
@@ -170,36 +156,6 @@ def apply_diag_coulomb_evolution(
         )
 
     return vec
-
-
-def _validate_diag_coulomb_mat(
-    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
-    rtol: float,
-    atol: float,
-) -> None:
-    if isinstance(mat, np.ndarray):
-        if not linalg.is_real_symmetric(mat, rtol=rtol, atol=atol):
-            raise ValueError("The input matrix was not real symmetric.")
-    else:
-        mat_aa, mat_ab, mat_bb = mat
-        if mat_aa is not None and not linalg.is_real_symmetric(
-            mat_aa, rtol=rtol, atol=atol
-        ):
-            raise ValueError(
-                "The input matrix for alpha-alpha interactions was not real symmetric."
-            )
-        if mat_ab is not None and not linalg.is_real_symmetric(
-            mat_ab, rtol=rtol, atol=atol
-        ):
-            raise ValueError(
-                "The input matrix for alpha-beta interactions was not real symmetric."
-            )
-        if mat_bb is not None and not linalg.is_real_symmetric(
-            mat_bb, rtol=rtol, atol=atol
-        ):
-            raise ValueError(
-                "The input matrix for beta-beta interactions was not real symmetric."
-            )
 
 
 def _get_mat_exp(
