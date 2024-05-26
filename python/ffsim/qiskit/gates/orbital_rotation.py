@@ -34,7 +34,7 @@ def _validate_orbital_rotation(
     rtol: float,
     atol: float,
 ) -> None:
-    if isinstance(mat, np.ndarray):
+    if isinstance(mat, np.ndarray) and mat.ndim == 2:
         if not linalg.is_unitary(mat, rtol=rtol, atol=atol):
             raise ValueError("The input orbital rotation matrix was not unitary.")
     else:
@@ -104,7 +104,7 @@ class OrbitalRotationJW(Gate):
         if validate:
             _validate_orbital_rotation(orbital_rotation, rtol=rtol, atol=atol)
         self.norb = norb
-        if isinstance(orbital_rotation, np.ndarray):
+        if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
             self.orbital_rotation_a = orbital_rotation
             self.orbital_rotation_b = orbital_rotation
         else:
