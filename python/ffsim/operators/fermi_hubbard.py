@@ -32,11 +32,11 @@ def fermi_hubbard_1d(
 
     .. math::
 
-        H = -t \sum_{\sigma} \sum_{p=1}^{N-1}
+        H = -t \sum_{\sigma} \sum_{p}
         (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{h.c.})
         + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
         - \mu \sum_{p=1}^N (n_{\alpha, p} + n_{\beta, p})
-        + V \sum_{\sigma, \sigma'} \sum_{p=1}^{N-1} n_{\sigma, p} n_{\sigma', p+1}
+        + V \sum_{\sigma, \sigma'} \sum_{p} n_{\sigma, p} n_{\sigma', p+1}
 
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
