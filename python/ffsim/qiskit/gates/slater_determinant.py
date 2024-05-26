@@ -24,6 +24,7 @@ from scipy.linalg.lapack import zrot
 
 from ffsim import linalg
 from ffsim.linalg.givens import GivensRotation, zrotg
+from ffsim.qiskit.gates.orbital_rotation import _validate_orbital_rotation
 
 
 class PrepareHartreeFockJW(Gate):
@@ -129,7 +130,9 @@ class PrepareSlaterDeterminantJW(Gate):
         self,
         norb: int,
         occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-        orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None,
+        orbital_rotation: np.ndarray
+        | tuple[np.ndarray | None, np.ndarray | None]
+        | None = None,
         *,
         label: str | None = None,
         validate: bool = True,
@@ -144,10 +147,13 @@ class PrepareSlaterDeterminantJW(Gate):
                 This is a pair of lists of integers, where the first list specifies the
                 spin alpha orbitals and the second list specifies the spin beta
                 orbitals.
-            orbital_rotation: The optional orbital rotation. You can pass either a
-                single Numpy array specifying the orbital rotation to apply to both
-                spin sectors, or you can pass a pair of Numpy arrays to specify
-                independent orbital rotations for spin alpha and spin beta.
+            orbital_rotation: The optional orbital rotation.
+                You can pass either a single Numpy array specifying the orbital rotation
+                to apply to both spin sectors, or you can pass a pair of Numpy arrays
+                specifying independent orbital rotations for spin alpha and spin beta.
+                If passing a pair, you can use ``None`` for one of the
+                values in the pair to indicate that no operation should be applied to
+                that spin sector.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
@@ -158,22 +164,7 @@ class PrepareSlaterDeterminantJW(Gate):
             ValueError: The input orbital rotation matrix is not unitary.
         """
         if validate and orbital_rotation is not None:
-            if isinstance(orbital_rotation, np.ndarray):
-                if not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol):
-                    raise ValueError(
-                        "The input orbital rotation matrix was not unitary."
-                    )
-            else:
-                orbital_rotation_a, orbital_rotation_b = orbital_rotation
-                if not linalg.is_unitary(orbital_rotation_a, rtol=rtol, atol=atol):
-                    raise ValueError(
-                        "The orbital rotation matrix for spin alpha was not unitary."
-                    )
-                if not linalg.is_unitary(orbital_rotation_b, rtol=rtol, atol=atol):
-                    raise ValueError(
-                        "The orbital rotation matrix for spin beta was not unitary."
-                    )
-
+            _validate_orbital_rotation(orbital_rotation, rtol=rtol, atol=atol)
         self.norb = norb
         self.occupied_orbitals = occupied_orbitals
         if orbital_rotation is None:
@@ -183,7 +174,15 @@ class PrepareSlaterDeterminantJW(Gate):
             self.orbital_rotation_a = orbital_rotation
             self.orbital_rotation_b = orbital_rotation
         else:
-            self.orbital_rotation_a, self.orbital_rotation_b = orbital_rotation
+            orbital_rotation_a, orbital_rotation_b = orbital_rotation
+            if orbital_rotation_a is None:
+                self.orbital_rotation_a = np.eye(self.norb)
+            else:
+                self.orbital_rotation_a = orbital_rotation_a
+            if orbital_rotation_b is None:
+                self.orbital_rotation_b = np.eye(self.norb)
+            else:
+                self.orbital_rotation_b = orbital_rotation_b
         super().__init__("slater_jw", 2 * norb, [], label=label)
 
     def _define(self):

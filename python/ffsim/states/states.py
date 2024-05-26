@@ -99,8 +99,8 @@ def slater_determinant(
             to apply to both spin sectors, or you can pass a pair of Numpy arrays
             specifying independent orbital rotations for spin alpha and spin beta.
             If passing a pair, you can use ``None`` for one of the
-            values in the pair to indicate that no operation should be applied to that
-            spin sector.
+            values in the pair to indicate that no operation should be applied to
+            that spin sector.
 
     Returns:
         The Slater determinant as a statevector.

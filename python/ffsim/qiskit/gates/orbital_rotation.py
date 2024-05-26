@@ -108,11 +108,15 @@ class OrbitalRotationJW(Gate):
             self.orbital_rotation_a = orbital_rotation
             self.orbital_rotation_b = orbital_rotation
         else:
-            self.orbital_rotation_a, self.orbital_rotation_b = orbital_rotation
-            if self.orbital_rotation_a is None:
+            orbital_rotation_a, orbital_rotation_b = orbital_rotation
+            if orbital_rotation_a is None:
                 self.orbital_rotation_a = np.eye(self.norb)
-            if self.orbital_rotation_b is None:
+            else:
+                self.orbital_rotation_a = orbital_rotation_a
+            if orbital_rotation_b is None:
                 self.orbital_rotation_b = np.eye(self.norb)
+            else:
+                self.orbital_rotation_b = orbital_rotation_b
         super().__init__("orb_rot_jw", 2 * norb, [], label=label)
 
     def _define(self):
