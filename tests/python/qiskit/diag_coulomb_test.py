@@ -114,6 +114,31 @@ def test_random_diag_coulomb_mat(
         )
         np.testing.assert_allclose(result, expected)
 
+        # Numpy array input
+        gate = ffsim.qiskit.DiagCoulombEvolutionJW(
+            norb,
+            np.stack((mat_aa, mat_ab, mat_bb)),
+            time,
+            z_representation=z_representation,
+        )
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+        expected = ffsim.apply_diag_coulomb_evolution(
+            small_vec,
+            (mat_aa, mat_ab, mat_bb),
+            time,
+            norb=norb,
+            nelec=nelec,
+            z_representation=z_representation,
+        )
+        np.testing.assert_allclose(result, expected)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, z_representation",

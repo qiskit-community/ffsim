@@ -118,7 +118,7 @@ def _get_givens_decomposition(
     tuple[list[GivensRotation], np.ndarray] | None,
     tuple[list[GivensRotation], np.ndarray] | None,
 ]:
-    if isinstance(mat, np.ndarray):
+    if isinstance(mat, np.ndarray) and mat.ndim == 2:
         decomp = givens_decomposition(mat)
         return decomp, decomp
     else:

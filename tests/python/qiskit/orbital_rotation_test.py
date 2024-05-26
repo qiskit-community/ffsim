@@ -112,6 +112,21 @@ def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, in
         )
         np.testing.assert_allclose(result, expected)
 
+        # Numpy array input
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, np.stack([mat_a, mat_b]))
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+        expected = ffsim.apply_orbital_rotation(
+            small_vec, (mat_a, mat_b), norb=norb, nelec=nelec
+        )
+        np.testing.assert_allclose(result, expected)
+
 
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
 def test_random_orbital_rotation_spinless(norb: int, nocc: int):

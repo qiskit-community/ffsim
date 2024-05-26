@@ -190,6 +190,32 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
             np.testing.assert_allclose(result, expected)
             np.testing.assert_allclose(state, original_state)
 
+            # (None, None, None)
+            result = ffsim.apply_diag_coulomb_evolution(
+                state, (None, None, None), time, norb, nelec
+            )
+            expected = state
+            np.testing.assert_allclose(result, expected)
+            np.testing.assert_allclose(state, original_state)
+
+            # Numpy array input
+            result = ffsim.apply_diag_coulomb_evolution(
+                state, np.stack((mat_aa, mat_ab, mat_bb)), time, norb, nelec
+            )
+            eig = 0
+            for i, j in itertools.product(range(norb), repeat=2):
+                for sigma, tau in itertools.product(range(2), repeat=2):
+                    if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
+                        if (sigma, tau) == (0, 0):
+                            eig += 0.5 * mat_aa[i, j]
+                        elif (sigma, tau) == (1, 1):
+                            eig += 0.5 * mat_bb[i, j]
+                        else:
+                            eig += 0.5 * mat_ab[i, j]
+            expected = np.exp(-1j * eig * time) * state
+            np.testing.assert_allclose(result, expected)
+            np.testing.assert_allclose(state, original_state)
+
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
 def test_apply_diag_coulomb_evolution_z_rep_asymmetric_spin(
