@@ -13,10 +13,10 @@
 from __future__ import annotations
 
 import math
-from typing import cast
 
 import numpy as np
 
+from ffsim import linalg
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
@@ -25,17 +25,34 @@ from ffsim.cistring import gen_occslst, make_strings
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
+def _conjugate_orbital_rotation(
+    orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+) -> np.ndarray | tuple[np.ndarray | None, np.ndarray | None]:
+    if isinstance(orbital_rotation, np.ndarray):
+        return orbital_rotation.T.conj()
+    orbital_rotation_a, orbital_rotation_b = orbital_rotation
+    if orbital_rotation_a is not None:
+        orbital_rotation_a = orbital_rotation_a.T.conj()
+    if orbital_rotation_b is not None:
+        orbital_rotation_b = orbital_rotation_b.T.conj()
+    return (orbital_rotation_a, orbital_rotation_b)
+
+
 def apply_diag_coulomb_evolution(
     vec: np.ndarray,
-    mat: np.ndarray,
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
     time: float,
     norb: int,
     nelec: tuple[int, int],
     *,
-    orbital_rotation: np.ndarray | None = None,
-    mat_alpha_beta: np.ndarray | None = None,
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
     z_representation: bool = False,
     copy: bool = True,
+    validate: bool = True,
+    rtol: float = 1e-5,
+    atol: float = 1e-8,
 ) -> np.ndarray:
     r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
 
@@ -45,24 +62,32 @@ def apply_diag_coulomb_evolution(
 
         \mathcal{U}
         \exp\left(-i t \sum_{\sigma, \tau, i, j}
-        Z_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
+        Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
         \mathcal{U}^\dagger
 
     where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
-    with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,
+    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real symmetric matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
-    If `mat_alpha_beta` is also given, then it is used in place of :math:`Z`
-    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
 
     Args:
         vec: The state vector to be transformed.
         mat: The real symmetric matrix :math:`Z`.
+            You can pass either a single Numpy array specifying the coefficients
+            to use for all spin interactions, or you can pass a tuple of three Numpy
+            arrays specifying independent coefficients for alpha-alpha, alpha-beta,
+            and beta-beta interactions (in that order). If passing a tuple, you can
+            set a tuple element to ``None`` to indicate the absence of interactions
+            of that type.
         time: The evolution time.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        orbital_rotation: A unitary matrix describing the optional orbital rotation.
-        mat_alpha_beta: A matrix of coefficients to use for interactions between
-            orbitals with differing spin.
+        orbital_rotation: The optional orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to that
+            spin sector.
         z_representation: Whether the input matrices are in the "Z" representation.
         copy: Whether to copy the vector before operating on it.
 
@@ -72,15 +97,26 @@ def apply_diag_coulomb_evolution(
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
+        validate: Whether to check that the input matrix is real symmetric and raise an
+            error if it isn't.
+        rtol: Relative numerical tolerance for input validation.
+        atol: Absolute numerical tolerance for input validation.
 
     Returns:
         The evolved state vector.
+
+    Raises:
+        ValueError: The input matrix was not real symmetric.
     """
+    if validate:
+        _validate_diag_coulomb_mat(mat, rtol=rtol, atol=atol)
+
     if copy:
         vec = vec.copy()
-    if mat_alpha_beta is None:
-        mat_alpha_beta = mat
 
+    mat_exp_aa, mat_exp_ab, mat_exp_bb = _get_mat_exp(
+        mat, time, norb=norb, z_representation=z_representation
+    )
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
@@ -88,32 +124,25 @@ def apply_diag_coulomb_evolution(
     if orbital_rotation is not None:
         vec = apply_orbital_rotation(
             vec,
-            orbital_rotation.T.conj(),
+            _conjugate_orbital_rotation(orbital_rotation),
             norb,
             nelec,
             copy=False,
         )
 
-    mat_exp = mat.copy()
-    mat_alpha_beta_exp = cast(np.ndarray, mat_alpha_beta).copy()
-    mat_exp[np.diag_indices(norb)] *= 0.5
-    if z_representation:
-        mat_exp *= 0.25
-        mat_alpha_beta_exp *= 0.25
-    mat_exp = np.exp(-1j * time * mat_exp)
-    mat_alpha_beta_exp = np.exp(-1j * time * cast(np.ndarray, mat_alpha_beta_exp))
     vec = vec.reshape((dim_a, dim_b))
-
     if z_representation:
         strings_a = make_strings(range(norb), n_alpha)
         strings_b = make_strings(range(norb), n_beta)
         apply_diag_coulomb_evolution_in_place_z_rep(
             vec,
-            mat_exp,
-            mat_exp.conj(),
+            mat_exp_aa,
+            mat_exp_ab,
+            mat_exp_bb,
+            mat_exp_aa.conj(),
+            mat_exp_ab.conj(),
+            mat_exp_bb.conj(),
             norb=norb,
-            mat_alpha_beta_exp=mat_alpha_beta_exp,
-            mat_alpha_beta_exp_conj=mat_alpha_beta_exp.conj(),
             strings_a=strings_a,
             strings_b=strings_b,
         )
@@ -122,9 +151,10 @@ def apply_diag_coulomb_evolution(
         occupations_b = gen_occslst(range(norb), n_beta)
         apply_diag_coulomb_evolution_in_place_num_rep(
             vec,
-            mat_exp,
+            mat_exp_aa,
+            mat_exp_ab,
+            mat_exp_bb,
             norb=norb,
-            mat_alpha_beta_exp=mat_alpha_beta_exp,
             occupations_a=occupations_a,
             occupations_b=occupations_b,
         )
@@ -140,3 +170,79 @@ def apply_diag_coulomb_evolution(
         )
 
     return vec
+
+
+def _validate_diag_coulomb_mat(
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
+    rtol: float,
+    atol: float,
+) -> None:
+    if isinstance(mat, np.ndarray):
+        if not linalg.is_real_symmetric(mat, rtol=rtol, atol=atol):
+            raise ValueError("The input matrix was not real symmetric.")
+    else:
+        mat_aa, mat_ab, mat_bb = mat
+        if mat_aa is not None and not linalg.is_real_symmetric(
+            mat_aa, rtol=rtol, atol=atol
+        ):
+            raise ValueError(
+                "The input matrix for alpha-alpha interactions was not real symmetric."
+            )
+        if mat_ab is not None and not linalg.is_real_symmetric(
+            mat_ab, rtol=rtol, atol=atol
+        ):
+            raise ValueError(
+                "The input matrix for alpha-beta interactions was not real symmetric."
+            )
+        if mat_bb is not None and not linalg.is_real_symmetric(
+            mat_bb, rtol=rtol, atol=atol
+        ):
+            raise ValueError(
+                "The input matrix for beta-beta interactions was not real symmetric."
+            )
+
+
+def _get_mat_exp(
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
+    time: float,
+    norb: int,
+    z_representation: bool,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    mat_aa: np.ndarray | None
+    mat_ab: np.ndarray | None
+    mat_bb: np.ndarray | None
+    if isinstance(mat, np.ndarray):
+        mat_aa, mat_ab = mat.copy(), mat.copy()
+        mat_aa[np.diag_indices(norb)] *= 0.5
+        if z_representation:
+            mat_aa *= 0.25
+            mat_ab *= 0.25
+        mat_exp_aa = np.exp(-1j * time * mat_aa)
+        mat_exp_ab = np.exp(-1j * time * mat_ab)
+        return mat_exp_aa, mat_exp_ab, mat_exp_aa
+    else:
+        mat_aa, mat_ab, mat_bb = mat
+        if mat_aa is None:
+            mat_exp_aa = np.ones((norb, norb), dtype=complex)
+        else:
+            mat_aa = mat_aa.copy()
+            mat_aa[np.diag_indices(norb)] *= 0.5
+            if z_representation:
+                mat_aa *= 0.25
+            mat_exp_aa = np.exp(-1j * time * mat_aa)
+        if mat_bb is None:
+            mat_exp_bb = np.ones((norb, norb), dtype=complex)
+        else:
+            mat_bb = mat_bb.copy()
+            mat_bb[np.diag_indices(norb)] *= 0.5
+            if z_representation:
+                mat_bb *= 0.25
+            mat_exp_bb = np.exp(-1j * time * mat_bb)
+        if mat_ab is None:
+            mat_exp_ab = np.ones((norb, norb), dtype=complex)
+        else:
+            if z_representation:
+                mat_ab = mat_ab.copy()
+                mat_ab *= 0.25
+            mat_exp_ab = np.exp(-1j * time * mat_ab)
+        return mat_exp_aa, mat_exp_ab, mat_exp_bb
