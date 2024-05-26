@@ -36,29 +36,28 @@ def test_linear_operator(norb: int, nelec: tuple[int, int]):
     dim = ffsim.dim(norb, nelec)
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    real_sym_mat = ffsim.random.random_real_symmetric_matrix(
+    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
         norb, seed=rng, dtype=float
     )
 
-    # expand dimensions of real_sym_mat
-    diag_coulomb_mat = np.zeros((norb, norb, norb, norb), dtype=float)
+    # convert diag_coulomb_mat -> two_body_tensor
+    two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=float)
     for p, q in itertools.product(range(norb), repeat=2):
-        diag_coulomb_mat[p, p, q, q] = real_sym_mat[p, q]
+        two_body_tensor[p, p, q, q] = diag_coulomb_mat[p, q]
 
     constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, diag_coulomb_mat, constant
-    )
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
         one_body_tensor, diag_coulomb_mat, constant
     )
+    mol_hamiltonian = ffsim.MolecularHamiltonian(
+        one_body_tensor, two_body_tensor, constant
+    )
 
-    linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
-
+    actual_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
     expected_linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     vec = ffsim.random.random_statevector(dim, seed=rng)
-    actual = linop @ vec
+    actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
 
@@ -78,14 +77,9 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     dim = ffsim.dim(norb, nelec)
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    real_sym_mat = ffsim.random.random_real_symmetric_matrix(
+    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
         norb, seed=rng, dtype=float
     )
-
-    # expand dimensions of real_sym_mat
-    diag_coulomb_mat = np.zeros((norb, norb, norb, norb), dtype=float)
-    for p, q in itertools.product(range(norb), repeat=2):
-        diag_coulomb_mat[p, p, q, q] = real_sym_mat[p, q]
 
     constant = rng.standard_normal()
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
@@ -93,12 +87,11 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     )
 
     op = ffsim.fermion_operator(dc_hamiltonian)
-    linop = ffsim.linear_operator(op, norb, nelec)
-
+    actual_linop = ffsim.linear_operator(op, norb, nelec)
     expected_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
 
     vec = ffsim.random.random_statevector(dim, seed=rng)
-    actual = linop @ vec
+    actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
 
@@ -118,14 +111,9 @@ def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     dim = ffsim.dim(norb, nelec)
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    real_sym_mat = ffsim.random.random_real_symmetric_matrix(
+    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
         norb, seed=rng, dtype=float
     )
-
-    # expand dimensions of real_sym_mat
-    diag_coulomb_mat = np.zeros((norb, norb, norb, norb), dtype=float)
-    for p, q in itertools.product(range(norb), repeat=2):
-        diag_coulomb_mat[p, p, q, q] = real_sym_mat[p, q]
 
     constant = rng.standard_normal()
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
@@ -133,12 +121,11 @@ def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     )
 
     op = ffsim.fermion_operator(dc_hamiltonian)
+    dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
+    actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
     expected_linop = ffsim.linear_operator(op, norb, nelec)
 
-    dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
-    linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
-
     vec = ffsim.random.random_statevector(dim, seed=rng)
-    actual = linop @ vec
+    actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)

@@ -70,8 +70,13 @@ class DiagonalCoulombHamiltonian:
         linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
         link_index = (linkstr_index_a, linkstr_index_b)
 
+        # convert diag_coulomb_mat -> two_body_tensor
+        two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=float)
+        for p, q in itertools.product(range(norb), repeat=2):
+            two_body_tensor[p, p, q, q] = self.diag_coulomb_mat[p, q]
+
         two_body = absorb_h1e(
-            self.one_body_tensor.real, self.diag_coulomb_mat, norb, nelec, 0.5
+            self.one_body_tensor.real, two_body_tensor, norb, nelec, 0.5
         )
         dim_ = dim(norb, nelec)
 
@@ -107,7 +112,7 @@ class DiagonalCoulombHamiltonian:
                 }
             )
         for p, q in itertools.product(range(self.norb), repeat=2):
-            coeff = 0.5 * self.diag_coulomb_mat[p, p, q, q]
+            coeff = 0.5 * self.diag_coulomb_mat[p, q]
             op += FermionOperator(
                 {
                     (cre_a(p), cre_a(q), des_a(q), des_a(p)): coeff,
@@ -137,7 +142,7 @@ class DiagonalCoulombHamiltonian:
         # initialize variables
         constant: float = 0
         one_body_tensor = np.zeros((norb, norb), dtype=complex)
-        diag_coulomb_mat = np.zeros((norb, norb, norb, norb), dtype=float)
+        diag_coulomb_mat = np.zeros((norb, norb), dtype=float)
 
         # populate tensors
         for p, q in itertools.product(range(norb), repeat=2):
@@ -161,7 +166,7 @@ class DiagonalCoulombHamiltonian:
                 if key in one_body_list:
                     one_body_tensor[p, q] += 0.5 * dict_op.pop(key)
                 if key in diag_coulomb_list:
-                    diag_coulomb_mat[p, p, q, q] = -np.real(dict_op.pop(key))
+                    diag_coulomb_mat[p, q] = -np.real(dict_op.pop(key))
 
         # remove constant term
         if () in dict_op:
