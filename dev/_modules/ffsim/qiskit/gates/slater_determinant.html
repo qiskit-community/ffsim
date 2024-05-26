@@ -306,6 +306,7 @@
 
 <span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
 <span class="kn">from</span> <span class="nn">ffsim.linalg.givens</span> <span class="kn">import</span> <span class="n">GivensRotation</span><span class="p">,</span> <span class="n">zrotg</span>
+<span class="kn">from</span> <span class="nn">ffsim.qiskit.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">_validate_orbital_rotation</span>
 
 
 <div class="viewcode-block" id="PrepareHartreeFockJW">
@@ -427,7 +428,9 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-        <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -442,10 +445,13 @@
 <span class="sd">                This is a pair of lists of integers, where the first list specifies the</span>
 <span class="sd">                spin alpha orbitals and the second list specifies the spin beta</span>
 <span class="sd">                orbitals.</span>
-<span class="sd">            orbital_rotation: The optional orbital rotation. You can pass either a</span>
-<span class="sd">                single Numpy array specifying the orbital rotation to apply to both</span>
-<span class="sd">                spin sectors, or you can pass a pair of Numpy arrays to specify</span>
-<span class="sd">                independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">            orbital_rotation: The optional orbital rotation.</span>
+<span class="sd">                You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">                to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">                specifying independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">                If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">                values in the pair to indicate that no operation should be applied to</span>
+<span class="sd">                that spin sector.</span>
 <span class="sd">            label: The label of the gate.</span>
 <span class="sd">            validate: Whether to check that the input orbital rotation(s) is unitary</span>
 <span class="sd">                and raise an error if it isn&#39;t.</span>
@@ -456,22 +462,7 @@
 <span class="sd">            ValueError: The input orbital rotation matrix is not unitary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;The input orbital rotation matrix was not unitary.&quot;</span>
-                    <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;The orbital rotation matrix for spin alpha was not unitary.&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation_b</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;The orbital rotation matrix for spin beta was not unitary.&quot;</span>
-                    <span class="p">)</span>
-
+            <span class="n">_validate_orbital_rotation</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">=</span> <span class="n">norb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="n">occupied_orbitals</span>
         <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -481,7 +472,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="k">if</span> <span class="n">orbital_rotation_a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span>
+            <span class="k">if</span> <span class="n">orbital_rotation_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;slater_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
