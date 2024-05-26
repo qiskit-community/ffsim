@@ -29,6 +29,26 @@ from qiskit.circuit.library import PhaseGate, XXPlusYYGate
 from ffsim import linalg
 
 
+def _validate_orbital_rotation(
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    rtol: float,
+    atol: float,
+) -> None:
+    if isinstance(mat, np.ndarray):
+        if not linalg.is_unitary(mat, rtol=rtol, atol=atol):
+            raise ValueError("The input orbital rotation matrix was not unitary.")
+    else:
+        mat_a, mat_b = mat
+        if mat_a is not None and not linalg.is_unitary(mat_a, rtol=rtol, atol=atol):
+            raise ValueError(
+                "The input orbital rotation matrix for spin alpha was not unitary."
+            )
+        if mat_b is not None and not linalg.is_unitary(mat_b, rtol=rtol, atol=atol):
+            raise ValueError(
+                "The input orbital rotation matrix for spin beta was not unitary."
+            )
+
+
 class OrbitalRotationJW(Gate):
     r"""Orbital rotation under the Jordan-Wigner transformation.
 
@@ -54,7 +74,7 @@ class OrbitalRotationJW(Gate):
     def __init__(
         self,
         norb: int,
-        orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray],
+        orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
         *,
         label: str | None = None,
         validate: bool = True,
@@ -69,6 +89,9 @@ class OrbitalRotationJW(Gate):
                 You can pass either a single Numpy array specifying the orbital rotation
                 to apply to both spin sectors, or you can pass a pair of Numpy arrays
                 specifying independent orbital rotations for spin alpha and spin beta.
+                If passing a pair, you can use ``None`` for one of the
+                values in the pair to indicate that no operation should be applied to
+                that spin sector.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
@@ -78,29 +101,18 @@ class OrbitalRotationJW(Gate):
         Raises:
             ValueError: The input matrix is not unitary.
         """
-        if validate and orbital_rotation is not None:
-            if isinstance(orbital_rotation, np.ndarray):
-                if not linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol):
-                    raise ValueError(
-                        "The input orbital rotation matrix was not unitary."
-                    )
-            else:
-                orbital_rotation_a, orbital_rotation_b = orbital_rotation
-                if not linalg.is_unitary(orbital_rotation_a, rtol=rtol, atol=atol):
-                    raise ValueError(
-                        "The orbital rotation matrix for spin alpha was not unitary."
-                    )
-                if not linalg.is_unitary(orbital_rotation_b, rtol=rtol, atol=atol):
-                    raise ValueError(
-                        "The orbital rotation matrix for spin beta was not unitary."
-                    )
-
+        if validate:
+            _validate_orbital_rotation(orbital_rotation, rtol=rtol, atol=atol)
         self.norb = norb
         if isinstance(orbital_rotation, np.ndarray):
             self.orbital_rotation_a = orbital_rotation
             self.orbital_rotation_b = orbital_rotation
         else:
             self.orbital_rotation_a, self.orbital_rotation_b = orbital_rotation
+            if self.orbital_rotation_a is None:
+                self.orbital_rotation_a = np.eye(self.norb)
+            if self.orbital_rotation_b is None:
+                self.orbital_rotation_b = np.eye(self.norb)
         super().__init__("orb_rot_jw", 2 * norb, [], label=label)
 
     def _define(self):
