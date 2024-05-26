@@ -167,7 +167,7 @@ def _get_mat_exp(
     mat_aa: np.ndarray | None
     mat_ab: np.ndarray | None
     mat_bb: np.ndarray | None
-    if isinstance(mat, np.ndarray):
+    if isinstance(mat, np.ndarray) and mat.ndim == 2:
         mat_aa, mat_ab = mat.copy(), mat.copy()
         mat_aa[np.diag_indices(norb)] *= 0.5
         if z_representation:
