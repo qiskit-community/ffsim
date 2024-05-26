@@ -20,7 +20,7 @@ import ffsim
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
-def test_random_orbital_rotation_same_rotation(norb: int, nelec: tuple[int, int]):
+def test_random_orbital_rotation_symmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random orbital rotation circuit gives correct output state."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
@@ -44,7 +44,7 @@ def test_random_orbital_rotation_same_rotation(norb: int, nelec: tuple[int, int]
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
-def test_random_orbital_rotation_diff_rotation(norb: int, nelec: tuple[int, int]):
+def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random orbital rotation circuit with different rotation for each spin."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
@@ -52,25 +52,64 @@ def test_random_orbital_rotation_diff_rotation(norb: int, nelec: tuple[int, int]
         mat_a = ffsim.random.random_unitary(norb, seed=rng)
         mat_b = ffsim.random.random_unitary(norb, seed=rng)
 
+        # (mat_a, mat_b)
         gate = ffsim.qiskit.OrbitalRotationJW(norb, (mat_a, mat_b))
-
         small_vec = ffsim.random.random_statevector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
-
         statevec = Statevector(big_vec).evolve(gate)
         result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
             np.array(statevec), norb=norb, nelec=nelec
         )
+        expected = ffsim.apply_orbital_rotation(
+            small_vec, (mat_a, mat_b), norb=norb, nelec=nelec
+        )
+        np.testing.assert_allclose(result, expected)
 
+        # (mat_a, None)
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, (mat_a, None))
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
         expected = ffsim.apply_orbital_rotation(
             small_vec, (mat_a, None), norb=norb, nelec=nelec
         )
-        expected = ffsim.apply_orbital_rotation(
-            expected, (None, mat_b), norb=norb, nelec=nelec
-        )
+        np.testing.assert_allclose(result, expected)
 
+        # (None, mat_b)
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, (None, mat_b))
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+        expected = ffsim.apply_orbital_rotation(
+            small_vec, (None, mat_b), norb=norb, nelec=nelec
+        )
+        np.testing.assert_allclose(result, expected)
+
+        # (None, None)
+        gate = ffsim.qiskit.OrbitalRotationJW(norb, (None, None))
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+        expected = ffsim.apply_orbital_rotation(
+            small_vec, (None, None), norb=norb, nelec=nelec
+        )
         np.testing.assert_allclose(result, expected)
 
 
