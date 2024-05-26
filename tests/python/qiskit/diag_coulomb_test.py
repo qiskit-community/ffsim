@@ -37,13 +37,14 @@ def test_random_diag_coulomb_mat(
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         time = rng.uniform(-10, 10)
 
-        # Test without separate alpha-beta matrix
+        # mat
         gate = ffsim.qiskit.DiagCoulombEvolutionJW(
-            norb, mat, time, z_representation=z_representation
+            norb, mat_aa, time, z_representation=z_representation
         )
         small_vec = ffsim.random.random_statevector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
@@ -55,7 +56,7 @@ def test_random_diag_coulomb_mat(
         )
         expected = ffsim.apply_diag_coulomb_evolution(
             small_vec,
-            mat,
+            mat_aa,
             time,
             norb=norb,
             nelec=nelec,
@@ -63,12 +64,11 @@ def test_random_diag_coulomb_mat(
         )
         np.testing.assert_allclose(result, expected)
 
-        # Test with separate alpha-beta matrix
+        # (mat_aa, mat_ab, mat_bb)
         gate = ffsim.qiskit.DiagCoulombEvolutionJW(
             norb,
-            mat,
+            (mat_aa, mat_ab, mat_bb),
             time,
-            mat_alpha_beta=mat_alpha_beta,
             z_representation=z_representation,
         )
         small_vec = ffsim.random.random_statevector(dim, seed=rng)
@@ -81,11 +81,35 @@ def test_random_diag_coulomb_mat(
         )
         expected = ffsim.apply_diag_coulomb_evolution(
             small_vec,
-            mat,
+            (mat_aa, mat_ab, mat_bb),
             time,
             norb=norb,
             nelec=nelec,
-            mat_alpha_beta=mat_alpha_beta,
+            z_representation=z_representation,
+        )
+        np.testing.assert_allclose(result, expected)
+
+        # (mat_aa, None, mat_bb)
+        gate = ffsim.qiskit.DiagCoulombEvolutionJW(
+            norb,
+            (mat_aa, None, mat_bb),
+            time,
+            z_representation=z_representation,
+        )
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+        expected = ffsim.apply_diag_coulomb_evolution(
+            small_vec,
+            (mat_aa, None, mat_bb),
+            time,
+            norb=norb,
+            nelec=nelec,
             z_representation=z_representation,
         )
         np.testing.assert_allclose(result, expected)
@@ -105,13 +129,14 @@ def test_inverse(norb: int, nelec: tuple[int, int], z_representation: bool):
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_alpha_beta = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         time = rng.uniform(-10, 10)
 
-        # Test without separate alpha-beta matrix
+        # mat
         gate = ffsim.qiskit.DiagCoulombEvolutionJW(
-            norb, mat, time, z_representation=z_representation
+            norb, mat_aa, time, z_representation=z_representation
         )
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec
@@ -120,12 +145,25 @@ def test_inverse(norb: int, nelec: tuple[int, int], z_representation: bool):
         statevec = statevec.evolve(gate.inverse())
         np.testing.assert_allclose(np.array(statevec), vec)
 
-        # Test with separate alpha-beta matrix
+        # (mat_aa, mat_ab, mat_bb)
         gate = ffsim.qiskit.DiagCoulombEvolutionJW(
             norb,
-            mat,
+            (mat_aa, mat_ab, mat_bb),
             time,
-            mat_alpha_beta=mat_alpha_beta,
+            z_representation=z_representation,
+        )
+        vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec
+        )
+        statevec = Statevector(vec).evolve(gate)
+        statevec = statevec.evolve(gate.inverse())
+        np.testing.assert_allclose(np.array(statevec), vec)
+
+        # (mat_aa, None, mat_bb)
+        gate = ffsim.qiskit.DiagCoulombEvolutionJW(
+            norb,
+            (mat_aa, None, mat_bb),
+            time,
             z_representation=z_representation,
         )
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(

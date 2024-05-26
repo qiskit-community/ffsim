@@ -152,7 +152,6 @@ def _evolve_statevector(
             op.time,
             norb=norb,
             nelec=nelec,
-            mat_alpha_beta=op.mat_alpha_beta,
             z_representation=op.z_representation,
             copy=False,
         )

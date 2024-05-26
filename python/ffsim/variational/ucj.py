@@ -289,11 +289,10 @@ class UCJOperator:
         ):
             vec = apply_diag_coulomb_evolution(
                 vec,
-                mat=mat,
+                mat=(mat, mat_alpha_beta, mat),
                 time=-1.0,
                 norb=norb,
                 nelec=nelec,
-                mat_alpha_beta=mat_alpha_beta,
                 orbital_rotation=orbital_rotation,
                 copy=False,
             )
@@ -558,21 +557,19 @@ class RealUCJOperator:
         ):
             vec = apply_diag_coulomb_evolution(
                 vec,
-                mat=mat,
+                mat=(mat, mat_alpha_beta, mat),
                 time=-1.0,
                 norb=norb,
                 nelec=nelec,
-                mat_alpha_beta=mat_alpha_beta,
                 orbital_rotation=orbital_rotation,
                 copy=False,
             )
             vec = apply_diag_coulomb_evolution(
                 vec,
-                mat=-mat,
+                mat=(-mat, -mat_alpha_beta, -mat),
                 time=-1.0,
                 norb=norb,
                 nelec=nelec,
-                mat_alpha_beta=-mat_alpha_beta,
                 orbital_rotation=orbital_rotation.conj(),
                 copy=False,
             )

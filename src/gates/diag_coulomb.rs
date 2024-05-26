@@ -20,15 +20,17 @@ use pyo3::prelude::*;
 #[pyfunction]
 pub fn apply_diag_coulomb_evolution_in_place_num_rep(
     mut vec: PyReadwriteArray2<Complex64>,
-    mat_exp: PyReadonlyArray2<Complex64>,
+    mat_exp_aa: PyReadonlyArray2<Complex64>,
+    mat_exp_ab: PyReadonlyArray2<Complex64>,
+    mat_exp_bb: PyReadonlyArray2<Complex64>,
     norb: usize,
-    mat_alpha_beta_exp: PyReadonlyArray2<Complex64>,
     occupations_a: PyReadonlyArray2<usize>,
     occupations_b: PyReadonlyArray2<usize>,
 ) {
-    let mat_exp = mat_exp.as_array();
+    let mat_exp_aa = mat_exp_aa.as_array();
+    let mat_exp_ab = mat_exp_ab.as_array();
+    let mat_exp_bb = mat_exp_bb.as_array();
     let mut vec = vec.as_array_mut();
-    let mat_alpha_beta_exp = mat_alpha_beta_exp.as_array();
     let occupations_a = occupations_a.as_array();
     let occupations_b = occupations_b.as_array();
 
@@ -50,7 +52,7 @@ pub fn apply_diag_coulomb_evolution_in_place_num_rep(
                 let orb_1 = orbs[j];
                 for k in j..n_beta {
                     let orb_2 = orbs[k];
-                    phase *= mat_exp[(orb_1, orb_2)];
+                    phase *= mat_exp_bb[(orb_1, orb_2)];
                 }
             }
             *val = phase;
@@ -63,10 +65,10 @@ pub fn apply_diag_coulomb_evolution_in_place_num_rep(
             let mut phase = Complex64::new(1.0, 0.0);
             for j in 0..n_alpha {
                 let orb_1 = orbs[j];
-                row *= &mat_alpha_beta_exp.row(orb_1);
+                row *= &mat_exp_ab.row(orb_1);
                 for k in j..n_alpha {
                     let orb_2 = orbs[k];
-                    phase *= mat_exp[(orb_1, orb_2)];
+                    phase *= mat_exp_aa[(orb_1, orb_2)];
                 }
             }
             *val = phase;
@@ -92,19 +94,24 @@ pub fn apply_diag_coulomb_evolution_in_place_num_rep(
 #[pyfunction]
 pub fn apply_diag_coulomb_evolution_in_place_z_rep(
     mut vec: PyReadwriteArray2<Complex64>,
-    mat_exp: PyReadonlyArray2<Complex64>,
-    mat_exp_conj: PyReadonlyArray2<Complex64>,
+    mat_exp_aa: PyReadonlyArray2<Complex64>,
+    mat_exp_ab: PyReadonlyArray2<Complex64>,
+    mat_exp_bb: PyReadonlyArray2<Complex64>,
+    // TODO don't pass the conjugates separately
+    mat_exp_aa_conj: PyReadonlyArray2<Complex64>,
+    mat_exp_ab_conj: PyReadonlyArray2<Complex64>,
+    mat_exp_bb_conj: PyReadonlyArray2<Complex64>,
     norb: usize,
-    mat_alpha_beta_exp: PyReadonlyArray2<Complex64>,
-    mat_alpha_beta_exp_conj: PyReadonlyArray2<Complex64>,
     strings_a: PyReadonlyArray1<i64>,
     strings_b: PyReadonlyArray1<i64>,
 ) {
-    let mat_exp = mat_exp.as_array();
-    let mat_exp_conj = mat_exp_conj.as_array();
+    let mat_exp_aa = mat_exp_aa.as_array();
+    let mat_exp_ab = mat_exp_ab.as_array();
+    let mat_exp_bb = mat_exp_bb.as_array();
+    let mat_exp_aa_conj = mat_exp_aa_conj.as_array();
+    let mat_exp_ab_conj = mat_exp_ab_conj.as_array();
+    let mat_exp_bb_conj = mat_exp_bb_conj.as_array();
     let mut vec = vec.as_array_mut();
-    let mat_alpha_beta_exp = mat_alpha_beta_exp.as_array();
-    let mat_alpha_beta_exp_conj = mat_alpha_beta_exp_conj.as_array();
     let strings_a = strings_a.as_array();
     let strings_b = strings_b.as_array();
 
@@ -125,9 +132,9 @@ pub fn apply_diag_coulomb_evolution_in_place_z_rep(
                 for k in j + 1..norb {
                     let sign_k = str0 >> k & 1 == 1;
                     let this_phase = if sign_j ^ sign_k {
-                        mat_exp_conj[(j, k)]
+                        mat_exp_bb_conj[(j, k)]
                     } else {
-                        mat_exp[(j, k)]
+                        mat_exp_bb[(j, k)]
                     };
                     phase *= this_phase;
                 }
@@ -143,17 +150,17 @@ pub fn apply_diag_coulomb_evolution_in_place_z_rep(
             for j in 0..norb {
                 let sign_j = str0 >> j & 1 == 1;
                 let this_row = if sign_j {
-                    mat_alpha_beta_exp_conj.row(j)
+                    mat_exp_ab_conj.row(j)
                 } else {
-                    mat_alpha_beta_exp.row(j)
+                    mat_exp_ab.row(j)
                 };
                 row *= &this_row;
                 for k in j + 1..norb {
                     let sign_k = str0 >> k & 1 == 1;
                     let this_phase = if sign_j ^ sign_k {
-                        mat_exp_conj[(j, k)]
+                        mat_exp_aa_conj[(j, k)]
                     } else {
-                        mat_exp[(j, k)]
+                        mat_exp_aa[(j, k)]
                     };
                     phase *= this_phase;
                 }
