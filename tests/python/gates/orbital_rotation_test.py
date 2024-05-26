@@ -21,20 +21,15 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.spin import pair_for_spin
 from ffsim.states import slater_determinant
 
 
-def _orbital_rotation_generator(
-    mat: np.ndarray, spin: ffsim.Spin
-) -> ffsim.FermionOperator:
+def _orbital_rotation_generator(mat: np.ndarray, spin: bool) -> ffsim.FermionOperator:
     norb, _ = mat.shape
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
+    cre, des = (ffsim.cre_b, ffsim.des_b) if spin else (ffsim.cre_a, ffsim.des_a)
     for i, j in itertools.product(range(norb), repeat=2):
-        if spin & ffsim.Spin.ALPHA:
-            coeffs[ffsim.cre_a(i), ffsim.des_a(j)] = mat[i, j]
-        if spin & ffsim.Spin.BETA:
-            coeffs[ffsim.cre_b(i), ffsim.des_b(j)] = mat[i, j]
+        coeffs[cre(i), des(j)] = mat[i, j]
     return ffsim.FermionOperator(coeffs)
 
 
@@ -59,29 +54,51 @@ def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
-)
-def test_apply_orbital_rotation_random(
-    norb: int, nelec: tuple[int, int], spin: ffsim.Spin
-):
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
+def test_apply_orbital_rotation_random(norb: int, nelec: tuple[int, int]):
     """Test applying random orbital rotation yields correct output state."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_unitary(norb, seed=rng)
+        mat_a = ffsim.random.random_unitary(norb, seed=rng)
+        mat_b = ffsim.random.random_unitary(norb, seed=rng)
         vec = ffsim.random.random_statevector(dim, seed=rng)
 
-        result = ffsim.apply_orbital_rotation(
-            vec, pair_for_spin(mat, spin), norb, nelec
-        )
         if norb:
-            generator = _orbital_rotation_generator(scipy.linalg.logm(mat), spin)
-            op = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
-            expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=1)
-        else:
-            expected = vec
+            gen_a = _orbital_rotation_generator(scipy.linalg.logm(mat_a), spin=False)
+            gen_b = _orbital_rotation_generator(scipy.linalg.logm(mat_b), spin=True)
+            op_a = ffsim.linear_operator(gen_a, norb=norb, nelec=nelec)
+            op_b = ffsim.linear_operator(gen_b, norb=norb, nelec=nelec)
+            op_ab = ffsim.linear_operator(gen_a + gen_b, norb=norb, nelec=nelec)
 
+        # (mat_a, mat_b)
+        expected = (
+            scipy.sparse.linalg.expm_multiply(op_ab, vec, traceA=1) if norb else vec
+        )
+        result = ffsim.apply_orbital_rotation(vec, (mat_a, mat_b), norb, nelec)
+        np.testing.assert_allclose(result, expected)
+        result = ffsim.apply_orbital_rotation(
+            vec, np.stack((mat_a, mat_b)), norb, nelec
+        )
+        np.testing.assert_allclose(result, expected)
+
+        # (mat_a, None)
+        expected = (
+            scipy.sparse.linalg.expm_multiply(op_a, vec, traceA=1) if norb else vec
+        )
+        result = ffsim.apply_orbital_rotation(vec, (mat_a, None), norb, nelec)
+        np.testing.assert_allclose(result, expected)
+
+        # (None, mat_b)
+        expected = (
+            scipy.sparse.linalg.expm_multiply(op_b, vec, traceA=1) if norb else vec
+        )
+        result = ffsim.apply_orbital_rotation(vec, (None, mat_b), norb, nelec)
+        np.testing.assert_allclose(result, expected)
+
+        # (None, None)
+        expected = vec
+        result = ffsim.apply_orbital_rotation(vec, (None, None), norb, nelec)
         np.testing.assert_allclose(result, expected)
 
 
