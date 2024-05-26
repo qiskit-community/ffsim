@@ -180,7 +180,6 @@ def _evolve_statevector(
             norb=norb,
             nelec=nelec,
             copy=False,
-            validate=False,
         )
         vec = gates.apply_orbital_rotation(
             vec,
@@ -188,7 +187,6 @@ def _evolve_statevector(
             norb=norb,
             nelec=nelec,
             copy=False,
-            validate=False,
         )
         return Statevector(vec=vec, norb=norb, nelec=nelec)
 
@@ -199,7 +197,7 @@ def _evolve_statevector(
                 "consecutive qubits, in ascending order."
             )
         vec = gates.apply_orbital_rotation(
-            vec, op.orbital_rotation, norb=norb, nelec=nelec, copy=False, validate=False
+            vec, op.orbital_rotation, norb=norb, nelec=nelec, copy=False
         )
         return Statevector(vec=vec, norb=norb, nelec=nelec)
 

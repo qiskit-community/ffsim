@@ -49,12 +49,7 @@ class GivensAnsatzOperator:
     ) -> np.ndarray:
         """Apply the operator to a vector."""
         return apply_orbital_rotation(
-            vec,
-            self.to_orbital_rotation(),
-            norb=norb,
-            nelec=nelec,
-            copy=copy,
-            validate=False,
+            vec, self.to_orbital_rotation(), norb=norb, nelec=nelec, copy=copy
         )
 
     def to_parameters(self) -> np.ndarray:

@@ -90,12 +90,7 @@ def apply_num_op_sum_evolution(
 
     Returns:
         The evolved state vector.
-
-    Raises:
-        ValueError: ``coeffs`` must be a one-dimensional vector with length ``norb``.
     """
-    _validate_coeffs(coeffs, norb)
-
     if copy:
         vec = vec.copy()
 
@@ -136,31 +131,6 @@ def apply_num_op_sum_evolution(
         )
 
     return vec
-
-
-def _validate_coeffs(
-    coeffs: np.ndarray | tuple[np.ndarray | None, np.ndarray | None], norb: int
-) -> None:
-    if isinstance(coeffs, np.ndarray):
-        if coeffs.shape != (norb,):
-            raise ValueError(
-                "coeffs must be a one-dimensional vector with length norb. "
-                f"Got norb = {norb} but coeffs had shape {coeffs.shape}"
-            )
-    else:
-        coeffs_a, coeffs_b = coeffs
-        if coeffs_a is not None and coeffs_a.shape != (norb,):
-            raise ValueError(
-                "coeffs must be a one-dimensional vector with length norb. "
-                f"Got norb = {norb} but coeffs for spin alpha had shape "
-                f"{coeffs_a.shape}"
-            )
-        if coeffs_b is not None and coeffs_b.shape != (norb,):
-            raise ValueError(
-                "coeffs must be a one-dimensional vector with length norb. "
-                f"Got norb = {norb} but coeffs for spin beta had shape "
-                f"{coeffs_b.shape}"
-            )
 
 
 def _get_phases(

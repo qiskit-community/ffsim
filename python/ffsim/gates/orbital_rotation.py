@@ -18,7 +18,6 @@ from functools import lru_cache
 import numpy as np
 from pyscf.fci import cistring
 
-from ffsim import linalg
 from ffsim._lib import (
     apply_givens_rotation_in_place,
     apply_phase_shift_in_place,
@@ -33,9 +32,6 @@ def apply_orbital_rotation(
     nelec: tuple[int, int],
     *,
     copy: bool = True,
-    validate: bool = True,
-    rtol: float = 1e-5,
-    atol: float = 1e-8,
 ) -> np.ndarray:
     r"""Apply an orbital rotation to a vector.
 
@@ -62,8 +58,8 @@ def apply_orbital_rotation(
             to apply to both spin sectors, or you can pass a pair of Numpy arrays
             specifying independent orbital rotations for spin alpha and spin beta.
             If passing a pair, you can use ``None`` for one of the
-            values in the pair to indicate that no operation should be applied to that
-            spin sector.
+            values in the pair to indicate that no operation should be applied to
+            that spin sector.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
@@ -74,20 +70,10 @@ def apply_orbital_rotation(
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
-        validate: Whether to check that the input matrix is unitary and raise an error
-            if it isn't.
-        rtol: Relative numerical tolerance for input validation.
-        atol: Absolute numerical tolerance for input validation.
 
     Returns:
         The transformed vector.
-
-    Raises:
-        ValueError: The input matrix was not unitary.
     """
-    if validate:
-        _validate_orbital_rotation(mat, rtol=rtol, atol=atol)
-
     if copy:
         vec = vec.copy()
 
@@ -124,26 +110,6 @@ def apply_orbital_rotation(
         vec = vec.T.copy()
 
     return vec.reshape(-1)
-
-
-def _validate_orbital_rotation(
-    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
-    rtol: float,
-    atol: float,
-) -> None:
-    if isinstance(mat, np.ndarray):
-        if not linalg.is_unitary(mat, rtol=rtol, atol=atol):
-            raise ValueError("The input orbital rotation matrix was not unitary.")
-    else:
-        mat_a, mat_b = mat
-        if mat_a is not None and not linalg.is_unitary(mat_a, rtol=rtol, atol=atol):
-            raise ValueError(
-                "The input orbital rotation matrix for spin alpha was not unitary."
-            )
-        if mat_b is not None and not linalg.is_unitary(mat_b, rtol=rtol, atol=atol):
-            raise ValueError(
-                "The input orbital rotation matrix for spin beta was not unitary."
-            )
 
 
 def _get_givens_decomposition(

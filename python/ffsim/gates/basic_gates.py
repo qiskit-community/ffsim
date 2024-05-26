@@ -109,12 +109,7 @@ def apply_givens_rotation(
     mat = np.eye(norb)
     mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
     return apply_orbital_rotation(
-        vec,
-        pair_for_spin(mat, spin=spin),
-        norb=norb,
-        nelec=nelec,
-        copy=copy,
-        validate=False,
+        vec, pair_for_spin(mat, spin=spin), norb=norb, nelec=nelec, copy=copy
     )
 
 
