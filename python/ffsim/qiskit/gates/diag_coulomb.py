@@ -25,7 +25,37 @@ from qiskit.circuit import (
 )
 from qiskit.circuit.library import CPhaseGate, PhaseGate, RZZGate
 
-from ffsim.gates.diag_coulomb import _validate_diag_coulomb_mat
+from ffsim import linalg
+
+
+def _validate_diag_coulomb_mat(
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
+    rtol: float,
+    atol: float,
+) -> None:
+    if isinstance(mat, np.ndarray):
+        if not linalg.is_real_symmetric(mat, rtol=rtol, atol=atol):
+            raise ValueError("The input matrix was not real symmetric.")
+    else:
+        mat_aa, mat_ab, mat_bb = mat
+        if mat_aa is not None and not linalg.is_real_symmetric(
+            mat_aa, rtol=rtol, atol=atol
+        ):
+            raise ValueError(
+                "The input matrix for alpha-alpha interactions was not real symmetric."
+            )
+        if mat_ab is not None and not linalg.is_real_symmetric(
+            mat_ab, rtol=rtol, atol=atol
+        ):
+            raise ValueError(
+                "The input matrix for alpha-beta interactions was not real symmetric."
+            )
+        if mat_bb is not None and not linalg.is_real_symmetric(
+            mat_bb, rtol=rtol, atol=atol
+        ):
+            raise ValueError(
+                "The input matrix for beta-beta interactions was not real symmetric."
+            )
 
 
 class DiagCoulombEvolutionJW(Gate):
