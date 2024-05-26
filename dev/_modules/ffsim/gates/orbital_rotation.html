@@ -300,7 +300,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
 <span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">apply_givens_rotation_in_place</span><span class="p">,</span>
     <span class="n">apply_phase_shift_in_place</span><span class="p">,</span>
@@ -317,9 +316,6 @@
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
-    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply an orbital rotation to a vector.</span>
 
@@ -346,8 +342,8 @@
 <span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
 <span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
 <span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
-<span class="sd">            values in the pair to indicate that no operation should be applied to that</span>
-<span class="sd">            spin sector.</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to</span>
+<span class="sd">            that spin sector.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
@@ -358,20 +354,10 @@
 <span class="sd">              vector, but the original vector may have its data overwritten.</span>
 <span class="sd">              It is also possible that the original vector is returned,</span>
 <span class="sd">              modified in-place.</span>
-<span class="sd">        validate: Whether to check that the input matrix is unitary and raise an error</span>
-<span class="sd">            if it isn&#39;t.</span>
-<span class="sd">        rtol: Relative numerical tolerance for input validation.</span>
-<span class="sd">        atol: Absolute numerical tolerance for input validation.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The transformed vector.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: The input matrix was not unitary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
-        <span class="n">_validate_orbital_rotation</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -409,26 +395,6 @@
 
     <span class="k">return</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
 
-
-
-<span class="k">def</span> <span class="nf">_validate_orbital_rotation</span><span class="p">(</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
-    <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input orbital rotation matrix was not unitary.&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">mat_a</span><span class="p">,</span> <span class="n">mat_b</span> <span class="o">=</span> <span class="n">mat</span>
-        <span class="k">if</span> <span class="n">mat_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">mat_a</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The input orbital rotation matrix for spin alpha was not unitary.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">mat_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">mat_b</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The input orbital rotation matrix for spin beta was not unitary.&quot;</span>
-            <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_givens_decomposition</span><span class="p">(</span>
