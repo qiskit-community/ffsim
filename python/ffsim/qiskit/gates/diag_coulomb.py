@@ -33,7 +33,7 @@ def _validate_diag_coulomb_mat(
     rtol: float,
     atol: float,
 ) -> None:
-    if isinstance(mat, np.ndarray):
+    if isinstance(mat, np.ndarray) and mat.ndim == 2:
         if not linalg.is_real_symmetric(mat, rtol=rtol, atol=atol):
             raise ValueError("The input matrix was not real symmetric.")
     else:
@@ -153,7 +153,7 @@ def _diag_coulomb_evo_num_rep_jw(
     mat_aa: np.ndarray | None
     mat_ab: np.ndarray | None
     mat_bb: np.ndarray | None
-    if isinstance(mat, np.ndarray):
+    if isinstance(mat, np.ndarray) and mat.ndim == 2:
         mat_aa, mat_ab, mat_bb = mat, mat, mat
     else:
         mat_aa, mat_ab, mat_bb = mat
@@ -204,7 +204,7 @@ def _diag_coulomb_evo_z_rep_jw(
     mat_aa: np.ndarray | None
     mat_ab: np.ndarray | None
     mat_bb: np.ndarray | None
-    if isinstance(mat, np.ndarray):
+    if isinstance(mat, np.ndarray) and mat.ndim == 2:
         mat_aa, mat_ab, mat_bb = mat, mat, mat
     else:
         mat_aa, mat_ab, mat_bb = mat
