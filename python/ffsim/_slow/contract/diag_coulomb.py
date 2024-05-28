@@ -31,12 +31,11 @@ def contract_diag_coulomb_into_buffer_num_rep_slow(
     beta_coeffs = np.zeros((dim_b,), dtype=complex)
     coeff_map = np.zeros((dim_a, norb), dtype=complex)
 
-    if not np.allclose(mat_bb, 0):
-        for i, occ in enumerate(occupations_b):
-            coeff = 0
-            for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
-                coeff += mat_bb[orb_1, orb_2]
-            beta_coeffs[i] = coeff
+    for i, occ in enumerate(occupations_b):
+        coeff = 0
+        for orb_1, orb_2 in itertools.combinations_with_replacement(occ, 2):
+            coeff += mat_bb[orb_1, orb_2]
+        beta_coeffs[i] = coeff
 
     for i, (row, orbs) in enumerate(zip(coeff_map, occupations_a)):
         coeff = 0
@@ -71,15 +70,14 @@ def contract_diag_coulomb_into_buffer_z_rep_slow(
     beta_coeffs = np.zeros((dim_b,), dtype=complex)
     coeff_map = np.zeros((dim_a, norb), dtype=complex)
 
-    if not np.allclose(mat_bb, 0):
-        for i, str0 in enumerate(strings_b):
-            coeff = 0
-            for j in range(norb):
-                sign_j = -1 if str0 >> j & 1 else 1
-                for k in range(j + 1, norb):
-                    sign_k = -1 if str0 >> k & 1 else 1
-                    coeff += sign_j * sign_k * mat_bb[j, k]
-            beta_coeffs[i] = coeff
+    for i, str0 in enumerate(strings_b):
+        coeff = 0
+        for j in range(norb):
+            sign_j = -1 if str0 >> j & 1 else 1
+            for k in range(j + 1, norb):
+                sign_k = -1 if str0 >> k & 1 else 1
+                coeff += sign_j * sign_k * mat_bb[j, k]
+        beta_coeffs[i] = coeff
 
     for i, (row, str0) in enumerate(zip(coeff_map, strings_a)):
         coeff = 0
