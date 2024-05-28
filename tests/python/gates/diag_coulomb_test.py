@@ -122,6 +122,7 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
     n_alpha, n_beta = nelec
     time = rng.uniform(-10, 10)
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    # TODO mat_ab is not required to be symmetric
     mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
