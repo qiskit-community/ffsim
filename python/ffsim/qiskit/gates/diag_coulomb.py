@@ -58,19 +58,17 @@ class DiagCoulombEvolutionJW(Gate):
 
         Args:
             norb: The number of spatial orbitals.
-            mat: The real symmetric matrix :math:`Z`.
+            mat: The diagonal Coulomb matrix :math:`Z`.
                 You can pass either a single Numpy array specifying the coefficients
                 to use for all spin interactions, or you can pass a tuple of three Numpy
                 arrays specifying independent coefficients for alpha-alpha, alpha-beta,
                 and beta-beta interactions (in that order). If passing a tuple, you can
                 set a tuple element to ``None`` to indicate the absence of interactions
-                of that type.
+                of that type. The alpha-alpha and beta-beta matrices are assumed to be
+                symmetric, and only their upper triangular entries are used.
             time: The evolution time.
             z_representation: Whether the input matrices are in the "Z" representation.
             label: The label of the gate.
-
-        Raises:
-            ValueError: The input matrix is not real symmetric.
         """
         self.norb = norb
         self.mat = mat
