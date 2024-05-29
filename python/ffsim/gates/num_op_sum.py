@@ -24,7 +24,7 @@ from ffsim.gates.orbital_rotation import apply_orbital_rotation
 def _conjugate_orbital_rotation(
     orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
 ) -> np.ndarray | tuple[np.ndarray | None, np.ndarray | None]:
-    if isinstance(orbital_rotation, np.ndarray):
+    if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
         return orbital_rotation.T.conj()
     orbital_rotation_a, orbital_rotation_b = orbital_rotation
     if orbital_rotation_a is not None:
