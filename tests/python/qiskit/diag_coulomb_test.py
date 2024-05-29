@@ -38,7 +38,7 @@ def test_random_diag_coulomb_mat(
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_ab = rng.standard_normal((norb, norb))
         mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         time = rng.uniform(-10, 10)
 
@@ -155,7 +155,7 @@ def test_inverse(norb: int, nelec: tuple[int, int], z_representation: bool):
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        mat_ab = rng.standard_normal((norb, norb))
         mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         time = rng.uniform(-10, 10)
 
