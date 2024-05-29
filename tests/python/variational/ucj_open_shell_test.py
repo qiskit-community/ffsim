@@ -154,6 +154,7 @@ def test_t_amplitudes_energy():
         atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
         basis="6-31g",
         spin=1,
+        symmetry="Coov",
     )
     scf = pyscf.scf.ROHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()
@@ -192,6 +193,7 @@ def test_t_amplitudes_restrict_indices():
         atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
         basis="6-31g",
         spin=1,
+        symmetry="Coov",
     )
     scf = pyscf.scf.ROHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()

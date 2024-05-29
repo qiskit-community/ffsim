@@ -369,6 +369,7 @@ def test_double_factorized_t2_alpha_beta_beh():
         atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
         basis="6-31g",
         spin=1,
+        symmetry="Coov",
     )
     scf = pyscf.scf.ROHF(mol).run()
     ccsd = cc.CCSD(scf).run()
