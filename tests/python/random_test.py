@@ -23,12 +23,10 @@ import ffsim
 
 def assert_t2_has_correct_symmetry(t2: np.ndarray):
     nocc, _, nvrt, _ = t2.shape
-    norb = nocc + nvrt
-    pairs = itertools.product(range(nocc), range(nocc, norb))
-    for (i, a), (j, b) in itertools.product(pairs, repeat=2):
-        np.testing.assert_allclose(
-            t2[i, j, a - nocc, b - nocc], t2[j, i, b - nocc, a - nocc]
-        )
+    for i, j, a, b in itertools.product(
+        range(nocc), range(nocc), range(nvrt), range(nvrt)
+    ):
+        np.testing.assert_allclose(t2[i, j, a, b], t2[j, i, b, a])
 
 
 def test_assert_t2_has_correct_symmetry():
