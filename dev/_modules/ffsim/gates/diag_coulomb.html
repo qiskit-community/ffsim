@@ -346,18 +346,19 @@
 <span class="sd">        \mathcal{U}^\dagger</span>
 
 <span class="sd">    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`</span>
-<span class="sd">    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real symmetric matrix,</span>
+<span class="sd">    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix,</span>
 <span class="sd">    and :math:`\mathcal{U}` is an optional orbital rotation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
-<span class="sd">        mat: The real symmetric matrix :math:`Z`.</span>
+<span class="sd">        mat: The diagonal Coulomb matrix :math:`Z`.</span>
 <span class="sd">            You can pass either a single Numpy array specifying the coefficients</span>
 <span class="sd">            to use for all spin interactions, or you can pass a tuple of three Numpy</span>
 <span class="sd">            arrays specifying independent coefficients for alpha-alpha, alpha-beta,</span>
 <span class="sd">            and beta-beta interactions (in that order). If passing a tuple, you can</span>
 <span class="sd">            set a tuple element to ``None`` to indicate the absence of interactions</span>
-<span class="sd">            of that type.</span>
+<span class="sd">            of that type. The alpha-alpha and beta-beta matrices are assumed to be</span>
+<span class="sd">            symmetric, and only their upper triangular entries are used.</span>
 <span class="sd">        time: The evolution time.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>

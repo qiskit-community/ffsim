@@ -307,38 +307,6 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">CPhaseGate</span><span class="p">,</span> <span class="n">PhaseGate</span><span class="p">,</span> <span class="n">RZZGate</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
-
-
-<span class="k">def</span> <span class="nf">_validate_diag_coulomb_mat</span><span class="p">(</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
-    <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">mat</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_real_symmetric</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input matrix was not real symmetric.&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_bb</span> <span class="o">=</span> <span class="n">mat</span>
-        <span class="k">if</span> <span class="n">mat_aa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_real_symmetric</span><span class="p">(</span>
-            <span class="n">mat_aa</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The input matrix for alpha-alpha interactions was not real symmetric.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">mat_ab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_real_symmetric</span><span class="p">(</span>
-            <span class="n">mat_ab</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The input matrix for alpha-beta interactions was not real symmetric.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">mat_bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_real_symmetric</span><span class="p">(</span>
-            <span class="n">mat_bb</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The input matrix for beta-beta interactions was not real symmetric.&quot;</span>
-            <span class="p">)</span>
-
 
 <div class="viewcode-block" id="DiagCoulombEvolutionJW">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW">[docs]</a>
@@ -353,7 +321,7 @@
 <span class="sd">        Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)</span>
 
 <span class="sd">    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`</span>
-<span class="sd">    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real symmetric matrix.</span>
+<span class="sd">    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix.</span>
 
 <span class="sd">    This gate assumes that qubits are ordered such that the first `norb` qubits</span>
 <span class="sd">    correspond to the alpha orbitals and the last `norb` qubits correspond to the</span>
@@ -371,34 +339,23 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
-        <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create new diagonal Coulomb evolution gate.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            norb: The number of spatial orbitals.</span>
-<span class="sd">            mat: The real symmetric matrix :math:`Z`.</span>
+<span class="sd">            mat: The diagonal Coulomb matrix :math:`Z`.</span>
 <span class="sd">                You can pass either a single Numpy array specifying the coefficients</span>
 <span class="sd">                to use for all spin interactions, or you can pass a tuple of three Numpy</span>
 <span class="sd">                arrays specifying independent coefficients for alpha-alpha, alpha-beta,</span>
 <span class="sd">                and beta-beta interactions (in that order). If passing a tuple, you can</span>
 <span class="sd">                set a tuple element to ``None`` to indicate the absence of interactions</span>
-<span class="sd">                of that type.</span>
+<span class="sd">                of that type. The alpha-alpha and beta-beta matrices are assumed to be</span>
+<span class="sd">                symmetric, and only their upper triangular entries are used.</span>
 <span class="sd">            time: The evolution time.</span>
 <span class="sd">            z_representation: Whether the input matrices are in the &quot;Z&quot; representation.</span>
 <span class="sd">            label: The label of the gate.</span>
-<span class="sd">            validate: Whether to check that the input matrix is real symmetric and</span>
-<span class="sd">                raise an error if it isn&#39;t.</span>
-<span class="sd">            rtol: Relative numerical tolerance for input validation.</span>
-<span class="sd">            atol: Absolute numerical tolerance for input validation.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: The input matrix is not real symmetric.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
-            <span class="n">_validate_diag_coulomb_mat</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">=</span> <span class="n">norb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span>
@@ -424,11 +381,7 @@
     <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Inverse gate.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mat</span><span class="p">,</span>
-            <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
-            <span class="n">z_representation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
-            <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">z_representation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">z_representation</span>
         <span class="p">)</span></div>
 </div>
 
@@ -453,35 +406,36 @@
     <span class="k">for</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">this_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">this_mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">this_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">this_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]:</span>
                     <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-                        <span class="n">PhaseGate</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">this_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
+                        <span class="n">PhaseGate</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">this_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
                         <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">norb</span><span class="p">],),</span>
                     <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">this_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">this_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]:</span>
                     <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-                        <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">this_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
+                        <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">this_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
                         <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">norb</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">norb</span><span class="p">]),</span>
                     <span class="p">)</span>
 
     <span class="c1"># gates that involve both spin sectors</span>
     <span class="k">if</span> <span class="n">mat_ab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]:</span>
                 <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-                    <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
+                    <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
                     <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">norb</span><span class="p">]),</span>
                 <span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]:</span>
                 <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-                    <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
+                    <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
                     <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">norb</span><span class="p">]),</span>
                 <span class="p">)</span>
+            <span class="k">if</span> <span class="n">mat_ab</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]:</span>
                 <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-                    <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">mat_ab</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
-                    <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">norb</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span>
+                    <span class="n">CPhaseGate</span><span class="p">(</span><span class="o">-</span><span class="n">mat_ab</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">norb</span><span class="p">]),</span>
                 <span class="p">)</span>
 
 
