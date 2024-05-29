@@ -26,23 +26,8 @@ def test_random_ucj_operator(norb: int, nelec: tuple[int, int]):
     n_reps = 3
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        ucj_op = ffsim.UCJOperator(
-            diag_coulomb_mats_alpha_alpha=np.stack(
-                [
-                    ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-                    for _ in range(n_reps)
-                ]
-            ),
-            diag_coulomb_mats_alpha_beta=np.stack(
-                [
-                    ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-                    for _ in range(n_reps)
-                ]
-            ),
-            orbital_rotations=np.stack(
-                [ffsim.random.random_unitary(norb, seed=rng) for _ in range(n_reps)]
-            ),
-            final_orbital_rotation=ffsim.random.random_unitary(norb, seed=rng),
+        ucj_op = ffsim.random.random_ucj_operator(
+            norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
         )
         gate = ffsim.qiskit.UCJOperatorJW(ucj_op)
 
