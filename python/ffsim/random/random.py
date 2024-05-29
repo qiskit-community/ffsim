@@ -276,7 +276,7 @@ def random_ucj_operator(
     with_final_orbital_rotation: bool = False,
     seed=None,
 ) -> variational.UCJOperator:
-    """Sample a random unitary cluster Jastrow operator.
+    """Sample a random unitary cluster Jastrow (UCJ) operator.
 
     Args:
         norb: The number of orbitals.
@@ -287,7 +287,7 @@ def random_ucj_operator(
             Should be a valid input to ``np.random.default_rng``.
 
     Returns:
-        The sampled molecular Hamiltonian.
+        The sampled UCJ operator.
     """
     rng = np.random.default_rng(seed)
     diag_coulomb_mats_alpha_alpha = np.stack(
@@ -317,7 +317,7 @@ def random_ucj_operator_open_shell(
     with_final_orbital_rotation: bool = False,
     seed=None,
 ) -> variational.UCJOperatorOpenShell:
-    """Sample a random unitary cluster Jastrow operator.
+    """Sample a random open-shell unitary cluster Jastrow (UCJ) operator.
 
     Args:
         norb: The number of orbitals.
@@ -328,7 +328,7 @@ def random_ucj_operator_open_shell(
             Should be a valid input to ``np.random.default_rng``.
 
     Returns:
-        The sampled molecular Hamiltonian.
+        The sampled UCJ operator.
     """
     rng = np.random.default_rng(seed)
     diag_coulomb_mats = np.stack(
