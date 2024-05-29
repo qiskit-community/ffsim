@@ -62,18 +62,19 @@ def apply_diag_coulomb_evolution(
         \mathcal{U}^\dagger
 
     where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
-    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real symmetric matrix,
+    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
 
     Args:
         vec: The state vector to be transformed.
-        mat: The real symmetric matrix :math:`Z`.
+        mat: The diagonal Coulomb matrix :math:`Z`.
             You can pass either a single Numpy array specifying the coefficients
             to use for all spin interactions, or you can pass a tuple of three Numpy
             arrays specifying independent coefficients for alpha-alpha, alpha-beta,
             and beta-beta interactions (in that order). If passing a tuple, you can
             set a tuple element to ``None`` to indicate the absence of interactions
-            of that type.
+            of that type. The alpha-alpha and beta-beta matrices are assumed to be
+            symmetric, and only their upper triangular entries are used.
         time: The evolution time.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.

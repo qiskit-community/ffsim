@@ -477,7 +477,7 @@ def double_factorized_t2(
             Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip} U^{k}_{bq} {U^{k}}^*_{jq}
             - Z^{k}_{pq} {U^{k}}^*_{ap} U^{k}_{ip} {U^{k}}^*_{bq} U^{k}_{jq})
 
-    Here each :math:`Z^{(k)}` is a real symmetric matrix, referred to as a
+    Here each :math:`Z^{(k)}` is a real-valued matrix, referred to as a
     "diagonal Coulomb matrix," and each :math:`U^{k}` is a unitary matrix, referred to
     as an "orbital rotation."
 
