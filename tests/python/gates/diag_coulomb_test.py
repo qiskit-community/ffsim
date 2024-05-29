@@ -122,8 +122,7 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
     n_alpha, n_beta = nelec
     time = rng.uniform(-10, 10)
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    # TODO mat_ab is not required to be symmetric
-    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_ab = rng.standard_normal((norb, norb))
     mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
@@ -143,9 +142,17 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
                             eig += 0.5 * mat_aa[i, j]
                         elif (sigma, tau) == (1, 1):
                             eig += 0.5 * mat_bb[i, j]
-                        else:
+                        elif (sigma, tau) == (0, 1):
                             eig += 0.5 * mat_ab[i, j]
+                        elif (sigma, tau) == (1, 0):
+                            eig += 0.5 * mat_ab[j, i]
             expected = np.exp(-1j * eig * time) * state
+            np.testing.assert_allclose(result, expected)
+            np.testing.assert_allclose(state, original_state)
+            # Numpy array input
+            result = ffsim.apply_diag_coulomb_evolution(
+                state, np.stack((mat_aa, mat_ab, mat_bb)), time, norb, nelec
+            )
             np.testing.assert_allclose(result, expected)
             np.testing.assert_allclose(state, original_state)
 
@@ -171,8 +178,10 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
             for i, j in itertools.product(range(norb), repeat=2):
                 for sigma, tau in itertools.product(range(2), repeat=2):
                     if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                        if sigma != tau:
+                        if (sigma, tau) == (0, 1):
                             eig += 0.5 * mat_ab[i, j]
+                        elif (sigma, tau) == (1, 0):
+                            eig += 0.5 * mat_ab[j, i]
             expected = np.exp(-1j * eig * time) * state
             np.testing.assert_allclose(result, expected)
             np.testing.assert_allclose(state, original_state)
@@ -199,24 +208,6 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
             np.testing.assert_allclose(result, expected)
             np.testing.assert_allclose(state, original_state)
 
-            # Numpy array input
-            result = ffsim.apply_diag_coulomb_evolution(
-                state, np.stack((mat_aa, mat_ab, mat_bb)), time, norb, nelec
-            )
-            eig = 0
-            for i, j in itertools.product(range(norb), repeat=2):
-                for sigma, tau in itertools.product(range(2), repeat=2):
-                    if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                        if (sigma, tau) == (0, 0):
-                            eig += 0.5 * mat_aa[i, j]
-                        elif (sigma, tau) == (1, 1):
-                            eig += 0.5 * mat_bb[i, j]
-                        else:
-                            eig += 0.5 * mat_ab[i, j]
-            expected = np.exp(-1j * eig * time) * state
-            np.testing.assert_allclose(result, expected)
-            np.testing.assert_allclose(state, original_state)
-
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
 def test_apply_diag_coulomb_evolution_z_rep_asymmetric_spin(
@@ -227,7 +218,7 @@ def test_apply_diag_coulomb_evolution_z_rep_asymmetric_spin(
     n_alpha, n_beta = nelec
     time = rng.uniform(-10, 10)
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_ab = rng.standard_normal((norb, norb))
     mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):

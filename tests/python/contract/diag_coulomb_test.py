@@ -55,7 +55,7 @@ def test_contract_diag_coulomb_num_rep_asymmetric_spin(
     rng = np.random.default_rng()
     n_alpha, n_beta = nelec
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_ab = rng.standard_normal((norb, norb))
     mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
@@ -74,8 +74,10 @@ def test_contract_diag_coulomb_num_rep_asymmetric_spin(
                             eig += 0.5 * mat_aa[i, j]
                         elif (sigma, tau) == (1, 1):
                             eig += 0.5 * mat_bb[i, j]
-                        else:
+                        elif (sigma, tau) == (0, 1):
                             eig += 0.5 * mat_ab[i, j]
+                        elif (sigma, tau) == (1, 0):
+                            eig += 0.5 * mat_ab[j, i]
             expected = eig * state
             np.testing.assert_allclose(result, expected)
 
@@ -100,8 +102,10 @@ def test_contract_diag_coulomb_num_rep_asymmetric_spin(
             for i, j in itertools.product(range(norb), repeat=2):
                 for sigma, tau in itertools.product(range(2), repeat=2):
                     if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                        if sigma != tau:
+                        if (sigma, tau) == (0, 1):
                             eig += 0.5 * mat_ab[i, j]
+                        elif (sigma, tau) == (1, 0):
+                            eig += 0.5 * mat_ab[j, i]
             expected = eig * state
             np.testing.assert_allclose(result, expected)
 
@@ -153,7 +157,7 @@ def test_contract_diag_coulomb_z_rep_asymmetric_spin(norb: int, nelec: tuple[int
     rng = np.random.default_rng()
     n_alpha, n_beta = nelec
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_ab = rng.standard_normal((norb, norb))
     mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
