@@ -25,38 +25,6 @@ from qiskit.circuit import (
 )
 from qiskit.circuit.library import CPhaseGate, PhaseGate, RZZGate
 
-from ffsim import linalg
-
-
-def _validate_diag_coulomb_mat(
-    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
-    rtol: float,
-    atol: float,
-) -> None:
-    if isinstance(mat, np.ndarray) and mat.ndim == 2:
-        if not linalg.is_real_symmetric(mat, rtol=rtol, atol=atol):
-            raise ValueError("The input matrix was not real symmetric.")
-    else:
-        mat_aa, mat_ab, mat_bb = mat
-        if mat_aa is not None and not linalg.is_real_symmetric(
-            mat_aa, rtol=rtol, atol=atol
-        ):
-            raise ValueError(
-                "The input matrix for alpha-alpha interactions was not real symmetric."
-            )
-        if mat_ab is not None and not linalg.is_real_symmetric(
-            mat_ab, rtol=rtol, atol=atol
-        ):
-            raise ValueError(
-                "The input matrix for alpha-beta interactions was not real symmetric."
-            )
-        if mat_bb is not None and not linalg.is_real_symmetric(
-            mat_bb, rtol=rtol, atol=atol
-        ):
-            raise ValueError(
-                "The input matrix for beta-beta interactions was not real symmetric."
-            )
-
 
 class DiagCoulombEvolutionJW(Gate):
     r"""Diagonal Coulomb evolution under the Jordan-Wigner transformation.
@@ -69,7 +37,7 @@ class DiagCoulombEvolutionJW(Gate):
         Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
 
     where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
-    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real symmetric matrix.
+    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix.
 
     This gate assumes that qubits are ordered such that the first `norb` qubits
     correspond to the alpha orbitals and the last `norb` qubits correspond to the
@@ -85,9 +53,6 @@ class DiagCoulombEvolutionJW(Gate):
         *,
         z_representation: bool = False,
         label: str | None = None,
-        validate: bool = True,
-        rtol: float = 1e-5,
-        atol: float = 1e-8,
     ):
         r"""Create new diagonal Coulomb evolution gate.
 
@@ -103,16 +68,10 @@ class DiagCoulombEvolutionJW(Gate):
             time: The evolution time.
             z_representation: Whether the input matrices are in the "Z" representation.
             label: The label of the gate.
-            validate: Whether to check that the input matrix is real symmetric and
-                raise an error if it isn't.
-            rtol: Relative numerical tolerance for input validation.
-            atol: Absolute numerical tolerance for input validation.
 
         Raises:
             ValueError: The input matrix is not real symmetric.
         """
-        if validate:
-            _validate_diag_coulomb_mat(mat, rtol=rtol, atol=atol)
         self.norb = norb
         self.mat = mat
         self.time = time
@@ -135,11 +94,7 @@ class DiagCoulombEvolutionJW(Gate):
     def inverse(self):
         """Inverse gate."""
         return DiagCoulombEvolutionJW(
-            self.norb,
-            self.mat,
-            -self.time,
-            z_representation=self.z_representation,
-            validate=False,
+            self.norb, self.mat, -self.time, z_representation=self.z_representation
         )
 
 
@@ -162,35 +117,36 @@ def _diag_coulomb_evo_num_rep_jw(
     for sigma, this_mat in enumerate([mat_aa, mat_bb]):
         if this_mat is not None:
             for i in range(norb):
-                if this_mat[i % norb, i % norb]:
+                if this_mat[i, i]:
                     yield CircuitInstruction(
-                        PhaseGate(-0.5 * this_mat[i % norb, i % norb] * time),
+                        PhaseGate(-0.5 * this_mat[i, i] * time),
                         (qubits[i + sigma * norb],),
                     )
             for i, j in itertools.combinations(range(norb), 2):
-                if this_mat[i % norb, j % norb]:
+                if this_mat[i, j]:
                     yield CircuitInstruction(
-                        CPhaseGate(-this_mat[i % norb, j % norb] * time),
+                        CPhaseGate(-this_mat[i, j] * time),
                         (qubits[i + sigma * norb], qubits[j + sigma * norb]),
                     )
 
     # gates that involve both spin sectors
     if mat_ab is not None:
         for i in range(norb):
-            if mat_ab[i % norb, i % norb]:
+            if mat_ab[i, i]:
                 yield CircuitInstruction(
-                    CPhaseGate(-mat_ab[i % norb, i % norb] * time),
+                    CPhaseGate(-mat_ab[i, i] * time),
                     (qubits[i], qubits[i + norb]),
                 )
         for i, j in itertools.combinations(range(norb), 2):
-            if mat_ab[i % norb, j % norb]:
+            if mat_ab[i, j]:
                 yield CircuitInstruction(
-                    CPhaseGate(-mat_ab[i % norb, j % norb] * time),
+                    CPhaseGate(-mat_ab[i, j] * time),
                     (qubits[i], qubits[j + norb]),
                 )
+            if mat_ab[j, i]:
                 yield CircuitInstruction(
-                    CPhaseGate(-mat_ab[i % norb, j % norb] * time),
-                    (qubits[i + norb], qubits[j]),
+                    CPhaseGate(-mat_ab[j, i] * time),
+                    (qubits[j], qubits[i + norb]),
                 )
 
 
