@@ -308,3 +308,54 @@ def random_ucj_operator(
         orbital_rotations=orbital_rotations,
         final_orbital_rotation=final_orbital_rotation,
     )
+
+
+def random_ucj_operator_open_shell(
+    norb: int,
+    *,
+    n_reps: int = 1,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCJOperatorOpenShell:
+    """Sample a random unitary cluster Jastrow operator.
+
+    Args:
+        norb: The number of orbitals.
+        n_reps: The number of ansatz repetitions.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled molecular Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    diag_coulomb_mats = np.stack(
+        [
+            np.stack(
+                [
+                    random_real_symmetric_matrix(norb, seed=rng),
+                    rng.standard_normal((norb, norb)),
+                    random_real_symmetric_matrix(norb, seed=rng),
+                ]
+            )
+            for _ in range(n_reps)
+        ]
+    )
+    orbital_rotations = np.stack(
+        [
+            np.stack([random_unitary(norb, seed=rng), random_unitary(norb, seed=rng)])
+            for _ in range(n_reps)
+        ]
+    )
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = np.stack(
+            [random_unitary(norb, seed=rng), random_unitary(norb, seed=rng)]
+        )
+    return variational.UCJOperatorOpenShell(
+        diag_coulomb_mats=diag_coulomb_mats,
+        orbital_rotations=orbital_rotations,
+        final_orbital_rotation=final_orbital_rotation,
+    )
