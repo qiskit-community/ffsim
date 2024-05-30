@@ -71,6 +71,7 @@ def reconstruct_t2_alpha_beta(
             orbital_rotation_a, orbital_rotation_b
         )
     return (
+        # TODO maybe don't have this factor of 2
         2j
         * contract(
             "mkpq,mkap,mkip,mkbq,mkjq->ijab",
