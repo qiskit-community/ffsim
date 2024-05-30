@@ -350,14 +350,14 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices, as a Numpy array</span>
-<span class="sd">            of shape `(n_reps, 4, 3, norb, norb)`</span>
+<span class="sd">            of shape `(n_reps, 3, norb, norb)`</span>
 <span class="sd">            The last two axes index the rows and columns of</span>
 <span class="sd">            the matrices, and the third from last axis, which has 3 dimensions, indexes</span>
 <span class="sd">            the spin interaction type of the matrix: alpha-alpha, alpha-beta, and</span>
 <span class="sd">            beta-beta (in that order).</span>
 <span class="sd">            The first axis indexes the ansatz repetitions.</span>
 <span class="sd">        orbital_rotations (np.ndarray): The orbital rotations, as a Numpy array of shape</span>
-<span class="sd">            `(n_reps, 4, 2, norb, norb)`. The last two axes index the rows and columns</span>
+<span class="sd">            `(n_reps, 2, norb, norb)`. The last two axes index the rows and columns</span>
 <span class="sd">            of the orbital rotations, and the third from last axis, which has 2</span>
 <span class="sd">            dimensions, indexes the spin sector of the orbital rotation: first alpha,</span>
 <span class="sd">            then beta.</span>
