@@ -41,37 +41,47 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
 class UCJOperatorOpenShell:
     r"""An open-shell unitary cluster Jastrow operator.
 
-    TODO
-
     A unitary cluster Jastrow (UCJ) operator has the form
 
     .. math::
 
-        \prod_{k = 1}^L \mathcal{W}_k e^{i \mathcal{J}_k} \mathcal{W}_k^\dagger
+        \prod_{k = 1}^L \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger
 
-    where each :math:`\mathcal{W_k}` is an orbital rotation and each :math:`\mathcal{J}`
+    where each :math:`\mathcal{U_k}` is an orbital rotation and each :math:`\mathcal{J}`
     is a diagonal Coulomb operator of the form
 
     .. math::
 
         \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
-        \mathbf{J}^{\sigma \tau}_{ij} n_{\sigma, i} n_{\tau, j}.
+        \mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.
 
-    In order that the operator commutes with the total spin Z operator, we enforce that
-    :math:`\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}` and
-    :math:`\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}`. As a result, we have
-    two sets of matrices for describing the diagonal Coulomb operators:
-    "alpha-alpha" matrices containing coefficients for terms involving the same spin,
-    and "alpha-beta" matrices containing coefficients for terms involving different
-    spins.
+    Since :math:`J^{(\sigma \tau)}_{ij} = J^{(\tau \sigma)}_{ji}`, each diagonal
+    Coulomb operator requires 3 matrices for its description:
+    :math:`J^{(\alpha \alpha)}`, :math:`J^{(\alpha \beta)}`, and
+    :math:`J^{(\beta \beta)}`. The number of terms :math:`L` is referred to as the
+    number of ansatz repetitions and is accessible via the `n_reps` attribute.
 
     To support variational optimization of the orbital basis, an optional final
     orbital rotation can be included in the operator, to be performed at the end.
 
     Attributes:
-        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices.
-        orbital_rotations (np.ndarray): The orbital rotations.
-        final_orbital_rotation (np.ndarray): The optional final orbital rotation.
+        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices, as a Numpy array
+            of shape `(n_reps, 4, 3, norb, norb)`
+            The last two axes index the rows and columns of
+            the matrices, and the third from last axis, which has 3 dimensions, indexes
+            the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
+            beta-beta (in that order).
+            The first axis indexes the ansatz repetitions.
+        orbital_rotations (np.ndarray): The orbital rotations, as a Numpy array of shape
+            `(n_reps, 4, 2, norb, norb)`. The last two axes index the rows and columns
+            of the orbital rotations, and the third from last axis, which has 2
+            dimensions, indexes the spin sector of the orbital rotation: first alpha,
+            then beta.
+            The first axis indexes the ansatz repetitions.
+        final_orbital_rotation (np.ndarray): The optional final orbital rotation, as a
+            Numpy array of shape `(2, norb, norb)`. This can be viewed as a list of two
+            orbital rotations, the first one for spin alpha and the second one for spin
+            beta.
     """
 
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, 3, norb, norb)
@@ -135,8 +145,7 @@ class UCJOperatorOpenShell:
         Args:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
-            n_reps: The number of ansatz repetitions (:math:`L` from the docstring of
-                this class).
+            n_reps: The number of ansatz repetitions.
             alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
@@ -144,6 +153,9 @@ class UCJOperatorOpenShell:
                 pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
                 lower triangular indices will raise an error.
             alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+            beta_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
                 This list should contain only upper trianglular indices, i.e.,
@@ -156,8 +168,10 @@ class UCJOperatorOpenShell:
             The UCJ operator constructed from the given parameters.
 
         Raises:
+            ValueError: The number of parameters passed did not match the number
+                expected based on the function inputs.
             ValueError: alpha_alpha_indices contains lower triangular indices.
-            ValueError: alpha_beta_indices contains lower triangular indices.
+            ValueError: beta_beta_indices contains lower triangular indices.
         """
         _validate_diag_coulomb_indices(alpha_alpha_indices)
         _validate_diag_coulomb_indices(beta_beta_indices)
@@ -171,7 +185,8 @@ class UCJOperatorOpenShell:
         )
         if len(params) != n_params:
             raise ValueError(
-                "The number of parameters passed did not match the expected number. "
+                "The number of parameters passed did not match the number expected "
+                "based on the function inputs. "
                 f"Expected {n_params} but got {len(params)}."
             )
         mat_indices = cast(
@@ -237,10 +252,10 @@ class UCJOperatorOpenShell:
     ) -> np.ndarray:
         r"""Convert the UCJ operator to a real-valued parameter vector.
 
-        If `alpha_alpha_indices` or `alpha_beta_indices` is specified, the returned
-        parameter vector will incorporate only the diagonal Coulomb matrix entries
-        corresponding to the given indices, so the original operator will not be
-        recoverable from the parameter vector.
+        If `alpha_alpha_indices`, `alpha_beta_indices`, or `beta_beta_indices` is
+        specified, the returned parameter vector will incorporate only the diagonal
+        Coulomb matrix entries corresponding to the given indices, so the original
+        operator will not be recoverable from the parameter vector.
 
         Args:
             alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
@@ -252,6 +267,9 @@ class UCJOperatorOpenShell:
             alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
+            beta_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
                 This list should contain only upper trianglular indices, i.e.,
                 pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
                 lower triangular indices will raise an error.
@@ -261,7 +279,7 @@ class UCJOperatorOpenShell:
 
         Raises:
             ValueError: alpha_alpha_indices contains lower triangular indices.
-            ValueError: alpha_beta_indices contains lower triangular indices.
+            ValueError: beta_beta_indices contains lower triangular indices.
         """
         _validate_diag_coulomb_indices(alpha_alpha_indices)
         _validate_diag_coulomb_indices(beta_beta_indices)
@@ -331,7 +349,42 @@ class UCJOperatorOpenShell:
         beta_beta_indices: list[tuple[int, int]] | None = None,
         tol: float = 1e-8,
     ) -> UCJOperatorOpenShell:
-        """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
+        """Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
+
+        Performs a double-factorization of the t2 amplitudes and constructs the
+        ansatz repetitions from the terms of the decomposition, up to an optionally
+        specified number of ansatz repetitions. Larger terms are used first.
+        The terms from the alpha-beta t2 amplitudes are used before including any
+        terms from the alpha-alpha and beta-beta t2 amplitudes.
+
+        Args:
+            t2: The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
+                `(t2aa, t2ab, t2bb)`, containing the alpha-alpha, alpha-beta, and
+                beta-beta t2 amplitudes.
+            t1: The t1 amplitudes. This should be a pair of Numpy arrays, `(t1a, t1b)`,
+                containing the alpha and beta t1 amplitudes.
+            n_reps: The number of ansatz repetitions.
+            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+            beta_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+                diagonal Coulomb matrices (see the docstring of this class).
+                If not specified, all matrix entries are allowed to be nonzero.
+                This list should contain only upper trianglular indices, i.e.,
+                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
+                lower triangular indices will raise an error.
+            tol: Tolerance for error in the double-factorized decomposition of the
+                t2 amplitudes.
+                The error is defined as the maximum absolute difference between
+                an element of the original tensor and the corresponding element of
+                the reconstructed tensor.
+        """
         t2aa, t2ab, t2bb = t2
         nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
         norb = nocc_a + nvrt_a
@@ -430,7 +483,6 @@ class UCJOperatorOpenShell:
     def _apply_unitary_(
         self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
     ) -> np.ndarray:
-        """Apply the operator to a vector."""
         if copy:
             vec = vec.copy()
         for diag_coulomb_mat, orbital_rotation in zip(
