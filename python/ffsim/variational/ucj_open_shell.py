@@ -55,11 +55,11 @@ class UCJOperatorOpenShell:
         \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
         \mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.
 
-    Since :math:`J^{(\sigma \tau)}_{ij} = J^{(\tau \sigma)}_{ji}`, each diagonal
-    Coulomb operator requires 3 matrices for its description:
-    :math:`J^{(\alpha \alpha)}`, :math:`J^{(\alpha \beta)}`, and
-    :math:`J^{(\beta \beta)}`. The number of terms :math:`L` is referred to as the
-    number of ansatz repetitions and is accessible via the `n_reps` attribute.
+    Since :math:`\mathbf{J}^{(\sigma \tau)}_{ij} = \mathbf{J}^{(\tau \sigma)}_{ji}`,
+    each diagonal Coulomb operator requires 3 matrices for its description:
+    :math:`\mathbf{J}^{(\alpha \alpha)}`, :math:`\mathbf{J}^{(\alpha \beta)}`, and
+    :math:`\mathbf{J}^{(\beta \beta)}`. The number of terms :math:`L` is referred to as
+    the number of ansatz repetitions and is accessible via the `n_reps` attribute.
 
     To support variational optimization of the orbital basis, an optional final
     orbital rotation can be included in the operator, to be performed at the end.
