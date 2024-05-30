@@ -502,7 +502,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.random.random_ucj_operator">
 <span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_ucj_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_ucj_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_ucj_operator" title="Link to this definition">¶</a></dt>
-<dd><p>Sample a random unitary cluster Jastrow operator.</p>
+<dd><p>Sample a random unitary cluster Jastrow (UCJ) operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -518,7 +518,31 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOperator" title="ffsim.variational.ucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The sampled molecular Hamiltonian.</p>
+<dd class="field-odd"><p>The sampled UCJ operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_ucj_operator_open_shell">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_ucj_operator_open_shell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_ucj_operator_open_shell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_ucj_operator_open_shell" title="Link to this definition">¶</a></dt>
+<dd><p>Sample a random open-shell unitary cluster Jastrow (UCJ) operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of orbitals.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOperatorOpenShell" title="ffsim.variational.ucj_open_shell.UCJOperatorOpenShell"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperatorOpenShell</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled UCJ operator.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -624,6 +648,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <li><a class="reference internal" href="#ffsim.random.random_t2_amplitudes"><code class="docutils literal notranslate"><span class="pre">random_t2_amplitudes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_two_body_tensor"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_ucj_operator"><code class="docutils literal notranslate"><span class="pre">random_ucj_operator()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.random.random_ucj_operator_open_shell"><code class="docutils literal notranslate"><span class="pre">random_ucj_operator_open_shell()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_unitary"><code class="docutils literal notranslate"><span class="pre">random_unitary()</span></code></a></li>
 </ul>
 </li>

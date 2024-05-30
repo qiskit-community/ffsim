@@ -444,13 +444,13 @@ where L is the rank of the decomposition and n is the number of orbitals.</p>
 <p>The double-factorized decomposition of a t2 amplitudes tensor <span class="math notranslate nohighlight">\(t_{ijab}\)</span> is</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[t_{ijab} = i \sum_{k=1}^L \sum_{pq} (
-    Z^{k}_{pq} U^{k}_{ap} {U^{k}}^*_{ip} U^{k}_{bq} {U^{k}}^*_{jq}
-    - Z^{k}_{pq} {U^{k}}^*_{ap} U^{k}_{ip} {U^{k}}^*_{bq} U^{k}_{jq})\]</div>
+\[t_{ijab} = i \sum_{m=1}^L \sum_{k=1}^2 \sum_{pq} (
+    Z^{(m,k)}_{pq}
+    U^{(m,k)}_{ap} {U^{(m,k)}}^*_{ip} U^{(m,k)}_{bq} {U^{(m,k)}}^*_{jq}\]</div>
 </div>
-<p>Here each <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> is a real-valued matrix, referred to as a
-“diagonal Coulomb matrix,” and each <span class="math notranslate nohighlight">\(U^{k}\)</span> is a unitary matrix, referred to
-as an “orbital rotation.”</p>
+<p>Here each <span class="math notranslate nohighlight">\(Z^{(m,k)}\)</span> is a real-valued matrix, referred to as a
+“diagonal Coulomb matrix,” and each <span class="math notranslate nohighlight">\(U^{(m,k)}\)</span> is a unitary matrix,
+referred to as an “orbital rotation.”</p>
 <p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold may yield a smaller number of terms.
 Furthermore, the <cite>max_vecs</cite> parameter specifies an optional upper bound
@@ -467,18 +467,117 @@ The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
 <li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
-of the t2 amplitudes tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
+of the t2 amplitudes tensor. This argument overrides <cite>tol</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
-is collected into a Numpy array, so this method returns a tuple of two Numpy
-arrays, the first containing the diagonal Coulomb matrices and the second
-containing the orbital rotations. Each Numpy array will have shape (L, n, n)
-where L is the rank of the decomposition and n is the number of orbitals.</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>The diagonal Coulomb matrices, as a Numpy array of shape
+<cite>(n_vecs, 2, norb, norb)</cite>.
+The last two axes index the rows and columns of the matrices.
+The first axis indexes the eigenvectors of the decomposition and the
+second axis exists because each eigenvector gives rise to 2 terms in the
+decomposition.</p></li>
+<li><p>The orbital rotations, as a Numpy array of shape
+<cite>(n_vecs, 2, norb, norb)</cite>.
+The last two axes index the rows and columns of the orbital rotations.
+The first axis indexes the eigenvectors of the decomposition and the
+second axis exists because each eigenvector gives rise to 2 terms in the
+decomposition.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.linalg.double_factorized_t2_alpha_beta">
+<span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">double_factorized_t2_alpha_beta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2_amplitudes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vecs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/double_factorized_decomposition.html#double_factorized_t2_alpha_beta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.double_factorized_t2_alpha_beta" title="Link to this definition">¶</a></dt>
+<dd><p>Double-factorized decomposition of alpha-beta t2 amplitudes.</p>
+<p>Decompose alpha-beta t2 amplitudes into diagonal Coulomb matrices with orbital
+rotations. This function returns two arrays:</p>
+<ul class="simple">
+<li><p><cite>diagonal_coulomb_mats</cite>, with shape <cite>(n_vecs, 4, 3, norb, norb)</cite>.</p></li>
+<li><p><cite>orbital_rotations</cite>, with shape <cite>(n_vecs, 4, 2, norb, norb)</cite>.</p></li>
+</ul>
+<p>The value of <cite>n_vecs</cite> depends on the error tolerance <cite>tol</cite>. A larger error tolerance
+might yield a smaller value for <cite>n_vecs</cite>. You can also set an optional upper bound
+on <cite>n_vecs</cite> using the <cite>max_vecs</cite> argument.</p>
+<p>The original t2 amplitudes tensor can be reconstructed, up to the error tolerance,
+using the following function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">reconstruct_t2_alpha_beta</span><span class="p">(</span>
+    <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nocc_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nocc_b</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">n_vecs</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">expanded_diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_vecs</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">))</span>
+    <span class="n">expanded_orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">n_vecs</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_vecs</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)):</span>
+        <span class="p">(</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">)</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span>
+        <span class="n">expanded_diag_coulomb_mats</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span>
+            <span class="p">[[</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">],</span> <span class="p">[</span><span class="n">mat_ab</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">]]</span>
+        <span class="p">)</span>
+        <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span>
+        <span class="n">expanded_orbital_rotations</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
+            <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="mi">2</span><span class="n">j</span>
+        <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
+            <span class="s2">&quot;mkpq,mkap,mkip,mkbq,mkjq-&gt;ijab&quot;</span><span class="p">,</span>
+            <span class="n">expanded_diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">expanded_orbital_rotations</span><span class="p">,</span>
+            <span class="n">expanded_orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="n">expanded_orbital_rotations</span><span class="p">,</span>
+            <span class="n">expanded_orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+        <span class="p">)[:</span><span class="n">nocc_a</span><span class="p">,</span> <span class="n">norb</span> <span class="p">:</span> <span class="n">norb</span> <span class="o">+</span> <span class="n">nocc_b</span><span class="p">,</span> <span class="n">nocc_a</span><span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span> <span class="o">+</span> <span class="n">nocc_b</span> <span class="p">:]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: Currently, only real-valued t2 amplitudes are supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t2_amplitudes</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes tensor.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
+The error is defined as the maximum absolute difference between
+an element of the original tensor and the corresponding element of
+the reconstructed tensor.</p></li>
+<li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
+of the t2 amplitudes tensor. This argument overrides <cite>tol</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>The diagonal Coulomb matrices, as a Numpy array of shape
+<cite>(n_vecs, 4, 3, norb, norb)</cite>.
+The last two axes index the rows and columns of
+the matrices, and the third from last axis, which has 3 dimensions, indexes
+the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
+beta-beta (in that order).
+The first axis indexes the singular vectors of the decomposition and the
+second axis exists because each singular vector gives rise to 4 terms in the
+decomposition.</p></li>
+<li><p>The orbital rotations, as a Numpy array of shape
+<cite>(n_vecs, 4, 2, norb, norb)</cite>. The last two axes index the rows and columns of
+the orbital rotations, and the third from last axis, which has 2 dimensions,
+indexes the spin sector of the orbital rotation: first alpha, then beta.
+The first axis indexes the singular vectors of the decomposition and the
+second axis exists because each singular vector gives rise to 4 terms in the
+decomposition.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -842,6 +941,7 @@ return the matrix M where <span class="math notranslate nohighlight">\(M_{ij} = 
 <li><a class="reference internal" href="#ffsim.linalg.apply_matrix_to_slices"><code class="docutils literal notranslate"><span class="pre">apply_matrix_to_slices()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linalg.double_factorized"><code class="docutils literal notranslate"><span class="pre">double_factorized()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linalg.double_factorized_t2"><code class="docutils literal notranslate"><span class="pre">double_factorized_t2()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.linalg.double_factorized_t2_alpha_beta"><code class="docutils literal notranslate"><span class="pre">double_factorized_t2_alpha_beta()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linalg.expm_multiply_taylor"><code class="docutils literal notranslate"><span class="pre">expm_multiply_taylor()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linalg.givens_decomposition"><code class="docutils literal notranslate"><span class="pre">givens_decomposition()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linalg.is_antihermitian"><code class="docutils literal notranslate"><span class="pre">is_antihermitian()</span></code></a></li>

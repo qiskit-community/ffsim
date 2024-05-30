@@ -751,6 +751,31 @@ beta orbitals.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOperatorOpenShellJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOperatorOpenShellJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj_open_shell.html#UCJOperatorOpenShellJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOperatorOpenShellJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Unitary cluster Jastrow operator under the Jordan-Wigner transformation.</p>
+<p>See <a class="reference internal" href="ffsim.html#ffsim.UCJOperator" title="ffsim.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.UCJOperator</span></code></a> for a description of this gate’s unitary.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOperatorOpenShellJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj_open_shell.html#UCJOperatorOpenShellJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOperatorOpenShellJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new unitary cluster Jastrow (UCJ) gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucj_operator</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOperatorOpenShell" title="ffsim.variational.ucj_open_shell.UCJOperatorOpenShell"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperatorOpenShell</span></code></a></span>) – The UCJ operator.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.ffsim_vec_to_qiskit_vec">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">ffsim_vec_to_qiskit_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/util.html#ffsim_vec_to_qiskit_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec" title="Link to this definition">¶</a></dt>
@@ -925,6 +950,10 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW"><code class="docutils literal notranslate"><span class="pre">UCJOperatorJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW.__init__"><code class="docutils literal notranslate"><span class="pre">UCJOperatorJW.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorOpenShellJW"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShellJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorOpenShellJW.__init__"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShellJW.__init__()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec"><code class="docutils literal notranslate"><span class="pre">ffsim_vec_to_qiskit_vec()</span></code></a></li>

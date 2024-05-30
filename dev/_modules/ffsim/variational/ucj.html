@@ -525,13 +525,8 @@
         <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
 
         <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">double_factorized_t2</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
-        <span class="n">n_vecs</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">expanded_diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n_vecs</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
-        <span class="n">expanded_orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n_vecs</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-        <span class="n">expanded_diag_coulomb_mats</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span>
-        <span class="n">expanded_diag_coulomb_mats</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">diag_coulomb_mats</span>
-        <span class="n">expanded_orbital_rotations</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">orbital_rotations</span>
-        <span class="n">expanded_orbital_rotations</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)[:</span><span class="n">n_reps</span><span class="p">]</span>
+        <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)[:</span><span class="n">n_reps</span><span class="p">]</span>
 
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">t1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -541,9 +536,9 @@
             <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">(</span><span class="n">final_orbital_rotation_generator</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">UCJOperator</span><span class="p">(</span>
-            <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">expanded_diag_coulomb_mats</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
-            <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">expanded_diag_coulomb_mats</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
-            <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">expanded_orbital_rotations</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
+            <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
             <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -809,7 +804,8 @@
         <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
 
         <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">double_factorized_t2</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">t1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -819,9 +815,9 @@
             <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">(</span><span class="n">final_orbital_rotation_generator</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">RealUCJOperator</span><span class="p">(</span>
-            <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
-            <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
-            <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">[:</span><span class="n">n_reps</span><span class="p">],</span>
+            <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
             <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
         <span class="p">)</span></div>
 
