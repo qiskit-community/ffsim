@@ -155,7 +155,7 @@ class UCJOperatorOpenShell:
             alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
-            beta_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+            beta_beta_indices: Allowed indices for nonzero values of the "beta-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
                 This list should contain only upper trianglular indices, i.e.,
@@ -267,7 +267,7 @@ class UCJOperatorOpenShell:
             alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
-            beta_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+            beta_beta_indices: Allowed indices for nonzero values of the "beta-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
                 This list should contain only upper trianglular indices, i.e.,
@@ -373,7 +373,7 @@ class UCJOperatorOpenShell:
             alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
-            beta_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
+            beta_beta_indices: Allowed indices for nonzero values of the "beta-beta"
                 diagonal Coulomb matrices (see the docstring of this class).
                 If not specified, all matrix entries are allowed to be nonzero.
                 This list should contain only upper trianglular indices, i.e.,
