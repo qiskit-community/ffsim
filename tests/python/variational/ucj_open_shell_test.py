@@ -95,56 +95,30 @@ def test_parameters_roundtrip():
     rng = np.random.default_rng()
     norb = 5
     n_reps = 2
-    diag_coulomb_mats_aa = np.stack(
-        [
-            ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-            for _ in range(n_reps)
-        ]
-    )
-    diag_coulomb_mats_ab = np.stack(
-        [
-            ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-            for _ in range(n_reps)
-        ]
-    )
-    diag_coulomb_mats_bb = np.stack(
-        [
-            ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-            for _ in range(n_reps)
-        ]
-    )
-    diag_coulomb_mats = np.stack(
-        [diag_coulomb_mats_aa, diag_coulomb_mats_ab, diag_coulomb_mats_bb], axis=1
-    )
-    orbital_rotations = np.stack(
-        [ffsim.random.random_unitary(norb, seed=rng) for _ in range(n_reps)]
-    )
-    orbital_rotations = np.stack([orbital_rotations, orbital_rotations], axis=1)
-    final_orbital_rotation_a = ffsim.random.random_unitary(norb, seed=rng)
-    final_orbital_rotation_b = ffsim.random.random_unitary(norb, seed=rng)
-    final_orbital_rotation = np.stack(
-        [final_orbital_rotation_a, final_orbital_rotation_b]
-    )
-    operator = ffsim.UCJOperatorOpenShell(
-        diag_coulomb_mats=diag_coulomb_mats,
-        orbital_rotations=orbital_rotations,
-        final_orbital_rotation=final_orbital_rotation,
-    )
-    roundtripped = ffsim.UCJOperatorOpenShell.from_parameters(
-        operator.to_parameters(),
-        norb=norb,
-        n_reps=n_reps,
-        with_final_orbital_rotation=True,
-    )
-    np.testing.assert_allclose(
-        roundtripped.diag_coulomb_mats, operator.diag_coulomb_mats
-    )
-    np.testing.assert_allclose(
-        roundtripped.orbital_rotations, operator.orbital_rotations
-    )
-    np.testing.assert_allclose(
-        roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-    )
+
+    for with_final_orbital_rotation in [False, True]:
+        operator = ffsim.random.random_ucj_operator_open_shell(
+            norb,
+            n_reps=n_reps,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=rng,
+        )
+        roundtripped = ffsim.UCJOperatorOpenShell.from_parameters(
+            operator.to_parameters(),
+            norb=norb,
+            n_reps=n_reps,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        np.testing.assert_allclose(
+            roundtripped.diag_coulomb_mats, operator.diag_coulomb_mats
+        )
+        np.testing.assert_allclose(
+            roundtripped.orbital_rotations, operator.orbital_rotations
+        )
+        if with_final_orbital_rotation:
+            np.testing.assert_allclose(
+                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
+            )
 
 
 def test_t_amplitudes_energy():
