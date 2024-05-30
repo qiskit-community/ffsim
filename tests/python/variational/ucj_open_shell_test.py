@@ -24,24 +24,9 @@ def test_n_params():
     for norb, n_reps, with_final_orbital_rotation in itertools.product(
         [1, 2, 3], [1, 2, 3], [False, True]
     ):
-        diag_coulomb_mats_aa = np.zeros((n_reps, norb, norb))
-        diag_coulomb_mats_ab = np.zeros((n_reps, norb, norb))
-        diag_coulomb_mats_bb = np.zeros((n_reps, norb, norb))
-        diag_coulomb_mats = np.stack(
-            [diag_coulomb_mats_aa, diag_coulomb_mats_ab, diag_coulomb_mats_bb], axis=1
+        operator = ffsim.random.random_ucj_operator_open_shell(
+            norb, n_reps=n_reps, with_final_orbital_rotation=with_final_orbital_rotation
         )
-        orbital_rotations = np.stack([np.eye(norb) for _ in range(n_reps)])
-        orbital_rotations = np.stack([orbital_rotations, orbital_rotations], axis=1)
-
-        final_orbital_rotation = np.stack([np.eye(norb), np.eye(norb)])
-        operator = ffsim.UCJOperatorOpenShell(
-            diag_coulomb_mats=diag_coulomb_mats,
-            orbital_rotations=orbital_rotations,
-            final_orbital_rotation=(
-                final_orbital_rotation if with_final_orbital_rotation else None
-            ),
-        )
-
         actual = ffsim.UCJOperatorOpenShell.n_params(
             norb, n_reps, with_final_orbital_rotation=with_final_orbital_rotation
         )
