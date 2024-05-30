@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for closed-shell unitary cluster Jastrow ansatz."""
+"""Tests for spin-balanced unitary cluster Jastrow ansatz."""
 
 import itertools
 
