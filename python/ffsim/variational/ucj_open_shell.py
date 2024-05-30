@@ -353,7 +353,8 @@ class UCJOperatorOpenShell:
 
         Performs a double-factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
-        specified number of ansatz repetitions. Larger terms are used first.
+        specified number of ansatz repetitions. Terms are included in decreasing order
+        of the absolute value of the corresponding singular value in the factorization.
         The terms from the alpha-beta t2 amplitudes are used before including any
         terms from the alpha-alpha and beta-beta t2 amplitudes.
 
