@@ -38,7 +38,6 @@ def _brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with random gates."""
@@ -92,7 +91,6 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test sampler with random spinless gates."""
@@ -138,7 +136,6 @@ def test_random_gates_spinless(norb: int, nocc: int):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     """Test measuring a subset of qubits."""
@@ -184,7 +181,6 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
 def test_measure_subset_spinless(norb: int, nocc: int):
     """Test measuring a subset of qubits, spinless."""
@@ -232,7 +228,6 @@ def test_measure_subset_spinless(norb: int, nocc: int):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-# TODO handle norb = 0
 def test_reproducible_with_seed():
     """Test sampler with random gates."""
     rng = np.random.default_rng(14062)

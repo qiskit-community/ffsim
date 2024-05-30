@@ -18,7 +18,6 @@ from qiskit.quantum_info import Operator, Statevector
 import ffsim
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb", range(1, 5))
 def test_yields_equivalent_circuit_spinful(norb: int):
     """Test merging orbital rotations results in an equivalent circuit."""
@@ -51,7 +50,6 @@ def test_yields_equivalent_circuit_spinful(norb: int):
     )
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb", range(1, 5))
 def test_yields_equivalent_circuit_spinless(norb: int):
     """Test merging orbital rotations results in an equivalent circuit, spinless."""
@@ -73,7 +71,6 @@ def test_yields_equivalent_circuit_spinless(norb: int):
     )
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations into Slater determinant preparation."""
@@ -117,7 +114,6 @@ def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
     )
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
 def test_merge_slater_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Slater determinant preparation, spinless."""
@@ -150,7 +146,6 @@ def test_merge_slater_spinless(norb: int, nocc: int):
     )
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations into Hartree-Fock state preparation."""
@@ -190,7 +185,6 @@ def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
     )
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
 def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Hartree-Fock state preparation."""
@@ -223,7 +217,6 @@ def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     )
 
 
-# TODO handle norb = 0
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_merge_ucj(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations in UCJ operator."""
