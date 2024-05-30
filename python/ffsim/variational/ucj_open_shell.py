@@ -66,14 +66,14 @@ class UCJOperatorOpenShell:
 
     Attributes:
         diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices, as a Numpy array
-            of shape `(n_reps, 4, 3, norb, norb)`
+            of shape `(n_reps, 3, norb, norb)`
             The last two axes index the rows and columns of
             the matrices, and the third from last axis, which has 3 dimensions, indexes
             the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
             beta-beta (in that order).
             The first axis indexes the ansatz repetitions.
         orbital_rotations (np.ndarray): The orbital rotations, as a Numpy array of shape
-            `(n_reps, 4, 2, norb, norb)`. The last two axes index the rows and columns
+            `(n_reps, 2, norb, norb)`. The last two axes index the rows and columns
             of the orbital rotations, and the third from last axis, which has 2
             dimensions, indexes the spin sector of the orbital rotation: first alpha,
             then beta.
