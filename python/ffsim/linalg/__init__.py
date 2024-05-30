@@ -13,6 +13,7 @@
 from ffsim.linalg.double_factorized_decomposition import (
     double_factorized,
     double_factorized_t2,
+    double_factorized_t2_alpha_beta,
     modified_cholesky,
 )
 from ffsim.linalg.givens import (
@@ -40,6 +41,7 @@ __all__ = [
     "apply_matrix_to_slices",
     "double_factorized",
     "double_factorized_t2",
+    "double_factorized_t2_alpha_beta",
     "expm_multiply_taylor",
     "givens_decomposition",
     "is_antihermitian",
