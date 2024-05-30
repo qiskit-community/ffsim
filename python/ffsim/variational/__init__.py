@@ -17,16 +17,16 @@ from ffsim.variational.multireference import (
     multireference_state_prod,
 )
 from ffsim.variational.ucj import RealUCJOperator, UCJOperator
-from ffsim.variational.ucj_closed_shell import UCJOperatorClosedShell
-from ffsim.variational.ucj_open_shell import UCJOperatorOpenShell
+from ffsim.variational.ucj_closed_shell import UCJOpSpinBalanced
+from ffsim.variational.ucj_open_shell import UCJOpSpinUnbalanced
 
 __all__ = [
     "GivensAnsatzOperator",
     "HopGateAnsatzOperator",
     "RealUCJOperator",
     "UCJOperator",
-    "UCJOperatorClosedShell",
-    "UCJOperatorOpenShell",
+    "UCJOpSpinBalanced",
+    "UCJOpSpinUnbalanced",
     "multireference_state",
     "multireference_state_prod",
 ]

@@ -24,10 +24,10 @@ from qiskit.circuit import (
 
 from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
 from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
-from ffsim.variational import UCJOperatorOpenShell
+from ffsim.variational import UCJOpSpinUnbalanced
 
 
-class UCJOperatorOpenShellJW(Gate):
+class UCJOpSpinUnbalancedJW(Gate):
     """Unitary cluster Jastrow operator under the Jordan-Wigner transformation.
 
     See :class:`ffsim.UCJOperator` for a description of this gate's unitary.
@@ -37,15 +37,15 @@ class UCJOperatorOpenShellJW(Gate):
     beta orbitals.
     """
 
-    def __init__(self, ucj_operator: UCJOperatorOpenShell, *, label: str | None = None):
+    def __init__(self, ucj_op: UCJOpSpinUnbalanced, *, label: str | None = None):
         """Create a new unitary cluster Jastrow (UCJ) gate.
 
         Args:
             ucj_operator: The UCJ operator.
             label: The label of the gate.
         """
-        self.ucj_operator = ucj_operator
-        super().__init__("ucj_open_jw", 2 * ucj_operator.norb, [], label=label)
+        self.ucj_operator = ucj_op
+        super().__init__("ucj_open_jw", 2 * ucj_op.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
@@ -56,7 +56,7 @@ class UCJOperatorOpenShellJW(Gate):
 
 
 def _ucj_jw(
-    qubits: Sequence[Qubit], ucj_op: UCJOperatorOpenShell
+    qubits: Sequence[Qubit], ucj_op: UCJOpSpinUnbalanced
 ) -> Iterator[CircuitInstruction]:
     for diag_colomb_mat, orbital_rotation in zip(
         ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations

@@ -24,10 +24,10 @@ def test_n_params():
     for norb, n_reps, with_final_orbital_rotation in itertools.product(
         [1, 2, 3], [1, 2, 3], [False, True]
     ):
-        operator = ffsim.random.random_ucj_operator_closed_shell(
+        operator = ffsim.random.random_ucj_op_spin_balanced(
             norb, n_reps=n_reps, with_final_orbital_rotation=with_final_orbital_rotation
         )
-        actual = ffsim.UCJOperatorClosedShell.n_params(
+        actual = ffsim.UCJOpSpinBalanced.n_params(
             norb, n_reps, with_final_orbital_rotation=with_final_orbital_rotation
         )
         expected = len(operator.to_parameters())
@@ -40,7 +40,7 @@ def test_n_params():
             itertools.combinations_with_replacement(range(norb), 2)
         )[:norb]
 
-        actual = ffsim.UCJOperatorClosedShell.n_params(
+        actual = ffsim.UCJOpSpinBalanced.n_params(
             norb,
             n_reps,
             alpha_alpha_indices=alpha_alpha_indices,
@@ -56,13 +56,13 @@ def test_n_params():
         assert actual == expected
 
         with pytest.raises(ValueError, match="triangular"):
-            actual = ffsim.UCJOperatorClosedShell.n_params(
+            actual = ffsim.UCJOpSpinBalanced.n_params(
                 norb,
                 n_reps,
                 alpha_alpha_indices=[(1, 0)],
             )
         with pytest.raises(ValueError, match="triangular"):
-            actual = ffsim.UCJOperatorClosedShell.n_params(
+            actual = ffsim.UCJOpSpinBalanced.n_params(
                 norb,
                 n_reps,
                 alpha_alpha_indices=alpha_alpha_indices,
@@ -76,13 +76,13 @@ def test_parameters_roundtrip():
     n_reps = 2
 
     for with_final_orbital_rotation in [False, True]:
-        operator = ffsim.random.random_ucj_operator_closed_shell(
+        operator = ffsim.random.random_ucj_op_spin_balanced(
             norb,
             n_reps=n_reps,
             with_final_orbital_rotation=with_final_orbital_rotation,
             seed=rng,
         )
-        roundtripped = ffsim.UCJOperatorClosedShell.from_parameters(
+        roundtripped = ffsim.UCJOpSpinBalanced.from_parameters(
             operator.to_parameters(),
             norb=norb,
             n_reps=n_reps,
@@ -119,7 +119,7 @@ def test_t_amplitudes_energy():
 
     # Construct UCJ operator
     n_reps = 2
-    operator = ffsim.UCJOperatorClosedShell.from_t_amplitudes(ccsd.t2, n_reps=n_reps)
+    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(ccsd.t2, n_reps=n_reps)
 
     # Construct the Hartree-Fock state to use as the reference state
     n_alpha, n_beta = nelec
@@ -158,13 +158,13 @@ def test_t_amplitudes_restrict_indices():
     alpha_alpha_indices = [(p, p + 1) for p in range(norb - 1)]
     alpha_beta_indices = [(p, p) for p in range(norb)]
 
-    operator = ffsim.UCJOperatorClosedShell.from_t_amplitudes(
+    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
         ccsd.t2,
         n_reps=n_reps,
         alpha_alpha_indices=alpha_alpha_indices,
         alpha_beta_indices=alpha_beta_indices,
     )
-    other_operator = ffsim.UCJOperatorClosedShell.from_parameters(
+    other_operator = ffsim.UCJOpSpinBalanced.from_parameters(
         operator.to_parameters(
             alpha_alpha_indices=alpha_alpha_indices,
             alpha_beta_indices=alpha_beta_indices,

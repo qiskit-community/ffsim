@@ -21,12 +21,14 @@ from qiskit.circuit import (
     QuantumRegister,
     Qubit,
 )
+from typing_extensions import deprecated
 
 from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
 from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
 from ffsim.variational import UCJOperator
 
 
+@deprecated("Use UCJOpSpinBalancedJW instead.")
 class UCJOperatorJW(Gate):
     """Unitary cluster Jastrow operator under the Jordan-Wigner transformation.
 

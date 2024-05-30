@@ -245,10 +245,10 @@ def test_merge_ucj(norb: int, nelec: tuple[int, int]):
         ffsim.qiskit.PrepareHartreeFockJW(norb, nelec),
         qubits,
     )
-    ucj_op_open = ffsim.random.random_ucj_operator_open_shell(
+    ucj_op_open = ffsim.random.random_ucj_op_spin_unbalanced(
         norb, n_reps=3, with_final_orbital_rotation=True, seed=rng
     )
-    circuit.append(ffsim.qiskit.UCJOperatorOpenShellJW(ucj_op_open), qubits)
+    circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_open), qubits)
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
     assert circuit.count_ops() == {"hartree_fock_jw": 1, "ucj_open_jw": 1}
     assert transpiled.count_ops()["slater_jw"] == 1

@@ -38,8 +38,8 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
 
 
 @dataclass(frozen=True)
-class UCJOperatorClosedShell:
-    r"""An open-shell unitary cluster Jastrow operator.
+class UCJOpSpinBalanced:
+    r"""A spin-balanced unitary cluster Jastrow operator.
 
     A unitary cluster Jastrow (UCJ) operator has the form
 
@@ -55,7 +55,7 @@ class UCJOperatorClosedShell:
         \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
         \mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.
 
-    For this closed-shell operator, we require that
+    For the spin-balanced operator, we require that
     :math:`\mathbf{J}^{(\alpha \alpha)} = \mathbf{J}^{(\beta \beta)}` and
     :math:`\mathbf{J}^{(\alpha \beta)} = \mathbf{J}^{(\beta \alpha)}`.
     Therefore, each diagonal Coulomb operator is described by 2 matrices,
@@ -132,7 +132,7 @@ class UCJOperatorClosedShell:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         with_final_orbital_rotation: bool = False,
-    ) -> UCJOperatorClosedShell:
+    ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from a real-valued parameter vector.
 
         Args:
@@ -165,7 +165,7 @@ class UCJOperatorClosedShell:
         """
         _validate_diag_coulomb_indices(alpha_alpha_indices)
         _validate_diag_coulomb_indices(alpha_beta_indices)
-        n_params = UCJOperatorClosedShell.n_params(
+        n_params = UCJOpSpinBalanced.n_params(
             norb,
             n_reps,
             alpha_alpha_indices=alpha_alpha_indices,
@@ -215,7 +215,7 @@ class UCJOperatorClosedShell:
             final_orbital_rotation = orbital_rotation_from_parameters(
                 params[index:], norb
             )
-        return UCJOperatorClosedShell(
+        return UCJOpSpinBalanced(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
@@ -266,7 +266,7 @@ class UCJOperatorClosedShell:
             alpha_alpha_indices = triu_indices
         if alpha_beta_indices is None:
             alpha_beta_indices = triu_indices
-        n_params = UCJOperatorClosedShell.n_params(
+        n_params = UCJOpSpinBalanced.n_params(
             norb,
             n_reps,
             alpha_alpha_indices=alpha_alpha_indices,
@@ -308,7 +308,7 @@ class UCJOperatorClosedShell:
         alpha_alpha_indices: list[tuple[int, int]] | None = None,
         alpha_beta_indices: list[tuple[int, int]] | None = None,
         tol: float = 1e-8,
-    ) -> UCJOperatorClosedShell:
+    ) -> UCJOpSpinBalanced:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
         Performs a double-factorization of the t2 amplitudes and constructs the
@@ -367,7 +367,7 @@ class UCJOperatorClosedShell:
             mask[cols, rows] = True
             diag_coulomb_mats[:, 1] *= mask
 
-        return UCJOperatorClosedShell(
+        return UCJOpSpinBalanced(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
@@ -401,7 +401,7 @@ class UCJOperatorClosedShell:
         return vec
 
     def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
-        if isinstance(other, UCJOperatorClosedShell):
+        if isinstance(other, UCJOpSpinBalanced):
             if not np.allclose(
                 self.diag_coulomb_mats, other.diag_coulomb_mats, rtol=rtol, atol=atol
             ):

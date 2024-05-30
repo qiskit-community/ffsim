@@ -26,10 +26,10 @@ def test_random_ucj_operator(norb: int, nelec: tuple[int, int]):
     n_reps = 3
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        ucj_op = ffsim.random.random_ucj_operator_open_shell(
+        ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(
             norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
         )
-        gate = ffsim.qiskit.UCJOperatorOpenShellJW(ucj_op)
+        gate = ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op)
 
         small_vec = ffsim.random.random_statevector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
