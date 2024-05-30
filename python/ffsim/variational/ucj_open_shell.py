@@ -224,8 +224,8 @@ class UCJOperatorOpenShell:
                     n_params = len(indices)
                     rows, cols = zip(*indices)
                     vals = params[index : index + n_params]
-                    this_diag_coulomb_mat[rows, cols] = vals
                     this_diag_coulomb_mat[cols, rows] = vals
+                    this_diag_coulomb_mat[rows, cols] = vals
                     index += n_params
         # Final orbital rotation
         final_orbital_rotation = None
