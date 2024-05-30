@@ -36,6 +36,7 @@ def test_assert_t2_has_correct_symmetry():
         atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
         basis="6-31g",
         spin=1,
+        symmetry="Coov",
     )
     scf = pyscf.scf.ROHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()
