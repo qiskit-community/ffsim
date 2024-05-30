@@ -484,12 +484,12 @@ def double_factorized_t2(
 
     .. math::
 
-        t_{ijab} = i \sum_{m=1}^L \sum_{k=1}^2 \sum_{pq} (
-            Z^{(m,k)}_{pq}
-            U^{(m,k)}_{ap} {U^{(m,k)}}^*_{ip} U^{(m,k)}_{bq} {U^{(m,k)}}^*_{jq}
+        t_{ijab} = i \sum_{m=1}^L \sum_{k=1}^2 \sum_{pq}
+            Z^{(mk)}_{pq}
+            U^{(mk)}_{ap} U^{(mk)*}_{ip} U^{(mk)}_{bq} U^{(mk)*}_{jq}
 
-    Here each :math:`Z^{(m,k)}` is a real-valued matrix, referred to as a
-    "diagonal Coulomb matrix," and each :math:`U^{(m,k)}` is a unitary matrix,
+    Here each :math:`Z^{(mk)}` is a real-valued matrix, referred to as a
+    "diagonal Coulomb matrix," and each :math:`U^{(mk)}` is a unitary matrix,
     referred to as an "orbital rotation."
 
     The number of terms :math:`L` in the decomposition depends on the allowed
