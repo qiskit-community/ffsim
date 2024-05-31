@@ -25,7 +25,7 @@ from ffsim.qiskit.gates.slater_determinant import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
 )
-from ffsim.qiskit.gates.ucj_open_shell import UCJOpSpinUnbalancedJW
+from ffsim.qiskit.gates.ucj import UCJOpSpinUnbalancedJW
 from ffsim.qiskit.gates.ucj_operator import UCJOperatorJW
 
 __all__ = [
