@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.34 documentation</title>
+        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -223,6 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -231,7 +232,7 @@
 <li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -289,7 +290,8 @@
         <article role="main" id="furo-main-content">
           <section id="How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
 <h1>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h1>
-<p>In this guide, we show how to use ffsim to simulate the local unitary cluster Jastrow (LUCJ) ansatz. We’ll use it to calculate the ground state energy of an ethene molecule at a stretched bond length.</p>
+<p>In this guide, we show how to use ffsim to simulate the <a class="reference internal" href="../explanations/lucj.html"><span class="doc">local unitary cluster Jastrow (LUCJ) ansatz</span></a>. We’ll use it to calculate an approximation to the ground state energy of an ethene molecule.</p>
+<p>First, let’s build the molecule.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -299,8 +301,8 @@
 
 <span class="kn">import</span> <span class="nn">ffsim</span>
 
-<span class="c1"># Build a stretched ethene molecule</span>
-<span class="n">bond_distance</span> <span class="o">=</span> <span class="mf">2.678</span>
+<span class="c1"># Build an ethene molecule</span>
+<span class="n">bond_distance</span> <span class="o">=</span> <span class="mf">1.339</span>
 <span class="n">a</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">bond_distance</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mf">0.5626</span>
 <span class="n">c</span> <span class="o">=</span> <span class="mf">0.9289</span>
@@ -317,20 +319,22 @@
     <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;sto-6g&quot;</span><span class="p">,</span>
     <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;d2h&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">hartree_fock</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="n">hartree_fock</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 
 <span class="c1"># Define active space</span>
 <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">nelectron</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nelectron</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># Get molecular data and molecular Hamiltonian (one- and two-body tensors)</span>
-<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
+<span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
 <span class="n">norb</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span>
 <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
 
 <span class="c1"># Compute FCI energy</span>
 <span class="n">mol_data</span><span class="o">.</span><span class="n">run_fci</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;norb = </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nelec = </span><span class="si">{</span><span class="n">nelec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -339,25 +343,16 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.4456267643962
-CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
+converged SCF energy = -77.8266321248744
+CASCI E = -77.8742165643863  E(CI) = -4.02122442107773  S^2 = 0.0000000
+norb = 4
+nelec = (2, 2)
 </pre></div></div>
 </div>
-<section id="The-unitary-cluster-Jastrow-(UCJ)-ansatz">
-<h2>The unitary cluster Jastrow (UCJ) ansatz<a class="headerlink" href="#The-unitary-cluster-Jastrow-(UCJ)-ansatz" title="Link to this heading">¶</a></h2>
-<p>Before describing the LUCJ, we first introduce the general unitary cluster ansatz (UCJ), which has the form</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\lvert \Psi \rangle = \prod_{k = 1}^L \mathcal{W}_k e^{i \mathcal{J}_k} \mathcal{W}_k^\dagger \lvert \Phi_0 \rangle\]</div>
-</div>
-<p>where <span class="math notranslate nohighlight">\(\lvert \Phi_0 \rangle\)</span> is a reference state, often taken as the Hartree-Fock state, each <span class="math notranslate nohighlight">\(\mathcal{W_k}\)</span> is an <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">orbital rotation</span></a>, and each <span class="math notranslate nohighlight">\(\mathcal{J}_k\)</span> is a diagonal Coulomb operator of the form</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\mathcal{J} = \frac12\sum_{ij,\sigma \tau} \mathbf{J}^{\sigma \tau}_{ij} n_{i,\sigma} n_{j,\tau}.\]</div>
-</div>
-<p>In order that the operator commutes with the total spin Z operator, we enforce that <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}\)</span>. As a result, we have two sets of matrices for describing the diagonal Coulomb operators: “alpha-alpha” matrices containing coefficients for terms involving the same spin, and “alpha-beta” matrices containing coefficients for terms involving different spins.</p>
-<p>In ffsim, the UCJ ansatz operator <span class="math notranslate nohighlight">\(\prod_{k = 1}^L \mathcal{W_k} e^{i \mathcal{J}_k} \mathcal{W_k^\dagger}\)</span> is represented by the <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> class, which is just a dataclass that stores the diagonal Coulomb matrices and orbital rotations. A constructor method is provided to initialize the operator from a truncated double factorization of t2 amplitudes (e.g. from CCSD or MP2).</p>
-<p>In the code cell below, we run CCSD to get the t2 amplitudes for initializing the ansatz. We’ll create an ansatz operator with 2 repetitions (<span class="math notranslate nohighlight">\(L = 2\)</span>). For our reference state, we’ll use the Hartree-Fock state. Since <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> defines a unitary effect, we can use the function <code class="docutils literal notranslate"><span class="pre">apply_unitary</span></code> to apply the ansatz operator to the reference state to obtain the ansatz state. Finally, we compute the energy of the ansatz state.</p>
+<section id="General-UCJ-ansatz">
+<h2>General UCJ ansatz<a class="headerlink" href="#General-UCJ-ansatz" title="Link to this heading">¶</a></h2>
+<p>Since our molecule has a closed-shell Hartree-Fock state, we’ll use the spin-balanced variant of the UCJ ansatz, <a class="reference internal" href="../api/ffsim.html#ffsim.UCJOpSpinBalanced"><span class="std std-ref">UCJOpSpinBalanced</span></a>. We’ll initialize the ansatz from t2 amplitudes obtained from a CCSD calculations. We’ll first demonstrate the general UCJ ansatz, without adding the locality constraints of the LUCJ ansatz just yet.</p>
+<p>The following code cell initializes the ansatz operator, applies it to the Hartree-Fock state, and computes the energy of the resulting state.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -367,14 +362,12 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 
 <span class="c1"># Get CCSD t2 amplitudes for initializing the ansatz</span>
 <span class="n">ccsd</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">CCSD</span><span class="p">(</span>
-    <span class="n">hartree_fock</span><span class="p">,</span>
-    <span class="n">frozen</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">active_space</span><span class="p">],</span>
-<span class="p">)</span>
-<span class="n">_</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">ccsd</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+    <span class="n">scf</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">active_space</span><span class="p">]</span>
+<span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
 <span class="c1"># Construct UCJ operator</span>
 <span class="n">n_reps</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
+<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">ccsd</span><span class="o">.</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
 
 <span class="c1"># Construct the Hartree-Fock state to use as the reference state</span>
 <span class="n">reference_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
@@ -394,12 +387,11 @@ CASCI E = -77.6290254326717  E(CI) = -3.57322412553862  S^2 = 0.0000000
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.49387212754471  E_corr = -0.0482453631485137
-Energy at initialization: -77.46975600021688
+E(CCSD) = -77.87421536374032  E_corr = -0.04758323886584889
+Energy at initialization: -77.87160024816289
 </pre></div></div>
 </div>
-<p>To facilitate variational optimization of the ansatz, <code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code> implements methods for conversion to and from a vector of real-valued parameters. The precise relation between a parameter vector and the matrices of the UCJ operator is somewhat complicated. In short, the parameter vector stores the entries of the UCJ matrices in a non-redundant way (for the orbital rotations, the parameter vector actually stores the entries of their generators.)</p>
-<p>The following code cell shows how one can define an objective function that takes as input a parameter vector and outputs the energy of the associated ansatz state, and then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>. Here, we set a small limit on the number of iterations; increase the value if you would like to run it to convergence.</p>
+<p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -409,7 +401,7 @@ Energy at initialization: -77.46975600021688
 
 <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Initialize the ansatz operator from the parameter vector</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
     <span class="c1"># Apply the ansatz operator to the reference state</span>
     <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span><span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
     <span class="c1"># Return the energy ⟨ψ|H|ψ⟩ of the ansatz state</span>
@@ -417,7 +409,7 @@ Energy at initialization: -77.46975600021688
 
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
-    <span class="n">fun</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">fun</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of parameters: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -434,45 +426,32 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.50963747614462
-        x: [ 1.263e+00 -4.692e-01 ...  8.690e-02  1.366e-01]
-      nit: 5
-      jac: [-8.527e-05  6.168e-04 ... -3.608e-03 -4.503e-03]
-     nfev: 584
-     njev: 8
+      fun: -77.87387391481357
+        x: [-1.153e+00  1.922e-04 ...  2.465e-04  1.287e-01]
+      nit: 10
+      jac: [ 0.000e+00 -2.984e-05 ...  7.105e-06  1.563e-05]
+     nfev: 949
+     njev: 13
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
 </section>
-<section id="The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
-<h2>The local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h2>
-<p>Implementing the <span class="math notranslate nohighlight">\(e^{i \mathcal{J}_k}\)</span> term of the UCJ ansatz requires either all-to-all connectivity or the use of a fermionic swap network, making it challenging for noisy pre-fault-tolerant quantum processors that have limited connectivity. The idea of the <em>local</em> UCJ ansatz is to impose sparsity constraints on the <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\alpha}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{\alpha\beta}\)</span> matrices which allow them to be implemented in constant depth on qubit topologies with limited
-connectivity. The constraints are specified by a list of indices indicating which matrix entries in the upper triangle are allowed to be nonzero (since the matrices are symmetric, only the upper triangle needs to be specified).</p>
-<p>As an example, consider a square lattice qubit topology. We can place the <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> orbitals in parallel lines on the lattice, with connections between these lines forming “rungs” of a ladder shape. With this setup, orbitals with the same spin are connected with a line topology, while orbitals with different spins are connected when they share the same spatial orbital. This yields the following index constraints on the <span class="math notranslate nohighlight">\(\mathbf{J}\)</span> matrices:</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{align*}
-\mathbf{J}^{\alpha\alpha} &amp;: \set{(p, p+1) \; , \; p = 0, \ldots, N-2} \\
-\mathbf{J}^{\alpha\beta} &amp;: \set{(p, p) \;, \; p = 0, \ldots, N-1}
-\end{align*}\end{split}\]</div>
-</div>
-<p>In other words, if the <span class="math notranslate nohighlight">\(\mathbf{J}\)</span> matrices are nonzero only at the specified indices in the upper triangle, then the <span class="math notranslate nohighlight">\(e^{i \mathcal{J}_k}\)</span> term can be implemented on a square topology without using any swap gates, in constant depth. Of course, imposing such constraints on the ansatz makes it less expressive, so more ansatz repetitions may be required.</p>
-<p>In the following code cell, we demonstrate the optimization of the ansatz with these constraints imposed. We still choose to use 2 repetitions, so notice that the number of parameters in the optimization has decreased from 72 to 46.</p>
+<section id="LUCJ-ansatz">
+<h2>LUCJ ansatz<a class="headerlink" href="#LUCJ-ansatz" title="Link to this heading">¶</a></h2>
+<p>Now, let’s add locality constraints to simulate the LUCJ ansatz. We’ll restrict same-spin interactions to a line topology, and opposite-spin interactions to those within the same spatial orbital. As explained in <a class="reference internal" href="../explanations/lucj.html#The-local-UCJ-(LUCJ)-ansatz"><span class="std std-ref">The local unitary cluster Jastrow (LUCJ) ansatz</span></a>, these constraints allow the ansatz to be simulated directly on a square lattice.</p>
+<p>In the following code cell, we demonstrate the optimization of the ansatz with these constraints imposed. Notice that with the same number of ansatz repetitions, the number of parameters of the ansatz has decreased from 72 to 46.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alpha_alpha_indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
-<span class="n">alpha_beta_indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pairs_aa</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">pairs_ab</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span>
+<span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-        <span class="n">x</span><span class="p">,</span>
-        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-        <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
-        <span class="n">alpha_alpha_indices</span><span class="o">=</span><span class="n">alpha_alpha_indices</span><span class="p">,</span>
-        <span class="n">alpha_beta_indices</span><span class="o">=</span><span class="n">alpha_beta_indices</span><span class="p">,</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span>
     <span class="p">)</span>
     <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span><span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">final_state</span><span class="p">,</span> <span class="n">hamiltonian</span> <span class="o">@</span> <span class="n">final_state</span><span class="p">))</span>
@@ -480,11 +459,9 @@ connectivity. The constraints are specified by a list of indices indicating whic
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
     <span class="n">fun</span><span class="p">,</span>
-    <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(</span>
-        <span class="n">alpha_alpha_indices</span><span class="o">=</span><span class="n">alpha_alpha_indices</span><span class="p">,</span> <span class="n">alpha_beta_indices</span><span class="o">=</span><span class="n">alpha_beta_indices</span>
-    <span class="p">),</span>
+    <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">),</span>
     <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
-    <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of parameters: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
@@ -497,15 +474,15 @@ connectivity. The constraints are specified by a list of indices indicating whic
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 46
-  message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
-  success: False
-   status: 1
-      fun: -77.45741077253075
-        x: [ 1.265e+00 -4.800e-01 ...  7.269e-03  8.853e-03]
+  message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
+  success: True
+   status: 0
+      fun: -77.87363426402823
+        x: [-1.152e+00 -1.042e-04 ...  3.522e-02  2.561e-01]
       nit: 5
-      jac: [ 1.563e-04 -1.037e-04 ... -1.428e-03 -3.349e-03]
-     nfev: 423
-     njev: 9
+      jac: [ 4.263e-06  2.984e-05 ... -2.842e-06  0.000e+00]
+     nfev: 329
+     njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -525,12 +502,8 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 
 <span class="c1"># Define function that converts a list of parameters to the corresponding state vector</span>
 <span class="k">def</span> <span class="nf">params_to_vec</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOperator</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-        <span class="n">x</span><span class="p">,</span>
-        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-        <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
-        <span class="n">alpha_alpha_indices</span><span class="o">=</span><span class="n">alpha_alpha_indices</span><span class="p">,</span>
-        <span class="n">alpha_beta_indices</span><span class="o">=</span><span class="n">alpha_beta_indices</span><span class="p">,</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span><span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -557,10 +530,8 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 <span class="n">result</span> <span class="o">=</span> <span class="n">minimize_linear_method</span><span class="p">(</span>
     <span class="n">params_to_vec</span><span class="p">,</span>
     <span class="n">hamiltonian</span><span class="p">,</span>
-    <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(</span>
-        <span class="n">alpha_alpha_indices</span><span class="o">=</span><span class="n">alpha_alpha_indices</span><span class="p">,</span> <span class="n">alpha_beta_indices</span><span class="o">=</span><span class="n">alpha_beta_indices</span>
-    <span class="p">),</span>
-    <span class="n">maxiter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">x0</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">to_parameters</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">),</span>
+    <span class="n">maxiter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -585,36 +556,31 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 46
- message: Stop: Total number of iterations reached limit.
- success: False
-     fun: -77.46320477458555
-       x: [ 1.322e+00 -4.471e-01 ...  6.399e-02 -2.526e-01]
-     nit: 5
-     jac: [-5.209e-03  1.258e-03 ...  2.072e-04  1.656e-03]
-    nfev: 661
-    njev: 5
-  nlinop: 431
+ message: Convergence: Norm of projected gradient &lt;= gtol.
+ success: True
+     fun: -77.87363432094232
+       x: [-1.152e+00 -1.887e-04 ...  3.492e-02  2.559e-01]
+     nit: 3
+     jac: [ 5.366e-07 -9.703e-07 ... -1.614e-07 -3.702e-07]
+    nfev: 562
+    njev: 4
+  nlinop: 378
 
 Iteration 1
-    Energy: -77.45707805369464
-    Norm of gradient: 0.012473998598132884
-    Regularization hyperparameter: 0.025777138463158576
-    Variation hyperparameter: 0.7569937795478902
+    Energy: -77.87362862222938
+    Norm of gradient: 0.0020730723801338966
+    Regularization hyperparameter: 0.0027749969713303825
+    Variation hyperparameter: 0.9907357807466852
 Iteration 2
-    Energy: -77.45820479019758
-    Norm of gradient: 0.00819360485101619
-    Regularization hyperparameter: 0.0004039060522511145
-    Variation hyperparameter: 0.7592917759948512
+    Energy: -77.87363431429232
+    Norm of gradient: 5.594743912056841e-05
+    Regularization hyperparameter: 0.00277499942553243
+    Variation hyperparameter: 0.9907357814390025
 Iteration 3
-    Energy: -77.45823090566549
-    Norm of gradient: 0.00803274110686148
-    Regularization hyperparameter: 1.0404907293422692
-    Variation hyperparameter: 0.7555498411374146
-Iteration 4
-    Energy: -77.46300964692503
-    Norm of gradient: 0.023727873330474842
-    Regularization hyperparameter: 0.0033471640958758677
-    Variation hyperparameter: 0.7486011457059818
+    Energy: -77.87363432094232
+    Norm of gradient: 6.609877446731677e-06
+    Regularization hyperparameter: 0.002774906410172652
+    Variation hyperparameter: 0.9907357982244561
 </pre></div></div>
 </div>
 </section>
@@ -683,8 +649,8 @@ Iteration 4
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a><ul>
-<li><a class="reference internal" href="#The-unitary-cluster-Jastrow-(UCJ)-ansatz">The unitary cluster Jastrow (UCJ) ansatz</a></li>
-<li><a class="reference internal" href="#The-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li><a class="reference internal" href="#General-UCJ-ansatz">General UCJ ansatz</a></li>
+<li><a class="reference internal" href="#LUCJ-ansatz">LUCJ ansatz</a></li>
 <li><a class="reference internal" href="#Optimize-with-the-linear-method">Optimize with the linear method</a></li>
 </ul>
 </li>
@@ -697,7 +663,7 @@ Iteration 4
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
+</div><script src="../_static/documentation_options.js?v=39aadc1c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

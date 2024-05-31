@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.contract.diag_coulomb - ffsim 0.0.34 documentation</title>
+        <title>ffsim.contract.diag_coulomb - ffsim 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -221,6 +221,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -229,7 +230,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -308,15 +309,27 @@
 <span class="kn">from</span> <span class="nn">ffsim.states</span> <span class="kn">import</span> <span class="n">dim</span>
 
 
+<span class="k">def</span> <span class="nf">_conjugate_orbital_rotation</span><span class="p">(</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+    <span class="k">if</span> <span class="n">orbital_rotation_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">orbital_rotation_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="contract_diag_coulomb">
 <a class="viewcode-back" href="../../../api/ffsim.contract.html#ffsim.contract.contract_diag_coulomb">[docs]</a>
 <span class="k">def</span> <span class="nf">contract_diag_coulomb</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">mat_alpha_beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Contract a diagonal Coulomb operator with a vector.</span>
@@ -325,55 +338,91 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2</span>
+<span class="sd">        \sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2</span>
 
 <span class="sd">    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`</span>
-<span class="sd">    with spin :math:`\sigma` and :math:`Z` is a real symmetric matrix</span>
-<span class="sd">    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`</span>
-<span class="sd">    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).</span>
+<span class="sd">    with spin :math:`\sigma` and :math:`Z^{(\sigma \tau)}` is a real-valued matrix</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: The state vector to be transformed.</span>
-<span class="sd">        mat: The real symmetric matrix :math:`Z`.</span>
+<span class="sd">        mat: The diagonal Coulomb matrix :math:`Z`.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the coefficients</span>
+<span class="sd">            to use for all spin interactions, or you can pass a tuple of three Numpy</span>
+<span class="sd">            arrays specifying independent coefficients for alpha-alpha, alpha-beta, and</span>
+<span class="sd">            beta-beta interactions (in that order). If passing a tuple, you can set a</span>
+<span class="sd">            tuple element to ``None`` to indicate the absence of interactions of that</span>
+<span class="sd">            type.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
-<span class="sd">        mat_alpha_beta: A matrix of coefficients to use for interactions between</span>
-<span class="sd">            orbitals with differing spin.</span>
 <span class="sd">        z_representation: Whether the input matrices are in the &quot;Z&quot; representation.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The result of applying the diagonal Coulomb operator on the input state vector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_bb</span> <span class="o">=</span> <span class="n">_get_mats</span><span class="p">(</span>
+        <span class="n">mat</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span>
+    <span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">mat_alpha_beta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">mat_alpha_beta</span> <span class="o">=</span> <span class="n">mat</span>
 
     <span class="k">if</span> <span class="n">z_representation</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_contract_diag_coulomb_z_rep</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span>
-            <span class="n">mat</span><span class="p">,</span>
+            <span class="n">mat_aa</span><span class="p">,</span>
+            <span class="n">mat_ab</span><span class="p">,</span>
+            <span class="n">mat_bb</span><span class="p">,</span>
             <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_contract_diag_coulomb_num_rep</span><span class="p">(</span>
         <span class="n">vec</span><span class="p">,</span>
-        <span class="n">mat</span><span class="p">,</span>
+        <span class="n">mat_aa</span><span class="p">,</span>
+        <span class="n">mat_ab</span><span class="p">,</span>
+        <span class="n">mat_bb</span><span class="p">,</span>
         <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
         <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-        <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 
+<span class="k">def</span> <span class="nf">_get_mats</span><span class="p">(</span>
+    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">mat_aa</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">mat_ab</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">mat_bb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span> <span class="o">=</span> <span class="n">mat</span><span class="p">,</span> <span class="n">mat</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">z_representation</span><span class="p">:</span>
+            <span class="n">mat_aa</span> <span class="o">=</span> <span class="n">mat_aa</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">mat_aa</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span> <span class="o">*=</span> <span class="mf">0.5</span>
+        <span class="k">return</span> <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_aa</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_bb</span> <span class="o">=</span> <span class="n">mat</span>
+        <span class="k">if</span> <span class="n">mat_aa</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mat_aa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">z_representation</span><span class="p">:</span>
+            <span class="n">mat_aa</span> <span class="o">=</span> <span class="n">mat_aa</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">mat_aa</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span> <span class="o">*=</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="n">mat_bb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mat_bb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">z_representation</span><span class="p">:</span>
+            <span class="n">mat_bb</span> <span class="o">=</span> <span class="n">mat_bb</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">mat_bb</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span> <span class="o">*=</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="n">mat_ab</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mat_ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_bb</span>
+
+
 <span class="k">def</span> <span class="nf">_contract_diag_coulomb_num_rep</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat_aa</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat_ab</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat_bb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">mat_alpha_beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
@@ -382,15 +431,14 @@
     <span class="n">occupations_a</span> <span class="o">=</span> <span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
     <span class="n">occupations_b</span> <span class="o">=</span> <span class="n">gen_occslst</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
 
-    <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">mat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span> <span class="o">*=</span> <span class="mf">0.5</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">))</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
     <span class="n">contract_diag_coulomb_into_buffer_num_rep</span><span class="p">(</span>
         <span class="n">vec</span><span class="p">,</span>
-        <span class="n">mat</span><span class="p">,</span>
+        <span class="n">mat_aa</span><span class="p">,</span>
+        <span class="n">mat_ab</span><span class="p">,</span>
+        <span class="n">mat_bb</span><span class="p">,</span>
         <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-        <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
         <span class="n">occupations_a</span><span class="o">=</span><span class="n">occupations_a</span><span class="p">,</span>
         <span class="n">occupations_b</span><span class="o">=</span><span class="n">occupations_b</span><span class="p">,</span>
         <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span>
@@ -401,11 +449,11 @@
 
 <span class="k">def</span> <span class="nf">_contract_diag_coulomb_z_rep</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat_aa</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat_ab</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat_bb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">mat_alpha_beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">dim_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span>
@@ -418,9 +466,10 @@
     <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
     <span class="n">contract_diag_coulomb_into_buffer_z_rep</span><span class="p">(</span>
         <span class="n">vec</span><span class="p">,</span>
-        <span class="n">mat</span><span class="p">,</span>
+        <span class="n">mat_aa</span><span class="p">,</span>
+        <span class="n">mat_ab</span><span class="p">,</span>
+        <span class="n">mat_bb</span><span class="p">,</span>
         <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-        <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">mat_alpha_beta</span><span class="p">,</span>
         <span class="n">strings_a</span><span class="o">=</span><span class="n">strings_a</span><span class="p">,</span>
         <span class="n">strings_b</span><span class="o">=</span><span class="n">strings_b</span><span class="p">,</span>
         <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span>
@@ -432,12 +481,13 @@
 <div class="viewcode-block" id="diag_coulomb_linop">
 <a class="viewcode-back" href="../../../api/ffsim.contract.html#ffsim.contract.diag_coulomb_linop">[docs]</a>
 <span class="k">def</span> <span class="nf">diag_coulomb_linop</span><span class="p">(</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">mat_alpha_beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert a (rotated) diagonal Coulomb matrix to a linear operator.</span>
@@ -447,20 +497,30 @@
 <span class="sd">    .. math::</span>
 
 <span class="sd">        \mathcal{U}</span>
-<span class="sd">        (\sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2)</span>
+<span class="sd">        (\sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2)</span>
 <span class="sd">        \mathcal{U}^\dagger</span>
 
 <span class="sd">    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`</span>
-<span class="sd">    with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,</span>
+<span class="sd">    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix,</span>
 <span class="sd">    and :math:`\mathcal{U}` is an optional orbital rotation.</span>
-<span class="sd">    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`</span>
-<span class="sd">    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        mat: The real symmetric matrix :math:`Z`.</span>
+<span class="sd">        mat: The diagonal Coulomb matrix :math:`Z`.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the coefficients</span>
+<span class="sd">            to use for all spin interactions, or you can pass a tuple of three Numpy</span>
+<span class="sd">            arrays specifying independent coefficients for alpha-alpha, alpha-beta, and</span>
+<span class="sd">            beta-beta interactions (in that order). If passing a tuple, you can set a</span>
+<span class="sd">            tuple element to ``None`` to indicate the absence of interactions of that</span>
+<span class="sd">            type.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
-<span class="sd">        orbital_rotation: A unitary matrix describing the optional orbital rotation.</span>
+<span class="sd">        orbital_rotation: The optional orbital rotation.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to that</span>
+<span class="sd">            spin sector.</span>
 <span class="sd">        mat_alpha_beta: A matrix of coefficients to use for interactions between</span>
 <span class="sd">            orbitals with differing spin.</span>
 <span class="sd">        z_representation: Whether the input matrices are in the &quot;Z&quot; representation.</span>
@@ -468,41 +528,31 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A LinearOperator that implements the action of the diagonal Coulomb operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">mat_alpha_beta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">mat_alpha_beta</span> <span class="o">=</span> <span class="n">mat</span>
     <span class="n">dim_</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">):</span>
-        <span class="n">this_mat</span> <span class="o">=</span> <span class="n">mat</span>
-        <span class="n">this_mat_alpha_beta</span> <span class="o">=</span> <span class="n">mat_alpha_beta</span>
         <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">vec</span><span class="p">,</span> <span class="n">perm0</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
-                <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+                <span class="n">_conjugate_orbital_rotation</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">),</span>
                 <span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="p">,</span>
-                <span class="n">allow_row_permutation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">this_mat</span> <span class="o">=</span> <span class="n">perm0</span> <span class="o">@</span> <span class="n">mat</span> <span class="o">@</span> <span class="n">perm0</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">this_mat_alpha_beta</span> <span class="o">=</span> <span class="n">perm0</span> <span class="o">@</span> <span class="n">mat_alpha_beta</span> <span class="o">@</span> <span class="n">perm0</span><span class="o">.</span><span class="n">T</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">contract_diag_coulomb</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span>
-            <span class="n">this_mat</span><span class="p">,</span>
+            <span class="n">mat</span><span class="p">,</span>
             <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">mat_alpha_beta</span><span class="o">=</span><span class="n">this_mat_alpha_beta</span><span class="p">,</span>
             <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">vec</span><span class="p">,</span> <span class="n">perm1</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
                 <span class="n">orbital_rotation</span><span class="p">,</span>
                 <span class="n">norb</span><span class="p">,</span>
                 <span class="n">nelec</span><span class="p">,</span>
-                <span class="n">allow_col_permutation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">perm0</span><span class="p">,</span> <span class="n">perm1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">vec</span>
 
     <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">(</span>
@@ -548,7 +598,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9dd25805"></script>
+</div><script src="../../../_static/documentation_options.js?v=39aadc1c"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>

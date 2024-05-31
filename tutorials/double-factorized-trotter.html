@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Explanations" href="../explanations/index.html" /><link rel="prev" title="Tutorials" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>Implementing Trotter simulation of the double-factorized Hamiltonian - ffsim 0.0.34 documentation</title>
+        <title>Implementing Trotter simulation of the double-factorized Hamiltonian - ffsim 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -223,6 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -231,7 +232,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -315,7 +316,8 @@
 <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_frozen</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">())</span>
 
 <span class="c1"># Get molecular data and Hamiltonian</span>
-<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_mole</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
+<span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span>
 <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
 <span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
 
@@ -466,7 +468,7 @@ Number of terms: 10
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Maximum error in a tensor entry: 0.036685417309835655
+Maximum error in a tensor entry: 0.03668541730983477
 </pre></div></div>
 </div>
 </section>
@@ -607,7 +609,7 @@ Maximum error in a tensor entry: 0.036685417309835655
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9402428406393887
+Fidelity of Trotter-evolved state with exact state: 0.9402393562171046
 </pre></div></div>
 </div>
 <p>The fidelity of the final result can be improved by increasing the number of Trotter steps.</p>
@@ -634,7 +636,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9402428406393887
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9985212763325196
+Fidelity of Trotter-evolved state with exact state: 0.9985211214228694
 </pre></div></div>
 </div>
 <p>In the code cell below, we reproduce the results of our manually implemented function using ffsim’s built-in implementation.</p>
@@ -662,7 +664,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9985212763325196
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9985212763325114
+Fidelity of Trotter-evolved state with exact state: 0.9985211214228724
 </pre></div></div>
 </div>
 <p>A higher order formula achieves a higher fidelity with fewer Trotter steps:</p>
@@ -690,7 +692,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9985212763325114
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Fidelity of Trotter-evolved state with exact state: 0.9996731172092845
+Fidelity of Trotter-evolved state with exact state: 0.9996731166931991
 </pre></div></div>
 </div>
 <p>You’ve made it to the end of this tutorial!</p>
@@ -773,7 +775,7 @@ Fidelity of Trotter-evolved state with exact state: 0.9996731172092845
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
+</div><script src="../_static/documentation_options.js?v=39aadc1c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

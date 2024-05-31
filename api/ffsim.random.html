@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.testing" href="ffsim.testing.html" /><link rel="prev" title="ffsim.qiskit" href="ffsim.qiskit.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.random - ffsim 0.0.34 documentation</title>
+        <title>ffsim.random - ffsim 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -222,6 +222,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -230,7 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -500,9 +501,57 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_ucj_op_spin_balanced">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_ucj_op_spin_balanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_ucj_op_spin_balanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_ucj_op_spin_balanced" title="Link to this definition">¶</a></dt>
+<dd><p>Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of orbitals.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOpSpinBalanced" title="ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled UCJ operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_ucj_op_spin_unbalanced">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_ucj_op_spin_unbalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_ucj_op_spin_unbalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_ucj_op_spin_unbalanced" title="Link to this definition">¶</a></dt>
+<dd><p>Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of orbitals.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOpSpinUnbalanced" title="ffsim.variational.ucj_spin_unbalanced.UCJOpSpinUnbalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled UCJ operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.random.random_ucj_operator">
 <span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_ucj_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_ucj_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_ucj_operator" title="Link to this definition">¶</a></dt>
-<dd><p>Sample a random unitary cluster Jastrow operator.</p>
+<dd><p>Sample a random unitary cluster Jastrow (UCJ) operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -518,7 +567,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOperator" title="ffsim.variational.ucj.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperator</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The sampled molecular Hamiltonian.</p>
+<dd class="field-odd"><p>The sampled UCJ operator.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -623,6 +672,8 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <li><a class="reference internal" href="#ffsim.random.random_statevector"><code class="docutils literal notranslate"><span class="pre">random_statevector()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_t2_amplitudes"><code class="docutils literal notranslate"><span class="pre">random_t2_amplitudes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_two_body_tensor"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.random.random_ucj_op_spin_balanced"><code class="docutils literal notranslate"><span class="pre">random_ucj_op_spin_balanced()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.random.random_ucj_op_spin_unbalanced"><code class="docutils literal notranslate"><span class="pre">random_ucj_op_spin_unbalanced()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_ucj_operator"><code class="docutils literal notranslate"><span class="pre">random_ucj_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_unitary"><code class="docutils literal notranslate"><span class="pre">random_unitary()</span></code></a></li>
 </ul>
@@ -636,7 +687,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
+</div><script src="../_static/documentation_options.js?v=39aadc1c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

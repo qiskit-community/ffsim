@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.linalg" href="ffsim.linalg.html" /><link rel="prev" title="ffsim" href="ffsim.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.contract - ffsim 0.0.34 documentation</title>
+        <title>ffsim.contract - ffsim 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -222,6 +222,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -230,7 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -291,26 +292,28 @@
 <p>Functions for contracting tensors and constructing linear operators.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.contract.contract_diag_coulomb">
-<span class="sig-prename descclassname"><span class="pre">ffsim.contract.</span></span><span class="sig-name descname"><span class="pre">contract_diag_coulomb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/contract/diag_coulomb.html#contract_diag_coulomb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.contract_diag_coulomb" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.contract.</span></span><span class="sig-name descname"><span class="pre">contract_diag_coulomb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/contract/diag_coulomb.html#contract_diag_coulomb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.contract_diag_coulomb" title="Link to this definition">¶</a></dt>
 <dd><p>Contract a diagonal Coulomb operator with a vector.</p>
 <p>A diagonal Coulomb operator has the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2\]</div>
+\[\sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\]</div>
 </div>
 <p>where <span class="math notranslate nohighlight">\(n_{\sigma, i}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
-with spin <span class="math notranslate nohighlight">\(\sigma\)</span> and <span class="math notranslate nohighlight">\(Z\)</span> is a real symmetric matrix
-If <code class="docutils literal notranslate"><span class="pre">mat_alpha_beta</span></code> is also given, then it is used in place of <span class="math notranslate nohighlight">\(Z\)</span>
-for the terms in the sum where the spins differ (<span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>).</p>
+with spin <span class="math notranslate nohighlight">\(\sigma\)</span> and <span class="math notranslate nohighlight">\(Z^{(\sigma \tau)}\)</span> is a real-valued matrix</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The diagonal Coulomb matrix <span class="math notranslate nohighlight">\(Z\)</span>.
+You can pass either a single Numpy array specifying the coefficients
+to use for all spin interactions, or you can pass a tuple of three Numpy
+arrays specifying independent coefficients for alpha-alpha, alpha-beta, and
+beta-beta interactions (in that order). If passing a tuple, you can set a
+tuple element to <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate the absence of interactions of that
+type.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>mat_alpha_beta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A matrix of coefficients to use for interactions between
-orbitals with differing spin.</p></li>
 <li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
 </ul>
 </dd>
@@ -379,28 +382,38 @@ state vector.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.contract.diag_coulomb_linop">
-<span class="sig-prename descclassname"><span class="pre">ffsim.contract.</span></span><span class="sig-name descname"><span class="pre">diag_coulomb_linop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/contract/diag_coulomb.html#diag_coulomb_linop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.diag_coulomb_linop" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.contract.</span></span><span class="sig-name descname"><span class="pre">diag_coulomb_linop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/contract/diag_coulomb.html#diag_coulomb_linop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.diag_coulomb_linop" title="Link to this definition">¶</a></dt>
 <dd><p>Convert a (rotated) diagonal Coulomb matrix to a linear operator.</p>
 <p>A rotated diagonal Coulomb operator has the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\mathcal{U}
-(\sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2)
+(\sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2)
 \mathcal{U}^\dagger\]</div>
 </div>
 <p>where <span class="math notranslate nohighlight">\(n_{\sigma, i}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
-with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(Z\)</span> is a real symmetric matrix,
-and <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an optional orbital rotation.
-If <code class="docutils literal notranslate"><span class="pre">mat_alpha_beta</span></code> is also given, then it is used in place of <span class="math notranslate nohighlight">\(Z\)</span>
-for the terms in the sum where the spins differ (<span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>).</p>
+with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(Z^{(\sigma \tau)}\)</span> is a real-valued matrix,
+and <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an optional orbital rotation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The diagonal Coulomb matrix <span class="math notranslate nohighlight">\(Z\)</span>.
+You can pass either a single Numpy array specifying the coefficients
+to use for all spin interactions, or you can pass a tuple of three Numpy
+arrays specifying independent coefficients for alpha-alpha, alpha-beta, and
+beta-beta interactions (in that order). If passing a tuple, you can set a
+tuple element to <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate the absence of interactions of that
+type.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A unitary matrix describing the optional orbital rotation.</p></li>
-<li><p><strong>mat_alpha_beta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A matrix of coefficients to use for interactions between
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to that
+spin sector.</p></li>
+<li><p><strong>mat_alpha_beta</strong> – A matrix of coefficients to use for interactions between
 orbitals with differing spin.</p></li>
 <li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
 </ul>
@@ -556,7 +569,7 @@ operators.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
+</div><script src="../_static/documentation_options.js?v=39aadc1c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

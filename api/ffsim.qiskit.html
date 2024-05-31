@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.random" href="ffsim.random.html" /><link rel="prev" title="ffsim.optimize" href="ffsim.optimize.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.qiskit - ffsim 0.0.34 documentation</title>
+        <title>ffsim.qiskit - ffsim 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -222,6 +222,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -230,7 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -291,44 +292,40 @@
 <p>Code that uses Qiskit, e.g. for constructing quantum circuits.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.DiagCoulombEvolutionJW">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">DiagCoulombEvolutionJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/diag_coulomb.html#DiagCoulombEvolutionJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DiagCoulombEvolutionJW" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">DiagCoulombEvolutionJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/diag_coulomb.html#DiagCoulombEvolutionJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DiagCoulombEvolutionJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
 <p>Diagonal Coulomb evolution under the Jordan-Wigner transformation.</p>
 <p>The diagonal Coulomb evolution gate has the unitary</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\exp\left(-i t \sum_{\sigma, \tau, i, j}
-Z_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)\]</div>
+Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)\]</div>
 </div>
 <p>where <span class="math notranslate nohighlight">\(n_{\sigma, i}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
-with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(Z\)</span> is a real symmetric matrix.
-If <cite>mat_alpha_beta</cite> is also given, then it is used in place of <span class="math notranslate nohighlight">\(Z\)</span>
-for the terms in the sum where the spins differ (<span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>).</p>
+with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(Z^{(\sigma \tau)}\)</span> is a real-valued matrix.</p>
 <p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
 correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
 beta orbitals.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.qiskit.DiagCoulombEvolutionJW.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/diag_coulomb.html#DiagCoulombEvolutionJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DiagCoulombEvolutionJW.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/diag_coulomb.html#DiagCoulombEvolutionJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DiagCoulombEvolutionJW.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>Create new diagonal Coulomb evolution gate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The diagonal Coulomb matrix <span class="math notranslate nohighlight">\(Z\)</span>.
+You can pass either a single Numpy array specifying the coefficients
+to use for all spin interactions, or you can pass a tuple of three Numpy
+arrays specifying independent coefficients for alpha-alpha, alpha-beta,
+and beta-beta interactions (in that order). If passing a tuple, you can
+set a tuple element to <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate the absence of interactions
+of that type. The alpha-alpha and beta-beta matrices are assumed to be
+symmetric, and only their upper triangular entries are used.</p></li>
 <li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
-<li><p><strong>mat_alpha_beta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A matrix of coefficients to use for interactions between
-orbitals with differing spin.</p></li>
 <li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
 <li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
-<li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to check that the input matrix is real symmetric and
-raise an error if it isn’t.</p></li>
-<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance for input validation.</p></li>
-<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance for input validation.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – The input matrix is not real symmetric.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -518,10 +515,13 @@ beta orbitals.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The orbital rotation. You can pass either a
-single Numpy array specifying the orbital rotation to apply to both
-spin sectors, or you can pass a pair of Numpy arrays to specify
-independent orbital rotations for spin alpha and spin beta.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to
+that spin sector.</p></li>
 <li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
 <li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to check that the input orbital rotation(s) is unitary
 and raise an error if it isn’t.</p></li>
@@ -674,10 +674,13 @@ beta orbitals.</p>
 This is a pair of lists of integers, where the first list specifies the
 spin alpha orbitals and the second list specifies the spin beta
 orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation. You can pass either a
-single Numpy array specifying the orbital rotation to apply to both
-spin sectors, or you can pass a pair of Numpy arrays to specify
-independent orbital rotations for spin alpha and spin beta.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to
+that spin sector.</p></li>
 <li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
 <li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to check that the input orbital rotation(s) is unitary
 and raise an error if it isn’t.</p></li>
@@ -725,8 +728,58 @@ and raise an error if it isn’t.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOpSpinBalancedJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinBalancedJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOpSpinBalancedJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOpSpinBalancedJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Spin-balanced UCJ operator under the Jordan-Wigner transformation.</p>
+<p>See <a class="reference internal" href="ffsim.html#ffsim.UCJOpSpinBalanced" title="ffsim.UCJOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.UCJOpSpinBalanced</span></code></a> for a description of this gate’s unitary.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOpSpinBalancedJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOpSpinBalancedJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOpSpinBalancedJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new spin-balanced unitary cluster Jastrow (UCJ) gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucj_op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOpSpinBalanced" title="ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a></span>) – The UCJ operator.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOpSpinUnbalancedJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinUnbalancedJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOpSpinUnbalancedJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOpSpinUnbalancedJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Spin-unbalanced UCJ operator under the Jordan-Wigner transformation.</p>
+<p>See <a class="reference internal" href="ffsim.html#ffsim.UCJOpSpinUnbalanced" title="ffsim.UCJOpSpinUnbalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.UCJOpSpinUnbalanced</span></code></a> for a description of this gate’s unitary.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOpSpinUnbalancedJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOpSpinUnbalancedJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOpSpinUnbalancedJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new spin-unbalanced unitary cluster Jastrow (UCJ) gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucj_op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCJOpSpinUnbalanced" title="ffsim.variational.ucj_spin_unbalanced.UCJOpSpinUnbalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a></span>) – The UCJ operator.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.UCJOperatorJW">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOperatorJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOperatorJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOperatorJW" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOperatorJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj_operator.html#UCJOperatorJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOperatorJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
 <p>Unitary cluster Jastrow operator under the Jordan-Wigner transformation.</p>
 <p>See <a class="reference internal" href="ffsim.html#ffsim.UCJOperator" title="ffsim.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.UCJOperator</span></code></a> for a description of this gate’s unitary.</p>
@@ -735,7 +788,7 @@ correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspon
 beta orbitals.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.qiskit.UCJOperatorJW.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOperatorJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOperatorJW.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj_operator.html#UCJOperatorJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOperatorJW.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>Create a new unitary cluster Jastrow (UCJ) gate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -746,6 +799,19 @@ beta orbitals.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOperatorJW.__init_subclass__">
+<span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.qiskit.UCJOperatorJW.__init_subclass__" title="Link to this definition">¶</a></dt>
+<dd><p>This method is called when a class is subclassed.</p>
+<p>The default implementation does nothing. It may be
+overridden to extend subclasses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.UCJOperatorJW.__new__">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.qiskit.UCJOperatorJW.__new__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -921,8 +987,18 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantSpinlessJW.__init__()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOpSpinBalancedJW"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalancedJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOpSpinBalancedJW.__init__"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalancedJW.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOpSpinUnbalancedJW"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalancedJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOpSpinUnbalancedJW.__init__"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalancedJW.__init__()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW"><code class="docutils literal notranslate"><span class="pre">UCJOperatorJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW.__init__"><code class="docutils literal notranslate"><span class="pre">UCJOperatorJW.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">UCJOperatorJW.__init_subclass__()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.UCJOperatorJW.__new__"><code class="docutils literal notranslate"><span class="pre">UCJOperatorJW.__new__()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec"><code class="docutils literal notranslate"><span class="pre">ffsim_vec_to_qiskit_vec()</span></code></a></li>
@@ -939,7 +1015,7 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
+</div><script src="../_static/documentation_options.js?v=39aadc1c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

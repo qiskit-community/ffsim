@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.contract" href="ffsim.contract.html" /><link rel="prev" title="API Reference" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim - ffsim 0.0.34 documentation</title>
+        <title>ffsim - ffsim 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.34 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.34 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -222,6 +222,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -230,7 +231,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use the ffsim Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -796,7 +797,7 @@ in the ansatz operator.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ffsim.MolecularData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">MolecularData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_occ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_vec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole_integrals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">MolecularData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_occ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_mo_occ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp2_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccsd_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci_vec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole_integrals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_symmetries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for storing molecular data.</p>
 <dl class="py attribute">
@@ -824,18 +825,6 @@ in the ansatz operator.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.MolecularData.mo_coeff">
-<span class="sig-name descname"><span class="pre">mo_coeff</span></span><a class="headerlink" href="#ffsim.MolecularData.mo_coeff" title="Link to this definition">¶</a></dt>
-<dd><p>Hartree-Fock canonical orbital coefficients in the AO basis.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.MolecularData.mo_occ">
-<span class="sig-name descname"><span class="pre">mo_occ</span></span><a class="headerlink" href="#ffsim.MolecularData.mo_occ" title="Link to this definition">¶</a></dt>
-<dd><p>Hartree-Fock canonical orbital occupancies.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.MolecularData.norb">
 <span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.MolecularData.norb" title="Link to this definition">¶</a></dt>
 <dd><p>The number of spatial orbitals.</p>
@@ -848,9 +837,21 @@ in the ansatz operator.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.mo_coeff">
+<span class="sig-name descname"><span class="pre">mo_coeff</span></span><a class="headerlink" href="#ffsim.MolecularData.mo_coeff" title="Link to this definition">¶</a></dt>
+<dd><p>Molecular orbital coefficients in the AO basis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.mo_occ">
+<span class="sig-name descname"><span class="pre">mo_occ</span></span><a class="headerlink" href="#ffsim.MolecularData.mo_occ" title="Link to this definition">¶</a></dt>
+<dd><p>Molecular orbital occupancies.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.MolecularData.active_space">
 <span class="sig-name descname"><span class="pre">active_space</span></span><a class="headerlink" href="#ffsim.MolecularData.active_space" title="Link to this definition">¶</a></dt>
-<dd><p>The orbitals included in the active space.</p>
+<dd><p>The molecular orbitals included in the active space.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -875,6 +876,18 @@ in the ansatz operator.</p></li>
 <dt class="sig sig-object py" id="ffsim.MolecularData.hf_energy">
 <span class="sig-name descname"><span class="pre">hf_energy</span></span><a class="headerlink" href="#ffsim.MolecularData.hf_energy" title="Link to this definition">¶</a></dt>
 <dd><p>The Hartree-Fock energy.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.hf_mo_coeff">
+<span class="sig-name descname"><span class="pre">hf_mo_coeff</span></span><a class="headerlink" href="#ffsim.MolecularData.hf_mo_coeff" title="Link to this definition">¶</a></dt>
+<dd><p>Hartree-Fock canonical orbital coefficients in the AO basis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularData.hf_mo_occ">
+<span class="sig-name descname"><span class="pre">hf_mo_occ</span></span><a class="headerlink" href="#ffsim.MolecularData.hf_mo_occ" title="Link to this definition">¶</a></dt>
+<dd><p>Hartree-Fock canonical orbital occupancies.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -956,12 +969,9 @@ in the ansatz operator.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hartree_fock</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCF</span></code></span>) – The Hartree-Fock object.</p></li>
-<li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional list of orbitals to use for the active space.</p></li>
+<li><p><strong>hartree_fock</strong> – The Hartree-Fock object.</p></li>
+<li><p><strong>active_space</strong> – An optional list of orbitals to use for the active space.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1004,12 +1014,6 @@ in the ansatz operator.</p></li>
 <dt class="sig sig-object py" id="ffsim.MolecularData.run_mp2">
 <span class="sig-name descname"><span class="pre">run_mp2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.run_mp2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.run_mp2" title="Link to this definition">¶</a></dt>
 <dd><p>Run MP2 and store results.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ffsim.MolecularData.scf">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mole</span></em><a class="headerlink" href="#ffsim.MolecularData.scf" title="Link to this definition">¶</a></dt>
-<dd><p>The PySCF SCF class for this molecular data.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1483,6 +1487,13 @@ the alpha and beta components of each state.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.SupportsDiagonal">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsDiagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/diagonal_protocol.html#SupportsDiagonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsDiagonal" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A linear operator whose diagonal entries can be returned.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.SupportsFermionOperator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsFermionOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/fermion_operator_protocol.html#SupportsFermionOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsFermionOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
@@ -1501,6 +1512,534 @@ the alpha and beta components of each state.</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsTrace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/trace_protocol.html#SupportsTrace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsTrace" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
 <p>A linear operator whose trace can be computed.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinBalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A spin-balanced unitary cluster Jastrow operator.</p>
+<p>A unitary cluster Jastrow (UCJ) operator has the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\prod_{k = 1}^L \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger\]</div>
+</div>
+<p>where each <span class="math notranslate nohighlight">\(\mathcal{U_k}\)</span> is an orbital rotation and each <span class="math notranslate nohighlight">\(\mathcal{J}\)</span>
+is a diagonal Coulomb operator of the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij}
+\mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.\]</div>
+</div>
+<p>For the spin-balanced operator, we require that
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \alpha)} = \mathbf{J}^{(\beta \beta)}\)</span> and
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \beta)} = \mathbf{J}^{(\beta \alpha)}\)</span>.
+Therefore, each diagonal Coulomb operator is described by 2 matrices,
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \alpha)}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \beta)}\)</span>, and
+both of these matrices are symmetric.
+Furthermore, each orbital rotation is described by a single matrix because the
+same orbital rotation is applied to both spin alpha and spin beta.
+The number of terms <span class="math notranslate nohighlight">\(L\)</span> is referred to as the
+number of ansatz repetitions and is accessible via the <cite>n_reps</cite> attribute.</p>
+<p>To support variational optimization of the orbital basis, an optional final
+orbital rotation can be included in the operator, to be performed at the end.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.diag_coulomb_mats">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.diag_coulomb_mats" title="Link to this definition">¶</a></dt>
+<dd><p>The diagonal Coulomb matrices, as a Numpy array
+of shape <cite>(n_reps, 2, norb, norb)</cite>
+The last two axes index the rows and columns of
+the matrices, and the third from last axis, which has 2 dimensions, indexes
+the spin interaction type of the matrix: alpha-alpha, and then alpha-beta.
+The first axis indexes the ansatz repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.orbital_rotations">
+<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.orbital_rotations" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital rotations, as a Numpy array
+of shape <cite>(n_reps, norb, norb)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.final_orbital_rotation">
+<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.final_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>The optional final orbital rotation, as
+a Numpy array of shape <cite>(norb, norb)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinBalanced" title="ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator constructed from the given parameters.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – The number of parameters passed did not match the number
+    expected based on the function inputs.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.from_t_amplitudes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
+<p>Performs a double-factorization of the t2 amplitudes and constructs the
+ansatz repetitions from the terms of the decomposition, up to an optionally
+specified number of ansatz repetitions. Terms are included in decreasing order
+of the absolute value of the corresponding eigenvalue in the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes.</p></li>
+<li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the double-factorized decomposition of the
+t2 amplitudes.
+The error is defined as the maximum absolute difference between
+an element of the original tensor and the corresponding element of
+the reconstructed tensor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinBalanced" title="ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator with parameters initialized from the t2 amplitudes.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.n_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.n_params" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of parameters of the ansatz.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.n_reps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.n_reps" title="Link to this definition">¶</a></dt>
+<dd><p>The number of ansatz repetitions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>interaction_pairs</cite> is specified, the returned parameter vector will
+incorporate only the diagonal Coulomb matrix entries corresponding to the
+specified interactions, so the original operator will not be recoverable
+from the parameter vector.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The real-valued parameter vector.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinUnbalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A spin-unbalanced unitary cluster Jastrow operator.</p>
+<p>A unitary cluster Jastrow (UCJ) operator has the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\prod_{k = 1}^L \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger\]</div>
+</div>
+<p>where each <span class="math notranslate nohighlight">\(\mathcal{U_k}\)</span> is an orbital rotation and each <span class="math notranslate nohighlight">\(\mathcal{J}\)</span>
+is a diagonal Coulomb operator of the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij}
+\mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.\]</div>
+</div>
+<p>Since <span class="math notranslate nohighlight">\(\mathbf{J}^{(\sigma \tau)}_{ij} = \mathbf{J}^{(\tau \sigma)}_{ji}\)</span>,
+each diagonal Coulomb operator requires 3 matrices for its description:
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \alpha)}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \beta)}\)</span>, and
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\beta \beta)}\)</span>. The number of terms <span class="math notranslate nohighlight">\(L\)</span> is referred to as
+the number of ansatz repetitions and is accessible via the <cite>n_reps</cite> attribute.</p>
+<p>To support variational optimization of the orbital basis, an optional final
+orbital rotation can be included in the operator, to be performed at the end.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.diag_coulomb_mats">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.diag_coulomb_mats" title="Link to this definition">¶</a></dt>
+<dd><p>The diagonal Coulomb matrices, as a Numpy array
+of shape <cite>(n_reps, 3, norb, norb)</cite>
+The last two axes index the rows and columns of
+the matrices, and the third from last axis, which has 3 dimensions, indexes
+the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
+beta-beta (in that order).
+The first axis indexes the ansatz repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.orbital_rotations">
+<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.orbital_rotations" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital rotations, as a Numpy array of shape
+<cite>(n_reps, 2, norb, norb)</cite>. The last two axes index the rows and columns
+of the orbital rotations, and the third from last axis, which has 2
+dimensions, indexes the spin sector of the orbital rotation: first alpha,
+then beta.
+The first axis indexes the ansatz repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.final_orbital_rotation">
+<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.final_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>The optional final orbital rotation, as a
+Numpy array of shape <cite>(2, norb, norb)</cite>. This can be viewed as a list of two
+orbital rotations, the first one for spin alpha and the second one for spin
+beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced" title="ffsim.variational.ucj_spin_unbalanced.UCJOpSpinUnbalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator constructed from the given parameters.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – The number of parameters passed did not match the number
+    expected based on the function inputs.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.from_t_amplitudes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
+<p>Performs a double-factorization of the t2 amplitudes and constructs the
+ansatz repetitions from the terms of the decomposition, up to an optionally
+specified number of repetitions. Terms are included in decreasing order
+of the magnitude of the corresponding singular value in the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
+<cite>(t2aa, t2ab, t2bb)</cite>, containing the alpha-alpha, alpha-beta, and
+beta-beta t2 amplitudes.</p></li>
+<li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes. This should be a pair of Numpy arrays, <cite>(t1a, t1b)</cite>,
+containing the alpha and beta t1 amplitudes.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions.
+You can pass a single integer or a pair of integers.
+If a single integer, terms from the alpha-beta t2 amplitudes are
+used before including any terms from the alpha-alpha and beta-beta
+t2 amplitudes. If a pair of integers, then the first integer specifies
+the number of terms to use from the alpha-beta t2 amplitudes,
+and the second integer specifies the number of terms to use from the
+alpha-alpha and beta-beta t2 amplitudes.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the double-factorized decomposition of the
+t2 amplitudes.
+The error is defined as the maximum absolute difference between
+an element of the original tensor and the corresponding element of
+the reconstructed tensor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced" title="ffsim.variational.ucj_spin_unbalanced.UCJOpSpinUnbalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator with parameters initialized from the t2 amplitudes.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.n_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.n_params" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of parameters of the ansatz.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.n_reps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.n_reps" title="Link to this definition">¶</a></dt>
+<dd><p>The number of ansatz repetitions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>interaction_pairs</cite> is specified, the returned parameter vector will
+incorporate only the diagonal Coulomb matrix entries corresponding to the
+specified interactions, so the original operator will not be recoverable
+from the parameter vector.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The real-valued parameter vector.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1706,32 +2245,41 @@ lower triangular indices will raise an error.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_diag_coulomb_evolution">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_alpha_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/diag_coulomb.html#apply_diag_coulomb_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_diag_coulomb_evolution" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/diag_coulomb.html#apply_diag_coulomb_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_diag_coulomb_evolution" title="Link to this definition">¶</a></dt>
 <dd><p>Apply time evolution by a (rotated) diagonal Coulomb operator.</p>
 <p>Applies</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\mathcal{U}
 \exp\left(-i t \sum_{\sigma, \tau, i, j}
-Z_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
+Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
 \mathcal{U}^\dagger\]</div>
 </div>
 <p>where <span class="math notranslate nohighlight">\(n_{\sigma, i}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
-with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(Z\)</span> is a real symmetric matrix,
-and <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an optional orbital rotation.
-If <cite>mat_alpha_beta</cite> is also given, then it is used in place of <span class="math notranslate nohighlight">\(Z\)</span>
-for the terms in the sum where the spins differ (<span class="math notranslate nohighlight">\(\sigma \neq \tau\)</span>).</p>
+with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(Z^{(\sigma \tau)}\)</span> is a real-valued matrix,
+and <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an optional orbital rotation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real symmetric matrix <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The diagonal Coulomb matrix <span class="math notranslate nohighlight">\(Z\)</span>.
+You can pass either a single Numpy array specifying the coefficients
+to use for all spin interactions, or you can pass a tuple of three Numpy
+arrays specifying independent coefficients for alpha-alpha, alpha-beta,
+and beta-beta interactions (in that order). If passing a tuple, you can
+set a tuple element to <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate the absence of interactions
+of that type. The alpha-alpha and beta-beta matrices are assumed to be
+symmetric, and only their upper triangular entries are used.</p></li>
 <li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A unitary matrix describing the optional orbital rotation.</p></li>
-<li><p><strong>mat_alpha_beta</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A matrix of coefficients to use for interactions between
-orbitals with differing spin.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to that
+spin sector.</p></li>
 <li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
 <li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
 <ul>
@@ -2063,13 +2611,13 @@ modified in-place.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_num_op_sum_evolution">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_num_op_sum_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/num_op_sum.html#apply_num_op_sum_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_num_op_sum_evolution" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_num_op_sum_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/num_op_sum.html#apply_num_op_sum_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_num_op_sum_evolution" title="Link to this definition">¶</a></dt>
 <dd><p>Apply time evolution by a (rotated) linear combination of number operators.</p>
 <p>Applies</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\mathcal{U}
-\exp\left(-i t \sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)
+\exp\left(-i t \sum_{\sigma, i} \lambda^{(\sigma)}_i n_{\sigma, i}\right)
 \mathcal{U}^\dagger\]</div>
 </div>
 <p>where <span class="math notranslate nohighlight">\(n_{\sigma, i}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
@@ -2079,19 +2627,23 @@ with spin <span class="math notranslate nohighlight">\(\sigma\)</span>, the <spa
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
-<li><p><strong>coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The coefficients of the linear combination.</p></li>
+<li><p><strong>coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The coefficients of the linear combination.
+You can pass either a single Numpy array specifying the coefficients
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent coefficients for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to that
+spin sector.</p></li>
 <li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>spin</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.Spin" title="ffsim.spin.Spin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spin</span></code></a></span>) – <p>Choice of spin sector(s) to act on.</p>
-<ul>
-<li><p>To act on only spin alpha, pass <a class="reference internal" href="#ffsim.Spin.ALPHA" title="ffsim.Spin.ALPHA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA</span></code></a>.</p></li>
-<li><p>To act on only spin beta, pass <a class="reference internal" href="#ffsim.Spin.BETA" title="ffsim.Spin.BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.BETA</span></code></a>.</p></li>
-<li><p>To act on both spin alpha and spin beta, pass
-<a class="reference internal" href="#ffsim.Spin.ALPHA_AND_BETA" title="ffsim.Spin.ALPHA_AND_BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA_AND_BETA</span></code></a> (this is the default value).</p></li>
-</ul>
-</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A unitary matrix describing the optional orbital rotation.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to that
+spin sector.</p></li>
 <li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
 <ul>
 <li><p>If <cite>copy=True</cite> then this function always returns a newly allocated
@@ -2109,9 +2661,6 @@ modified in-place.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The evolved state vector.</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">coeffs</span></code> must be a one-dimensional vector with length <code class="docutils literal notranslate"><span class="pre">norb</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2151,47 +2700,36 @@ modified in-place.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.apply_on_site_num_num_interaction">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_on_site_num_num_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/basic_gates.html#apply_on_site_num_num_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_on_site_num_num_interaction" title="Link to this definition">¶</a></dt>
-<dd><p>Apply an on-site interaction gate.</p>
-<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.apply_on_site_interaction" title="ffsim.apply_on_site_interaction"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.apply_on_site_interaction()</span></code></a> instead.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_orbital_rotation">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_orbital_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_row_permutation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_col_permutation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol=1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol=1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/orbital_rotation.html#apply_orbital_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_orbital_rotation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_orbital_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/orbital_rotation.html#apply_orbital_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_orbital_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>Apply an orbital rotation to a vector.</p>
 <p>An orbital rotation maps creation operators as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[a^\dagger_{\sigma, i} \mapsto \sum_{j} U_{ji} a^\dagger_{\sigma, j}\]</div>
+\[a^\dagger_{\sigma, i} \mapsto \sum_{j} U^{(\sigma)}_{ji} a^\dagger_{\sigma, j}\]</div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(U\)</span> is a unitary matrix. This is equivalent to applying the
-transformation given by</p>
+<p>where <span class="math notranslate nohighlight">\(U^{(\sigma)}\)</span> is a unitary matrix representing the action of the
+orbital rotation on spin sector <span class="math notranslate nohighlight">\(\sigma\)</span>.
+This is equivalent to applying the transformation given by</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\prod_{\sigma}
-\exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)\]</div>
+\exp\left(\sum_{ij}
+\log(U^{(\sigma)})_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)\]</div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to
+that spin sector.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>spin</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.Spin" title="ffsim.spin.Spin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spin</span></code></a></span>) – <p>Choice of spin sector(s) to act on.</p>
-<ul>
-<li><p>To act on only spin alpha, pass <a class="reference internal" href="#ffsim.Spin.ALPHA" title="ffsim.Spin.ALPHA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA</span></code></a>.</p></li>
-<li><p>To act on only spin beta, pass <a class="reference internal" href="#ffsim.Spin.BETA" title="ffsim.Spin.BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.BETA</span></code></a>.</p></li>
-<li><p>To act on both spin alpha and spin beta, pass
-<a class="reference internal" href="#ffsim.Spin.ALPHA_AND_BETA" title="ffsim.Spin.ALPHA_AND_BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA_AND_BETA</span></code></a> (this is the default value).</p></li>
-</ul>
-</p></li>
-<li><p><strong>allow_row_permutation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to allow a permutation of the rows
-of the orbital rotation matrix.</p></li>
-<li><p><strong>allow_col_permutation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to allow a permutation of the columns
-of the orbital rotation matrix.</p></li>
 <li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
 <ul>
 <li><p>If <cite>copy=True</cite> then this function always returns a newly allocated
@@ -2202,28 +2740,13 @@ It is also possible that the original vector is returned,
 modified in-place.</p></li>
 </ul>
 </p></li>
-<li><p><strong>validate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to check that the input matrix is unitary and raise an error
-if it isn’t.</p></li>
-<li><p><strong>rtol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Relative numerical tolerance for input validation.</p></li>
-<li><p><strong>atol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Absolute numerical tolerance for input validation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The transformed vector. If a row or column permutation was allowed,
-the permutation matrix <code class="docutils literal notranslate"><span class="pre">P</span></code> is returned as well.
-If a row permutation was allowed, then the transformation
-actually effected is given by the matrix <code class="docutils literal notranslate"><span class="pre">P</span> <span class="pre">&#64;</span> <span class="pre">mat</span></code>. If a column
-permutation was allowed, then it is <code class="docutils literal notranslate"><span class="pre">mat</span> <span class="pre">&#64;</span> <span class="pre">P</span></code>.</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – If both <cite>allow_row_permutation</cite> and <cite>allow_col_permutation</cite>
-    are set to True. Only one of these can be set to True, not both.</p></li>
-<li><p><strong>ValueError</strong> – The input matrix is not unitary.</p></li>
-</ul>
+<dd class="field-odd"><p>The transformed vector.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2432,6 +2955,17 @@ and False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.diag">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/diagonal_protocol.html#diag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.diag" title="Link to this definition">¶</a></dt>
+<dd><p>Return the diagonal entries of the linear operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.dim">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.dim" title="Link to this definition">¶</a></dt>
 <dd><p>Get the dimension of the FCI space.</p>
@@ -2593,6 +3127,49 @@ operator on orbital <span class="math notranslate nohighlight">\(p\)</span> with
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The one-dimensional Fermi-Hubbard model Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.fermi_hubbard_2d">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">fermi_hubbard_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tunneling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chemical_potential</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearest_neighbor_interaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermi_hubbard.html#fermi_hubbard_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.fermi_hubbard_2d" title="Link to this definition">¶</a></dt>
+<dd><p>Two-dimensional Fermi-Hubbard model Hamiltonian.</p>
+<p>The Hamiltonian for the two-dimensional Fermi-Hubbard model on a square lattice with
+<span class="math notranslate nohighlight">\(N = N_x \times N_y\)</span> spatial orbitals is given by</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = -t \sum_{\sigma} \sum_{\braket{pq}}
+(a^\dagger_{\sigma, p} a_{\sigma, q} + \text{h.c.})
++ U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
+- \mu \sum_{p=1}^{N} (n_{\alpha, p} + n_{\beta, p})
++ V \sum_{\sigma, \sigma'} \sum_{\braket{pq}} n_{\sigma, p} n_{\sigma', q}\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(\braket{\dots}\)</span> denotes nearest-neighbor pairs and
+<span class="math notranslate nohighlight">\(n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}\)</span> is the number operator
+on orbital <span class="math notranslate nohighlight">\(p\)</span> with spin <span class="math notranslate nohighlight">\(\sigma\)</span>.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.1146/annurev-conmatphys-031620-102024">The Hubbard Model</a></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb_x</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals in the x-direction <span class="math notranslate nohighlight">\(N_x\)</span>.</p></li>
+<li><p><strong>norb_y</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals in the y-direction <span class="math notranslate nohighlight">\(N_y\)</span>.</p></li>
+<li><p><strong>tunneling</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The tunneling amplitude <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p><strong>interaction</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The onsite interaction strength <span class="math notranslate nohighlight">\(U\)</span>.</p></li>
+<li><p><strong>chemical_potential</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The chemical potential <span class="math notranslate nohighlight">\(\mu\)</span>.</p></li>
+<li><p><strong>nearest_neighbor_interaction</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The nearest-neighbor interaction strength
+<span class="math notranslate nohighlight">\(V\)</span>.</p></li>
+<li><p><strong>periodic</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to use periodic boundary conditions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The two-dimensional Fermi-Hubbard model Hamiltonian.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2959,10 +3536,13 @@ modified in-place.</p></li>
 This is a pair of lists of integers, where the first list specifies the
 spin alpha orbitals and the second list specifies the spin beta
 orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation. You can pass either a
-single Numpy array specifying the orbital rotation to apply to both
-spin sectors, or you can pass a pair of Numpy arrays to specify
-independent orbital rotations for spin alpha and spin beta.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to
+that spin sector.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2990,10 +3570,13 @@ independent orbital rotations for spin alpha and spin beta.</p></li>
 This is a pair of lists of integers, where the first list specifies the
 spin alpha orbitals and the second list specifies the spin beta
 orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation. You can pass either a
-single Numpy array specifying the orbital rotation to apply to both
-spin sectors, or you can pass a pair of Numpy arrays to specify
-independent orbital rotations for spin alpha and spin beta.</p></li>
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
+You can pass either a single Numpy array specifying the orbital rotation
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent orbital rotations for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to that
+spin sector.</p></li>
 <li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The rank of the reduced density matrix. I.e., rank 1 corresponds to the
 one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><p><strong>spin_summed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to sum over the spin index.</p></li>
@@ -3015,9 +3598,45 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.strings_to_indices">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#strings_to_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_indices" title="Link to this definition">¶</a></dt>
+<dd><p>Convert bitstrings to statevector indices.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
+
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">dim</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="n">ffsim</span><span class="o">.</span><span class="n">strings_to_indices</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;001011&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;010011&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;100011&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;001101&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;010101&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;100101&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;001110&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;010110&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;100110&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">norb</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># output:</span>
+<span class="c1"># array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.trace">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/trace_protocol.html#trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.trace" title="Link to this definition">¶</a></dt>
-<dd><p>Return the trace of the object.</p>
+<dd><p>Return the trace of the linear operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
@@ -3137,15 +3756,17 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.basis"><code class="docutils literal notranslate"><span class="pre">MolecularData.basis</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.spin"><code class="docutils literal notranslate"><span class="pre">MolecularData.spin</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.symmetry"><code class="docutils literal notranslate"><span class="pre">MolecularData.symmetry</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.MolecularData.mo_coeff"><code class="docutils literal notranslate"><span class="pre">MolecularData.mo_coeff</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.MolecularData.mo_occ"><code class="docutils literal notranslate"><span class="pre">MolecularData.mo_occ</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.norb"><code class="docutils literal notranslate"><span class="pre">MolecularData.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.nelec"><code class="docutils literal notranslate"><span class="pre">MolecularData.nelec</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.mo_coeff"><code class="docutils literal notranslate"><span class="pre">MolecularData.mo_coeff</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.mo_occ"><code class="docutils literal notranslate"><span class="pre">MolecularData.mo_occ</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.active_space"><code class="docutils literal notranslate"><span class="pre">MolecularData.active_space</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.core_energy"><code class="docutils literal notranslate"><span class="pre">MolecularData.core_energy</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularData.one_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.two_body_integrals"><code class="docutils literal notranslate"><span class="pre">MolecularData.two_body_integrals</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.hf_energy"><code class="docutils literal notranslate"><span class="pre">MolecularData.hf_energy</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.hf_mo_coeff"><code class="docutils literal notranslate"><span class="pre">MolecularData.hf_mo_coeff</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.hf_mo_occ"><code class="docutils literal notranslate"><span class="pre">MolecularData.hf_mo_occ</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.mp2_energy"><code class="docutils literal notranslate"><span class="pre">MolecularData.mp2_energy</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.mp2_t2"><code class="docutils literal notranslate"><span class="pre">MolecularData.mp2_t2</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.ccsd_energy"><code class="docutils literal notranslate"><span class="pre">MolecularData.ccsd_energy</span></code></a></li>
@@ -3162,7 +3783,6 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_ccsd"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_ccsd()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_fci"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_fci()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_mp2"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_mp2()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.MolecularData.scf"><code class="docutils literal notranslate"><span class="pre">MolecularData.scf</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a><ul>
@@ -3210,9 +3830,34 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 </li>
 <li><a class="reference internal" href="#ffsim.SupportsApplyUnitary"><code class="docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsApproximateEquality"><code class="docutils literal notranslate"><span class="pre">SupportsApproximateEquality</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.SupportsDiagonal"><code class="docutils literal notranslate"><span class="pre">SupportsDiagonal</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsFermionOperator"><code class="docutils literal notranslate"><span class="pre">SupportsFermionOperator</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsLinearOperator"><code class="docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsTrace"><code class="docutils literal notranslate"><span class="pre">SupportsTrace</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.diag_coulomb_mats</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.orbital_rotations"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.orbital_rotations</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.final_orbital_rotation</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.from_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.from_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.from_t_amplitudes()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.n_params"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.n_params()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.n_reps"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.n_reps</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.norb"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.to_parameters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.diag_coulomb_mats</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.orbital_rotations"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.orbital_rotations</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.final_orbital_rotation</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.from_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.from_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.from_t_amplitudes()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.n_params"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.n_params()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.n_reps"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.n_reps</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.norb"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.to_parameters()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.UCJOperator"><code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.UCJOperator.diag_coulomb_mats_alpha_alpha"><code class="docutils literal notranslate"><span class="pre">UCJOperator.diag_coulomb_mats_alpha_alpha</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.diag_coulomb_mats_alpha_beta"><code class="docutils literal notranslate"><span class="pre">UCJOperator.diag_coulomb_mats_alpha_beta</span></code></a></li>
@@ -3236,7 +3881,6 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.apply_num_op_prod_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_op_prod_interaction()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_num_op_sum_evolution"><code class="docutils literal notranslate"><span class="pre">apply_num_op_sum_evolution()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_on_site_interaction"><code class="docutils literal notranslate"><span class="pre">apply_on_site_interaction()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.apply_on_site_num_num_interaction"><code class="docutils literal notranslate"><span class="pre">apply_on_site_num_num_interaction()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">apply_orbital_rotation()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_tunneling_interaction"><code class="docutils literal notranslate"><span class="pre">apply_tunneling_interaction()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_unitary"><code class="docutils literal notranslate"><span class="pre">apply_unitary()</span></code></a></li>
@@ -3247,11 +3891,13 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.des"><code class="docutils literal notranslate"><span class="pre">des()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.des_a"><code class="docutils literal notranslate"><span class="pre">des_a()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.des_b"><code class="docutils literal notranslate"><span class="pre">des_b()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.diag"><code class="docutils literal notranslate"><span class="pre">diag()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.dim"><code class="docutils literal notranslate"><span class="pre">dim()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.expectation_one_body_power"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_power()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.expectation_one_body_product"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_product()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.fermi_hubbard_1d"><code class="docutils literal notranslate"><span class="pre">fermi_hubbard_1d()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.fermi_hubbard_2d"><code class="docutils literal notranslate"><span class="pre">fermi_hubbard_2d()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.fermion_operator"><code class="docutils literal notranslate"><span class="pre">fermion_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.hartree_fock_state"><code class="docutils literal notranslate"><span class="pre">hartree_fock_state()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
@@ -3267,6 +3913,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdm()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.spin_square"><code class="docutils literal notranslate"><span class="pre">spin_square()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.strings_to_indices"><code class="docutils literal notranslate"><span class="pre">strings_to_indices()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
 </ul>
 </li>
@@ -3279,7 +3926,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=9dd25805"></script>
+</div><script src="../_static/documentation_options.js?v=39aadc1c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
