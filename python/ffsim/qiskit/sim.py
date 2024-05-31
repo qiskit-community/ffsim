@@ -32,6 +32,7 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
     UCJOpSpinBalancedJW,
+    UCJOpSpinlessJW,
     UCJOpSpinUnbalancedJW,
 )
 
@@ -155,6 +156,17 @@ def _evolve_statevector_spinless(
             )
         vec = gates.apply_orbital_rotation(
             vec, op.orbital_rotation, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, UCJOpSpinlessJW):
+        if not consecutive_sorted:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits, in ascending order."
+            )
+        vec = protocols.apply_unitary(
+            vec, op.ucj_op, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 

@@ -22,6 +22,7 @@ from ffsim.random.random import (
     random_two_body_tensor,
     random_ucj_op_spin_balanced,
     random_ucj_op_spin_unbalanced,
+    random_ucj_op_spinless,
     random_ucj_operator,
     random_unitary,
 )
@@ -39,5 +40,6 @@ __all__ = [
     "random_ucj_operator",
     "random_ucj_op_spin_balanced",
     "random_ucj_op_spin_unbalanced",
+    "random_ucj_op_spinless",
     "random_unitary",
 ]

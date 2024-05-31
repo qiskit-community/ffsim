@@ -110,6 +110,9 @@ def test_random_gates_spinless(norb: int, nocc: int):
     interaction_pairs = list(_brickwork(norb, norb))
     thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
     givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
+    ucj_op = ffsim.random.random_ucj_op_spinless(
+        norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
+    )
 
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
@@ -119,6 +122,7 @@ def test_random_gates_spinless(norb: int, nocc: int):
     circuit.append(
         ffsim.qiskit.GivensAnsatzOperatorSpinlessJW(givens_ansatz_op), qubits
     )
+    circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op), qubits)
     circuit.measure_all()
 
     shots = 3000
