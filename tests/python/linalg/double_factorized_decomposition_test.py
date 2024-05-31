@@ -369,13 +369,13 @@ def test_double_factorized_t2_alpha_beta_random():
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
         t2ab
     )
-    # TODO how are the 4 terms from each singular vector related to each other?
     nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
     norb = nocc_a + nvrt_a
     reconstructed = reconstruct_t2_alpha_beta(
         diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
     )
     np.testing.assert_allclose(reconstructed, t2ab, atol=1e-8)
+
     np.testing.assert_allclose(
         diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 1], atol=1e-8
     )
@@ -385,6 +385,7 @@ def test_double_factorized_t2_alpha_beta_random():
     np.testing.assert_allclose(
         diag_coulomb_mats[:, 0], diag_coulomb_mats[:, 3], atol=1e-8
     )
+
     np.testing.assert_allclose(
         orbital_rotations[:, 0, 0], orbital_rotations[:, 1, 0], atol=1e-8
     )
@@ -394,12 +395,4 @@ def test_double_factorized_t2_alpha_beta_random():
     np.testing.assert_allclose(
         orbital_rotations[:, 0, 0], orbital_rotations[:, 3, 0].conj(), atol=1e-8
     )
-    np.testing.assert_allclose(
-        orbital_rotations[:, 0, 1], orbital_rotations[:, 1, 1], atol=1e-8
-    )
-    # np.testing.assert_allclose(
-    #     orbital_rotations[:, 0, 0], orbital_rotations[:, 2, 0].conj(), atol=1e-8
-    # )
-    # np.testing.assert_allclose(
-    #     orbital_rotations[:, 0, 0], orbital_rotations[:, 3, 0].conj(), atol=1e-8
-    # )
+    # TODO add the rest of the relations
