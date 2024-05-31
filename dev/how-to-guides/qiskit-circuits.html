@@ -223,6 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -314,18 +315,18 @@
 </div>
 <section id="Circuit-transpilation">
 <h2>Circuit transpilation<a class="headerlink" href="#Circuit-transpilation" title="Link to this heading">¶</a></h2>
-<p>In this section, we show how to use transpiler passes included in ffsim to optimize quantum circuits built from fermionic gates. As a representative example circuit, we construct a circuit that prepares the Hartree-Fock state and then applies a <a class="reference internal" href="../api/ffsim.html#ffsim.UCJOperator"><span class="std std-ref">unitary cluster Jastrow (UCJ)</span></a> ansatz operator to it.</p>
+<p>In this section, we show how to use transpiler passes included in ffsim to optimize quantum circuits built from fermionic gates. As a representative example circuit, we construct a circuit that prepares the Hartree-Fock state and then applies a <a class="reference internal" href="../explanations/lucj.html"><span class="doc">unitary cluster Jastrow (UCJ)</span></a> ansatz operator to it.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Construct a random UCJ operator</span>
-<span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_operator</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_balanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
 
 <span class="c1"># Construct circuit</span>
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
-<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOperatorJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinBalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
 
 <span class="n">circuit</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
@@ -403,7 +404,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f96f97cd090&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fab040cde40&gt;
 </pre></div></div>
 </div>
 </section>
@@ -432,7 +433,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f96f9608df0&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fab038cf2e0&gt;
 </pre></div></div>
 </div>
 </section>
@@ -459,7 +460,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f96f8f6e380&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fab0391c3d0&gt;
 </pre></div></div>
 </div>
 </section>
@@ -484,20 +485,20 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f96f97cf2b0&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fab040f3a00&gt;
 </pre></div></div>
 </div>
 </section>
-<section id="Unitary-cluster-Jastrow-(UCJ)-operator">
-<h4>Unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h4>
+<section id="Spin-balanced-unitary-cluster-Jastrow-(UCJ)-operator">
+<h4>Spin-balanced unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Spin-balanced-unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_operator</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_balanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
-<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOperatorJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinBalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -507,7 +508,30 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f96f9962f80&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fab0391c8e0&gt;
+</pre></div></div>
+</div>
+</section>
+<section id="Spin-unbalanced-unitary-cluster-Jastrow-(UCJ)-operator">
+<h4>Spin-unbalanced unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Spin-unbalanced-unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_unbalanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinUnbalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fab0391ca60&gt;
 </pre></div></div>
 </div>
 </section>
@@ -588,7 +612,8 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 <li><a class="reference internal" href="#Unitary-transformation-gates">Unitary transformation gates</a><ul>
 <li><a class="reference internal" href="#Orbital-rotation">Orbital rotation</a></li>
 <li><a class="reference internal" href="#Diagonal-Coulomb-evolution">Diagonal Coulomb evolution</a></li>
-<li><a class="reference internal" href="#Unitary-cluster-Jastrow-(UCJ)-operator">Unitary cluster Jastrow (UCJ) operator</a></li>
+<li><a class="reference internal" href="#Spin-balanced-unitary-cluster-Jastrow-(UCJ)-operator">Spin-balanced unitary cluster Jastrow (UCJ) operator</a></li>
+<li><a class="reference internal" href="#Spin-unbalanced-unitary-cluster-Jastrow-(UCJ)-operator">Spin-unbalanced unitary cluster Jastrow (UCJ) operator</a></li>
 </ul>
 </li>
 </ul>

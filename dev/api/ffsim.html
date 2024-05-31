@@ -222,6 +222,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -1514,6 +1515,534 @@ the alpha and beta components of each state.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinBalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A spin-balanced unitary cluster Jastrow operator.</p>
+<p>A unitary cluster Jastrow (UCJ) operator has the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\prod_{k = 1}^L \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger\]</div>
+</div>
+<p>where each <span class="math notranslate nohighlight">\(\mathcal{U_k}\)</span> is an orbital rotation and each <span class="math notranslate nohighlight">\(\mathcal{J}\)</span>
+is a diagonal Coulomb operator of the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij}
+\mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.\]</div>
+</div>
+<p>For the spin-balanced operator, we require that
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \alpha)} = \mathbf{J}^{(\beta \beta)}\)</span> and
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \beta)} = \mathbf{J}^{(\beta \alpha)}\)</span>.
+Therefore, each diagonal Coulomb operator is described by 2 matrices,
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \alpha)}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \beta)}\)</span>, and
+both of these matrices are symmetric.
+Furthermore, each orbital rotation is described by a single matrix because the
+same orbital rotation is applied to both spin alpha and spin beta.
+The number of terms <span class="math notranslate nohighlight">\(L\)</span> is referred to as the
+number of ansatz repetitions and is accessible via the <cite>n_reps</cite> attribute.</p>
+<p>To support variational optimization of the orbital basis, an optional final
+orbital rotation can be included in the operator, to be performed at the end.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.diag_coulomb_mats">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.diag_coulomb_mats" title="Link to this definition">¶</a></dt>
+<dd><p>The diagonal Coulomb matrices, as a Numpy array
+of shape <cite>(n_reps, 2, norb, norb)</cite>
+The last two axes index the rows and columns of
+the matrices, and the third from last axis, which has 2 dimensions, indexes
+the spin interaction type of the matrix: alpha-alpha, and then alpha-beta.
+The first axis indexes the ansatz repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.orbital_rotations">
+<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.orbital_rotations" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital rotations, as a Numpy array
+of shape <cite>(n_reps, norb, norb)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.final_orbital_rotation">
+<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.final_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>The optional final orbital rotation, as
+a Numpy array of shape <cite>(norb, norb)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinBalanced" title="ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator constructed from the given parameters.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – The number of parameters passed did not match the number
+    expected based on the function inputs.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.from_t_amplitudes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
+<p>Performs a double-factorization of the t2 amplitudes and constructs the
+ansatz repetitions from the terms of the decomposition, up to an optionally
+specified number of ansatz repetitions. Terms are included in decreasing order
+of the absolute value of the corresponding eigenvalue in the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes.</p></li>
+<li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the double-factorized decomposition of the
+t2 amplitudes.
+The error is defined as the maximum absolute difference between
+an element of the original tensor and the corresponding element of
+the reconstructed tensor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinBalanced" title="ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator with parameters initialized from the t2 amplitudes.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.n_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.n_params" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of parameters of the ansatz.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.n_reps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.n_reps" title="Link to this definition">¶</a></dt>
+<dd><p>The number of ansatz repetitions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>interaction_pairs</cite> is specified, the returned parameter vector will
+incorporate only the diagonal Coulomb matrix entries corresponding to the
+specified interactions, so the original operator will not be recoverable
+from the parameter vector.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a pair of lists,
+for alpha-alpha and alpha-beta interactions, in that order.
+Either list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+Each integer pair must be upper triangular, that is, of the form
+<span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The real-valued parameter vector.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinUnbalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A spin-unbalanced unitary cluster Jastrow operator.</p>
+<p>A unitary cluster Jastrow (UCJ) operator has the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\prod_{k = 1}^L \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger\]</div>
+</div>
+<p>where each <span class="math notranslate nohighlight">\(\mathcal{U_k}\)</span> is an orbital rotation and each <span class="math notranslate nohighlight">\(\mathcal{J}\)</span>
+is a diagonal Coulomb operator of the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij}
+\mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.\]</div>
+</div>
+<p>Since <span class="math notranslate nohighlight">\(\mathbf{J}^{(\sigma \tau)}_{ij} = \mathbf{J}^{(\tau \sigma)}_{ji}\)</span>,
+each diagonal Coulomb operator requires 3 matrices for its description:
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \alpha)}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \beta)}\)</span>, and
+<span class="math notranslate nohighlight">\(\mathbf{J}^{(\beta \beta)}\)</span>. The number of terms <span class="math notranslate nohighlight">\(L\)</span> is referred to as
+the number of ansatz repetitions and is accessible via the <cite>n_reps</cite> attribute.</p>
+<p>To support variational optimization of the orbital basis, an optional final
+orbital rotation can be included in the operator, to be performed at the end.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.diag_coulomb_mats">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.diag_coulomb_mats" title="Link to this definition">¶</a></dt>
+<dd><p>The diagonal Coulomb matrices, as a Numpy array
+of shape <cite>(n_reps, 3, norb, norb)</cite>
+The last two axes index the rows and columns of
+the matrices, and the third from last axis, which has 3 dimensions, indexes
+the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
+beta-beta (in that order).
+The first axis indexes the ansatz repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.orbital_rotations">
+<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.orbital_rotations" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital rotations, as a Numpy array of shape
+<cite>(n_reps, 2, norb, norb)</cite>. The last two axes index the rows and columns
+of the orbital rotations, and the third from last axis, which has 2
+dimensions, indexes the spin sector of the orbital rotation: first alpha,
+then beta.
+The first axis indexes the ansatz repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.final_orbital_rotation">
+<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.final_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>The optional final orbital rotation, as a
+Numpy array of shape <cite>(2, norb, norb)</cite>. This can be viewed as a list of two
+orbital rotations, the first one for spin alpha and the second one for spin
+beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced" title="ffsim.variational.ucj_spin_unbalanced.UCJOpSpinUnbalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator constructed from the given parameters.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – The number of parameters passed did not match the number
+    expected based on the function inputs.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.from_t_amplitudes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
+<p>Performs a double-factorization of the t2 amplitudes and constructs the
+ansatz repetitions from the terms of the decomposition, up to an optionally
+specified number of repetitions. Terms are included in decreasing order
+of the magnitude of the corresponding singular value in the factorization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
+<cite>(t2aa, t2ab, t2bb)</cite>, containing the alpha-alpha, alpha-beta, and
+beta-beta t2 amplitudes.</p></li>
+<li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes. This should be a pair of Numpy arrays, <cite>(t1a, t1b)</cite>,
+containing the alpha and beta t1 amplitudes.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions.
+You can pass a single integer or a pair of integers.
+If a single integer, terms from the alpha-beta t2 amplitudes are
+used before including any terms from the alpha-alpha and beta-beta
+t2 amplitudes. If a pair of integers, then the first integer specifies
+the number of terms to use from the alpha-beta t2 amplitudes,
+and the second integer specifies the number of terms to use from the
+alpha-alpha and beta-beta t2 amplitudes.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the double-factorized decomposition of the
+t2 amplitudes.
+The error is defined as the maximum absolute difference between
+an element of the original tensor and the corresponding element of
+the reconstructed tensor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced" title="ffsim.variational.ucj_spin_unbalanced.UCJOpSpinUnbalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCJ operator with parameters initialized from the t2 amplitudes.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.n_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.n_params" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of parameters of the ansatz.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.n_reps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.n_reps" title="Link to this definition">¶</a></dt>
+<dd><p>The number of ansatz repetitions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>interaction_pairs</cite> is specified, the returned parameter vector will
+incorporate only the diagonal Coulomb matrix entries corresponding to the
+specified interactions, so the original operator will not be recoverable
+from the parameter vector.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
+for the diagonal Coulomb operators.
+If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
+for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+Any list can be substituted with <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate no restrictions
+on interactions.
+Each list should contain pairs of integers representing the orbitals
+that are allowed to interact. These pairs can also be interpreted as
+indices of diagonal Coulomb matrix entries that are allowed to be
+nonzero.
+For the alpha-alpha and beta-beta interactions, each integer
+pair must be upper triangular, that is, of the form <span class="math notranslate nohighlight">\((i, j)\)</span> where
+<span class="math notranslate nohighlight">\(i \leq j\)</span>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The real-valued parameter vector.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Interaction pairs list contained duplicate interactions.</p></li>
+<li><p><strong>ValueError</strong> – Interaction pairs list for alpha-alpha or beta-beta interactions
+    contained lower triangular pairs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.UCJOperator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats_alpha_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj.html#UCJOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -1708,238 +2237,6 @@ lower triangular indices will raise an error.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJOperatorOpenShell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_open_shell.html#UCJOperatorOpenShell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOperatorOpenShell" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>An open-shell unitary cluster Jastrow operator.</p>
-<p>A unitary cluster Jastrow (UCJ) operator has the form</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\prod_{k = 1}^L \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger\]</div>
-</div>
-<p>where each <span class="math notranslate nohighlight">\(\mathcal{U_k}\)</span> is an orbital rotation and each <span class="math notranslate nohighlight">\(\mathcal{J}\)</span>
-is a diagonal Coulomb operator of the form</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\mathcal{J} = \frac12\sum_{\sigma \tau, ij}
-\mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.\]</div>
-</div>
-<p>Since <span class="math notranslate nohighlight">\(\mathbf{J}^{(\sigma \tau)}_{ij} = \mathbf{J}^{(\tau \sigma)}_{ji}\)</span>,
-each diagonal Coulomb operator requires 3 matrices for its description:
-<span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \alpha)}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{J}^{(\alpha \beta)}\)</span>, and
-<span class="math notranslate nohighlight">\(\mathbf{J}^{(\beta \beta)}\)</span>. The number of terms <span class="math notranslate nohighlight">\(L\)</span> is referred to as
-the number of ansatz repetitions and is accessible via the <cite>n_reps</cite> attribute.</p>
-<p>To support variational optimization of the orbital basis, an optional final
-orbital rotation can be included in the operator, to be performed at the end.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.diag_coulomb_mats">
-<span class="sig-name descname"><span class="pre">diag_coulomb_mats</span></span><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.diag_coulomb_mats" title="Link to this definition">¶</a></dt>
-<dd><p>The diagonal Coulomb matrices, as a Numpy array
-of shape <cite>(n_reps, 3, norb, norb)</cite>
-The last two axes index the rows and columns of
-the matrices, and the third from last axis, which has 3 dimensions, indexes
-the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
-beta-beta (in that order).
-The first axis indexes the ansatz repetitions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.orbital_rotations">
-<span class="sig-name descname"><span class="pre">orbital_rotations</span></span><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.orbital_rotations" title="Link to this definition">¶</a></dt>
-<dd><p>The orbital rotations, as a Numpy array of shape
-<cite>(n_reps, 2, norb, norb)</cite>. The last two axes index the rows and columns
-of the orbital rotations, and the third from last axis, which has 2
-dimensions, indexes the spin sector of the orbital rotation: first alpha,
-then beta.
-The first axis indexes the ansatz repetitions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.final_orbital_rotation">
-<span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.final_orbital_rotation" title="Link to this definition">¶</a></dt>
-<dd><p>The optional final orbital rotation, as a
-Numpy array of shape <cite>(2, norb, norb)</cite>. This can be viewed as a list of two
-orbital rotations, the first one for spin alpha and the second one for spin
-beta.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.from_parameters">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_open_shell.html#UCJOperatorOpenShell.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.from_parameters" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
-<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of ansatz repetitions.</p></li>
-<li><p><strong>alpha_alpha_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-alpha”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.
-This list should contain only upper trianglular indices, i.e.,
-pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
-lower triangular indices will raise an error.</p></li>
-<li><p><strong>alpha_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-beta”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
-<li><p><strong>beta_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “beta-beta”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.
-This list should contain only upper trianglular indices, i.e.,
-pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
-lower triangular indices will raise an error.</p></li>
-<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
-in the operator.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOperatorOpenShell" title="ffsim.variational.ucj_open_shell.UCJOperatorOpenShell"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperatorOpenShell</span></code></a></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The UCJ operator constructed from the given parameters.</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – The number of parameters passed did not match the number
-    expected based on the function inputs.</p></li>
-<li><p><strong>ValueError</strong> – alpha_alpha_indices contains lower triangular indices.</p></li>
-<li><p><strong>ValueError</strong> – beta_beta_indices contains lower triangular indices.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.from_t_amplitudes">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_open_shell.html#UCJOperatorOpenShell.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.from_t_amplitudes" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
-<p>Performs a double-factorization of the t2 amplitudes and constructs the
-ansatz repetitions from the terms of the decomposition, up to an optionally
-specified number of ansatz repetitions. Terms are included in decreasing order
-of the absolute value of the corresponding singular value in the factorization.
-The terms from the alpha-beta t2 amplitudes are used before including any
-terms from the alpha-alpha and beta-beta t2 amplitudes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
-<cite>(t2aa, t2ab, t2bb)</cite>, containing the alpha-alpha, alpha-beta, and
-beta-beta t2 amplitudes.</p></li>
-<li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes. This should be a pair of Numpy arrays, <cite>(t1a, t1b)</cite>,
-containing the alpha and beta t1 amplitudes.</p></li>
-<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions.</p></li>
-<li><p><strong>alpha_alpha_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-alpha”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.
-This list should contain only upper trianglular indices, i.e.,
-pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
-lower triangular indices will raise an error.</p></li>
-<li><p><strong>alpha_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-beta”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
-<li><p><strong>beta_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “beta-beta”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.
-This list should contain only upper trianglular indices, i.e.,
-pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
-lower triangular indices will raise an error.</p></li>
-<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the double-factorized decomposition of the
-t2 amplitudes.
-The error is defined as the maximum absolute difference between
-an element of the original tensor and the corresponding element of
-the reconstructed tensor.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJOperatorOpenShell" title="ffsim.variational.ucj_open_shell.UCJOperatorOpenShell"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJOperatorOpenShell</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.n_params">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_open_shell.html#UCJOperatorOpenShell.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.n_params" title="Link to this definition">¶</a></dt>
-<dd><p>Return the number of parameters of an ansatz with given settings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.n_reps">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.n_reps" title="Link to this definition">¶</a></dt>
-<dd><p>The number of ansatz repetitions.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.norb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.norb" title="Link to this definition">¶</a></dt>
-<dd><p>The number of spatial orbitals.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ffsim.UCJOperatorOpenShell.to_parameters">
-<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_alpha_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_beta_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_open_shell.html#UCJOperatorOpenShell.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOperatorOpenShell.to_parameters" title="Link to this definition">¶</a></dt>
-<dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
-<p>If <cite>alpha_alpha_indices</cite>, <cite>alpha_beta_indices</cite>, or <cite>beta_beta_indices</cite> is
-specified, the returned parameter vector will incorporate only the diagonal
-Coulomb matrix entries corresponding to the given indices, so the original
-operator will not be recoverable from the parameter vector.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>alpha_alpha_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-alpha”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.
-This list should contain only upper trianglular indices, i.e.,
-pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
-lower triangular indices will raise an error.</p></li>
-<li><p><strong>alpha_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “alpha-beta”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.</p></li>
-<li><p><strong>beta_beta_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the “beta-beta”
-diagonal Coulomb matrices (see the docstring of this class).
-If not specified, all matrix entries are allowed to be nonzero.
-This list should contain only upper trianglular indices, i.e.,
-pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>. Passing a list with
-lower triangular indices will raise an error.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The real-valued parameter vector.</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – alpha_alpha_indices contains lower triangular indices.</p></li>
-<li><p><strong>ValueError</strong> – beta_beta_indices contains lower triangular indices.</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -3537,6 +3834,30 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.SupportsFermionOperator"><code class="docutils literal notranslate"><span class="pre">SupportsFermionOperator</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsLinearOperator"><code class="docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.SupportsTrace"><code class="docutils literal notranslate"><span class="pre">SupportsTrace</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.diag_coulomb_mats</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.orbital_rotations"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.orbital_rotations</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.final_orbital_rotation</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.from_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.from_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.from_t_amplitudes()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.n_params"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.n_params()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.n_reps"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.n_reps</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.norb"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced.to_parameters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.diag_coulomb_mats</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.orbital_rotations"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.orbital_rotations</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.final_orbital_rotation</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.from_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.from_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.from_t_amplitudes()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.n_params"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.n_params()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.n_reps"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.n_reps</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.norb"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJOpSpinUnbalanced.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinUnbalanced.to_parameters()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.UCJOperator"><code class="docutils literal notranslate"><span class="pre">UCJOperator</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.UCJOperator.diag_coulomb_mats_alpha_alpha"><code class="docutils literal notranslate"><span class="pre">UCJOperator.diag_coulomb_mats_alpha_alpha</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.diag_coulomb_mats_alpha_beta"><code class="docutils literal notranslate"><span class="pre">UCJOperator.diag_coulomb_mats_alpha_beta</span></code></a></li>
@@ -3549,18 +3870,6 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.norb"><code class="docutils literal notranslate"><span class="pre">UCJOperator.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOperator.to_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCJOperator.to_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOperator.to_t_amplitudes()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell</span></code></a><ul>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.diag_coulomb_mats</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.orbital_rotations"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.orbital_rotations</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.final_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.final_orbital_rotation</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.from_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.from_parameters()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.from_t_amplitudes()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.n_params"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.n_params()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.n_reps"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.n_reps</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.norb"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.norb</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.UCJOperatorOpenShell.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJOperatorOpenShell.to_parameters()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.apply_diag_coulomb_evolution"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution()</span></code></a></li>

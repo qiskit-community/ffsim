@@ -221,6 +221,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -295,6 +296,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">variational</span>
 
@@ -583,6 +585,10 @@
 
 <div class="viewcode-block" id="random_ucj_operator">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_operator">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;The random_ucj_operator function is deprecated. Use &quot;</span>
+    <span class="s2">&quot;random_ucj_operator_closed_shell or random_ucj_operator_open_shell instead.&quot;</span>
+<span class="p">)</span>
 <span class="k">def</span> <span class="nf">random_ucj_operator</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -625,16 +631,64 @@
 
 
 
-<div class="viewcode-block" id="random_ucj_operator_open_shell">
-<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_operator_open_shell">[docs]</a>
-<span class="k">def</span> <span class="nf">random_ucj_operator_open_shell</span><span class="p">(</span>
+<div class="viewcode-block" id="random_ucj_op_spin_balanced">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_op_spin_balanced">[docs]</a>
+<span class="k">def</span> <span class="nf">random_ucj_op_spin_balanced</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOperatorOpenShell</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random open-shell unitary cluster Jastrow (UCJ) operator.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of orbitals.</span>
+<span class="sd">        n_reps: The number of ansatz repetitions.</span>
+<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">            in the operator.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled UCJ operator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span>
+                    <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
+        <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="p">(</span>
+        <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+        <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_ucj_op_spin_unbalanced">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_op_spin_unbalanced">[docs]</a>
+<span class="k">def</span> <span class="nf">random_ucj_op_spin_unbalanced</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinUnbalanced</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of orbitals.</span>
@@ -671,7 +725,7 @@
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
             <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)]</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOperatorOpenShell</span><span class="p">(</span>
+    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinUnbalanced</span><span class="p">(</span>
         <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
         <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>

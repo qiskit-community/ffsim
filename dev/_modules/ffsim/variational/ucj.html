@@ -221,6 +221,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -301,6 +302,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">from</span> <span class="nn">opt_einsum</span> <span class="kn">import</span> <span class="n">contract</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">,</span> <span class="n">apply_orbital_rotation</span>
 <span class="kn">from</span> <span class="nn">ffsim.linalg</span> <span class="kn">import</span> <span class="n">double_factorized_t2</span>
@@ -324,6 +326,7 @@
 <div class="viewcode-block" id="UCJOperator">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOperator">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;The UCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UCJOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A unitary cluster Jastrow operator.</span>
 
@@ -605,6 +608,7 @@
 <div class="viewcode-block" id="RealUCJOperator">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.RealUCJOperator">[docs]</a>
 <span class="nd">@dataclass</span>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">RealUCJOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Real-valued unitary cluster Jastrow operator.</span>
 

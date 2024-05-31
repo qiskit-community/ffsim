@@ -223,6 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -377,16 +378,16 @@ FermionOperator({
 <div class="highlight"><pre>
 FermionOperator({
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (cre_a(3), des_a(0)): -0.5,
     (des_a(3), des_b(3)): 0.0625,
-    (cre_b(2)): 0-0.25j,
-    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_a(3), des_a(0)): -0.5,
     (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_b(2)): 0-0.25j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(0), des_a(3)): 1
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
+    (cre_a(0), des_a(3)): 1,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125
 })
 </pre></div></div>
 </div>
@@ -416,16 +417,16 @@ FermionOperator({
 <div class="highlight"><pre>
 FermionOperator({
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
-    (cre_a(3), des_a(0)): 0+3j,
     (des_a(3), des_b(3)): 0-1.25j,
-    (cre_b(2)): -5,
-    (cre_a(3), des_a(0), cre_b(2)): -1,
-    (cre_a(0), des_a(3), cre_b(2)): 2,
+    (cre_a(3), des_a(0)): 0+3j,
     (cre_b(1), des_b(5), cre_a(4)): 12-12j,
+    (cre_b(2)): -5,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,
-    (cre_a(0), des_a(3)): 0-6j
+    (cre_a(0), des_a(3), cre_b(2)): 2,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
+    (cre_a(3), des_a(0), cre_b(2)): -1,
+    (cre_a(0), des_a(3)): 0-6j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j
 })
 </pre></div></div>
 </div>
@@ -446,15 +447,15 @@ smaller orbital indices.</p>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
-    (des_b(3), des_a(3)): 0+1.25j,
-    (cre_a(3), des_a(0)): 0+3j,
     (cre_b(2), cre_a(3), des_a(0)): -1,
+    (cre_b(2)): -5,
     (cre_b(2), cre_a(0), des_a(3)): 2,
+    (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
     (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,
+    (cre_a(3), des_a(0)): 0+3j,
+    (des_b(3), des_a(3)): 0+1.25j,
     (cre_b(1), cre_a(4), des_b(5)): -12+12j,
     (cre_a(0), des_a(3)): 0-6j,
-    (cre_b(2)): -5,
     (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j
 })
 </pre></div></div>
@@ -524,11 +525,11 @@ True
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([0.        +0.j        , 0.        +0.j        ,
-       0.        +0.j        , 0.        +0.j        ,
-       0.05154917-0.07340341j, 0.        +0.j        ,
-       0.        +0.j        , 0.        +0.j        ,
-       0.        +0.j        ])
+array([ 0.        +0.j       ,  0.        +0.j       ,
+        0.        +0.j       ,  0.        +0.j       ,
+       -0.00607386-0.0274355j,  0.        +0.j       ,
+        0.        +0.j       ,  0.        +0.j       ,
+        0.        +0.j       ])
 </pre></div></div>
 </div>
 <p>It can also be passed into most linear algebra routines in <code class="docutils literal notranslate"><span class="pre">scipy.sparse.linalg</span></code>.</p>

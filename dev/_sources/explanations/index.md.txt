@@ -7,5 +7,6 @@ state-vectors-and-gates
 hamiltonians
 orbital-rotation
 double-factorized
+lucj
 qiskit-gate-decompositions
 ```

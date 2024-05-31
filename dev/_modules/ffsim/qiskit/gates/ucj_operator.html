@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.qiskit.gates.ucj_open_shell - ffsim 0.0.35.dev0 documentation</title>
+        <title>ffsim.qiskit.gates.ucj_operator - ffsim 0.0.35.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -221,6 +221,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../explanations/hamiltonians.html">Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
@@ -279,7 +280,7 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for ffsim.qiskit.gates.ucj_open_shell</h1><div class="highlight"><pre>
+          <h1>Source code for ffsim.qiskit.gates.ucj_operator</h1><div class="highlight"><pre>
 <span></span><span class="c1"># (C) Copyright IBM 2024.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
@@ -303,15 +304,17 @@
     <span class="n">QuantumRegister</span><span class="p">,</span>
     <span class="n">Qubit</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.qiskit.gates.diag_coulomb</span> <span class="kn">import</span> <span class="n">DiagCoulombEvolutionJW</span>
 <span class="kn">from</span> <span class="nn">ffsim.qiskit.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">OrbitalRotationJW</span>
-<span class="kn">from</span> <span class="nn">ffsim.variational</span> <span class="kn">import</span> <span class="n">UCJOperatorOpenShell</span>
+<span class="kn">from</span> <span class="nn">ffsim.variational</span> <span class="kn">import</span> <span class="n">UCJOperator</span>
 
 
-<div class="viewcode-block" id="UCJOperatorOpenShellJW">
-<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.UCJOperatorOpenShellJW">[docs]</a>
-<span class="k">class</span> <span class="nc">UCJOperatorOpenShellJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<div class="viewcode-block" id="UCJOperatorJW">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.UCJOperatorJW">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;The UCJOperatorJW class is deprecated. Use UCJOpSpinBalancedJW instead.&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">UCJOperatorJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Unitary cluster Jastrow operator under the Jordan-Wigner transformation.</span>
 
 <span class="sd">    See :class:`ffsim.UCJOperator` for a description of this gate&#39;s unitary.</span>
@@ -321,9 +324,9 @@
 <span class="sd">    beta orbitals.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UCJOperatorOpenShellJW.__init__">
-<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.UCJOperatorOpenShellJW.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ucj_operator</span><span class="p">:</span> <span class="n">UCJOperatorOpenShell</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="UCJOperatorJW.__init__">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.UCJOperatorJW.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ucj_operator</span><span class="p">:</span> <span class="n">UCJOperator</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new unitary cluster Jastrow (UCJ) gate.</span>
 
 <span class="sd">        Args:</span>
@@ -331,7 +334,7 @@
 <span class="sd">            label: The label of the gate.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ucj_operator</span> <span class="o">=</span> <span class="n">ucj_operator</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ucj_open_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ucj_operator</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ucj_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ucj_operator</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -344,17 +347,18 @@
 
 
 <span class="k">def</span> <span class="nf">_ucj_jw</span><span class="p">(</span>
-    <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">ucj_op</span><span class="p">:</span> <span class="n">UCJOperatorOpenShell</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">ucj_op</span><span class="p">:</span> <span class="n">UCJOperator</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-    <span class="k">for</span> <span class="n">diag_colomb_mat</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-        <span class="n">ucj_op</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">ucj_op</span><span class="o">.</span><span class="n">orbital_rotations</span>
+    <span class="k">for</span> <span class="n">mat</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">ucj_op</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
+        <span class="n">ucj_op</span><span class="o">.</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
+        <span class="n">ucj_op</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span>
-            <span class="n">qubits</span><span class="p">,</span>
+            <span class="n">OrbitalRotationJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span> <span class="n">qubits</span>
         <span class="p">)</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
-            <span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">diag_colomb_mat</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span>
+            <span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">mat_alpha_beta</span><span class="p">,</span> <span class="n">mat</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span>
             <span class="n">qubits</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
