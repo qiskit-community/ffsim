@@ -21,13 +21,15 @@ from qiskit.circuit import (
     QuantumRegister,
     Qubit,
 )
+from typing_extensions import deprecated
 
 from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
 from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
-from ffsim.variational import UCJOperatorOpenShell
+from ffsim.variational import UCJOperator
 
 
-class UCJOperatorOpenShellJW(Gate):
+@deprecated("The UCJOperatorJW class is deprecated. Use UCJOpSpinBalancedJW instead.")
+class UCJOperatorJW(Gate):
     """Unitary cluster Jastrow operator under the Jordan-Wigner transformation.
 
     See :class:`ffsim.UCJOperator` for a description of this gate's unitary.
@@ -37,7 +39,7 @@ class UCJOperatorOpenShellJW(Gate):
     beta orbitals.
     """
 
-    def __init__(self, ucj_operator: UCJOperatorOpenShell, *, label: str | None = None):
+    def __init__(self, ucj_operator: UCJOperator, *, label: str | None = None):
         """Create a new unitary cluster Jastrow (UCJ) gate.
 
         Args:
@@ -45,7 +47,7 @@ class UCJOperatorOpenShellJW(Gate):
             label: The label of the gate.
         """
         self.ucj_operator = ucj_operator
-        super().__init__("ucj_open_jw", 2 * ucj_operator.norb, [], label=label)
+        super().__init__("ucj_jw", 2 * ucj_operator.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
@@ -56,17 +58,18 @@ class UCJOperatorOpenShellJW(Gate):
 
 
 def _ucj_jw(
-    qubits: Sequence[Qubit], ucj_op: UCJOperatorOpenShell
+    qubits: Sequence[Qubit], ucj_op: UCJOperator
 ) -> Iterator[CircuitInstruction]:
-    for diag_colomb_mat, orbital_rotation in zip(
-        ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
+    for mat, mat_alpha_beta, orbital_rotation in zip(
+        ucj_op.diag_coulomb_mats_alpha_alpha,
+        ucj_op.diag_coulomb_mats_alpha_beta,
+        ucj_op.orbital_rotations,
     ):
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, orbital_rotation.transpose(0, 2, 1).conj()),
-            qubits,
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj()), qubits
         )
         yield CircuitInstruction(
-            DiagCoulombEvolutionJW(ucj_op.norb, diag_colomb_mat, -1.0),
+            DiagCoulombEvolutionJW(ucj_op.norb, (mat, mat_alpha_beta, mat), -1.0),
             qubits,
         )
         yield CircuitInstruction(

@@ -19,6 +19,7 @@ from typing import List, Tuple, cast
 import numpy as np
 import scipy.linalg
 from opt_einsum import contract
+from typing_extensions import deprecated
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
 from ffsim.linalg import double_factorized_t2
@@ -40,6 +41,7 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
 
 
 @dataclass(frozen=True)
+@deprecated("The UCJOperator class is deprecated. Use UCJOpSpinBalanced instead.")
 class UCJOperator:
     r"""A unitary cluster Jastrow operator.
 
@@ -303,6 +305,7 @@ class UCJOperator:
 
 
 @dataclass
+@deprecated("The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead.")
 class RealUCJOperator:
     r"""Real-valued unitary cluster Jastrow operator.
 

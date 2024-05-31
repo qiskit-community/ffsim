@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for open-shell unitary cluster Jastrow ansatz."""
+"""Tests for spin-balanced unitary cluster Jastrow ansatz."""
 
 import itertools
 
@@ -24,55 +24,44 @@ def test_n_params():
     for norb, n_reps, with_final_orbital_rotation in itertools.product(
         [1, 2, 3], [1, 2, 3], [False, True]
     ):
-        operator = ffsim.random.random_ucj_operator_open_shell(
+        operator = ffsim.random.random_ucj_op_spin_balanced(
             norb, n_reps=n_reps, with_final_orbital_rotation=with_final_orbital_rotation
         )
-        actual = ffsim.UCJOperatorOpenShell.n_params(
+        actual = ffsim.UCJOpSpinBalanced.n_params(
             norb, n_reps, with_final_orbital_rotation=with_final_orbital_rotation
         )
         expected = len(operator.to_parameters())
         assert actual == expected
 
-        alpha_alpha_indices = list(
-            itertools.combinations_with_replacement(range(norb), 2)
-        )[:norb]
-        alpha_beta_indices = list(
-            itertools.combinations_with_replacement(range(norb), 2)
-        )[:norb]
-        beta_beta_indices = list(
-            itertools.combinations_with_replacement(range(norb), 2)
-        )[:norb]
+        pairs_aa = list(itertools.combinations_with_replacement(range(norb), 2))[:norb]
+        pairs_ab = list(itertools.combinations_with_replacement(range(norb), 2))[:norb]
 
-        actual = ffsim.UCJOperatorOpenShell.n_params(
+        actual = ffsim.UCJOpSpinBalanced.n_params(
             norb,
             n_reps,
-            alpha_alpha_indices=alpha_alpha_indices,
-            alpha_beta_indices=alpha_beta_indices,
-            beta_beta_indices=beta_beta_indices,
+            interaction_pairs=(pairs_aa, pairs_ab),
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        expected = len(
-            operator.to_parameters(
-                alpha_alpha_indices=alpha_alpha_indices,
-                alpha_beta_indices=alpha_beta_indices,
-                beta_beta_indices=beta_beta_indices,
-            )
-        )
+        expected = len(operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab)))
         assert actual == expected
 
         with pytest.raises(ValueError, match="triangular"):
-            actual = ffsim.UCJOperatorOpenShell.n_params(
+            actual = ffsim.UCJOpSpinBalanced.n_params(
                 norb,
                 n_reps,
-                alpha_alpha_indices=[(1, 0)],
-                beta_beta_indices=beta_beta_indices,
+                interaction_pairs=([(1, 0)], pairs_ab),
             )
         with pytest.raises(ValueError, match="triangular"):
-            actual = ffsim.UCJOperatorOpenShell.n_params(
+            actual = ffsim.UCJOpSpinBalanced.n_params(
                 norb,
                 n_reps,
-                alpha_alpha_indices=alpha_alpha_indices,
-                beta_beta_indices=[(1, 0)],
+                interaction_pairs=(pairs_aa, [(1, 0)]),
+            )
+        with pytest.raises(ValueError, match="Duplicate"):
+            actual = ffsim.UCJOpSpinBalanced.n_params(
+                norb,
+                n_reps,
+                interaction_pairs=(pairs_aa, [(1, 0), (1, 0)]),
             )
 
 
@@ -82,13 +71,13 @@ def test_parameters_roundtrip():
     n_reps = 2
 
     for with_final_orbital_rotation in [False, True]:
-        operator = ffsim.random.random_ucj_operator_open_shell(
+        operator = ffsim.random.random_ucj_op_spin_balanced(
             norb,
             n_reps=n_reps,
             with_final_orbital_rotation=with_final_orbital_rotation,
             seed=rng,
         )
-        roundtripped = ffsim.UCJOperatorOpenShell.from_parameters(
+        roundtripped = ffsim.UCJOpSpinBalanced.from_parameters(
             operator.to_parameters(),
             norb=norb,
             n_reps=n_reps,
@@ -107,15 +96,14 @@ def test_parameters_roundtrip():
 
 
 def test_t_amplitudes_energy():
-    # Build a BeH molecule
+    # Build an H2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
-        basis="6-31g",
-        spin=1,
-        symmetry="Coov",
+        atom=[["H", (0, 0, 0)], ["H", (0, 0, 1.8)]],
+        basis="sto-6g",
+        symmetry="Dooh",
     )
-    scf = pyscf.scf.ROHF(mol).run()
+    scf = pyscf.scf.RHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()
 
     # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
@@ -126,7 +114,7 @@ def test_t_amplitudes_energy():
 
     # Construct UCJ operator
     n_reps = 2
-    operator = ffsim.UCJOperatorOpenShell.from_t_amplitudes(ccsd.t2, n_reps=n_reps)
+    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(ccsd.t2, n_reps=n_reps)
 
     # Construct the Hartree-Fock state to use as the reference state
     n_alpha, n_beta = nelec
@@ -142,19 +130,18 @@ def test_t_amplitudes_energy():
     # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.122153)
+    np.testing.assert_allclose(energy, -0.96962461)
 
 
 def test_t_amplitudes_restrict_indices():
-    # Build a BeH molecule
+    # Build an H2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
-        basis="6-31g",
-        spin=1,
-        symmetry="Coov",
+        atom=[["H", (0, 0, 0)], ["H", (0, 0, 1.8)]],
+        basis="sto-6g",
+        symmetry="Dooh",
     )
-    scf = pyscf.scf.ROHF(mol).run()
+    scf = pyscf.scf.RHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()
 
     # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
@@ -163,28 +150,17 @@ def test_t_amplitudes_restrict_indices():
 
     # Construct UCJ operator
     n_reps = 2
-    alpha_alpha_indices = [(p, p + 1) for p in range(norb - 1)]
-    alpha_beta_indices = [(p, p) for p in range(norb)]
-    beta_beta_indices = [(p, p + 1) for p in range(norb - 1)]
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
 
-    operator = ffsim.UCJOperatorOpenShell.from_t_amplitudes(
-        ccsd.t2,
-        n_reps=n_reps,
-        alpha_alpha_indices=alpha_alpha_indices,
-        alpha_beta_indices=alpha_beta_indices,
-        beta_beta_indices=beta_beta_indices,
+    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
+        ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab)
     )
-    other_operator = ffsim.UCJOperatorOpenShell.from_parameters(
-        operator.to_parameters(
-            alpha_alpha_indices=alpha_alpha_indices,
-            alpha_beta_indices=alpha_beta_indices,
-            beta_beta_indices=beta_beta_indices,
-        ),
+    other_operator = ffsim.UCJOpSpinBalanced.from_parameters(
+        operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab)),
         norb=norb,
         n_reps=n_reps,
-        alpha_alpha_indices=alpha_alpha_indices,
-        alpha_beta_indices=alpha_beta_indices,
-        beta_beta_indices=beta_beta_indices,
+        interaction_pairs=(pairs_aa, pairs_ab),
     )
 
     assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)

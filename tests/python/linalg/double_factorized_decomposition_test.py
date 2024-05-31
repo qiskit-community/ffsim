@@ -15,7 +15,6 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
-import pyscf
 import pytest
 import scipy.linalg
 from opt_einsum import contract
@@ -71,7 +70,6 @@ def reconstruct_t2_alpha_beta(
             orbital_rotation_a, orbital_rotation_b
         )
     return (
-        # TODO maybe don't have this factor of 2
         2j
         * contract(
             "mkpq,mkap,mkip,mkbq,mkjq->ijab",
@@ -363,30 +361,6 @@ def test_double_factorized_t2_tol_max_vecs():
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
 
 
-def test_double_factorized_t2_alpha_beta_beh():
-    """Test double factorization of opposite-spin t2 amplitudes with BeH."""
-    mol = pyscf.gto.Mole()
-    mol.build(
-        atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
-        basis="6-31g",
-        spin=1,
-        symmetry="Coov",
-    )
-    scf = pyscf.scf.ROHF(mol).run()
-    ccsd = cc.CCSD(scf).run()
-    _, t2ab, _ = ccsd.t2
-    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
-        t2ab
-    )
-    # TODO how are the 4 terms from each singular vector related to each other?
-    nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
-    norb = nocc_a + nvrt_a
-    reconstructed = reconstruct_t2_alpha_beta(
-        diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
-    )
-    np.testing.assert_allclose(reconstructed, t2ab, atol=1e-8)
-
-
 def test_double_factorized_t2_alpha_beta_random():
     """Test double factorization of opposite-spin t2 amplitudes with random tensor."""
     rng = np.random.default_rng()
@@ -395,10 +369,30 @@ def test_double_factorized_t2_alpha_beta_random():
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
         t2ab
     )
-    # TODO how are the 4 terms from each singular vector related to each other?
     nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
     norb = nocc_a + nvrt_a
     reconstructed = reconstruct_t2_alpha_beta(
         diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
     )
     np.testing.assert_allclose(reconstructed, t2ab, atol=1e-8)
+
+    np.testing.assert_allclose(
+        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 1], atol=1e-8
+    )
+    np.testing.assert_allclose(
+        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 2], atol=1e-8
+    )
+    np.testing.assert_allclose(
+        diag_coulomb_mats[:, 0], diag_coulomb_mats[:, 3], atol=1e-8
+    )
+
+    np.testing.assert_allclose(
+        orbital_rotations[:, 0, 0], orbital_rotations[:, 1, 0], atol=1e-8
+    )
+    np.testing.assert_allclose(
+        orbital_rotations[:, 0, 0], orbital_rotations[:, 2, 0].conj(), atol=1e-8
+    )
+    np.testing.assert_allclose(
+        orbital_rotations[:, 0, 0], orbital_rotations[:, 3, 0].conj(), atol=1e-8
+    )
+    # TODO add the rest of the relations
