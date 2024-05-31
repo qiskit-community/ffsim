@@ -20,16 +20,43 @@ import ffsim
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
-def test_random_ucj_operator(norb: int, nelec: tuple[int, int]):
-    """Test random UCJ gate gives correct output state."""
+def test_random_ucj_op_spin_unbalanced(norb: int, nelec: tuple[int, int]):
+    """Test random spin-unbalanced UCJ gate gives correct output state."""
     rng = np.random.default_rng()
     n_reps = 3
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        ucj_op = ffsim.random.random_ucj_operator(
+        ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(
             norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
         )
-        gate = ffsim.qiskit.UCJOperatorJW(ucj_op)
+        gate = ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op)
+
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+
+        expected = ffsim.apply_unitary(small_vec, ucj_op, norb=norb, nelec=nelec)
+
+        np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_random_ucj_op_spin_balanced(norb: int, nelec: tuple[int, int]):
+    """Test random spin-balanced UCJ gate gives correct output state."""
+    rng = np.random.default_rng()
+    n_reps = 3
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        ucj_op = ffsim.random.random_ucj_op_spin_balanced(
+            norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
+        )
+        gate = ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op)
 
         small_vec = ffsim.random.random_statevector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(

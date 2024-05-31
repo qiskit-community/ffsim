@@ -33,7 +33,7 @@ def test_minimize_linear_method():
 
     # Initialize parameters
     n_reps = 2
-    n_params = ffsim.UCJOperator.n_params(hartree_fock.mol.nao_nr(), n_reps)
+    n_params = ffsim.UCJOpSpinBalanced.n_params(hartree_fock.mol.nao_nr(), n_reps)
     rng = np.random.default_rng(1804)
     x0 = rng.uniform(-10, 10, size=n_params)
 
@@ -46,7 +46,7 @@ def test_minimize_linear_method():
     reference_state = ffsim.hartree_fock_state(norb, nelec)
 
     def params_to_vec(x: np.ndarray):
-        operator = ffsim.UCJOperator.from_parameters(x, norb=norb, n_reps=n_reps)
+        operator = ffsim.UCJOpSpinBalanced.from_parameters(x, norb=norb, n_reps=n_reps)
         return ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)
 
     def energy(x: np.ndarray):

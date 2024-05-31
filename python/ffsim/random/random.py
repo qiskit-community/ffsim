@@ -13,6 +13,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+from typing_extensions import deprecated
 
 from ffsim import hamiltonians, variational
 
@@ -269,6 +270,10 @@ def random_molecular_hamiltonian(
     )
 
 
+@deprecated(
+    "The random_ucj_operator function is deprecated. Use "
+    "random_ucj_operator_closed_shell or random_ucj_operator_open_shell instead."
+)
 def random_ucj_operator(
     norb: int,
     *,
@@ -310,14 +315,59 @@ def random_ucj_operator(
     )
 
 
-def random_ucj_operator_open_shell(
+def random_ucj_op_spin_balanced(
     norb: int,
     *,
     n_reps: int = 1,
     with_final_orbital_rotation: bool = False,
     seed=None,
-) -> variational.UCJOperatorOpenShell:
-    """Sample a random open-shell unitary cluster Jastrow (UCJ) operator.
+) -> variational.UCJOpSpinBalanced:
+    """Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.
+
+    Args:
+        norb: The number of orbitals.
+        n_reps: The number of ansatz repetitions.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCJ operator.
+    """
+    rng = np.random.default_rng(seed)
+    diag_coulomb_mats = np.stack(
+        [
+            np.stack(
+                [
+                    random_real_symmetric_matrix(norb, seed=rng),
+                    random_real_symmetric_matrix(norb, seed=rng),
+                ]
+            )
+            for _ in range(n_reps)
+        ]
+    )
+    orbital_rotations = np.stack(
+        [random_unitary(norb, seed=rng) for _ in range(n_reps)]
+    )
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = random_unitary(norb, seed=rng)
+    return variational.UCJOpSpinBalanced(
+        diag_coulomb_mats=diag_coulomb_mats,
+        orbital_rotations=orbital_rotations,
+        final_orbital_rotation=final_orbital_rotation,
+    )
+
+
+def random_ucj_op_spin_unbalanced(
+    norb: int,
+    *,
+    n_reps: int = 1,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCJOpSpinUnbalanced:
+    """Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.
 
     Args:
         norb: The number of orbitals.
@@ -354,7 +404,7 @@ def random_ucj_operator_open_shell(
         final_orbital_rotation = np.stack(
             [random_unitary(norb, seed=rng), random_unitary(norb, seed=rng)]
         )
-    return variational.UCJOperatorOpenShell(
+    return variational.UCJOpSpinUnbalanced(
         diag_coulomb_mats=diag_coulomb_mats,
         orbital_rotations=orbital_rotations,
         final_orbital_rotation=final_orbital_rotation,

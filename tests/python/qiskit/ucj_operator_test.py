@@ -19,6 +19,7 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_random_ucj_operator(norb: int, nelec: tuple[int, int]):
     """Test random UCJ gate gives correct output state."""
@@ -26,10 +27,10 @@ def test_random_ucj_operator(norb: int, nelec: tuple[int, int]):
     n_reps = 3
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        ucj_op = ffsim.random.random_ucj_operator_open_shell(
+        ucj_op = ffsim.random.random_ucj_operator(
             norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
         )
-        gate = ffsim.qiskit.UCJOperatorOpenShellJW(ucj_op)
+        gate = ffsim.qiskit.UCJOperatorJW(ucj_op)
 
         small_vec = ffsim.random.random_statevector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(

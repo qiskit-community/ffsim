@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Open-shell (local) unitary cluster Jastrow ansatz."""
+"""Spin-unbalanced (local) unitary cluster Jastrow ansatz."""
 
 from __future__ import annotations
 
@@ -26,20 +26,28 @@ from ffsim.variational.util import (
 )
 
 
-def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
-    if indices is not None:
-        for i, j in indices:
+def _validate_interaction_pairs(
+    interaction_pairs: list[tuple[int, int]] | None, ordered: bool
+) -> None:
+    if interaction_pairs is None:
+        return
+    if len(set(interaction_pairs)) != len(interaction_pairs):
+        raise ValueError(
+            f"Duplicate interaction pairs encountered: {interaction_pairs}."
+        )
+    if not ordered:
+        for i, j in interaction_pairs:
             if i > j:
                 raise ValueError(
-                    "When specifying alpha-alpha or beta-beta diagonal Coulomb "
-                    "indices, you must provide only upper trianglular indices. "
-                    f"Got {(i, j)}, which is a lower triangular index."
+                    "When specifying alpha-alpha or beta-beta interaction pairs, "
+                    "you must provide only upper triangular pairs. "
+                    f"Got {(i, j)}, which is a lower triangular pair."
                 )
 
 
 @dataclass(frozen=True)
-class UCJOperatorOpenShell:
-    r"""An open-shell unitary cluster Jastrow operator.
+class UCJOpSpinUnbalanced:
+    r"""A spin-unbalanced unitary cluster Jastrow operator.
 
     A unitary cluster Jastrow (UCJ) operator has the form
 
@@ -103,26 +111,56 @@ class UCJOperatorOpenShell:
         norb: int,
         n_reps: int,
         *,
-        alpha_alpha_indices: list[tuple[int, int]] | None = None,
-        alpha_beta_indices: list[tuple[int, int]] | None = None,
-        beta_beta_indices: list[tuple[int, int]] | None = None,
+        interaction_pairs: tuple[
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+        ]
+        | None = None,
         with_final_orbital_rotation: bool = False,
     ) -> int:
-        """Return the number of parameters of an ansatz with given settings."""
-        _validate_diag_coulomb_indices(alpha_alpha_indices)
-        _validate_diag_coulomb_indices(beta_beta_indices)
+        r"""Return the number of parameters of an ansatz with given settings.
+
+        Args:
+            n_reps: The number of ansatz repetitions.
+            interaction_pairs: Optional restrictions on allowed orbital interactions
+                for the diagonal Coulomb operators.
+                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+                Any list can be substituted with ``None`` to indicate no restrictions
+                on interactions.
+                Each list should contain pairs of integers representing the orbitals
+                that are allowed to interact. These pairs can also be interpreted as
+                indices of diagonal Coulomb matrix entries that are allowed to be
+                nonzero.
+                For the alpha-alpha and beta-beta interactions, each integer
+                pair must be upper triangular, that is, of the form :math:`(i, j)` where
+                :math:`i \leq j`.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the operator.
+
+        Returns:
+            The number of parameters of the ansatz.
+
+        Raises:
+            ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
+                contained lower triangular pairs.
+        """
+        if interaction_pairs is None:
+            interaction_pairs = (None, None, None)
+        pairs_aa, pairs_ab, pairs_bb = interaction_pairs
+        _validate_interaction_pairs(pairs_aa, ordered=False)
+        _validate_interaction_pairs(pairs_ab, ordered=True)
+        _validate_interaction_pairs(pairs_bb, ordered=False)
         # Each same-spin diagonal Coulomb matrix has one parameter per upper triangular
         # entry unless indices are passed explicitly
         n_triu_indices = norb * (norb + 1) // 2
-        n_params_aa = (
-            n_triu_indices if alpha_alpha_indices is None else len(alpha_alpha_indices)
-        )
-        n_params_bb = (
-            n_triu_indices if beta_beta_indices is None else len(beta_beta_indices)
-        )
+        n_params_aa = n_triu_indices if pairs_aa is None else len(pairs_aa)
+        n_params_bb = n_triu_indices if pairs_bb is None else len(pairs_bb)
         # The diffent-spin diagonal Coulomb matrix has norb**2 parameters unless indices
         # are passed explicitly
-        n_params_ab = norb**2 if alpha_beta_indices is None else len(alpha_beta_indices)
+        n_params_ab = norb**2 if pairs_ab is None else len(pairs_ab)
         # Each orbital rotation has norb**2 parameters per spin
         return (
             n_reps * (n_params_aa + n_params_ab + n_params_bb + 2 * norb**2)
@@ -135,32 +173,33 @@ class UCJOperatorOpenShell:
         *,
         norb: int,
         n_reps: int,
-        alpha_alpha_indices: list[tuple[int, int]] | None = None,
-        alpha_beta_indices: list[tuple[int, int]] | None = None,
-        beta_beta_indices: list[tuple[int, int]] | None = None,
+        interaction_pairs: tuple[
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+        ]
+        | None = None,
         with_final_orbital_rotation: bool = False,
-    ) -> UCJOperatorOpenShell:
+    ) -> UCJOpSpinUnbalanced:
         r"""Initialize the UCJ operator from a real-valued parameter vector.
 
         Args:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
             n_reps: The number of ansatz repetitions.
-            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-                This list should contain only upper trianglular indices, i.e.,
-                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
-                lower triangular indices will raise an error.
-            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-            beta_beta_indices: Allowed indices for nonzero values of the "beta-beta"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-                This list should contain only upper trianglular indices, i.e.,
-                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
-                lower triangular indices will raise an error.
+            interaction_pairs: Optional restrictions on allowed orbital interactions
+                for the diagonal Coulomb operators.
+                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+                Any list can be substituted with ``None`` to indicate no restrictions
+                on interactions.
+                Each list should contain pairs of integers representing the orbitals
+                that are allowed to interact. These pairs can also be interpreted as
+                indices of diagonal Coulomb matrix entries that are allowed to be
+                nonzero.
+                For the alpha-alpha and beta-beta interactions, each integer
+                pair must be upper triangular, that is, of the form :math:`(i, j)` where
+                :math:`i \leq j`.
             with_final_orbital_rotation: Whether to include a final orbital rotation
                 in the operator.
 
@@ -170,17 +209,14 @@ class UCJOperatorOpenShell:
         Raises:
             ValueError: The number of parameters passed did not match the number
                 expected based on the function inputs.
-            ValueError: alpha_alpha_indices contains lower triangular indices.
-            ValueError: beta_beta_indices contains lower triangular indices.
+            ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
+                contained lower triangular pairs.
         """
-        _validate_diag_coulomb_indices(alpha_alpha_indices)
-        _validate_diag_coulomb_indices(beta_beta_indices)
-        n_params = UCJOperatorOpenShell.n_params(
+        n_params = UCJOpSpinUnbalanced.n_params(
             norb,
             n_reps,
-            alpha_alpha_indices=alpha_alpha_indices,
-            alpha_beta_indices=alpha_beta_indices,
-            beta_beta_indices=beta_beta_indices,
+            interaction_pairs=interaction_pairs,
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
         if len(params) != n_params:
@@ -189,6 +225,9 @@ class UCJOperatorOpenShell:
                 "based on the function inputs. "
                 f"Expected {n_params} but got {len(params)}."
             )
+        if interaction_pairs is None:
+            interaction_pairs = (None, None, None)
+        pairs_aa, pairs_ab, pairs_bb = interaction_pairs
         mat_indices = cast(
             List[Tuple[int, int]], list(itertools.product(range(norb), repeat=2))
         )
@@ -196,12 +235,12 @@ class UCJOperatorOpenShell:
             List[Tuple[int, int]],
             list(itertools.combinations_with_replacement(range(norb), 2)),
         )
-        if alpha_alpha_indices is None:
-            alpha_alpha_indices = triu_indices
-        if alpha_beta_indices is None:
-            alpha_beta_indices = mat_indices
-        if beta_beta_indices is None:
-            beta_beta_indices = triu_indices
+        if pairs_aa is None:
+            pairs_aa = triu_indices
+        if pairs_ab is None:
+            pairs_ab = mat_indices
+        if pairs_bb is None:
+            pairs_bb = triu_indices
         diag_coulomb_mats = np.zeros((n_reps, 3, norb, norb))
         orbital_rotations = np.zeros((n_reps, 2, norb, norb), dtype=complex)
         index = 0
@@ -217,7 +256,7 @@ class UCJOperatorOpenShell:
                 index += n_params
             # Diag Coulomb matrices
             for indices, this_diag_coulomb_mat in zip(
-                (alpha_alpha_indices, alpha_beta_indices, beta_beta_indices),
+                (pairs_aa, pairs_ab, pairs_bb),
                 diag_coulomb_mat,
             ):
                 if indices:
@@ -237,7 +276,7 @@ class UCJOperatorOpenShell:
                     params[index : index + n_params], norb
                 )
                 index += n_params
-        return UCJOperatorOpenShell(
+        return UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
@@ -245,45 +284,55 @@ class UCJOperatorOpenShell:
 
     def to_parameters(
         self,
-        *,
-        alpha_alpha_indices: list[tuple[int, int]] | None = None,
-        alpha_beta_indices: list[tuple[int, int]] | None = None,
-        beta_beta_indices: list[tuple[int, int]] | None = None,
+        interaction_pairs: tuple[
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+        ]
+        | None = None,
     ) -> np.ndarray:
         r"""Convert the UCJ operator to a real-valued parameter vector.
 
-        If `alpha_alpha_indices`, `alpha_beta_indices`, or `beta_beta_indices` is
-        specified, the returned parameter vector will incorporate only the diagonal
-        Coulomb matrix entries corresponding to the given indices, so the original
-        operator will not be recoverable from the parameter vector.
+        Note:
+            If `interaction_pairs` is specified, the returned parameter vector will
+            incorporate only the diagonal Coulomb matrix entries corresponding to the
+            specified interactions, so the original operator will not be recoverable
+            from the parameter vector.
 
         Args:
-            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-                This list should contain only upper trianglular indices, i.e.,
-                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
-                lower triangular indices will raise an error.
-            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-            beta_beta_indices: Allowed indices for nonzero values of the "beta-beta"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-                This list should contain only upper trianglular indices, i.e.,
-                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
-                lower triangular indices will raise an error.
+            interaction_pairs: Optional restrictions on allowed orbital interactions
+                for the diagonal Coulomb operators.
+                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+                Any list can be substituted with ``None`` to indicate no restrictions
+                on interactions.
+                Each list should contain pairs of integers representing the orbitals
+                that are allowed to interact. These pairs can also be interpreted as
+                indices of diagonal Coulomb matrix entries that are allowed to be
+                nonzero.
+                For the alpha-alpha and beta-beta interactions, each integer
+                pair must be upper triangular, that is, of the form :math:`(i, j)` where
+                :math:`i \leq j`.
 
         Returns:
             The real-valued parameter vector.
 
         Raises:
-            ValueError: alpha_alpha_indices contains lower triangular indices.
-            ValueError: beta_beta_indices contains lower triangular indices.
+            ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
+                contained lower triangular pairs.
         """
-        _validate_diag_coulomb_indices(alpha_alpha_indices)
-        _validate_diag_coulomb_indices(beta_beta_indices)
         n_reps, _, norb, _ = self.diag_coulomb_mats.shape
+        n_params = UCJOpSpinUnbalanced.n_params(
+            norb,
+            n_reps,
+            interaction_pairs=interaction_pairs,
+            with_final_orbital_rotation=self.final_orbital_rotation is not None,
+        )
+
+        if interaction_pairs is None:
+            interaction_pairs = (None, None, None)
+        pairs_aa, pairs_ab, pairs_bb = interaction_pairs
         mat_indices = cast(
             List[Tuple[int, int]], list(itertools.product(range(norb), repeat=2))
         )
@@ -291,20 +340,13 @@ class UCJOperatorOpenShell:
             List[Tuple[int, int]],
             list(itertools.combinations_with_replacement(range(norb), 2)),
         )
-        if alpha_alpha_indices is None:
-            alpha_alpha_indices = triu_indices
-        if alpha_beta_indices is None:
-            alpha_beta_indices = mat_indices
-        if beta_beta_indices is None:
-            beta_beta_indices = triu_indices
-        n_params = UCJOperatorOpenShell.n_params(
-            norb,
-            n_reps,
-            alpha_alpha_indices=alpha_alpha_indices,
-            alpha_beta_indices=alpha_beta_indices,
-            beta_beta_indices=beta_beta_indices,
-            with_final_orbital_rotation=self.final_orbital_rotation is not None,
-        )
+        if pairs_aa is None:
+            pairs_aa = triu_indices
+        if pairs_ab is None:
+            pairs_ab = mat_indices
+        if pairs_bb is None:
+            pairs_bb = triu_indices
+
         params = np.zeros(n_params)
         index = 0
         for orbital_rotation, diag_coulomb_mat in zip(
@@ -319,7 +361,7 @@ class UCJOperatorOpenShell:
                 index += n_params
             # Diag Coulomb matrices
             for indices, this_diag_coulomb_mat in zip(
-                (alpha_alpha_indices, alpha_beta_indices, beta_beta_indices),
+                (pairs_aa, pairs_ab, pairs_bb),
                 diag_coulomb_mat,
             ):
                 if indices:
@@ -343,20 +385,21 @@ class UCJOperatorOpenShell:
         t2: tuple[np.ndarray, np.ndarray, np.ndarray],
         *,
         t1: tuple[np.ndarray, np.ndarray] | None = None,
-        n_reps: int | None = None,
-        alpha_alpha_indices: list[tuple[int, int]] | None = None,
-        alpha_beta_indices: list[tuple[int, int]] | None = None,
-        beta_beta_indices: list[tuple[int, int]] | None = None,
+        n_reps: int | tuple[int, int] | None = None,
+        interaction_pairs: tuple[
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+        ]
+        | None = None,
         tol: float = 1e-8,
-    ) -> UCJOperatorOpenShell:
-        """Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
+    ) -> UCJOpSpinUnbalanced:
+        r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
         Performs a double-factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
-        specified number of ansatz repetitions. Terms are included in decreasing order
-        of the absolute value of the corresponding singular value in the factorization.
-        The terms from the alpha-beta t2 amplitudes are used before including any
-        terms from the alpha-alpha and beta-beta t2 amplitudes.
+        specified number of repetitions. Terms are included in decreasing order
+        of the magnitude of the corresponding singular value in the factorization.
 
         Args:
             t2: The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
@@ -365,27 +408,47 @@ class UCJOperatorOpenShell:
             t1: The t1 amplitudes. This should be a pair of Numpy arrays, `(t1a, t1b)`,
                 containing the alpha and beta t1 amplitudes.
             n_reps: The number of ansatz repetitions.
-            alpha_alpha_indices: Allowed indices for nonzero values of the "alpha-alpha"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-                This list should contain only upper trianglular indices, i.e.,
-                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
-                lower triangular indices will raise an error.
-            alpha_beta_indices: Allowed indices for nonzero values of the "alpha-beta"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-            beta_beta_indices: Allowed indices for nonzero values of the "beta-beta"
-                diagonal Coulomb matrices (see the docstring of this class).
-                If not specified, all matrix entries are allowed to be nonzero.
-                This list should contain only upper trianglular indices, i.e.,
-                pairs :math:`(i, j)` where :math:`i \leq j`. Passing a list with
-                lower triangular indices will raise an error.
+                You can pass a single integer or a pair of integers.
+                If a single integer, terms from the alpha-beta t2 amplitudes are
+                used before including any terms from the alpha-alpha and beta-beta
+                t2 amplitudes. If a pair of integers, then the first integer specifies
+                the number of terms to use from the alpha-beta t2 amplitudes,
+                and the second integer specifies the number of terms to use from the
+                alpha-alpha and beta-beta t2 amplitudes.
+            interaction_pairs: Optional restrictions on allowed orbital interactions
+                for the diagonal Coulomb operators.
+                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
+                Any list can be substituted with ``None`` to indicate no restrictions
+                on interactions.
+                Each list should contain pairs of integers representing the orbitals
+                that are allowed to interact. These pairs can also be interpreted as
+                indices of diagonal Coulomb matrix entries that are allowed to be
+                nonzero.
+                For the alpha-alpha and beta-beta interactions, each integer
+                pair must be upper triangular, that is, of the form :math:`(i, j)` where
+                :math:`i \leq j`.
             tol: Tolerance for error in the double-factorized decomposition of the
                 t2 amplitudes.
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
                 the reconstructed tensor.
+
+        Returns:
+            The UCJ operator with parameters initialized from the t2 amplitudes.
+
+        Raises:
+            ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
+                contained lower triangular pairs.
         """
+        if interaction_pairs is None:
+            interaction_pairs = (None, None, None)
+        pairs_aa, pairs_ab, pairs_bb = interaction_pairs
+        _validate_interaction_pairs(pairs_aa, ordered=False)
+        _validate_interaction_pairs(pairs_bb, ordered=True)
+        _validate_interaction_pairs(pairs_bb, ordered=False)
+
         t2aa, t2ab, t2bb = t2
         nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
         norb = nocc_a + nvrt_a
@@ -426,13 +489,27 @@ class UCJOperatorOpenShell:
             ]
         )
         # concatenate
-        # TODO might need to scale by a factor of 2
-        diag_coulomb_mats = np.concatenate(
-            [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
-        )[:n_reps]
-        orbital_rotations = np.concatenate(
-            [orbital_rotations_ab, orbital_rotations_same_spin]
-        )[:n_reps]
+        if n_reps is None or isinstance(n_reps, int):
+            diag_coulomb_mats = np.concatenate(
+                [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
+            )[:n_reps]
+            orbital_rotations = np.concatenate(
+                [orbital_rotations_ab, orbital_rotations_same_spin]
+            )[:n_reps]
+        else:
+            n_reps_ab, n_reps_same_spin = n_reps
+            diag_coulomb_mats = np.concatenate(
+                [
+                    diag_coulomb_mats_ab[:n_reps_ab],
+                    diag_coulomb_mats_same_spin[:n_reps_same_spin],
+                ]
+            )
+            orbital_rotations = np.concatenate(
+                [
+                    orbital_rotations_ab[:n_reps_ab],
+                    orbital_rotations_same_spin[:n_reps_same_spin],
+                ]
+            )
 
         final_orbital_rotation = None
         if t1 is not None:
@@ -456,26 +533,26 @@ class UCJOperatorOpenShell:
             )
 
         # Zero out diagonal coulomb matrix entries if requested
-        if alpha_alpha_indices is not None:
+        if pairs_aa is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*alpha_alpha_indices)
+            rows, cols = zip(*pairs_aa)
             mask[rows, cols] = True
             mask[cols, rows] = True
             diag_coulomb_mats[:, 0] *= mask
-        if alpha_beta_indices is not None:
+        if pairs_ab is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*alpha_beta_indices)
+            rows, cols = zip(*pairs_ab)
             mask[rows, cols] = True
             mask[cols, rows] = True
             diag_coulomb_mats[:, 1] *= mask
-        if beta_beta_indices is not None:
+        if pairs_bb is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*beta_beta_indices)
+            rows, cols = zip(*pairs_bb)
             mask[rows, cols] = True
             mask[cols, rows] = True
             diag_coulomb_mats[:, 2] *= mask
 
-        return UCJOperatorOpenShell(
+        return UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
@@ -509,7 +586,7 @@ class UCJOperatorOpenShell:
         return vec
 
     def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
-        if isinstance(other, UCJOperatorOpenShell):
+        if isinstance(other, UCJOpSpinUnbalanced):
             if not np.allclose(
                 self.diag_coulomb_mats, other.diag_coulomb_mats, rtol=rtol, atol=atol
             ):

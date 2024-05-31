@@ -23,7 +23,8 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
-    UCJOperatorOpenShellJW,
+    UCJOpSpinBalancedJW,
+    UCJOpSpinUnbalancedJW,
 )
 from ffsim.qiskit.sampler import FfsimSampler
 from ffsim.qiskit.transpiler_passes import DropNegligible, MergeOrbitalRotations
@@ -53,7 +54,8 @@ __all__ = [
     "PrepareSlaterDeterminantJW",
     "PrepareSlaterDeterminantSpinlessJW",
     "UCJOperatorJW",
-    "UCJOperatorOpenShellJW",
+    "UCJOpSpinBalancedJW",
+    "UCJOpSpinUnbalancedJW",
     "ffsim_vec_to_qiskit_vec",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",

@@ -30,7 +30,8 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
-    UCJOperatorOpenShellJW,
+    UCJOpSpinBalancedJW,
+    UCJOpSpinUnbalancedJW,
 )
 
 
@@ -202,7 +203,18 @@ def _evolve_statevector(
         )
         return Statevector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, (UCJOperatorJW, UCJOperatorOpenShellJW)):
+    if isinstance(op, (UCJOpSpinBalancedJW, UCJOpSpinUnbalancedJW)):
+        if not consecutive_sorted:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits, in ascending order."
+            )
+        vec = protocols.apply_unitary(
+            vec, op.ucj_op, norb=norb, nelec=nelec, copy=False
+        )
+        return Statevector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, UCJOperatorJW):
         if not consecutive_sorted:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
