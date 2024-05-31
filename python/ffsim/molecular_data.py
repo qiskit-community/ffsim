@@ -178,7 +178,10 @@ class MolecularData:
         )
 
     @staticmethod
-    @deprecated("Pass an SCF object directly to from_scf instead.")
+    @deprecated(
+        "The from_mole method is deprecated. Instead, pass an SCF object directly to "
+        "from_scf."
+    )
     def from_mole(
         molecule: gto.Mole,
         active_space: Iterable[int] | None = None,
