@@ -16,9 +16,11 @@ import dataclasses
 from collections.abc import Iterable
 
 import numpy as np
-import pyscf.scf
-from pyscf import ao2mo, cc, gto, mcscf, mp, symm
-from pyscf.scf.hf import SCF
+import pyscf
+import pyscf.cc
+import pyscf.mcscf
+import pyscf.mp
+import pyscf.symm
 from typing_extensions import deprecated
 
 from ffsim.hamiltonians import MolecularHamiltonian
@@ -93,19 +95,19 @@ class MolecularData:
         """The Hamiltonian defined by the molecular data."""
         return MolecularHamiltonian(
             one_body_tensor=self.one_body_integrals,
-            two_body_tensor=ao2mo.restore(1, self.two_body_integrals, self.norb),
+            two_body_tensor=pyscf.ao2mo.restore(1, self.two_body_integrals, self.norb),
             constant=self.core_energy,
         )
 
     @property
-    def mole(self) -> gto.Mole:
+    def mole(self) -> pyscf.gto.Mole:
         """The PySCF Mole class for this molecular data."""
-        mol = gto.Mole()
+        mol = pyscf.gto.Mole()
         return mol.build(atom=self.atom, basis=self.basis, symmetry=self.symmetry)
 
     @staticmethod
     def from_scf(
-        hartree_fock: SCF, active_space: Iterable[int] | None = None
+        hartree_fock: pyscf.scf.SCF, active_space: Iterable[int] | None = None
     ) -> "MolecularData":
         """Initialize a MolecularData object from a Hartree-Fock calculation.
 
@@ -114,13 +116,10 @@ class MolecularData:
             active_space: An optional list of orbitals to use for the active space.
         """
         if not hartree_fock.e_tot:
-            raise ValueError(
-                "You must run the Hartree-Fock object before a MolecularData can be "
-                "initialized from it."
-            )
+            hartree_fock = hartree_fock.run()
         hf_energy = hartree_fock.e_tot
 
-        mol: gto.Mole = hartree_fock.mol
+        mol: pyscf.gto.Mole = hartree_fock.mol
 
         # Get core energy and one- and two-body integrals.
         if active_space is None:
@@ -131,7 +130,7 @@ class MolecularData:
         n_electrons = int(sum(hartree_fock.mo_occ[active_space]))
         n_alpha = (n_electrons + mol.spin) // 2
         n_beta = (n_electrons - mol.spin) // 2
-        cas = mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
+        cas = pyscf.mcscf.CASCI(hartree_fock, norb, (n_alpha, n_beta))
         mo = cas.sort_mo(active_space, base=0)
         one_body_tensor, core_energy = cas.get_h1cas(mo)
         two_body_integrals = cas.get_h2cas(mo)
@@ -151,7 +150,7 @@ class MolecularData:
         orbsym = None
         if mol.symmetry:
             orbsym = list(
-                symm.label_orb_symm(
+                pyscf.symm.label_orb_symm(
                     mol,
                     mol.irrep_name,
                     mol.symm_orb,
@@ -183,7 +182,7 @@ class MolecularData:
         "from_scf."
     )
     def from_mole(
-        molecule: gto.Mole,
+        molecule: pyscf.gto.Mole,
         active_space: Iterable[int] | None = None,
         scf_func=pyscf.scf.RHF,
     ) -> "MolecularData":
@@ -202,10 +201,10 @@ class MolecularData:
         """Run MP2 and store results."""
         # TODO support SCF other than RHF
         scf = pyscf.scf.RHF(self.mole)
-        cas = mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
+        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
-        mp2_solver = mp.MP2(
+        mp2_solver = pyscf.mp.MP2(
             scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
         )
         _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
@@ -217,7 +216,7 @@ class MolecularData:
         """Run FCI and store results."""
         # TODO support SCF other than RHF
         scf = pyscf.scf.RHF(self.mole)
-        cas = mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
+        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
         self.fci_energy = cas.e_tot
@@ -236,7 +235,7 @@ class MolecularData:
         # TODO support SCF other than RHF
         scf = pyscf.scf.RHF(self.mole)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
-        ccsd_solver = cc.CCSD(
+        ccsd_solver = pyscf.cc.CCSD(
             scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
         )
         _, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
