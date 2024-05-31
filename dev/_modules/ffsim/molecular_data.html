@@ -467,7 +467,10 @@
 <div class="viewcode-block" id="MolecularData.from_mole">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_mole">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;Pass an SCF object directly to from_scf instead.&quot;</span><span class="p">)</span>
+    <span class="nd">@deprecated</span><span class="p">(</span>
+        <span class="s2">&quot;The from_mole method is deprecated. Instead, pass an SCF object directly to &quot;</span>
+        <span class="s2">&quot;from_scf.&quot;</span>
+    <span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_mole</span><span class="p">(</span>
         <span class="n">molecule</span><span class="p">:</span> <span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">,</span>
         <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
