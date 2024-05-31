@@ -99,7 +99,6 @@ def test_parameters_roundtrip():
 
 
 def test_t_amplitudes_energy():
-    # Build a BeH molecule
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
@@ -110,31 +109,30 @@ def test_t_amplitudes_energy():
     scf = pyscf.scf.ROHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()
 
-    # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
     mol_data = ffsim.MolecularData.from_scf(scf)
     norb = mol_data.norb
     nelec = mol_data.nelec
     mol_hamiltonian = mol_data.hamiltonian
+    linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
 
-    # Construct UCJ operator
-    n_reps = 2
-    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, n_reps=n_reps)
-
-    # Construct the Hartree-Fock state to use as the reference state
     n_alpha, n_beta = nelec
     reference_state = ffsim.slater_determinant(
         norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
     )
 
-    # Apply the operator to the reference state
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, n_reps=4)
     ansatz_state = ffsim.apply_unitary(
         reference_state, operator, norb=norb, nelec=nelec
     )
+    energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
+    np.testing.assert_allclose(energy, -15.125629)
 
-    # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
-    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
-    energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.122153)
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, n_reps=(4, 2))
+    ansatz_state = ffsim.apply_unitary(
+        reference_state, operator, norb=norb, nelec=nelec
+    )
+    energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
+    np.testing.assert_allclose(energy, -15.126083)
 
 
 def test_t_amplitudes_restrict_indices():

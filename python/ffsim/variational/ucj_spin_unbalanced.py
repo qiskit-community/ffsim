@@ -385,8 +385,7 @@ class UCJOpSpinUnbalanced:
         t2: tuple[np.ndarray, np.ndarray, np.ndarray],
         *,
         t1: tuple[np.ndarray, np.ndarray] | None = None,
-        # TODO have separate n_reps_aa and n_reps_ab
-        n_reps: int | None = None,
+        n_reps: int | tuple[int, int] | None = None,
         interaction_pairs: tuple[
             list[tuple[int, int]] | None,
             list[tuple[int, int]] | None,
@@ -399,10 +398,8 @@ class UCJOpSpinUnbalanced:
 
         Performs a double-factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
-        specified number of ansatz repetitions. Terms are included in decreasing order
-        of the absolute value of the corresponding singular value in the factorization.
-        The terms from the alpha-beta t2 amplitudes are used before including any
-        terms from the alpha-alpha and beta-beta t2 amplitudes.
+        specified number of repetitions. Terms are included in decreasing order
+        of the magnitude of the corresponding singular value in the factorization.
 
         Args:
             t2: The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
@@ -411,6 +408,13 @@ class UCJOpSpinUnbalanced:
             t1: The t1 amplitudes. This should be a pair of Numpy arrays, `(t1a, t1b)`,
                 containing the alpha and beta t1 amplitudes.
             n_reps: The number of ansatz repetitions.
+                You can pass a single integer or a pair of integers.
+                If a single integer, terms from the alpha-beta t2 amplitudes are
+                used before including any terms from the alpha-alpha and beta-beta
+                t2 amplitudes. If a pair of integers, then the first integer specifies
+                the number of terms to use from the alpha-beta t2 amplitudes,
+                and the second integer specifies the number of terms to use from the
+                alpha-alpha and beta-beta t2 amplitudes.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
                 If specified, `interaction_pairs` should be a tuple of 3 lists,
@@ -485,12 +489,27 @@ class UCJOpSpinUnbalanced:
             ]
         )
         # concatenate
-        diag_coulomb_mats = np.concatenate(
-            [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
-        )[:n_reps]
-        orbital_rotations = np.concatenate(
-            [orbital_rotations_ab, orbital_rotations_same_spin]
-        )[:n_reps]
+        if isinstance(n_reps, int):
+            diag_coulomb_mats = np.concatenate(
+                [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
+            )[:n_reps]
+            orbital_rotations = np.concatenate(
+                [orbital_rotations_ab, orbital_rotations_same_spin]
+            )[:n_reps]
+        else:
+            n_reps_ab, n_reps_same_spin = n_reps
+            diag_coulomb_mats = np.concatenate(
+                [
+                    diag_coulomb_mats_ab[:n_reps_ab],
+                    diag_coulomb_mats_same_spin[:n_reps_same_spin],
+                ]
+            )
+            orbital_rotations = np.concatenate(
+                [
+                    orbital_rotations_ab[:n_reps_ab],
+                    orbital_rotations_same_spin[:n_reps_same_spin],
+                ]
+            )
 
         final_orbital_rotation = None
         if t1 is not None:
