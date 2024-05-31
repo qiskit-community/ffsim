@@ -47,10 +47,14 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    ucj_op = ffsim.random.random_ucj_operator(
+    with pytest.deprecated_call():
+        ucj_op = ffsim.random.random_ucj_operator(
+            norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
+        )
+    ucj_op_balanced = ffsim.random.random_ucj_op_spin_balanced(
         norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
     )
-    ucj_op_open_shell = ffsim.random.random_ucj_op_spin_unbalanced(
+    ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
         norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
     )
     interaction_pairs = list(_brickwork(norb, norb))
@@ -64,8 +68,10 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
         ffsim.qiskit.DiagCoulombEvolutionJW(norb, diag_coulomb_mat, time=1.0), qubits
     )
     circuit.append(ffsim.qiskit.GivensAnsatzOperatorJW(givens_ansatz_op), qubits)
-    circuit.append(ffsim.qiskit.UCJOperatorJW(ucj_op), qubits)
-    circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_open_shell), qubits)
+    with pytest.deprecated_call():
+        circuit.append(ffsim.qiskit.UCJOperatorJW(ucj_op), qubits)
+    circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op_balanced), qubits)
+    circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced), qubits)
     circuit.measure_all()
 
     shots = 3000
