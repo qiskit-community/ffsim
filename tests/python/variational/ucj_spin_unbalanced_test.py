@@ -33,30 +33,18 @@ def test_n_params():
         expected = len(operator.to_parameters())
         assert actual == expected
 
-        alpha_alpha_indices = list(
-            itertools.combinations_with_replacement(range(norb), 2)
-        )[:norb]
-        alpha_beta_indices = list(
-            itertools.combinations_with_replacement(range(norb), 2)
-        )[:norb]
-        beta_beta_indices = list(
-            itertools.combinations_with_replacement(range(norb), 2)
-        )[:norb]
+        pairs_aa = list(itertools.combinations_with_replacement(range(norb), 2))[:norb]
+        pairs_ab = list(itertools.combinations_with_replacement(range(norb), 2))[:norb]
+        pairs_bb = list(itertools.combinations_with_replacement(range(norb), 2))[:norb]
 
         actual = ffsim.UCJOpSpinUnbalanced.n_params(
             norb,
             n_reps,
-            alpha_alpha_indices=alpha_alpha_indices,
-            alpha_beta_indices=alpha_beta_indices,
-            beta_beta_indices=beta_beta_indices,
+            interaction_pairs=(pairs_aa, pairs_ab, pairs_bb),
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
         expected = len(
-            operator.to_parameters(
-                alpha_alpha_indices=alpha_alpha_indices,
-                alpha_beta_indices=alpha_beta_indices,
-                beta_beta_indices=beta_beta_indices,
-            )
+            operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab, pairs_bb))
         )
         assert actual == expected
 
@@ -64,15 +52,19 @@ def test_n_params():
             actual = ffsim.UCJOpSpinUnbalanced.n_params(
                 norb,
                 n_reps,
-                alpha_alpha_indices=[(1, 0)],
-                beta_beta_indices=beta_beta_indices,
+                interaction_pairs=([(1, 0)], pairs_ab, pairs_bb),
             )
         with pytest.raises(ValueError, match="triangular"):
             actual = ffsim.UCJOpSpinUnbalanced.n_params(
                 norb,
                 n_reps,
-                alpha_alpha_indices=alpha_alpha_indices,
-                beta_beta_indices=[(1, 0)],
+                interaction_pairs=(pairs_aa, pairs_ab, [(1, 0)]),
+            )
+        with pytest.raises(ValueError, match="Duplicate"):
+            actual = ffsim.UCJOpSpinUnbalanced.n_params(
+                norb,
+                n_reps,
+                interaction_pairs=(pairs_aa, [(1, 0), (1, 0)], pairs_bb),
             )
 
 
@@ -163,28 +155,18 @@ def test_t_amplitudes_restrict_indices():
 
     # Construct UCJ operator
     n_reps = 2
-    alpha_alpha_indices = [(p, p + 1) for p in range(norb - 1)]
-    alpha_beta_indices = [(p, p) for p in range(norb)]
-    beta_beta_indices = [(p, p + 1) for p in range(norb - 1)]
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    pairs_bb = [(p, p + 1) for p in range(norb - 1)]
 
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
-        ccsd.t2,
-        n_reps=n_reps,
-        alpha_alpha_indices=alpha_alpha_indices,
-        alpha_beta_indices=alpha_beta_indices,
-        beta_beta_indices=beta_beta_indices,
+        ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)
     )
     other_operator = ffsim.UCJOpSpinUnbalanced.from_parameters(
-        operator.to_parameters(
-            alpha_alpha_indices=alpha_alpha_indices,
-            alpha_beta_indices=alpha_beta_indices,
-            beta_beta_indices=beta_beta_indices,
-        ),
+        operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)),
         norb=norb,
         n_reps=n_reps,
-        alpha_alpha_indices=alpha_alpha_indices,
-        alpha_beta_indices=alpha_beta_indices,
-        beta_beta_indices=beta_beta_indices,
+        interaction_pairs=(pairs_aa, pairs_ab, pairs_bb),
     )
 
     assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
