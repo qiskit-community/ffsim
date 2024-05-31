@@ -28,7 +28,7 @@ from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
 from ffsim.variational import UCJOperator
 
 
-@deprecated("Use UCJOpSpinBalancedJW instead.")
+@deprecated("The UCJOperatorJW class is deprecated. Use UCJOpSpinBalancedJW instead.")
 class UCJOperatorJW(Gate):
     """Unitary cluster Jastrow operator under the Jordan-Wigner transformation.
 

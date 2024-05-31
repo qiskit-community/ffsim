@@ -41,7 +41,7 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
 
 
 @dataclass(frozen=True)
-@deprecated("Use UCJOperatorClosedShell instead.")
+@deprecated("The UCJOperator class is deprecated. Use UCJOperatorClosedShell instead.")
 class UCJOperator:
     r"""A unitary cluster Jastrow operator.
 
@@ -305,7 +305,9 @@ class UCJOperator:
 
 
 @dataclass
-@deprecated("Use UCJOperatorClosedShell instead.")
+@deprecated(
+    "The RealUCJOperator class is deprecated. Use UCJOperatorClosedShell instead."
+)
 class RealUCJOperator:
     r"""Real-valued unitary cluster Jastrow operator.
 

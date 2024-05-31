@@ -271,7 +271,8 @@ def random_molecular_hamiltonian(
 
 
 @deprecated(
-    "Use random_ucj_operator_closed_shell or random_ucj_operator_open_shell instead."
+    "The random_ucj_operator function is deprecated. Use "
+    "random_ucj_operator_closed_shell or random_ucj_operator_open_shell instead."
 )
 def random_ucj_operator(
     norb: int,

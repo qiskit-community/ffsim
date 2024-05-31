@@ -209,7 +209,7 @@ def _evolve_statevector(
                 "consecutive qubits, in ascending order."
             )
         vec = protocols.apply_unitary(
-            vec, op.ucj_operator, norb=norb, nelec=nelec, copy=False
+            vec, op.ucj_op, norb=norb, nelec=nelec, copy=False
         )
         return Statevector(vec=vec, norb=norb, nelec=nelec)
 
