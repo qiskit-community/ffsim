@@ -115,7 +115,7 @@ class UCJOpSpinBalanced:
         | None = None,
         with_final_orbital_rotation: bool = False,
     ) -> int:
-        """Return the number of parameters of an ansatz with given settings.
+        r"""Return the number of parameters of an ansatz with given settings.
 
         Args:
             n_reps: The number of ansatz repetitions.
@@ -352,7 +352,7 @@ class UCJOpSpinBalanced:
         | None = None,
         tol: float = 1e-8,
     ) -> UCJOpSpinBalanced:
-        """Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
+        r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
         Performs a double-factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
