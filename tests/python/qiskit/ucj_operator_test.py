@@ -19,6 +19,7 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_random_ucj_operator(norb: int, nelec: tuple[int, int]):
     """Test random UCJ gate gives correct output state."""
