@@ -30,6 +30,7 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
+    UCJOpSpinBalancedJW,
     UCJOpSpinUnbalancedJW,
 )
 
@@ -202,7 +203,7 @@ def _evolve_statevector(
         )
         return Statevector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, (UCJOperatorJW, UCJOpSpinUnbalancedJW)):
+    if isinstance(op, (UCJOperatorJW, UCJOpSpinBalancedJW, UCJOpSpinUnbalancedJW)):
         if not consecutive_sorted:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "

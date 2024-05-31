@@ -222,6 +222,7 @@ def test_merge_ucj(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations in UCJ operator."""
     rng = np.random.default_rng()
     qubits = QuantumRegister(2 * norb)
+    n_reps = 3
 
     circuit = QuantumCircuit(qubits)
     circuit.append(
@@ -229,13 +230,13 @@ def test_merge_ucj(norb: int, nelec: tuple[int, int]):
         qubits,
     )
     ucj_op = ffsim.random.random_ucj_operator(
-        norb, n_reps=3, with_final_orbital_rotation=True, seed=rng
+        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
     )
     circuit.append(ffsim.qiskit.UCJOperatorJW(ucj_op), qubits)
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
     assert circuit.count_ops() == {"hartree_fock_jw": 1, "ucj_jw": 1}
     assert transpiled.count_ops()["slater_jw"] == 1
-
+    assert transpiled.count_ops()["orb_rot_jw"] == n_reps
     ffsim.testing.assert_allclose_up_to_global_phase(
         np.array(Statevector(circuit)), np.array(Statevector(transpiled))
     )
@@ -245,14 +246,31 @@ def test_merge_ucj(norb: int, nelec: tuple[int, int]):
         ffsim.qiskit.PrepareHartreeFockJW(norb, nelec),
         qubits,
     )
-    ucj_op_open = ffsim.random.random_ucj_op_spin_unbalanced(
-        norb, n_reps=3, with_final_orbital_rotation=True, seed=rng
+    ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
     )
-    circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_open), qubits)
+    circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced), qubits)
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
-    assert circuit.count_ops() == {"hartree_fock_jw": 1, "ucj_open_jw": 1}
+    assert circuit.count_ops() == {"hartree_fock_jw": 1, "ucj_unbalanced_jw": 1}
     assert transpiled.count_ops()["slater_jw"] == 1
+    assert transpiled.count_ops()["orb_rot_jw"] == n_reps
+    ffsim.testing.assert_allclose_up_to_global_phase(
+        np.array(Statevector(circuit)), np.array(Statevector(transpiled))
+    )
 
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareHartreeFockJW(norb, nelec),
+        qubits,
+    )
+    ucj_op_balanced = ffsim.random.random_ucj_op_spin_balanced(
+        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
+    )
+    circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op_balanced), qubits)
+    transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
+    assert circuit.count_ops() == {"hartree_fock_jw": 1, "ucj_balanced_jw": 1}
+    assert transpiled.count_ops()["slater_jw"] == 1
+    assert transpiled.count_ops()["orb_rot_jw"] == n_reps
     ffsim.testing.assert_allclose_up_to_global_phase(
         np.array(Statevector(circuit)), np.array(Statevector(transpiled))
     )

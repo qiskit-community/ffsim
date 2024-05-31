@@ -47,7 +47,7 @@ class UCJOpSpinUnbalancedJW(Gate):
             label: The label of the gate.
         """
         self.ucj_op = ucj_op
-        super().__init__("ucj_open_jw", 2 * ucj_op.norb, [], label=label)
+        super().__init__("ucj_unbalanced_jw", 2 * ucj_op.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
@@ -102,7 +102,7 @@ class UCJOpSpinBalancedJW(Gate):
             label: The label of the gate.
         """
         self.ucj_op = ucj_op
-        super().__init__("ucj_open_jw", 2 * ucj_op.norb, [], label=label)
+        super().__init__("ucj_balanced_jw", 2 * ucj_op.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
@@ -117,15 +117,19 @@ class UCJOpSpinBalancedJW(Gate):
 def _ucj_op_spin_balanced_jw(
     qubits: Sequence[Qubit], ucj_op: variational.UCJOpSpinBalanced
 ) -> Iterator[CircuitInstruction]:
-    for diag_colomb_mat, orbital_rotation in zip(
+    for (diag_coulomb_mat_aa, diag_coulomb_mat_ab), orbital_rotation in zip(
         ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
     ):
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, orbital_rotation.transpose(0, 2, 1).conj()),
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj()),
             qubits,
         )
         yield CircuitInstruction(
-            DiagCoulombEvolutionJW(ucj_op.norb, diag_colomb_mat, -1.0),
+            DiagCoulombEvolutionJW(
+                ucj_op.norb,
+                (diag_coulomb_mat_aa, diag_coulomb_mat_ab, diag_coulomb_mat_aa),
+                -1.0,
+            ),
             qubits,
         )
         yield CircuitInstruction(
