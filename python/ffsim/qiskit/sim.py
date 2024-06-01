@@ -36,7 +36,7 @@ from ffsim.qiskit.gates import (
 
 
 @dataclass
-class Statevector:
+class StateVector:
     """A state vector in the FCI representation.
 
     Attributes:
@@ -50,7 +50,7 @@ class Statevector:
     nelec: tuple[int, int]
 
 
-def final_statevector(circuit: QuantumCircuit) -> Statevector:
+def final_statevector(circuit: QuantumCircuit) -> StateVector:
     """Return the final state vector of a fermionic quantum circuit.
 
     Args:
@@ -70,7 +70,7 @@ def final_statevector(circuit: QuantumCircuit) -> Statevector:
 
 def _prepare_statevector(
     instruction: CircuitInstruction, circuit: QuantumCircuit
-) -> Statevector:
+) -> StateVector:
     op = instruction.operation
     qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
     consecutive_sorted = qubit_indices == list(
@@ -86,7 +86,7 @@ def _prepare_statevector(
         norb = op.norb
         nelec = op.nelec
         vec = states.hartree_fock_state(norb, nelec)
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PrepareHartreeFockSpinlessJW):
         if not consecutive_sorted:
@@ -97,7 +97,7 @@ def _prepare_statevector(
         norb = op.norb
         nelec = (op.nocc, 0)
         vec = states.hartree_fock_state(op.norb, nelec)
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PrepareSlaterDeterminantJW):
         if not consecutive_sorted:
@@ -113,7 +113,7 @@ def _prepare_statevector(
             occupied_orbitals=op.occupied_orbitals,
             orbital_rotation=(op.orbital_rotation_a, op.orbital_rotation_b),
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PrepareSlaterDeterminantSpinlessJW):
         if not consecutive_sorted:
@@ -126,7 +126,7 @@ def _prepare_statevector(
         vec = states.slater_determinant(
             op.norb, (op.occupied_orbitals, []), orbital_rotation=op.orbital_rotation
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     raise ValueError(
         "The first instruction of the circuit must be one of the following gates: "
@@ -136,8 +136,8 @@ def _prepare_statevector(
 
 
 def _evolve_statevector(
-    statevector: Statevector, instruction: CircuitInstruction, circuit: QuantumCircuit
-) -> Statevector:
+    statevector: StateVector, instruction: CircuitInstruction, circuit: QuantumCircuit
+) -> StateVector:
     op = instruction.operation
     qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
     consecutive_sorted = qubit_indices == list(
@@ -157,7 +157,7 @@ def _evolve_statevector(
             z_representation=op.z_representation,
             copy=False,
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, (GivensAnsatzOperatorJW, GivensAnsatzOperatorSpinlessJW)):
         if not consecutive_sorted:
@@ -168,7 +168,7 @@ def _evolve_statevector(
         vec = protocols.apply_unitary(
             vec, op.givens_ansatz_operator, norb=norb, nelec=nelec, copy=False
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, OrbitalRotationJW):
         if not consecutive_sorted:
@@ -190,7 +190,7 @@ def _evolve_statevector(
             nelec=nelec,
             copy=False,
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, OrbitalRotationSpinlessJW):
         if not consecutive_sorted:
@@ -201,7 +201,7 @@ def _evolve_statevector(
         vec = gates.apply_orbital_rotation(
             vec, op.orbital_rotation, norb=norb, nelec=nelec, copy=False
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, (UCJOpSpinBalancedJW, UCJOpSpinUnbalancedJW)):
         if not consecutive_sorted:
@@ -212,7 +212,7 @@ def _evolve_statevector(
         vec = protocols.apply_unitary(
             vec, op.ucj_op, norb=norb, nelec=nelec, copy=False
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, UCJOperatorJW):
         if not consecutive_sorted:
@@ -223,7 +223,7 @@ def _evolve_statevector(
         vec = protocols.apply_unitary(
             vec, op.ucj_operator, norb=norb, nelec=nelec, copy=False
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, Barrier):
         return statevector
@@ -237,7 +237,7 @@ def _evolve_statevector(
 
 
 def sample_statevector(
-    statevector: Statevector,
+    statevector: StateVector,
     *,
     indices: list[int],
     shots: int,
