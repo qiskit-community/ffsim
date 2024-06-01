@@ -65,16 +65,18 @@ def apply_diag_coulomb_evolution(
     copy: bool = True,
 ) -> np.ndarray: ...
 def apply_diag_coulomb_evolution(
-    vec,
-    mat,
-    time,
-    norb,
-    nelec,
+    vec: np.ndarray,
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
+    time: float,
+    norb: int,
+    nelec: int | tuple[int, int],
     *,
-    orbital_rotation=None,
-    z_representation=False,
-    copy=True,
-):
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+    z_representation: bool = False,
+    copy: bool = True,
+) -> np.ndarray:
     r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
 
     Applies
