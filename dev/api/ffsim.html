@@ -2720,17 +2720,19 @@ This is equivalent to applying the transformation given by</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.
+<li><p><strong>vec</strong> – The state vector to be transformed.</p></li>
+<li><p><strong>mat</strong> – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.
 You can pass either a single Numpy array specifying the orbital rotation
 to apply to both spin sectors, or you can pass a pair of Numpy arrays
 specifying independent orbital rotations for spin alpha and spin beta.
 If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
 values in the pair to indicate that no operation should be applied to
 that spin sector.</p></li>
-<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
+<li><p><strong>norb</strong> – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> – Either a single integer representing the number of fermions for a
+spinless system, or a pair of integers storing the numbers of spin alpha
+and spin beta fermions.</p></li>
+<li><p><strong>copy</strong> – <p>Whether to copy the vector before operating on it.</p>
 <ul>
 <li><p>If <cite>copy=True</cite> then this function always returns a newly allocated
 vector and the original vector is left untouched.</p></li>
@@ -2973,7 +2975,9 @@ and False otherwise.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
+spinless system, or a pair of integers storing the numbers of spin alpha
+and spin beta fermions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

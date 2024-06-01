@@ -328,18 +328,22 @@
 
 <div class="viewcode-block" id="dim">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.dim">[docs]</a>
-<span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimension of the FCI space.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The dimension of the FCI space.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span> <span class="o">=</span> <span class="n">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">dim_a</span> <span class="o">*</span> <span class="n">dim_b</span></div>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span></div>
 
 
 
