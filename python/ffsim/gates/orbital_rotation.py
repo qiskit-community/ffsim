@@ -184,6 +184,7 @@ def _one_subspace_indices(
     return indices[n0:].astype(np.uint, copy=False)
 
 
+@lru_cache(maxsize=None)
 def _shifted_orbitals(norb: int, target_orbs: tuple[int, ...]) -> np.ndarray:
     """Return orbital list with targeted orbitals shifted to the end."""
     orbitals = np.arange(norb - len(target_orbs))
