@@ -1473,6 +1473,31 @@ the alpha and beta components of each state.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.StateVector">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">StateVector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#StateVector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.StateVector" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A state vector in the FCI representation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.StateVector.vec">
+<span class="sig-name descname"><span class="pre">vec</span></span><a class="headerlink" href="#ffsim.StateVector.vec" title="Link to this definition">¶</a></dt>
+<dd><p>Array of state vector coefficients.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.StateVector.norb">
+<span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.StateVector.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.StateVector.nelec">
+<span class="sig-name descname"><span class="pre">nelec</span></span><a class="headerlink" href="#ffsim.StateVector.nelec" title="Link to this definition">¶</a></dt>
+<dd><p>The number of alpha and beta electrons.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.SupportsApplyUnitary">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SupportsApplyUnitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/protocols/apply_unitary_protocol.html#SupportsApplyUnitary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SupportsApplyUnitary" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
@@ -2744,11 +2769,8 @@ modified in-place.</p></li>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The transformed vector.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transformed vector.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3203,7 +3225,9 @@ on orbital <span class="math notranslate nohighlight">\(p\)</span> with spin <sp
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
+spinless system, or a pair of integers storing the numbers of spin alpha
+and spin beta fermions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -3535,12 +3559,12 @@ modified in-place.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The occupied orbitals in the electonic configuration.
-This is a pair of lists of integers, where the first list specifies the
-spin alpha orbitals and the second list specifies the spin beta
-orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
+<li><p><strong>norb</strong> – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> – The occupied orbitals in the electronic configuration.
+This is either a list of integers specifying spinless orbitals, or a
+pair of lists, where the first list specifies the spin alpha orbitals and
+the second list specifies the spin beta orbitals.</p></li>
+<li><p><strong>orbital_rotation</strong> – The optional orbital rotation.
 You can pass either a single Numpy array specifying the orbital rotation
 to apply to both spin sectors, or you can pass a pair of Numpy arrays
 specifying independent orbital rotations for spin alpha and spin beta.
@@ -3549,11 +3573,8 @@ values in the pair to indicate that no operation should be applied to
 that spin sector.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The Slater determinant as a statevector.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Slater determinant as a statevector.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3570,7 +3591,7 @@ that spin sector.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The occupied orbitals in the electonic configuration.
+<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The occupied orbitals in the electronic configuration.
 This is a pair of lists of integers, where the first list specifies the
 spin alpha orbitals and the second list specifies the spin beta
 orbitals.</p></li>
@@ -3830,6 +3851,12 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.Spin.ALPHA"><code class="docutils literal notranslate"><span class="pre">Spin.ALPHA</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.Spin.ALPHA_AND_BETA"><code class="docutils literal notranslate"><span class="pre">Spin.ALPHA_AND_BETA</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.Spin.BETA"><code class="docutils literal notranslate"><span class="pre">Spin.BETA</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.StateVector"><code class="docutils literal notranslate"><span class="pre">StateVector</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.StateVector.vec"><code class="docutils literal notranslate"><span class="pre">StateVector.vec</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.StateVector.norb"><code class="docutils literal notranslate"><span class="pre">StateVector.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.StateVector.nelec"><code class="docutils literal notranslate"><span class="pre">StateVector.nelec</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.SupportsApplyUnitary"><code class="docutils literal notranslate"><span class="pre">SupportsApplyUnitary</span></code></a></li>
