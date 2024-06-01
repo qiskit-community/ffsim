@@ -35,16 +35,7 @@ def apply_orbital_rotation(
 @overload
 def apply_orbital_rotation(
     vec: np.ndarray,
-    mat: np.ndarray,
-    norb: int,
-    nelec: tuple[int, int],
-    *,
-    copy: bool = True,
-) -> np.ndarray: ...
-@overload
-def apply_orbital_rotation(
-    vec: np.ndarray,
-    mat: tuple[np.ndarray | None, np.ndarray | None],
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
     norb: int,
     nelec: tuple[int, int],
     *,
@@ -97,10 +88,8 @@ def apply_orbital_rotation(vec, mat, norb, nelec, *, copy=True):
     if copy:
         vec = vec.copy()
     if isinstance(nelec, int):
-        vec = _apply_orbital_rotation_spinless(vec, mat, norb, nelec)
-    else:
-        vec = _apply_orbital_rotation_spinful(vec, mat, norb, nelec)
-    return vec
+        return _apply_orbital_rotation_spinless(vec, mat, norb, nelec)
+    return _apply_orbital_rotation_spinful(vec, mat, norb, nelec)
 
 
 def _apply_orbital_rotation_spinless(
