@@ -40,18 +40,22 @@ def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
     return dim_a, dim_b
 
 
-def dim(norb: int, nelec: tuple[int, int]) -> int:
+def dim(norb: int, nelec: int | tuple[int, int]) -> int:
     """Get the dimension of the FCI space.
 
     Args:
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
 
     Returns:
         The dimension of the FCI space.
     """
-    dim_a, dim_b = dims(norb, nelec)
-    return dim_a * dim_b
+    if isinstance(nelec, int):
+        return math.comb(norb, nelec)
+    n_alpha, n_beta = nelec
+    return math.comb(norb, n_alpha) * math.comb(norb, n_beta)
 
 
 def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
