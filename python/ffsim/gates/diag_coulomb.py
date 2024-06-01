@@ -127,9 +127,7 @@ def apply_diag_coulomb_evolution(
     """
     if copy:
         vec = vec.copy()
-
     if isinstance(nelec, int):
-        # TODO write specialized functions for spinless case
         return _apply_diag_coulomb_evolution_spinful(
             vec=vec,
             mat=mat,
