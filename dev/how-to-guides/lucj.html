@@ -343,8 +343,8 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643862  E(CI) = -4.02122442107773  S^2 = 0.0000000
+converged SCF energy = -77.8266321248745
+CASCI E = -77.8742165643863  E(CI) = -4.02122442107773  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -387,8 +387,8 @@ nelec = (2, 2)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374029  E_corr = -0.04758323886584774
-Energy at initialization: -77.87160024816288
+E(CCSD) = -77.8742153637403  E_corr = -0.04758323886584403
+Energy at initialization: -77.87160024816285
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -426,10 +426,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.8738739198227
-        x: [-1.153e+00 -5.257e-04 ...  3.216e-04  1.286e-01]
+      fun: -77.87387392220121
+        x: [-1.153e+00  1.657e-04 ...  4.059e-04  1.287e-01]
       nit: 10
-      jac: [ 2.842e-05  3.979e-05 ...  1.421e-05  1.421e-05]
+      jac: [-1.137e-05 -1.990e-05 ... -9.948e-06  2.558e-05]
      nfev: 949
      njev: 13
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -477,10 +477,10 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363426716571
-        x: [-1.153e+00 -2.020e-04 ...  3.519e-02  2.561e-01]
+      fun: -77.87363426428006
+        x: [-1.152e+00 -1.170e-04 ...  3.520e-02  2.561e-01]
       nit: 5
-      jac: [ 5.684e-06  2.558e-05 ...  7.105e-06 -2.842e-06]
+      jac: [ 8.527e-06  2.274e-05 ...  4.263e-06  0.000e+00]
      nfev: 329
      njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -558,29 +558,29 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Convergence: Norm of projected gradient &lt;= gtol.
  success: True
-     fun: -77.87363432666126
-       x: [-1.152e+00 -3.503e-04 ...  3.471e-02  2.561e-01]
+     fun: -77.87363431927965
+       x: [-1.152e+00  1.569e-04 ...  3.493e-02  2.558e-01]
      nit: 3
-     jac: [-1.066e-07 -4.637e-07 ... -1.330e-07 -1.127e-07]
-    nfev: 550
+     jac: [ 1.031e-07  1.500e-06 ... -1.550e-07 -5.039e-07]
+    nfev: 505
     njev: 4
-  nlinop: 366
+  nlinop: 321
 
 Iteration 1
-    Energy: -77.87363076044866
-    Norm of gradient: 0.001392475854516074
-    Regularization hyperparameter: 0.0014649107123279775
-    Variation hyperparameter: 0.9925273349844916
+    Energy: -77.87363145238444
+    Norm of gradient: 0.0012680178530674819
+    Regularization hyperparameter: 0.0018178814584358224
+    Variation hyperparameter: 0.996257031058956
 Iteration 2
-    Energy: -77.87363430569303
-    Norm of gradient: 6.27722948627055e-05
-    Regularization hyperparameter: 0.0035018294245258473
-    Variation hyperparameter: 0.9926299803393093
+    Energy: -77.87363428555607
+    Norm of gradient: 6.613415352469293e-05
+    Regularization hyperparameter: 0.0018178814584358224
+    Variation hyperparameter: 0.9962570290797748
 Iteration 3
-    Energy: -77.87363432666126
-    Norm of gradient: 8.536641015045146e-06
-    Regularization hyperparameter: 0.0035019177002471123
-    Variation hyperparameter: 0.9926299530565754
+    Energy: -77.87363431927965
+    Norm of gradient: 8.94053446950727e-06
+    Regularization hyperparameter: 0.006030425159428721
+    Variation hyperparameter: 0.9978087436399223
 </pre></div></div>
 </div>
 </section>
