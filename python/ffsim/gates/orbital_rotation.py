@@ -83,7 +83,7 @@ def apply_orbital_rotation(vec, mat, norb, nelec, *, copy=True):
               modified in-place.
 
     Returns:
-        The transformed vector.
+        The rotated vector.
     """
     if copy:
         vec = vec.copy()
