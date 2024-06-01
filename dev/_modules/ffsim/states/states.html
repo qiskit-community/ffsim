@@ -298,7 +298,7 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">overload</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
@@ -395,17 +395,19 @@
 <span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
-<span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
 <div class="viewcode-block" id="slater_determinant">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant">[docs]</a>
-<span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a Slater determinant.</span>
 
 <span class="sd">    A Slater determinant is a state of the form</span>
@@ -439,9 +441,11 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">occupied_orbitals</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
-        <span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">occupied_orbitals</span><span class="p">),</span> <span class="p">[])</span>
 
-    <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">occupied_orbitals</span>
+    <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
+    <span class="p">)</span>
     <span class="n">n_alpha</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
     <span class="n">n_beta</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
     <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>

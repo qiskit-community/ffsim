@@ -2286,8 +2286,8 @@ and <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an opti
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> – The diagonal Coulomb matrix <span class="math notranslate nohighlight">\(Z\)</span>.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The diagonal Coulomb matrix <span class="math notranslate nohighlight">\(Z\)</span>.
 You can pass either a single Numpy array specifying the coefficients
 to use for all spin interactions, or you can pass a tuple of three Numpy
 arrays specifying independent coefficients for alpha-alpha, alpha-beta,
@@ -2295,20 +2295,20 @@ and beta-beta interactions (in that order). If passing a tuple, you can
 set a tuple element to <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate the absence of interactions
 of that type. The alpha-alpha and beta-beta matrices are assumed to be
 symmetric, and only their upper triangular entries are used.</p></li>
-<li><p><strong>time</strong> – The evolution time.</p></li>
-<li><p><strong>norb</strong> – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> – Either a single integer representing the number of fermions for a
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
 and spin beta fermions.</p></li>
-<li><p><strong>orbital_rotation</strong> – The optional orbital rotation.
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
 You can pass either a single Numpy array specifying the orbital rotation
 to apply to both spin sectors, or you can pass a pair of Numpy arrays
 specifying independent orbital rotations for spin alpha and spin beta.
 If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
 values in the pair to indicate that no operation should be applied to that
 spin sector.</p></li>
-<li><p><strong>z_representation</strong> – Whether the input matrices are in the “Z” representation.</p></li>
-<li><p><strong>copy</strong> – <p>Whether to copy the vector before operating on it.</p>
+<li><p><strong>z_representation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the input matrices are in the “Z” representation.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
 <ul>
 <li><p>If <cite>copy=True</cite> then this function always returns a newly allocated
 vector and the original vector is left untouched.</p></li>
@@ -2320,8 +2320,11 @@ modified in-place.</p></li>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The evolved state vector.</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The evolved state vector.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2744,19 +2747,19 @@ This is equivalent to applying the transformation given by</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> – The state vector to be transformed.</p></li>
-<li><p><strong>mat</strong> – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The unitary matrix <span class="math notranslate nohighlight">\(U\)</span> describing the orbital rotation.
 You can pass either a single Numpy array specifying the orbital rotation
 to apply to both spin sectors, or you can pass a pair of Numpy arrays
 specifying independent orbital rotations for spin alpha and spin beta.
 If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
 values in the pair to indicate that no operation should be applied to
 that spin sector.</p></li>
-<li><p><strong>norb</strong> – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> – Either a single integer representing the number of fermions for a
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
 and spin beta fermions.</p></li>
-<li><p><strong>copy</strong> – <p>Whether to copy the vector before operating on it.</p>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
 <ul>
 <li><p>If <cite>copy=True</cite> then this function always returns a newly allocated
 vector and the original vector is left untouched.</p></li>
@@ -2768,8 +2771,11 @@ modified in-place.</p></li>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The rotated vector.</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The rotated vector.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3558,12 +3564,12 @@ modified in-place.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> – The number of spatial orbitals.</p></li>
-<li><p><strong>occupied_orbitals</strong> – The occupied orbitals in the electronic configuration.
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The occupied orbitals in the electronic configuration.
 This is either a list of integers specifying spinless orbitals, or a
 pair of lists, where the first list specifies the spin alpha orbitals and
 the second list specifies the spin beta orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> – The optional orbital rotation.
+<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
 You can pass either a single Numpy array specifying the orbital rotation
 to apply to both spin sectors, or you can pass a pair of Numpy arrays
 specifying independent orbital rotations for spin alpha and spin beta.
@@ -3572,8 +3578,11 @@ values in the pair to indicate that no operation should be applied to
 that spin sector.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The Slater determinant as a statevector.</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The Slater determinant as a statevector.</p>
 </dd>
 </dl>
 </dd></dl>
