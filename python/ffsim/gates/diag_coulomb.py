@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import math
+from typing import overload
 
 import numpy as np
 
@@ -37,6 +38,19 @@ def _conjugate_orbital_rotation(
     return (orbital_rotation_a, orbital_rotation_b)
 
 
+@overload
+def apply_diag_coulomb_evolution(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    time: float,
+    norb: int,
+    nelec: int,
+    *,
+    orbital_rotation: np.ndarray | None = None,
+    z_representation: bool = False,
+    copy: bool = True,
+) -> np.ndarray: ...
+@overload
 def apply_diag_coulomb_evolution(
     vec: np.ndarray,
     mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
@@ -49,7 +63,18 @@ def apply_diag_coulomb_evolution(
     | None = None,
     z_representation: bool = False,
     copy: bool = True,
-) -> np.ndarray:
+) -> np.ndarray: ...
+def apply_diag_coulomb_evolution(
+    vec,
+    mat,
+    time,
+    norb,
+    nelec,
+    *,
+    orbital_rotation=None,
+    z_representation=False,
+    copy=True,
+):
     r"""Apply time evolution by a (rotated) diagonal Coulomb operator.
 
     Applies
@@ -77,7 +102,9 @@ def apply_diag_coulomb_evolution(
             symmetric, and only their upper triangular entries are used.
         time: The evolution time.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         orbital_rotation: The optional orbital rotation.
             You can pass either a single Numpy array specifying the orbital rotation
             to apply to both spin sectors, or you can pass a pair of Numpy arrays
@@ -101,6 +128,37 @@ def apply_diag_coulomb_evolution(
     if copy:
         vec = vec.copy()
 
+    if isinstance(nelec, int):
+        # TODO write specialized functions for spinless case
+        return _apply_diag_coulomb_evolution_spinful(
+            vec=vec,
+            mat=mat,
+            time=time,
+            norb=norb,
+            nelec=(nelec, 0),
+            orbital_rotation=orbital_rotation,
+            z_representation=z_representation,
+        )
+    return _apply_diag_coulomb_evolution_spinful(
+        vec=vec,
+        mat=mat,
+        time=time,
+        norb=norb,
+        nelec=nelec,
+        orbital_rotation=orbital_rotation,
+        z_representation=z_representation,
+    )
+
+
+def _apply_diag_coulomb_evolution_spinful(
+    vec: np.ndarray,
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
+    time: float,
+    norb: int,
+    nelec: tuple[int, int],
+    orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None] | None,
+    z_representation: bool,
+) -> np.ndarray:
     mat_exp_aa, mat_exp_ab, mat_exp_bb = _get_mat_exp(
         mat, time, norb=norb, z_representation=z_representation
     )

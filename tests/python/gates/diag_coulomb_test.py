@@ -27,6 +27,59 @@ import ffsim
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
+            ffsim.testing.generate_norb_nocc(range(4)), [False, True]
+        )
+    ],
+)
+def test_apply_diag_coulomb_evolution_random_spinless(
+    norb: int, nelec: int, z_representation: bool
+):
+    """Test applying time evolution of random diagonal Coulomb operator."""
+    rng = np.random.default_rng(4305)
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
+        time = rng.uniform()
+
+        result = ffsim.apply_diag_coulomb_evolution(
+            vec,
+            mat,
+            time,
+            norb,
+            nelec,
+            orbital_rotation=orbital_rotation,
+            z_representation=z_representation,
+        )
+
+        op = ffsim.contract.diag_coulomb_linop(
+            mat, norb=norb, nelec=(nelec, 0), z_representation=z_representation
+        )
+        if norb:
+            orbital_op = ffsim.contract.one_body_linop(
+                scipy.linalg.logm(orbital_rotation), norb=norb, nelec=(nelec, 0)
+            )
+            expected = scipy.sparse.linalg.expm_multiply(
+                -orbital_op, vec, traceA=np.sum(np.abs(orbital_rotation))
+            )
+            expected = scipy.sparse.linalg.expm_multiply(
+                -1j * time * op, expected, traceA=np.sum(np.abs(mat))
+            )
+            expected = scipy.sparse.linalg.expm_multiply(
+                orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
+            )
+        else:
+            expected = vec
+
+        np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec, z_representation",
+    [
+        (norb, nelec, z_representation)
+        for (norb, nelec), z_representation in itertools.product(
             ffsim.testing.generate_norb_nelec(range(4)), [False, True]
         )
     ],
