@@ -13,9 +13,8 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import cast, overload
+from typing import Sequence, Tuple, cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -147,7 +146,7 @@ def slater_determinant(
         occupied_orbitals = (cast(Sequence[int], occupied_orbitals), [])
 
     alpha_orbitals, beta_orbitals = cast(
-        tuple[Sequence[int], Sequence[int]], occupied_orbitals
+        Tuple[Sequence[int], Sequence[int]], occupied_orbitals
     )
     n_alpha = len(alpha_orbitals)
     n_beta = len(beta_orbitals)
