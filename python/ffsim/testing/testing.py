@@ -94,7 +94,9 @@ def random_occupied_orbitals(norb: int, nelec: int, *, seed=None) -> list[int]: 
 def random_occupied_orbitals(
     norb: int, nelec: tuple[int, int], *, seed=None
 ) -> tuple[list[int], list[int]]: ...
-def random_occupied_orbitals(norb, nelec, *, seed=None):
+def random_occupied_orbitals(
+    norb: int, nelec: int | tuple[int, int], *, seed=None
+) -> list[int] | tuple[list[int], list[int]]:
     """Return a random pair of occupied orbitals lists.
 
     Args:

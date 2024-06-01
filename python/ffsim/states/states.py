@@ -15,7 +15,7 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import overload
+from typing import cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -100,15 +100,17 @@ def slater_determinant(
 def slater_determinant(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray | None = None,
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
 ) -> np.ndarray: ...
-@overload
 def slater_determinant(
     norb: int,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: tuple[np.ndarray | None, np.ndarray | None] | None = None,
-) -> np.ndarray: ...
-def slater_determinant(norb, occupied_orbitals, orbital_rotation=None):
+    occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+) -> np.ndarray:
     r"""Return a Slater determinant.
 
     A Slater determinant is a state of the form
@@ -142,9 +144,11 @@ def slater_determinant(norb, occupied_orbitals, orbital_rotation=None):
         return np.ones(1, dtype=complex)
 
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
-        occupied_orbitals = (occupied_orbitals, [])
+        occupied_orbitals = (cast(Sequence[int], occupied_orbitals), [])
 
-    alpha_orbitals, beta_orbitals = occupied_orbitals
+    alpha_orbitals, beta_orbitals = cast(
+        tuple[Sequence[int], Sequence[int]], occupied_orbitals
+    )
     n_alpha = len(alpha_orbitals)
     n_beta = len(beta_orbitals)
     nelec = (n_alpha, n_beta)

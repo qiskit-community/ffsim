@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import overload
+from typing import cast, overload
 
 import numpy as np
 from pyscf.fci import cistring
@@ -41,7 +41,14 @@ def apply_orbital_rotation(
     *,
     copy: bool = True,
 ) -> np.ndarray: ...
-def apply_orbital_rotation(vec, mat, norb, nelec, *, copy=True):
+def apply_orbital_rotation(
+    vec: np.ndarray,
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    norb: int,
+    nelec: int | tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray:
     r"""Apply an orbital rotation to a vector.
 
     An orbital rotation maps creation operators as
@@ -88,7 +95,7 @@ def apply_orbital_rotation(vec, mat, norb, nelec, *, copy=True):
     if copy:
         vec = vec.copy()
     if isinstance(nelec, int):
-        return _apply_orbital_rotation_spinless(vec, mat, norb, nelec)
+        return _apply_orbital_rotation_spinless(vec, cast(np.ndarray, mat), norb, nelec)
     return _apply_orbital_rotation_spinful(vec, mat, norb, nelec)
 
 
