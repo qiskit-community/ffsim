@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Iterable, Iterator
-from typing import Tuple, cast
+from typing import Tuple, cast, overload
 
 import numpy as np
 
@@ -88,14 +88,20 @@ def random_nelec(norb: int, *, seed=None) -> tuple[int, int]:
     return (n_alpha, n_beta)
 
 
+@overload
+def random_occupied_orbitals(norb: int, nelec: int, *, seed=None) -> list[int]: ...
+@overload
 def random_occupied_orbitals(
     norb: int, nelec: tuple[int, int], *, seed=None
-) -> tuple[list[int], list[int]]:
+) -> tuple[list[int], list[int]]: ...
+def random_occupied_orbitals(norb, nelec, *, seed=None):
     """Return a random pair of occupied orbitals lists.
 
     Args:
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -103,6 +109,8 @@ def random_occupied_orbitals(
         The sampled pair of (occ_a, occ_b) occupied orbitals lists.
     """
     rng = np.random.default_rng(seed)
+    if isinstance(nelec, int):
+        return list(rng.choice(norb, nelec, replace=False))
     n_alpha, n_beta = nelec
     occ_a = list(rng.choice(norb, n_alpha, replace=False))
     occ_b = list(rng.choice(norb, n_beta, replace=False))

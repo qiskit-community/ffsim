@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import overload
 
 import numpy as np
 import scipy.linalg
@@ -21,6 +23,21 @@ from pyscf.fci import cistring
 from pyscf.fci.spin_op import contract_ss
 
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
+
+
+@dataclass
+class StateVector:
+    """A state vector in the FCI representation.
+
+    Attributes:
+        vec: Array of state vector coefficients.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+    """
+
+    vec: np.ndarray
+    norb: int
+    nelec: tuple[int, int]
 
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
@@ -73,13 +90,25 @@ def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
     return vec
 
 
+@overload
+def slater_determinant(
+    norb: int,
+    occupied_orbitals: Sequence[int],
+    orbital_rotation: np.ndarray | None = None,
+) -> np.ndarray: ...
+@overload
 def slater_determinant(
     norb: int,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray
-    | tuple[np.ndarray | None, np.ndarray | None]
-    | None = None,
-) -> np.ndarray:
+    orbital_rotation: np.ndarray | None = None,
+) -> np.ndarray: ...
+@overload
+def slater_determinant(
+    norb: int,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: tuple[np.ndarray | None, np.ndarray | None] | None = None,
+) -> np.ndarray: ...
+def slater_determinant(norb, occupied_orbitals, orbital_rotation=None):
     r"""Return a Slater determinant.
 
     A Slater determinant is a state of the form
@@ -94,10 +123,10 @@ def slater_determinant(
 
     Args:
         norb: The number of spatial orbitals.
-        occupied_orbitals: The occupied orbitals in the electonic configuration.
-            This is a pair of lists of integers, where the first list specifies the
-            spin alpha orbitals and the second list specifies the spin beta
-            orbitals.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is either a list of integers specifying spinless orbitals, or a
+            pair of lists, where the first list specifies the spin alpha orbitals and
+            the second list specifies the spin beta orbitals.
         orbital_rotation: The optional orbital rotation.
             You can pass either a single Numpy array specifying the orbital rotation
             to apply to both spin sectors, or you can pass a pair of Numpy arrays
@@ -111,6 +140,9 @@ def slater_determinant(
     """
     if norb == 0:
         return np.ones(1, dtype=complex)
+
+    if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
+        occupied_orbitals = (occupied_orbitals, [])
 
     alpha_orbitals, beta_orbitals = occupied_orbitals
     n_alpha = len(alpha_orbitals)
@@ -133,20 +165,23 @@ def slater_determinant(
     return vec
 
 
-def hartree_fock_state(norb: int, nelec: tuple[int, int]) -> np.ndarray:
+def hartree_fock_state(norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
     """Return the Hartree-Fock state.
 
     Args:
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
 
     Returns:
         The Hartree-Fock state as a statevector.
     """
+    if isinstance(nelec, int):
+        return slater_determinant(norb, occupied_orbitals=range(nelec))
+
     n_alpha, n_beta = nelec
-    return slater_determinant(
-        norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
-    )
+    return slater_determinant(norb, occupied_orbitals=(range(n_alpha), range(n_beta)))
 
 
 def slater_determinant_rdm(
@@ -165,7 +200,7 @@ def slater_determinant_rdm(
 
     Args:
         norb: The number of spatial orbitals.
-        occupied_orbitals: The occupied orbitals in the electonic configuration.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
             This is a pair of lists of integers, where the first list specifies the
             spin alpha orbitals and the second list specifies the spin beta
             orbitals.
@@ -213,7 +248,7 @@ def slater_determinant_rdm(
 
 
 def indices_to_strings(
-    indices: Sequence[int] | np.ndarray, norb: int, nelec: tuple[int, int]
+    indices: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> list[str]:
     """Convert statevector indices to bitstrings.
 
@@ -238,6 +273,10 @@ def indices_to_strings(
         #  '010110',
         #  '100110']
     """
+    if isinstance(nelec, int):
+        strings = cistring.addrs2str(norb=norb, nelec=nelec, addrs=indices)
+        return [f"{string:0{norb}b}" for string in strings]
+
     n_alpha, n_beta = nelec
     dim_b = math.comb(norb, n_beta)
     indices_a, indices_b = np.divmod(indices, dim_b)
@@ -250,7 +289,7 @@ def indices_to_strings(
 
 
 def strings_to_indices(
-    strings: Sequence[str] | np.ndarray, norb: int, nelec: tuple[int, int]
+    strings: Sequence[str] | np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
     """Convert bitstrings to statevector indices.
 
@@ -281,6 +320,11 @@ def strings_to_indices(
         # output:
         # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
     """
+    if isinstance(nelec, int):
+        return cistring.strs2addr(
+            norb=norb, nelec=nelec, strings=[int(s, base=2) for s in strings]
+        )
+
     n_alpha, n_beta = nelec
     strings_a = [int(s[norb:], base=2) for s in strings]
     strings_b = [int(s[:norb], base=2) for s in strings]

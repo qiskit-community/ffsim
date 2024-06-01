@@ -61,6 +61,7 @@ from ffsim.protocols import (
 from ffsim.spin import Spin
 from ffsim.states import (
     ProductStateSum,
+    StateVector,
     dim,
     dims,
     expectation_one_body_power,
@@ -101,6 +102,7 @@ __all__ = [
     "RealUCJOperator",
     "SingleFactorizedHamiltonian",
     "Spin",
+    "StateVector",
     "SupportsApplyUnitary",
     "SupportsApproximateEquality",
     "SupportsDiagonal",
