@@ -50,7 +50,7 @@ def apply_orbital_rotation(
     *,
     copy: bool = True,
 ) -> np.ndarray: ...
-def apply_orbital_rotation(vec, mat, norb, nelec, *, copy=True) -> np.ndarray:
+def apply_orbital_rotation(vec, mat, norb, nelec, *, copy=True):
     r"""Apply an orbital rotation to a vector.
 
     An orbital rotation maps creation operators as
