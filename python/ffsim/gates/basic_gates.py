@@ -18,10 +18,10 @@ from collections.abc import Sequence
 
 import numpy as np
 
+from ffsim import linalg
 from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin, pair_for_spin
-from ffsim.states import one_hot
 
 
 def _apply_phase_shift(
@@ -232,7 +232,7 @@ def apply_num_interaction(
     """
     if copy:
         vec = vec.copy()
-    coeffs = one_hot((norb,), target_orb)
+    coeffs = linalg.one_hot((norb,), target_orb)
     if isinstance(nelec, int):
         return apply_num_op_sum_evolution(
             vec, coeffs, -theta, norb=norb, nelec=nelec, copy=copy
