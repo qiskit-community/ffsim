@@ -22,18 +22,8 @@ import scipy.sparse.linalg
 import ffsim
 
 
-@pytest.mark.parametrize(
-    "norb, nelec, z_representation",
-    [
-        (norb, nelec, z_representation)
-        for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nocc(range(4)), [False, True]
-        )
-    ],
-)
-def test_apply_diag_coulomb_evolution_random_spinless(
-    norb: int, nelec: int, z_representation: bool
-):
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(4)))
+def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
     """Test applying time evolution of random diagonal Coulomb operator."""
     rng = np.random.default_rng(4305)
     dim = ffsim.dim(norb, nelec)
@@ -50,12 +40,9 @@ def test_apply_diag_coulomb_evolution_random_spinless(
             norb,
             nelec,
             orbital_rotation=orbital_rotation,
-            z_representation=z_representation,
         )
 
-        op = ffsim.contract.diag_coulomb_linop(
-            mat, norb=norb, nelec=(nelec, 0), z_representation=z_representation
-        )
+        op = ffsim.contract.diag_coulomb_linop(mat, norb=norb, nelec=(nelec, 0))
         if norb:
             orbital_op = ffsim.contract.one_body_linop(
                 scipy.linalg.logm(orbital_rotation), norb=norb, nelec=(nelec, 0)
