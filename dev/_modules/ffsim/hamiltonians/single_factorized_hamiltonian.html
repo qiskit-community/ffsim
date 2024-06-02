@@ -463,14 +463,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">one_body_tensor_linop_b</span> <span class="o">=</span> <span class="n">one_body_linop</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_beta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">one_body_square_linops_a</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">one_body_linop</span><span class="p">(</span><span class="n">one_body</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">one_body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_squares</span>
         <span class="p">]</span>
         <span class="n">one_body_square_linops_b</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">one_body_linop</span><span class="p">(</span><span class="n">one_body</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">))</span>
+            <span class="n">one_body_linop</span><span class="p">(</span><span class="n">one_body</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">n_beta</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">one_body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_squares</span>
         <span class="p">]</span>
 

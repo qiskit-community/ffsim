@@ -541,7 +541,7 @@
     <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -561,7 +561,9 @@
 <span class="sd">        theta: The rotation angle.</span>
 <span class="sd">        target_orbs: The orbitals (p, q) to interact.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
 
 <span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
@@ -583,6 +585,15 @@
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">spin</span> <span class="o">&amp;</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span>
@@ -717,7 +728,7 @@
     <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -756,7 +767,9 @@
 <span class="sd">        theta: The rotation angle.</span>
 <span class="sd">        target_orbs: The orbitals (p, q) to interact.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
 
 <span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>
@@ -792,7 +805,7 @@
     <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -832,7 +845,9 @@
 <span class="sd">        phi: The phase angle for the number-number interaction.</span>
 <span class="sd">        target_orbs: The orbitals (p, q) to interact.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
 <span class="sd">        spin: Choice of spin sector(s) to act on.</span>
 
 <span class="sd">            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.</span>

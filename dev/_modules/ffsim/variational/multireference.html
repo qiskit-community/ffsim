@@ -338,15 +338,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">LinearOperator</span><span class="p">):</span>
         <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">linear_operator</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+    <span class="n">reference_configurations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occ</span><span class="p">)</span> <span class="k">for</span> <span class="n">occ</span> <span class="ow">in</span> <span class="n">reference_occupations</span>
+    <span class="p">]</span>
     <span class="n">basis_states</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">apply_unitary</span><span class="p">(</span>
-            <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="n">occ</span><span class="p">),</span>
-            <span class="n">ansatz_operator</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">occ</span> <span class="ow">in</span> <span class="n">reference_occupations</span>
+        <span class="n">apply_unitary</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">ansatz_operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">reference_configurations</span>
     <span class="p">]</span>
     <span class="n">mat</span> <span class="o">=</span> <span class="n">reduced_matrix</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">basis_states</span><span class="p">)</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
@@ -393,24 +390,20 @@
 
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">ansatz_operator_a</span><span class="p">,</span> <span class="n">ansatz_operator_b</span> <span class="o">=</span> <span class="n">ansatz_operator</span>
+    <span class="n">reference_configurations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occ_a</span><span class="p">),</span> <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occ_b</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">occ_a</span><span class="p">,</span> <span class="n">occ_b</span> <span class="ow">in</span> <span class="n">reference_occupations</span>
+    <span class="p">]</span>
     <span class="n">basis_states</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span>
             <span class="n">apply_unitary</span><span class="p">(</span>
-                <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="p">(</span><span class="n">occ_a</span><span class="p">,</span> <span class="p">[])),</span>
-                <span class="n">ansatz_operator_a</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">vec_a</span><span class="p">,</span> <span class="n">ansatz_operator_a</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">),</span>
             <span class="n">apply_unitary</span><span class="p">(</span>
-                <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="p">([],</span> <span class="n">occ_b</span><span class="p">)),</span>
-                <span class="n">ansatz_operator_b</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">),</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">vec_b</span><span class="p">,</span> <span class="n">ansatz_operator_b</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">),</span>
         <span class="p">)</span>
-        <span class="k">for</span> <span class="n">occ_a</span><span class="p">,</span> <span class="n">occ_b</span> <span class="ow">in</span> <span class="n">reference_occupations</span>
+        <span class="k">for</span> <span class="n">vec_a</span><span class="p">,</span> <span class="n">vec_b</span> <span class="ow">in</span> <span class="n">reference_configurations</span>
     <span class="p">]</span>
     <span class="n">mat</span> <span class="o">=</span> <span class="n">sf_hamiltonian</span><span class="o">.</span><span class="n">reduced_matrix_product_states</span><span class="p">(</span><span class="n">basis_states</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>

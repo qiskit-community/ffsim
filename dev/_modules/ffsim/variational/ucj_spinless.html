@@ -656,7 +656,7 @@
 
 
     <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
             <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -664,15 +664,26 @@
         <span class="k">for</span> <span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span>
         <span class="p">):</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">zero</span><span class="p">,</span> <span class="n">diag_coulomb_mat</span><span class="p">),</span>
-                <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
+                    <span class="n">vec</span><span class="p">,</span>
+                    <span class="n">diag_coulomb_mat</span><span class="p">,</span>
+                    <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+                    <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                    <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                    <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="p">,</span>
+                    <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
+                    <span class="n">vec</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">zero</span><span class="p">,</span> <span class="n">diag_coulomb_mat</span><span class="p">),</span>
+                    <span class="n">time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+                    <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                    <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                    <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">orbital_rotation</span><span class="p">,</span>
+                    <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
                 <span class="n">vec</span><span class="p">,</span>
