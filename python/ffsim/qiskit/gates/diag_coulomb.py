@@ -96,13 +96,81 @@ class DiagCoulombEvolutionJW(Gate):
         )
 
 
+class DiagCoulombEvolutionSpinlessJW(Gate):
+    r"""Spinless diagonal Coulomb evolution under the Jordan-Wigner transformation.
+
+    The spinless diagonal Coulomb evolution gate has the unitary
+
+    .. math::
+
+        \exp\left(-i t \sum_{i, j}
+        Z^{ij} n_i n_j / 2\right)
+
+    where :math:`n_i` denotes the number operator on orbital :math:`i` and
+    :math:`Z` is a real symmetric matrix.
+    """
+
+    def __init__(
+        self,
+        norb: int,
+        mat: np.ndarray,
+        time: float,
+        *,
+        label: str | None = None,
+    ):
+        r"""Create new diagonal Coulomb evolution gate.
+
+        Args:
+            norb: The number of spatial orbitals.
+            mat: The diagonal Coulomb matrix :math:`Z`.
+                It is assumed to be symmetric, and only its upper triangular entries
+                are used.
+            time: The evolution time.
+            label: The label of the gate.
+        """
+        self.norb = norb
+        self.mat = mat
+        self.time = time
+        super().__init__("diag_coulomb_spinless_jw", norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(self.num_qubits)
+        self.definition = QuantumCircuit.from_instructions(
+            _diag_coulomb_evo_num_rep_spinless_jw(
+                qubits, mat=self.mat, time=self.time, norb=self.norb
+            ),
+            qubits=qubits,
+        )
+
+    def inverse(self):
+        """Inverse gate."""
+        return DiagCoulombEvolutionSpinlessJW(
+            self.norb, self.mat, -self.time, z_representation=self.z_representation
+        )
+
+
+def _diag_coulomb_evo_num_rep_spinless_jw(
+    qubits: Sequence[Qubit], mat: np.ndarray, time: float, norb: int
+) -> Iterator[CircuitInstruction]:
+    assert len(qubits) == norb
+    for i in range(norb):
+        if mat[i, i]:
+            yield CircuitInstruction(PhaseGate(-0.5 * mat[i, i] * time), (qubits[i],))
+    for i, j in itertools.combinations(range(norb), 2):
+        if mat[i, j]:
+            yield CircuitInstruction(
+                CPhaseGate(-mat[i, j] * time), (qubits[i], qubits[j])
+            )
+
+
 def _diag_coulomb_evo_num_rep_jw(
     qubits: Sequence[Qubit],
     mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
     time: float,
     norb: int,
 ) -> Iterator[CircuitInstruction]:
-    assert norb == len(qubits) // 2
+    assert len(qubits) == 2 * norb
     mat_aa: np.ndarray | None
     mat_ab: np.ndarray | None
     mat_bb: np.ndarray | None
@@ -154,7 +222,7 @@ def _diag_coulomb_evo_z_rep_jw(
     time: float,
     norb: int,
 ) -> Iterator[CircuitInstruction]:
-    assert norb == len(qubits) // 2
+    assert len(qubits) == 2 * norb
     mat_aa: np.ndarray | None
     mat_ab: np.ndarray | None
     mat_bb: np.ndarray | None
@@ -162,7 +230,7 @@ def _diag_coulomb_evo_z_rep_jw(
         mat_aa, mat_ab, mat_bb = mat, mat, mat
     else:
         mat_aa, mat_ab, mat_bb = mat
-    for i, j in itertools.combinations(range(len(qubits)), 2):
+    for i, j in itertools.combinations(range(2 * norb), 2):
         if (i < norb) and (j < norb):
             this_mat = mat_aa
         elif (i >= norb) and (j >= norb):

@@ -30,10 +30,10 @@ import ffsim
         )
     ],
 )
-def test_random_diag_coulomb_mat(
+def test_random_diag_coulomb_mat_spinful(
     norb: int, nelec: tuple[int, int], z_representation: bool
 ):
-    """Test random orbital rotation circuit gives correct output state."""
+    """Test random diag Coulomb gate gives correct output state."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
@@ -140,6 +140,35 @@ def test_random_diag_coulomb_mat(
         np.testing.assert_allclose(result, expected)
 
 
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+def test_random_diag_coulomb_mat_spinless(norb: int, nelec: int):
+    """Test random spinless diag Coulomb gate gives correct output state."""
+    rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        time = rng.uniform(-10, 10)
+
+        # mat
+        gate = ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, time)
+        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+        expected = ffsim.apply_diag_coulomb_evolution(
+            small_vec,
+            mat,
+            time,
+            norb=norb,
+            nelec=nelec,
+        )
+        np.testing.assert_allclose(result, expected)
+
+
 @pytest.mark.parametrize(
     "norb, nelec, z_representation",
     [
@@ -149,7 +178,7 @@ def test_random_diag_coulomb_mat(
         )
     ],
 )
-def test_inverse(norb: int, nelec: tuple[int, int], z_representation: bool):
+def test_inverse_spinful(norb: int, nelec: tuple[int, int], z_representation: bool):
     """Test inverse."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)

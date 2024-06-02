@@ -31,12 +31,14 @@ class StateVector:
     Attributes:
         vec: Array of state vector coefficients.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
     """
 
     vec: np.ndarray
     norb: int
-    nelec: tuple[int, int]
+    nelec: int | tuple[int, int]
 
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
