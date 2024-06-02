@@ -367,15 +367,26 @@ class UCJOpSpinless:
         for diag_coulomb_mat, orbital_rotation in zip(
             self.diag_coulomb_mats, self.orbital_rotations
         ):
-            vec = gates.apply_diag_coulomb_evolution(
-                vec,
-                (diag_coulomb_mat, zero, diag_coulomb_mat),
-                time=-1.0,
-                norb=norb,
-                nelec=nelec,
-                orbital_rotation=orbital_rotation,
-                copy=False,
-            )
+            if isinstance(nelec, int):
+                vec = gates.apply_diag_coulomb_evolution(
+                    vec,
+                    diag_coulomb_mat,
+                    time=-1.0,
+                    norb=norb,
+                    nelec=nelec,
+                    orbital_rotation=orbital_rotation,
+                    copy=False,
+                )
+            else:
+                vec = gates.apply_diag_coulomb_evolution(
+                    vec,
+                    (diag_coulomb_mat, zero, diag_coulomb_mat),
+                    time=-1.0,
+                    norb=norb,
+                    nelec=nelec,
+                    orbital_rotation=orbital_rotation,
+                    copy=False,
+                )
         if self.final_orbital_rotation is not None:
             vec = gates.apply_orbital_rotation(
                 vec,
