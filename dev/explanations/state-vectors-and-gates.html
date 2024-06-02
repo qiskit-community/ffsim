@@ -471,6 +471,37 @@ array([ 0.22392824+0.02459434j, -0.06551571+0.13327423j,
 </pre></div></div>
 </div>
 </section>
+<section id="Treating-spinless-fermions">
+<h2>Treating spinless fermions<a class="headerlink" href="#Treating-spinless-fermions" title="Link to this heading">¶</a></h2>
+<p>Many functions in ffsim support spinless fermions, which are not distinguished into spin <span class="math notranslate nohighlight">\(\alpha\)</span> and spin <span class="math notranslate nohighlight">\(\beta\)</span>. With spinless fermions, the <code class="docutils literal notranslate"><span class="pre">nelec</span></code> variable is simply an integer, rather than a pair of integers. The following code cell gives an example of creating a spinless state vector and applying a gate to it.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">norb</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">rotated_vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span>
+<span class="p">)</span>
+
+<span class="n">rotated_vec</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([-0.4390672 -0.1561685j , -0.18007105-0.38435478j,
+        0.26121865+0.73105542j])
+</pre></div></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -538,6 +569,7 @@ array([ 0.22392824+0.02459434j, -0.06551571+0.13327423j,
 <li><a class="reference internal" href="#">State vectors and gates</a><ul>
 <li><a class="reference internal" href="#State-vectors">State vectors</a></li>
 <li><a class="reference internal" href="#Gates">Gates</a></li>
+<li><a class="reference internal" href="#Treating-spinless-fermions">Treating spinless fermions</a></li>
 </ul>
 </li>
 </ul>
