@@ -425,8 +425,7 @@
 
     <span class="k">if</span> <span class="n">givens_decomp_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># transform beta</span>
-        <span class="c1"># copy transposed vector to align memory layout for performance</span>
-        <span class="c1"># TODO check again if copying is needed</span>
+        <span class="c1"># copy transposed vector to align memory layout</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">givens_rotations</span><span class="p">,</span> <span class="n">phase_shifts</span> <span class="o">=</span> <span class="n">givens_decomp_b</span>
         <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">givens_rotations</span><span class="p">:</span>
