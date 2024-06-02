@@ -336,15 +336,11 @@ def apply_on_site_interaction(
     """
     if copy:
         vec = vec.copy()
-    vec = apply_num_op_prod_interaction(
-        vec,
-        theta,
-        target_orbs=([target_orb], [target_orb]),
-        norb=norb,
-        nelec=nelec,
-        copy=False,
+    mat = np.zeros((norb, norb))
+    mat[target_orb, target_orb] = 1
+    return apply_diag_coulomb_evolution(
+        vec, (None, mat, None), time=-theta, norb=norb, nelec=nelec, copy=False
     )
-    return vec
 
 
 def apply_num_op_prod_interaction(
