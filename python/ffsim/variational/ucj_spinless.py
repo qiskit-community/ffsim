@@ -359,7 +359,7 @@ class UCJOpSpinless:
         )
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         if copy:
             vec = vec.copy()
