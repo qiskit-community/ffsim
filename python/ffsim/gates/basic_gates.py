@@ -18,6 +18,7 @@ from collections.abc import Sequence
 
 import numpy as np
 
+from ffsim.gates.diag_coulomb import apply_diag_coulomb_evolution
 from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin, pair_for_spin
@@ -115,7 +116,7 @@ def apply_givens_rotation(
     if isinstance(nelec, int):
         return apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=copy)
     return apply_orbital_rotation(
-        vec, pair_for_spin(mat, spin=spin), norb=norb, nelec=nelec, copy=copy
+        vec, pair_for_spin(mat, spin), norb=norb, nelec=nelec, copy=copy
     )
 
 
@@ -289,25 +290,14 @@ def apply_num_num_interaction(
         )
     if copy:
         vec = vec.copy()
-    if spin & Spin.ALPHA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=(target_orbs, []),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-    if spin & Spin.BETA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([], target_orbs),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-    return vec
+    mat = np.zeros((norb, norb))
+    i, j = target_orbs
+    mat[i, j] = 1
+    mat[j, i] = 1
+    mat_aa, mat_bb = pair_for_spin(mat, spin)
+    return apply_diag_coulomb_evolution(
+        vec, (mat_aa, None, mat_bb), time=-theta, norb=norb, nelec=nelec, copy=False
+    )
 
 
 def apply_on_site_interaction(
