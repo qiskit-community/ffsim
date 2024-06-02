@@ -344,7 +344,7 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643863  E(CI) = -4.02122442107772  S^2 = 0.0000000
+CASCI E = -77.8742165643862  E(CI) = -4.02122442107773  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -387,8 +387,8 @@ nelec = (2, 2)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374026  E_corr = -0.04758323886585327
-Energy at initialization: -77.87160024816275
+E(CCSD) = -77.87421536374028  E_corr = -0.04758323886584642
+Energy at initialization: -77.87160024816282
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -426,10 +426,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.87387391468909
-        x: [-4.772e-01  8.265e-05 ...  1.077e-04  1.286e-01]
+      fun: -77.87387392211262
+        x: [-1.152e+00  6.073e-04 ...  1.603e-04  1.286e-01]
       nit: 10
-      jac: [ 1.563e-05  1.990e-05 ... -4.263e-05  2.842e-06]
+      jac: [-1.563e-05  7.105e-06 ... -1.563e-05  1.137e-05]
      nfev: 949
      njev: 13
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -477,10 +477,10 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363426381782
-        x: [-4.774e-01  1.345e-04 ...  3.521e-02  2.561e-01]
+      fun: -77.87363426504233
+        x: [-1.152e+00 -7.340e-05 ...  3.518e-02  2.561e-01]
       nit: 5
-      jac: [ 8.527e-06  5.400e-05 ...  2.842e-06  8.527e-06]
+      jac: [ 5.684e-06 -1.421e-06 ...  0.000e+00  4.263e-06]
      nfev: 329
      njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -558,29 +558,29 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Convergence: Norm of projected gradient &lt;= gtol.
  success: True
-     fun: -77.87363432426271
-       x: [-4.775e-01 -2.262e-04 ...  3.508e-02  2.557e-01]
+     fun: -77.87363432592375
+       x: [-1.152e+00 -2.178e-04 ...  3.476e-02  2.560e-01]
      nit: 3
-     jac: [-1.443e-06 -2.707e-07 ... -1.309e-07 -4.981e-08]
-    nfev: 535
+     jac: [ 3.964e-08  3.233e-07 ... -2.278e-07 -1.330e-07]
+    nfev: 526
     njev: 4
-  nlinop: 351
+  nlinop: 342
 
 Iteration 1
-    Energy: -77.87363147715841
-    Norm of gradient: 0.0013694143885977868
-    Regularization hyperparameter: 0.002649921341620212
-    Variation hyperparameter: 0.9996857053739223
+    Energy: -77.87363052309749
+    Norm of gradient: 0.0015084105939889615
+    Regularization hyperparameter: 0.0016131222047459685
+    Variation hyperparameter: 0.9916146397657937
 Iteration 2
-    Energy: -77.87363431618435
-    Norm of gradient: 4.044514197968599e-05
-    Regularization hyperparameter: 0.002786683728827742
-    Variation hyperparameter: 0.9996865285323218
+    Energy: -77.87363429427134
+    Norm of gradient: 6.767246642436377e-05
+    Regularization hyperparameter: 0.004216553212749736
+    Variation hyperparameter: 0.9917701254375636
 Iteration 3
-    Energy: -77.87363432426271
-    Norm of gradient: 9.903037316560754e-06
-    Regularization hyperparameter: 0.00278673975459164
-    Variation hyperparameter: 0.9996865297296281
+    Energy: -77.87363432592375
+    Norm of gradient: 9.637674791254101e-06
+    Regularization hyperparameter: 0.0042169946161320975
+    Variation hyperparameter: 0.9917701103061778
 </pre></div></div>
 </div>
 </section>
