@@ -97,7 +97,6 @@ pub fn apply_diag_coulomb_evolution_in_place_z_rep(
     mat_exp_aa: PyReadonlyArray2<Complex64>,
     mat_exp_ab: PyReadonlyArray2<Complex64>,
     mat_exp_bb: PyReadonlyArray2<Complex64>,
-    // TODO don't pass the conjugates separately
     mat_exp_aa_conj: PyReadonlyArray2<Complex64>,
     mat_exp_ab_conj: PyReadonlyArray2<Complex64>,
     mat_exp_bb_conj: PyReadonlyArray2<Complex64>,

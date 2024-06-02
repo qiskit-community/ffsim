@@ -28,7 +28,6 @@ pub fn apply_phase_shift_in_place(
     let shape = vec.shape();
     let dim_b = shape[1] as i32;
 
-    // TODO parallelize this
     indices.for_each(|&str0| {
         let mut target = vec.row_mut(str0);
         match target.as_slice_mut() {

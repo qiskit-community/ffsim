@@ -41,15 +41,12 @@ pub fn apply_givens_rotation_in_place(
     let phase = Complex64::new(angle.cos(), angle.sin());
     let phase_conj = phase.conj();
 
-    // TODO parallelize this
     Zip::from(&slice1).and(&slice2).for_each(|&i, &j| {
         let (mut row_i, mut row_j) = vec.multi_slice_mut((s![i, ..], s![j, ..]));
         match row_i.as_slice_mut() {
             Some(row_i) => match row_j.as_slice_mut() {
                 Some(row_j) => unsafe {
                     zscal(dim_b, phase_conj, row_i, 1);
-                    // TODO use zrot from lapack once it's available
-                    // See https://github.com/blas-lapack-rs/lapack/issues/30
                     zdrot(dim_b, row_i, 1, row_j, 1, c, s_abs);
                     zscal(dim_b, phase, row_i, 1);
                 },

@@ -27,8 +27,6 @@ from qiskit.primitives import (
     SamplerPubLike,
     SamplerPubResult,
 )
-
-# TODO import from qiskit.primitives after qiskit 1.2
 from qiskit.primitives.containers.sampler_pub import SamplerPub
 
 from ffsim.qiskit.sim import final_statevector, sample_statevector

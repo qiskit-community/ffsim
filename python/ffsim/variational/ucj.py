@@ -227,7 +227,6 @@ class UCJOperator:
         tol: float = 1e-8,
     ) -> UCJOperator:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
-        # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
@@ -253,7 +252,6 @@ class UCJOperator:
         self, nocc: int | None = None
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Convert the UCJ operator to t2 (and possibly t1) amplitudes."""
-        # TODO this ignores diag_coulomb_mats_alpha_beta
         t2 = (
             1j
             * contract(
@@ -491,7 +489,6 @@ class RealUCJOperator:
         tol: float = 1e-8,
     ) -> "RealUCJOperator":
         """Initialize the real UCJ operator from t2 (and optionally t1) amplitudes."""
-        # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
@@ -517,7 +514,6 @@ class RealUCJOperator:
         self, nocc: int | None = None
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Convert the UCJ operator to t2 (and possibly t1) amplitudes."""
-        # TODO this ignores diag_coulomb_mats_alpha_beta
         t2 = 1j * (
             contract(
                 "kpq,kap,kip,kbq,kjq->ijab",

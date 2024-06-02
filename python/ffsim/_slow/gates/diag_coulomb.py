@@ -59,7 +59,6 @@ def apply_diag_coulomb_evolution_in_place_z_rep_slow(
     mat_exp_aa: np.ndarray,
     mat_exp_ab: np.ndarray,
     mat_exp_bb: np.ndarray,
-    # TODO don't pass the conjugates separately
     mat_exp_aa_conj: np.ndarray,
     mat_exp_ab_conj: np.ndarray,
     mat_exp_bb_conj: np.ndarray,
