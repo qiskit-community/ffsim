@@ -25,6 +25,7 @@ from ffsim.linalg.linalg import (
     expm_multiply_taylor,
     lup,
     match_global_phase,
+    one_hot,
     reduced_matrix,
 )
 from ffsim.linalg.predicates import (
@@ -53,5 +54,6 @@ __all__ = [
     "lup",
     "match_global_phase",
     "modified_cholesky",
+    "one_hot",
     "reduced_matrix",
 ]
