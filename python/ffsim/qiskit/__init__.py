@@ -25,6 +25,7 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
     UCJOpSpinBalancedJW,
+    UCJOpSpinlessJW,
     UCJOpSpinUnbalancedJW,
 )
 from ffsim.qiskit.sampler import FfsimSampler
@@ -58,6 +59,7 @@ __all__ = [
     "UCJOperatorJW",
     "UCJOpSpinBalancedJW",
     "UCJOpSpinUnbalancedJW",
+    "UCJOpSpinlessJW",
     "ffsim_vec_to_qiskit_vec",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",
