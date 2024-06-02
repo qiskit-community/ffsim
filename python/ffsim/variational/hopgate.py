@@ -54,8 +54,6 @@ class HopGateAnsatzOperator:
         self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
-        if isinstance(nelec, int):
-            return NotImplemented
         if copy:
             vec = vec.copy()
         for target_orbs, theta in zip(
