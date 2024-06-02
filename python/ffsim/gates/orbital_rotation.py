@@ -139,8 +139,7 @@ def _apply_orbital_rotation_spinful(
 
     if givens_decomp_b is not None:
         # transform beta
-        # copy transposed vector to align memory layout for performance
-        # TODO check again if copying is needed
+        # copy transposed vector to align memory layout
         vec = vec.T.copy()
         givens_rotations, phase_shifts = givens_decomp_b
         for c, s, i, j in givens_rotations:
