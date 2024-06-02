@@ -16,7 +16,7 @@ import numpy as np
 from scipy.optimize import OptimizeResult
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim import states
+from ffsim import linalg
 
 
 class WrappedCallable:
@@ -77,7 +77,7 @@ def gradient_finite_diff(
     Returns:
         The gradient of the desired parameter component.
     """
-    unit = states.one_hot(len(theta), index, dtype=float)
+    unit = linalg.one_hot(len(theta), index, dtype=float)
     plus = theta + epsilon * unit
     minus = theta - epsilon * unit
     return (params_to_vec(plus) - params_to_vec(minus)) / (2 * epsilon)

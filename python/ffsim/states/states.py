@@ -20,7 +20,9 @@ import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
 from pyscf.fci.spin_op import contract_ss
+from typing_extensions import deprecated
 
+from ffsim import linalg
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -76,6 +78,10 @@ def dim(norb: int, nelec: int | tuple[int, int]) -> int:
     return math.comb(norb, n_alpha) * math.comb(norb, n_beta)
 
 
+@deprecated(
+    "Using one_hot from the ffsim namespace is deprecated. "
+    "Instead, use ffsim.linalg.one_hot."
+)
 def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
     """Return an array of all zeros except for a one at a specified index.
 
@@ -162,7 +168,9 @@ def slater_determinant(
     beta_bits[list(beta_orbitals)] = 1
     beta_string = int("".join("1" if b else "0" for b in beta_bits[::-1]), base=2)
     beta_index = cistring.str2addr(norb, n_beta, beta_string)
-    vec = one_hot((dim1, dim2), (alpha_index, beta_index), dtype=complex).reshape(-1)
+    vec = linalg.one_hot(
+        (dim1, dim2), (alpha_index, beta_index), dtype=complex
+    ).reshape(-1)
     if orbital_rotation is not None:
         vec = apply_orbital_rotation(
             vec, orbital_rotation, norb=norb, nelec=nelec, copy=False
