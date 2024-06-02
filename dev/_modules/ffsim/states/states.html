@@ -316,12 +316,14 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        vec: Array of state vector coefficients.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></div>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></div>
 
 
 

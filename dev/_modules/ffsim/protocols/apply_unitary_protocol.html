@@ -306,14 +306,16 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An object that can apply a unitary transformation to a vector.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply a unitary transformation to a vector.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            vec: The vector to apply the unitary transformation to.</span>
 <span class="sd">            norb: The number of spatial orbitals.</span>
-<span class="sd">            nelec: The number of alpha and beta electrons.</span>
+<span class="sd">            nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">                spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">                and spin beta fermions.</span>
 <span class="sd">            copy: Whether to copy the vector before operating on it.</span>
 
 <span class="sd">                - If `copy=True` then this function always returns a newly allocated</span>
@@ -332,7 +334,11 @@
 <div class="viewcode-block" id="apply_unitary">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.apply_unitary">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_unitary</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a unitary transformation to a vector.</span>
 
@@ -340,7 +346,9 @@
 <span class="sd">        vec: The vector to apply the unitary transformation to.</span>
 <span class="sd">        obj: The object with a unitary effect.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
 
 <span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>

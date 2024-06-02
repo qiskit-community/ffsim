@@ -339,6 +339,45 @@ symmetric, and only their upper triangular entries are used.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.DiagCoulombEvolutionSpinlessJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">DiagCoulombEvolutionSpinlessJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/diag_coulomb.html#DiagCoulombEvolutionSpinlessJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Spinless diagonal Coulomb evolution under the Jordan-Wigner transformation.</p>
+<p>The spinless diagonal Coulomb evolution gate has the unitary</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\exp\left(-i t \sum_{i, j}
+Z^{ij} n_i n_j / 2\right)\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(n_i\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span> and
+<span class="math notranslate nohighlight">\(Z\)</span> is a real symmetric matrix.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/diag_coulomb.html#DiagCoulombEvolutionSpinlessJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create new diagonal Coulomb evolution gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>mat</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The diagonal Coulomb matrix <span class="math notranslate nohighlight">\(Z\)</span>.
+It is assumed to be symmetric, and only its upper triangular entries
+are used.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/diag_coulomb.html#DiagCoulombEvolutionSpinlessJW.inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.inverse" title="Link to this definition">¶</a></dt>
+<dd><p>Inverse gate.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.DropNegligible">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">DropNegligible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/transpiler_passes/drop_negligible.html#DropNegligible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.DropNegligible" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TransformationPass</span></code></p>
@@ -617,19 +656,19 @@ beta orbitals.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.PrepareHartreeFockSpinlessJW">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareHartreeFockSpinlessJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareHartreeFockSpinlessJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">PrepareHartreeFockSpinlessJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareHartreeFockSpinlessJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
 <p>Prepare the Hartree-Fock state (under JWT) from the zero state, spinless.</p>
 <p>Like <a class="reference internal" href="#ffsim.qiskit.PrepareHartreeFockJW" title="ffsim.qiskit.PrepareHartreeFockJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrepareHartreeFockJW</span></code></a> but only acts on a single spin species.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareHartreeFockSpinlessJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/slater_determinant.html#PrepareHartreeFockSpinlessJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>Create new Hartree-Fock state preparation gate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nocc</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of electrons.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of electrons.</p></li>
 <li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
 </ul>
 </dd>
@@ -825,7 +864,9 @@ overridden to extend subclasses.</p>
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A statevector in ffsim/PySCF format. It should be a one-dimensional vector
 of length <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">n_alpha)</span> <span class="pre">*</span> <span class="pre">comb(norb,</span> <span class="pre">n_beta)</span></code>.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
+spinless system, or a pair of integers storing the numbers of spin alpha
+and spin beta fermions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -859,7 +900,9 @@ and orbital rotation gates.</p></li>
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A statevector in Qiskit format. It should be a one-dimensional vector
 of length <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">norb)</span></code>.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
+spinless system, or a pair of integers storing the numbers of spin alpha
+and spin beta fermions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -936,6 +979,11 @@ of length <code class="docutils literal notranslate"><span class="pre">2</span> 
 <li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionJW"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionJW.__init__"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionJW.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionJW.inverse"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionJW.inverse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionSpinlessJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionSpinlessJW.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.inverse"><code class="docutils literal notranslate"><span class="pre">DiagCoulombEvolutionSpinlessJW.inverse()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.DropNegligible"><code class="docutils literal notranslate"><span class="pre">DropNegligible</span></code></a><ul>
