@@ -523,7 +523,6 @@
         <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UCJOperator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the UCJ operator from t2 (and optionally t1) amplitudes.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO maybe allow specifying alpha-alpha and alpha-beta indices</span>
         <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
 
@@ -552,7 +551,6 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the UCJ operator to t2 (and possibly t1) amplitudes.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO this ignores diag_coulomb_mats_alpha_beta</span>
         <span class="n">t2</span> <span class="o">=</span> <span class="p">(</span>
             <span class="mi">1</span><span class="n">j</span>
             <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
@@ -805,7 +803,6 @@
         <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RealUCJOperator&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the real UCJ operator from t2 (and optionally t1) amplitudes.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO maybe allow specifying alpha-alpha and alpha-beta indices</span>
         <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
 
@@ -834,7 +831,6 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the UCJ operator to t2 (and possibly t1) amplitudes.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO this ignores diag_coulomb_mats_alpha_beta</span>
         <span class="n">t2</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span>
             <span class="n">contract</span><span class="p">(</span>
                 <span class="s2">&quot;kpq,kap,kip,kbq,kjq-&gt;ijab&quot;</span><span class="p">,</span>
