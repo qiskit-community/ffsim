@@ -18,9 +18,10 @@ from collections.abc import Sequence
 
 import numpy as np
 
-from ffsim._lib import apply_phase_shift_in_place
+from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin, pair_for_spin
+from ffsim.states import one_hot
 
 
 def _apply_phase_shift(
@@ -231,30 +232,14 @@ def apply_num_interaction(
     """
     if copy:
         vec = vec.copy()
+    coeffs = one_hot((norb,), target_orb)
     if isinstance(nelec, int):
-        indices = _one_subspace_indices(norb, nelec, (target_orb,))
-        vec = vec.reshape((-1, 1))
-        apply_phase_shift_in_place(vec, cmath.exp(1j * theta), indices)
-        return vec.reshape(-1)
-    if spin & Spin.ALPHA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([target_orb], []),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+        return apply_num_op_sum_evolution(
+            vec, coeffs, -theta, norb=norb, nelec=nelec, copy=copy
         )
-    if spin & Spin.BETA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([], [target_orb]),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-    return vec
+    return apply_num_op_sum_evolution(
+        vec, pair_for_spin(coeffs, spin), -theta, norb=norb, nelec=nelec, copy=copy
+    )
 
 
 def apply_num_num_interaction(
