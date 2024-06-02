@@ -19,6 +19,7 @@ from ffsim.variational.multireference import (
 from ffsim.variational.ucj import RealUCJOperator, UCJOperator
 from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
 from ffsim.variational.ucj_spin_unbalanced import UCJOpSpinUnbalanced
+from ffsim.variational.ucj_spinless import UCJOpSpinless
 
 __all__ = [
     "GivensAnsatzOperator",
@@ -27,6 +28,7 @@ __all__ = [
     "UCJOperator",
     "UCJOpSpinBalanced",
     "UCJOpSpinUnbalanced",
+    "UCJOpSpinless",
     "multireference_state",
     "multireference_state_prod",
 ]

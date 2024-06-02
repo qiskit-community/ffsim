@@ -409,3 +409,40 @@ def random_ucj_op_spin_unbalanced(
         orbital_rotations=orbital_rotations,
         final_orbital_rotation=final_orbital_rotation,
     )
+
+
+def random_ucj_op_spinless(
+    norb: int,
+    *,
+    n_reps: int = 1,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCJOpSpinless:
+    """Sample a random spinless unitary cluster Jastrow (UCJ) operator.
+
+    Args:
+        norb: The number of orbitals.
+        n_reps: The number of ansatz repetitions.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCJ operator.
+    """
+    rng = np.random.default_rng(seed)
+    diag_coulomb_mats = np.stack(
+        [random_real_symmetric_matrix(norb, seed=rng) for _ in range(n_reps)]
+    )
+    orbital_rotations = np.stack(
+        [random_unitary(norb, seed=rng) for _ in range(n_reps)]
+    )
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = random_unitary(norb, seed=rng)
+    return variational.UCJOpSpinless(
+        diag_coulomb_mats=diag_coulomb_mats,
+        orbital_rotations=orbital_rotations,
+        final_orbital_rotation=final_orbital_rotation,
+    )
