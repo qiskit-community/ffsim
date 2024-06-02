@@ -75,14 +75,6 @@ def apply_unitary(
     """
     method = getattr(obj, "_apply_unitary_", None)
     if method is not None:
-        result = method(vec, norb=norb, nelec=nelec, copy=copy)
-        if result is not NotImplemented:
-            return method(vec, norb=norb, nelec=nelec, copy=copy)
-    raise TypeError(
-        "ffsim.apply_unitary failed. "
-        "Object doesn't have a unitary effect.\n"
-        f"type: {type(obj)}\n"
-        f"object: {obj!r}\n"
-        "The object did not have an _apply_unitary_ method that returned "
-        "a value besides NotImplemented."
-    )
+        return method(vec, norb=norb, nelec=nelec, copy=copy)
+
+    raise TypeError(f"Object of type {type(obj)} has no _apply_unitary_ method.")
