@@ -231,30 +231,26 @@ def apply_num_interaction(
     """
     if copy:
         vec = vec.copy()
+    phase = cmath.exp(1j * theta)
+
     if isinstance(nelec, int):
         indices = _one_subspace_indices(norb, nelec, (target_orb,))
         vec = vec.reshape((-1, 1))
-        apply_phase_shift_in_place(vec, cmath.exp(1j * theta), indices)
+        apply_phase_shift_in_place(vec, phase, indices)
         return vec.reshape(-1)
+
+    n_alpha, n_beta = nelec
+    dim_b = math.comb(norb, n_beta)
+    vec = vec.reshape((-1, dim_b))
     if spin & Spin.ALPHA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([target_orb], []),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
+        indices = _one_subspace_indices(norb, n_alpha, (target_orb,))
+        apply_phase_shift_in_place(vec, phase, indices)
     if spin & Spin.BETA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([], [target_orb]),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-    return vec
+        indices = _one_subspace_indices(norb, n_beta, (target_orb,))
+        vec = vec.T.copy()
+        apply_phase_shift_in_place(vec, phase, indices)
+        vec = vec.T
+    return vec.reshape(-1)
 
 
 def apply_num_num_interaction(
