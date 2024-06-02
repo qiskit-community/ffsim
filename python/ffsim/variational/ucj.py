@@ -274,9 +274,11 @@ class UCJOperator:
         return t2, t1
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
+        if isinstance(nelec, int):
+            return NotImplemented
         if copy:
             vec = vec.copy()
         for mat, mat_alpha_beta, orbital_rotation in zip(
@@ -544,9 +546,11 @@ class RealUCJOperator:
         return t2, t1
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
+        if isinstance(nelec, int):
+            return NotImplemented
         if copy:
             vec = vec.copy()
         for mat, mat_alpha_beta, orbital_rotation in zip(
