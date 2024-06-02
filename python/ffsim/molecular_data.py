@@ -81,8 +81,8 @@ class MolecularData:
     mp2_t2: np.ndarray | None = None
     # CCSD data
     ccsd_energy: float | None = None
-    ccsd_t1: np.ndarray | None = None
-    ccsd_t2: np.ndarray | None = None
+    ccsd_t1: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None
+    ccsd_t2: np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
     # FCI data
     fci_energy: float | None = None
     fci_vec: np.ndarray | None = None
