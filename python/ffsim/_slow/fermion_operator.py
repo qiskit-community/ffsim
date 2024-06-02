@@ -26,7 +26,6 @@ class FermionOperator(MutableMapping):
     A linear combination of products of fermionic creation and annihilation operators.
     """
 
-    # TODO maybe use defaultdict and simplify code
     coeffs: dict[tuple[FermionAction, ...], complex]
 
     def copy(self) -> "FermionOperator":

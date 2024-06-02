@@ -199,7 +199,6 @@ class MolecularData:
 
     def run_mp2(self, *, store_t2: bool = False):
         """Run MP2 and store results."""
-        # TODO support SCF other than RHF
         scf = pyscf.scf.RHF(self.mole)
         cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
@@ -214,7 +213,6 @@ class MolecularData:
 
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
-        # TODO support SCF other than RHF
         scf = pyscf.scf.RHF(self.mole)
         cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
@@ -232,7 +230,6 @@ class MolecularData:
         store_t2: bool = False,
     ) -> None:
         """Run CCSD and store results."""
-        # TODO support SCF other than RHF
         scf = pyscf.scf.RHF(self.mole)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
         ccsd_solver = pyscf.cc.CCSD(
