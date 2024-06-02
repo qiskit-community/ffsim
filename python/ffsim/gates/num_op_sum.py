@@ -96,7 +96,9 @@ def apply_num_op_sum_evolution(
             spin sector.
         time: The evolution time.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         orbital_rotation: The optional orbital rotation.
             You can pass either a single Numpy array specifying the orbital rotation
             to apply to both spin sectors, or you can pass a pair of Numpy arrays
