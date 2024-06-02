@@ -130,6 +130,8 @@ def apply_diag_coulomb_evolution(
     if copy:
         vec = vec.copy()
     if isinstance(nelec, int):
+        if z_representation:
+            raise NotImplementedError
         return _apply_diag_coulomb_evolution_spinful(
             vec=vec,
             mat=mat,
@@ -137,7 +139,7 @@ def apply_diag_coulomb_evolution(
             norb=norb,
             nelec=(nelec, 0),
             orbital_rotation=orbital_rotation,
-            z_representation=z_representation,
+            z_representation=False,
         )
     return _apply_diag_coulomb_evolution_spinful(
         vec=vec,
