@@ -363,11 +363,10 @@ class UCJOpSpinless:
     ) -> np.ndarray:
         if copy:
             vec = vec.copy()
-        zero = np.zeros((norb, norb))
-        for diag_coulomb_mat, orbital_rotation in zip(
-            self.diag_coulomb_mats, self.orbital_rotations
-        ):
-            if isinstance(nelec, int):
+        if isinstance(nelec, int):
+            for diag_coulomb_mat, orbital_rotation in zip(
+                self.diag_coulomb_mats, self.orbital_rotations
+            ):
                 vec = gates.apply_diag_coulomb_evolution(
                     vec,
                     diag_coulomb_mat,
@@ -377,7 +376,11 @@ class UCJOpSpinless:
                     orbital_rotation=orbital_rotation,
                     copy=False,
                 )
-            else:
+        else:
+            zero = np.zeros((norb, norb))
+            for diag_coulomb_mat, orbital_rotation in zip(
+                self.diag_coulomb_mats, self.orbital_rotations
+            ):
                 vec = gates.apply_diag_coulomb_evolution(
                     vec,
                     (diag_coulomb_mat, zero, diag_coulomb_mat),
