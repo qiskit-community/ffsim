@@ -430,8 +430,10 @@ class UCJOpSpinBalanced:
         )
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
+        if isinstance(nelec, int):
+            return NotImplemented
         if copy:
             vec = vec.copy()
         for (diag_coulomb_mat_aa, diag_coulomb_mat_ab), orbital_rotation in zip(

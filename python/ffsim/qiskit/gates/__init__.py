@@ -10,7 +10,10 @@
 
 """Qiskit fermionic quantum gates."""
 
-from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
+from ffsim.qiskit.gates.diag_coulomb import (
+    DiagCoulombEvolutionJW,
+    DiagCoulombEvolutionSpinlessJW,
+)
 from ffsim.qiskit.gates.givens_ansatz import (
     GivensAnsatzOperatorJW,
     GivensAnsatzOperatorSpinlessJW,
@@ -30,6 +33,7 @@ from ffsim.qiskit.gates.ucj_operator import UCJOperatorJW
 
 __all__ = [
     "DiagCoulombEvolutionJW",
+    "DiagCoulombEvolutionSpinlessJW",
     "GivensAnsatzOperatorJW",
     "GivensAnsatzOperatorSpinlessJW",
     "OrbitalRotationJW",
