@@ -565,22 +565,35 @@ class UCJOpSpinUnbalanced:
             return NotImplemented
         if copy:
             vec = vec.copy()
+        eye = np.eye(norb)
+        current_basis = np.stack([eye, eye])
         for diag_coulomb_mat, orbital_rotation in zip(
             self.diag_coulomb_mats, self.orbital_rotations
         ):
+            vec = gates.apply_orbital_rotation(
+                vec,
+                orbital_rotation.transpose(0, 2, 1).conj() @ current_basis,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
             vec = gates.apply_diag_coulomb_evolution(
                 vec,
                 diag_coulomb_mat,
                 time=-1.0,
                 norb=norb,
                 nelec=nelec,
-                orbital_rotation=orbital_rotation,
                 copy=False,
             )
-        if self.final_orbital_rotation is not None:
+            current_basis = orbital_rotation
+        if self.final_orbital_rotation is None:
+            vec = gates.apply_orbital_rotation(
+                vec, current_basis, norb=norb, nelec=nelec, copy=False
+            )
+        else:
             vec = gates.apply_orbital_rotation(
                 vec,
-                mat=self.final_orbital_rotation,
+                self.final_orbital_rotation @ current_basis,
                 norb=norb,
                 nelec=nelec,
                 copy=False,
