@@ -151,10 +151,6 @@ class UCJOpSpinlessJW(Gate):
     """Spinless UCJ operator under the Jordan-Wigner transformation.
 
     See :class:`ffsim.UCJOpSpinless` for a description of this gate's unitary.
-
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
-    beta orbitals.
     """
 
     def __init__(self, ucj_op: variational.UCJOpSpinless, *, label: str | None = None):
