@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.random.random - ffsim 0.0.35 documentation</title>
+        <title>ffsim.random.random - ffsim 0.0.36 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.35 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.36 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.35 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.36 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -731,6 +731,46 @@
         <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
     <span class="p">)</span></div>
 
+
+
+<div class="viewcode-block" id="random_ucj_op_spinless">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_op_spinless">[docs]</a>
+<span class="k">def</span> <span class="nf">random_ucj_op_spinless</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinless</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spinless unitary cluster Jastrow (UCJ) operator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of orbitals.</span>
+<span class="sd">        n_reps: The number of ansatz repetitions.</span>
+<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">            in the operator.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled UCJ operator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
+        <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinless</span><span class="p">(</span>
+        <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
+        <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
+        <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -770,7 +810,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=39aadc1c"></script>
+</div><script src="../../../_static/documentation_options.js?v=0e525676"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
