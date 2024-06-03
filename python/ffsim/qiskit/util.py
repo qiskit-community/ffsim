@@ -19,7 +19,7 @@ from ffsim.cistring import make_strings
 
 
 def qiskit_vec_to_ffsim_vec(
-    vec: np.ndarray, norb: int, nelec: tuple[int, int]
+    vec: np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
     """Convert a Qiskit statevector to an ffsim statevector.
 
@@ -27,14 +27,16 @@ def qiskit_vec_to_ffsim_vec(
         vec: A statevector in Qiskit format. It should be a one-dimensional vector
             of length ``2 ** (2 * norb)``.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
     """
     assert vec.shape == (1 << (2 * norb),)
     return vec[_ffsim_indices(norb, nelec)]
 
 
 def ffsim_vec_to_qiskit_vec(
-    vec: np.ndarray, norb: int, nelec: tuple[int, int]
+    vec: np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
     """Convert an ffsim statevector to a Qiskit statevector.
 
@@ -42,7 +44,9 @@ def ffsim_vec_to_qiskit_vec(
         vec: A statevector in ffsim/PySCF format. It should be a one-dimensional vector
             of length ``comb(norb, n_alpha) * comb(norb, n_beta)``.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
     """
     assert vec.shape == (states.dim(norb, nelec),)
     qiskit_vec = np.zeros(1 << (2 * norb), dtype=vec.dtype)
@@ -51,9 +55,11 @@ def ffsim_vec_to_qiskit_vec(
 
 
 @lru_cache(maxsize=None)
-def _ffsim_indices(norb: int, nelec: tuple[int, int]) -> np.ndarray:
+def _ffsim_indices(norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
+    if isinstance(nelec, int):
+        return make_strings(range(norb), nelec)
     n_alpha, n_beta = nelec
     strings_a = make_strings(range(norb), n_alpha)
     strings_b = make_strings(range(norb), n_beta) << norb
     # Compute [a + b for a, b in product(strings_a, strings_b)]
-    return (strings_a.reshape(-1, 1) + strings_b).reshape(-1).copy()
+    return (strings_a.reshape(-1, 1) + strings_b).reshape(-1)

@@ -22,52 +22,65 @@ from qiskit.circuit import (
     Qubit,
 )
 
-from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
-from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
-from ffsim.variational import UCJOperator
+from ffsim import variational
+from ffsim.qiskit.gates.diag_coulomb import (
+    DiagCoulombEvolutionJW,
+    DiagCoulombEvolutionSpinlessJW,
+)
+from ffsim.qiskit.gates.orbital_rotation import (
+    OrbitalRotationJW,
+    OrbitalRotationSpinlessJW,
+)
 
 
-class UCJOperatorJW(Gate):
-    """Unitary cluster Jastrow operator under the Jordan-Wigner transformation.
+class UCJOpSpinBalancedJW(Gate):
+    """Spin-balanced UCJ operator under the Jordan-Wigner transformation.
 
-    See :class:`ffsim.UCJOperator` for a description of this gate's unitary.
+    See :class:`ffsim.UCJOpSpinBalanced` for a description of this gate's unitary.
 
     This gate assumes that qubits are ordered such that the first `norb` qubits
     correspond to the alpha orbitals and the last `norb` qubits correspond to the
     beta orbitals.
     """
 
-    def __init__(self, ucj_operator: UCJOperator, *, label: str | None = None):
-        """Create a new unitary cluster Jastrow (UCJ) gate.
+    def __init__(
+        self, ucj_op: variational.UCJOpSpinBalanced, *, label: str | None = None
+    ):
+        """Create a new spin-balanced unitary cluster Jastrow (UCJ) gate.
 
         Args:
-            ucj_operator: The UCJ operator.
+            ucj_op: The UCJ operator.
             label: The label of the gate.
         """
-        self.ucj_operator = ucj_operator
-        super().__init__("ucj_jw", 2 * ucj_operator.norb, [], label=label)
+        self.ucj_op = ucj_op
+        super().__init__("ucj_balanced_jw", 2 * ucj_op.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _ucj_jw(qubits, self.ucj_operator), qubits=qubits, name=self.name
+            _ucj_op_spin_balanced_jw(qubits, self.ucj_op),
+            qubits=qubits,
+            name=self.name,
         )
 
 
-def _ucj_jw(
-    qubits: Sequence[Qubit], ucj_op: UCJOperator
+def _ucj_op_spin_balanced_jw(
+    qubits: Sequence[Qubit], ucj_op: variational.UCJOpSpinBalanced
 ) -> Iterator[CircuitInstruction]:
-    for mat, mat_alpha_beta, orbital_rotation in zip(
-        ucj_op.diag_coulomb_mats_alpha_alpha,
-        ucj_op.diag_coulomb_mats_alpha_beta,
-        ucj_op.orbital_rotations,
+    for (diag_coulomb_mat_aa, diag_coulomb_mat_ab), orbital_rotation in zip(
+        ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
     ):
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj()), qubits
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj()),
+            qubits,
         )
         yield CircuitInstruction(
-            DiagCoulombEvolutionJW(ucj_op.norb, (mat, mat_alpha_beta, mat), -1.0),
+            DiagCoulombEvolutionJW(
+                ucj_op.norb,
+                (diag_coulomb_mat_aa, diag_coulomb_mat_ab, diag_coulomb_mat_aa),
+                -1.0,
+            ),
             qubits,
         )
         yield CircuitInstruction(
@@ -76,4 +89,109 @@ def _ucj_jw(
     if ucj_op.final_orbital_rotation is not None:
         yield CircuitInstruction(
             OrbitalRotationJW(ucj_op.norb, ucj_op.final_orbital_rotation), qubits
+        )
+
+
+class UCJOpSpinUnbalancedJW(Gate):
+    """Spin-unbalanced UCJ operator under the Jordan-Wigner transformation.
+
+    See :class:`ffsim.UCJOpSpinUnbalanced` for a description of this gate's unitary.
+
+    This gate assumes that qubits are ordered such that the first `norb` qubits
+    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    beta orbitals.
+    """
+
+    def __init__(
+        self, ucj_op: variational.UCJOpSpinUnbalanced, *, label: str | None = None
+    ):
+        """Create a new spin-unbalanced unitary cluster Jastrow (UCJ) gate.
+
+        Args:
+            ucj_op: The UCJ operator.
+            label: The label of the gate.
+        """
+        self.ucj_op = ucj_op
+        super().__init__("ucj_unbalanced_jw", 2 * ucj_op.norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(self.num_qubits)
+        self.definition = QuantumCircuit.from_instructions(
+            _ucj_op_spin_unbalanced_jw(qubits, self.ucj_op),
+            qubits=qubits,
+            name=self.name,
+        )
+
+
+def _ucj_op_spin_unbalanced_jw(
+    qubits: Sequence[Qubit], ucj_op: variational.UCJOpSpinUnbalanced
+) -> Iterator[CircuitInstruction]:
+    for diag_colomb_mat, orbital_rotation in zip(
+        ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
+    ):
+        yield CircuitInstruction(
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation.transpose(0, 2, 1).conj()),
+            qubits,
+        )
+        yield CircuitInstruction(
+            DiagCoulombEvolutionJW(ucj_op.norb, diag_colomb_mat, -1.0),
+            qubits,
+        )
+        yield CircuitInstruction(
+            OrbitalRotationJW(ucj_op.norb, orbital_rotation), qubits
+        )
+    if ucj_op.final_orbital_rotation is not None:
+        yield CircuitInstruction(
+            OrbitalRotationJW(ucj_op.norb, ucj_op.final_orbital_rotation), qubits
+        )
+
+
+class UCJOpSpinlessJW(Gate):
+    """Spinless UCJ operator under the Jordan-Wigner transformation.
+
+    See :class:`ffsim.UCJOpSpinless` for a description of this gate's unitary.
+    """
+
+    def __init__(self, ucj_op: variational.UCJOpSpinless, *, label: str | None = None):
+        """Create a new spinless unitary cluster Jastrow (UCJ) gate.
+
+        Args:
+            ucj_op: The UCJ operator.
+            label: The label of the gate.
+        """
+        self.ucj_op = ucj_op
+        super().__init__("ucj_spinless_jw", ucj_op.norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(self.num_qubits)
+        self.definition = QuantumCircuit.from_instructions(
+            _ucj_op_spinless_jw(qubits, self.ucj_op),
+            qubits=qubits,
+            name=self.name,
+        )
+
+
+def _ucj_op_spinless_jw(
+    qubits: Sequence[Qubit], ucj_op: variational.UCJOpSpinless
+) -> Iterator[CircuitInstruction]:
+    for diag_coulomb_mat, orbital_rotation in zip(
+        ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
+    ):
+        yield CircuitInstruction(
+            OrbitalRotationSpinlessJW(ucj_op.norb, orbital_rotation.T.conj()),
+            qubits,
+        )
+        yield CircuitInstruction(
+            DiagCoulombEvolutionSpinlessJW(ucj_op.norb, diag_coulomb_mat, -1.0),
+            qubits,
+        )
+        yield CircuitInstruction(
+            OrbitalRotationSpinlessJW(ucj_op.norb, orbital_rotation), qubits
+        )
+    if ucj_op.final_orbital_rotation is not None:
+        yield CircuitInstruction(
+            OrbitalRotationSpinlessJW(ucj_op.norb, ucj_op.final_orbital_rotation),
+            qubits,
         )

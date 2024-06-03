@@ -22,6 +22,46 @@ import scipy.sparse.linalg
 import ffsim
 
 
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(4)))
+def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
+    """Test applying time evolution of random diagonal Coulomb operator."""
+    rng = np.random.default_rng(4305)
+    dim = ffsim.dim(norb, nelec)
+    for _ in range(3):
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
+        time = rng.uniform()
+
+        result = ffsim.apply_diag_coulomb_evolution(
+            vec,
+            mat,
+            time,
+            norb,
+            nelec,
+            orbital_rotation=orbital_rotation,
+        )
+
+        op = ffsim.contract.diag_coulomb_linop(mat, norb=norb, nelec=(nelec, 0))
+        if norb:
+            orbital_op = ffsim.contract.one_body_linop(
+                scipy.linalg.logm(orbital_rotation), norb=norb, nelec=(nelec, 0)
+            )
+            expected = scipy.sparse.linalg.expm_multiply(
+                -orbital_op, vec, traceA=np.sum(np.abs(orbital_rotation))
+            )
+            expected = scipy.sparse.linalg.expm_multiply(
+                -1j * time * op, expected, traceA=np.sum(np.abs(mat))
+            )
+            expected = scipy.sparse.linalg.expm_multiply(
+                orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
+            )
+        else:
+            expected = vec
+
+        np.testing.assert_allclose(result, expected)
+
+
 @pytest.mark.parametrize(
     "norb, nelec, z_representation",
     [
@@ -122,7 +162,7 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
     n_alpha, n_beta = nelec
     time = rng.uniform(-10, 10)
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_ab = rng.standard_normal((norb, norb))
     mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
@@ -142,9 +182,17 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
                             eig += 0.5 * mat_aa[i, j]
                         elif (sigma, tau) == (1, 1):
                             eig += 0.5 * mat_bb[i, j]
-                        else:
+                        elif (sigma, tau) == (0, 1):
                             eig += 0.5 * mat_ab[i, j]
+                        elif (sigma, tau) == (1, 0):
+                            eig += 0.5 * mat_ab[j, i]
             expected = np.exp(-1j * eig * time) * state
+            np.testing.assert_allclose(result, expected)
+            np.testing.assert_allclose(state, original_state)
+            # Numpy array input
+            result = ffsim.apply_diag_coulomb_evolution(
+                state, np.stack((mat_aa, mat_ab, mat_bb)), time, norb, nelec
+            )
             np.testing.assert_allclose(result, expected)
             np.testing.assert_allclose(state, original_state)
 
@@ -170,8 +218,10 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
             for i, j in itertools.product(range(norb), repeat=2):
                 for sigma, tau in itertools.product(range(2), repeat=2):
                     if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                        if sigma != tau:
+                        if (sigma, tau) == (0, 1):
                             eig += 0.5 * mat_ab[i, j]
+                        elif (sigma, tau) == (1, 0):
+                            eig += 0.5 * mat_ab[j, i]
             expected = np.exp(-1j * eig * time) * state
             np.testing.assert_allclose(result, expected)
             np.testing.assert_allclose(state, original_state)
@@ -198,24 +248,6 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
             np.testing.assert_allclose(result, expected)
             np.testing.assert_allclose(state, original_state)
 
-            # Numpy array input
-            result = ffsim.apply_diag_coulomb_evolution(
-                state, np.stack((mat_aa, mat_ab, mat_bb)), time, norb, nelec
-            )
-            eig = 0
-            for i, j in itertools.product(range(norb), repeat=2):
-                for sigma, tau in itertools.product(range(2), repeat=2):
-                    if i in occupied_orbitals[sigma] and j in occupied_orbitals[tau]:
-                        if (sigma, tau) == (0, 0):
-                            eig += 0.5 * mat_aa[i, j]
-                        elif (sigma, tau) == (1, 1):
-                            eig += 0.5 * mat_bb[i, j]
-                        else:
-                            eig += 0.5 * mat_ab[i, j]
-            expected = np.exp(-1j * eig * time) * state
-            np.testing.assert_allclose(result, expected)
-            np.testing.assert_allclose(state, original_state)
-
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
 def test_apply_diag_coulomb_evolution_z_rep_asymmetric_spin(
@@ -226,7 +258,7 @@ def test_apply_diag_coulomb_evolution_z_rep_asymmetric_spin(
     n_alpha, n_beta = nelec
     time = rng.uniform(-10, 10)
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_ab = rng.standard_normal((norb, norb))
     mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):

@@ -21,14 +21,16 @@ class SupportsApplyUnitary(Protocol):
     """An object that can apply a unitary transformation to a vector."""
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply a unitary transformation to a vector.
 
         Args:
             vec: The vector to apply the unitary transformation to.
             norb: The number of spatial orbitals.
-            nelec: The number of alpha and beta electrons.
+            nelec: Either a single integer representing the number of fermions for a
+                spinless system, or a pair of integers storing the numbers of spin alpha
+                and spin beta fermions.
             copy: Whether to copy the vector before operating on it.
 
                 - If `copy=True` then this function always returns a newly allocated
@@ -44,7 +46,11 @@ class SupportsApplyUnitary(Protocol):
 
 
 def apply_unitary(
-    vec: np.ndarray, obj: Any, norb: int, nelec: tuple[int, int], copy: bool = True
+    vec: np.ndarray,
+    obj: Any,
+    norb: int,
+    nelec: int | tuple[int, int],
+    copy: bool = True,
 ) -> np.ndarray:
     """Apply a unitary transformation to a vector.
 
@@ -52,7 +58,9 @@ def apply_unitary(
         vec: The vector to apply the unitary transformation to.
         obj: The object with a unitary effect.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         copy: Whether to copy the vector before operating on it.
 
             - If `copy=True` then this function always returns a newly allocated
@@ -67,6 +75,14 @@ def apply_unitary(
     """
     method = getattr(obj, "_apply_unitary_", None)
     if method is not None:
-        return method(vec, norb=norb, nelec=nelec, copy=copy)
-
-    raise TypeError(f"Object of type {type(obj)} has no _apply_unitary_ method.")
+        result = method(vec, norb=norb, nelec=nelec, copy=copy)
+        if result is not NotImplemented:
+            return result
+    raise TypeError(
+        "ffsim.apply_unitary failed. "
+        "Object doesn't have a unitary effect.\n"
+        f"type: {type(obj)}\n"
+        f"object: {obj!r}\n"
+        "The object did not have an _apply_unitary_ method that returned "
+        "a value besides NotImplemented."
+    )

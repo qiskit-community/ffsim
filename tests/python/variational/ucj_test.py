@@ -28,6 +28,7 @@ def _exponentiate_t1(t1: np.ndarray, norb: int, nocc: int) -> np.ndarray:
     return scipy.linalg.expm(generator)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_n_params():
     for norb, n_reps, with_final_orbital_rotation in itertools.product(
         [1, 2, 3], [1, 2, 3], [False, True]
@@ -90,6 +91,7 @@ def test_n_params():
             )
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_parameters_roundtrip():
     norb = 5
     n_reps = 2
@@ -133,6 +135,7 @@ def test_parameters_roundtrip():
     )
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_t_amplitudes_roundtrip():
     norb = 5
     nocc = 3
@@ -153,6 +156,7 @@ def test_t_amplitudes_roundtrip():
     )
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_t_amplitudes():
     # Build an H2 molecule
     mol = pyscf.gto.Mole()
@@ -194,6 +198,7 @@ def test_t_amplitudes():
     np.testing.assert_allclose(energy, -0.96962461)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_t_amplitudes_spin():
     """Test that initialization from CCSD amplitudes gives a singlet."""
     # Build an N2 molecule
@@ -242,6 +247,7 @@ def test_t_amplitudes_spin():
     np.testing.assert_allclose(spin_squared, 0, atol=1e-12)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_real_ucj_n_params():
     for norb, n_reps, with_final_orbital_rotation in itertools.product(
         [1, 2, 3], [1, 2, 3], [False, True]
@@ -289,6 +295,7 @@ def test_real_ucj_n_params():
         assert actual == expected
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_real_ucj_parameters_roundtrip():
     norb = 5
     n_reps = 2
@@ -332,6 +339,7 @@ def test_real_ucj_parameters_roundtrip():
     )
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_real_ucj_t_amplitudes_roundtrip():
     norb = 5
     nocc = 3
@@ -352,6 +360,7 @@ def test_real_ucj_t_amplitudes_roundtrip():
     )
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_real_ucj_t_amplitudes():
     # Build an H2 molecule
     mol = pyscf.gto.Mole()
@@ -393,6 +402,7 @@ def test_real_ucj_t_amplitudes():
     np.testing.assert_allclose(energy, -0.96962461)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_real_ucj_t_amplitudes_spin():
     """Test that initialization from CCSD amplitudes gives a singlet."""
     # Build an N2 molecule
@@ -441,6 +451,7 @@ def test_real_ucj_t_amplitudes_spin():
     np.testing.assert_allclose(spin_squared, 0, atol=1e-12)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_real_ucj_preserves_real():
     """Test that the real-valued UCJ ansatz preserves reality of t2 amplitudes."""
     norb = 5

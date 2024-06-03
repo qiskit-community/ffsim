@@ -18,6 +18,8 @@ from collections.abc import Sequence
 
 import numpy as np
 
+from ffsim import linalg
+from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin, pair_for_spin
 
@@ -54,7 +56,7 @@ def apply_givens_rotation(
     theta: float,
     target_orbs: tuple[int, int],
     norb: int,
-    nelec: tuple[int, int],
+    nelec: int | tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
@@ -86,7 +88,9 @@ def apply_givens_rotation(
         theta: The rotation angle.
         target_orbs: The orbitals (p, q) to rotate.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         spin: Choice of spin sector(s) to act on.
 
             - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
@@ -108,6 +112,8 @@ def apply_givens_rotation(
     s = math.sin(theta)
     mat = np.eye(norb)
     mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
+    if isinstance(nelec, int):
+        return apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=copy)
     return apply_orbital_rotation(
         vec, pair_for_spin(mat, spin=spin), norb=norb, nelec=nelec, copy=copy
     )
@@ -118,7 +124,7 @@ def apply_tunneling_interaction(
     theta: float,
     target_orbs: tuple[int, int],
     norb: int,
-    nelec: tuple[int, int],
+    nelec: int | tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
@@ -150,7 +156,9 @@ def apply_tunneling_interaction(
         theta: The rotation angle.
         target_orbs: The orbitals (p, q) on which to apply the interaction.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         spin: Choice of spin sector(s) to act on.
 
             - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
@@ -185,7 +193,7 @@ def apply_num_interaction(
     theta: float,
     target_orb: int,
     norb: int,
-    nelec: tuple[int, int],
+    nelec: int | tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
@@ -204,7 +212,9 @@ def apply_num_interaction(
         theta: The rotation angle.
         target_orb: The orbital on which to apply the interaction.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         spin: Choice of spin sector(s) to act on.
 
             - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
@@ -222,25 +232,14 @@ def apply_num_interaction(
     """
     if copy:
         vec = vec.copy()
-    if spin & Spin.ALPHA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([target_orb], []),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+    coeffs = linalg.one_hot((norb,), target_orb)
+    if isinstance(nelec, int):
+        return apply_num_op_sum_evolution(
+            vec, coeffs, -theta, norb=norb, nelec=nelec, copy=copy
         )
-    if spin & Spin.BETA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([], [target_orb]),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-    return vec
+    return apply_num_op_sum_evolution(
+        vec, pair_for_spin(coeffs, spin), -theta, norb=norb, nelec=nelec, copy=copy
+    )
 
 
 def apply_num_num_interaction(
@@ -248,7 +247,7 @@ def apply_num_num_interaction(
     theta: float,
     target_orbs: tuple[int, int],
     norb: int,
-    nelec: tuple[int, int],
+    nelec: int | tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
@@ -268,7 +267,9 @@ def apply_num_num_interaction(
         theta: The rotation angle.
         target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         spin: Choice of spin sector(s) to act on.
 
             - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
@@ -290,6 +291,15 @@ def apply_num_num_interaction(
         )
     if copy:
         vec = vec.copy()
+    if isinstance(nelec, int):
+        return apply_num_op_prod_interaction(
+            vec,
+            theta,
+            target_orbs=(target_orbs, []),
+            norb=norb,
+            nelec=(nelec, 0),
+            copy=False,
+        )
     if spin & Spin.ALPHA:
         vec = apply_num_op_prod_interaction(
             vec,
@@ -415,7 +425,7 @@ def apply_hop_gate(
     theta: float,
     target_orbs: tuple[int, int],
     norb: int,
-    nelec: tuple[int, int],
+    nelec: int | tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
@@ -454,7 +464,9 @@ def apply_hop_gate(
         theta: The rotation angle.
         target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         spin: Choice of spin sector(s) to act on.
 
             - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
@@ -487,7 +499,7 @@ def apply_fsim_gate(
     phi: float,
     target_orbs: tuple[int, int],
     norb: int,
-    nelec: tuple[int, int],
+    nelec: int | tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
@@ -527,7 +539,9 @@ def apply_fsim_gate(
         phi: The phase angle for the number-number interaction.
         target_orbs: The orbitals (p, q) to interact.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         spin: Choice of spin sector(s) to act on.
 
             - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.

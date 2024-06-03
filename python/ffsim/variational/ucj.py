@@ -19,6 +19,7 @@ from typing import List, Tuple, cast
 import numpy as np
 import scipy.linalg
 from opt_einsum import contract
+from typing_extensions import deprecated
 
 from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
 from ffsim.linalg import double_factorized_t2
@@ -40,6 +41,7 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
 
 
 @dataclass(frozen=True)
+@deprecated("The UCJOperator class is deprecated. Use UCJOpSpinBalanced instead.")
 class UCJOperator:
     r"""A unitary cluster Jastrow operator.
 
@@ -225,18 +227,12 @@ class UCJOperator:
         tol: float = 1e-8,
     ) -> UCJOperator:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
-        # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
         diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
-        n_vecs, norb, _ = diag_coulomb_mats.shape
-        expanded_diag_coulomb_mats = np.zeros((2 * n_vecs, norb, norb))
-        expanded_orbital_rotations = np.zeros((2 * n_vecs, norb, norb), dtype=complex)
-        expanded_diag_coulomb_mats[::2] = diag_coulomb_mats
-        expanded_diag_coulomb_mats[1::2] = -diag_coulomb_mats
-        expanded_orbital_rotations[::2] = orbital_rotations
-        expanded_orbital_rotations[1::2] = orbital_rotations.conj()
+        diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
+        orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
         final_orbital_rotation = None
         if t1 is not None:
@@ -246,9 +242,9 @@ class UCJOperator:
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return UCJOperator(
-            diag_coulomb_mats_alpha_alpha=expanded_diag_coulomb_mats[:n_reps],
-            diag_coulomb_mats_alpha_beta=expanded_diag_coulomb_mats[:n_reps],
-            orbital_rotations=expanded_orbital_rotations[:n_reps],
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats,
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats,
+            orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
         )
 
@@ -256,7 +252,6 @@ class UCJOperator:
         self, nocc: int | None = None
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Convert the UCJ operator to t2 (and possibly t1) amplitudes."""
-        # TODO this ignores diag_coulomb_mats_alpha_beta
         t2 = (
             1j
             * contract(
@@ -277,9 +272,11 @@ class UCJOperator:
         return t2, t1
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
+        if isinstance(nelec, int):
+            return NotImplemented
         if copy:
             vec = vec.copy()
         for mat, mat_alpha_beta, orbital_rotation in zip(
@@ -308,6 +305,7 @@ class UCJOperator:
 
 
 @dataclass
+@deprecated("The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead.")
 class RealUCJOperator:
     r"""Real-valued unitary cluster Jastrow operator.
 
@@ -491,12 +489,12 @@ class RealUCJOperator:
         tol: float = 1e-8,
     ) -> "RealUCJOperator":
         """Initialize the real UCJ operator from t2 (and optionally t1) amplitudes."""
-        # TODO maybe allow specifying alpha-alpha and alpha-beta indices
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
         diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
-        _, norb, _ = diag_coulomb_mats.shape
+        diag_coulomb_mats = diag_coulomb_mats[:n_reps, 0]
+        orbital_rotations = orbital_rotations[:n_reps, 0]
 
         final_orbital_rotation = None
         if t1 is not None:
@@ -506,9 +504,9 @@ class RealUCJOperator:
             final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
 
         return RealUCJOperator(
-            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats[:n_reps],
-            diag_coulomb_mats_alpha_beta=diag_coulomb_mats[:n_reps],
-            orbital_rotations=orbital_rotations[:n_reps],
+            diag_coulomb_mats_alpha_alpha=diag_coulomb_mats,
+            diag_coulomb_mats_alpha_beta=diag_coulomb_mats,
+            orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
         )
 
@@ -516,7 +514,6 @@ class RealUCJOperator:
         self, nocc: int | None = None
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Convert the UCJ operator to t2 (and possibly t1) amplitudes."""
-        # TODO this ignores diag_coulomb_mats_alpha_beta
         t2 = 1j * (
             contract(
                 "kpq,kap,kip,kbq,kjq->ijab",
@@ -545,9 +542,11 @@ class RealUCJOperator:
         return t2, t1
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
+        if isinstance(nelec, int):
+            return NotImplemented
         if copy:
             vec = vec.copy()
         for mat, mat_alpha_beta, orbital_rotation in zip(

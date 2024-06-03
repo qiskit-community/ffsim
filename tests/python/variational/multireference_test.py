@@ -18,7 +18,7 @@ import ffsim.random.random
 
 def test_multireference_state_prod():
     """Test multireference state for product operator."""
-    rng = np.random.default_rng(1234)
+    rng = np.random.default_rng(30314)
 
     norb = 8
     nelec = (4, 4)
@@ -30,41 +30,39 @@ def test_multireference_state_prod():
 
     n_layers = norb
     interaction_pairs = list(brickwork(norb, n_layers))
-    thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, thetas)
 
-    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
-        norb, seed=rng, dtype=float
-    )
-    reference_occupations_spatial = [(0, 1, 2, 3), (1, 2, 3, 4), (0, 1, 2, 4)]
-    reference_occupations = list(
-        zip(reference_occupations_spatial, reference_occupations_spatial)
-    )
-    reference_occupations = [
-        ((0, 1, 2, 3), (1, 2, 3, 4)),
-        ((0, 1, 2, 4), (2, 3, 4, 6)),
-        ((1, 2, 4, 5), (2, 3, 4, 7)),
-    ]
+    for _ in range(5):
+        thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+        operator = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
 
-    energy, prod_state_sum = ffsim.multireference_state_prod(
-        mol_hamiltonian,
-        (operator, operator),
-        reference_occupations,
-        norb=norb,
-        nelec=nelec,
-    )
-    reconstructed_state = np.tensordot(
-        prod_state_sum.coeffs,
-        [np.kron(vec_a, vec_b) for vec_a, vec_b in prod_state_sum.states],
-        axes=1,
-    )
-    expected_energy, state = ffsim.multireference_state(
-        mol_hamiltonian,
-        operator,
-        reference_occupations,
-        norb=norb,
-        nelec=nelec,
-    )
+        mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
+            norb, seed=rng, dtype=float
+        )
+        reference_occupations = [
+            ((0, 1, 2, 3), (1, 2, 3, 4)),
+            ((0, 1, 2, 4), (2, 3, 4, 6)),
+            ((1, 2, 4, 5), (2, 3, 4, 7)),
+        ]
 
-    np.testing.assert_allclose(energy, expected_energy)
-    np.testing.assert_allclose(reconstructed_state, state)
+        energy, prod_state_sum = ffsim.multireference_state_prod(
+            mol_hamiltonian,
+            (operator, operator),
+            reference_occupations,
+            norb=norb,
+            nelec=nelec,
+        )
+        reconstructed_state = np.tensordot(
+            prod_state_sum.coeffs,
+            [np.kron(vec_a, vec_b) for vec_a, vec_b in prod_state_sum.states],
+            axes=1,
+        )
+        expected_energy, state = ffsim.multireference_state(
+            mol_hamiltonian,
+            operator,
+            reference_occupations,
+            norb=norb,
+            nelec=nelec,
+        )
+
+        np.testing.assert_allclose(energy, expected_energy)
+        ffsim.testing.assert_allclose_up_to_global_phase(reconstructed_state, state)

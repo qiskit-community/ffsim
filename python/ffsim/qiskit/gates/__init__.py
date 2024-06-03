@@ -10,7 +10,10 @@
 
 """Qiskit fermionic quantum gates."""
 
-from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
+from ffsim.qiskit.gates.diag_coulomb import (
+    DiagCoulombEvolutionJW,
+    DiagCoulombEvolutionSpinlessJW,
+)
 from ffsim.qiskit.gates.givens_ansatz import (
     GivensAnsatzOperatorJW,
     GivensAnsatzOperatorSpinlessJW,
@@ -25,10 +28,16 @@ from ffsim.qiskit.gates.slater_determinant import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
 )
-from ffsim.qiskit.gates.ucj import UCJOperatorJW
+from ffsim.qiskit.gates.ucj import (
+    UCJOpSpinBalancedJW,
+    UCJOpSpinlessJW,
+    UCJOpSpinUnbalancedJW,
+)
+from ffsim.qiskit.gates.ucj_operator import UCJOperatorJW
 
 __all__ = [
     "DiagCoulombEvolutionJW",
+    "DiagCoulombEvolutionSpinlessJW",
     "GivensAnsatzOperatorJW",
     "GivensAnsatzOperatorSpinlessJW",
     "OrbitalRotationJW",
@@ -38,4 +47,7 @@ __all__ = [
     "PrepareSlaterDeterminantJW",
     "PrepareSlaterDeterminantSpinlessJW",
     "UCJOperatorJW",
+    "UCJOpSpinBalancedJW",
+    "UCJOpSpinUnbalancedJW",
+    "UCJOpSpinlessJW",
 ]

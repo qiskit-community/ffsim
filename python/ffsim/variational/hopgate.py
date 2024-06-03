@@ -51,7 +51,7 @@ class HopGateAnsatzOperator:
     final_orbital_rotation: np.ndarray | None = None
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
         if copy:

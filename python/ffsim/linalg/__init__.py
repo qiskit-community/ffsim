@@ -13,6 +13,7 @@
 from ffsim.linalg.double_factorized_decomposition import (
     double_factorized,
     double_factorized_t2,
+    double_factorized_t2_alpha_beta,
     modified_cholesky,
 )
 from ffsim.linalg.givens import (
@@ -24,6 +25,7 @@ from ffsim.linalg.linalg import (
     expm_multiply_taylor,
     lup,
     match_global_phase,
+    one_hot,
     reduced_matrix,
 )
 from ffsim.linalg.predicates import (
@@ -40,6 +42,7 @@ __all__ = [
     "apply_matrix_to_slices",
     "double_factorized",
     "double_factorized_t2",
+    "double_factorized_t2_alpha_beta",
     "expm_multiply_taylor",
     "givens_decomposition",
     "is_antihermitian",
@@ -51,5 +54,6 @@ __all__ = [
     "lup",
     "match_global_phase",
     "modified_cholesky",
+    "one_hot",
     "reduced_matrix",
 ]
