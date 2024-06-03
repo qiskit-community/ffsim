@@ -91,28 +91,40 @@ def test_parameters_roundtrip():
 
 
 def test_t_amplitudes_energy():
-    # Build an H2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["H", (0, 0, 0)], ["H", (0, 0, 1.8)]],
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
+    n_frozen = 2
+    active_space = range(n_frozen, mol.nao_nr())
     scf = pyscf.scf.RHF(mol).run()
-    ccsd = pyscf.cc.CCSD(scf).run()
+    ccsd = pyscf.cc.CCSD(
+        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
+    ).run()
 
-    # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
-    mol_data = ffsim.MolecularData.from_scf(scf)
+    # Get molecular data and molecular Hamiltonian
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
     norb = mol_data.norb
     nelec = mol_data.nelec
+    assert norb == 8
+    assert nelec == (5, 5)
     mol_hamiltonian = mol_data.hamiltonian
 
     # Construct UCJ operator
     n_reps = 2
-    operator = ffsim.UCJOpSpinless.from_t_amplitudes(ccsd.t2, n_reps=n_reps)
+    operator = ffsim.UCJOpSpinless.from_t_amplitudes(ccsd.t2, t1=ccsd.t1, n_reps=n_reps)
 
     # Compute energy using entanglement forging
-    reference_occupations_spatial = [(0,), (1,)]
+    reference_occupations_spatial = [
+        (0, 1, 2),
+        (0, 1, 3),
+        (0, 1, 4),
+        (1, 2, 3),
+        (1, 2, 4),
+        (2, 3, 4),
+    ]
     reference_occupations = list(
         zip(reference_occupations_spatial, reference_occupations_spatial)
     )
@@ -123,7 +135,7 @@ def test_t_amplitudes_energy():
         norb=norb,
         nelec=nelec,
     )
-    np.testing.assert_allclose(energy, -0.970773)
+    np.testing.assert_allclose(energy, -108.519714)
 
 
 def test_t_amplitudes_restrict_indices():

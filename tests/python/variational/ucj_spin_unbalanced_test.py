@@ -120,12 +120,14 @@ def test_t_amplitudes_energy():
         norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
     )
 
-    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, n_reps=4)
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        ccsd.t2, t1=ccsd.t1, n_reps=4
+    )
     ansatz_state = ffsim.apply_unitary(
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.125629)
+    np.testing.assert_allclose(energy, -15.124376)
 
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, n_reps=(4, 2))
     ansatz_state = ffsim.apply_unitary(
