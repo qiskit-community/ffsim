@@ -41,6 +41,14 @@ def fermi_hubbard_1d(
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
 
+    For the tunneling and nearest-neighbor interaction terms, the summations over
+    :math:`p` run along edges in the network. Under open boundary conditions, there are
+    :math:`N` vertices and :math:`N-1` edges connected in a chain and hence, the
+    summations over :math:`p` are defined as :math:`\sum_{p}=\sum_{p=1}^{N-1}`. Under
+    periodic boundary conditions, there are :math:`N` vertices and :math:`N` edges
+    connected in a ring and hence, the summations over :math:`p` are defined as
+    :math:`\sum_{p}=\sum_{p=1}^{N}`, with operator positions :math:`p+1\to(p+1)\bmod N`.
+
     References:
         - `The Hubbard Model`_
 
@@ -114,6 +122,16 @@ def fermi_hubbard_2d(
     where :math:`\braket{\dots}` denotes nearest-neighbor pairs and
     :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number operator
     on orbital :math:`p` with spin :math:`\sigma`.
+
+    For the tunneling and nearest-neighbor interaction terms, the summations over
+    :math:`\braket{pq}` run along edges in the network. Under open boundary conditions,
+    there are :math:`N_x \times N_y` vertices and
+    :math:`2 (N_x \times N_y) - (N_x + N_y)` edges connected on a plane. Under periodic
+    boundary conditions, there are :math:`N_x \times N_y` vertices and
+    :math:`2 (N_x \times N_y)` edges connected on a torus, with operator positions
+    defined modulo :math:`N_x` or :math:`N_y`. This is a two-dimensional generalization
+    of the nearest-neighbor summations defined in
+    :func:`fermi_hubbard_1d <~operators.fermi_hubbard.fermi_hubbard_1d>`.
 
     References:
         - `The Hubbard Model`_
