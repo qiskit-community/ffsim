@@ -1,0 +1,249 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# How to simulate entanglement forging\n",
+    "\n",
+    "In this guide, we show how to simulate [entanglement forging](https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309).\n",
+    "\n",
+    "## Build a molecule\n",
+    "\n",
+    "We'll use, as an example, a water molecule at equilibrium bond length in an active space of 6 orbitals and 8 electrons."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -75.6787887956297\n",
+      "CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000\n",
+      "norb = 6\n",
+      "nelec = (4, 4)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import math\n",
+    "\n",
+    "import pyscf\n",
+    "import pyscf.mcscf\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Build a water molecule\n",
+    "radius_1 = 0.958\n",
+    "radius_2 = 0.958\n",
+    "bond_angle_deg = 104.478\n",
+    "\n",
+    "h1_x = radius_1\n",
+    "h2_x = radius_2 * math.cos(math.pi / 180 * bond_angle_deg)\n",
+    "h2_y = radius_2 * math.sin(math.pi / 180 * bond_angle_deg)\n",
+    "\n",
+    "mol = pyscf.gto.Mole()\n",
+    "mol.build(\n",
+    "    atom=[\n",
+    "        [\"O\", (0, 0, 0)],\n",
+    "        [\"H\", (h1_x, 0, 0)],\n",
+    "        [\"H\", (h2_x, h2_y, 0)],\n",
+    "    ],\n",
+    "    basis=\"sto-6g\",\n",
+    "    symmetry=\"c2v\",\n",
+    ")\n",
+    "\n",
+    "# Define active space\n",
+    "active_space = range(1, mol.nao_nr())\n",
+    "\n",
+    "# Get molecular data and molecular Hamiltonian\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)\n",
+    "norb, nelec = mol_data.norb, mol_data.nelec\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "\n",
+    "# Compute the FCI energy\n",
+    "mol_data.run_fci()\n",
+    "\n",
+    "print(f\"norb = {norb}\")\n",
+    "print(f\"nelec = {nelec}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Initialize ansatz operator\n",
+    "\n",
+    "For our ansatz, we'll use a dense \"brickwork\" pattern of \"hop gates.\" This is implemented in ffsim as the [HopGateAnsatzOperator](../api/ffsim.rst#ffsim.HopGateAnsatzOperator) class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "\n",
+    "# Define the pattern of two-qubit gates to use\n",
+    "def brickwork(norb: int, n_layers: int):\n",
+    "    for i in range(n_layers):\n",
+    "        for j in range(i % 2, norb - 1, 2):\n",
+    "            yield (j, j + 1)\n",
+    "\n",
+    "\n",
+    "n_layers = norb\n",
+    "interaction_pairs = list(brickwork(norb, n_layers))\n",
+    "\n",
+    "# Generate random initial parameters\n",
+    "rng = np.random.default_rng(1234)\n",
+    "thetas = rng.normal(scale=1e-1, size=len(interaction_pairs))\n",
+    "\n",
+    "# Construct the ansatz operator\n",
+    "operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, thetas)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Choose reference occupations\n",
+    "\n",
+    "The next step is to choose the reference occupations to use. We'll use 3 reference occupations, and these will be constructed using the same occupations for the alpha and beta spin orbitals."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Specify the reference occupations as \"spatial\" since we'll use the same occupations\n",
+    "# for both alpha and beta spin orbitals\n",
+    "reference_occupations_spatial = [(0, 1, 2, 3), (1, 2, 3, 4), (0, 1, 2, 4)]\n",
+    "\n",
+    "# Construct the full reference occupations, including alpha and beta parts\n",
+    "reference_occupations = list(\n",
+    "    zip(reference_occupations_spatial, reference_occupations_spatial)\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Compute energy\n",
+    "\n",
+    "The entanglement forging energy is computed using the [multireference_state_prod](../api/ffsim.rst#ffsim.multireference_state_prod) function. The `prod` suffix refers to the fact that our ansatz operator is a product operator which acts on the alpha and beta spin sectors independently. In this case, we choose to use the same ansatz operator for both spin sectors, so we pass a tuple `(operator, operator)` of the same ansatz operator repeated twice."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Energy at initialialization: -75.67794403659724\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Compute the energy of the ansatz\n",
+    "energy, _ = ffsim.multireference_state_prod(\n",
+    "    mol_hamiltonian, (operator, operator), reference_occupations, norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "print(f\"Energy at initialialization: {energy}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Optimize energy\n",
+    "\n",
+    "Now that we know how to initialize an ansatz operator and compute its energy, we can put this logic in a function and minimize the function. Here, we minimizze the function using Scipy's optimization module."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of parameters: 15\n",
+      "  message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT\n",
+      "  success: False\n",
+      "   status: 1\n",
+      "      fun: -75.68381554804724\n",
+      "        x: [-1.603e-01  6.421e-03 ...  5.748e-02 -1.005e-01]\n",
+      "      nit: 3\n",
+      "      jac: [ 2.146e-04  9.948e-05 ... -4.748e-03  7.438e-03]\n",
+      "     nfev: 112\n",
+      "     njev: 7\n",
+      " hess_inv: <15x15 LbfgsInvHessProduct with dtype=float64>\n"
+     ]
+    }
+   ],
+   "source": [
+    "import scipy.optimize\n",
+    "\n",
+    "\n",
+    "def fun(x):\n",
+    "    # Initialize the ansatz operator from the parameter vector\n",
+    "    operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, x)\n",
+    "    # Compute energy\n",
+    "    energy, _ = ffsim.multireference_state_prod(\n",
+    "        mol_hamiltonian,\n",
+    "        (operator, operator),\n",
+    "        reference_occupations,\n",
+    "        norb=norb,\n",
+    "        nelec=nelec,\n",
+    "    )\n",
+    "    return energy\n",
+    "\n",
+    "\n",
+    "result = scipy.optimize.minimize(\n",
+    "    fun, x0=operator.thetas, method=\"L-BFGS-B\", options=dict(maxfun=100)\n",
+    ")\n",
+    "\n",
+    "print(f\"Number of parameters: {len(result.x)}\")\n",
+    "print(result)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim-a58AE6yt",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

@@ -1,0 +1,355 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# How to simulate the local unitary cluster Jastrow (LUCJ) ansatz\n",
+    "\n",
+    "In this guide, we show how to use ffsim to simulate the [local unitary cluster Jastrow (LUCJ) ansatz](../explanations/lucj.ipynb). We'll use it to calculate an approximation to the ground state energy of an ethene molecule.\n",
+    "\n",
+    "First, let's build the molecule."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -77.8266321248744\n",
+      "CASCI E = -77.8742165643863  E(CI) = -4.02122442107773  S^2 = 0.0000000\n",
+      "norb = 4\n",
+      "nelec = (2, 2)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pyscf\n",
+    "import pyscf.mcscf\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Build an ethene molecule\n",
+    "bond_distance = 1.339\n",
+    "a = 0.5 * bond_distance\n",
+    "b = a + 0.5626\n",
+    "c = 0.9289\n",
+    "mol = pyscf.gto.Mole()\n",
+    "mol.build(\n",
+    "    atom=[\n",
+    "        [\"C\", (0, 0, a)],\n",
+    "        [\"C\", (0, 0, -a)],\n",
+    "        [\"H\", (0, c, b)],\n",
+    "        [\"H\", (0, -c, b)],\n",
+    "        [\"H\", (0, c, -b)],\n",
+    "        [\"H\", (0, -c, -b)],\n",
+    "    ],\n",
+    "    basis=\"sto-6g\",\n",
+    "    symmetry=\"d2h\",\n",
+    ")\n",
+    "\n",
+    "# Define active space\n",
+    "active_space = range(mol.nelectron // 2 - 2, mol.nelectron // 2 + 2)\n",
+    "\n",
+    "# Get molecular data and molecular Hamiltonian (one- and two-body tensors)\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)\n",
+    "norb = mol_data.norb\n",
+    "nelec = mol_data.nelec\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "\n",
+    "# Compute FCI energy\n",
+    "mol_data.run_fci()\n",
+    "\n",
+    "print(f\"norb = {norb}\")\n",
+    "print(f\"nelec = {nelec}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## General UCJ ansatz\n",
+    "\n",
+    "Since our molecule has a closed-shell Hartree-Fock state, we'll use the spin-balanced variant of the UCJ ansatz, [UCJOpSpinBalanced](../api/ffsim.rst#ffsim.UCJOpSpinBalanced). We'll initialize the ansatz from t2 amplitudes obtained from a CCSD calculations. We'll first demonstrate the general UCJ ansatz, without adding the locality constraints of the LUCJ ansatz just yet.\n",
+    "\n",
+    "The following code cell initializes the ansatz operator, applies it to the Hartree-Fock state, and computes the energy of the resulting state."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "E(CCSD) = -77.87421536374032  E_corr = -0.04758323886585128\n",
+      "Energy at initialization: -77.87160024816264\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "from pyscf import cc\n",
+    "\n",
+    "# Get CCSD t2 amplitudes for initializing the ansatz\n",
+    "ccsd = cc.CCSD(\n",
+    "    scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]\n",
+    ").run()\n",
+    "\n",
+    "# Construct UCJ operator\n",
+    "n_reps = 2\n",
+    "operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(ccsd.t2, n_reps=n_reps)\n",
+    "\n",
+    "# Construct the Hartree-Fock state to use as the reference state\n",
+    "reference_state = ffsim.hartree_fock_state(norb, nelec)\n",
+    "\n",
+    "# Apply the operator to the reference state\n",
+    "ansatz_state = ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)\n",
+    "\n",
+    "# Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state\n",
+    "hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)\n",
+    "energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))\n",
+    "print(f\"Energy at initialization: {energy}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To variationally optimize the ansatz, we'll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using `scipy.optimize.minimize`, with an initial guess obtained from the operator we initialized previously from t2 amplitudes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of parameters: 72\n",
+      "  message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT\n",
+      "  success: False\n",
+      "   status: 1\n",
+      "      fun: -77.87387390686946\n",
+      "        x: [-1.153e+00  6.076e-05 ...  2.465e-04  1.287e-01]\n",
+      "      nit: 10\n",
+      "      jac: [ 2.558e-05 -1.990e-05 ...  4.263e-06  2.274e-05]\n",
+      "     nfev: 949\n",
+      "     njev: 13\n",
+      " hess_inv: <72x72 LbfgsInvHessProduct with dtype=float64>\n"
+     ]
+    }
+   ],
+   "source": [
+    "import scipy.optimize\n",
+    "\n",
+    "\n",
+    "def fun(x):\n",
+    "    # Initialize the ansatz operator from the parameter vector\n",
+    "    operator = ffsim.UCJOpSpinBalanced.from_parameters(x, norb=norb, n_reps=n_reps)\n",
+    "    # Apply the ansatz operator to the reference state\n",
+    "    final_state = ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)\n",
+    "    # Return the energy ⟨ψ|H|ψ⟩ of the ansatz state\n",
+    "    return np.real(np.vdot(final_state, hamiltonian @ final_state))\n",
+    "\n",
+    "\n",
+    "result = scipy.optimize.minimize(\n",
+    "    fun, x0=operator.to_parameters(), method=\"L-BFGS-B\", options=dict(maxiter=10)\n",
+    ")\n",
+    "\n",
+    "print(f\"Number of parameters: {len(result.x)}\")\n",
+    "print(result)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## LUCJ ansatz\n",
+    "\n",
+    "Now, let's add locality constraints to simulate the LUCJ ansatz. We'll restrict same-spin interactions to a line topology, and opposite-spin interactions to those within the same spatial orbital. As explained in [The local unitary cluster Jastrow (LUCJ) ansatz](../explanations/lucj.ipynb#The-local-UCJ-(LUCJ)-ansatz), these constraints allow the ansatz to be simulated directly on a square lattice.\n",
+    "\n",
+    "In the following code cell, we demonstrate the optimization of the ansatz with these constraints imposed. Notice that with the same number of ansatz repetitions, the number of parameters of the ansatz has decreased from 72 to 46."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of parameters: 46\n",
+      "  message: CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH\n",
+      "  success: True\n",
+      "   status: 0\n",
+      "      fun: -77.87363426546702\n",
+      "        x: [-1.152e+00 -2.540e-04 ...  3.519e-02  2.561e-01]\n",
+      "      nit: 5\n",
+      "      jac: [ 1.847e-05  0.000e+00 ...  4.263e-06  4.263e-06]\n",
+      "     nfev: 329\n",
+      "     njev: 7\n",
+      " hess_inv: <46x46 LbfgsInvHessProduct with dtype=float64>\n"
+     ]
+    }
+   ],
+   "source": [
+    "pairs_aa = [(p, p + 1) for p in range(norb - 1)]\n",
+    "pairs_ab = [(p, p) for p in range(norb)]\n",
+    "interaction_pairs = (pairs_aa, pairs_ab)\n",
+    "\n",
+    "\n",
+    "def fun(x):\n",
+    "    operator = ffsim.UCJOpSpinBalanced.from_parameters(\n",
+    "        x, norb=norb, n_reps=n_reps, interaction_pairs=interaction_pairs\n",
+    "    )\n",
+    "    final_state = ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)\n",
+    "    return np.real(np.vdot(final_state, hamiltonian @ final_state))\n",
+    "\n",
+    "\n",
+    "result = scipy.optimize.minimize(\n",
+    "    fun,\n",
+    "    x0=operator.to_parameters(interaction_pairs=interaction_pairs),\n",
+    "    method=\"L-BFGS-B\",\n",
+    "    options=dict(maxiter=10),\n",
+    ")\n",
+    "print(f\"Number of parameters: {len(result.x)}\")\n",
+    "print(result)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Optimize with the linear method\n",
+    "\n",
+    "ffsim includes an implementation of the [\"linear method\"](https://arxiv.org/abs/1412.0490v2) for optimization of a variational wavefunction. The linear method often converges faster than a standard optimization algorithm like L-BFGS-B. The interface is similar to that of `scipy.optimize.minimize`, the main difference being that instead of passing a callable that directly returns the function value to be optimized, you pass two objects: a callable that returns the wavefunction, and the Hamiltonian representing the energy to be optimized as a `LinearOperator`. The code cell below shows how to use the linear method to optimize the LUCJ ansatz from the previous example. It also shows how you can use an optional callback function to save intermediate results of the optimization."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of parameters: 46\n",
+      " message: Convergence: Norm of projected gradient <= gtol.\n",
+      " success: True\n",
+      "     fun: -77.87363432133785\n",
+      "       x: [-1.152e+00 -5.961e-05 ...  3.502e-02  2.559e-01]\n",
+      "     nit: 3\n",
+      "     jac: [ 6.165e-07 -7.634e-08 ... -1.103e-07 -1.696e-07]\n",
+      "    nfev: 523\n",
+      "    njev: 4\n",
+      "  nlinop: 339\n",
+      "\n",
+      "Iteration 1\n",
+      "    Energy: -77.87363008607939\n",
+      "    Norm of gradient: 0.0017644518359106424\n",
+      "    Regularization hyperparameter: 0.0031063730910734907\n",
+      "    Variation hyperparameter: 0.9971884634671736\n",
+      "Iteration 2\n",
+      "    Energy: -77.8736343159954\n",
+      "    Norm of gradient: 4.409978218198142e-05\n",
+      "    Regularization hyperparameter: 0.003106389097943625\n",
+      "    Variation hyperparameter: 0.9971884640463475\n",
+      "Iteration 3\n",
+      "    Energy: -77.87363432133785\n",
+      "    Norm of gradient: 4.178532608295441e-06\n",
+      "    Regularization hyperparameter: 0.0031071089983360466\n",
+      "    Variation hyperparameter: 0.9971884650809466\n"
+     ]
+    }
+   ],
+   "source": [
+    "from collections import defaultdict\n",
+    "\n",
+    "from ffsim.optimize import minimize_linear_method\n",
+    "\n",
+    "\n",
+    "# Define function that converts a list of parameters to the corresponding state vector\n",
+    "def params_to_vec(x: np.ndarray) -> np.ndarray:\n",
+    "    operator = ffsim.UCJOpSpinBalanced.from_parameters(\n",
+    "        x, norb=norb, n_reps=n_reps, interaction_pairs=interaction_pairs\n",
+    "    )\n",
+    "    return ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)\n",
+    "\n",
+    "\n",
+    "# Define a callback function used to save optimization information (this is optional)\n",
+    "info = defaultdict(list)\n",
+    "\n",
+    "\n",
+    "def callback(intermediate_result: scipy.optimize.OptimizeResult):\n",
+    "    # The callback function is called after each iteration. It accepts\n",
+    "    # an OptimizeResult object storing the parameters and function value at\n",
+    "    # the current iteration, and possibly other information\n",
+    "    info[\"x\"].append(intermediate_result.x)\n",
+    "    info[\"fun\"].append(intermediate_result.fun)\n",
+    "    if hasattr(intermediate_result, \"jac\"):\n",
+    "        info[\"jac\"].append(intermediate_result.jac)\n",
+    "    if hasattr(intermediate_result, \"regularization\"):\n",
+    "        info[\"regularization\"].append(intermediate_result.regularization)\n",
+    "    if hasattr(intermediate_result, \"variation\"):\n",
+    "        info[\"variation\"].append(intermediate_result.variation)\n",
+    "\n",
+    "\n",
+    "# Optimize with the linear method\n",
+    "result = minimize_linear_method(\n",
+    "    params_to_vec,\n",
+    "    hamiltonian,\n",
+    "    x0=operator.to_parameters(interaction_pairs=interaction_pairs),\n",
+    "    maxiter=10,\n",
+    "    callback=callback,\n",
+    ")\n",
+    "\n",
+    "# Print some information\n",
+    "print(f\"Number of parameters: {len(result.x)}\")\n",
+    "print(result)\n",
+    "print()\n",
+    "for i, (fun, jac, regularization, variation) in enumerate(\n",
+    "    zip(info[\"fun\"], info[\"jac\"], info[\"regularization\"], info[\"variation\"])\n",
+    "):\n",
+    "    print(f\"Iteration {i + 1}\")\n",
+    "    print(f\"    Energy: {fun}\")\n",
+    "    print(f\"    Norm of gradient: {np.linalg.norm(jac)}\")\n",
+    "    print(f\"    Regularization hyperparameter: {np.linalg.norm(regularization)}\")\n",
+    "    print(f\"    Variation hyperparameter: {np.linalg.norm(variation)}\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim-1cfkSnAR",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
