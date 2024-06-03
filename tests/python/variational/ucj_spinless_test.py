@@ -135,6 +135,14 @@ def test_t_amplitudes_energy():
         norb=norb,
         nelec=nelec,
     )
+    energy_alt, _ = ffsim.multireference_state(
+        mol_hamiltonian,
+        operator,
+        reference_occupations,
+        norb=norb,
+        nelec=nelec,
+    )
+    np.testing.assert_allclose(energy, energy_alt)
     np.testing.assert_allclose(energy, -108.519714)
 
 

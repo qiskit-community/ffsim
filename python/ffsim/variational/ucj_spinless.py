@@ -363,37 +363,56 @@ class UCJOpSpinless:
     ) -> np.ndarray:
         if copy:
             vec = vec.copy()
+        current_basis = np.eye(norb)
         if isinstance(nelec, int):
             for diag_coulomb_mat, orbital_rotation in zip(
                 self.diag_coulomb_mats, self.orbital_rotations
             ):
+                vec = gates.apply_orbital_rotation(
+                    vec,
+                    orbital_rotation.T.conj() @ current_basis,
+                    norb=norb,
+                    nelec=nelec,
+                    copy=False,
+                )
                 vec = gates.apply_diag_coulomb_evolution(
                     vec,
                     diag_coulomb_mat,
                     time=-1.0,
                     norb=norb,
                     nelec=nelec,
-                    orbital_rotation=orbital_rotation,
                     copy=False,
                 )
+                current_basis = orbital_rotation
         else:
             zero = np.zeros((norb, norb))
             for diag_coulomb_mat, orbital_rotation in zip(
                 self.diag_coulomb_mats, self.orbital_rotations
             ):
+                vec = gates.apply_orbital_rotation(
+                    vec,
+                    orbital_rotation.T.conj() @ current_basis,
+                    norb=norb,
+                    nelec=nelec,
+                    copy=False,
+                )
                 vec = gates.apply_diag_coulomb_evolution(
                     vec,
                     (diag_coulomb_mat, zero, diag_coulomb_mat),
                     time=-1.0,
                     norb=norb,
                     nelec=nelec,
-                    orbital_rotation=orbital_rotation,
                     copy=False,
                 )
-        if self.final_orbital_rotation is not None:
+                current_basis = orbital_rotation
+        if self.final_orbital_rotation is None:
+            vec = gates.apply_orbital_rotation(
+                vec, current_basis, norb=norb, nelec=nelec, copy=False
+            )
+        else:
             vec = gates.apply_orbital_rotation(
                 vec,
-                mat=self.final_orbital_rotation,
+                self.final_orbital_rotation @ current_basis,
                 norb=norb,
                 nelec=nelec,
                 copy=False,
