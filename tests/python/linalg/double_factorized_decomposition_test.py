@@ -16,6 +16,8 @@ import itertools
 
 import numpy as np
 import pytest
+import scipy.linalg
+from opt_einsum import contract
 from pyscf import ao2mo, cc, gto, mcscf, scf
 
 import ffsim
@@ -30,25 +32,54 @@ from ffsim.linalg.double_factorized_decomposition import (
 from ffsim.random import random_t2_amplitudes, random_unitary
 
 
-def _reconstruct_t2(
-    diag_coulomb_mats: np.ndarray, orbital_rotations: np.ndarray, nocc: int | None
-):
-    n_vecs, norb, _ = diag_coulomb_mats.shape
-    expanded_diag_coulomb_mats = np.zeros((2 * n_vecs, norb, norb))
-    expanded_orbital_rotations = np.zeros((2 * n_vecs, norb, norb), dtype=complex)
-    expanded_diag_coulomb_mats[::2] = diag_coulomb_mats
-    expanded_diag_coulomb_mats[1::2] = -diag_coulomb_mats
-    expanded_orbital_rotations[::2] = orbital_rotations
-    expanded_orbital_rotations[1::2] = orbital_rotations.conj()
-    t2 = 1j * np.einsum(
-        "kpq,kap,kip,kbq,kjq->ijab",
-        expanded_diag_coulomb_mats,
-        expanded_orbital_rotations,
-        expanded_orbital_rotations.conj(),
-        expanded_orbital_rotations,
-        expanded_orbital_rotations.conj(),
+def reconstruct_t2(
+    diag_coulomb_mats: np.ndarray, orbital_rotations: np.ndarray, nocc: int
+) -> np.ndarray:
+    return (
+        1j
+        * contract(
+            "mkpq,mkap,mkip,mkbq,mkjq->ijab",
+            diag_coulomb_mats,
+            orbital_rotations,
+            orbital_rotations.conj(),
+            orbital_rotations,
+            orbital_rotations.conj(),
+        )[:nocc, :nocc, nocc:, nocc:]
     )
-    return t2[:nocc, :nocc, nocc:, nocc:]
+
+
+def reconstruct_t2_alpha_beta(
+    diag_coulomb_mats: np.ndarray,
+    orbital_rotations: np.ndarray,
+    norb: int,
+    nocc_a: int,
+    nocc_b: int,
+) -> np.ndarray:
+    n_vecs = diag_coulomb_mats.shape[0]
+    expanded_diag_coulomb_mats = np.zeros((n_vecs, 4, 2 * norb, 2 * norb))
+    expanded_orbital_rotations = np.zeros(
+        (n_vecs, 4, 2 * norb, 2 * norb), dtype=complex
+    )
+    for m, k in itertools.product(range(n_vecs), range(4)):
+        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m, k]
+        expanded_diag_coulomb_mats[m, k] = np.block(
+            [[mat_aa, mat_ab], [mat_ab.T, mat_bb]]
+        )
+        orbital_rotation_a, orbital_rotation_b = orbital_rotations[m, k]
+        expanded_orbital_rotations[m, k] = scipy.linalg.block_diag(
+            orbital_rotation_a, orbital_rotation_b
+        )
+    return (
+        2j
+        * contract(
+            "mkpq,mkap,mkip,mkbq,mkjq->ijab",
+            expanded_diag_coulomb_mats,
+            expanded_orbital_rotations,
+            expanded_orbital_rotations.conj(),
+            expanded_orbital_rotations,
+            expanded_orbital_rotations.conj(),
+        )[:nocc_a, norb : norb + nocc_b, nocc_a:norb, norb + nocc_b :]
+    )
 
 
 @pytest.mark.parametrize("dim", range(6))
@@ -279,8 +310,14 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     """Test double factorization of random t2 amplitudes."""
     t2 = random_t2_amplitudes(norb, nocc, dtype=float)
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2)
-    reconstructed = _reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
+    reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     np.testing.assert_allclose(reconstructed, t2, atol=1e-8)
+    np.testing.assert_allclose(
+        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 1], atol=1e-8
+    )
+    np.testing.assert_allclose(
+        orbital_rotations[:, 0], orbital_rotations[:, 1].conj(), atol=1e-8
+    )
 
 
 def test_double_factorized_t2_tol_max_vecs():
@@ -304,14 +341,14 @@ def test_double_factorized_t2_tol_max_vecs():
         t2,
         max_vecs=max_vecs,
     )
-    reconstructed = _reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
+    reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     assert len(orbital_rotations) == max_vecs
     np.testing.assert_allclose(reconstructed, t2, atol=1e-5)
 
     # test error threshold
     tol = 1e-3
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
-    reconstructed = _reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
+    reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     assert len(orbital_rotations) <= 7
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
 
@@ -319,6 +356,92 @@ def test_double_factorized_t2_tol_max_vecs():
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(
         t2, tol=tol, max_vecs=max_vecs
     )
-    reconstructed = _reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
+    reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     assert len(orbital_rotations) <= 7
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
+
+
+def test_double_factorized_t2_alpha_beta_random():
+    """Test double factorization of opposite-spin t2 amplitudes with random tensor."""
+    rng = np.random.default_rng()
+    shape = (3, 6, 7, 4)
+    t2ab = rng.standard_normal(shape)
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
+        t2ab
+    )
+    nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
+    norb = nocc_a + nvrt_a
+    reconstructed = reconstruct_t2_alpha_beta(
+        diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
+    )
+    np.testing.assert_allclose(reconstructed, t2ab, atol=1e-8)
+
+    np.testing.assert_allclose(
+        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 1], atol=1e-8
+    )
+    np.testing.assert_allclose(
+        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 2], atol=1e-8
+    )
+    np.testing.assert_allclose(
+        diag_coulomb_mats[:, 0], diag_coulomb_mats[:, 3], atol=1e-8
+    )
+
+    np.testing.assert_allclose(
+        orbital_rotations[:, 0, 0], orbital_rotations[:, 1, 0], atol=1e-8
+    )
+    np.testing.assert_allclose(
+        orbital_rotations[:, 0, 0], orbital_rotations[:, 2, 0].conj(), atol=1e-8
+    )
+    np.testing.assert_allclose(
+        orbital_rotations[:, 0, 0], orbital_rotations[:, 3, 0].conj(), atol=1e-8
+    )
+    # TODO add the rest of the relations
+
+
+def test_double_factorized_t2_alpha_beta_tol_max_vecs():
+    """Test double-factorized decomposition alpha-beta error threshold and max vecs."""
+    mol = gto.Mole()
+    mol.build(
+        atom=[["H", (0, 0, 0)], ["O", (0, 0, 1.1)]],
+        basis="6-31g",
+        spin=1,
+        symmetry="Coov",
+    )
+    hartree_fock = scf.ROHF(mol).run()
+
+    ccsd = cc.CCSD(hartree_fock).run()
+    _, t2ab, _ = ccsd.t2
+    nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
+    norb = nocc_a + nvrt_a
+
+    # test max_vecs
+    max_vecs = 25
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
+        t2ab, max_vecs=max_vecs
+    )
+    reconstructed = reconstruct_t2_alpha_beta(
+        diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
+    )
+    assert len(diag_coulomb_mats) == max_vecs
+    np.testing.assert_allclose(reconstructed, t2ab, atol=1e-4)
+
+    # test error threshold
+    tol = 1e-3
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
+        t2ab, tol=tol
+    )
+    reconstructed = reconstruct_t2_alpha_beta(
+        diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
+    )
+    assert len(diag_coulomb_mats) <= 23
+    np.testing.assert_allclose(reconstructed, t2ab, atol=tol)
+
+    # test error threshold and max vecs
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
+        t2ab, tol=tol, max_vecs=max_vecs
+    )
+    reconstructed = reconstruct_t2_alpha_beta(
+        diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
+    )
+    assert len(orbital_rotations) <= 23
+    np.testing.assert_allclose(reconstructed, t2ab, atol=tol)

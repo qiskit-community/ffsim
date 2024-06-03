@@ -53,15 +53,12 @@ def multireference_state(
     """
     if not isinstance(hamiltonian, LinearOperator):
         hamiltonian = linear_operator(hamiltonian, norb=norb, nelec=nelec)
+    reference_configurations = [
+        slater_determinant(norb, occ) for occ in reference_occupations
+    ]
     basis_states = [
-        apply_unitary(
-            slater_determinant(norb=norb, occupied_orbitals=occ),
-            ansatz_operator,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-        for occ in reference_occupations
+        apply_unitary(vec, ansatz_operator, norb=norb, nelec=nelec, copy=False)
+        for vec in reference_configurations
     ]
     mat = reduced_matrix(hamiltonian, basis_states)
     _, vecs = scipy.linalg.eigh(mat)
@@ -105,24 +102,20 @@ def multireference_state_prod(
 
     n_alpha, n_beta = nelec
     ansatz_operator_a, ansatz_operator_b = ansatz_operator
+    reference_configurations = [
+        (slater_determinant(norb, occ_a), slater_determinant(norb, occ_b))
+        for occ_a, occ_b in reference_occupations
+    ]
     basis_states = [
         (
             apply_unitary(
-                slater_determinant(norb=norb, occupied_orbitals=(occ_a, [])),
-                ansatz_operator_a,
-                norb=norb,
-                nelec=(n_alpha, 0),
-                copy=False,
+                vec_a, ansatz_operator_a, norb=norb, nelec=n_alpha, copy=False
             ),
             apply_unitary(
-                slater_determinant(norb=norb, occupied_orbitals=([], occ_b)),
-                ansatz_operator_b,
-                norb=norb,
-                nelec=(0, n_beta),
-                copy=False,
+                vec_b, ansatz_operator_b, norb=norb, nelec=n_beta, copy=False
             ),
         )
-        for occ_a, occ_b in reference_occupations
+        for vec_a, vec_b in reference_configurations
     ]
     mat = sf_hamiltonian.reduced_matrix_product_states(basis_states, norb, nelec)
     _, vecs = scipy.linalg.eigh(mat)

@@ -14,22 +14,38 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
+from typing import cast, overload
 
 import numpy as np
 from pyscf.fci import cistring
 
-from ffsim._lib import (
-    apply_givens_rotation_in_place,
-    apply_phase_shift_in_place,
-)
+from ffsim._lib import apply_givens_rotation_in_place, apply_phase_shift_in_place
 from ffsim.linalg import GivensRotation, givens_decomposition
 
 
+@overload
+def apply_orbital_rotation(
+    vec: np.ndarray,
+    mat: np.ndarray,
+    norb: int,
+    nelec: int,
+    *,
+    copy: bool = True,
+) -> np.ndarray: ...
+@overload
 def apply_orbital_rotation(
     vec: np.ndarray,
     mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
     norb: int,
     nelec: tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray: ...
+def apply_orbital_rotation(
+    vec: np.ndarray,
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    norb: int,
+    nelec: int | tuple[int, int],
     *,
     copy: bool = True,
 ) -> np.ndarray:
@@ -61,7 +77,9 @@ def apply_orbital_rotation(
             values in the pair to indicate that no operation should be applied to
             that spin sector.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         copy: Whether to copy the vector before operating on it.
 
             - If `copy=True` then this function always returns a newly allocated
@@ -72,11 +90,36 @@ def apply_orbital_rotation(
               modified in-place.
 
     Returns:
-        The transformed vector.
+        The rotated vector.
     """
     if copy:
         vec = vec.copy()
+    if isinstance(nelec, int):
+        return _apply_orbital_rotation_spinless(vec, cast(np.ndarray, mat), norb, nelec)
+    return _apply_orbital_rotation_spinful(vec, mat, norb, nelec)
 
+
+def _apply_orbital_rotation_spinless(
+    vec: np.ndarray, mat: np.ndarray, norb: int, nelec: int
+):
+    givens_rotations, phase_shifts = givens_decomposition(mat)
+    vec = vec.reshape((-1, 1))
+    for c, s, i, j in givens_rotations:
+        _apply_orbital_rotation_adjacent_spin_in_place(
+            vec, c, s.conjugate(), (i, j), norb, nelec
+        )
+    for i, phase_shift in enumerate(phase_shifts):
+        indices = _one_subspace_indices(norb, nelec, (i,))
+        apply_phase_shift_in_place(vec, phase_shift, indices)
+    return vec.reshape(-1)
+
+
+def _apply_orbital_rotation_spinful(
+    vec: np.ndarray,
+    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    norb: int,
+    nelec: tuple[int, int],
+):
     givens_decomp_a, givens_decomp_b = _get_givens_decomposition(mat)
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
@@ -96,8 +139,7 @@ def apply_orbital_rotation(
 
     if givens_decomp_b is not None:
         # transform beta
-        # copy transposed vector to align memory layout for performance
-        # TODO check again if copying is needed
+        # copy transposed vector to align memory layout
         vec = vec.T.copy()
         givens_rotations, phase_shifts = givens_decomp_b
         for c, s, i, j in givens_rotations:
@@ -184,6 +226,7 @@ def _one_subspace_indices(
     return indices[n0:].astype(np.uint, copy=False)
 
 
+@lru_cache(maxsize=None)
 def _shifted_orbitals(norb: int, target_orbs: tuple[int, ...]) -> np.ndarray:
     """Return orbital list with targeted orbitals shifted to the end."""
     orbitals = np.arange(norb - len(target_orbs))

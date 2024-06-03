@@ -173,14 +173,14 @@ class SingleFactorizedHamiltonian:
             self.one_body_tensor, norb, (n_alpha, 0)
         )
         one_body_tensor_linop_b = one_body_linop(
-            self.one_body_tensor, norb, (0, n_beta)
+            self.one_body_tensor, norb, (n_beta, 0)
         )
         one_body_square_linops_a = [
             one_body_linop(one_body, norb, (n_alpha, 0))
             for one_body in self.one_body_squares
         ]
         one_body_square_linops_b = [
-            one_body_linop(one_body, norb, (0, n_beta))
+            one_body_linop(one_body, norb, (n_beta, 0))
             for one_body in self.one_body_squares
         ]
 

@@ -29,7 +29,7 @@ from ffsim.states import dim
 def _conjugate_orbital_rotation(
     orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
 ) -> np.ndarray | tuple[np.ndarray | None, np.ndarray | None]:
-    if isinstance(orbital_rotation, np.ndarray):
+    if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
         return orbital_rotation.T.conj()
     orbital_rotation_a, orbital_rotation_b = orbital_rotation
     if orbital_rotation_a is not None:
@@ -53,16 +53,14 @@ def contract_diag_coulomb(
 
     .. math::
 
-        \sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2
+        \sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2
 
     where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
-    with spin :math:`\sigma` and :math:`Z` is a real symmetric matrix
-    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
-    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
+    with spin :math:`\sigma` and :math:`Z^{(\sigma \tau)}` is a real-valued matrix
 
     Args:
         vec: The state vector to be transformed.
-        mat: The real symmetric matrix :math:`Z`.
+        mat: The diagonal Coulomb matrix :math:`Z`.
             You can pass either a single Numpy array specifying the coefficients
             to use for all spin interactions, or you can pass a tuple of three Numpy
             arrays specifying independent coefficients for alpha-alpha, alpha-beta, and
@@ -211,17 +209,15 @@ def diag_coulomb_linop(
     .. math::
 
         \mathcal{U}
-        (\sum_{i, j, \sigma, \tau} Z_{ij} n_{\sigma, i} n_{\tau, j} / 2)
+        (\sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2)
         \mathcal{U}^\dagger
 
     where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
-    with spin :math:`\sigma`, :math:`Z` is a real symmetric matrix,
+    with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
-    If ``mat_alpha_beta`` is also given, then it is used in place of :math:`Z`
-    for the terms in the sum where the spins differ (:math:`\sigma \neq \tau`).
 
     Args:
-        mat: The real symmetric matrix :math:`Z`.
+        mat: The diagonal Coulomb matrix :math:`Z`.
             You can pass either a single Numpy array specifying the coefficients
             to use for all spin interactions, or you can pass a tuple of three Numpy
             arrays specifying independent coefficients for alpha-alpha, alpha-beta, and

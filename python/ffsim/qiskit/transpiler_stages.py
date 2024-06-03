@@ -33,5 +33,13 @@ def pre_init_passes() -> Iterator[BasePass]:
 
     .. _Decompose: https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.passes.Decompose#decompose
     """
-    yield Decompose(["hartree_fock_jw", "hartree_fock_spinless_jw", "ucj_jw"])
+    yield Decompose(
+        [
+            "hartree_fock_jw",
+            "hartree_fock_spinless_jw",
+            "ucj_jw",
+            "ucj_balanced_jw",
+            "ucj_unbalanced_jw",
+        ]
+    )
     yield MergeOrbitalRotations()

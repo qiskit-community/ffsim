@@ -12,7 +12,10 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
+import pytest
 import scipy.linalg
 import scipy.sparse.linalg
 
@@ -20,57 +23,65 @@ import ffsim
 from ffsim.spin import pair_for_spin
 
 
-def test_apply_num_op_sum_evolution():
-    """Test applying time evolution of sum of number operators."""
-    norb = 5
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+def test_apply_num_op_sum_evolution_spinless(norb: int, nelec: int):
+    """Test applying time evolution of sum of number operators, spinless."""
     rng = np.random.default_rng()
-    nelec = tuple(rng.integers(1, norb + 1, size=2))
-    n_alpha, n_beta = nelec
-    occupied_orbitals = (
-        rng.choice(norb, n_alpha, replace=False),
-        rng.choice(norb, n_beta, replace=False),
-    )
-    state = ffsim.slater_determinant(norb, occupied_orbitals)
-    original_state = state.copy()
-
     coeffs = rng.standard_normal(norb)
-    time = 0.6
-
-    for spin in ffsim.Spin:
-        result = ffsim.apply_num_op_sum_evolution(
-            state, pair_for_spin(coeffs, spin), time, norb, nelec
-        )
-
-        eig = 0
-        for i in range(norb):
-            if spin & ffsim.Spin.ALPHA and i in occupied_orbitals[0]:
-                eig += coeffs[i]
-            if spin & ffsim.Spin.BETA and i in occupied_orbitals[1]:
-                eig += coeffs[i]
+    time = rng.standard_normal()
+    for occupied_orbitals in itertools.combinations(range(norb), nelec):
+        state = ffsim.slater_determinant(norb, occupied_orbitals)
+        original_state = state.copy()
+        result = ffsim.apply_num_op_sum_evolution(state, coeffs, time, norb, nelec)
+        eig = sum(coeffs[list(occupied_orbitals)])
         expected = np.exp(-1j * eig * time) * state
-
         np.testing.assert_allclose(result, expected)
         np.testing.assert_allclose(state, original_state)
 
 
-def test_apply_quadratic_hamiltonian_evolution():
-    """Test applying time evolution of a quadratic Hamiltonian."""
-    norb = 5
+@pytest.mark.parametrize(
+    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(5))
+)
+def test_apply_num_op_sum_evolution_spinful(
+    norb: int, nelec: tuple[int, int], spin: ffsim.Spin
+):
+    """Test applying time evolution of sum of number operators."""
     rng = np.random.default_rng()
-    for _ in range(5):
-        nelec = tuple(rng.integers(1, norb + 1, size=2))
-        dim = ffsim.dim(norb, nelec)
+    coeffs = rng.standard_normal(norb)
+    time = rng.standard_normal()
+    n_alpha, n_beta = nelec
+    for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
+        for beta_orbitals in itertools.combinations(range(norb), n_beta):
+            occupied_orbitals = (alpha_orbitals, beta_orbitals)
+            state = ffsim.slater_determinant(norb, occupied_orbitals)
+            original_state = state.copy()
+            result = ffsim.apply_num_op_sum_evolution(
+                state, pair_for_spin(coeffs, spin), time, norb, nelec
+            )
+            eig = 0
+            if spin & ffsim.Spin.ALPHA:
+                eig += sum(coeffs[list(occupied_orbitals[0])])
+            if spin & ffsim.Spin.BETA:
+                eig += sum(coeffs[list(occupied_orbitals[1])])
+            expected = np.exp(-1j * eig * time) * state
+            np.testing.assert_allclose(result, expected)
+            np.testing.assert_allclose(state, original_state)
 
-        mat = ffsim.random.random_hermitian(norb, seed=rng)
-        eigs, vecs = scipy.linalg.eigh(mat)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
 
-        time = 0.6
-        result = ffsim.apply_num_op_sum_evolution(
-            vec, eigs, time, norb, nelec, orbital_rotation=vecs
-        )
-        op = ffsim.contract.one_body_linop(mat, norb=norb, nelec=nelec)
-        expected = scipy.sparse.linalg.expm_multiply(
-            -1j * time * op, vec, traceA=np.sum(np.abs(mat))
-        )
-        np.testing.assert_allclose(result, expected)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+def test_apply_quadratic_hamiltonian_evolution(norb: int, nelec: tuple[int, int]):
+    """Test applying time evolution of a quadratic Hamiltonian."""
+    rng = np.random.default_rng()
+    mat = ffsim.random.random_hermitian(norb, seed=rng)
+    eigs, vecs = scipy.linalg.eigh(mat)
+    time = rng.standard_normal()
+    dim = ffsim.dim(norb, nelec)
+    vec = ffsim.random.random_statevector(dim, seed=rng)
+    result = ffsim.apply_num_op_sum_evolution(
+        vec, eigs, time, norb, nelec, orbital_rotation=vecs
+    )
+    op = ffsim.contract.one_body_linop(mat, norb=norb, nelec=nelec)
+    expected = scipy.sparse.linalg.expm_multiply(
+        -1j * time * op, vec, traceA=np.sum(np.abs(mat))
+    )
+    np.testing.assert_allclose(result, expected)

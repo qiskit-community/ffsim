@@ -15,7 +15,11 @@ from collections.abc import Iterator
 import numpy as np
 import scipy.linalg
 
-from ffsim.gates import apply_diag_coulomb_evolution, apply_num_op_sum_evolution
+from ffsim.gates import (
+    apply_diag_coulomb_evolution,
+    apply_num_op_sum_evolution,
+    apply_orbital_rotation,
+)
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
 
 
@@ -100,9 +104,11 @@ def simulate_trotter_double_factorized(
     )
     step_time = time / n_steps
 
+    current_basis = np.eye(norb, dtype=complex)
     for _ in range(n_steps):
-        vec = _simulate_trotter_step_double_factorized(
+        vec, current_basis = _simulate_trotter_step_double_factorized(
             vec,
+            current_basis,
             one_body_energies,
             one_body_basis_change,
             hamiltonian.diag_coulomb_mats,
@@ -113,12 +119,14 @@ def simulate_trotter_double_factorized(
             order=order,
             z_representation=hamiltonian.z_representation,
         )
+    vec = apply_orbital_rotation(vec, current_basis, norb=norb, nelec=nelec, copy=False)
 
     return vec
 
 
 def _simulate_trotter_step_double_factorized(
     vec: np.ndarray,
+    current_basis: np.ndarray,
     one_body_energies: np.ndarray,
     one_body_basis_change: np.ndarray,
     diag_coulomb_mats: np.ndarray,
@@ -128,29 +136,44 @@ def _simulate_trotter_step_double_factorized(
     nelec: tuple[int, int],
     order: int,
     z_representation: bool,
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     for term_index, time in _simulate_trotter_step_iterator(
         1 + len(diag_coulomb_mats), time, order
     ):
         if term_index == 0:
+            vec = apply_orbital_rotation(
+                vec,
+                one_body_basis_change.T.conj() @ current_basis,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
             vec = apply_num_op_sum_evolution(
                 vec,
                 one_body_energies,
                 time,
                 norb=norb,
                 nelec=nelec,
-                orbital_rotation=one_body_basis_change,
                 copy=False,
             )
+            current_basis = one_body_basis_change
         else:
+            orbital_rotation = orbital_rotations[term_index - 1]
+            vec = apply_orbital_rotation(
+                vec,
+                orbital_rotation.T.conj() @ current_basis,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
             vec = apply_diag_coulomb_evolution(
                 vec,
                 diag_coulomb_mats[term_index - 1],
                 time,
                 norb=norb,
                 nelec=nelec,
-                orbital_rotation=orbital_rotations[term_index - 1],
                 z_representation=z_representation,
                 copy=False,
             )
-    return vec
+            current_basis = orbital_rotation
+    return vec, current_basis

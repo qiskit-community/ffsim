@@ -54,8 +54,24 @@ def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]
         np.testing.assert_allclose(result, expected)
 
 
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(4)))
+def test_apply_orbital_rotation_random_spinless(norb: int, nocc: int):
+    """Test applying random orbital rotation yields correct output state."""
+    rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nocc)
+    for _ in range(3):
+        mat = ffsim.random.random_unitary(norb, seed=rng)
+        vec = ffsim.random.random_statevector(dim, seed=rng)
+        if norb:
+            gen = _orbital_rotation_generator(scipy.linalg.logm(mat), spin=False)
+            op = ffsim.linear_operator(gen, norb=norb, nelec=(nocc, 0))
+        expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=1) if norb else vec
+        result = ffsim.apply_orbital_rotation(vec, mat, norb, nocc)
+        np.testing.assert_allclose(result, expected)
+
+
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
-def test_apply_orbital_rotation_random(norb: int, nelec: tuple[int, int]):
+def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test applying random orbital rotation yields correct output state."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)

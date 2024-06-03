@@ -72,16 +72,16 @@ class PrepareHartreeFockSpinlessJW(Gate):
     Like :class:`PrepareHartreeFockJW` but only acts on a single spin species.
     """
 
-    def __init__(self, norb: int, nocc: int, label: str | None = None) -> None:
+    def __init__(self, norb: int, nelec: int, label: str | None = None) -> None:
         """Create new Hartree-Fock state preparation gate.
 
         Args:
             norb: The number of spatial orbitals.
-            nocc: The number of electrons.
+            nelec: The number of electrons.
             label: The label of the gate.
         """
         self.norb = norb
-        self.nocc = nocc
+        self.nelec = nelec
         super().__init__("hartree_fock_spinless_jw", norb, [], label=label)
 
     def _define(self):
@@ -89,7 +89,7 @@ class PrepareHartreeFockSpinlessJW(Gate):
         qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
         circuit.append(
-            PrepareSlaterDeterminantSpinlessJW(self.norb, range(self.nocc)),
+            PrepareSlaterDeterminantSpinlessJW(self.norb, range(self.nelec)),
             qubits,
         )
         self.definition = circuit

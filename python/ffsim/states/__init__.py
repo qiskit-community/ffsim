@@ -13,6 +13,7 @@
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm
 from ffsim.states.states import (
+    StateVector,
     dim,
     dims,
     hartree_fock_state,
@@ -27,6 +28,7 @@ from ffsim.states.wick import expectation_one_body_power, expectation_one_body_p
 
 __all__ = [
     "ProductStateSum",
+    "StateVector",
     "dim",
     "dims",
     "expectation_one_body_power",

@@ -15,52 +15,34 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
-from pyscf import cc, gto, scf
+import pyscf
+import pyscf.cc
 
 import ffsim
 
 
 def assert_t2_has_correct_symmetry(t2: np.ndarray):
     nocc, _, nvrt, _ = t2.shape
-    norb = nocc + nvrt
-    pairs = itertools.product(range(nocc), range(nocc, norb))
-    for (i, a), (j, b) in itertools.product(pairs, repeat=2):
-        np.testing.assert_allclose(
-            t2[i, j, a - nocc, b - nocc], t2[j, i, b - nocc, a - nocc]
-        )
+    for i, j, a, b in itertools.product(
+        range(nocc), range(nocc), range(nvrt), range(nvrt)
+    ):
+        np.testing.assert_allclose(t2[i, j, a, b], t2[j, i, b, a])
 
 
 def test_assert_t2_has_correct_symmetry():
     """Test that t2 amplitudes from a real molecule passes our symmetry test."""
-    # Build a stretched ethene molecule
-    bond_distance = 2.678
-    a = 0.5 * bond_distance
-    b = a + 0.5626
-    c = 0.9289
-    mol = gto.Mole()
+    mol = pyscf.gto.Mole()
     mol.build(
-        atom=[
-            ["C", (0, 0, a)],
-            ["C", (0, 0, -a)],
-            ["H", (0, c, b)],
-            ["H", (0, -c, b)],
-            ["H", (0, c, -b)],
-            ["H", (0, -c, -b)],
-        ],
-        basis="sto-6g",
-        symmetry="d2h",
+        atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
+        basis="6-31g",
+        spin=1,
+        symmetry="Coov",
     )
-    hartree_fock = scf.RHF(mol)
-    hartree_fock.kernel()
-    # Define active space
-    active_space = range(mol.nelectron // 2 - 2, mol.nelectron // 2 + 2)
-    # Get CCSD t2 amplitudes for initializing the ansatz
-    ccsd = cc.CCSD(
-        hartree_fock,
-        frozen=[i for i in range(mol.nao_nr()) if i not in active_space],
-    )
-    _, _, t2 = ccsd.kernel()
-    assert_t2_has_correct_symmetry(t2)
+    scf = pyscf.scf.ROHF(mol).run()
+    ccsd = pyscf.cc.CCSD(scf).run()
+    t2aa, _, t2bb = ccsd.t2
+    assert_t2_has_correct_symmetry(t2aa)
+    assert_t2_has_correct_symmetry(t2bb)
 
 
 def test_random_t2_amplitudes_symmetry():

@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import math
+from typing import Optional, cast, overload
 
 import numpy as np
 
@@ -24,7 +25,7 @@ from ffsim.gates.orbital_rotation import apply_orbital_rotation
 def _conjugate_orbital_rotation(
     orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
 ) -> np.ndarray | tuple[np.ndarray | None, np.ndarray | None]:
-    if isinstance(orbital_rotation, np.ndarray):
+    if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
         return orbital_rotation.T.conj()
     orbital_rotation_a, orbital_rotation_b = orbital_rotation
     if orbital_rotation_a is not None:
@@ -34,12 +35,36 @@ def _conjugate_orbital_rotation(
     return (orbital_rotation_a, orbital_rotation_b)
 
 
+@overload
+def apply_num_op_sum_evolution(
+    vec: np.ndarray,
+    coeffs: np.ndarray,
+    time: float,
+    norb: int,
+    nelec: int,
+    *,
+    orbital_rotation: np.ndarray | None = None,
+    copy: bool = True,
+) -> np.ndarray: ...
+@overload
 def apply_num_op_sum_evolution(
     vec: np.ndarray,
     coeffs: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
     time: float,
     norb: int,
     nelec: tuple[int, int],
+    *,
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+    copy: bool = True,
+) -> np.ndarray: ...
+def apply_num_op_sum_evolution(
+    vec: np.ndarray,
+    coeffs: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    time: float,
+    norb: int,
+    nelec: int | tuple[int, int],
     *,
     orbital_rotation: np.ndarray
     | tuple[np.ndarray | None, np.ndarray | None]
@@ -71,7 +96,9 @@ def apply_num_op_sum_evolution(
             spin sector.
         time: The evolution time.
         norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         orbital_rotation: The optional orbital rotation.
             You can pass either a single Numpy array specifying the orbital rotation
             to apply to both spin sectors, or you can pass a pair of Numpy arrays
@@ -93,7 +120,65 @@ def apply_num_op_sum_evolution(
     """
     if copy:
         vec = vec.copy()
+    if isinstance(nelec, int):
+        return _apply_num_op_sum_evolution_spinless(
+            vec=vec,
+            coeffs=cast(np.ndarray, coeffs),
+            time=time,
+            norb=norb,
+            nelec=nelec,
+            orbital_rotation=cast(Optional[np.ndarray], orbital_rotation),
+        )
+    return _apply_num_op_sum_evolution_spinful(
+        vec=vec,
+        coeffs=coeffs,
+        time=time,
+        norb=norb,
+        nelec=nelec,
+        orbital_rotation=orbital_rotation,
+    )
 
+
+def _apply_num_op_sum_evolution_spinless(
+    vec: np.ndarray,
+    coeffs: np.ndarray,
+    time: float,
+    norb: int,
+    nelec: int,
+    orbital_rotation: np.ndarray | None,
+) -> np.ndarray:
+    phases = np.exp(-1j * time * coeffs)
+    occupations = gen_occslst(range(norb), nelec)
+    if orbital_rotation is not None:
+        vec = apply_orbital_rotation(
+            vec,
+            orbital_rotation.T.conj(),
+            norb,
+            nelec,
+            copy=False,
+        )
+    vec = vec.reshape((-1, 1))
+    apply_num_op_sum_evolution_in_place(vec, phases, occupations=occupations)
+    vec = vec.reshape(-1)
+    if orbital_rotation is not None:
+        vec = apply_orbital_rotation(
+            vec,
+            orbital_rotation,
+            norb,
+            nelec,
+            copy=False,
+        )
+    return vec
+
+
+def _apply_num_op_sum_evolution_spinful(
+    vec: np.ndarray,
+    coeffs: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    time: float,
+    norb: int,
+    nelec: tuple[int, int],
+    orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None] | None,
+) -> np.ndarray:
     phases_a, phases_b = _get_phases(coeffs, time=time)
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)

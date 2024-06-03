@@ -32,12 +32,11 @@ def apply_diag_coulomb_evolution_in_place_num_rep_slow(
     beta_phases = np.ones((dim_b,), dtype=complex)
     phase_map = np.ones((dim_a, norb), dtype=complex)
 
-    if not np.allclose(mat_exp_bb, 1):
-        for i, orbs in enumerate(occupations_b):
-            phase = 1
-            for orb_1, orb_2 in itertools.combinations_with_replacement(orbs, 2):
-                phase *= mat_exp_bb[orb_1, orb_2]
-            beta_phases[i] = phase
+    for i, orbs in enumerate(occupations_b):
+        phase = 1
+        for orb_1, orb_2 in itertools.combinations_with_replacement(orbs, 2):
+            phase *= mat_exp_bb[orb_1, orb_2]
+        beta_phases[i] = phase
 
     for i, (row, orbs) in enumerate(zip(phase_map, occupations_a)):
         phase = 1
@@ -60,7 +59,6 @@ def apply_diag_coulomb_evolution_in_place_z_rep_slow(
     mat_exp_aa: np.ndarray,
     mat_exp_ab: np.ndarray,
     mat_exp_bb: np.ndarray,
-    # TODO don't pass the conjugates separately
     mat_exp_aa_conj: np.ndarray,
     mat_exp_ab_conj: np.ndarray,
     mat_exp_bb_conj: np.ndarray,
@@ -74,17 +72,15 @@ def apply_diag_coulomb_evolution_in_place_z_rep_slow(
     beta_phases = np.ones((dim_b,), dtype=complex)
     phase_map = np.ones((dim_a, norb), dtype=complex)
 
-    if not np.allclose(mat_exp_bb, 1):
-        assert mat_exp_bb_conj is not None
-        for i, str0 in enumerate(strings_b):
-            phase = 1
-            for j in range(norb):
-                sign_j = str0 >> j & 1
-                for k in range(j + 1, norb):
-                    sign_k = str0 >> k & 1
-                    mat = mat_exp_bb_conj if sign_j ^ sign_k else mat_exp_bb
-                    phase *= mat[j, k]
-            beta_phases[i] = phase
+    for i, str0 in enumerate(strings_b):
+        phase = 1
+        for j in range(norb):
+            sign_j = str0 >> j & 1
+            for k in range(j + 1, norb):
+                sign_k = str0 >> k & 1
+                mat = mat_exp_bb_conj if sign_j ^ sign_k else mat_exp_bb
+                phase *= mat[j, k]
+        beta_phases[i] = phase
 
     for i, (row, str0) in enumerate(zip(phase_map, strings_a)):
         phase = 1

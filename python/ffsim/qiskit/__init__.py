@@ -14,6 +14,7 @@ from qiskit.transpiler import PassManager
 
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
+    DiagCoulombEvolutionSpinlessJW,
     GivensAnsatzOperatorJW,
     GivensAnsatzOperatorSpinlessJW,
     OrbitalRotationJW,
@@ -23,6 +24,9 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
+    UCJOpSpinBalancedJW,
+    UCJOpSpinlessJW,
+    UCJOpSpinUnbalancedJW,
 )
 from ffsim.qiskit.sampler import FfsimSampler
 from ffsim.qiskit.transpiler_passes import DropNegligible, MergeOrbitalRotations
@@ -39,6 +43,7 @@ pass manager.
 
 __all__ = [
     "DiagCoulombEvolutionJW",
+    "DiagCoulombEvolutionSpinlessJW",
     "DropNegligible",
     "FfsimSampler",
     "GivensAnsatzOperatorJW",
@@ -52,6 +57,9 @@ __all__ = [
     "PrepareSlaterDeterminantJW",
     "PrepareSlaterDeterminantSpinlessJW",
     "UCJOperatorJW",
+    "UCJOpSpinBalancedJW",
+    "UCJOpSpinUnbalancedJW",
+    "UCJOpSpinlessJW",
     "ffsim_vec_to_qiskit_vec",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",

@@ -15,10 +15,29 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
-import pyscf
 import pytest
 
 import ffsim
+
+
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+def test_slater_determinant_spinless(norb: int, nocc: int):
+    """Test Slater determinant with same rotation for both spins."""
+    rng = np.random.default_rng()
+
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nocc, seed=rng)
+
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    eigs, orbital_rotation = np.linalg.eigh(one_body_tensor)
+    eig = sum(eigs[occupied_orbitals])
+    state = ffsim.slater_determinant(
+        norb, occupied_orbitals, orbital_rotation=orbital_rotation
+    )
+
+    hamiltonian = ffsim.contract.one_body_linop(
+        one_body_tensor, norb=norb, nelec=(nocc, 0)
+    )
+    np.testing.assert_allclose(hamiltonian @ state, eig * state)
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
@@ -70,25 +89,24 @@ def test_slater_determinant_diff_rotation(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(state, np.kron(state_a, state_b))
 
 
-def test_hartree_fock_state():
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+def test_hartree_fock_state_spinful(norb: int, nelec: tuple[int, int]):
     """Test Hartree-Fock state."""
-    mol = pyscf.gto.Mole()
-    mol.build(
-        atom=[["H", (0, 0, 0)], ["H", (0, 0, 1.8)]],
-        basis="sto-6g",
-    )
-    hartree_fock = pyscf.scf.RHF(mol)
-    hartree_fock_energy = hartree_fock.kernel()
+    vec = ffsim.hartree_fock_state(norb, nelec)
+    dim = ffsim.dim(norb, nelec)
+    assert vec.shape == (dim,)
+    assert vec[0] == 1
+    assert all(vec[1:] == 0)
 
-    mol_data = ffsim.MolecularData.from_scf(hartree_fock)
 
-    vec = ffsim.hartree_fock_state(mol_data.norb, mol_data.nelec)
-    hamiltonian = ffsim.linear_operator(
-        mol_data.hamiltonian, norb=mol_data.norb, nelec=mol_data.nelec
-    )
-    energy = np.vdot(vec, hamiltonian @ vec)
-
-    np.testing.assert_allclose(energy, hartree_fock_energy)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+def test_hartree_fock_state_spinless(norb: int, nelec: int):
+    """Test Hartree-Fock state."""
+    vec = ffsim.hartree_fock_state(norb, nelec)
+    dim = ffsim.dim(norb, nelec)
+    assert vec.shape == (dim,)
+    assert vec[0] == 1
+    assert all(vec[1:] == 0)
 
 
 @pytest.mark.parametrize(
@@ -167,8 +185,17 @@ def test_slater_determinant_one_rdm_diff_rotation(
 def test_indices_to_strings():
     """Test converting statevector indices to strings."""
     norb = 3
-    nelec = (2, 1)
+    nelec = 2
+    dim = ffsim.dim(norb, nelec)
+    strings = ffsim.indices_to_strings(range(dim), norb, nelec)
+    assert strings == [
+        "011",
+        "101",
+        "110",
+    ]
 
+    norb = 3
+    nelec = (2, 1)
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(range(dim), norb, nelec)
     assert strings == [
@@ -187,8 +214,21 @@ def test_indices_to_strings():
 def test_strings_to_indices():
     """Test converting statevector indices to strings."""
     norb = 3
-    nelec = (2, 1)
+    nelec = 2
+    dim = ffsim.dim(norb, nelec)
+    indices = ffsim.strings_to_indices(
+        [
+            "011",
+            "101",
+            "110",
+        ],
+        norb,
+        nelec,
+    )
+    np.testing.assert_array_equal(indices, np.arange(dim))
 
+    norb = 3
+    nelec = (2, 1)
     dim = ffsim.dim(norb, nelec)
     indices = ffsim.strings_to_indices(
         [
@@ -208,8 +248,19 @@ def test_strings_to_indices():
     np.testing.assert_array_equal(indices, np.arange(dim))
 
 
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(1, 6)))
+def test_indices_and_strings_roundtrip_spinless(norb: int, nelec: tuple[int, int]):
+    """Test converting statevector indices to strings."""
+    rng = np.random.default_rng(26390)
+    dim = ffsim.dim(norb, nelec)
+    indices = rng.choice(dim, size=10)
+    strings = ffsim.indices_to_strings(indices, norb=norb, nelec=nelec)
+    indices_again = ffsim.strings_to_indices(strings, norb=norb, nelec=nelec)
+    np.testing.assert_array_equal(indices_again, indices)
+
+
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 6)))
-def test_indices_and_strings_roundtrip(norb: int, nelec: tuple[int, int]):
+def test_indices_and_strings_roundtrip_spinful(norb: int, nelec: tuple[int, int]):
     """Test converting statevector indices to strings."""
     rng = np.random.default_rng(26390)
     dim = ffsim.dim(norb, nelec)

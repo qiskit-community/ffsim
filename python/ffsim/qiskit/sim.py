@@ -12,7 +12,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from typing import Tuple, cast
 
 import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
@@ -21,6 +21,7 @@ from qiskit.circuit.library import Barrier, Measure
 from ffsim import gates, protocols, states
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
+    DiagCoulombEvolutionSpinlessJW,
     GivensAnsatzOperatorJW,
     GivensAnsatzOperatorSpinlessJW,
     OrbitalRotationJW,
@@ -30,25 +31,13 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
     UCJOperatorJW,
+    UCJOpSpinBalancedJW,
+    UCJOpSpinlessJW,
+    UCJOpSpinUnbalancedJW,
 )
 
 
-@dataclass
-class Statevector:
-    """A state vector in the FCI representation.
-
-    Attributes:
-        vec: Array of state vector coefficients.
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-    """
-
-    vec: np.ndarray
-    norb: int
-    nelec: tuple[int, int]
-
-
-def final_statevector(circuit: QuantumCircuit) -> Statevector:
+def final_statevector(circuit: QuantumCircuit) -> states.StateVector:
     """Return the final state vector of a fermionic quantum circuit.
 
     Args:
@@ -61,21 +50,27 @@ def final_statevector(circuit: QuantumCircuit) -> Statevector:
     if not circuit.data:
         raise ValueError("Circuit must contain at least one instruction.")
     statevector = _prepare_statevector(circuit.data[0], circuit)
-    for instruction in circuit.data[1:]:
-        statevector = _evolve_statevector(statevector, instruction, circuit)
+    if isinstance(statevector.nelec, int):
+        for instruction in circuit.data[1:]:
+            statevector = _evolve_statevector_spinless(
+                statevector, instruction, circuit
+            )
+    else:
+        for instruction in circuit.data[1:]:
+            statevector = _evolve_statevector_spinful(statevector, instruction, circuit)
     return statevector
 
 
 def _prepare_statevector(
     instruction: CircuitInstruction, circuit: QuantumCircuit
-) -> Statevector:
+) -> states.StateVector:
     op = instruction.operation
     qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
     consecutive_sorted = qubit_indices == list(
         range(min(qubit_indices), max(qubit_indices) + 1)
     )
 
-    if isinstance(op, PrepareHartreeFockJW):
+    if isinstance(op, (PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW)):
         if not consecutive_sorted:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
@@ -84,18 +79,7 @@ def _prepare_statevector(
         norb = op.norb
         nelec = op.nelec
         vec = states.hartree_fock_state(norb, nelec)
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
-
-    if isinstance(op, PrepareHartreeFockSpinlessJW):
-        if not consecutive_sorted:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "consecutive qubits, in ascending order."
-            )
-        norb = op.norb
-        nelec = (op.nocc, 0)
-        vec = states.hartree_fock_state(op.norb, nelec)
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PrepareSlaterDeterminantJW):
         if not consecutive_sorted:
@@ -111,7 +95,7 @@ def _prepare_statevector(
             occupied_orbitals=op.occupied_orbitals,
             orbital_rotation=(op.orbital_rotation_a, op.orbital_rotation_b),
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PrepareSlaterDeterminantSpinlessJW):
         if not consecutive_sorted:
@@ -120,11 +104,11 @@ def _prepare_statevector(
                 "consecutive qubits, in ascending order."
             )
         norb = op.norb
-        nelec = (len(op.occupied_orbitals), 0)
+        nelec = len(op.occupied_orbitals)
         vec = states.slater_determinant(
-            op.norb, (op.occupied_orbitals, []), orbital_rotation=op.orbital_rotation
+            op.norb, op.occupied_orbitals, orbital_rotation=op.orbital_rotation
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     raise ValueError(
         "The first instruction of the circuit must be one of the following gates: "
@@ -133,17 +117,83 @@ def _prepare_statevector(
     )
 
 
-def _evolve_statevector(
-    statevector: Statevector, instruction: CircuitInstruction, circuit: QuantumCircuit
-) -> Statevector:
+def _evolve_statevector_spinless(
+    state_vector: states.StateVector,
+    instruction: CircuitInstruction,
+    circuit: QuantumCircuit,
+) -> states.StateVector:
     op = instruction.operation
     qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
     consecutive_sorted = qubit_indices == list(
         range(min(qubit_indices), max(qubit_indices) + 1)
     )
-    vec = statevector.vec
-    norb = statevector.norb
-    nelec = statevector.nelec
+    vec = state_vector.vec
+    norb = state_vector.norb
+    nelec = cast(int, state_vector.nelec)
+
+    if isinstance(op, DiagCoulombEvolutionSpinlessJW):
+        vec = gates.apply_diag_coulomb_evolution(
+            vec, op.mat, op.time, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, GivensAnsatzOperatorSpinlessJW):
+        if not consecutive_sorted:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits, in ascending order."
+            )
+        vec = protocols.apply_unitary(
+            vec, op.givens_ansatz_operator, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, OrbitalRotationSpinlessJW):
+        if not consecutive_sorted:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits, in ascending order."
+            )
+        vec = gates.apply_orbital_rotation(
+            vec, op.orbital_rotation, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, UCJOpSpinlessJW):
+        if not consecutive_sorted:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits, in ascending order."
+            )
+        vec = protocols.apply_unitary(
+            vec, op.ucj_op, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, Barrier):
+        return state_vector
+
+    if isinstance(op, Measure):
+        raise ValueError(
+            "Encountered a measurement gate, but only unitary operations are allowed."
+        )
+
+    raise ValueError(f"Unsupported gate for spinless circuit: {op}.")
+
+
+def _evolve_statevector_spinful(
+    state_vector: states.StateVector,
+    instruction: CircuitInstruction,
+    circuit: QuantumCircuit,
+) -> states.StateVector:
+    op = instruction.operation
+    qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
+    consecutive_sorted = qubit_indices == list(
+        range(min(qubit_indices), max(qubit_indices) + 1)
+    )
+    vec = state_vector.vec
+    norb = state_vector.norb
+    nelec = cast(Tuple[int, int], state_vector.nelec)
 
     if isinstance(op, DiagCoulombEvolutionJW):
         vec = gates.apply_diag_coulomb_evolution(
@@ -155,9 +205,9 @@ def _evolve_statevector(
             z_representation=op.z_representation,
             copy=False,
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, (GivensAnsatzOperatorJW, GivensAnsatzOperatorSpinlessJW)):
+    if isinstance(op, GivensAnsatzOperatorJW):
         if not consecutive_sorted:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
@@ -166,7 +216,7 @@ def _evolve_statevector(
         vec = protocols.apply_unitary(
             vec, op.givens_ansatz_operator, norb=norb, nelec=nelec, copy=False
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, OrbitalRotationJW):
         if not consecutive_sorted:
@@ -188,18 +238,18 @@ def _evolve_statevector(
             nelec=nelec,
             copy=False,
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, OrbitalRotationSpinlessJW):
+    if isinstance(op, (UCJOpSpinBalancedJW, UCJOpSpinUnbalancedJW)):
         if not consecutive_sorted:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
                 "consecutive qubits, in ascending order."
             )
-        vec = gates.apply_orbital_rotation(
-            vec, op.orbital_rotation, norb=norb, nelec=nelec, copy=False
+        vec = protocols.apply_unitary(
+            vec, op.ucj_op, norb=norb, nelec=nelec, copy=False
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, UCJOperatorJW):
         if not consecutive_sorted:
@@ -210,21 +260,21 @@ def _evolve_statevector(
         vec = protocols.apply_unitary(
             vec, op.ucj_operator, norb=norb, nelec=nelec, copy=False
         )
-        return Statevector(vec=vec, norb=norb, nelec=nelec)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, Barrier):
-        return statevector
+        return state_vector
 
     if isinstance(op, Measure):
         raise ValueError(
             "Encountered a measurement gate, but only unitary operations are allowed."
         )
 
-    raise ValueError(f"Unsupported gate: {op}.")
+    raise ValueError(f"Unsupported gate for spinful circuit: {op}.")
 
 
 def sample_statevector(
-    statevector: Statevector,
+    statevector: states.StateVector,
     *,
     indices: list[int],
     shots: int,

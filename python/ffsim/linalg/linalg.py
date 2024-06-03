@@ -87,3 +87,18 @@ def match_global_phase(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.nda
     phase_a = cmath.phase(a[index])
     phase_b = cmath.phase(b[index])
     return a * cmath.rect(1, -phase_a), b * cmath.rect(1, -phase_b)
+
+
+def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
+    """Return an array of all zeros except for a one at a specified index.
+
+    Args:
+        shape: The desired shape of the array.
+        index: The index at which to place a one.
+
+    Returns:
+        The one-hot vector.
+    """
+    vec = np.zeros(shape, dtype=dtype)
+    vec[index] = 1
+    return vec

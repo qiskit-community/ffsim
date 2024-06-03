@@ -42,10 +42,9 @@ class GivensAnsatzOperator:
     norb: int
     interaction_pairs: list[tuple[int, int]]
     thetas: np.ndarray
-    # TODO add phis for complex phases
 
     def _apply_unitary_(
-        self, vec: np.ndarray, norb: int, nelec: tuple[int, int], copy: bool
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
         return apply_orbital_rotation(

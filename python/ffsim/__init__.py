@@ -61,6 +61,7 @@ from ffsim.protocols import (
 from ffsim.spin import Spin
 from ffsim.states import (
     ProductStateSum,
+    StateVector,
     dim,
     dims,
     expectation_one_body_power,
@@ -83,6 +84,9 @@ from ffsim.variational import (
     HopGateAnsatzOperator,
     RealUCJOperator,
     UCJOperator,
+    UCJOpSpinBalanced,
+    UCJOpSpinless,
+    UCJOpSpinUnbalanced,
     multireference_state,
     multireference_state_prod,
 )
@@ -99,6 +103,7 @@ __all__ = [
     "RealUCJOperator",
     "SingleFactorizedHamiltonian",
     "Spin",
+    "StateVector",
     "SupportsApplyUnitary",
     "SupportsApproximateEquality",
     "SupportsDiagonal",
@@ -106,6 +111,9 @@ __all__ = [
     "SupportsLinearOperator",
     "SupportsTrace",
     "UCJOperator",
+    "UCJOpSpinBalanced",
+    "UCJOpSpinUnbalanced",
+    "UCJOpSpinless",
     "apply_diag_coulomb_evolution",
     "apply_fsim_gate",
     "apply_givens_rotation",
