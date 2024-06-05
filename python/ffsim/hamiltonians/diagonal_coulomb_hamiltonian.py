@@ -144,7 +144,6 @@ class DiagonalCoulombHamiltonian:
 
         # check for incompatible terms
         if dict_op:
-            print(f"Incompatible terms = {dict_op}")
             raise ValueError(
                 "FermionOperator cannot be converted to DiagonalCoulombHamiltonian"
             )

@@ -155,7 +155,7 @@ def test_from_fermion_operator_failure(norb: int, nelec: tuple[int, int]):
 
     with pytest.raises(
         ValueError,
-        match="FermionOperator cannot be converted to " "DiagonalCoulombHamiltonian",
+        match="FermionOperator cannot be converted to DiagonalCoulombHamiltonian",
     ):
         DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
