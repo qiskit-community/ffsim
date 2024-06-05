@@ -59,6 +59,7 @@ def apply_givens_rotation(
     nelec: int | tuple[int, int],
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
+    phi: float = 0.0,
     copy: bool = True,
 ) -> np.ndarray:
     r"""Apply a Givens rotation gate.
@@ -67,9 +68,11 @@ def apply_givens_rotation(
 
     .. math::
 
-        \text{G}(\theta, (p, q)) = \prod_{\sigma}
+        \text{G}(\theta, \varphi, (p, q)) = \prod_{\sigma}
+        \exp\left(i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)
         \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
         - a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+        \exp\left(-i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
     to neighboring qubits:
@@ -78,8 +81,8 @@ def apply_givens_rotation(
 
         \begin{pmatrix}
             1 & 0 & 0 & 0 \\
-            0 & \cos(\theta) & -\sin(\theta) & 0\\
-            0 & \sin(\theta) & \cos(\theta) & 0\\
+            0 & \cos(\theta) & -e^{-i\varphi}\sin(\theta) & 0\\
+            0 & e^{i\varphi}\sin(\theta) & \cos(\theta) & 0\\
             0 & 0 & 0 & 1 \\
         \end{pmatrix}
 
@@ -97,6 +100,7 @@ def apply_givens_rotation(
             - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
             - To act on both spin alpha and spin beta, pass
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
+        phi: The optional phase angle.
         copy: Whether to copy the vector before operating on it.
 
             - If `copy=True` then this function always returns a newly allocated
@@ -109,9 +113,9 @@ def apply_givens_rotation(
     if len(set(target_orbs)) == 1:
         raise ValueError(f"The orbitals to rotate must be distinct. Got {target_orbs}.")
     c = math.cos(theta)
-    s = math.sin(theta)
-    mat = np.eye(norb)
-    mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s, c]]
+    s = cmath.exp(1j * phi) * math.sin(theta)
+    mat = np.eye(norb, dtype=complex)
+    mat[np.ix_(target_orbs, target_orbs)] = [[c, s], [-s.conjugate(), c]]
     if isinstance(nelec, int):
         return apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=copy)
     return apply_orbital_rotation(
