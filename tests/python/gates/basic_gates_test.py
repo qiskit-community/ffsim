@@ -121,29 +121,31 @@ def test_apply_givens_rotation_matrix_spinful(norb: int, spin: ffsim.Spin):
     """Test Givens rotation matrix."""
     rng = np.random.default_rng()
 
-    def mat(theta: float) -> np.ndarray:
+    def mat(theta: float, phi: float) -> np.ndarray:
         c = np.cos(theta)
-        s = np.sin(theta)
-        return np.array([[c, -s], [s, c]])
+        s = np.exp(1j * phi) * np.sin(theta)
+        return np.array([[c, -s.conjugate()], [s, c]])
 
     phase_00 = 1
     phase_11 = 1
 
     for _ in range(3):
         theta = rng.uniform(-10, 10)
+        phi = rng.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
                     lambda vec, norb, nelec: ffsim.apply_givens_rotation(
                         vec,
                         theta,
+                        phi=phi,
                         target_orbs=target_orbs,
                         norb=norb,
                         nelec=nelec,
                         spin=spin,
                     ),
                     target_orbs=target_orbs,
-                    mat=mat(theta),
+                    mat=mat(theta, phi),
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
@@ -156,32 +158,62 @@ def test_apply_givens_rotation_matrix_spinless(norb: int):
     """Test Givens rotation matrix, spinless."""
     rng = np.random.default_rng()
 
-    def mat(theta: float) -> np.ndarray:
+    def mat(theta: float, phi: float) -> np.ndarray:
         c = np.cos(theta)
-        s = np.sin(theta)
-        return np.array([[c, -s], [s, c]])
+        s = np.exp(1j * phi) * np.sin(theta)
+        return np.array([[c, -s.conjugate()], [s, c]])
 
     phase_00 = 1
     phase_11 = 1
 
     for _ in range(3):
         theta = rng.uniform(-10, 10)
+        phi = rng.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix_spinless(
                     lambda vec, norb, nelec: ffsim.apply_givens_rotation(
                         vec,
                         theta,
+                        phi=phi,
                         target_orbs=target_orbs,
                         norb=norb,
                         nelec=nelec,
                     ),
                     target_orbs=target_orbs,
-                    mat=mat(theta),
+                    mat=mat(theta, phi),
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
                 )
+
+
+def test_apply_givens_rotation_definition():
+    """Test definition of complex Givens in terms of real Givens and phases."""
+    norb = 5
+    nelec = (3, 2)
+    rng = np.random.default_rng()
+    theta = rng.uniform(-10, 10)
+    phi = rng.uniform(-10, 10)
+    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+
+    # apply complex givens rotation
+    result = ffsim.apply_givens_rotation(
+        vec, theta, phi=phi, target_orbs=(1, 2), norb=norb, nelec=nelec
+    )
+
+    # get expected result using real givens rotation and phases
+    expected = ffsim.apply_num_interaction(
+        vec, -phi, target_orb=1, norb=norb, nelec=nelec
+    )
+    expected = ffsim.apply_givens_rotation(
+        expected, theta, target_orbs=(1, 2), norb=norb, nelec=nelec
+    )
+    expected = ffsim.apply_num_interaction(
+        expected, phi, target_orb=1, norb=norb, nelec=nelec
+    )
+
+    np.testing.assert_allclose(result, expected)
 
 
 @pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
