@@ -90,18 +90,35 @@ def test_givens_parameters_roundtrip():
         interaction_pairs=interaction_pairs,
         thetas=thetas,
         phis=phis,
+    )
+    assert len(operator.to_parameters()) == norb * (norb - 1)
+    roundtripped = ffsim.GivensAnsatzOp.from_parameters(
+        operator.to_parameters(),
+        norb=norb,
+        interaction_pairs=interaction_pairs,
+    )
+    assert ffsim.approx_eq(roundtripped, operator)
+
+    operator = ffsim.GivensAnsatzOp(
+        norb=norb,
+        interaction_pairs=interaction_pairs,
+        thetas=thetas,
+        phis=phis,
         phase_angles=phase_angles,
     )
     assert len(operator.to_parameters()) == norb**2
     roundtripped = ffsim.GivensAnsatzOp.from_parameters(
-        operator.to_parameters(), norb=norb, interaction_pairs=interaction_pairs
+        operator.to_parameters(),
+        norb=norb,
+        interaction_pairs=interaction_pairs,
+        with_phase_layer=True,
     )
-
-    np.testing.assert_allclose(roundtripped.thetas, operator.thetas)
+    assert ffsim.approx_eq(roundtripped, operator)
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_givens_orbital_rotation(norb: int, nelec: tuple[int, int]):
+    """Test initialization from orbital rotation."""
     rng = np.random.default_rng()
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
@@ -114,6 +131,7 @@ def test_givens_orbital_rotation(norb: int, nelec: tuple[int, int]):
 
 
 def test_givens_incorrect_num_params():
+    """Test that passing incorrect number of parameters throws an error."""
     norb = 5
     interaction_pairs = [(0, 1), (2, 3)]
     with pytest.raises(ValueError, match="number"):
