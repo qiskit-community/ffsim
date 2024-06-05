@@ -344,6 +344,7 @@
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">spin</span><span class="p">:</span> <span class="n">Spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA_AND_BETA</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Apply a Givens rotation gate.</span>
@@ -352,9 +353,11 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \text{G}(\theta, (p, q)) = \prod_{\sigma}</span>
+<span class="sd">        \text{G}(\theta, \varphi, (p, q)) = \prod_{\sigma}</span>
+<span class="sd">        \exp\left(i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)</span>
 <span class="sd">        \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}</span>
 <span class="sd">        - a^\dagger_{\sigma, q} a_{\sigma, p})\right)</span>
+<span class="sd">        \exp\left(-i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)</span>
 
 <span class="sd">    Under the Jordan-Wigner transform, this gate has the following matrix when applied</span>
 <span class="sd">    to neighboring qubits:</span>
@@ -363,8 +366,8 @@
 
 <span class="sd">        \begin{pmatrix}</span>
 <span class="sd">            1 &amp; 0 &amp; 0 &amp; 0 \\</span>
-<span class="sd">            0 &amp; \cos(\theta) &amp; -\sin(\theta) &amp; 0\\</span>
-<span class="sd">            0 &amp; \sin(\theta) &amp; \cos(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; \cos(\theta) &amp; -e^{-i\varphi}\sin(\theta) &amp; 0\\</span>
+<span class="sd">            0 &amp; e^{i\varphi}\sin(\theta) &amp; \cos(\theta) &amp; 0\\</span>
 <span class="sd">            0 &amp; 0 &amp; 0 &amp; 1 \\</span>
 <span class="sd">        \end{pmatrix}</span>
 
@@ -382,6 +385,7 @@
 <span class="sd">            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.</span>
 <span class="sd">            - To act on both spin alpha and spin beta, pass</span>
 <span class="sd">              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).</span>
+<span class="sd">        phi: The optional phase angle.</span>
 <span class="sd">        copy: Whether to copy the vector before operating on it.</span>
 
 <span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
@@ -394,9 +398,9 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The orbitals to rotate must be distinct. Got </span><span class="si">{</span><span class="n">target_orbs</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-    <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
-    <span class="n">mat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">]]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="n">mat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">target_orbs</span><span class="p">,</span> <span class="n">target_orbs</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">c</span><span class="p">]]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">mat</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>

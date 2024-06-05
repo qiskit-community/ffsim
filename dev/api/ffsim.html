@@ -2626,14 +2626,16 @@ modified in-place.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_givens_rotation">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_givens_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/basic_gates.html#apply_givens_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_givens_rotation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_givens_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi=0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/basic_gates.html#apply_givens_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_givens_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>Apply a Givens rotation gate.</p>
 <p>The Givens rotation gate is</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\text{G}(\theta, (p, q)) = \prod_{\sigma}
+\[\text{G}(\theta, \varphi, (p, q)) = \prod_{\sigma}
+\exp\left(i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)
 \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
-- a^\dagger_{\sigma, q} a_{\sigma, p})\right)\]</div>
+- a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+\exp\left(-i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)\]</div>
 </div>
 <p>Under the Jordan-Wigner transform, this gate has the following matrix when applied
 to neighboring qubits:</p>
@@ -2641,8 +2643,8 @@ to neighboring qubits:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{pmatrix}
     1 &amp; 0 &amp; 0 &amp; 0 \\
-    0 &amp; \cos(\theta) &amp; -\sin(\theta) &amp; 0\\
-    0 &amp; \sin(\theta) &amp; \cos(\theta) &amp; 0\\
+    0 &amp; \cos(\theta) &amp; -e^{-i\varphi}\sin(\theta) &amp; 0\\
+    0 &amp; e^{i\varphi}\sin(\theta) &amp; \cos(\theta) &amp; 0\\
     0 &amp; 0 &amp; 0 &amp; 1 \\
 \end{pmatrix}\end{split}\]</div>
 </div>
@@ -2664,6 +2666,7 @@ and spin beta fermions.</p></li>
 <a class="reference internal" href="#ffsim.Spin.ALPHA_AND_BETA" title="ffsim.Spin.ALPHA_AND_BETA"><code class="xref py py-const docutils literal notranslate"><span class="pre">ffsim.Spin.ALPHA_AND_BETA</span></code></a> (this is the default value).</p></li>
 </ul>
 </p></li>
+<li><p><strong>phi</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The optional phase angle.</p></li>
 <li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
 <ul>
 <li><p>If <cite>copy=True</cite> then this function always returns a newly allocated
