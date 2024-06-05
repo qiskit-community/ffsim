@@ -111,6 +111,28 @@ class DiagonalCoulombHamiltonian:
                 orb_list.append(orb)
         norb = max(orb_list) + 1
 
+        # check for incompatible onsite interaction terms
+        same_spin_total, diff_spin_total = 0.0, 0.0
+        for p in range(norb):
+            same_spin_list = [
+                (cre_a(p), des_a(p), cre_a(p), des_a(p)),
+                (cre_b(p), des_b(p), cre_b(p), des_b(p)),
+            ]
+            diff_spin_list = [
+                (cre_a(p), des_a(p), cre_b(p), des_b(p)),
+                (cre_b(p), des_b(p), cre_a(p), des_a(p)),
+            ]
+            for key in dict(op):
+                if key in diff_spin_list:
+                    diff_spin_total += np.real(dict_op[key])
+                elif key in same_spin_list:
+                    same_spin_total += np.real(dict_op[key])
+        if same_spin_total != diff_spin_total:
+            raise ValueError(
+                "FermionOperator cannot be converted to DiagonalCoulombHamiltonian due "
+                "to incompatible onsite interaction terms"
+            )
+
         # initialize variables
         constant: float = 0
         one_body_tensor = np.zeros((norb, norb), dtype=complex)
@@ -142,11 +164,15 @@ class DiagonalCoulombHamiltonian:
         if () in dict_op:
             del dict_op[()]
 
-        # check for incompatible terms
+        # check for incompatible leftover terms
         if dict_op:
             raise ValueError(
-                "FermionOperator cannot be converted to DiagonalCoulombHamiltonian"
+                "FermionOperator cannot be converted to DiagonalCoulombHamiltonian due "
+                "to incompatible leftover terms"
             )
+
+        # ensure diag_coulomb_mat symmetry
+        diag_coulomb_mat = (diag_coulomb_mat + diag_coulomb_mat.T) / 2
 
         return DiagonalCoulombHamiltonian(
             one_body_tensor=one_body_tensor,
