@@ -429,12 +429,8 @@ class UCJOpSpinless:
                 self.orbital_rotations, other.orbital_rotations, rtol=rtol, atol=atol
             ):
                 return False
-            if (
-                self.final_orbital_rotation is None
-                and other.final_orbital_rotation is not None
-            ) or (
-                self.final_orbital_rotation is not None
-                and other.final_orbital_rotation is None
+            if (self.final_orbital_rotation is None) != (
+                other.final_orbital_rotation is None
             ):
                 return False
             if self.final_orbital_rotation is not None:
