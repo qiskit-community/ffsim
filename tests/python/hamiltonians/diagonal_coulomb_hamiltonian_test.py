@@ -274,8 +274,6 @@ def test_from_fermion_operator_fermi_hubbard_1d_failure(
 )
 def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int]):
     """Test from_fermion_operator method with the fermi_hubbard_2d model."""
-    norb = 4
-    nelec = (2, 2)
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
     vec = ffsim.random.random_statevector(dim, seed=rng)
