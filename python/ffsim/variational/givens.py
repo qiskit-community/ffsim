@@ -72,7 +72,7 @@ class GivensAnsatzOperator:
         Args:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
-            interaction_pairs: The orbital pairs to apply the hop gates to.
+            interaction_pairs: The orbital pairs to apply the Givens rotation gates to.
         """
         return GivensAnsatzOperator(
             norb=norb, interaction_pairs=interaction_pairs, thetas=params
@@ -158,7 +158,7 @@ class GivensAnsatzOp:
         Args:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
-            interaction_pairs: The orbital pairs to apply the hop gates to.
+            interaction_pairs: The orbital pairs to apply the Givens rotation gates to.
             with_phase_layer: Whether to include a layer of single-orbital phase gates.
         """
         n_params = 2 * len(interaction_pairs) + with_phase_layer * norb
