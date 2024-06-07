@@ -82,6 +82,7 @@ from ffsim.trotter import (
 from ffsim.variational import (
     GivensAnsatzOperator,
     HopGateAnsatzOperator,
+    NumNumAnsatzOpSpinBalanced,
     RealUCJOperator,
     UCJOperator,
     UCJOpSpinBalanced,
@@ -99,6 +100,7 @@ __all__ = [
     "HopGateAnsatzOperator",
     "MolecularData",
     "MolecularHamiltonian",
+    "NumNumAnsatzOpSpinBalanced",
     "ProductStateSum",
     "RealUCJOperator",
     "SingleFactorizedHamiltonian",
