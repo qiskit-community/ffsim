@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
-import fnmatch
 
 import numpy as np
 import scipy.linalg
@@ -34,19 +33,23 @@ class DiagonalCoulombHamiltonian:
     .. math::
 
         H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-            + \frac12 \sum_{\sigma \tau, pq} V_{\sigma \tau, pq} n_{\sigma, p}
+            + \frac12 \sum_{\sigma \tau, pq} V_{(\sigma \tau), pq} n_{\sigma, p}
             n_{\tau, q} + \text{constant}.
 
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
 
-    Here :math:`h_{pq}` is called the one-body tensor and
-    :math:`V_{\sigma \tau, pq}` are called the diagonal Coulomb matrices, which satisfy
-    :math:`V_{\sigma\sigma}=V_{\tau\tau}` and :math:`V_{\sigma\tau}=V_{\tau\sigma}`.
+    Here :math:`h_{pq}` is called the one-body tensor and :math:`V_{(\sigma \tau), pq}`
+    are called the diagonal Coulomb matrices. The brackets indicate that
+    :math:`V_{(\sigma \tau)}` is a circulant matrix, which satisfies
+    :math:`V_{\alpha\alpha}=V_{\beta\beta}` and :math:`V_{\alpha\beta}=V_{\beta\alpha}`.
 
     Attributes:
-        one_body_tensor (np.ndarray): The one-body tensor.
-        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices.
+        one_body_tensor (np.ndarray): The one-body tensor :math:`h`.
+        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices
+            :math:`V_{(\sigma \tau)}`, given as a pair of Numpy arrays specifying
+            independent coefficients for alpha-alpha and alpha-beta interactions (in
+            that order).
         constant (float): The constant.
     """
 
@@ -64,7 +67,15 @@ class DiagonalCoulombHamiltonian:
         dim_ = dim(norb, nelec)
         eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
         num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
-        dc_linop = diag_coulomb_linop((self.diag_coulomb_mats[0], self.diag_coulomb_mats[1], self.diag_coulomb_mats[0]), norb, nelec)
+        dc_linop = diag_coulomb_linop(
+            (
+                self.diag_coulomb_mats[0],
+                self.diag_coulomb_mats[1],
+                self.diag_coulomb_mats[0],
+            ),
+            norb,
+            nelec,
+        )
 
         def matvec(vec: np.ndarray):
             result = self.constant * vec
@@ -113,33 +124,41 @@ class DiagonalCoulombHamiltonian:
 
         # populate the tensors
         for term, coeff in op.items():
-            if not term:
+            if not term:  # constant term
                 constant = coeff.real
-            elif len(term) == 2:
+            elif len(term) == 2:  # one-body term candidate
                 (_, _, p), (_, _, q) = term
-                # one-body terms
                 terms = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
                 if term in terms:
                     one_body_tensor[p, q] += 0.5 * coeff  # 0.5
                 else:
                     raise ValueError(
-                        "FermionOperator cannot be converted to DiagonalCoulombHamiltonian")
-            elif len(term) == 4:
+                        "FermionOperator cannot be converted to "
+                        "DiagonalCoulombHamiltonian"
+                    )
+            elif len(term) == 4:  # two-body term candidate
                 (_, _, p), (_, _, _), (_, _, q), (_, _, _) = term
-                # two-body terms
-                terms_same_spin = [(cre_a(p), des_a(p), cre_a(q), des_a(q)),
-                                   (cre_b(p), des_b(p), cre_b(q), des_b(q))]
-                terms_diff_spin = [(cre_a(p), des_a(p), cre_b(q), des_b(q)),
-                                   (cre_b(p), des_b(p), cre_a(q), des_a(q))]
+                terms_same_spin = [
+                    (cre_a(p), des_a(p), cre_a(q), des_a(q)),
+                    (cre_b(p), des_b(p), cre_b(q), des_b(q)),
+                ]
+                terms_diff_spin = [
+                    (cre_a(p), des_a(p), cre_b(q), des_b(q)),
+                    (cre_b(p), des_b(p), cre_a(q), des_a(q)),
+                ]
                 if term in terms_same_spin:
                     diag_coulomb_mats[0][p, q] += coeff.real
                 elif term in terms_diff_spin:
                     diag_coulomb_mats[1][p, q] += coeff.real
                 else:
                     raise ValueError(
-                        "FermionOperator cannot be converted to DiagonalCoulombHamiltonian")
+                        "FermionOperator cannot be converted to "
+                        "DiagonalCoulombHamiltonian"
+                    )
             else:
-                raise ValueError("FermionOperator cannot be converted to DiagonalCoulombHamiltonian")
+                raise ValueError(
+                    "FermionOperator cannot be converted to DiagonalCoulombHamiltonian"
+                )
 
         # ensure diag_coulomb_mats symmetry
         for i in range(2):

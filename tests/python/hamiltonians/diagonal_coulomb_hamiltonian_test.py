@@ -19,51 +19,7 @@ import ffsim
 from ffsim import fermi_hubbard_1d, fermi_hubbard_2d
 from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamiltonian
 
-
-# @pytest.mark.parametrize(
-#     "norb, nelec",
-#     [
-#         (4, (2, 2)),
-#         # (4, (1, 2)),
-#         # (4, (0, 2)),
-#         # (4, (0, 0)),
-#     ],
-# )
-# def test_linear_operator(norb: int, nelec: tuple[int, int]):
-#     """Test linear_operator method."""
-#     rng = np.random.default_rng()
-#     dim = ffsim.dim(norb, nelec)
-#
-#     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-#     diag_coulomb_mats = np.empty((2, norb, norb), dtype=float)
-#     for i in range(2):
-#         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
-#             norb, seed=rng, dtype=float
-#         )
-#         diag_coulomb_mats[i] = diag_coulomb_mat
-#     constant = rng.standard_normal()
-#
-#     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
-#         one_body_tensor, diag_coulomb_mats, constant
-#     )
-#     df_hamiltonian = ffsim.DoubleFactorizedHamiltonian(
-#         one_body_tensor,
-#         diag_coulomb_mats,
-#         np.array([np.eye(norb)]),
-#         constant,
-#         z_representation=False,
-#     )
-#
-#     actual_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
-#     expected_linop = ffsim.linear_operator(df_hamiltonian, norb, nelec)
-#
-#     vec = ffsim.random.random_statevector(dim, seed=rng)
-#     actual = actual_linop @ vec
-#     expected = expected_linop @ vec
-#     np.testing.assert_allclose(actual, expected)
-
-
-@pytest.mark.parametrize(
+TEST_ARGS = pytest.mark.parametrize(
     "norb, nelec",
     [
         (4, (2, 2)),
@@ -72,6 +28,42 @@ from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamil
         (4, (0, 0)),
     ],
 )
+
+
+@TEST_ARGS
+def test_linear_operator(norb: int, nelec: tuple[int, int]):
+    """Test linear_operator method."""
+    rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
+
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
+        norb, seed=rng, dtype=float
+    )
+    diag_coulomb_mats = np.array([diag_coulomb_mat, diag_coulomb_mat])
+    constant = rng.standard_normal()
+
+    dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
+        one_body_tensor, diag_coulomb_mats, constant
+    )
+    df_hamiltonian = ffsim.DoubleFactorizedHamiltonian(
+        one_body_tensor,
+        np.array([diag_coulomb_mat]),
+        np.array([np.eye(norb)]),
+        constant,
+        z_representation=False,
+    )
+
+    actual_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
+    expected_linop = ffsim.linear_operator(df_hamiltonian, norb, nelec)
+
+    vec = ffsim.random.random_statevector(dim, seed=rng)
+    actual = actual_linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected)
+
+
+@TEST_ARGS
 def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test fermion_operator method."""
     rng = np.random.default_rng()
@@ -100,15 +92,7 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
-    ],
-)
+@TEST_ARGS
 def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test from_fermion_operator method."""
     dim = ffsim.dim(norb, nelec)
@@ -138,17 +122,9 @@ def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
-    ],
-)
-def test_from_fermion_operator_failure(norb: int, nelec: tuple[int, int]):
+def test_from_fermion_operator_failure():
     """Test from_fermion_operator method failure."""
+    norb = 4
     rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
@@ -168,15 +144,7 @@ def test_from_fermion_operator_failure(norb: int, nelec: tuple[int, int]):
         DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
-    ],
-)
+@TEST_ARGS
 def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int]):
     """Test from_fermion_operator method with the fermi_hubbard_1d model."""
     dim = ffsim.dim(norb, nelec)
@@ -223,15 +191,7 @@ def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int
     np.testing.assert_allclose(actual_periodic, expected_periodic)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
-    ],
-)
+@TEST_ARGS
 def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int]):
     """Test from_fermion_operator method with the fermi_hubbard_2d model."""
     dim = ffsim.dim(norb, nelec)
