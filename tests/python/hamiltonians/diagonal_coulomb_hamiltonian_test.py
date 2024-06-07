@@ -35,17 +35,20 @@ from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamil
 #     dim = ffsim.dim(norb, nelec)
 #
 #     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-#     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
-#         norb, seed=rng, dtype=float
-#     )
-#
+#     diag_coulomb_mats = np.empty((2, norb, norb), dtype=float)
+#     for i in range(2):
+#         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
+#             norb, seed=rng, dtype=float
+#         )
+#         diag_coulomb_mats[i] = diag_coulomb_mat
 #     constant = rng.standard_normal()
+#
 #     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
-#         one_body_tensor, diag_coulomb_mat, constant
+#         one_body_tensor, diag_coulomb_mats, constant
 #     )
 #     df_hamiltonian = ffsim.DoubleFactorizedHamiltonian(
 #         one_body_tensor,
-#         np.array([diag_coulomb_mat]),
+#         diag_coulomb_mats,
 #         np.array([np.eye(norb)]),
 #         constant,
 #         z_representation=False,
@@ -60,47 +63,50 @@ from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamil
 #     np.testing.assert_allclose(actual, expected)
 
 
-# @pytest.mark.parametrize(
-#     "norb, nelec",
-#     [
-#         (4, (2, 2)),
-#         (4, (1, 2)),
-#         (4, (0, 2)),
-#         (4, (0, 0)),
-#     ],
-# )
-# def test_fermion_operator(norb: int, nelec: tuple[int, int]):
-#     """Test fermion_operator method."""
-#     rng = np.random.default_rng()
-#     dim = ffsim.dim(norb, nelec)
-#
-#     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-#     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
-#         norb, seed=rng, dtype=float
-#     )
-#
-#     constant = rng.standard_normal()
-#     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
-#         one_body_tensor, diag_coulomb_mat, constant=constant
-#     )
-#
-#     op = ffsim.fermion_operator(dc_hamiltonian)
-#     actual_linop = ffsim.linear_operator(op, norb, nelec)
-#     expected_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
-#
-#     vec = ffsim.random.random_statevector(dim, seed=rng)
-#     actual = actual_linop @ vec
-#     expected = expected_linop @ vec
-#     np.testing.assert_allclose(actual, expected)
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_fermion_operator(norb: int, nelec: tuple[int, int]):
+    """Test fermion_operator method."""
+    rng = np.random.default_rng()
+    dim = ffsim.dim(norb, nelec)
+
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    diag_coulomb_mats = np.empty((2, norb, norb), dtype=float)
+    for i in range(2):
+        diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
+            norb, seed=rng, dtype=float
+        )
+        diag_coulomb_mats[i] = diag_coulomb_mat
+    constant = rng.standard_normal()
+
+    dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
+        one_body_tensor, diag_coulomb_mats, constant=constant
+    )
+
+    op = ffsim.fermion_operator(dc_hamiltonian)
+    actual_linop = ffsim.linear_operator(op, norb, nelec)
+    expected_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
+
+    vec = ffsim.random.random_statevector(dim, seed=rng)
+    actual = actual_linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected)
 
 
 @pytest.mark.parametrize(
     "norb, nelec",
     [
-        (2, (1, 1)),
-        # (4, (1, 2)),
-        # (4, (0, 2)),
-        # (4, (0, 0)),
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
     ],
 )
 def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
@@ -108,39 +114,22 @@ def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
 
-    one_body_tensors = np.empty((2, norb, norb), dtype=complex)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    diag_coulomb_mats = np.empty((2, norb, norb), dtype=float)
     for i in range(2):
-        one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-        one_body_tensors[i] = one_body_tensor
-
-    diag_coulomb_mats = np.empty((3, norb, norb), dtype=float)
-    for i in range(3):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
             norb, seed=rng, dtype=float
         )
         diag_coulomb_mats[i] = diag_coulomb_mat
-
     constant = rng.standard_normal()
 
-    print("one_body_tensors = ", one_body_tensors)
-    print("diag_coulomb_mats = ", diag_coulomb_mats)
-    print("constant = ", constant)
-
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
-        one_body_tensors, diag_coulomb_mats, constant=constant
+        one_body_tensor, diag_coulomb_mats, constant=constant
     )
-    print("dc_hamiltonian = ", dc_hamiltonian)
 
     op = ffsim.fermion_operator(dc_hamiltonian)
-    print("this op = ", op)
-    # 1/0
-
     dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
-    new_op = ffsim.fermion_operator(dc_hamiltonian_from_op)
-    print("this new_op = ", new_op)
-
-    actual_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)  # dc_hamiltonian_from_op
-    
+    actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
     expected_linop = ffsim.linear_operator(op, norb, nelec)
 
     vec = ffsim.random.random_statevector(dim, seed=rng)
@@ -149,43 +138,43 @@ def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-# @pytest.mark.parametrize(
-#     "norb, nelec",
-#     [
-#         (4, (2, 2)),
-#         (4, (1, 2)),
-#         (4, (0, 2)),
-#         (4, (0, 0)),
-#     ],
-# )
-# def test_from_fermion_operator_failure(norb: int, nelec: tuple[int, int]):
-#     """Test from_fermion_operator method failure."""
-#     rng = np.random.default_rng()
-#
-#     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-#     two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
-#
-#     constant = rng.standard_normal()
-#     mol_hamiltonian = ffsim.MolecularHamiltonian(
-#         one_body_tensor, two_body_tensor, constant=constant
-#     )
-#
-#     op = ffsim.fermion_operator(mol_hamiltonian)
-#
-#     with pytest.raises(
-#         ValueError,
-#         match="FermionOperator cannot be converted to DiagonalCoulombHamiltonian",
-#     ):
-#         DiagonalCoulombHamiltonian.from_fermion_operator(op)
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_from_fermion_operator_failure(norb: int, nelec: tuple[int, int]):
+    """Test from_fermion_operator method failure."""
+    rng = np.random.default_rng()
+
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
+    constant = rng.standard_normal()
+
+    mol_hamiltonian = ffsim.MolecularHamiltonian(
+        one_body_tensor, two_body_tensor, constant=constant
+    )
+
+    op = ffsim.fermion_operator(mol_hamiltonian)
+
+    with pytest.raises(
+        ValueError,
+        match="FermionOperator cannot be converted to DiagonalCoulombHamiltonian",
+    ):
+        DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
 
 @pytest.mark.parametrize(
     "norb, nelec",
     [
         (4, (2, 2)),
-        # (4, (1, 2)),
-        # (4, (0, 2)),
-        # (4, (0, 0)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
     ],
 )
 def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int]):
@@ -203,102 +192,89 @@ def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int
         nearest_neighbor_interaction=4,
     )
 
-    print("op = ", op)
-
     dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
-    # print("dc_hamiltonian_from_op", dc_hamiltonian_from_op)
-
-    # op_new = ffsim.fermion_operator(dc_hamiltonian_from_op)
-    # print("op from dc_ham = ", op_new)
-    # # 1/0
-
     actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
-
-    # print("actual_linop = ", actual_linop.dot(np.eye(dim)))
-
     expected_linop = ffsim.linear_operator(op, norb, nelec)
-
-    print("expected_linop = ", np.diag(expected_linop.dot(np.eye(dim))))
 
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
-#
-#     # periodic boundary conditions
-#     op_periodic = fermi_hubbard_1d(
-#         norb=4,
-#         tunneling=1,
-#         interaction=2,
-#         chemical_potential=3,
-#         nearest_neighbor_interaction=4,
-#         periodic=True,
-#     )
-#
-#     dc_hamiltonian_from_op_periodic = DiagonalCoulombHamiltonian.from_fermion_operator(
-#         op_periodic
-#     )
-#     actual_linop_periodic = ffsim.linear_operator(
-#         dc_hamiltonian_from_op_periodic, norb, nelec
-#     )
-#     expected_linop_periodic = ffsim.linear_operator(op_periodic, norb, nelec)
-#
-#     actual_periodic = actual_linop_periodic @ vec
-#     expected_periodic = expected_linop_periodic @ vec
-#     np.testing.assert_allclose(actual_periodic, expected_periodic)
+
+    # periodic boundary conditions
+    op_periodic = fermi_hubbard_1d(
+        norb=4,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
+        periodic=True,
+    )
+
+    dc_hamiltonian_from_op_periodic = DiagonalCoulombHamiltonian.from_fermion_operator(
+        op_periodic
+    )
+    actual_linop_periodic = ffsim.linear_operator(
+        dc_hamiltonian_from_op_periodic, norb, nelec
+    )
+    expected_linop_periodic = ffsim.linear_operator(op_periodic, norb, nelec)
+
+    actual_periodic = actual_linop_periodic @ vec
+    expected_periodic = expected_linop_periodic @ vec
+    np.testing.assert_allclose(actual_periodic, expected_periodic)
 
 
-# @pytest.mark.parametrize(
-#     "norb, nelec",
-#     [
-#         (4, (2, 2)),
-#         (4, (1, 2)),
-#         (4, (0, 2)),
-#         (4, (0, 0)),
-#     ],
-# )
-# def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int]):
-#     """Test from_fermion_operator method with the fermi_hubbard_2d model."""
-#     dim = ffsim.dim(norb, nelec)
-#     rng = np.random.default_rng()
-#     vec = ffsim.random.random_statevector(dim, seed=rng)
-#
-#     # open boundary conditions
-#     op = fermi_hubbard_2d(
-#         norb_x=2,
-#         norb_y=2,
-#         tunneling=1,
-#         interaction=2,
-#         chemical_potential=3,
-#         nearest_neighbor_interaction=4,
-#     )
-#
-#     dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
-#     actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
-#     expected_linop = ffsim.linear_operator(op, norb, nelec)
-#
-#     actual = actual_linop @ vec
-#     expected = expected_linop @ vec
-#     np.testing.assert_allclose(actual, expected)
-#
-#     # periodic boundary conditions
-#     op_periodic = fermi_hubbard_2d(
-#         norb_x=2,
-#         norb_y=2,
-#         tunneling=1,
-#         interaction=2,
-#         chemical_potential=3,
-#         nearest_neighbor_interaction=4,
-#         periodic=True,
-#     )
-#
-#     dc_hamiltonian_from_op_periodic = DiagonalCoulombHamiltonian.from_fermion_operator(
-#         op_periodic
-#     )
-#     actual_linop_periodic = ffsim.linear_operator(
-#         dc_hamiltonian_from_op_periodic, norb, nelec
-#     )
-#     expected_linop_periodic = ffsim.linear_operator(op_periodic, norb, nelec)
-#
-#     actual_periodic = actual_linop_periodic @ vec
-#     expected_periodic = expected_linop_periodic @ vec
-#     np.testing.assert_allclose(actual_periodic, expected_periodic)
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int]):
+    """Test from_fermion_operator method with the fermi_hubbard_2d model."""
+    dim = ffsim.dim(norb, nelec)
+    rng = np.random.default_rng()
+    vec = ffsim.random.random_statevector(dim, seed=rng)
+
+    # open boundary conditions
+    op = fermi_hubbard_2d(
+        norb_x=2,
+        norb_y=2,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
+    )
+
+    dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
+    actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
+    expected_linop = ffsim.linear_operator(op, norb, nelec)
+
+    actual = actual_linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected)
+
+    # periodic boundary conditions
+    op_periodic = fermi_hubbard_2d(
+        norb_x=2,
+        norb_y=2,
+        tunneling=1,
+        interaction=2,
+        chemical_potential=3,
+        nearest_neighbor_interaction=4,
+        periodic=True,
+    )
+
+    dc_hamiltonian_from_op_periodic = DiagonalCoulombHamiltonian.from_fermion_operator(
+        op_periodic
+    )
+    actual_linop_periodic = ffsim.linear_operator(
+        dc_hamiltonian_from_op_periodic, norb, nelec
+    )
+    expected_linop_periodic = ffsim.linear_operator(op_periodic, norb, nelec)
+
+    actual_periodic = actual_linop_periodic @ vec
+    expected_periodic = expected_linop_periodic @ vec
+    np.testing.assert_allclose(actual_periodic, expected_periodic)
