@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+import fnmatch
 
 import numpy as np
 import scipy.linalg
@@ -32,41 +33,67 @@ class DiagonalCoulombHamiltonian:
 
     .. math::
 
-        H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-            + \frac12 \sum_{\sigma \tau, pq} V_{pq} n_{\sigma, p} n_{\tau, q}
-            + \text{constant}.
+        H = \sum_{\sigma, pq} h_{\sigma, pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+            + \frac12 \sum_{\sigma \tau, pq} V_{\sigma \tau, pq} n_{\sigma, p}
+            n_{\tau, q} + \text{constant}.
 
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
 
-    Here :math:`h_{pq}` is called the one-body tensor and :math:`V_{pq}` is called the
-    diagonal Coulomb matrix.
+    Here :math:`h_{\sigma, pq}` are called the one-body tensors and
+    :math:`V_{\sigma \tau, pq}` are called the diagonal Coulomb matrices, which are
+    indexed by the spin indices.
 
     Attributes:
-        one_body_tensor (np.ndarray): The one-body tensor.
-        diag_coulomb_mat (np.ndarray): The diagonal Coulomb matrix.
+        one_body_tensors (np.ndarray): The one-body tensors.
+        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices.
         constant (float): The constant.
     """
 
-    one_body_tensor: np.ndarray
-    diag_coulomb_mat: np.ndarray
+    one_body_tensors: np.ndarray
+    diag_coulomb_mats: np.ndarray
     constant: float = 0.0
 
     @property
     def norb(self) -> int:
         """The number of spatial orbitals."""
-        return self.one_body_tensor.shape[0]
+
+        print("shape = ", self.one_body_tensors.shape)
+
+        return self.one_body_tensors.shape[1]
 
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         dim_ = dim(norb, nelec)
-        eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
-        num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
-        dc_linop = diag_coulomb_linop(self.diag_coulomb_mat, norb, nelec)
+
+        num_linops = []
+        for one_body_tensor in self.one_body_tensors:
+            eigs, vecs = scipy.linalg.eigh(one_body_tensor)
+            num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
+            num_linops.append(num_linop)
+
+        # dc_linops = []
+        # for diag_coulomb_mat in self.diag_coulomb_mats:
+        #     dc_linop = diag_coulomb_linop(diag_coulomb_mat, norb, nelec)
+        #     dc_linops.append(dc_linop)
+
+        # dc_linop = diag_coulomb_linop((self.diag_coulomb_mats[0], self.diag_coulomb_mats[1], self.diag_coulomb_mats[2]), norb, nelec)
+        dc_linop = diag_coulomb_linop(tuple(self.diag_coulomb_mats), norb, nelec)
+
+        # dc_linops[1] = diag_coulomb_linop(2*self.diag_coulomb_mats[1], norb, nelec)
+        print("dc_linop = ", np.diag(dc_linop.dot(np.eye(dim_))))
+
+        # dc_linops[1] = np.diag([2.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 0.+0.j, 1.+0.j, 2.+0.j, 1.+0.j, 1.+0.j,
+        #                         0.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 2.+0.j, 0.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #                         0.+0.j, 2.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 0.+0.j, 1.+0.j, 1.+0.j, 2.+0.j, 1.+0.j,
+        #                         0.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 2.+0.j])
 
         def matvec(vec: np.ndarray):
             result = self.constant * vec
-            result += num_linop @ vec
+            for linop in num_linops:
+                result += linop @ vec
+            # for linop in dc_linops:
+            #     result += linop @ vec
             result += dc_linop @ vec
             return result
 
@@ -78,21 +105,26 @@ class DiagonalCoulombHamiltonian:
         """Return a FermionOperator representing the object."""
         op = FermionOperator({(): self.constant})
         for p, q in itertools.product(range(self.norb), repeat=2):
-            coeff = self.one_body_tensor[p, q]
+            # (coeff_a, coeff_b) = self.one_body_tensors[:, p, q]
+            coeff_a = 2 * self.one_body_tensors[0, p, q]
+            coeff_b = 2 * self.one_body_tensors[1, p, q]
             op += FermionOperator(
                 {
-                    (cre_a(p), des_a(q)): coeff,
-                    (cre_b(p), des_b(q)): coeff,
+                    (cre_a(p), des_a(q)): coeff_a,
+                    (cre_b(p), des_b(q)): coeff_b,
                 }
             )
         for p, q in itertools.product(range(self.norb), repeat=2):
-            coeff = 0.5 * self.diag_coulomb_mat[p, q]
+            # (coeff_aa, coeff_ab, coeff_bb) = 0.5 * self.diag_coulomb_mats[:, p, q]
+            coeff_aa = 0.5 * self.diag_coulomb_mats[0, p, q]
+            coeff_ab = 0.5 * self.diag_coulomb_mats[1, p, q]
+            coeff_bb = 0.5 * self.diag_coulomb_mats[2, p, q]
             op += FermionOperator(
                 {
-                    (cre_a(p), des_a(p), cre_a(q), des_a(q)): coeff,
-                    (cre_a(p), des_a(p), cre_b(q), des_b(q)): coeff,
-                    (cre_b(p), des_b(p), cre_a(q), des_a(q)): coeff,
-                    (cre_b(p), des_b(p), cre_b(q), des_b(q)): coeff,
+                    (cre_a(p), des_a(p), cre_a(q), des_a(q)): coeff_aa,
+                    (cre_a(p), des_a(p), cre_b(q), des_b(q)): coeff_ab,
+                    (cre_b(p), des_b(p), cre_a(q), des_a(q)): coeff_ab,
+                    (cre_b(p), des_b(p), cre_b(q), des_b(q)): coeff_bb,
                 }
             )
         return op
@@ -101,81 +133,81 @@ class DiagonalCoulombHamiltonian:
     def from_fermion_operator(op: FermionOperator) -> DiagonalCoulombHamiltonian:
         """Convert a FermionOperator to a DiagonalCoulombHamiltonian."""
 
-        dict_op = dict(op)
+        # print("op here = ", op)
 
         # extract norb
         orb_list = []
-        for key in dict_op:
+        for key, _ in op.items():
             for operator in key:
                 orb = operator[2]
                 orb_list.append(orb)
         norb = max(orb_list) + 1
 
-        # check for incompatible onsite interaction terms
-        same_spin_total, diff_spin_total = 0.0, 0.0
-        for p in range(norb):
-            same_spin_list = [
-                (cre_a(p), des_a(p), cre_a(p), des_a(p)),
-                (cre_b(p), des_b(p), cre_b(p), des_b(p)),
-            ]
-            diff_spin_list = [
-                (cre_a(p), des_a(p), cre_b(p), des_b(p)),
-                (cre_b(p), des_b(p), cre_a(p), des_a(p)),
-            ]
-            for key in dict(op):
-                if key in diff_spin_list:
-                    diff_spin_total += np.real(dict_op[key])
-                elif key in same_spin_list:
-                    same_spin_total += np.real(dict_op[key])
-        if same_spin_total != diff_spin_total:
-            raise ValueError(
-                "FermionOperator cannot be converted to DiagonalCoulombHamiltonian due "
-                "to incompatible onsite interaction terms"
-            )
-
         # initialize variables
         constant: float = 0
-        one_body_tensor = np.zeros((norb, norb), dtype=complex)
-        diag_coulomb_mat = np.zeros((norb, norb), dtype=float)
+        one_body_tensors = np.zeros((2, norb, norb), dtype=complex)
+        diag_coulomb_mats = np.zeros((3, norb, norb), dtype=float)
 
-        # populate tensors
-        for p, q in itertools.product(range(norb), repeat=2):
-            # one-body terms
-            one_body_list = [
-                (cre_a(p), des_a(q)),
-                (cre_b(p), des_b(q)),
-            ]
-            # two-body terms
-            diag_coulomb_list = [
-                (cre_a(p), des_a(p), cre_a(q), des_a(q)),
-                (cre_a(p), des_a(p), cre_b(q), des_b(q)),
-                (cre_b(p), des_b(p), cre_a(q), des_a(q)),
-                (cre_b(p), des_b(p), cre_b(q), des_b(q)),
-            ]
-            for key in dict(op):
-                if key == ():
-                    constant = np.real(dict_op[key])
-                if key in one_body_list:
-                    one_body_tensor[p, q] += 0.5 * dict_op.pop(key)
-                if key in diag_coulomb_list:
-                    diag_coulomb_mat[p, q] += 0.5 * np.real(dict_op.pop(key))
+        # populate the tensors (new)
+        for term, coeff in op.items():
+            # print(f"(term, coeff) = ({term}, {coeff})")
+            if len(term) == 0:  # constant term
+                constant = np.real(coeff)
+            elif len(term) == 2:  # one-body term candidate
+                p = term[0][2]
+                q = term[1][2]
+                # print(p, q)
+                term_a = (cre_a(p), des_a(q))
+                term_b = (cre_b(p), des_b(q))
+                if term == term_a:
+                    # print("one-body a match")
+                    one_body_tensors[0][p, q] += 0.5 * coeff  # 0.5
+                elif term == term_b:
+                    # print("one-body b match")
+                    one_body_tensors[1][p, q] += 0.5 * coeff  # 0.5
+                else:
+                    raise ValueError(
+                        "FermionOperator cannot be converted to DiagonalCoulombHamiltonian")
+            elif len(term) == 4:  # two-body term candidate
+                p = term[0][2]
+                q = term[2][2]
+                # print(p, q)
+                # two-body terms
+                term_aa = (cre_a(p), des_a(p), cre_a(q), des_a(q))
+                terms_ab = [(cre_a(p), des_a(p), cre_b(q), des_b(q)),
+                            (cre_b(p), des_b(p), cre_a(q), des_a(q))]
+                term_bb = (cre_b(p), des_b(p), cre_b(q), des_b(q))
+                if term == term_aa:
+                    # print("two-body aa match")
+                    diag_coulomb_mats[0][p, q] += 2 * np.real(coeff)
+                elif term in terms_ab:
+                    # print("two-body ab match")
+                    diag_coulomb_mats[1][p, q] += np.real(coeff)
+                elif term == term_bb:
+                    # print("two-body bb match")
+                    diag_coulomb_mats[2][p, q] += 2 * np.real(coeff)
+                else:
+                    raise ValueError(
+                        "FermionOperator cannot be converted to DiagonalCoulombHamiltonian")
+            else:
+                raise ValueError("FermionOperator cannot be converted to DiagonalCoulombHamiltonian")
 
-        # remove constant term
-        if () in dict_op:
-            del dict_op[()]
+        # ensure diag_coulomb_mats symmetry
+        for i in range(3):
+            diag_coulomb_mats[i] = (diag_coulomb_mats[i] + diag_coulomb_mats[i].T) / 2
 
-        # check for incompatible leftover terms
-        if dict_op:
-            raise ValueError(
-                "FermionOperator cannot be converted to DiagonalCoulombHamiltonian due "
-                "to incompatible leftover terms"
-            )
+        # print("diag_coulomb_mats[0] = ", diag_coulomb_mats[0])
+        # print("diag_coulomb_mats[1] = ", diag_coulomb_mats[1])
+        # print("diag_coulomb_mats[2] = ", diag_coulomb_mats[2])
 
-        # ensure diag_coulomb_mat symmetry
-        diag_coulomb_mat = (diag_coulomb_mat + diag_coulomb_mat.T) / 2
+        # print("obt shape = ", one_body_tensors.shape)
+
+        # print("actual one_body_tensors = ", one_body_tensors)
+        # print("actual diag_coulomb_mats = ", diag_coulomb_mats)
+        # print("actual constant = ", constant)
 
         return DiagonalCoulombHamiltonian(
-            one_body_tensor=one_body_tensor,
-            diag_coulomb_mat=diag_coulomb_mat,
+            one_body_tensors=one_body_tensors,
+            diag_coulomb_mats=diag_coulomb_mats,
             constant=constant,
         )
