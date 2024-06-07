@@ -15,6 +15,7 @@ from __future__ import annotations
 import cmath
 import math
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 from scipy.linalg.blas import drot
@@ -237,7 +238,10 @@ class GivensAnsatzOp:
                 return False
             if self.phase_angles is not None:
                 return np.allclose(
-                    self.phase_angles, other.phase_angles, rtol=rtol, atol=atol
+                    cast(np.ndarray, self.phase_angles),
+                    cast(np.ndarray, other.phase_angles),
+                    rtol=rtol,
+                    atol=atol,
                 )
             return True
         return NotImplemented
