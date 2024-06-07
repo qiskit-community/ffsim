@@ -130,7 +130,7 @@ class DiagonalCoulombHamiltonian:
                 (_, _, p), (_, _, q) = term
                 terms = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
                 if term in terms:
-                    one_body_tensor[p, q] += 0.5 * coeff  # 0.5
+                    one_body_tensor[p, q] += 0.5 * coeff
                 else:
                     raise ValueError(
                         "FermionOperator cannot be converted to "

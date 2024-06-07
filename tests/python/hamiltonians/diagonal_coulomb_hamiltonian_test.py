@@ -33,8 +33,8 @@ TEST_ARGS = pytest.mark.parametrize(
 @TEST_ARGS
 def test_linear_operator(norb: int, nelec: tuple[int, int]):
     """Test linear_operator method."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
+    rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
@@ -66,8 +66,8 @@ def test_linear_operator(norb: int, nelec: tuple[int, int]):
 @TEST_ARGS
 def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test fermion_operator method."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
+    rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
     diag_coulomb_mats = np.empty((2, norb, norb), dtype=float)
