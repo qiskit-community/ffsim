@@ -116,6 +116,7 @@ class GivensAnsatzOp:
     norb: int
     interaction_pairs: list[tuple[int, int]]
     thetas: np.ndarray
+    # TODO make phis optional
     phis: np.ndarray
     phase_angles: np.ndarray | None = None
 

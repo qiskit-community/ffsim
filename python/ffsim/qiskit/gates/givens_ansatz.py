@@ -23,11 +23,13 @@ from qiskit.circuit import (
     QuantumRegister,
     Qubit,
 )
-from qiskit.circuit.library import XXPlusYYGate
+from qiskit.circuit.library import PhaseGate, XXPlusYYGate
+from typing_extensions import deprecated
 
-from ffsim.variational import GivensAnsatzOperator
+from ffsim.variational import GivensAnsatzOp, GivensAnsatzOperator
 
 
+@deprecated("GivensAnsatzOperatorJW is deprecated. Use GivensAnsatzOpJW instead.")
 class GivensAnsatzOperatorJW(Gate):
     """Givens rotation ansatz operator under the Jordan-Wigner transformation.
 
@@ -55,13 +57,21 @@ class GivensAnsatzOperatorJW(Gate):
         norb = len(qubits) // 2
         alpha_qubits = qubits[:norb]
         beta_qubits = qubits[norb:]
-        for instruction in _givens_ansatz_jw(alpha_qubits, self.givens_ansatz_operator):
+        for instruction in _givens_ansatz_operator_jw(
+            alpha_qubits, self.givens_ansatz_operator
+        ):
             circuit.append(instruction)
-        for instruction in _givens_ansatz_jw(beta_qubits, self.givens_ansatz_operator):
+        for instruction in _givens_ansatz_operator_jw(
+            beta_qubits, self.givens_ansatz_operator
+        ):
             circuit.append(instruction)
         self.definition = circuit
 
 
+@deprecated(
+    "GivensAnsatzOperatorSpinlessJW is deprecated. "
+    "Use GivensAnsatzOpSpinlessJW instead."
+)
 class GivensAnsatzOperatorSpinlessJW(Gate):
     """Givens rotation ansatz operator under the Jordan-Wigner transformation, spinless.
 
@@ -86,13 +96,13 @@ class GivensAnsatzOperatorSpinlessJW(Gate):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _givens_ansatz_jw(qubits, self.givens_ansatz_operator),
+            _givens_ansatz_operator_jw(qubits, self.givens_ansatz_operator),
             qubits=qubits,
             name=self.name,
         )
 
 
-def _givens_ansatz_jw(
+def _givens_ansatz_operator_jw(
     qubits: Sequence[Qubit], givens_ansatz_operator: GivensAnsatzOperator
 ) -> Iterator[CircuitInstruction]:
     for (i, j), theta in zip(
@@ -102,3 +112,75 @@ def _givens_ansatz_jw(
         yield CircuitInstruction(
             XXPlusYYGate(2 * theta, -0.5 * math.pi), (qubits[i], qubits[j])
         )
+
+
+class GivensAnsatzOpJW(Gate):
+    """Givens rotation ansatz operator under the Jordan-Wigner transformation.
+
+    See :class:`ffsim.GivensAnsatzOp` for a description of this gate's unitary.
+    """
+
+    def __init__(self, givens_ansatz_op: GivensAnsatzOp, *, label: str | None = None):
+        """Create a new Givens ansatz operator gate.
+
+        Args:
+            givens_ansatz_op: The Givens rotation ansatz operator.
+            label: The label of the gate.
+        """
+        self.givens_ansatz_op = givens_ansatz_op
+        super().__init__("givens_ansatz_jw", 2 * givens_ansatz_op.norb, [], label=label)
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(self.num_qubits)
+        circuit = QuantumCircuit(qubits, name=self.name)
+        norb = len(qubits) // 2
+        alpha_qubits = qubits[:norb]
+        beta_qubits = qubits[norb:]
+        for instruction in _givens_ansatz_jw(alpha_qubits, self.givens_ansatz_op):
+            circuit.append(instruction)
+        for instruction in _givens_ansatz_jw(beta_qubits, self.givens_ansatz_op):
+            circuit.append(instruction)
+        self.definition = circuit
+
+
+class GivensAnsatzOpSpinlessJW(Gate):
+    """Spinless Givens rotation ansatz operator under the Jordan-Wigner transformation.
+
+    Like :class:`GivensAnsatzOpJW` but only acts on a single spin species.
+    """
+
+    def __init__(self, givens_ansatz_op: GivensAnsatzOp, *, label: str | None = None):
+        """Create a new Givens ansatz operator gate.
+
+        Args:
+            givens_ansatz_op: The Givens rotation ansatz operator.
+            label: The label of the gate.
+        """
+        self.givens_ansatz_op = givens_ansatz_op
+        super().__init__(
+            "givens_ansatz_spinless_jw", givens_ansatz_op.norb, [], label=label
+        )
+
+    def _define(self):
+        """Gate decomposition."""
+        qubits = QuantumRegister(self.num_qubits)
+        circuit = QuantumCircuit(qubits, name=self.name)
+        for instruction in _givens_ansatz_jw(qubits, self.givens_ansatz_op):
+            circuit.append(instruction)
+        self.definition = circuit
+
+
+def _givens_ansatz_jw(
+    qubits: Sequence[Qubit], givens_ansatz_op: GivensAnsatzOp
+) -> Iterator[CircuitInstruction]:
+    for (i, j), theta, phi in zip(
+        givens_ansatz_op.interaction_pairs,
+        givens_ansatz_op.thetas,
+        givens_ansatz_op.phis,
+    ):
+        yield CircuitInstruction(
+            XXPlusYYGate(2 * theta, phi - 0.5 * math.pi), (qubits[i], qubits[j])
+        )
+    for i, phase_angle in enumerate(givens_ansatz_op.phase_angles):
+        yield CircuitInstruction(PhaseGate(phase_angle), (qubits[i],))
