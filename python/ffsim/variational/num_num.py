@@ -29,8 +29,8 @@ class NumNumAnsatzOpSpinBalanced:
 
     Attributes:
         norb (int): The number of spatial orbitals.
-        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the Givens
-            rotations to.
+        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the
+            number-number interactions to.
         thetas (np.ndarray): The angles for the number-number interactions.
 
     .. _number-number interactions: ffsim.html#ffsim.apply_num_num_interaction
@@ -80,6 +80,8 @@ class NumNumAnsatzOpSpinBalanced:
         Args:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
+            interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the
+                number-number interactions to.
         """
         pairs_aa, pairs_ab = interaction_pairs
         n_params = len(pairs_aa) + len(pairs_ab)
@@ -104,7 +106,9 @@ class NumNumAnsatzOpSpinBalanced:
         """Initialize the operator from a diagonal Coulomb matrix.
 
         Args:
-            diag_coulomb_mats: The diagonal Coulomb matrices.
+            diag_coulomb_mats: The diagonal Coulomb matrices. Should be a pair
+                of matrices, with the first matrix representing same-spin interactions
+                and the second matrix representing different-spin interactions.
         """
         mat_aa, mat_ab = diag_coulomb_mats
         norb, _ = mat_aa.shape
@@ -129,7 +133,13 @@ class NumNumAnsatzOpSpinBalanced:
         )
 
     def to_diag_coulomb_mats(self) -> np.ndarray:
-        """Convert the operator to diagonal Coulomb matrices."""
+        """Convert the operator to diagonal Coulomb matrices.
+
+        Returns:
+            A Numpy array of shape (2, norb, norb) holding two matrices. The first
+            matrix holds the same-spin interactions and the second matrix holds the
+            different-spin interactions.
+        """
         diag_coulomb_mats = np.zeros((2, self.norb, self.norb))
         for mat, pairs, thetas in zip(
             diag_coulomb_mats, self.interaction_pairs, self.thetas
