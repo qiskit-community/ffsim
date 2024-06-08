@@ -32,22 +32,26 @@ def fermi_hubbard_1d(
 
     .. math::
 
-        H = -t \sum_{\sigma} \sum_{p}
-        (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{h.c.})
-        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
-        - \mu \sum_{p=1}^N (n_{\alpha, p} + n_{\beta, p})
-        + V \sum_{\sigma, \sigma'} \sum_{p} n_{\sigma, p} n_{\sigma', p+1}
+        H = -t \sum_{\sigma, \braket{pq}}
+        (a^\dagger_{\sigma, p} a_{\sigma, q} + a^\dagger_{\sigma, q} a_{\sigma, p})
+        + U \sum_p n_{\alpha, p} n_{\beta, p}
+        - \mu \sum_p (n_{\alpha, p} + n_{\beta, p})
+        + V \sum_{\sigma \tau, \braket{pq}} n_{\sigma, p} n_{\tau, q}
 
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
-    operator on orbital :math:`p` with spin :math:`\sigma`.
+    operator on orbital :math:`p` with spin :math:`\sigma` and the index
+    :math:`\braket{pq}` runs over pairs of orbitals :math:`p` and :math:`q` that are
+    connected on the line. If periodic boundary conditions are chosen, then the first
+    and last orbitals are connected. More explicitly:
 
-    For the tunneling and nearest-neighbor interaction terms, the summations over
-    :math:`p` run along edges in the network. Under open boundary conditions, there are
-    :math:`N` vertices and :math:`N-1` edges connected in a chain and hence, the
-    summations over :math:`p` are defined as :math:`\sum_{p}=\sum_{p=1}^{N-1}`. Under
-    periodic boundary conditions, there are :math:`N` vertices and :math:`N` edges
-    connected in a ring and hence, the summations over :math:`p` are defined as
-    :math:`\sum_{p}=\sum_{p=1}^{N}`, with operator positions :math:`p+1\to(p+1)\bmod N`.
+    - For open boundary conditions, :math:`\braket{pq}` runs over pairs
+      :math:`(p, p + 1)` for :math:`p = 1, \ldots, N - 1`.
+    - For periodic boundary conditions, :math:`\braket{pq}` runs over pairs
+      :math:`(p, p + 1 \bmod N)` for :math:`p = 1, \ldots, N`.
+
+    In the case that :math:`N = 2`, using periodic boundary conditions will cause the
+    connection between the two vertices to be counted twice, forming a
+    "ring with two edges".
 
     References:
         - `The Hubbard Model`_
@@ -106,32 +110,27 @@ def fermi_hubbard_2d(
     nearest_neighbor_interaction: float = 0,
     periodic: bool = False,
 ) -> FermionOperator:
-    r"""Two-dimensional Fermi-Hubbard model Hamiltonian.
+    r"""Two-dimensional Fermi-Hubbard model Hamiltonian on a square lattice.
 
     The Hamiltonian for the two-dimensional Fermi-Hubbard model on a square lattice with
-    :math:`N = N_x \times N_y` spatial orbitals is given by
+    :math:`N_x` columns and :math:`N_y` rows is given by
 
     .. math::
 
-        H = -t \sum_{\sigma} \sum_{\braket{pq}}
-        (a^\dagger_{\sigma, p} a_{\sigma, q} + \text{h.c.})
-        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}
-        - \mu \sum_{p=1}^{N} (n_{\alpha, p} + n_{\beta, p})
-        + V \sum_{\sigma, \sigma'} \sum_{\braket{pq}} n_{\sigma, p} n_{\sigma', q}
+        H = -t \sum_{\sigma, \braket{pq}}
+        (a^\dagger_{\sigma, p} a_{\sigma, q} + a^\dagger_{\sigma, q} a_{\sigma, p})
+        + U \sum_p n_{\alpha, p} n_{\beta, p}
+        - \mu \sum_p (n_{\alpha, p} + n_{\beta, p})
+        + V \sum_{\sigma \tau, \braket{pq}} n_{\sigma, p} n_{\tau, q}
 
-    where :math:`\braket{\dots}` denotes nearest-neighbor pairs and
-    :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number operator
-    on orbital :math:`p` with spin :math:`\sigma`.
-
-    For the tunneling and nearest-neighbor interaction terms, the summations over
-    :math:`\braket{pq}` run along edges in the network. Under open boundary conditions,
-    there are :math:`N_x \times N_y` vertices and
-    :math:`2 (N_x \times N_y) - (N_x + N_y)` edges connected on a plane. Under periodic
-    boundary conditions, there are :math:`N_x \times N_y` vertices and
-    :math:`2 (N_x \times N_y)` edges connected on a torus, with operator positions
-    defined modulo :math:`N_x` or :math:`N_y`. This is a two-dimensional generalization
-    of the nearest-neighbor summations defined in
-    :func:`fermi_hubbard_1d <~operators.fermi_hubbard.fermi_hubbard_1d>`.
+    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
+    operator on orbital :math:`p` with spin :math:`\sigma` and the index
+    :math:`\braket{pq}` runs over pairs of orbitals :math:`p` and :math:`q` that are
+    connected on the lattice. If periodic boundary conditions are chosen, then
+    orbitals in the first and last columns are connected, as are orbitals in the
+    first and last rows, so that the square lattice forms a torus. In the case that
+    one of the dimensions has size 2, using periodic boundary conditions will cause
+    the connection along that dimension to be counted twice.
 
     References:
         - `The Hubbard Model`_
