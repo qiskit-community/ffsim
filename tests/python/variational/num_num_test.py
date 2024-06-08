@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for Givens rotation ansatz."""
+"""Tests for number-number interaction ansatz."""
 
 from __future__ import annotations
 
