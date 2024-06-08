@@ -86,8 +86,8 @@ class UCJOpSpinBalanced:
             The first axis indexes the ansatz repetitions.
         orbital_rotations (np.ndarray): The orbital rotations, as a Numpy array
             of shape `(n_reps, norb, norb)`.
-        final_orbital_rotation (np.ndarray): The optional final orbital rotation, as
-            a Numpy array of shape `(norb, norb)`.
+        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
+            as a Numpy array of shape `(norb, norb)`.
     """
 
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, 2, norb, norb)
