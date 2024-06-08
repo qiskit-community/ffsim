@@ -106,9 +106,9 @@ class GivensAnsatzOp:
         interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the Givens
             rotations to.
         thetas (np.ndarray): The angles for the Givens rotations.
-        phis (np.ndarray): The phase angles for the Givens rotations.
-        phase_angles (np.ndarray): The phase angles for the layer of single-orbital
-            phase gates.
+        phis (np.ndarray | None): The optional phase angles for the Givens rotations.
+        phase_angles (np.ndarray | None): The optional phase angles for the layer of
+            single-orbital phase gates.
 
     .. _Givens rotations: ffsim.html#ffsim.apply_givens_rotation
     """
@@ -159,6 +159,7 @@ class GivensAnsatzOp:
         params: np.ndarray,
         norb: int,
         interaction_pairs: list[tuple[int, int]],
+        # TODO these should default to True
         with_phis: bool = False,
         with_phase_angles: bool = False,
     ) -> GivensAnsatzOp:
