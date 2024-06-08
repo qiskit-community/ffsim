@@ -33,7 +33,7 @@ def test_multireference_state_prod():
 
     for _ in range(5):
         thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        operator = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
+        operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, thetas)
 
         mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
             norb, seed=rng, dtype=float

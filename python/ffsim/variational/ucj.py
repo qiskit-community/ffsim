@@ -45,6 +45,10 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
 class UCJOperator:
     r"""A unitary cluster Jastrow operator.
 
+    .. warning::
+        The UCJOperator class is deprecated. Use :class:`ffsim.UCJOpSpinBalanced`
+        instead.
+
     A unitary cluster Jastrow (UCJ) operator has the form
 
     .. math::
@@ -122,6 +126,7 @@ class UCJOperator:
         )
 
     @staticmethod
+    @deprecated("The UCJOperator class is deprecated. Use UCJOpSpinBalanced instead.")
     def from_parameters(
         params: np.ndarray,
         *,
@@ -219,6 +224,7 @@ class UCJOperator:
         )
 
     @staticmethod
+    @deprecated("The UCJOperator class is deprecated. Use UCJOpSpinBalanced instead.")
     def from_t_amplitudes(
         t2: np.ndarray,
         *,
