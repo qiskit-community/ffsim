@@ -26,6 +26,7 @@ from ffsim.gates import (
     apply_tunneling_interaction,
 )
 from ffsim.hamiltonians import (
+    DiagonalCoulombHamiltonian,
     DoubleFactorizedHamiltonian,
     MolecularHamiltonian,
     SingleFactorizedHamiltonian,
@@ -94,6 +95,7 @@ from ffsim.variational import (
 )
 
 __all__ = [
+    "DiagonalCoulombHamiltonian",
     "DoubleFactorizedHamiltonian",
     "FermionAction",
     "FermionOperator",

@@ -10,11 +10,13 @@
 
 """Classes for representing Hamiltonians."""
 
+from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamiltonian
 from ffsim.hamiltonians.double_factorized_hamiltonian import DoubleFactorizedHamiltonian
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.hamiltonians.single_factorized_hamiltonian import SingleFactorizedHamiltonian
 
 __all__ = [
+    "DiagonalCoulombHamiltonian",
     "DoubleFactorizedHamiltonian",
     "MolecularHamiltonian",
     "SingleFactorizedHamiltonian",
