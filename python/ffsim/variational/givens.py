@@ -116,8 +116,8 @@ class GivensAnsatzOp:
     norb: int
     interaction_pairs: list[tuple[int, int]]
     thetas: np.ndarray
-    phis: np.ndarray | None = None
-    phase_angles: np.ndarray | None = None
+    phis: np.ndarray | None
+    phase_angles: np.ndarray | None
 
     def __post_init__(self):
         if len(self.thetas) != len(self.interaction_pairs):
@@ -159,9 +159,8 @@ class GivensAnsatzOp:
         params: np.ndarray,
         norb: int,
         interaction_pairs: list[tuple[int, int]],
-        # TODO should these default to True?
-        with_phis: bool = False,
-        with_phase_angles: bool = False,
+        with_phis: bool = True,
+        with_phase_angles: bool = True,
     ) -> GivensAnsatzOp:
         """Initialize the operator from a real-valued parameter vector.
 
@@ -169,6 +168,7 @@ class GivensAnsatzOp:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
             interaction_pairs: The orbital pairs to apply the Givens rotation gates to.
+            with_phis: Whether to include complex phases for the Givens rotations.
             with_phase_angles: Whether to include a layer of single-orbital phase gates.
         """
         n_params = (1 + with_phis) * len(interaction_pairs) + with_phase_angles * norb
