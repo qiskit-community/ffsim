@@ -317,14 +317,26 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        H = -t \sum_{\sigma} \sum_{p=1}^{N-1}</span>
-<span class="sd">        (a^\dagger_{\sigma, p} a_{\sigma, p+1} + \text{h.c.})</span>
-<span class="sd">        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}</span>
-<span class="sd">        - \mu \sum_{p=1}^N (n_{\alpha, p} + n_{\beta, p})</span>
-<span class="sd">        + V \sum_{\sigma, \sigma&#39;} \sum_{p=1}^{N-1} n_{\sigma, p} n_{\sigma&#39;, p+1}</span>
+<span class="sd">        H = -t \sum_{\sigma, \braket{pq}}</span>
+<span class="sd">        (a^\dagger_{\sigma, p} a_{\sigma, q} + a^\dagger_{\sigma, q} a_{\sigma, p})</span>
+<span class="sd">        + U \sum_p n_{\alpha, p} n_{\beta, p}</span>
+<span class="sd">        - \mu \sum_p (n_{\alpha, p} + n_{\beta, p})</span>
+<span class="sd">        + V \sum_{\sigma \tau, \braket{pq}} n_{\sigma, p} n_{\tau, q}</span>
 
 <span class="sd">    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number</span>
-<span class="sd">    operator on orbital :math:`p` with spin :math:`\sigma`.</span>
+<span class="sd">    operator on orbital :math:`p` with spin :math:`\sigma` and the index</span>
+<span class="sd">    :math:`\braket{pq}` runs over pairs of orbitals :math:`p` and :math:`q` that are</span>
+<span class="sd">    connected on the line. If periodic boundary conditions are chosen, then the first</span>
+<span class="sd">    and last orbitals are connected. More explicitly:</span>
+
+<span class="sd">    - For open boundary conditions, :math:`\braket{pq}` runs over pairs</span>
+<span class="sd">      :math:`(p, p + 1)` for :math:`p = 1, \ldots, N - 1`.</span>
+<span class="sd">    - For periodic boundary conditions, :math:`\braket{pq}` runs over pairs</span>
+<span class="sd">      :math:`(p, p + 1 \bmod N)` for :math:`p = 1, \ldots, N`.</span>
+
+<span class="sd">    In the case that :math:`N = 2`, using periodic boundary conditions will cause the</span>
+<span class="sd">    connection between the two vertices to be counted twice, forming a</span>
+<span class="sd">    &quot;ring with two edges&quot;.</span>
 
 <span class="sd">    References:</span>
 <span class="sd">        - `The Hubbard Model`_</span>
@@ -386,22 +398,27 @@
     <span class="n">nearest_neighbor_interaction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">periodic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Two-dimensional Fermi-Hubbard model Hamiltonian.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Two-dimensional Fermi-Hubbard model Hamiltonian on a square lattice.</span>
 
 <span class="sd">    The Hamiltonian for the two-dimensional Fermi-Hubbard model on a square lattice with</span>
-<span class="sd">    :math:`N = N_x \times N_y` spatial orbitals is given by</span>
+<span class="sd">    :math:`N_x` columns and :math:`N_y` rows is given by</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        H = -t \sum_{\sigma} \sum_{\braket{pq}}</span>
-<span class="sd">        (a^\dagger_{\sigma, p} a_{\sigma, q} + \text{h.c.})</span>
-<span class="sd">        + U \sum_{p=1}^{N} n_{\alpha, p} n_{\beta, p}</span>
-<span class="sd">        - \mu \sum_{p=1}^{N} (n_{\alpha, p} + n_{\beta, p})</span>
-<span class="sd">        + V \sum_{\sigma, \sigma&#39;} \sum_{\braket{pq}} n_{\sigma, p} n_{\sigma&#39;, q}</span>
+<span class="sd">        H = -t \sum_{\sigma, \braket{pq}}</span>
+<span class="sd">        (a^\dagger_{\sigma, p} a_{\sigma, q} + a^\dagger_{\sigma, q} a_{\sigma, p})</span>
+<span class="sd">        + U \sum_p n_{\alpha, p} n_{\beta, p}</span>
+<span class="sd">        - \mu \sum_p (n_{\alpha, p} + n_{\beta, p})</span>
+<span class="sd">        + V \sum_{\sigma \tau, \braket{pq}} n_{\sigma, p} n_{\tau, q}</span>
 
-<span class="sd">    where :math:`\braket{\dots}` denotes nearest-neighbor pairs and</span>
-<span class="sd">    :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number operator</span>
-<span class="sd">    on orbital :math:`p` with spin :math:`\sigma`.</span>
+<span class="sd">    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number</span>
+<span class="sd">    operator on orbital :math:`p` with spin :math:`\sigma` and the index</span>
+<span class="sd">    :math:`\braket{pq}` runs over pairs of orbitals :math:`p` and :math:`q` that are</span>
+<span class="sd">    connected on the lattice. If periodic boundary conditions are chosen, then</span>
+<span class="sd">    orbitals in the first and last columns are connected, as are orbitals in the</span>
+<span class="sd">    first and last rows, so that the square lattice forms a torus. In the case that</span>
+<span class="sd">    one of the dimensions has size 2, using periodic boundary conditions will cause</span>
+<span class="sd">    the connection along that dimension to be counted twice.</span>
 
 <span class="sd">    References:</span>
 <span class="sd">        - `The Hubbard Model`_</span>
