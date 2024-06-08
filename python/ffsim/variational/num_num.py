@@ -53,6 +53,8 @@ class NumNumAnsatzOpSpinBalanced:
         self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
     ) -> np.ndarray:
         """Apply the operator to a vector."""
+        if isinstance(nelec, int):
+            return NotImplemented
         mats_aa, mats_ab = self.to_diag_coulomb_mats()
         return gates.apply_diag_coulomb_evolution(
             vec,
@@ -106,8 +108,10 @@ class NumNumAnsatzOpSpinBalanced:
         """
         mat_aa, mat_ab = diag_coulomb_mats
         norb, _ = mat_aa.shape
-        pairs_aa, pairs_ab = [], []
-        thetas_aa, thetas_ab = [], []
+        pairs_aa: list[tuple[int, int]] = []
+        pairs_ab: list[tuple[int, int]] = []
+        thetas_aa: list[float] = []
+        thetas_ab: list[float] = []
         for mat, pairs, thetas in [
             (mat_aa, pairs_aa, thetas_aa),
             (mat_ab, pairs_ab, thetas_ab),
