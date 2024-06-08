@@ -1221,6 +1221,111 @@ the two-body tensor.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">NumNumAnsatzOpSpinBalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/num_num.html#NumNumAnsatzOpSpinBalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A number-number interaction ansatz operator.</p>
+<p>The number-number interaction ansatz consists of a sequence of
+<a class="reference external" href="ffsim.html#ffsim.apply_num_num_interaction">number-number interactions</a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.norb">
+<span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.interaction_pairs">
+<span class="sig-name descname"><span class="pre">interaction_pairs</span></span><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.interaction_pairs" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital pairs to apply the
+number-number interactions to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[tuple[int, int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.thetas">
+<span class="sig-name descname"><span class="pre">thetas</span></span><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.thetas" title="Link to this definition">¶</a></dt>
+<dd><p>The angles for the number-number interactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diag_coulomb_mats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/num_num.html#NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the operator from a diagonal Coulomb matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>diag_coulomb_mats</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The diagonal Coulomb matrices. Should be a pair
+of matrices, with the first matrix representing same-spin interactions
+and the second matrix representing different-spin interactions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced" title="ffsim.variational.num_num.NumNumAnsatzOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/num_num.html#NumNumAnsatzOpSpinBalanced.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>interaction_pairs</strong> (<em>list</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – The orbital pairs to apply the
+number-number interactions to.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced" title="ffsim.variational.num_num.NumNumAnsatzOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats">
+<span class="sig-name descname"><span class="pre">to_diag_coulomb_mats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/num_num.html#NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the operator to diagonal Coulomb matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Numpy array of shape (2, norb, norb) holding two matrices. The first
+matrix holds the same-spin interactions and the second matrix holds the
+different-spin interactions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/num_num.html#NumNumAnsatzOpSpinBalanced.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the operator to a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.ProductStateSum">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">ProductStateSum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/product_state_sum.html#ProductStateSum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.ProductStateSum" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
@@ -4207,6 +4312,16 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.constant</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.rotated"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.rotated()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.norb"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.interaction_pairs"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.interaction_pairs</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.thetas"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.thetas</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.from_parameters"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.from_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.to_parameters"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.to_parameters()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.ProductStateSum"><code class="docutils literal notranslate"><span class="pre">ProductStateSum</span></code></a><ul>

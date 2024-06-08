@@ -597,6 +597,31 @@ overridden to extend subclasses.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">NumNumAnsatzOpSpinBalancedJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_num_ansatz_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_num_ansatz.html#NumNumAnsatzOpSpinBalancedJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Spin-balanced number-number ansatz under the Jordan-Wigner transformation.</p>
+<p>See <code class="xref py py-class docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced</span></code> for a description of this gate’s unitary.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_num_ansatz_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_num_ansatz.html#NumNumAnsatzOpSpinBalancedJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new number-number ansatz operator gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_num_ansatz_op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced" title="ffsim.variational.num_num.NumNumAnsatzOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced</span></code></a></span>) – The number-number ansatz operator.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.OrbitalRotationJW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">OrbitalRotationJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/orbital_rotation.html#OrbitalRotationJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.OrbitalRotationJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
@@ -1110,6 +1135,10 @@ and spin beta fermions.</p></li>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.MergeOrbitalRotations"><code class="docutils literal notranslate"><span class="pre">MergeOrbitalRotations</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.MergeOrbitalRotations.run"><code class="docutils literal notranslate"><span class="pre">MergeOrbitalRotations.run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalancedJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW.__init__"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalancedJW.__init__()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a><ul>
