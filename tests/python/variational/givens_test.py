@@ -89,6 +89,19 @@ def test_givens_parameters_roundtrip():
         norb=norb,
         interaction_pairs=interaction_pairs,
         thetas=thetas,
+    )
+    assert len(operator.to_parameters()) == norb * (norb - 1) // 2
+    roundtripped = ffsim.GivensAnsatzOp.from_parameters(
+        operator.to_parameters(),
+        norb=norb,
+        interaction_pairs=interaction_pairs,
+    )
+    assert ffsim.approx_eq(roundtripped, operator)
+
+    operator = ffsim.GivensAnsatzOp(
+        norb=norb,
+        interaction_pairs=interaction_pairs,
+        thetas=thetas,
         phis=phis,
     )
     assert len(operator.to_parameters()) == norb * (norb - 1)
@@ -96,6 +109,22 @@ def test_givens_parameters_roundtrip():
         operator.to_parameters(),
         norb=norb,
         interaction_pairs=interaction_pairs,
+        with_phis=True,
+    )
+    assert ffsim.approx_eq(roundtripped, operator)
+
+    operator = ffsim.GivensAnsatzOp(
+        norb=norb,
+        interaction_pairs=interaction_pairs,
+        thetas=thetas,
+        phase_angles=phase_angles,
+    )
+    assert len(operator.to_parameters()) == norb * (norb - 1) // 2 + norb
+    roundtripped = ffsim.GivensAnsatzOp.from_parameters(
+        operator.to_parameters(),
+        norb=norb,
+        interaction_pairs=interaction_pairs,
+        with_phase_angles=True,
     )
     assert ffsim.approx_eq(roundtripped, operator)
 
@@ -111,7 +140,8 @@ def test_givens_parameters_roundtrip():
         operator.to_parameters(),
         norb=norb,
         interaction_pairs=interaction_pairs,
-        with_phase_layer=True,
+        with_phis=True,
+        with_phase_angles=True,
     )
     assert ffsim.approx_eq(roundtripped, operator)
 

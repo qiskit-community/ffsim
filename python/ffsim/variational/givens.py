@@ -116,17 +116,19 @@ class GivensAnsatzOp:
     norb: int
     interaction_pairs: list[tuple[int, int]]
     thetas: np.ndarray
-    # TODO make phis optional
-    phis: np.ndarray
+    phis: np.ndarray | None = None
     phase_angles: np.ndarray | None = None
 
     def __post_init__(self):
-        if not len(self.interaction_pairs) == len(self.thetas) == len(self.phis):
+        if len(self.thetas) != len(self.interaction_pairs):
             raise ValueError(
-                "The number of interaction pairs, the length of thetas, and "
-                "the length of phis must all be equal. "
-                f"Got {len(self.interaction_pairs)}, "
-                f"{len(self.thetas)}, and {len(self.phis)}."
+                "The number of thetas must equal the number of interaction pairs. "
+                f"Got {len(self.phis)} and {self.interaction_pairs}."
+            )
+        if self.phis is not None and len(self.phis) != len(self.interaction_pairs):
+            raise ValueError(
+                "The number of phis must equal the number of interaction pairs. "
+                f"Got {len(self.phis)} and {self.interaction_pairs}."
             )
         if self.phase_angles is not None and len(self.phase_angles) != self.norb:
             raise ValueError(
@@ -144,16 +146,21 @@ class GivensAnsatzOp:
 
     def to_parameters(self) -> np.ndarray:
         """Convert the operator to a real-valued parameter vector."""
-        if self.phase_angles is not None:
+        if self.phis is not None and self.phase_angles is not None:
             return np.concatenate([self.thetas, self.phis, self.phase_angles])
-        return np.concatenate([self.thetas, self.phis])
+        if self.phis is not None:
+            return np.concatenate([self.thetas, self.phis])
+        if self.phase_angles is not None:
+            return np.concatenate([self.thetas, self.phase_angles])
+        return self.thetas
 
     @staticmethod
     def from_parameters(
         params: np.ndarray,
         norb: int,
         interaction_pairs: list[tuple[int, int]],
-        with_phase_layer: bool = False,
+        with_phis: bool = False,
+        with_phase_angles: bool = False,
     ) -> GivensAnsatzOp:
         """Initialize the operator from a real-valued parameter vector.
 
@@ -161,9 +168,9 @@ class GivensAnsatzOp:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
             interaction_pairs: The orbital pairs to apply the Givens rotation gates to.
-            with_phase_layer: Whether to include a layer of single-orbital phase gates.
+            with_phase_angles: Whether to include a layer of single-orbital phase gates.
         """
-        n_params = 2 * len(interaction_pairs) + with_phase_layer * norb
+        n_params = (1 + with_phis) * len(interaction_pairs) + with_phase_angles * norb
         if len(params) != n_params:
             raise ValueError(
                 "The number of parameters passed did not match the number expected "
@@ -171,10 +178,17 @@ class GivensAnsatzOp:
                 f"Expected {n_params} but got {len(params)}."
             )
         thetas = params[: len(interaction_pairs)]
-        phis = params[len(interaction_pairs) : 2 * len(interaction_pairs)]
+        phis = None
         phase_angles = None
-        if with_phase_layer:
+        if with_phis and with_phase_angles:
+            phis = params[len(interaction_pairs) : 2 * len(interaction_pairs)]
             phase_angles = params[2 * len(interaction_pairs) :]
+        elif with_phis:
+            phis = params[len(interaction_pairs) :]
+            phase_angles = None
+        elif with_phase_angles:
+            phis = None
+            phase_angles = params[len(interaction_pairs) :]
         return GivensAnsatzOp(
             norb=norb,
             interaction_pairs=interaction_pairs,
@@ -210,12 +224,15 @@ class GivensAnsatzOp:
 
     def to_orbital_rotation(self) -> np.ndarray:
         """Convert the Givens ansatz operator to an orbital rotation."""
-        if self.phase_angles is None:
-            orbital_rotation = np.eye(self.norb, dtype=complex)
-        else:
-            orbital_rotation = np.diag(np.exp(1j * self.phase_angles))
+        phis = self.phis
+        phase_angles = self.phase_angles
+        if phis is None:
+            phis = np.zeros(len(self.interaction_pairs))
+        if phase_angles is None:
+            phase_angles = np.zeros(self.norb)
+        orbital_rotation = np.diag(np.exp(1j * phase_angles))
         for (i, j), theta, phi in zip(
-            self.interaction_pairs[::-1], self.thetas[::-1], self.phis[::-1]
+            self.interaction_pairs[::-1], self.thetas[::-1], phis[::-1]
         ):
             orbital_rotation[:, j], orbital_rotation[:, i] = zrot(
                 orbital_rotation[:, j],
@@ -233,16 +250,23 @@ class GivensAnsatzOp:
                 return False
             if not np.allclose(self.thetas, other.thetas, rtol=rtol, atol=atol):
                 return False
-            if not np.allclose(self.phis, other.phis, rtol=rtol, atol=atol):
+            if (self.phis is None) != (other.phis is None):
                 return False
             if (self.phase_angles is None) != (other.phase_angles is None):
                 return False
-            if self.phase_angles is not None:
-                return np.allclose(
-                    cast(np.ndarray, self.phase_angles),
-                    cast(np.ndarray, other.phase_angles),
-                    rtol=rtol,
-                    atol=atol,
-                )
+            if self.phis is not None and not np.allclose(
+                cast(np.ndarray, self.phis),
+                cast(np.ndarray, other.phis),
+                rtol=rtol,
+                atol=atol,
+            ):
+                return False
+            if self.phase_angles is not None and not np.allclose(
+                cast(np.ndarray, self.phase_angles),
+                cast(np.ndarray, other.phase_angles),
+                rtol=rtol,
+                atol=atol,
+            ):
+                return False
             return True
         return NotImplemented
