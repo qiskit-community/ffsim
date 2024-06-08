@@ -299,6 +299,7 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">CircuitInstruction</span><span class="p">,</span>
     <span class="n">Gate</span><span class="p">,</span>
@@ -306,13 +307,15 @@
     <span class="n">QuantumRegister</span><span class="p">,</span>
     <span class="n">Qubit</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">XXPlusYYGate</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">PhaseGate</span><span class="p">,</span> <span class="n">XXPlusYYGate</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.variational</span> <span class="kn">import</span> <span class="n">GivensAnsatzOperator</span>
+<span class="kn">from</span> <span class="nn">ffsim.variational</span> <span class="kn">import</span> <span class="n">GivensAnsatzOp</span><span class="p">,</span> <span class="n">GivensAnsatzOperator</span>
 
 
 <div class="viewcode-block" id="GivensAnsatzOperatorJW">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorJW">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;GivensAnsatzOperatorJW is deprecated. Use GivensAnsatzOpJW instead.&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">GivensAnsatzOperatorJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Givens rotation ansatz operator under the Jordan-Wigner transformation.</span>
 
@@ -343,9 +346,13 @@
         <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span><span class="n">norb</span><span class="p">]</span>
         <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="n">norb</span><span class="p">:]</span>
-        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_operator_jw</span><span class="p">(</span>
+            <span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span>
+        <span class="p">):</span>
             <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_operator_jw</span><span class="p">(</span>
+            <span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span>
+        <span class="p">):</span>
             <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span></div>
 
@@ -353,6 +360,10 @@
 
 <div class="viewcode-block" id="GivensAnsatzOperatorSpinlessJW">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOperatorSpinlessJW">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;GivensAnsatzOperatorSpinlessJW is deprecated. &quot;</span>
+    <span class="s2">&quot;Use GivensAnsatzOpSpinlessJW instead.&quot;</span>
+<span class="p">)</span>
 <span class="k">class</span> <span class="nc">GivensAnsatzOperatorSpinlessJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Givens rotation ansatz operator under the Jordan-Wigner transformation, spinless.</span>
 
@@ -380,14 +391,14 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="o">.</span><span class="n">from_instructions</span><span class="p">(</span>
-            <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">),</span>
+            <span class="n">_givens_ansatz_operator_jw</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">),</span>
             <span class="n">qubits</span><span class="o">=</span><span class="n">qubits</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_givens_ansatz_jw</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_givens_ansatz_operator_jw</span><span class="p">(</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">givens_ansatz_operator</span><span class="p">:</span> <span class="n">GivensAnsatzOperator</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
@@ -397,6 +408,92 @@
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
             <span class="n">XXPlusYYGate</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
         <span class="p">)</span>
+
+
+<div class="viewcode-block" id="GivensAnsatzOpJW">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpJW">[docs]</a>
+<span class="k">class</span> <span class="nc">GivensAnsatzOpJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Givens rotation ansatz operator under the Jordan-Wigner transformation.</span>
+
+<span class="sd">    See :class:`ffsim.GivensAnsatzOp` for a description of this gate&#39;s unitary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GivensAnsatzOpJW.__init__">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpJW.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">givens_ansatz_op</span><span class="p">:</span> <span class="n">GivensAnsatzOp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Givens ansatz operator gate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            givens_ansatz_op: The Givens rotation ansatz operator.</span>
+<span class="sd">            label: The label of the gate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_op</span> <span class="o">=</span> <span class="n">givens_ansatz_op</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;givens_ansatz_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">alpha_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[:</span><span class="n">norb</span><span class="p">]</span>
+        <span class="n">beta_qubits</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="n">norb</span><span class="p">:]</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">alpha_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_op</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">beta_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_op</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span></div>
+
+
+
+<div class="viewcode-block" id="GivensAnsatzOpSpinlessJW">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpSpinlessJW">[docs]</a>
+<span class="k">class</span> <span class="nc">GivensAnsatzOpSpinlessJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spinless Givens rotation ansatz operator under the Jordan-Wigner transformation.</span>
+
+<span class="sd">    Like :class:`GivensAnsatzOpJW` but only acts on a single spin species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GivensAnsatzOpSpinlessJW.__init__">
+<a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpSpinlessJW.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">givens_ansatz_op</span><span class="p">:</span> <span class="n">GivensAnsatzOp</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Givens ansatz operator gate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            givens_ansatz_op: The Givens rotation ansatz operator.</span>
+<span class="sd">            label: The label of the gate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_op</span> <span class="o">=</span> <span class="n">givens_ansatz_op</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;givens_ansatz_spinless_jw&quot;</span><span class="p">,</span> <span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">_givens_ansatz_jw</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">givens_ansatz_op</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">circuit</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_givens_ansatz_jw</span><span class="p">(</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">givens_ansatz_op</span><span class="p">:</span> <span class="n">GivensAnsatzOp</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
+    <span class="n">phis</span> <span class="o">=</span> <span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">phis</span>
+    <span class="k">if</span> <span class="n">phis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">phis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">))</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span>
+    <span class="p">):</span>
+        <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span>
+            <span class="n">XXPlusYYGate</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">phase_angles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">phase_angle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">givens_ansatz_op</span><span class="o">.</span><span class="n">phase_angles</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">PhaseGate</span><span class="p">(</span><span class="n">phase_angle</span><span class="p">),</span> <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">],))</span>
 </pre></div>
         </article>
       </div>

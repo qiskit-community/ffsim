@@ -636,6 +636,129 @@ appear before smaller orbital indices.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">GivensAnsatzOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOp" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A Givens rotation ansatz operator.</p>
+<p>The Givens rotation ansatz consists of a sequence of <a class="reference external" href="ffsim.html#ffsim.apply_givens_rotation">Givens rotations</a> followed
+by a layer of single-orbital phase gates.</p>
+<p>Note that this ansatz does not implement any interactions between spin alpha and
+spin beta orbitals.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.norb">
+<span class="sig-name descname"><span class="pre">norb</span></span><a class="headerlink" href="#ffsim.GivensAnsatzOp.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.interaction_pairs">
+<span class="sig-name descname"><span class="pre">interaction_pairs</span></span><a class="headerlink" href="#ffsim.GivensAnsatzOp.interaction_pairs" title="Link to this definition">¶</a></dt>
+<dd><p>The orbital pairs to apply the Givens
+rotations to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[tuple[int, int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.thetas">
+<span class="sig-name descname"><span class="pre">thetas</span></span><a class="headerlink" href="#ffsim.GivensAnsatzOp.thetas" title="Link to this definition">¶</a></dt>
+<dd><p>The angles for the Givens rotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.phis">
+<span class="sig-name descname"><span class="pre">phis</span></span><a class="headerlink" href="#ffsim.GivensAnsatzOp.phis" title="Link to this definition">¶</a></dt>
+<dd><p>The phase angles for the Givens rotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.phase_angles">
+<span class="sig-name descname"><span class="pre">phase_angles</span></span><a class="headerlink" href="#ffsim.GivensAnsatzOp.phase_angles" title="Link to this definition">¶</a></dt>
+<dd><p>The phase angles for the layer of single-orbital
+phase gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.from_orbital_rotation">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_orbital_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOp.from_orbital_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOp.from_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the operator from an orbital rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The orbital rotation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.GivensAnsatzOp" title="ffsim.variational.givens.GivensAnsatzOp"><code class="xref py py-class docutils literal notranslate"><span class="pre">GivensAnsatzOp</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_phis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_phase_angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOp.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOp.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The orbital pairs to apply the Givens rotation gates to.</p></li>
+<li><p><strong>with_phase_angles</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a layer of single-orbital phase gates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.GivensAnsatzOp" title="ffsim.variational.givens.GivensAnsatzOp"><code class="xref py py-class docutils literal notranslate"><span class="pre">GivensAnsatzOp</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.to_orbital_rotation">
+<span class="sig-name descname"><span class="pre">to_orbital_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOp.to_orbital_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOp.to_orbital_rotation" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the Givens ansatz operator to an orbital rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOp.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOp.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the operator to a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.GivensAnsatzOperator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">GivensAnsatzOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -686,7 +809,7 @@ rotations to.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The orbital pairs to apply the hop gates to.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The orbital pairs to apply the Givens rotation gates to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -4013,6 +4136,18 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.conserves_spin_z"><code class="docutils literal notranslate"><span class="pre">FermionOperator.conserves_spin_z()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.many_body_order"><code class="docutils literal notranslate"><span class="pre">FermionOperator.many_body_order()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.normal_ordered"><code class="docutils literal notranslate"><span class="pre">FermionOperator.normal_ordered()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.norb"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.interaction_pairs"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.interaction_pairs</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.thetas"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.thetas</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.phis"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.phis</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.phase_angles"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.phase_angles</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.from_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.from_orbital_rotation()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.from_parameters"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.from_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.to_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.to_orbital_rotation()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.to_parameters"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.to_parameters()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.GivensAnsatzOperator"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOperator</span></code></a><ul>
