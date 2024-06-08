@@ -681,10 +681,10 @@ rotations to.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.phis">
 <span class="sig-name descname"><span class="pre">phis</span></span><a class="headerlink" href="#ffsim.GivensAnsatzOp.phis" title="Link to this definition">¶</a></dt>
-<dd><p>The phase angles for the Givens rotations.</p>
+<dd><p>The optional phase angles for the Givens rotations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>np.ndarray | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -692,11 +692,11 @@ rotations to.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.phase_angles">
 <span class="sig-name descname"><span class="pre">phase_angles</span></span><a class="headerlink" href="#ffsim.GivensAnsatzOp.phase_angles" title="Link to this definition">¶</a></dt>
-<dd><p>The phase angles for the layer of single-orbital
-phase gates.</p>
+<dd><p>The optional phase angles for the layer of
+single-orbital phase gates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>np.ndarray | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1724,11 +1724,11 @@ of shape <cite>(n_reps, norb, norb)</cite>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.final_orbital_rotation">
 <span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.final_orbital_rotation" title="Link to this definition">¶</a></dt>
-<dd><p>The optional final orbital rotation, as
-a Numpy array of shape <cite>(norb, norb)</cite>.</p>
+<dd><p>The optional final orbital rotation,
+as a Numpy array of shape <cite>(norb, norb)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>np.ndarray | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1978,13 +1978,13 @@ The first axis indexes the ansatz repetitions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.final_orbital_rotation">
 <span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.final_orbital_rotation" title="Link to this definition">¶</a></dt>
-<dd><p>The optional final orbital rotation, as a
-Numpy array of shape <cite>(2, norb, norb)</cite>. This can be viewed as a list of two
-orbital rotations, the first one for spin alpha and the second one for spin
-beta.</p>
+<dd><p>The optional final orbital rotation,
+as a Numpy array of shape <cite>(2, norb, norb)</cite>. This can be viewed as a list of
+two orbital rotations, the first one for spin alpha and the second one for
+spin beta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>np.ndarray | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2241,11 +2241,11 @@ of shape <cite>(n_reps, norb, norb)</cite>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ffsim.UCJOpSpinless.final_orbital_rotation">
 <span class="sig-name descname"><span class="pre">final_orbital_rotation</span></span><a class="headerlink" href="#ffsim.UCJOpSpinless.final_orbital_rotation" title="Link to this definition">¶</a></dt>
-<dd><p>The optional final orbital rotation, as
-a Numpy array of shape <cite>(norb, norb)</cite>.</p>
+<dd><p>The optional final orbital rotation,
+as a Numpy array of shape <cite>(norb, norb)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>np.ndarray | None</p>
 </dd>
 </dl>
 </dd></dl>

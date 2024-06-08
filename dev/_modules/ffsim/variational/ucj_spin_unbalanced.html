@@ -371,10 +371,10 @@
 <span class="sd">            dimensions, indexes the spin sector of the orbital rotation: first alpha,</span>
 <span class="sd">            then beta.</span>
 <span class="sd">            The first axis indexes the ansatz repetitions.</span>
-<span class="sd">        final_orbital_rotation (np.ndarray): The optional final orbital rotation, as a</span>
-<span class="sd">            Numpy array of shape `(2, norb, norb)`. This can be viewed as a list of two</span>
-<span class="sd">            orbital rotations, the first one for spin alpha and the second one for spin</span>
-<span class="sd">            beta.</span>
+<span class="sd">        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,</span>
+<span class="sd">            as a Numpy array of shape `(2, norb, norb)`. This can be viewed as a list of</span>
+<span class="sd">            two orbital rotations, the first one for spin alpha and the second one for</span>
+<span class="sd">            spin beta.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># shape: (n_reps, 3, norb, norb)</span>

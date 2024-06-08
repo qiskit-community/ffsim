@@ -400,9 +400,9 @@
 <span class="sd">        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the Givens</span>
 <span class="sd">            rotations to.</span>
 <span class="sd">        thetas (np.ndarray): The angles for the Givens rotations.</span>
-<span class="sd">        phis (np.ndarray): The phase angles for the Givens rotations.</span>
-<span class="sd">        phase_angles (np.ndarray): The phase angles for the layer of single-orbital</span>
-<span class="sd">            phase gates.</span>
+<span class="sd">        phis (np.ndarray | None): The optional phase angles for the Givens rotations.</span>
+<span class="sd">        phase_angles (np.ndarray | None): The optional phase angles for the layer of</span>
+<span class="sd">            single-orbital phase gates.</span>
 
 <span class="sd">    .. _Givens rotations: ffsim.html#ffsim.apply_givens_rotation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -458,6 +458,7 @@
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="c1"># TODO these should default to True</span>
         <span class="n">with_phis</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">with_phase_angles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GivensAnsatzOp</span><span class="p">:</span>
