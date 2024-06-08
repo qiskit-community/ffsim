@@ -86,10 +86,10 @@ class UCJOpSpinUnbalanced:
             dimensions, indexes the spin sector of the orbital rotation: first alpha,
             then beta.
             The first axis indexes the ansatz repetitions.
-        final_orbital_rotation (np.ndarray): The optional final orbital rotation, as a
-            Numpy array of shape `(2, norb, norb)`. This can be viewed as a list of two
-            orbital rotations, the first one for spin alpha and the second one for spin
-            beta.
+        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
+            as a Numpy array of shape `(2, norb, norb)`. This can be viewed as a list of
+            two orbital rotations, the first one for spin alpha and the second one for
+            spin beta.
     """
 
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, 3, norb, norb)
