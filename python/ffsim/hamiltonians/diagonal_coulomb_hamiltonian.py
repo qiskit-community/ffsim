@@ -128,41 +128,45 @@ class DiagonalCoulombHamiltonian:
                 constant = coeff.real
             elif len(term) == 2:  # one-body term candidate
                 (_, _, p), (_, _, q) = term
-                terms = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
-                if term in terms:
+                valid_terms = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
+                if term in valid_terms:
                     one_body_tensor[p, q] += 0.5 * coeff
                 else:
                     raise ValueError(
                         "FermionOperator cannot be converted to "
-                        "DiagonalCoulombHamiltonian"
+                        f"DiagonalCoulombHamiltonian. The one-body term {term} is not "
+                        "of the form a^\\dagger_{\\sigma, p} a_{\\sigma, q}."
                     )
             elif len(term) == 4:  # two-body term candidate
-                (_, _, p), (_, _, _), (_, _, q), (_, _, _) = term
-                terms_same_spin = [
+                (_, _, p), _, (_, _, q), _ = term
+                valid_terms_same_spin = [
                     (cre_a(p), des_a(p), cre_a(q), des_a(q)),
                     (cre_b(p), des_b(p), cre_b(q), des_b(q)),
                 ]
-                terms_diff_spin = [
+                valid_terms_diff_spin = [
                     (cre_a(p), des_a(p), cre_b(q), des_b(q)),
                     (cre_b(p), des_b(p), cre_a(q), des_a(q)),
                 ]
-                if term in terms_same_spin:
+                if term in valid_terms_same_spin:
                     diag_coulomb_mats[0][p, q] += coeff.real
-                elif term in terms_diff_spin:
+                elif term in valid_terms_diff_spin:
                     diag_coulomb_mats[1][p, q] += coeff.real
                 else:
                     raise ValueError(
                         "FermionOperator cannot be converted to "
-                        "DiagonalCoulombHamiltonian"
+                        f"DiagonalCoulombHamiltonian. The two-body term {term} is not "
+                        "of the form n_{\\sigma, p} n_{\\tau, q}."
                     )
             else:
                 raise ValueError(
-                    "FermionOperator cannot be converted to DiagonalCoulombHamiltonian"
+                    "FermionOperator cannot be converted to DiagonalCoulombHamiltonian."
+                    f" The term {term} is neither a constant, one-body, or two-body "
+                    "term."
                 )
 
         # ensure diag_coulomb_mats symmetry
-        for i in range(2):
-            diag_coulomb_mats[i] = 0.5 * (diag_coulomb_mats[i] + diag_coulomb_mats[i].T)
+        diag_coulomb_mats += diag_coulomb_mats.transpose(0, 2, 1)
+        diag_coulomb_mats *= 0.5
 
         return DiagonalCoulombHamiltonian(
             one_body_tensor=one_body_tensor,
