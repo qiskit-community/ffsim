@@ -248,11 +248,11 @@ class GivensAnsatzOp:
                 return False
             if self.interaction_pairs != other.interaction_pairs:
                 return False
-            if not np.allclose(self.thetas, other.thetas, rtol=rtol, atol=atol):
-                return False
             if (self.phis is None) != (other.phis is None):
                 return False
             if (self.phase_angles is None) != (other.phase_angles is None):
+                return False
+            if not np.allclose(self.thetas, other.thetas, rtol=rtol, atol=atol):
                 return False
             if self.phis is not None and not np.allclose(
                 cast(np.ndarray, self.phis),
