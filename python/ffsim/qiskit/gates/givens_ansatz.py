@@ -16,6 +16,7 @@ import itertools
 import math
 from collections.abc import Iterator, Sequence
 
+import numpy as np
 from qiskit.circuit import (
     CircuitInstruction,
     Gate,
@@ -174,13 +175,15 @@ class GivensAnsatzOpSpinlessJW(Gate):
 def _givens_ansatz_jw(
     qubits: Sequence[Qubit], givens_ansatz_op: GivensAnsatzOp
 ) -> Iterator[CircuitInstruction]:
+    phis = givens_ansatz_op.phis
+    if phis is None:
+        phis = np.zeros(len(givens_ansatz_op.interaction_pairs))
     for (i, j), theta, phi in zip(
-        givens_ansatz_op.interaction_pairs,
-        givens_ansatz_op.thetas,
-        givens_ansatz_op.phis,
+        givens_ansatz_op.interaction_pairs, givens_ansatz_op.thetas, phis
     ):
         yield CircuitInstruction(
             XXPlusYYGate(2 * theta, phi - 0.5 * math.pi), (qubits[i], qubits[j])
         )
-    for i, phase_angle in enumerate(givens_ansatz_op.phase_angles):
-        yield CircuitInstruction(PhaseGate(phase_angle), (qubits[i],))
+    if givens_ansatz_op.phase_angles is not None:
+        for i, phase_angle in enumerate(givens_ansatz_op.phase_angles):
+            yield CircuitInstruction(PhaseGate(phase_angle), (qubits[i],))
