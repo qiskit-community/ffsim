@@ -17,7 +17,10 @@ from ffsim.qiskit.gates.diag_coulomb import (
 from ffsim.qiskit.gates.givens_ansatz import (
     GivensAnsatzOperatorJW,
     GivensAnsatzOperatorSpinlessJW,
+    GivensAnsatzOpJW,
+    GivensAnsatzOpSpinlessJW,
 )
+from ffsim.qiskit.gates.num_num_ansatz import NumNumAnsatzOpSpinBalancedJW
 from ffsim.qiskit.gates.orbital_rotation import (
     OrbitalRotationJW,
     OrbitalRotationSpinlessJW,
@@ -38,8 +41,11 @@ from ffsim.qiskit.gates.ucj_operator import UCJOperatorJW
 __all__ = [
     "DiagCoulombEvolutionJW",
     "DiagCoulombEvolutionSpinlessJW",
+    "GivensAnsatzOpJW",
+    "GivensAnsatzOpSpinlessJW",
     "GivensAnsatzOperatorJW",
     "GivensAnsatzOperatorSpinlessJW",
+    "NumNumAnsatzOpSpinBalancedJW",
     "OrbitalRotationJW",
     "OrbitalRotationSpinlessJW",
     "PrepareHartreeFockJW",

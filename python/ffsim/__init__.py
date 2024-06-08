@@ -81,8 +81,10 @@ from ffsim.trotter import (
     simulate_trotter_double_factorized,
 )
 from ffsim.variational import (
+    GivensAnsatzOp,
     GivensAnsatzOperator,
     HopGateAnsatzOperator,
+    NumNumAnsatzOpSpinBalanced,
     RealUCJOperator,
     UCJOperator,
     UCJOpSpinBalanced,
@@ -97,10 +99,12 @@ __all__ = [
     "DoubleFactorizedHamiltonian",
     "FermionAction",
     "FermionOperator",
+    "GivensAnsatzOp",
     "GivensAnsatzOperator",
     "HopGateAnsatzOperator",
     "MolecularData",
     "MolecularHamiltonian",
+    "NumNumAnsatzOpSpinBalanced",
     "ProductStateSum",
     "RealUCJOperator",
     "SingleFactorizedHamiltonian",
