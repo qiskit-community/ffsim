@@ -159,7 +159,7 @@ class GivensAnsatzOp:
         params: np.ndarray,
         norb: int,
         interaction_pairs: list[tuple[int, int]],
-        # TODO these should default to True
+        # TODO should these default to True?
         with_phis: bool = False,
         with_phase_angles: bool = False,
     ) -> GivensAnsatzOp:
