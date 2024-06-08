@@ -291,6 +291,79 @@
 <span id="ffsim"></span><h1>ffsim<a class="headerlink" href="#module-ffsim" title="Link to this heading">¶</a></h1>
 <p>ffsim is a software library for fast simulation of fermionic quantum circuits.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">DiagonalCoulombHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/diagonal_coulomb_hamiltonian.html#DiagonalCoulombHamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A diagonal Coulomb Hamiltonian.</p>
+<p>A Hamiltonian of the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+    + \frac12 \sum_{\sigma \tau, pq} V_{(\sigma \tau), pq} n_{\sigma, p}
+    n_{\tau, q} + \text{constant}.\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}\)</span> is the number
+operator on orbital <span class="math notranslate nohighlight">\(p\)</span> with spin <span class="math notranslate nohighlight">\(\sigma\)</span>.</p>
+<p>Here <span class="math notranslate nohighlight">\(h_{pq}\)</span> is called the one-body tensor and <span class="math notranslate nohighlight">\(V_{(\sigma \tau), pq}\)</span>
+are called the diagonal Coulomb matrices. The brackets indicate that
+<span class="math notranslate nohighlight">\(V_{(\sigma \tau)}\)</span> is a circulant matrix, which satisfies
+<span class="math notranslate nohighlight">\(V_{\alpha\alpha}=V_{\beta\beta}\)</span> and <span class="math notranslate nohighlight">\(V_{\alpha\beta}=V_{\beta\alpha}\)</span>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian.one_body_tensor">
+<span class="sig-name descname"><span class="pre">one_body_tensor</span></span><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian.one_body_tensor" title="Link to this definition">¶</a></dt>
+<dd><p>The one-body tensor <span class="math notranslate nohighlight">\(h\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian.diag_coulomb_mats">
+<span class="sig-name descname"><span class="pre">diag_coulomb_mats</span></span><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian.diag_coulomb_mats" title="Link to this definition">¶</a></dt>
+<dd><p>The diagonal Coulomb matrices
+<span class="math notranslate nohighlight">\(V_{(\sigma \tau)}\)</span>, given as a pair of Numpy arrays specifying
+independent coefficients for alpha-alpha and alpha-beta interactions (in
+that order).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian.constant">
+<span class="sig-name descname"><span class="pre">constant</span></span><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian.constant" title="Link to this definition">¶</a></dt>
+<dd><p>The constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian.from_fermion_operator">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/diagonal_coulomb_hamiltonian.html#DiagonalCoulombHamiltonian.from_fermion_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian.from_fermion_operator" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a FermionOperator to a DiagonalCoulombHamiltonian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian" title="ffsim.hamiltonians.diagonal_coulomb_hamiltonian.DiagonalCoulombHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of spatial orbitals.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.DoubleFactorizedHamiltonian">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">DoubleFactorizedHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/double_factorized_hamiltonian.html#DoubleFactorizedHamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.DoubleFactorizedHamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -4219,6 +4292,14 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">ffsim</a><ul>
+<li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian.one_body_tensor</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian.diag_coulomb_mats</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian.constant</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian.from_fermion_operator"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian.from_fermion_operator()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian.norb</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.one_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.DoubleFactorizedHamiltonian.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian.diag_coulomb_mats</span></code></a></li>
