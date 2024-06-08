@@ -25,6 +25,7 @@ def brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_random_givens_ansatz_operator_spinful(norb: int, nelec: tuple[int, int]):
     """Test random Givens rotation ansatz gives correct output state."""
@@ -54,6 +55,7 @@ def test_random_givens_ansatz_operator_spinful(norb: int, nelec: tuple[int, int]
         np.testing.assert_allclose(result, expected)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
 def test_random_givens_ansatz_operator_spinless(norb: int, nocc: int):
     """Test random spinless Givens rotation ansatz gives correct output state."""
