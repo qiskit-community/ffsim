@@ -352,6 +352,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of parameters of the ansatz.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span> <span class="k">for</span> <span class="n">pairs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NumNumAnsatzOpSpinBalanced.to_parameters">
