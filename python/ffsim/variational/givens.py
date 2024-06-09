@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import cmath
 import math
+from collections import defaultdict, deque
 from dataclasses import dataclass
 from typing import cast
 
@@ -215,6 +216,9 @@ class GivensAnsatzOp:
             r, phi = cmath.polar(s)
             thetas.append(math.atan2(r, c))
             phis.append(phi)
+        interaction_pairs, thetas, phis = _orbital_rotation_layers(
+            interaction_pairs, thetas, phis, norb=norb
+        )
         return GivensAnsatzOp(
             norb=norb,
             interaction_pairs=interaction_pairs,
@@ -271,3 +275,30 @@ class GivensAnsatzOp:
                 return False
             return True
         return NotImplemented
+
+
+def _orbital_rotation_layers(
+    interaction_pairs: list[tuple[int, int]],
+    thetas: list[float],
+    phis: list[float],
+    norb: int,
+) -> tuple[list[tuple[int, int]], list[float], list[float]]:
+    layers: defaultdict[frozenset[int], deque[tuple[tuple[int, int], float, float]]] = (
+        defaultdict(deque)
+    )
+    for pair, theta, phi in zip(interaction_pairs, thetas, phis):
+        layers[frozenset(pair)].append((pair, theta, phi))
+    new_interaction_pairs = []
+    new_thetas = []
+    new_phis = []
+    for i in range(norb):
+        for j in range(i % 2, norb - 1, 2):
+            ops = layers[frozenset([j, j + 1])]
+            if ops:
+                pair, theta, phi = layers[frozenset([j, j + 1])].popleft()
+            else:
+                pair, theta, phi = (j, j + 1), 0.0, 0.0
+            new_interaction_pairs.append(pair)
+            new_thetas.append(theta)
+            new_phis.append(phi)
+    return new_interaction_pairs, new_thetas, new_phis
