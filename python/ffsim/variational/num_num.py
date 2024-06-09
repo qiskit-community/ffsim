@@ -67,6 +67,7 @@ class NumNumAnsatzOpSpinBalanced:
 
     @property
     def n_params(self) -> int:
+        """Return the number of parameters of the ansatz."""
         return sum(len(pairs) for pairs in self.interaction_pairs)
 
     def to_parameters(self) -> np.ndarray:
