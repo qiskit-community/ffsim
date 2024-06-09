@@ -283,21 +283,26 @@ def _orbital_rotation_layers(
     phis: list[float],
     norb: int,
 ) -> tuple[list[tuple[int, int]], list[float], list[float]]:
-    layers: defaultdict[frozenset[int], deque[tuple[tuple[int, int], float, float]]] = (
-        defaultdict(deque)
+    layers: defaultdict[tuple[int, int], deque[tuple[float, float]]] = defaultdict(
+        deque
     )
-    for pair, theta, phi in zip(interaction_pairs, thetas, phis):
-        layers[frozenset(pair)].append((pair, theta, phi))
+    for (i, j), theta, phi in zip(interaction_pairs, thetas, phis):
+        if i > j:
+            i, j = j, i
+            theta = -theta
+            phi = -phi
+        layers[(i, j)].append((theta, phi))
     new_interaction_pairs = []
     new_thetas = []
     new_phis = []
     for i in range(norb):
         for j in range(i % 2, norb - 1, 2):
-            ops = layers[frozenset([j, j + 1])]
-            if ops:
-                pair, theta, phi = layers[frozenset([j, j + 1])].popleft()
+            pair = (j, j + 1)
+            angles = layers[pair]
+            if angles:
+                theta, phi = angles.popleft()
             else:
-                pair, theta, phi = (j, j + 1), 0.0, 0.0
+                theta, phi = 0.0, 0.0
             new_interaction_pairs.append(pair)
             new_thetas.append(theta)
             new_phis.append(phi)
