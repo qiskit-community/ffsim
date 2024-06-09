@@ -80,3 +80,22 @@ def test_incorrect_num_params():
             interaction_pairs=(pairs_aa, pairs_ab),
             thetas=(np.zeros(len(pairs_aa)), np.zeros(len(pairs_ab) - 1)),
         )
+
+
+def test_invalid_pairs():
+    """Test that passing invalid pairs throws an error."""
+    norb = 5
+    good_pairs = [(0, 1), (2, 3)]
+    bad_pairs = [(1, 0), (2, 3)]
+    with pytest.raises(ValueError, match="triangular"):
+        _ = ffsim.NumNumAnsatzOpSpinBalanced(
+            norb=norb,
+            interaction_pairs=(bad_pairs, good_pairs),
+            thetas=(np.zeros(len(bad_pairs)), np.zeros(len(good_pairs))),
+        )
+    with pytest.raises(ValueError, match="triangular"):
+        _ = ffsim.NumNumAnsatzOpSpinBalanced(
+            norb=norb,
+            interaction_pairs=(good_pairs, bad_pairs),
+            thetas=(np.zeros(len(good_pairs)), np.zeros(len(bad_pairs))),
+        )
