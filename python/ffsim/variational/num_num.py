@@ -20,6 +20,24 @@ import numpy as np
 from ffsim import gates
 
 
+def _validate_interaction_pairs(
+    interaction_pairs: list[tuple[int, int]] | None, ordered: bool
+) -> None:
+    if interaction_pairs is None:
+        return
+    if len(set(interaction_pairs)) != len(interaction_pairs):
+        raise ValueError(
+            f"Duplicate interaction pairs encountered: {interaction_pairs}."
+        )
+    if not ordered:
+        for i, j in interaction_pairs:
+            if i > j:
+                raise ValueError(
+                    "You must provide only upper triangular interaction pairs. "
+                    f"Got {(i, j)}, which is a lower triangular pair."
+                )
+
+
 @dataclass(frozen=True)
 class NumNumAnsatzOpSpinBalanced:
     """A number-number interaction ansatz operator.
@@ -42,6 +60,7 @@ class NumNumAnsatzOpSpinBalanced:
 
     def __post_init__(self):
         for pairs, angles in zip(self.interaction_pairs, self.thetas):
+            _validate_interaction_pairs(pairs, ordered=False)
             if not len(pairs) == len(angles):
                 raise ValueError(
                     "The number of interaction pairs must be equal to the number of "
