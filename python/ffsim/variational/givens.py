@@ -145,12 +145,22 @@ class GivensAnsatzOp:
             vec, self.to_orbital_rotation(), norb=norb, nelec=nelec, copy=copy
         )
 
-    @property
-    def n_params(self) -> int:
-        """Return the number of parameters of the ansatz."""
-        return (1 + (self.phis is not None)) * len(self.interaction_pairs) + (
-            self.phase_angles is not None
-        ) * self.norb
+    @staticmethod
+    def n_params(
+        norb: int,
+        interaction_pairs: list[tuple[int, int]],
+        with_phis: bool = True,
+        with_phase_angles: bool = True,
+    ) -> int:
+        """Return the number of parameters of an ansatz with given settings.
+
+        Args:
+            norb: The number of spatial orbitals.
+            interaction_pairs: The orbital pairs to apply the Givens rotation gates to.
+            with_phis: Whether to include complex phases for the Givens rotations.
+            with_phase_angles: Whether to include a layer of single-orbital phase gates.
+        """
+        return (1 + with_phis) * len(interaction_pairs) + with_phase_angles * norb
 
     def to_parameters(self) -> np.ndarray:
         """Convert the operator to a real-valued parameter vector."""

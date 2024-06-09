@@ -65,10 +65,15 @@ class NumNumAnsatzOpSpinBalanced:
             copy=copy,
         )
 
-    @property
-    def n_params(self) -> int:
-        """Return the number of parameters of the ansatz."""
-        return sum(len(pairs) for pairs in self.interaction_pairs)
+    @staticmethod
+    def n_params(interaction_pairs: list[tuple[int, int]]) -> int:
+        """Return the number of parameters of an ansatz with given settings.
+
+        Args:
+            interaction_pairs: The orbital pairs to apply the number-number interactions
+                to.
+        """
+        return sum(len(pairs) for pairs in interaction_pairs)
 
     def to_parameters(self) -> np.ndarray:
         """Convert the operator to a real-valued parameter vector."""
@@ -85,8 +90,8 @@ class NumNumAnsatzOpSpinBalanced:
         Args:
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
-            interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the
-                number-number interactions to.
+            interaction_pairs: The orbital pairs to apply the number-number interactions
+                to.
         """
         pairs_aa, pairs_ab = interaction_pairs
         n_params = len(pairs_aa) + len(pairs_ab)
