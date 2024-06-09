@@ -145,6 +145,12 @@ class GivensAnsatzOp:
             vec, self.to_orbital_rotation(), norb=norb, nelec=nelec, copy=copy
         )
 
+    @property
+    def n_params(self) -> int:
+        return (1 + (self.phis is not None)) * len(self.interaction_pairs) + (
+            self.phase_angles is not None
+        ) * self.norb
+
     def to_parameters(self) -> np.ndarray:
         """Convert the operator to a real-valued parameter vector."""
         if self.phis is not None and self.phase_angles is not None:
