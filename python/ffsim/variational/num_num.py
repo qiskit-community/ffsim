@@ -65,6 +65,10 @@ class NumNumAnsatzOpSpinBalanced:
             copy=copy,
         )
 
+    @property
+    def n_params(self) -> int:
+        return sum(len(pairs) for pairs in self.interaction_pairs)
+
     def to_parameters(self) -> np.ndarray:
         """Convert the operator to a real-valued parameter vector."""
         return np.concatenate(self.thetas)

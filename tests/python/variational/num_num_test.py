@@ -35,7 +35,7 @@ def test_parameters_roundtrip():
         interaction_pairs=(pairs_aa, pairs_ab),
         thetas=(thetas_aa, thetas_ab),
     )
-    assert len(operator.to_parameters()) == 2 * norb
+    assert operator.n_params == len(operator.to_parameters()) == 2 * norb
     roundtripped = ffsim.NumNumAnsatzOpSpinBalanced.from_parameters(
         operator.to_parameters(),
         norb=norb,
