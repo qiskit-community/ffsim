@@ -93,7 +93,7 @@ def test_givens_parameters_roundtrip():
         phis=None,
         phase_angles=None,
     )
-    assert len(operator.to_parameters()) == norb * (norb - 1) // 2
+    assert operator.n_params == len(operator.to_parameters()) == norb * (norb - 1) // 2
     roundtripped = ffsim.GivensAnsatzOp.from_parameters(
         operator.to_parameters(),
         norb=norb,
@@ -110,7 +110,7 @@ def test_givens_parameters_roundtrip():
         phis=phis,
         phase_angles=None,
     )
-    assert len(operator.to_parameters()) == norb * (norb - 1)
+    assert operator.n_params == len(operator.to_parameters()) == norb * (norb - 1)
     roundtripped = ffsim.GivensAnsatzOp.from_parameters(
         operator.to_parameters(),
         norb=norb,
@@ -126,7 +126,11 @@ def test_givens_parameters_roundtrip():
         phis=None,
         phase_angles=phase_angles,
     )
-    assert len(operator.to_parameters()) == norb * (norb - 1) // 2 + norb
+    assert (
+        operator.n_params
+        == len(operator.to_parameters())
+        == norb * (norb - 1) // 2 + norb
+    )
     roundtripped = ffsim.GivensAnsatzOp.from_parameters(
         operator.to_parameters(),
         norb=norb,
@@ -142,7 +146,7 @@ def test_givens_parameters_roundtrip():
         phis=phis,
         phase_angles=phase_angles,
     )
-    assert len(operator.to_parameters()) == norb**2
+    assert operator.n_params == len(operator.to_parameters()) == norb**2
     roundtripped = ffsim.GivensAnsatzOp.from_parameters(
         operator.to_parameters(),
         norb=norb,
