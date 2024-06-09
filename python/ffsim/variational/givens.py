@@ -147,6 +147,7 @@ class GivensAnsatzOp:
 
     @property
     def n_params(self) -> int:
+        """Return the number of parameters of the ansatz."""
         return (1 + (self.phis is not None)) * len(self.interaction_pairs) + (
             self.phase_angles is not None
         ) * self.norb
