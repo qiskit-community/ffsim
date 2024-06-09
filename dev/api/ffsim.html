@@ -808,10 +808,23 @@ single-orbital phase gates.</p>
 </dl>
 </dd></dl>
 
-<dl class="py property">
+<dl class="py method">
 <dt class="sig sig-object py" id="ffsim.GivensAnsatzOp.n_params">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.GivensAnsatzOp.n_params" title="Link to this definition">¶</a></dt>
-<dd><p>Return the number of parameters of the ansatz.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_phis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_phase_angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOp.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOp.n_params" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The orbital pairs to apply the Givens rotation gates to.</p></li>
+<li><p><strong>with_phis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include complex phases for the Givens rotations.</p></li>
+<li><p><strong>with_phase_angles</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a layer of single-orbital phase gates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1366,8 +1379,8 @@ and the second matrix representing different-spin interactions.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The real-valued parameter vector.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>interaction_pairs</strong> (<em>list</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – The orbital pairs to apply the
-number-number interactions to.</p></li>
+<li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]</span>) – The orbital pairs to apply the number-number interactions
+to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1376,10 +1389,19 @@ number-number interactions to.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py property">
+<dl class="py method">
 <dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced.n_params">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.n_params" title="Link to this definition">¶</a></dt>
-<dd><p>Return the number of parameters of the ansatz.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/num_num.html#NumNumAnsatzOpSpinBalanced.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced.n_params" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The orbital pairs to apply the number-number interactions
+to.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -4367,7 +4389,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.GivensAnsatzOp.phase_angles"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.phase_angles</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.GivensAnsatzOp.from_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.from_orbital_rotation()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.GivensAnsatzOp.from_parameters"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.from_parameters()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.n_params"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.n_params</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.GivensAnsatzOp.n_params"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.n_params()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.GivensAnsatzOp.to_orbital_rotation"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.to_orbital_rotation()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.GivensAnsatzOp.to_parameters"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp.to_parameters()</span></code></a></li>
 </ul>
@@ -4437,7 +4459,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.thetas"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.thetas</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.from_parameters"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.from_parameters()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.n_params"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.n_params</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.n_params"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.n_params()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced.to_parameters"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced.to_parameters()</span></code></a></li>
 </ul>
