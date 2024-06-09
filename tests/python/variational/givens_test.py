@@ -17,6 +17,7 @@ import math
 
 import numpy as np
 import pytest
+import scipy.linalg
 
 import ffsim
 import ffsim.linalg.givens
@@ -151,11 +152,30 @@ def test_givens_parameters_roundtrip():
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
-def test_givens_orbital_rotation(norb: int, nelec: tuple[int, int]):
+def test_givens_orbital_rotation_unitary(norb: int, nelec: tuple[int, int]):
     """Test initialization from orbital rotation."""
     rng = np.random.default_rng()
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
+    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
+    expected = ffsim.apply_orbital_rotation(
+        vec, orbital_rotation, norb=norb, nelec=nelec
+    )
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_givens_orbital_rotation_fully_parameterized():
+    """Test initialization from orbital rotation gives fully parametrized ansatz."""
+    norb = 8
+    nelec = 4
+    rng = np.random.default_rng()
+    orbital_rotation = scipy.linalg.block_diag(
+        ffsim.random.random_unitary(norb // 2, seed=rng),
+        ffsim.random.random_unitary(norb // 2, seed=rng),
+    )
+    operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
+    assert len(operator.interaction_pairs) == norb * (norb - 1) // 2
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
