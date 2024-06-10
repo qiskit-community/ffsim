@@ -13,8 +13,8 @@
 from __future__ import annotations
 
 import cmath
+import itertools
 import math
-from collections import defaultdict, deque
 from dataclasses import dataclass
 from typing import cast
 
@@ -233,7 +233,7 @@ class GivensAnsatzOp:
             r, phi = cmath.polar(s)
             thetas.append(math.atan2(r, c))
             phis.append(phi)
-        interaction_pairs, thetas, phis = _orbital_rotation_layers(
+        interaction_pairs, thetas, phis = _brickwork_givens_rotations(
             interaction_pairs, thetas, phis, norb=norb
         )
         return GivensAnsatzOp(
@@ -294,33 +294,59 @@ class GivensAnsatzOp:
         return NotImplemented
 
 
-def _orbital_rotation_layers(
+def _brickwork_givens_rotations(
     interaction_pairs: list[tuple[int, int]],
     thetas: list[float],
     phis: list[float],
     norb: int,
 ) -> tuple[list[tuple[int, int]], list[float], list[float]]:
-    layers: defaultdict[tuple[int, int], deque[tuple[float, float]]] = defaultdict(
-        deque
-    )
+    """Expand a sparse Givens rotation decomposition to a full brickwork pattern."""
+    # Construct a brickwork pattern of Givens rotations with angles set to zero
+    q, r = divmod(norb, 2)
+    even_layers = [
+        [((i, i + 1), 0.0, 0.0) for i in range(0, norb - 1, 2)] for _ in range(q + r)
+    ]
+    odd_layers = [
+        [((i, i + 1), 0.0, 0.0) for i in range(1, norb - 1, 2)] for _ in range(q)
+    ]
+    # even_layer_index[i] is the index of the last even layer acting on orbital i
+    even_layer_index = [-1] * norb
+    # odd_layer_index[i] is the index of the last odd layer acting on orbital i
+    odd_layer_index = [-1] * norb
     for (i, j), theta, phi in zip(interaction_pairs, thetas, phis):
         if i > j:
+            # Enforce i < j
             i, j = j, i
             theta = -theta
             phi = -phi
-        layers[(i, j)].append((theta, phi))
+        if i % 2 == 0:
+            # Even layer
+            # Get the index of the even layer this Givens rotation should go in
+            index = max(odd_layer_index[i], odd_layer_index[j]) + 1
+            # Add the Givens rotation in the appropriate place
+            even_layers[index][i // 2] = ((i, j), theta, phi)
+            # Update the even layer index
+            even_layer_index[i] = index
+            even_layer_index[j] = index
+        else:
+            # Odd layer
+            # Get the index of the odd layer this Givens rotation should go in
+            index = max(even_layer_index[i], even_layer_index[j])
+            # Add the Givens rotation in the appropriate place
+            odd_layers[index][i // 2] = ((i, j), theta, phi)
+            # Update the odd layer index
+            odd_layer_index[i] = index
+            odd_layer_index[j] = index
+    # Construct the new Givens rotation decomposition and return
     new_interaction_pairs = []
     new_thetas = []
     new_phis = []
-    for i in range(norb):
-        for j in range(i % 2, norb - 1, 2):
-            pair = (j, j + 1)
-            angles = layers[pair]
-            if angles:
-                theta, phi = angles.popleft()
-            else:
-                theta, phi = 0.0, 0.0
-            new_interaction_pairs.append(pair)
-            new_thetas.append(theta)
-            new_phis.append(phi)
+    for even_layer, odd_layer in itertools.zip_longest(
+        even_layers, odd_layers, fillvalue=[]
+    ):
+        for layer in [even_layer, odd_layer]:
+            for pair, theta, phi in layer:
+                new_interaction_pairs.append(pair)
+                new_thetas.append(theta)
+                new_phis.append(phi)
     return new_interaction_pairs, new_thetas, new_phis
