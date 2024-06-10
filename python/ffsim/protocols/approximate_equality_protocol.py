@@ -57,12 +57,14 @@ def approx_eq(obj: Any, other: Any, rtol: float = 1e-5, atol: float = 1e-8) -> b
     """
     method = getattr(obj, "_approx_eq_", None)
     if method is not None:
-        return method(other, rtol=rtol, atol=atol)
+        result = method(other, rtol=rtol, atol=atol)
+        if result is not NotImplemented:
+            return result
 
     method = getattr(other, "_approx_eq_", None)
     if method is not None:
-        return method(obj, rtol=rtol, atol=atol)
+        result = method(obj, rtol=rtol, atol=atol)
+        if result is not NotImplemented:
+            return result
 
-    raise TypeError(
-        f"Objects could not be compared for approximate equality: {obj} and {other}."
-    )
+    return obj == other
