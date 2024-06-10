@@ -16,6 +16,7 @@ import itertools
 import math
 
 import numpy as np
+import pyscf
 import pytest
 import scipy.linalg
 
@@ -169,12 +170,96 @@ def test_givens_parameters_roundtrip():
     assert ffsim.approx_eq(roundtripped, operator)
 
 
+@pytest.mark.parametrize("norb", range(5))
+def test_givens_orbital_rotation_roundtrip(norb: int):
+    """Test round-tripping orbital rotation."""
+    rng = np.random.default_rng()
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
+    roundtripped = operator.to_orbital_rotation()
+    np.testing.assert_allclose(roundtripped, orbital_rotation)
+
+
+def test_givens_orbital_rotation_t1_roundtrip():
+    """Test round-tripping orbital rotation from t1 amplitudes."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = 2
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    ccsd = pyscf.cc.CCSD(
+        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
+    ).run()
+
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    assert norb == 8
+    assert nelec == (5, 5)
+
+    nocc, _, _, _ = ccsd.t2.shape
+    orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
+    orbital_rotation_generator[:nocc, nocc:] = ccsd.t1
+    orbital_rotation_generator[nocc:, :nocc] = -ccsd.t1.T
+    orbital_rotation = scipy.linalg.expm(orbital_rotation_generator)
+    assert ffsim.linalg.is_unitary(orbital_rotation)
+
+    operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
+    roundtripped = operator.to_orbital_rotation()
+    np.testing.assert_allclose(roundtripped, orbital_rotation, atol=1e-12)
+
+
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_givens_orbital_rotation_unitary(norb: int, nelec: tuple[int, int]):
     """Test initialization from orbital rotation."""
     rng = np.random.default_rng()
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
+    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
+    expected = ffsim.apply_orbital_rotation(
+        vec, orbital_rotation, norb=norb, nelec=nelec
+    )
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_givens_orbital_rotation_t_amplitudes():
+    """Test initialization from orbital rotation gives fully parametrized ansatz."""
+    rng = np.random.default_rng(50783)
+
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = 2
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    ccsd = pyscf.cc.CCSD(
+        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
+    ).run()
+
+    # Get molecular data and molecular Hamiltonian
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    assert norb == 8
+    assert nelec == (5, 5)
+
+    nocc, _, _, _ = ccsd.t2.shape
+    orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
+    orbital_rotation_generator[:nocc, nocc:] = ccsd.t1
+    orbital_rotation_generator[nocc:, :nocc] = -ccsd.t1.T
+    orbital_rotation = scipy.linalg.expm(orbital_rotation_generator)
+    assert ffsim.linalg.is_unitary(orbital_rotation)
+
+    operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
+    assert len(operator.interaction_pairs) == norb * (norb - 1) // 2
     vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
