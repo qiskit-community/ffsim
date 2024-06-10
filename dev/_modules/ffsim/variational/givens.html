@@ -296,8 +296,8 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">cmath</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">deque</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
 
@@ -538,7 +538,7 @@
             <span class="n">r</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">polar</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="n">thetas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
             <span class="n">phis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-        <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span> <span class="o">=</span> <span class="n">_orbital_rotation_layers</span><span class="p">(</span>
+        <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span> <span class="o">=</span> <span class="n">_brickwork_givens_rotations</span><span class="p">(</span>
             <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">GivensAnsatzOp</span><span class="p">(</span>
@@ -604,35 +604,61 @@
 
 
 
-<span class="k">def</span> <span class="nf">_orbital_rotation_layers</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_brickwork_givens_rotations</span><span class="p">(</span>
     <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
     <span class="n">thetas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">phis</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-    <span class="n">layers</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">deque</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span>
-        <span class="n">deque</span>
-    <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expand a sparse Givens rotation decomposition to a full brickwork pattern.&quot;&quot;&quot;</span>
+    <span class="c1"># Construct a brickwork pattern of Givens rotations with angles set to zero</span>
+    <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">even_layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[((</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q</span> <span class="o">+</span> <span class="n">r</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">odd_layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[((</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="c1"># even_layer_index[i] is the index of the last even layer acting on orbital i</span>
+    <span class="n">even_layer_index</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">norb</span>
+    <span class="c1"># odd_layer_index[i] is the index of the last odd layer acting on orbital i</span>
+    <span class="n">odd_layer_index</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">norb</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
+            <span class="c1"># Enforce i &lt; j</span>
             <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span>
             <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">theta</span>
             <span class="n">phi</span> <span class="o">=</span> <span class="o">-</span><span class="n">phi</span>
-        <span class="n">layers</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Even layer</span>
+            <span class="c1"># Get the index of the even layer this Givens rotation should go in</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">odd_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">odd_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="c1"># Add the Givens rotation in the appropriate place</span>
+            <span class="n">even_layers</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">i</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+            <span class="c1"># Update the even layer index</span>
+            <span class="n">even_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+            <span class="n">even_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Odd layer</span>
+            <span class="c1"># Get the index of the odd layer this Givens rotation should go in</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">even_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">even_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="c1"># Add the Givens rotation in the appropriate place</span>
+            <span class="n">odd_layers</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">i</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+            <span class="c1"># Update the odd layer index</span>
+            <span class="n">odd_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+            <span class="n">odd_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+    <span class="c1"># Construct the new Givens rotation decomposition and return</span>
     <span class="n">new_interaction_pairs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">new_thetas</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">new_phis</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="n">pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">angles</span> <span class="o">=</span> <span class="n">layers</span><span class="p">[</span><span class="n">pair</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">angles</span><span class="p">:</span>
-                <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">angles</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
-            <span class="n">new_interaction_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
-            <span class="n">new_thetas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-            <span class="n">new_phis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">even_layer</span><span class="p">,</span> <span class="n">odd_layer</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">zip_longest</span><span class="p">(</span>
+        <span class="n">even_layers</span><span class="p">,</span> <span class="n">odd_layers</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="p">[]</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="n">even_layer</span><span class="p">,</span> <span class="n">odd_layer</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">pair</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="ow">in</span> <span class="n">layer</span><span class="p">:</span>
+                <span class="n">new_interaction_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+                <span class="n">new_thetas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="n">new_phis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">new_interaction_pairs</span><span class="p">,</span> <span class="n">new_thetas</span><span class="p">,</span> <span class="n">new_phis</span>
 </pre></div>
         </article>
