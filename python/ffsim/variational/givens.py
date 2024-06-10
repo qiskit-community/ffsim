@@ -342,7 +342,7 @@ def _brickwork_givens_rotations(
     new_thetas = []
     new_phis = []
     for even_layer, odd_layer in itertools.zip_longest(
-        even_layers, odd_layers, fillvalue=[]
+        even_layers, odd_layers, fillvalue=()
     ):
         for layer in [even_layer, odd_layer]:
             for pair, theta, phi in layer:
