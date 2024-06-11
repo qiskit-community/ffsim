@@ -315,6 +315,10 @@ class UCJOperator:
 class RealUCJOperator:
     r"""Real-valued unitary cluster Jastrow operator.
 
+    .. warning::
+        The RealUCJOperator class is deprecated. Use :class:`ffsim.UCJOpSpinBalanced`
+        instead.
+
     A real-valued unitary cluster Jastrow (UCJ) operator has the form
 
     .. math::
@@ -390,6 +394,9 @@ class RealUCJOperator:
         )
 
     @staticmethod
+    @deprecated(
+        "The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead."
+    )
     def from_parameters(
         params: np.ndarray,
         *,
@@ -487,6 +494,9 @@ class RealUCJOperator:
         )
 
     @staticmethod
+    @deprecated(
+        "The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead."
+    )
     def from_t_amplitudes(
         t2: np.ndarray,
         *,
