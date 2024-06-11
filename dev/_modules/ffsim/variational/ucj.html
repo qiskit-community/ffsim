@@ -618,6 +618,10 @@
 <span class="k">class</span> <span class="nc">RealUCJOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Real-valued unitary cluster Jastrow operator.</span>
 
+<span class="sd">    .. warning::</span>
+<span class="sd">        The RealUCJOperator class is deprecated. Use :class:`ffsim.UCJOpSpinBalanced`</span>
+<span class="sd">        instead.</span>
+
 <span class="sd">    A real-valued unitary cluster Jastrow (UCJ) operator has the form</span>
 
 <span class="sd">    .. math::</span>
@@ -698,6 +702,9 @@
 <div class="viewcode-block" id="RealUCJOperator.from_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.RealUCJOperator.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
+    <span class="nd">@deprecated</span><span class="p">(</span>
+        <span class="s2">&quot;The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span>
+    <span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -801,6 +808,9 @@
 <div class="viewcode-block" id="RealUCJOperator.from_t_amplitudes">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.RealUCJOperator.from_t_amplitudes">[docs]</a>
     <span class="nd">@staticmethod</span>
+    <span class="nd">@deprecated</span><span class="p">(</span>
+        <span class="s2">&quot;The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span>
+    <span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_t_amplitudes</span><span class="p">(</span>
         <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
