@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.variational.ucj - ffsim 0.0.36 documentation</title>
+        <title>ffsim.variational.ucj - ffsim 0.0.37 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.36 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.37 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.36 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.37 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -330,6 +330,10 @@
 <span class="k">class</span> <span class="nc">UCJOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A unitary cluster Jastrow operator.</span>
 
+<span class="sd">    .. warning::</span>
+<span class="sd">        The UCJOperator class is deprecated. Use :class:`ffsim.UCJOpSpinBalanced`</span>
+<span class="sd">        instead.</span>
+
 <span class="sd">    A unitary cluster Jastrow (UCJ) operator has the form</span>
 
 <span class="sd">    .. math::</span>
@@ -412,6 +416,7 @@
 <div class="viewcode-block" id="UCJOperator.from_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOperator.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;The UCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -515,6 +520,7 @@
 <div class="viewcode-block" id="UCJOperator.from_t_amplitudes">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOperator.from_t_amplitudes">[docs]</a>
     <span class="nd">@staticmethod</span>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;The UCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_t_amplitudes</span><span class="p">(</span>
         <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -612,6 +618,10 @@
 <span class="k">class</span> <span class="nc">RealUCJOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Real-valued unitary cluster Jastrow operator.</span>
 
+<span class="sd">    .. warning::</span>
+<span class="sd">        The RealUCJOperator class is deprecated. Use :class:`ffsim.UCJOpSpinBalanced`</span>
+<span class="sd">        instead.</span>
+
 <span class="sd">    A real-valued unitary cluster Jastrow (UCJ) operator has the form</span>
 
 <span class="sd">    .. math::</span>
@@ -692,6 +702,9 @@
 <div class="viewcode-block" id="RealUCJOperator.from_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.RealUCJOperator.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
+    <span class="nd">@deprecated</span><span class="p">(</span>
+        <span class="s2">&quot;The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span>
+    <span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -795,6 +808,9 @@
 <div class="viewcode-block" id="RealUCJOperator.from_t_amplitudes">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.RealUCJOperator.from_t_amplitudes">[docs]</a>
     <span class="nd">@staticmethod</span>
+    <span class="nd">@deprecated</span><span class="p">(</span>
+        <span class="s2">&quot;The RealUCJOperator class is deprecated. Use UCJOpSpinBalanced instead.&quot;</span>
+    <span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_t_amplitudes</span><span class="p">(</span>
         <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1063,7 +1079,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=0e525676"></script>
+</div><script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>

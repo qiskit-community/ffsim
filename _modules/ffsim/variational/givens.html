@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.variational.givens - ffsim 0.0.36 documentation</title>
+        <title>ffsim.variational.givens - ffsim 0.0.37 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.36 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.37 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.36 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.37 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -295,18 +295,25 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">cmath</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.linalg.blas</span> <span class="kn">import</span> <span class="n">drot</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg.lapack</span> <span class="kn">import</span> <span class="n">zrot</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
+<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
 <span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
 
 
 <div class="viewcode-block" id="GivensAnsatzOperator">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOperator">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;GivensAnsatzOperator is deprecated. Use GivensAnsatzOp instead.&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">GivensAnsatzOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A Givens rotation ansatz operator.</span>
 
@@ -357,7 +364,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            params: The real-valued parameter vector.</span>
 <span class="sd">            norb: The number of spatial orbitals.</span>
-<span class="sd">            interaction_pairs: The orbital pairs to apply the hop gates to.</span>
+<span class="sd">            interaction_pairs: The orbital pairs to apply the Givens rotation gates to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">GivensAnsatzOperator</span><span class="p">(</span>
             <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="n">params</span>
@@ -375,6 +382,284 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">orbital_rotation</span></div>
 
+
+
+<div class="viewcode-block" id="GivensAnsatzOp">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOp">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GivensAnsatzOp</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Givens rotation ansatz operator.</span>
+
+<span class="sd">    The Givens rotation ansatz consists of a sequence of `Givens rotations`_ followed</span>
+<span class="sd">    by a layer of single-orbital phase gates.</span>
+
+<span class="sd">    Note that this ansatz does not implement any interactions between spin alpha and</span>
+<span class="sd">    spin beta orbitals.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        norb (int): The number of spatial orbitals.</span>
+<span class="sd">        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the Givens</span>
+<span class="sd">            rotations to.</span>
+<span class="sd">        thetas (np.ndarray): The angles for the Givens rotations.</span>
+<span class="sd">        phis (np.ndarray | None): The optional phase angles for the Givens rotations.</span>
+<span class="sd">        phase_angles (np.ndarray | None): The optional phase angles for the layer of</span>
+<span class="sd">            single-orbital phase gates.</span>
+
+<span class="sd">    .. _Givens rotations: ffsim.html#ffsim.apply_givens_rotation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+    <span class="n">thetas</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">phis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">phase_angles</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of thetas must equal the number of interaction pairs. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phis</span><span class="p">)</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phis</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of phis must equal the number of interaction pairs. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phis</span><span class="p">)</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of phase angles must equal the number of orbitals. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span><span class="p">)</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the operator to a vector.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_orbital_rotation</span><span class="p">(),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="GivensAnsatzOp.n_params">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOp.n_params">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">n_params</span><span class="p">(</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">with_phis</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">with_phase_angles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of parameters of an ansatz with given settings.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            interaction_pairs: The orbital pairs to apply the Givens rotation gates to.</span>
+<span class="sd">            with_phis: Whether to include complex phases for the Givens rotations.</span>
+<span class="sd">            with_phase_angles: Whether to include a layer of single-orbital phase gates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">with_phis</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="o">+</span> <span class="n">with_phase_angles</span> <span class="o">*</span> <span class="n">norb</span></div>
+
+
+<div class="viewcode-block" id="GivensAnsatzOp.to_parameters">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOp.to_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">thetas</span></div>
+
+
+<div class="viewcode-block" id="GivensAnsatzOp.from_parameters">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOp.from_parameters">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">with_phis</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">with_phase_angles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GivensAnsatzOp</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the operator from a real-valued parameter vector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params: The real-valued parameter vector.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            interaction_pairs: The orbital pairs to apply the Givens rotation gates to.</span>
+<span class="sd">            with_phis: Whether to include complex phases for the Givens rotations.</span>
+<span class="sd">            with_phase_angles: Whether to include a layer of single-orbital phase gates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_params</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">with_phis</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="o">+</span> <span class="n">with_phase_angles</span> <span class="o">*</span> <span class="n">norb</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_params</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of parameters passed did not match the number expected &quot;</span>
+                <span class="s2">&quot;based on the function inputs. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">n_params</span><span class="si">}</span><span class="s2"> but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">thetas</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)]</span>
+        <span class="n">phis</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">phase_angles</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">with_phis</span> <span class="ow">and</span> <span class="n">with_phase_angles</span><span class="p">:</span>
+            <span class="n">phis</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)]</span>
+            <span class="n">phase_angles</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="p">:]</span>
+        <span class="k">elif</span> <span class="n">with_phis</span><span class="p">:</span>
+            <span class="n">phis</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="p">:]</span>
+            <span class="n">phase_angles</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">with_phase_angles</span><span class="p">:</span>
+            <span class="n">phis</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">phase_angles</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">GivensAnsatzOp</span><span class="p">(</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">,</span>
+            <span class="n">thetas</span><span class="o">=</span><span class="n">thetas</span><span class="p">,</span>
+            <span class="n">phis</span><span class="o">=</span><span class="n">phis</span><span class="p">,</span>
+            <span class="n">phase_angles</span><span class="o">=</span><span class="n">phase_angles</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GivensAnsatzOp.from_orbital_rotation">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOp.from_orbital_rotation">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_orbital_rotation</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GivensAnsatzOp</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the operator from an orbital rotation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            orbital_rotation: The orbital rotation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">givens_rotations</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">givens_decomposition</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">)</span>
+        <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">thetas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">phis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">givens_rotations</span><span class="p">:</span>
+            <span class="n">interaction_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+            <span class="n">r</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">polar</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">thetas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+            <span class="n">phis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span> <span class="o">=</span> <span class="n">_brickwork_givens_rotations</span><span class="p">(</span>
+            <span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">GivensAnsatzOp</span><span class="p">(</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">,</span>
+            <span class="n">thetas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">thetas</span><span class="p">),</span>
+            <span class="n">phis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phis</span><span class="p">),</span>
+            <span class="n">phase_angles</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">phases</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GivensAnsatzOp.to_orbital_rotation">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOp.to_orbital_rotation">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_orbital_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the Givens ansatz operator to an orbital rotation.&quot;&quot;&quot;</span>
+        <span class="n">phis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span>
+        <span class="n">phase_angles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span>
+        <span class="k">if</span> <span class="n">phis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">phis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">phase_angles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">phase_angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span>
+        <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phase_angles</span><span class="p">))</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">phis</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">zrot</span><span class="p">(</span>
+                <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span>
+                <span class="n">orbital_rotation</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+                <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="o">-</span><span class="n">phi</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">orbital_rotation</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">GivensAnsatzOp</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">norb</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">interaction_pairs</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">interaction_pairs</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">phis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">phase_angles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">thetas</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phis</span><span class="p">),</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">phis</span><span class="p">),</span>
+                <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
+                <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_angles</span><span class="p">),</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">phase_angles</span><span class="p">),</span>
+                <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
+                <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_brickwork_givens_rotations</span><span class="p">(</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">thetas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">phis</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expand a sparse Givens rotation decomposition to a full brickwork pattern.&quot;&quot;&quot;</span>
+    <span class="c1"># Construct a brickwork pattern of Givens rotations with angles set to zero</span>
+    <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">even_layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[((</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q</span> <span class="o">+</span> <span class="n">r</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">odd_layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[((</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="c1"># even_layer_index[i] is the index of the last even layer acting on orbital i</span>
+    <span class="n">even_layer_index</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">norb</span>
+    <span class="c1"># odd_layer_index[i] is the index of the last odd layer acting on orbital i</span>
+    <span class="n">odd_layer_index</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">norb</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
+            <span class="c1"># Enforce i &lt; j</span>
+            <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">theta</span>
+            <span class="n">phi</span> <span class="o">=</span> <span class="o">-</span><span class="n">phi</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Even layer</span>
+            <span class="c1"># Get the index of the even layer this Givens rotation should go in</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">odd_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">odd_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="c1"># Add the Givens rotation in the appropriate place</span>
+            <span class="n">even_layers</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">i</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+            <span class="c1"># Update the even layer index</span>
+            <span class="n">even_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+            <span class="n">even_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Odd layer</span>
+            <span class="c1"># Get the index of the odd layer this Givens rotation should go in</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">even_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">even_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="c1"># Add the Givens rotation in the appropriate place</span>
+            <span class="n">odd_layers</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">i</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+            <span class="c1"># Update the odd layer index</span>
+            <span class="n">odd_layer_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+            <span class="n">odd_layer_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+    <span class="c1"># Construct the new Givens rotation decomposition and return</span>
+    <span class="n">new_interaction_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">new_thetas</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">new_phis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">even_layer</span><span class="p">,</span> <span class="n">odd_layer</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">zip_longest</span><span class="p">(</span>
+        <span class="n">even_layers</span><span class="p">,</span> <span class="n">odd_layers</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="p">()</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="n">even_layer</span><span class="p">,</span> <span class="n">odd_layer</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">pair</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="ow">in</span> <span class="n">layer</span><span class="p">:</span>
+                <span class="n">new_interaction_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+                <span class="n">new_thetas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="n">new_phis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_interaction_pairs</span><span class="p">,</span> <span class="n">new_thetas</span><span class="p">,</span> <span class="n">new_phis</span>
 </pre></div>
         </article>
       </div>
@@ -414,7 +699,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=0e525676"></script>
+</div><script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
