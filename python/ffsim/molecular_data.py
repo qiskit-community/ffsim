@@ -41,7 +41,7 @@ class MolecularData:
         mo_occ: Molecular orbital occupancies.
         active_space: The molecular orbitals included in the active space.
         core_energy: The core energy.
-        one_body_tensor: The one-body tensor.
+        one_body_integrals: The one-body integrals.
         two_body_integrals: The two-body integrals in compressed format.
         hf_energy: The Hartree-Fock energy.
         hf_mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
@@ -103,11 +103,16 @@ class MolecularData:
     def mole(self) -> pyscf.gto.Mole:
         """The PySCF Mole class for this molecular data."""
         mol = pyscf.gto.Mole()
-        return mol.build(atom=self.atom, basis=self.basis, symmetry=self.symmetry)
+        return mol.build(
+            atom=self.atom,
+            basis=self.basis,
+            spin=self.spin,
+            symmetry=self.symmetry,
+        )
 
     @staticmethod
     def from_scf(
-        hartree_fock: pyscf.scf.SCF, active_space: Iterable[int] | None = None
+        hartree_fock: pyscf.scf.hf.SCF, active_space: Iterable[int] | None = None
     ) -> "MolecularData":
         """Initialize a MolecularData object from a Hartree-Fock calculation.
 
