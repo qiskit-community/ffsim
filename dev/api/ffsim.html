@@ -1077,9 +1077,9 @@ in the ansatz operator.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="ffsim.MolecularData.one_body_tensor">
-<span class="sig-name descname"><span class="pre">one_body_tensor</span></span><a class="headerlink" href="#ffsim.MolecularData.one_body_tensor" title="Link to this definition">¶</a></dt>
-<dd><p>The one-body tensor.</p>
+<dt class="sig sig-object py" id="ffsim.MolecularData.one_body_integrals">
+<span class="sig-name descname"><span class="pre">one_body_integrals</span></span><a class="headerlink" href="#ffsim.MolecularData.one_body_integrals" title="Link to this definition">¶</a></dt>
+<dd><p>The one-body integrals.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1185,9 +1185,12 @@ in the ansatz operator.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hartree_fock</strong> – The Hartree-Fock object.</p></li>
-<li><p><strong>active_space</strong> – An optional list of orbitals to use for the active space.</p></li>
+<li><p><strong>hartree_fock</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCF</span></code></span>) – The Hartree-Fock object.</p></li>
+<li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional list of orbitals to use for the active space.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4427,7 +4430,7 @@ one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.mo_occ"><code class="docutils literal notranslate"><span class="pre">MolecularData.mo_occ</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.active_space"><code class="docutils literal notranslate"><span class="pre">MolecularData.active_space</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.core_energy"><code class="docutils literal notranslate"><span class="pre">MolecularData.core_energy</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.MolecularData.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularData.one_body_tensor</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.one_body_integrals"><code class="docutils literal notranslate"><span class="pre">MolecularData.one_body_integrals</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.two_body_integrals"><code class="docutils literal notranslate"><span class="pre">MolecularData.two_body_integrals</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.hf_energy"><code class="docutils literal notranslate"><span class="pre">MolecularData.hf_energy</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.hf_mo_coeff"><code class="docutils literal notranslate"><span class="pre">MolecularData.hf_mo_coeff</span></code></a></li>

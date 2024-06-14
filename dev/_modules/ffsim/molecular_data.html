@@ -326,7 +326,7 @@
 <span class="sd">        mo_occ: Molecular orbital occupancies.</span>
 <span class="sd">        active_space: The molecular orbitals included in the active space.</span>
 <span class="sd">        core_energy: The core energy.</span>
-<span class="sd">        one_body_tensor: The one-body tensor.</span>
+<span class="sd">        one_body_integrals: The one-body integrals.</span>
 <span class="sd">        two_body_integrals: The two-body integrals in compressed format.</span>
 <span class="sd">        hf_energy: The Hartree-Fock energy.</span>
 <span class="sd">        hf_mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.</span>
@@ -388,13 +388,18 @@
     <span class="k">def</span> <span class="nf">mole</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The PySCF Mole class for this molecular data.&quot;&quot;&quot;</span>
         <span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">mol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">atom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis</span><span class="p">,</span> <span class="n">symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+            <span class="n">basis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">,</span>
+            <span class="n">symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry</span><span class="p">,</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="MolecularData.from_scf">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_scf">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_scf</span><span class="p">(</span>
-        <span class="n">hartree_fock</span><span class="p">:</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">SCF</span><span class="p">,</span> <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">hartree_fock</span><span class="p">:</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">hf</span><span class="o">.</span><span class="n">SCF</span><span class="p">,</span> <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MolecularData&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData object from a Hartree-Fock calculation.</span>
 
