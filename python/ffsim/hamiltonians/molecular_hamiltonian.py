@@ -14,6 +14,8 @@ import dataclasses
 import itertools
 
 import numpy as np
+import pyscf.ao2mo
+import pyscf.tools
 from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
@@ -49,6 +51,20 @@ class MolecularHamiltonian:
     one_body_tensor: np.ndarray
     two_body_tensor: np.ndarray
     constant: float = 0.0
+
+    @staticmethod
+    def from_fcidump(filename) -> MolecularHamiltonian:
+        """Initialize a MolecularHamiltonian from an FCIDUMP file.
+
+        Args:
+            filename: The FCIDUMP file name or path.
+        """
+        data = pyscf.tools.fcidump.read(filename, verbose=False)
+        return MolecularHamiltonian(
+            one_body_tensor=data["H1"],
+            two_body_tensor=pyscf.ao2mo.restore(1, data["H2"], data["NORB"]),
+            constant=data["ECORE"],
+        )
 
     @property
     def norb(self) -> int:
@@ -161,3 +177,18 @@ class MolecularHamiltonian:
                 }
             )
         return op
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, MolecularHamiltonian):
+            if not np.allclose(self.constant, other.constant, rtol=rtol, atol=atol):
+                return False
+            if not np.allclose(
+                self.one_body_tensor, other.one_body_tensor, rtol=rtol, atol=atol
+            ):
+                return False
+            if not np.allclose(
+                self.two_body_tensor, other.two_body_tensor, rtol=rtol, atol=atol
+            ):
+                return False
+            return True
+        return NotImplemented

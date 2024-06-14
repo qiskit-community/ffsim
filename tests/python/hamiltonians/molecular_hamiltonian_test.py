@@ -12,9 +12,13 @@
 
 from __future__ import annotations
 
+import dataclasses
+import pathlib
+
 import numpy as np
 import pyscf
 import pyscf.mcscf
+import pyscf.tools
 import pytest
 import scipy.sparse.linalg
 
@@ -149,3 +153,28 @@ def test_rotated():
     original_expectation = np.vdot(vec, linop @ vec)
     rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
     np.testing.assert_allclose(original_expectation, rotated_expectation)
+
+
+def test_from_fcidump(tmp_path: pathlib.Path):
+    """Test loading from FCIDUMP."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = pyscf.data.elements.chemcore(mol)
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    pyscf.tools.fcidump.from_integrals(
+        tmp_path / "test.fcidump",
+        h1e=mol_data.one_body_integrals,
+        h2e=mol_data.two_body_integrals,
+        nmo=mol_data.norb,
+        nelec=mol_data.nelec,
+    )
+    mol_ham = ffsim.MolecularHamiltonian.from_fcidump(tmp_path / "test.fcidump")
+    assert ffsim.approx_eq(
+        mol_ham, dataclasses.replace(mol_data.hamiltonian, constant=0.0)
+    )
