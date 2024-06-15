@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+import os
 
 import numpy as np
 import pyscf.ao2mo
@@ -53,13 +54,13 @@ class MolecularHamiltonian:
     constant: float = 0.0
 
     @staticmethod
-    def from_fcidump(filename) -> MolecularHamiltonian:
+    def from_fcidump(file: str | bytes | os.PathLike) -> MolecularHamiltonian:
         """Initialize a MolecularHamiltonian from an FCIDUMP file.
 
         Args:
-            filename: The FCIDUMP file name or path.
+            file: The FCIDUMP file path.
         """
-        data = pyscf.tools.fcidump.read(filename, verbose=False)
+        data = pyscf.tools.fcidump.read(file, verbose=False)
         return MolecularHamiltonian(
             one_body_tensor=data["H1"],
             two_body_tensor=pyscf.ao2mo.restore(1, data["H2"], data["NORB"]),
