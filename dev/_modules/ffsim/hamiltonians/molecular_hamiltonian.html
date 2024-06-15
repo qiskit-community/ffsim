@@ -295,6 +295,7 @@
 
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyscf.ao2mo</span>
@@ -340,13 +341,13 @@
 <div class="viewcode-block" id="MolecularHamiltonian.from_fcidump">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonian.from_fcidump">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularHamiltonian from an FCIDUMP file.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filename: The FCIDUMP file name or path.</span>
+<span class="sd">            file: The FCIDUMP file path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">MolecularHamiltonian</span><span class="p">(</span>
             <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;H1&quot;</span><span class="p">],</span>
             <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">pyscf</span><span class="o">.</span><span class="n">ao2mo</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;H2&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;NORB&quot;</span><span class="p">]),</span>
