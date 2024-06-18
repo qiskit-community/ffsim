@@ -13,9 +13,11 @@
 from __future__ import annotations
 
 import dataclasses
+import os
 from collections.abc import Iterable
 
 import numpy as np
+import orjson
 import pyscf
 import pyscf.cc
 import pyscf.mcscf
@@ -78,6 +80,7 @@ class MolecularData:
     hf_mo_occ: np.ndarray | None = None
     # MP2 data
     mp2_energy: float | None = None
+    # TODO is this a tuple for open-shell systems?
     mp2_t2: np.ndarray | None = None
     # CCSD data
     ccsd_energy: float | None = None
@@ -246,3 +249,56 @@ class MolecularData:
             self.ccsd_t1 = ccsd_t1
         if store_t2:
             self.ccsd_t2 = ccsd_t2
+
+    def to_json(self, file: str | bytes | os.PathLike) -> None:
+        """Serialize the object to JSON format."""
+
+        def default(obj):
+            if isinstance(obj, np.ndarray):
+                return np.ascontiguousarray(obj)
+            raise TypeError
+
+        with open(file, "wb") as f:
+            f.write(
+                orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY, default=default)
+            )
+
+    @staticmethod
+    def from_json(file: str | bytes | os.PathLike) -> MolecularData:
+        with open(file, "rb") as f:
+            data = orjson.loads(f.read())
+
+        def asarray_or_none(val):
+            if val is None:
+                return None
+            return np.asarray(val)
+
+        return MolecularData(
+            atom=[
+                (element, tuple(coordinates)) for element, coordinates in data["atom"]
+            ],
+            basis=data["basis"],
+            spin=data["spin"],
+            symmetry=data["symmetry"],
+            norb=data["norb"],
+            nelec=tuple(data["nelec"]),
+            mo_coeff=np.asarray(data["mo_coeff"]),
+            mo_occ=np.asarray(data["mo_occ"]),
+            active_space=data["active_space"],
+            core_energy=data["core_energy"],
+            one_body_integrals=np.asarray(data["one_body_integrals"]),
+            two_body_integrals=np.asarray(data["two_body_integrals"]),
+            hf_energy=data["hf_energy"],
+            hf_mo_coeff=asarray_or_none(data["hf_mo_coeff"]),
+            hf_mo_occ=asarray_or_none(data["hf_mo_occ"]),
+            mp2_energy=data["mp2_energy"],
+            mp2_t2=asarray_or_none(data["mp2_t2"]),
+            ccsd_energy=data["ccsd_energy"],
+            # TODO this can be a tuple
+            ccsd_t1=asarray_or_none(data["ccsd_t1"]),
+            ccsd_t2=asarray_or_none(data["ccsd_t2"]),
+            fci_energy=data["fci_energy"],
+            fci_vec=asarray_or_none(data["fci_vec"]),
+            dipole_integrals=asarray_or_none(data["dipole_integrals"]),
+            orbital_symmetries=data["orbital_symmetries"],
+        )

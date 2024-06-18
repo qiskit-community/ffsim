@@ -8,6 +8,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import dataclasses
+import pathlib
+
 import numpy as np
 import pyscf
 import pyscf.data.elements
@@ -88,3 +91,82 @@ def test_molecular_data_run_methods():
     np.testing.assert_allclose(mol_data.mp2_energy, -108.58852784026)
     np.testing.assert_allclose(mol_data.fci_energy, -108.595987350986)
     np.testing.assert_allclose(mol_data.ccsd_energy, -108.5933309085008)
+
+
+def test_json_closed_shell(tmp_path: pathlib.Path):
+    """Test saving to and loading from JSON for a closed-shell molecule."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[("N", (0, 0, 0)), ("N", (1.0, 0, 0))],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = pyscf.data.elements.chemcore(mol)
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    mol_data.run_mp2(store_t2=True)
+    mol_data.run_ccsd(store_t1=True, store_t2=True)
+    mol_data.run_fci(store_fci_vec=True)
+    mol_data.to_json(tmp_path / "test.json")
+    loaded_mol_data = ffsim.MolecularData.from_json(tmp_path / "test.json")
+    for field in dataclasses.fields(loaded_mol_data):
+        actual = getattr(loaded_mol_data, field.name)
+        expected = getattr(mol_data, field.name)
+        if field.type == "np.ndarray":
+            assert isinstance(actual, np.ndarray)
+            np.testing.assert_array_equal(actual, expected)
+        elif field.type in [
+            "np.ndarray | None",
+            "np.ndarray | tuple[np.ndarray, np.ndarray] | None",
+            "np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None",
+        ]:
+            if actual is not None:
+                if isinstance(actual, tuple):
+                    for val in actual:
+                        assert isinstance(val, np.ndarray)
+                        np.testing.assert_array_equal(val, expected)
+                else:
+                    assert isinstance(actual, np.ndarray)
+                    np.testing.assert_array_equal(actual, expected)
+        else:
+            assert actual == expected
+
+
+def test_json_open_shell(tmp_path: pathlib.Path):
+    """Test saving to and loading from JSON for an open-shell molecule."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["H", (0, 0, 0)], ["O", (0, 0, 1.1)]],
+        basis="6-31g",
+        spin=1,
+        symmetry="Coov",
+    )
+    scf = pyscf.scf.ROHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf)
+    mol_data.run_mp2(store_t2=True)
+    mol_data.run_ccsd(store_t1=True, store_t2=True)
+    mol_data.run_fci(store_fci_vec=True)
+    mol_data.to_json(tmp_path / "test.json")
+    loaded_mol_data = ffsim.MolecularData.from_json(tmp_path / "test.json")
+    for field in dataclasses.fields(loaded_mol_data):
+        actual = getattr(loaded_mol_data, field.name)
+        expected = getattr(mol_data, field.name)
+        if field.type == "np.ndarray":
+            assert isinstance(actual, np.ndarray)
+            np.testing.assert_array_equal(actual, expected)
+        elif field.type in [
+            "np.ndarray | None",
+            "np.ndarray | tuple[np.ndarray, np.ndarray] | None",
+            "np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None",
+        ]:
+            if actual is not None:
+                if isinstance(actual, tuple):
+                    for val in actual:
+                        assert isinstance(val, np.ndarray)
+                        np.testing.assert_array_equal(val, expected)
+                else:
+                    assert isinstance(actual, np.ndarray)
+                    np.testing.assert_array_equal(actual, expected)
+        else:
+            assert actual == expected
