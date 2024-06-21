@@ -36,7 +36,7 @@ def sample_slater(rdm: tuple[np.ndarray, np.ndarray],
         seed: Seed for the random number generator.
 
     Returns:
-        A 2Dimensional numpy array with samples of electronic configurations.
+        A 2D Numpy array with samples of electronic configurations.
         Each row is a sample. 
     """
 
