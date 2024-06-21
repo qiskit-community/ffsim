@@ -1,23 +1,13 @@
 import numpy as np
 import scipy.linalg as LA
-from typing import overload
 
 
-@overload
-def sample_slater(rdm: np.ndarray,
-                  chain_length: int,
-                  n_chains: int,
-                  n_particles_to_move: int = 1,
-                  seed: int | None = None
-                  ) -> np.ndarray: ...
-
-
-def sample_slater(rdm: tuple[np.ndarray, np.ndarray],
-                  chain_length: int,
-                  n_chains: int,
-                  n_particles_to_move: int = 1,
-                  seed: int | None = None
-                  ) -> np.ndarray:
+def sample_slater(
+    rdm: np.ndarray | list[np.ndarray] | tuple[np.ndarray],
+    chain_length: int,
+    n_chains: int,
+    n_particles_to_move: int = 1,
+) -> np.ndarray:
     """
     Collect samples of electronic configurations from a Slater determinant defined
     by its one-body reduced density matrix (RDM). The sampler uses the Metropolis-Hastings 

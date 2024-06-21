@@ -42,5 +42,5 @@ __all__ = [
     "slater_determinant_rdm",
     "spin_square",
     "strings_to_indices",
-    "sample_slater"
+    "sample_slater",
 ]
