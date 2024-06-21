@@ -71,11 +71,11 @@ from ffsim.states import (
     indices_to_strings,
     one_hot,
     rdm,
+    sample_slater,
     slater_determinant,
     slater_determinant_rdm,
     spin_square,
     strings_to_indices,
-    sample_slater,
 )
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,

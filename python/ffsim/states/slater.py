@@ -1,36 +1,36 @@
 import numpy as np
-import scipy.linalg as LA
+import scipy.linalg as la
 
 
 def sample_slater(
-    rdm: np.ndarray | list[np.ndarray] | tuple[np.ndarray],
+    rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
     chain_length: int,
     n_chains: int,
     n_particles_to_move: int = 1,
 ) -> np.ndarray:
     """
     Collect samples of electronic configurations from a Slater determinant defined
-    by its one-body reduced density matrix (RDM). The sampler uses the Metropolis-Hastings 
-    method.
+    by its one-body reduced density matrix (RDM). The sampler uses the
+    Metropolis-Hastings method.
 
     Args:
         rdm: The one-body reduced density matrix that defines the Slater determinant
-            This is either a single Numpy array specifying the 1-RDM of a spin-polarized 
-            system, or a pair of Numpy arrays where each element of the pair contains
-            the 1-RDM for each spin sector.
+            This is either a single Numpy array specifying the 1-RDM of a
+            spin-polarized system, or a pair of Numpy arrays where each element
+            of the pair contains the 1-RDM for each spin sector.
         chain_length: Length of each sampling chain.
         n_chains: Number of chains to run. The total number of samples is given
             by (``chain_length`` + 1) * ``n_chains``.
-        n_particles_to_move: At each step of the chain, the maximum number of 
+        n_particles_to_move: At each step of the chain, the maximum number of
             electrons that are moved into a different orbital.
         seed: Seed for the random number generator.
 
     Returns:
         A 2D Numpy array with samples of electronic configurations.
-        Each row is a sample. 
+        Each row is a sample.
     """
 
-    if (type(rdm) is tuple) or (type(rdm) is list):
+    if isinstance(rdm, tuple) or isinstance(rdm, list):
         rdm_a, rdm_b = rdm[0], rdm[1]
         spinless = False
     else:
@@ -41,32 +41,26 @@ def sample_slater(
             spinless = False
 
     if spinless:
-        sampled_configuration = _sample_spinless(rdm,
-                                                 chain_length,
-                                                 n_chains,
-                                                 n_particles_to_move)
+        sampled_configuration = _sample_spinless(
+            rdm, chain_length, n_chains, n_particles_to_move
+        )
     else:
-        sampled_configuration_a = _sample_spinless(rdm_a,
-                                                   chain_length,
-                                                   n_chains,
-                                                   n_particles_to_move)
+        sampled_configuration_a = _sample_spinless(
+            rdm_a, chain_length, n_chains, n_particles_to_move
+        )
 
-        sampled_configuration_b = _sample_spinless(rdm_b,
-                                                   chain_length,
-                                                   n_chains,
-                                                   n_particles_to_move)
+        sampled_configuration_b = _sample_spinless(
+            rdm_b, chain_length, n_chains, n_particles_to_move
+        )
 
         sampled_configuration = np.concatenate(
-            (sampled_configuration_a, sampled_configuration_b),
-            axis=1
+            (sampled_configuration_a, sampled_configuration_b), axis=1
         )
     return sampled_configuration
 
 
 def _propose_move(
-        previous_step: np.ndarray,
-        norb: int,
-        n_particles_to_move: int
+    previous_step: np.ndarray, norb: int, n_particles_to_move: int
 ) -> np.ndarray:
     """
     Proposes a new state in the Markov chain. The new state is obtained by allowing
@@ -77,7 +71,7 @@ def _propose_move(
     Args:
         previous step: A Numpy array with the starting positions of the electrons.
         norb: Number of orbitals.
-        n_particles_to_move: At each step of the chain, the maximum number of 
+        n_particles_to_move: At each step of the chain, the maximum number of
             electrons that are moved into a different orbital.
 
     Returns:
@@ -93,74 +87,69 @@ def _propose_move(
 
     for i in range(n_chains):
         sample_particles_to_move = np.random.choice(
-            np.arange(n_particles_to_move) + 1,
-            1)
-
-        open_orbitals = np.setdiff1d(
-            positions,
-            previous_step[i, :],
-            assume_unique=True
+            np.arange(n_particles_to_move) + 1, 1
         )
 
-        electron_id = np.sort(
-            np.random.choice(
-                np.arange(nelec),
-                sample_particles_to_move,
-                replace=False))
+        open_orbitals = np.setdiff1d(
+            positions, previous_step[i, :], assume_unique=True)
 
-        new_positions = np.random.choice(open_orbitals,
-                                         sample_particles_to_move,
-                                         replace=False)
+        electron_id = np.sort(
+            np.random.choice(np.arange(nelec),
+                             sample_particles_to_move, replace=False)
+        )
+
+        new_positions = np.random.choice(
+            open_orbitals, sample_particles_to_move, replace=False
+        )
 
         new_state[i, :] = previous_step[i, :]
         new_state[i, electron_id] = new_positions
         new_state[i, :] = np.sort(new_state[i, :])
 
-    return new_state.astype('int')
+    return new_state.astype("int")
 
 
 def _evaluate_logdeterminant_squared(
-        positions: np.ndarray,
-        phi: np.ndarray
+    positions: np.ndarray, phi: np.ndarray
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Given a batch of positions of electronic configurations, evaluate their 
+    Given a batch of positions of electronic configurations, evaluate their
     Slater determinant.
 
     Args:
-        positions: A 2D Numpy array of electronic configurations. Each row represents 
+        positions: A 2D Numpy array of electronic configurations. Each row represents
             the position of the electrons for each configuration.
-        phi: A 2D (norb, nelec) Numpy array. The matrix must be column-wise 
+        phi: A 2D (norb, nelec) Numpy array. The matrix must be column-wise
             orthogonal. Each column represents an orbital.
 
-    Returns: Tuple. The first element is a Numpy array with the signs of the 
+    Returns: Tuple. The first element is a Numpy array with the signs of the
         determinants. The second element is a Numpy array with the logarithm
         of the absolute value of the determinant.
     """
 
     det_matrices = phi[positions, :]
 
-    S, logdet_amps = np.linalg.slogdet(det_matrices)
+    signs, logdet_amps = np.linalg.slogdet(det_matrices)
 
-    return S, logdet_amps
+    return signs, logdet_amps
 
 
 def _accept(
-        logdet_squared_new: tuple[np.ndarray, np.ndarray],
-        logdet_squared_old: tuple[np.ndarray, np.ndarray]
+    logdet_squared_new: tuple[np.ndarray, np.ndarray],
+    logdet_squared_old: tuple[np.ndarray, np.ndarray],
 ) -> np.ndarray:
     """
     Metropolis-Hastings acceptance of the new state of the chain.
 
     Args:
-        logdet_squared_new: Tuple. The first element of the tuple is a Numpy 
-            array with the sign of the determinant for the proposed electronic 
-            configurations for each chain. The second element of the tuple is a 
+        logdet_squared_new: Tuple. The first element of the tuple is a Numpy
+            array with the sign of the determinant for the proposed electronic
+            configurations for each chain. The second element of the tuple is a
             Numpy array with the logarithm of the absolute value of the
             determinant of the proposed configurations.
-        logdet_squared_old: Tuple. The first element of the tuple is a Numpy 
-            array with the sign of the determinant for the previous electronic 
-            configurations for each chain. The second element of the tuple is a 
+        logdet_squared_old: Tuple. The first element of the tuple is a Numpy
+            array with the sign of the determinant for the previous electronic
+            configurations for each chain. The second element of the tuple is a
             Numpy array with the logarithm of the absolute value of the
             determinant of the previous configurations.
 
@@ -175,17 +164,15 @@ def _accept(
 
     p_acceptance = np.minimum(
         ones_vector,
-        np.abs(logdet_squared_new[0]) *
-        np.exp(2 * (logdet_squared_new[1] - logdet_squared_old[1])))
+        np.abs(logdet_squared_new[0])
+        * np.exp(2 * (logdet_squared_new[1] - logdet_squared_old[1])),
+    )
 
     return p_acceptance >= random_probs
 
 
 def _initialize_chains(
-        n_chains: int,
-        nelec: int,
-        norb: int,
-        rdm: np.ndarray
+    n_chains: int, nelec: int, norb: int, rdm: np.ndarray
 ) -> np.ndarray:
     """
     Proposes initial positions for the electrons to initialize the Markov chains.
@@ -199,30 +186,28 @@ def _initialize_chains(
         rdm: A Numoy array with the one-body RDM.
 
     Returns:
-        A 2D Numpy array with the initial electronic configuration for each 
+        A 2D Numpy array with the initial electronic configuration for each
         chain. Each row is the initial electronic configuration for each chain.
     """
 
     positions = np.zeros((n_chains, nelec))
     count = 0
     while count < n_chains:
-        attempt = np.sort(np.random.choice(
-            np.arange(norb),
-            size=nelec,
-            replace=True,
-            p=np.diag(rdm)/float(nelec)))
+        attempt = np.sort(
+            np.random.choice(
+                np.arange(norb), size=nelec, replace=True, p=np.diag(rdm) / float(nelec)
+            )
+        )
 
         if len(np.unique(attempt)) == nelec:
             positions[count, :] = attempt
             count += 1
 
-    return positions.astype('int')
+    return positions.astype("int")
 
 
 def _select(
-        acceptance_vector: np.ndarray,
-        new_pos: np.ndarray,
-        old_pos: np.ndarray
+    acceptance_vector: np.ndarray, new_pos: np.ndarray, old_pos: np.ndarray
 ) -> np.ndarray:
     """
     Based on the acceptance criterion of the Markov chain returns the state for
@@ -244,16 +229,13 @@ def _select(
 
     """
     for i in range(new_pos.shape[0]):
-        if acceptance_vector[i] == False:
+        if not acceptance_vector[i]:
             new_pos[i, :] = old_pos[i, :]
 
     return new_pos
 
 
-def _positions_to_fock(
-        positions: np.ndarray,
-        norb: int
-) -> np.ndarray:
+def _positions_to_fock(positions: np.ndarray, norb: int) -> np.ndarray:
     """
     Transforms electronic configurations defined by the position of the electrons
     to the occupation representation.
@@ -265,41 +247,42 @@ def _positions_to_fock(
 
     Returns:
         A 2Dimensional Numpy array of electronic configurations represented by
-        the orbital occupancy. Each row is an electronic configuration. 
+        the orbital occupancy. Each row is an electronic configuration.
     """
 
     n_samples = positions.shape[0]
-    fock = np.zeros((n_samples, norb)).astype('int')
+    fock = np.zeros((n_samples, norb)).astype("int")
     for i in range(n_samples):
-        fock[i, norb-1-positions[i, :]] = 1
+        fock[i, norb - 1 - positions[i, :]] = 1
     return fock
 
 
-def _sample_spinless(rdm: np.ndarray,
-                     chain_length: int,
-                     n_chains: int,
-                     n_particles_to_move: int = 1,
-                     seed: int | None = None
-                     ) -> np.ndarray:
+def _sample_spinless(
+    rdm: np.ndarray,
+    chain_length: int,
+    n_chains: int,
+    n_particles_to_move: int = 1,
+    seed: int | None = None,
+) -> np.ndarray:
     """
     Collect samples of electronic configurations from a Slater determinant defined
-    by its one-body reduced density matrix (RDM). The sampler uses the Metropolis-Hastings 
-    method.
+    by its one-body reduced density matrix (RDM). The sampler uses the
+    Metropolis-Hastings method.
 
     Args:
         rdm: The one-body reduced density matrix that defines the Slater determinant
-            This is a single Numpy array specifying the 1-RDM of a spin-polarized 
+            This is a single Numpy array specifying the 1-RDM of a spin-polarized
             system.
         chain_length: Length of each sampling chain.
         n_chains: Number of chains to run. The total number of samples is given
             by (``chain_length`` + 1) * ``n_chains``.
-        n_particles_to_move: At each step of the chain, the maximum number of 
+        n_particles_to_move: At each step of the chain, the maximum number of
             electrons that are moved into a different orbital.
         seed: Seed for the random number generator.
 
     Returns:
         A 2Dimensional Numpy array with samples of electronic configurations.
-        Each row is a sample. 
+        Each row is a sample.
     """
 
     np.random.seed(seed)
@@ -310,15 +293,19 @@ def _sample_spinless(rdm: np.ndarray,
 
     if nelec < n_particles_to_move:
         raise ValueError(
-            'Number of electrons smaller than ``n_particles_to_move``: number of electrons (' +
-            str(nelec) + ') and  ``n_particles_to_move`` (' +
-            str(n_particles_to_move)+')')
+            "Number of electrons smaller than ``n_particles_to_move``: "
+            + "number of electrons ("
+            + str(nelec)
+            + ") and  ``n_particles_to_move`` ("
+            + str(n_particles_to_move)
+            + ")"
+        )
 
-    _, U = LA.eigh(rdm)
+    _, u = la.eigh(rdm)
 
-    phi = U[:, -nelec:]
+    phi = u[:, -nelec:]
 
-    positions = np.zeros((n_chains, chain_length + 1, nelec)).astype('int')
+    positions = np.zeros((n_chains, chain_length + 1, nelec)).astype("int")
 
     positions[:, 0, :] = _initialize_chains(n_chains, nelec, norb, rdm)
 
@@ -331,13 +318,9 @@ def _sample_spinless(rdm: np.ndarray,
 
         accept_move = _accept(slogdet_new, slogdet_old)
 
-        positions[:, i + 1, :] = _select(accept_move,
-                                         proposed_move, positions[:, i, :])
+        positions[:, i + 1,
+                  :] = _select(accept_move, proposed_move, positions[:, i, :])
 
     return _positions_to_fock(
-        np.reshape(
-            positions,
-            ((chain_length + 1) * n_chains, nelec)
-        ),
-        norb
+        np.reshape(positions, ((chain_length + 1) * n_chains, nelec)), norb
     )

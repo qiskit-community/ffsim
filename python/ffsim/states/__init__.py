@@ -12,6 +12,7 @@
 
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm
+from ffsim.states.slater import sample_slater
 from ffsim.states.states import (
     StateVector,
     dim,
@@ -24,7 +25,6 @@ from ffsim.states.states import (
     spin_square,
     strings_to_indices,
 )
-from ffsim.states.slater import sample_slater
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
 __all__ = [
