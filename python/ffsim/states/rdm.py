@@ -37,9 +37,6 @@ def rdm(
 ) -> np.ndarray | tuple[np.ndarray, ...]:
     """Return the spin-summed reduced density matrices of a state vector.
 
-    Returns all RDMs up to and including the specified rank, in increasing order of
-    rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
-
     The rank 1 RDM is defined as follows:
 
     .. code::
@@ -80,7 +77,9 @@ def rdm(
         reorder: Whether to reorder the indices of the reduced density matrix.
 
     Returns:
-        The reduced density matrices
+        The reduced density matrices.
+        All RDMs up to and including the specified rank are returned, in increasing
+        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
     """
     n_alpha, n_beta = nelec
     link_index_a = gen_linkstr_index(range(norb), n_alpha)
@@ -161,12 +160,6 @@ def rdms(
 ) -> np.ndarray | tuple[np.ndarray, ...]:
     """Return the spin-separated reduced density matrices of a state vector.
 
-    Returns all RDMs up to and including the specified rank, in increasing order of
-    rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
-
-    The 1-RDMs are: (alpha-alpha, alpha-beta)
-    The 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta)
-
     The rank 1 RDM is defined as follows:
 
     .. code::
@@ -208,6 +201,10 @@ def rdms(
 
     Returns:
         The reduced density matrices.
+        All RDMs up to and including the specified rank are returned, in increasing
+        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
+        The 1-RDMs are: (alpha-alpha, alpha-beta).
+        The 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
     """
     n_alpha, n_beta = nelec
     link_index_a = gen_linkstr_index(range(norb), n_alpha)
