@@ -553,3 +553,35 @@ def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
     else:
         ci1 = contract_ss(fcivec, norb, nelec)
     return np.einsum("ij,ij->", fcivec.reshape(ci1.shape), ci1.conj()).real
+
+
+def sample_state_vector(
+    vec: StateVector,
+    *,
+    indices: list[int],
+    shots: int,
+    seed: np.random.Generator | int | None = None,
+) -> list[str]:
+    """Sample bitstrings from a state vector.
+
+    Args:
+        statevector: The state vector to sample from.
+        indices: The indices of the orbitals to sample from. The indices range from
+            ``0`` to ``2 * norb - 1``, with the first half of the range indexing the
+            spin alpha orbitals, and the second half indexing the spin beta orbitals.
+        shots: The number of bitstrings to sample.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled bitstrings, as a list of strings of length `shots`.
+    """
+    rng = np.random.default_rng(seed)
+    probabilities = np.abs(vec.vec) ** 2
+    samples = rng.choice(len(vec.vec), size=shots, p=probabilities)
+    bitstrings = indices_to_strings(samples, vec.norb, vec.nelec)
+    if indices == list(range(2 * vec.norb)):
+        return bitstrings
+    return [
+        "".join(bitstring[-1 - i] for i in indices[::-1]) for bitstring in bitstrings
+    ]
