@@ -11,7 +11,7 @@
 """States."""
 
 from ffsim.states.product_state_sum import ProductStateSum
-from ffsim.states.rdm import rdm
+from ffsim.states.rdm import rdm, rdms
 from ffsim.states.states import (
     StateVector,
     dim,
@@ -21,6 +21,7 @@ from ffsim.states.states import (
     one_hot,
     slater_determinant,
     slater_determinant_rdm,
+    slater_determinant_rdms,
     spin_square,
     strings_to_indices,
 )
@@ -37,8 +38,10 @@ __all__ = [
     "indices_to_strings",
     "one_hot",
     "rdm",
+    "rdms",
     "slater_determinant",
     "slater_determinant_rdm",
+    "slater_determinant_rdms",
     "spin_square",
     "strings_to_indices",
 ]
