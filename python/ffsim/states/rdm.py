@@ -273,14 +273,17 @@ def rdms(
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
         rank: The rank of the reduced density matrix.
+        spin_summed: Whether to return the "spin-summed" RDMs.
         reorder: Whether to reorder the indices of the reduced density matrix.
 
     Returns:
         The reduced density matrices.
         All RDMs up to and including the specified rank are returned, in increasing
         order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
-        The 1-RDMs are: (alpha-alpha, alpha-beta).
+        The 1-RDMs are: (alpha-alpha, beta-beta).
+        The spin-summed 1-RDM is alpha-alpha + alpha-beta.
         The 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
+        The spin-summed 2-RDM is alpha-alpha + alpha-beta + beta-alpha + beta-beta.
     """
     n_alpha, n_beta = nelec
     link_index_a = gen_linkstr_index(range(norb), n_alpha)
