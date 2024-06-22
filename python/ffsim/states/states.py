@@ -339,7 +339,7 @@ def slater_determinant_rdms(
     else:
         # Spinful case
         alpha_orbitals, beta_orbitals = cast(
-            tuple[Sequence[int], Sequence[int]], occupied_orbitals
+            Tuple[Sequence[int], Sequence[int]], occupied_orbitals
         )
         alpha_orbitals = list(alpha_orbitals)
         beta_orbitals = list(beta_orbitals)
