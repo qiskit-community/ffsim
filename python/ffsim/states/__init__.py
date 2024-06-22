@@ -21,6 +21,7 @@ from ffsim.states.states import (
     one_hot,
     slater_determinant,
     slater_determinant_rdm,
+    slater_determinant_rdms,
     spin_square,
     strings_to_indices,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "rdms",
     "slater_determinant",
     "slater_determinant_rdm",
+    "slater_determinant_rdms",
     "spin_square",
     "strings_to_indices",
 ]
