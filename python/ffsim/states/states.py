@@ -323,9 +323,9 @@ def slater_determinant_rdms(
     """
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
+        occupied_orbitals = list(cast(Sequence[int], occupied_orbitals))
         if rank == 1:
             rdm = np.zeros((norb, norb), dtype=complex)
-            occupied_orbitals = list(cast(Sequence[int], occupied_orbitals))
             if occupied_orbitals:
                 rdm[(occupied_orbitals, occupied_orbitals)] = 1
             if orbital_rotation is not None:
@@ -337,14 +337,15 @@ def slater_determinant_rdms(
             "supported."
         )
     else:
+        # Spinful case
+        alpha_orbitals, beta_orbitals = cast(
+            tuple[Sequence[int], Sequence[int]], occupied_orbitals
+        )
+        alpha_orbitals = list(alpha_orbitals)
+        beta_orbitals = list(beta_orbitals)
         if rank == 1:
-            rdm_a = np.zeros((norb, norb), dtype=complex)
-            rdm_b = np.zeros((norb, norb), dtype=complex)
-            occupied_orbitals = cast(
-                tuple[Sequence[int], Sequence[int]], occupied_orbitals
-            )
-            alpha_orbitals = list(occupied_orbitals[0])
-            beta_orbitals = list(occupied_orbitals[1])
+            rdm_a = np.zeros((norb, norb))
+            rdm_b = np.zeros((norb, norb))
             if alpha_orbitals:
                 rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
             if beta_orbitals:
