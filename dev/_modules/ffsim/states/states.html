@@ -500,6 +500,10 @@
 
 <div class="viewcode-block" id="slater_determinant_rdm">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_rdm">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;ffsim.slater_determinant_rdm is deprecated. &quot;</span>
+    <span class="s2">&quot;Instead, use ffsim.slater_determinant_rdms.&quot;</span>
+<span class="p">)</span>
 <span class="k">def</span> <span class="nf">slater_determinant_rdm</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
@@ -561,6 +565,115 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Returning the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not supported.&quot;</span>
     <span class="p">)</span></div>
+
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">slater_determinant_rdms</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">slater_determinant_rdms</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
+<div class="viewcode-block" id="slater_determinant_rdms">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_rdms">[docs]</a>
+<span class="k">def</span> <span class="nf">slater_determinant_rdms</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrices of a `Slater determinant`_.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Currently, only rank 1 is supported.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        occupied_orbitals: The occupied orbitals in the electronic configuration.</span>
+<span class="sd">            This is either a list of integers specifying spinless orbitals, or a</span>
+<span class="sd">            pair of lists, where the first list specifies the spin alpha orbitals and</span>
+<span class="sd">            the second list specifies the spin beta orbitals.</span>
+<span class="sd">        orbital_rotation: The optional orbital rotation.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to</span>
+<span class="sd">            that spin sector.</span>
+<span class="sd">        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the</span>
+<span class="sd">            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The reduced density matrices of the Slater determinant.</span>
+<span class="sd">        All RDMs up to and including the specified rank are returned, in increasing</span>
+<span class="sd">        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.</span>
+<span class="sd">        The representation of an RDM depends on whether `occupied_orbitals` is a</span>
+<span class="sd">        sequence of integers (spinless case), or a pair of such sequences</span>
+<span class="sd">        (spinful case). In the spinless case, the full RDM is returned.</span>
+<span class="sd">        In the spinful case, each RDM is represented as a stacked Numpy</span>
+<span class="sd">        array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, alpha-beta), and</span>
+<span class="sd">        the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</span>
+
+<span class="sd">    .. _Slater determinant: ffsim.html#ffsim.slater_determinant</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">occupied_orbitals</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+        <span class="c1"># Spinless case</span>
+        <span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">occupied_orbitals</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">occupied_orbitals</span><span class="p">:</span>
+                <span class="n">rdm</span><span class="p">[(</span><span class="n">occupied_orbitals</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">)</span>
+                <span class="n">rdm</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm</span> <span class="o">@</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="n">rdm</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Returning the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not &quot;</span>
+            <span class="s2">&quot;supported.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Spinful case</span>
+        <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
+        <span class="p">)</span>
+        <span class="n">alpha_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
+        <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+            <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">alpha_orbitals</span><span class="p">:</span>
+                <span class="n">rdm_a</span><span class="p">[(</span><span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">alpha_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">beta_orbitals</span><span class="p">:</span>
+                <span class="n">rdm_b</span><span class="p">[(</span><span class="n">beta_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="p">):</span>
+                    <span class="n">orbital_rotation_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                    <span class="n">orbital_rotation_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="k">if</span> <span class="n">orbital_rotation_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_a</span> <span class="o">@</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span>
+                <span class="k">if</span> <span class="n">orbital_rotation_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_b</span> <span class="o">@</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">rdm_a</span><span class="p">,</span> <span class="n">rdm_b</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Returning the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not &quot;</span>
+            <span class="s2">&quot;supported.&quot;</span>
+        <span class="p">)</span></div>
 
 
 
