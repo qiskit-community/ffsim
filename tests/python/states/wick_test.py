@@ -52,11 +52,10 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
 
     # generate a random Slater determinant
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    rdm = ffsim.slater_determinant_rdm(
-        norb,
-        occupied_orbitals,
-        orbital_rotation=orbital_rotation,
-        spin_summed=False,
+    rdm = scipy.linalg.block_diag(
+        *ffsim.slater_determinant_rdms(
+            norb, occupied_orbitals, orbital_rotation=orbital_rotation
+        )
     )
 
     # get the full statevector
@@ -93,11 +92,10 @@ def test_expectation_power():
 
     # generate a random Slater determinant
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    rdm = ffsim.slater_determinant_rdm(
-        norb,
-        occupied_orbitals,
-        orbital_rotation=orbital_rotation,
-        spin_summed=False,
+    rdm = scipy.linalg.block_diag(
+        *ffsim.slater_determinant_rdms(
+            norb, occupied_orbitals, orbital_rotation=orbital_rotation
+        )
     )
 
     # get the full statevector
