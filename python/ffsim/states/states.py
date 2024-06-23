@@ -145,7 +145,7 @@ def slater_determinant(
             that spin sector.
 
     Returns:
-        The Slater determinant as a statevector.
+        The Slater determinant as a state vector.
     """
     if norb == 0:
         return np.ones(1, dtype=complex)
@@ -188,7 +188,7 @@ def hartree_fock_state(norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
             and spin beta fermions.
 
     Returns:
-        The Hartree-Fock state as a statevector.
+        The Hartree-Fock state as a state vector.
     """
     if isinstance(nelec, int):
         return slater_determinant(norb, occupied_orbitals=range(nelec))
