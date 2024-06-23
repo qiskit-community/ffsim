@@ -308,7 +308,7 @@
     }
    ],
    "source": [
-    "vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec))\n",
+    "vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec))\n",
     "linop @ vec"
    ]
   },
