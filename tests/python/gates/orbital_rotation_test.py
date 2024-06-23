@@ -40,7 +40,7 @@ def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
 
         result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
         if norb:
@@ -61,7 +61,7 @@ def test_apply_orbital_rotation_random_spinless(norb: int, nocc: int):
     dim = ffsim.dim(norb, nocc)
     for _ in range(3):
         mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
         if norb:
             gen = _orbital_rotation_generator(scipy.linalg.logm(mat), spin=False)
             op = ffsim.linear_operator(gen, norb=norb, nelec=(nocc, 0))
@@ -78,7 +78,7 @@ def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]
     for _ in range(3):
         mat_a = ffsim.random.random_unitary(norb, seed=rng)
         mat_b = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
 
         if norb:
             gen_a = _orbital_rotation_generator(scipy.linalg.logm(mat_a), spin=False)
@@ -125,7 +125,7 @@ def test_apply_orbital_rotation_no_side_effects_vec(norb: int, nelec: tuple[int,
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
         original_vec = vec.copy()
         _ = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
         np.testing.assert_allclose(vec, original_vec)
@@ -167,7 +167,7 @@ def test_apply_orbital_rotation_compose():
 
         nelec = ffsim.testing.random_nelec(norb, seed=rng)
         dim = ffsim.dim(norb, nelec)
-        state = ffsim.random.random_statevector(dim, seed=rng)
+        state = ffsim.random.random_state_vector(dim, seed=rng)
 
         result = ffsim.apply_orbital_rotation(state, basis_change_1, norb, nelec)
         result = ffsim.apply_orbital_rotation(

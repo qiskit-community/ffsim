@@ -31,7 +31,7 @@ def test_apply_givens_rotation_in_place_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = math.comb(norb, n_alpha)
         dim_b = math.comb(norb, n_beta)
-        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()

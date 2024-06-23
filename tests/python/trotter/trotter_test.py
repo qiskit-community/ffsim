@@ -54,7 +54,7 @@ def test_simulate_trotter_double_factorized_random(
 
     # generate initial state
     dim = ffsim.dim(norb, nelec)
-    initial_state = ffsim.random.random_statevector(dim, seed=1360)
+    initial_state = ffsim.random.random_state_vector(dim, seed=1360)
     original_state = initial_state.copy()
 
     # compute exact state
