@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import List, Tuple, cast
+from typing import cast
 
 import numpy as np
 import scipy.linalg
@@ -229,10 +229,10 @@ class UCJOpSpinUnbalanced:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
         mat_indices = cast(
-            List[Tuple[int, int]], list(itertools.product(range(norb), repeat=2))
+            list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
         )
         triu_indices = cast(
-            List[Tuple[int, int]],
+            list[tuple[int, int]],
             list(itertools.combinations_with_replacement(range(norb), 2)),
         )
         if pairs_aa is None:
@@ -334,10 +334,10 @@ class UCJOpSpinUnbalanced:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
         mat_indices = cast(
-            List[Tuple[int, int]], list(itertools.product(range(norb), repeat=2))
+            list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
         )
         triu_indices = cast(
-            List[Tuple[int, int]],
+            list[tuple[int, int]],
             list(itertools.combinations_with_replacement(range(norb), 2)),
         )
         if pairs_aa is None:

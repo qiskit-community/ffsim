@@ -13,8 +13,9 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence, Tuple, cast, overload
+from typing import cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -157,7 +158,7 @@ def slater_determinant(
         occupied_orbitals = (cast(Sequence[int], occupied_orbitals), [])
 
     alpha_orbitals, beta_orbitals = cast(
-        Tuple[Sequence[int], Sequence[int]], occupied_orbitals
+        tuple[Sequence[int], Sequence[int]], occupied_orbitals
     )
     n_alpha = len(alpha_orbitals)
     n_beta = len(beta_orbitals)
@@ -345,7 +346,7 @@ def slater_determinant_rdms(
     else:
         # Spinful case
         alpha_orbitals, beta_orbitals = cast(
-            Tuple[Sequence[int], Sequence[int]], occupied_orbitals
+            tuple[Sequence[int], Sequence[int]], occupied_orbitals
         )
         alpha_orbitals = list(alpha_orbitals)
         beta_orbitals = list(beta_orbitals)

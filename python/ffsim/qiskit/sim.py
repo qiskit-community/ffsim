@@ -12,7 +12,7 @@
 
 from __future__ import annotations
 
-from typing import Tuple, cast
+from typing import cast
 
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import Barrier, Measure
@@ -191,7 +191,7 @@ def _evolve_state_vector_spinful(
     )
     vec = state_vector.vec
     norb = state_vector.norb
-    nelec = cast(Tuple[int, int], state_vector.nelec)
+    nelec = cast(tuple[int, int], state_vector.nelec)
 
     if isinstance(op, DiagCoulombEvolutionJW):
         vec = gates.apply_diag_coulomb_evolution(

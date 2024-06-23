@@ -12,25 +12,25 @@
 
 from __future__ import annotations
 
-from functools import lru_cache
+from functools import cache
 
 import numpy as np
 from pyscf.fci import cistring
 
 
-@lru_cache(maxsize=None)
+@cache
 def make_strings(orbitals: range, nocc: int) -> np.ndarray:
     """Cached version of pyscf.fci.cistring.make_strings."""
     return cistring.make_strings(orbitals, nocc)
 
 
-@lru_cache(maxsize=None)
+@cache
 def gen_occslst(orbitals: range, nocc: int) -> np.ndarray:
     """Cached version of pyscf.fci.cistring.gen_occslst."""
     return cistring.gen_occslst(orbitals, nocc).astype(np.uint, copy=False)
 
 
-@lru_cache(maxsize=None)
+@cache
 def gen_linkstr_index(orbitals: range, nocc: int):
     """Cached version of pyscf.fci.cistring.gen_linkstr_index."""
     return cistring.gen_linkstr_index(orbitals, nocc)
