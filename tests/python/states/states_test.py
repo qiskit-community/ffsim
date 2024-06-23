@@ -212,7 +212,7 @@ def test_indices_to_strings():
 
 
 def test_strings_to_indices():
-    """Test converting statevector indices to strings."""
+    """Test converting statevector strings to indices."""
     norb = 3
     nelec = 2
     dim = ffsim.dim(norb, nelec)
@@ -241,6 +241,67 @@ def test_strings_to_indices():
             "001110",
             "010110",
             "100110",
+        ],
+        norb,
+        nelec,
+    )
+    np.testing.assert_array_equal(indices, np.arange(dim))
+
+
+def test_addresses_to_strings():
+    """Test converting statevector addresses to strings."""
+    norb = 3
+    nelec = 2
+    dim = ffsim.dim(norb, nelec)
+    strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
+    np.testing.assert_array_equal(strings, [0b011, 0b101, 0b110])
+
+    norb = 3
+    nelec = (2, 1)
+    dim = ffsim.dim(norb, nelec)
+    strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
+    np.testing.assert_array_equal(
+        strings,
+        [
+            0b001011,
+            0b010011,
+            0b100011,
+            0b001101,
+            0b010101,
+            0b100101,
+            0b001110,
+            0b010110,
+            0b100110,
+        ],
+    )
+
+
+def test_strings_to_addresses():
+    """Test converting statevector strings to addresses."""
+    norb = 3
+    nelec = 2
+    dim = ffsim.dim(norb, nelec)
+    indices = ffsim.strings_to_addresses(
+        [0b011, 0b101, 0b110],
+        norb,
+        nelec,
+    )
+    np.testing.assert_array_equal(indices, np.arange(dim))
+
+    norb = 3
+    nelec = (2, 1)
+    dim = ffsim.dim(norb, nelec)
+    indices = ffsim.strings_to_addresses(
+        [
+            0b001011,
+            0b010011,
+            0b100011,
+            0b001101,
+            0b010101,
+            0b100101,
+            0b001110,
+            0b010110,
+            0b100110,
         ],
         norb,
         nelec,

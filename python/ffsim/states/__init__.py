@@ -14,6 +14,7 @@ from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm, rdms
 from ffsim.states.states import (
     StateVector,
+    addresses_to_strings,
     dim,
     dims,
     hartree_fock_state,
@@ -23,6 +24,7 @@ from ffsim.states.states import (
     slater_determinant_rdm,
     slater_determinant_rdms,
     spin_square,
+    strings_to_addresses,
     strings_to_indices,
 )
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
@@ -30,6 +32,7 @@ from ffsim.states.wick import expectation_one_body_power, expectation_one_body_p
 __all__ = [
     "ProductStateSum",
     "StateVector",
+    "addresses_to_strings",
     "dim",
     "dims",
     "expectation_one_body_power",
@@ -43,5 +46,6 @@ __all__ = [
     "slater_determinant_rdm",
     "slater_determinant_rdms",
     "spin_square",
+    "strings_to_addresses",
     "strings_to_indices",
 ]
