@@ -176,3 +176,62 @@ def test_t_amplitudes_restrict_indices():
     )
 
     assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
+
+
+def test_validate():
+    rng = np.random.default_rng(335)
+    n_reps = 3
+    norb = 4
+    eye = np.eye(norb)
+    diag_coulomb_mats = np.stack([eye for _ in range(n_reps)])
+    orbital_rotations = np.stack([eye for _ in range(n_reps)])
+
+    _ = ffsim.UCJOpSpinless(
+        diag_coulomb_mats=rng.standard_normal(10),
+        orbital_rotations=orbital_rotations,
+        validate=False,
+    )
+
+    _ = ffsim.UCJOpSpinless(
+        diag_coulomb_mats=rng.standard_normal((n_reps, norb, norb)),
+        orbital_rotations=orbital_rotations,
+        atol=10,
+    )
+
+    with pytest.raises(ValueError, match="shape"):
+        _ = ffsim.UCJOpSpinless(
+            diag_coulomb_mats=rng.standard_normal(10),
+            orbital_rotations=orbital_rotations,
+        )
+    with pytest.raises(ValueError, match="shape"):
+        _ = ffsim.UCJOpSpinless(
+            diag_coulomb_mats=diag_coulomb_mats,
+            orbital_rotations=rng.standard_normal(10),
+        )
+    with pytest.raises(ValueError, match="shape"):
+        _ = ffsim.UCJOpSpinless(
+            diag_coulomb_mats=diag_coulomb_mats,
+            orbital_rotations=orbital_rotations,
+            final_orbital_rotation=rng.standard_normal(10),
+        )
+    with pytest.raises(ValueError, match="dimension"):
+        _ = ffsim.UCJOpSpinless(
+            diag_coulomb_mats=diag_coulomb_mats,
+            orbital_rotations=np.concatenate([orbital_rotations, orbital_rotations]),
+        )
+    with pytest.raises(ValueError, match="symmetric"):
+        _ = ffsim.UCJOpSpinless(
+            diag_coulomb_mats=rng.standard_normal((n_reps, norb, norb)),
+            orbital_rotations=orbital_rotations,
+        )
+    with pytest.raises(ValueError, match="unitary"):
+        _ = ffsim.UCJOpSpinless(
+            diag_coulomb_mats=diag_coulomb_mats,
+            orbital_rotations=rng.standard_normal((n_reps, norb, norb)),
+        )
+    with pytest.raises(ValueError, match="unitary"):
+        _ = ffsim.UCJOpSpinless(
+            diag_coulomb_mats=diag_coulomb_mats,
+            orbital_rotations=orbital_rotations,
+            final_orbital_rotation=rng.standard_normal((norb, norb)),
+        )
