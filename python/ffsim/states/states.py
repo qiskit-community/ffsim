@@ -461,7 +461,7 @@ def strings_to_indices(
 # modified to support complex wavefunction
 def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
     """Expectation value of spin squared operator on a state vector."""
-    if np.issubdtype(fcivec.dtype, np.complexfloating):
+    if np.iscomplexobj(fcivec):
         ci1 = contract_ss(fcivec.real, norb, nelec).astype(complex)
         ci1 += 1j * contract_ss(fcivec.imag, norb, nelec)
     else:
