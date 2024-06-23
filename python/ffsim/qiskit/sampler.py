@@ -79,7 +79,7 @@ class FfsimSampler(BaseSamplerV2):
             final_state = final_state_vector(bound_circuit)
             if qargs:
                 samples = states.sample_state_vector(
-                    final_state, indices=qargs, shots=pub.shots, seed=self._rng
+                    final_state, orbs=qargs, shots=pub.shots, seed=self._rng
                 )
             else:
                 samples = [""] * pub.shots

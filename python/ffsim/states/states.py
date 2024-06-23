@@ -564,7 +564,7 @@ def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
 def sample_state_vector(
     vec: np.ndarray | StateVector,
     *,
-    indices: list[int],
+    orbs: list[int],
     shots: int,
     norb: int | None = None,
     nelec: int | tuple[int, int] | None = None,
@@ -574,9 +574,10 @@ def sample_state_vector(
 
     Args:
         vec: The state vector to sample from.
-        indices: The indices of the orbitals to sample from. The indices range from
-            ``0`` to ``2 * norb - 1``, with the first half of the range indexing the
-            spin alpha orbitals, and the second half indexing the spin beta orbitals.
+        orbs: The spin-orbitals to sample from. These are integers ranging from
+            ``0`` to ``2 * norb - 1``, with the first half of the range representing
+            the spin alpha orbitals, and the second half representing the spin beta
+            orbitals.
         shots: The number of bitstrings to sample.
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
@@ -597,11 +598,9 @@ def sample_state_vector(
     probabilities = np.abs(vec) ** 2
     samples = rng.choice(len(vec), size=shots, p=probabilities)
     bitstrings = indices_to_strings(samples, norb, nelec)
-    if indices == list(range(2 * norb)):
+    if orbs == list(range(2 * norb)):
         return bitstrings
-    return [
-        "".join(bitstring[-1 - i] for i in indices[::-1]) for bitstring in bitstrings
-    ]
+    return ["".join(bitstring[-1 - i] for i in orbs[::-1]) for bitstring in bitstrings]
 
 
 def canonicalize_vec_norb_nelec(
