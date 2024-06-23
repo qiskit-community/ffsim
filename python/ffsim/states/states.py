@@ -567,7 +567,7 @@ def sample_state_vector(
     """Sample bitstrings from a state vector.
 
     Args:
-        statevector: The state vector to sample from.
+        vec: The state vector to sample from.
         indices: The indices of the orbitals to sample from. The indices range from
             ``0`` to ``2 * norb - 1``, with the first half of the range indexing the
             spin alpha orbitals, and the second half indexing the spin beta orbitals.
