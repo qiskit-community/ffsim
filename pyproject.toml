@@ -81,7 +81,7 @@ include = [
 select = ["E", "F", "I", "N", "NPY"]
 
 [tool.cibuildwheel]
-build = "cp38-macosx* cp38-manylinux_x86_64 cp38-manylinux_aarch64"
+build = "cp39-macosx* cp39-manylinux_x86_64 cp39-manylinux_aarch64"
 test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
