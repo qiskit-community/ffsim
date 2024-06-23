@@ -379,6 +379,9 @@
 <span class="k">def</span> <span class="nf">one_hot</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an array of all zeros except for a one at a specified index.</span>
 
+<span class="sd">    .. warning::</span>
+<span class="sd">        This function is deprecated. Use :func:`ffsim.linalg.one_hot` instead.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        shape: The desired shape of the array.</span>
 <span class="sd">        index: The index at which to place a one.</span>
@@ -514,6 +517,9 @@
     <span class="n">spin_summed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrix of a `Slater determinant`_.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This function is deprecated. Use :func:`ffsim.slater_determinant_rdms` instead.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        Currently, only rank 1 is supported.</span>

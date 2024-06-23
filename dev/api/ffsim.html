@@ -4064,6 +4064,10 @@ this argument is ignored.</p></li>
 <dt class="sig sig-object py" id="ffsim.one_hot">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">one_hot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#one_hot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.one_hot" title="Link to this definition">¶</a></dt>
 <dd><p>Return an array of all zeros except for a one at a specified index.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is deprecated. Use <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.one_hot" title="ffsim.linalg.one_hot"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.linalg.one_hot()</span></code></a> instead.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -4081,6 +4085,10 @@ this argument is ignored.</p></li>
 <dt class="sig sig-object py" id="ffsim.rdm">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_lower_ranks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/rdm.html#rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.rdm" title="Link to this definition">¶</a></dt>
 <dd><p>Return the reduced density matrix (RDM) or matrices of a state vector.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.rdms" title="ffsim.rdms"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.rdms()</span></code></a> instead.</p>
+</div>
 <p>The rank 1 RDM is defined as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm1[p, q] = ⟨p+ q⟩
 </pre></div>
@@ -4339,6 +4347,10 @@ that spin sector.</p></li>
 <dt class="sig sig-object py" id="ffsim.slater_determinant_rdm">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">slater_determinant_rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#slater_determinant_rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slater_determinant_rdm" title="Link to this definition">¶</a></dt>
 <dd><p>Return the reduced density matrix of a <a class="reference external" href="ffsim.html#ffsim.slater_determinant">Slater determinant</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.slater_determinant_rdms" title="ffsim.slater_determinant_rdms"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.slater_determinant_rdms()</span></code></a> instead.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Currently, only rank 1 is supported.</p>
