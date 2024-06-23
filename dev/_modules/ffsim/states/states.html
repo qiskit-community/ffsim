@@ -296,8 +296,9 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
@@ -454,7 +455,7 @@
         <span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">occupied_orbitals</span><span class="p">),</span> <span class="p">[])</span>
 
     <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
+        <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
     <span class="p">)</span>
     <span class="n">n_alpha</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
     <span class="n">n_beta</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
@@ -651,7 +652,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Spinful case</span>
         <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-            <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
+            <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
         <span class="p">)</span>
         <span class="n">alpha_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
         <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
