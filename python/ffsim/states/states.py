@@ -556,10 +556,12 @@ def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
 
 
 def sample_state_vector(
-    vec: StateVector,
+    vec: np.ndarray | StateVector,
     *,
     indices: list[int],
     shots: int,
+    norb: int | None = None,
+    nelec: int | tuple[int, int] | None = None,
     seed: np.random.Generator | int | None = None,
 ) -> list[str]:
     """Sample bitstrings from a state vector.
@@ -570,18 +572,63 @@ def sample_state_vector(
             ``0`` to ``2 * norb - 1``, with the first half of the range indexing the
             spin alpha orbitals, and the second half indexing the spin beta orbitals.
         shots: The number of bitstrings to sample.
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
     Returns:
         The sampled bitstrings, as a list of strings of length `shots`.
+
+    Raises:
+        TypeError: When passing vec as a Numpy array, norb and nelec must be specified.
+        TypeError: When passing vec as a StateVector, norb and nelec must both be None.
     """
+    vec, norb, nelec = canonicalize_vec_norb_nelec(vec, norb, nelec)
     rng = np.random.default_rng(seed)
-    probabilities = np.abs(vec.vec) ** 2
-    samples = rng.choice(len(vec.vec), size=shots, p=probabilities)
-    bitstrings = indices_to_strings(samples, vec.norb, vec.nelec)
-    if indices == list(range(2 * vec.norb)):
+    probabilities = np.abs(vec) ** 2
+    samples = rng.choice(len(vec), size=shots, p=probabilities)
+    bitstrings = indices_to_strings(samples, norb, nelec)
+    if indices == list(range(2 * norb)):
         return bitstrings
     return [
         "".join(bitstring[-1 - i] for i in indices[::-1]) for bitstring in bitstrings
     ]
+
+
+def canonicalize_vec_norb_nelec(
+    vec: np.ndarray | StateVector, norb: int | None, nelec: int | tuple[int, int] | None
+) -> tuple[np.ndarray, int, int | tuple[int, int]]:
+    """Canonicalize a state vector, number of orbitals, and number(s) of electrons.
+
+    Args:
+        vec: The state vector.
+        norb: The number of spatial orbitals, or None if `vec` is a StateVector.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions. If `vec` is a StateVector then this should be None.
+
+    Returns:
+        The state vector as a Numpy array, the number of spatial orbitals, and the
+        number or numbers of electrons.
+
+    Raises:
+        TypeError: When passing vec as a Numpy array, norb and nelec must be specified.
+        TypeError: When passing vec as a StateVector, norb and nelec must both be None.
+    """
+    if isinstance(vec, np.ndarray):
+        if norb is None or nelec is None:
+            raise TypeError(
+                "When passing vec as a Numpy array, norb and nelec must be specified."
+            )
+    else:
+        if norb is not None or nelec is not None:
+            raise TypeError(
+                "When passing vec as a StateVector, norb and nelec must both be None."
+            )
+        norb = vec.norb
+        nelec = vec.nelec
+        vec = vec.vec
+    return vec, norb, nelec
