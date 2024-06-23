@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.random.random - ffsim 0.0.37 documentation</title>
+        <title>ffsim.random.random - ffsim 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.37 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.38 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.37 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.38 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -303,7 +303,38 @@
 
 <div class="viewcode-block" id="random_statevector">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_statevector">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;ffsim.random.random_statevector is deprecated. &quot;</span>
+    <span class="s2">&quot;Instead, use ffsim.random.random_state_vector.&quot;</span>
+<span class="p">)</span>
 <span class="k">def</span> <span class="nf">random_statevector</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random state vector sampled from the uniform distribution.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This function is deprecated. Use :func:`ffsim.random.random_state_vector`</span>
+<span class="sd">        instead.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dim: The dimension of the state vector.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+<span class="sd">        dtype: The data type to use for the result.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled state vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
+        <span class="n">vec</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">vec</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span></div>
+
+
+
+<div class="viewcode-block" id="random_state_vector">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_state_vector">[docs]</a>
+<span class="k">def</span> <span class="nf">random_state_vector</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random state vector sampled from the uniform distribution.</span>
 
 <span class="sd">    Args:</span>
@@ -810,7 +841,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+</div><script src="../../../_static/documentation_options.js?v=423071ad"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>

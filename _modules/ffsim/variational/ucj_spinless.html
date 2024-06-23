@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.variational.ucj_spinless - ffsim 0.0.37 documentation</title>
+        <title>ffsim.variational.ucj_spinless - ffsim 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.37 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.38 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.37 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.38 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -296,8 +296,8 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">InitVar</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
@@ -367,6 +367,53 @@
     <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># shape: (n_reps, norb, norb)</span>
     <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># shape: (n_reps, norb, norb)</span>
     <span class="n">final_orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># shape: (norb, norb)</span>
+    <span class="n">validate</span><span class="p">:</span> <span class="n">InitVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">rtol</span><span class="p">:</span> <span class="n">InitVar</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-5</span>
+    <span class="n">atol</span><span class="p">:</span> <span class="n">InitVar</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-8</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;diag_coulomb_mats should have shape (n_reps, norb, norb). &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;orbital_rotations should have shape (n_reps, norb, norb). &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;final_orbital_rotation should have shape (norb, norb). &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;diag_coulomb_mats and orbital_rotations should have the same &quot;</span>
+                    <span class="s2">&quot;first dimension. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> and &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">linalg</span><span class="o">.</span><span class="n">is_real_symmetric</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Diagonal Coulomb matrices were not all real symmetric.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">orbital_rotation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Orbital rotations were not all unitary.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">linalg</span><span class="o">.</span><span class="n">is_unitary</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Final orbital rotation was not unitary.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">norb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -474,7 +521,7 @@
                 <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">n_params</span><span class="si">}</span><span class="s2"> but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="n">triu_indices</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-            <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+            <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
             <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations_with_replacement</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="mi">2</span><span class="p">)),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -551,7 +598,7 @@
         <span class="p">)</span>
 
         <span class="n">triu_indices</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-            <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+            <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
             <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations_with_replacement</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="mi">2</span><span class="p">)),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -779,7 +826,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+</div><script src="../../../_static/documentation_options.js?v=423071ad"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>

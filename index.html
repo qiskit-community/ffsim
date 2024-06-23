@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Installation" href="install.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim 0.0.37 documentation</title>
+        <title>ffsim 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">ffsim 0.0.37 documentation</div></a>
+      <a href="#"><div class="brand">ffsim 0.0.38 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.37 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.38 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -297,6 +297,38 @@
 </pre></div>
 </div>
 <p>This method won’t work natively on Windows, however. Refer to the <a class="reference external" href="https://qiskit-community.github.io/ffsim/install.html">installation instructions</a> for information about using ffsim on Windows, as well as instructions for installing from source and running ffsim in a container.</p>
+</section>
+<section id="code-example">
+<h2>Code example<a class="headerlink" href="#code-example" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyscf</span>
+
+<span class="kn">import</span> <span class="nn">ffsim</span>
+
+<span class="c1"># Build an N2 molecule</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">atom</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]],</span> <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;6-31g&quot;</span><span class="p">,</span> <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;Dooh&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get molecular data</span>
+<span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">()))</span>
+<span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">nelec</span>
+
+<span class="c1"># Generate a random orbital rotation</span>
+<span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="c1"># Create the Hartree-Fock state and apply the orbital rotation to it</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+<span class="c1"># Convert the Hamiltonian to a Scipy LinearOperator</span>
+<span class="n">linop</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">linear_operator</span><span class="p">(</span><span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+<span class="c1"># Compute the energy of the state</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">linop</span> <span class="o">@</span> <span class="n">vec</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>  <span class="c1"># prints -104.17181289596</span>
+</pre></div>
+</div>
 </section>
 <section id="citing-ffsim">
 <h2>Citing ffsim<a class="headerlink" href="#citing-ffsim" title="Link to this heading">¶</a></h2>
@@ -412,6 +444,7 @@
             <ul>
 <li><a class="reference internal" href="#">ffsim</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#code-example">Code example</a></li>
 <li><a class="reference internal" href="#citing-ffsim">Citing ffsim</a></li>
 <li><a class="reference internal" href="#contents">Contents</a></li>
 </ul>
@@ -425,7 +458,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=aa2ad26f"></script>
+</div><script src="_static/documentation_options.js?v=423071ad"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=4e2eecee"></script>

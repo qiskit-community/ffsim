@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.random" href="ffsim.random.html" /><link rel="prev" title="ffsim.optimize" href="ffsim.optimize.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.qiskit - ffsim 0.0.37 documentation</title>
+        <title>ffsim.qiskit - ffsim 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.37 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.38 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.37 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.38 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -938,6 +938,10 @@ beta orbitals.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOperatorJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_operator</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj_operator.html#UCJOperatorJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOperatorJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
 <p>Unitary cluster Jastrow operator under the Jordan-Wigner transformation.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class is deprecated. Use <a class="reference internal" href="#ffsim.qiskit.UCJOpSpinBalancedJW" title="ffsim.qiskit.UCJOpSpinBalancedJW"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.qiskit.UCJOpSpinBalancedJW</span></code></a> instead.</p>
+</div>
 <p>See <a class="reference internal" href="ffsim.html#ffsim.UCJOperator" title="ffsim.UCJOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.UCJOperator</span></code></a> for a description of this gate’s unitary.</p>
 <p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
 correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
@@ -974,11 +978,11 @@ overridden to extend subclasses.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.ffsim_vec_to_qiskit_vec">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">ffsim_vec_to_qiskit_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/util.html#ffsim_vec_to_qiskit_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec" title="Link to this definition">¶</a></dt>
-<dd><p>Convert an ffsim statevector to a Qiskit statevector.</p>
+<dd><p>Convert an ffsim state vector to a Qiskit state vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A statevector in ffsim/PySCF format. It should be a one-dimensional vector
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in ffsim/PySCF format. It should be a one-dimensional vector
 of length <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">n_alpha)</span> <span class="pre">*</span> <span class="pre">comb(norb,</span> <span class="pre">n_beta)</span></code>.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
@@ -988,6 +992,24 @@ and spin beta fermions.</p></li>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.qiskit.final_state_vector">
+<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">final_state_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/sim.html#final_state_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.final_state_vector" title="Link to this definition">¶</a></dt>
+<dd><p>Return the final state vector of a fermionic quantum circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>circuit</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></span>) – The circuit composed of fermionic gates.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.StateVector" title="ffsim.states.states.StateVector"><code class="xref py py-class docutils literal notranslate"><span class="pre">StateVector</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The final state vector that results from applying the circuit to the vacuum
+state.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1010,11 +1032,11 @@ and orbital rotation gates.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.qiskit_vec_to_ffsim_vec">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">qiskit_vec_to_ffsim_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/util.html#qiskit_vec_to_ffsim_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec" title="Link to this definition">¶</a></dt>
-<dd><p>Convert a Qiskit statevector to an ffsim statevector.</p>
+<dd><p>Convert a Qiskit state vector to an ffsim state vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A statevector in Qiskit format. It should be a one-dimensional vector
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in Qiskit format. It should be a one-dimensional vector
 of length <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">norb)</span></code>.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
@@ -1187,6 +1209,7 @@ and spin beta fermions.</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec"><code class="docutils literal notranslate"><span class="pre">ffsim_vec_to_qiskit_vec()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.final_state_vector"><code class="docutils literal notranslate"><span class="pre">final_state_vector()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.pre_init_passes"><code class="docutils literal notranslate"><span class="pre">pre_init_passes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec"><code class="docutils literal notranslate"><span class="pre">qiskit_vec_to_ffsim_vec()</span></code></a></li>
 </ul>
@@ -1200,7 +1223,7 @@ and spin beta fermions.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=aa2ad26f"></script>
+</div><script src="../_static/documentation_options.js?v=423071ad"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>

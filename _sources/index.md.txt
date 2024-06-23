@@ -12,6 +12,13 @@
 :end-before: <!-- end installation -->
 ```
 
+## Code example
+
+```{include} ../README.md
+:start-after: <!-- start code-example -->
+:end-before: <!-- end code-example -->
+```
+
 ## Citing ffsim
 
 ```{include} ../README.md
