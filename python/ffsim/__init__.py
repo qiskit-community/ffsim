@@ -63,6 +63,7 @@ from ffsim.spin import Spin
 from ffsim.states import (
     ProductStateSum,
     StateVector,
+    addresses_to_strings,
     dim,
     dims,
     expectation_one_body_power,
@@ -76,6 +77,7 @@ from ffsim.states import (
     slater_determinant_rdm,
     slater_determinant_rdms,
     spin_square,
+    strings_to_addresses,
     strings_to_indices,
 )
 from ffsim.trotter import (
@@ -122,6 +124,7 @@ __all__ = [
     "UCJOpSpinBalanced",
     "UCJOpSpinUnbalanced",
     "UCJOpSpinless",
+    "addresses_to_strings",
     "apply_diag_coulomb_evolution",
     "apply_fsim_gate",
     "apply_givens_rotation",
@@ -170,6 +173,7 @@ __all__ = [
     "slater_determinant_rdm",
     "slater_determinant_rdms",
     "spin_square",
+    "strings_to_addresses",
     "strings_to_indices",
     "testing",
     "trace",
