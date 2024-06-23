@@ -37,7 +37,7 @@ import ffsim
 def test_rdm1s(norb: int, nelec: tuple[int, int], spin_summed: bool):
     """Test computing spin-summed 1-RDM."""
     rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
     rdm1_func = _rdm1_spin_summed if spin_summed else _rdm1s
     rdm = ffsim.rdms(vec, norb, nelec, spin_summed=spin_summed)
     expected = rdm1_func(vec, norb, nelec)
@@ -68,7 +68,7 @@ def test_rdm1s(norb: int, nelec: tuple[int, int], spin_summed: bool):
 def test_rdm2s(norb: int, nelec: tuple[int, int], spin_summed: bool, reorder: bool):
     """Test computing 1- and 2-RDMs."""
     rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     rdm1, rdm2 = ffsim.rdms(
         vec,
@@ -232,7 +232,7 @@ def test_rdm_1(norb: int, nelec: tuple[int, int], spin_summed: bool):
         True: _rdm1_spin_summed,
     }
     rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     rdm = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
     expected = func[spin_summed](vec, norb, nelec)
@@ -271,7 +271,7 @@ def test_rdm_2(norb: int, nelec: tuple[int, int], spin_summed: bool, reordered: 
         (True, True): (_rdm1_spin_summed, _rdm2_spin_summed_reordered),
     }
     rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     rdm1, rdm2 = ffsim.rdm(
         vec,
@@ -307,7 +307,7 @@ def test_no_lower_ranks(
         (True, True, 2): _rdm2_spin_summed_reordered,
     }
     rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     rdm = ffsim.rdm(
         vec,

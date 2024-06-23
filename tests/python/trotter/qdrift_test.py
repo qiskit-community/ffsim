@@ -136,7 +136,7 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
             diag_coulomb_mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
         )
 
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
         np.testing.assert_allclose(actual @ vec, expected @ vec)
 
 

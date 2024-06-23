@@ -31,7 +31,7 @@ def test_random_ucj_op_spin_unbalanced(norb: int, nelec: tuple[int, int]):
         )
         gate = ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -58,7 +58,7 @@ def test_random_ucj_op_spin_balanced(norb: int, nelec: tuple[int, int]):
         )
         gate = ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -85,7 +85,7 @@ def test_random_ucj_op_spinless(norb: int, nelec: int):
         )
         gate = ffsim.qiskit.UCJOpSpinlessJW(ucj_op)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )

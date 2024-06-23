@@ -195,7 +195,7 @@ def test_apply_givens_rotation_definition():
     rng = np.random.default_rng()
     theta = rng.uniform(-10, 10)
     phi = rng.uniform(-10, 10)
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     # apply complex givens rotation
     result = ffsim.apply_givens_rotation(
@@ -293,7 +293,7 @@ def test_apply_num_interaction_spinful(
     """Test applying number interaction."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for target_orb in range(norb):
         result = ffsim.apply_num_interaction(
@@ -310,7 +310,7 @@ def test_apply_num_interaction_spinless(norb: int, nelec: int):
     """Test applying number interaction, spinless."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for target_orb in range(norb):
         result = ffsim.apply_num_interaction(
@@ -331,7 +331,7 @@ def test_apply_num_num_interaction_spinful(
     """Test applying number-number interaction."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for i, j in itertools.combinations(range(norb), 2):
         for m, n in [(i, j), (j, i)]:
@@ -358,7 +358,7 @@ def test_apply_num_num_interaction_spinless(norb: int, nelec: int):
     """Test applying number-number interaction, spinless."""
     rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for i, j in itertools.combinations(range(norb), 2):
         for m, n in [(i, j), (j, i)]:
@@ -405,7 +405,7 @@ def test_apply_on_site_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying on-site number-number interaction."""
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
-    vec = np.array(ffsim.random.random_statevector(dim, seed=rng))
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
     theta = rng.uniform(-10, 10)
     for i in range(norb):
         result = ffsim.apply_on_site_interaction(vec, theta, i, norb=norb, nelec=nelec)

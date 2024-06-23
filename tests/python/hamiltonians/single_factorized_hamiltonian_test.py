@@ -45,7 +45,7 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     expected_linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     dim = ffsim.dim(norb, nelec)
-    state = ffsim.random.random_statevector(dim, seed=rng)
+    state = ffsim.random.random_state_vector(dim, seed=rng)
 
     actual = actual_linop @ state
     expected = expected_linop @ state
@@ -147,8 +147,8 @@ def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     linop = ffsim.linear_operator(sf_hamiltonian, norb, nelec)
 
     dim_a, dim_b = ffsim.dims(norb, nelec)
-    vec_a = ffsim.random.random_statevector(dim_a, seed=rng)
-    vec_b = ffsim.random.random_statevector(dim_b, seed=rng)
+    vec_a = ffsim.random.random_state_vector(dim_a, seed=rng)
+    vec_b = ffsim.random.random_state_vector(dim_b, seed=rng)
     vec = np.kron(vec_a, vec_b)
 
     actual = sf_hamiltonian.expectation_product_state((vec_a, vec_b), norb, nelec)

@@ -76,7 +76,7 @@ def test_apply_quadratic_hamiltonian_evolution(norb: int, nelec: tuple[int, int]
     eigs, vecs = scipy.linalg.eigh(mat)
     time = rng.standard_normal()
     dim = ffsim.dim(norb, nelec)
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
     result = ffsim.apply_num_op_sum_evolution(
         vec, eigs, time, norb, nelec, orbital_rotation=vecs
     )
