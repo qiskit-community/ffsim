@@ -373,7 +373,7 @@ def slater_determinant_rdms(
 def indices_to_strings(
     indices: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> list[str]:
-    """Convert statevector indices to bitstrings.
+    """Convert state vector indices to bitstrings.
 
     Example:
 
@@ -414,7 +414,7 @@ def indices_to_strings(
 def strings_to_indices(
     strings: Sequence[str] | np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
-    """Convert bitstrings to statevector indices.
+    """Convert bitstrings to state vector indices.
 
     Example:
 
@@ -451,6 +451,92 @@ def strings_to_indices(
     n_alpha, n_beta = nelec
     strings_a = [int(s[norb:], base=2) for s in strings]
     strings_b = [int(s[:norb], base=2) for s in strings]
+    addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
+    addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
+    dim_b = math.comb(norb, n_beta)
+    return addrs_a * dim_b + addrs_b
+
+
+def addresses_to_strings(
+    addresses: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
+) -> np.ndarray:
+    """Convert state vector addresses to bitstrings.
+
+    Example:
+
+    .. code::
+
+        import ffsim
+
+        norb = 3
+        nelec = (2, 1)
+        dim = ffsim.dim(norb, nelec)
+        strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
+        [format(s, f"06b") for s in strings]
+        # output:
+        # ['001011',
+        #  '010011',
+        #  '100011',
+        #  '001101',
+        #  '010101',
+        #  '100101',
+        #  '001110',
+        #  '010110',
+        #  '100110']
+    """
+    if isinstance(nelec, int):
+        return cistring.addrs2str(norb=norb, nelec=nelec, addrs=addresses)
+    if norb >= 32:
+        raise NotImplementedError(
+            "addresses_to_strings currently does not support norb >= 32."
+        )
+    n_alpha, n_beta = nelec
+    dim_b = math.comb(norb, n_beta)
+    addresses_a, addresses_b = np.divmod(addresses, dim_b)
+    strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=addresses_a)
+    strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=addresses_b)
+    return (strings_b << norb) + strings_a
+
+
+def strings_to_addresses(
+    strings: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
+) -> np.ndarray:
+    """Convert bitstrings to state vector addresses.
+
+    Example:
+
+    .. code::
+
+        import ffsim
+
+        norb = 3
+        nelec = (2, 1)
+        dim = ffsim.dim(norb, nelec)
+        ffsim.strings_to_addresses(
+            [
+                0b001011,
+                0b010011,
+                0b100011,
+                0b001101,
+                0b010101,
+                0b100101,
+                0b001110,
+                0b010110,
+                0b100110,
+            ],
+            norb,
+            nelec,
+        )
+        # output:
+        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
+    """
+    if isinstance(nelec, int):
+        return cistring.strs2addr(norb=norb, nelec=nelec, strings=strings)
+
+    n_alpha, n_beta = nelec
+    strings = np.asarray(strings)
+    strings_a = strings & ((1 << norb) - 1)
+    strings_b = strings >> norb
     addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
     addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
     dim_b = math.comb(norb, n_beta)
