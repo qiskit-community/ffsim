@@ -682,7 +682,7 @@
 <span class="k">def</span> <span class="nf">indices_to_strings</span><span class="p">(</span>
     <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert statevector indices to bitstrings.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert state vector indices to bitstrings.</span>
 
 <span class="sd">    Example:</span>
 
@@ -726,7 +726,7 @@
 <span class="k">def</span> <span class="nf">strings_to_indices</span><span class="p">(</span>
     <span class="n">strings</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bitstrings to statevector indices.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bitstrings to state vector indices.</span>
 
 <span class="sd">    Example:</span>
 
@@ -763,6 +763,98 @@
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">strings_a</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">norb</span><span class="p">:],</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
     <span class="n">strings_b</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="n">norb</span><span class="p">],</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
+    <span class="n">addrs_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_a</span><span class="p">)</span>
+    <span class="n">addrs_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_b</span><span class="p">)</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">addrs_a</span> <span class="o">*</span> <span class="n">dim_b</span> <span class="o">+</span> <span class="n">addrs_b</span></div>
+
+
+
+<div class="viewcode-block" id="addresses_to_strings">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.addresses_to_strings">[docs]</a>
+<span class="k">def</span> <span class="nf">addresses_to_strings</span><span class="p">(</span>
+    <span class="n">addresses</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert state vector addresses to bitstrings.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">        import ffsim</span>
+
+<span class="sd">        norb = 3</span>
+<span class="sd">        nelec = (2, 1)</span>
+<span class="sd">        dim = ffsim.dim(norb, nelec)</span>
+<span class="sd">        strings = ffsim.addresses_to_strings(range(dim), norb, nelec)</span>
+<span class="sd">        [format(s, f&quot;06b&quot;) for s in strings]</span>
+<span class="sd">        # output:</span>
+<span class="sd">        # [&#39;001011&#39;,</span>
+<span class="sd">        #  &#39;010011&#39;,</span>
+<span class="sd">        #  &#39;100011&#39;,</span>
+<span class="sd">        #  &#39;001101&#39;,</span>
+<span class="sd">        #  &#39;010101&#39;,</span>
+<span class="sd">        #  &#39;100101&#39;,</span>
+<span class="sd">        #  &#39;001110&#39;,</span>
+<span class="sd">        #  &#39;010110&#39;,</span>
+<span class="sd">        #  &#39;100110&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">addresses</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">norb</span> <span class="o">&gt;=</span> <span class="mi">32</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;addresses_to_strings currently does not support norb &gt;= 32.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+    <span class="n">addresses_a</span><span class="p">,</span> <span class="n">addresses_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">addresses</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span>
+    <span class="n">strings_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">addresses_a</span><span class="p">)</span>
+    <span class="n">strings_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">addresses_b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">strings_b</span> <span class="o">&lt;&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">+</span> <span class="n">strings_a</span></div>
+
+
+
+<div class="viewcode-block" id="strings_to_addresses">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.strings_to_addresses">[docs]</a>
+<span class="k">def</span> <span class="nf">strings_to_addresses</span><span class="p">(</span>
+    <span class="n">strings</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bitstrings to state vector addresses.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">        import ffsim</span>
+
+<span class="sd">        norb = 3</span>
+<span class="sd">        nelec = (2, 1)</span>
+<span class="sd">        dim = ffsim.dim(norb, nelec)</span>
+<span class="sd">        ffsim.strings_to_addresses(</span>
+<span class="sd">            [</span>
+<span class="sd">                0b001011,</span>
+<span class="sd">                0b010011,</span>
+<span class="sd">                0b100011,</span>
+<span class="sd">                0b001101,</span>
+<span class="sd">                0b010101,</span>
+<span class="sd">                0b100101,</span>
+<span class="sd">                0b001110,</span>
+<span class="sd">                0b010110,</span>
+<span class="sd">                0b100110,</span>
+<span class="sd">            ],</span>
+<span class="sd">            norb,</span>
+<span class="sd">            nelec,</span>
+<span class="sd">        )</span>
+<span class="sd">        # output:</span>
+<span class="sd">        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings</span><span class="p">)</span>
+
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="n">strings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">strings</span><span class="p">)</span>
+    <span class="n">strings_a</span> <span class="o">=</span> <span class="n">strings</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">strings_b</span> <span class="o">=</span> <span class="n">strings</span> <span class="o">&gt;&gt;</span> <span class="n">norb</span>
     <span class="n">addrs_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_a</span><span class="p">)</span>
     <span class="n">addrs_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_b</span><span class="p">)</span>
     <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>

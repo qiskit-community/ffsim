@@ -2861,6 +2861,37 @@ lower triangular indices will raise an error.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.addresses_to_strings">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">addresses_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#addresses_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.addresses_to_strings" title="Link to this definition">¶</a></dt>
+<dd><p>Convert state vector addresses to bitstrings.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
+
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">dim</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="n">strings</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">addresses_to_strings</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="p">[</span><span class="nb">format</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;06b&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
+<span class="c1"># output:</span>
+<span class="c1"># [&#39;001011&#39;,</span>
+<span class="c1">#  &#39;010011&#39;,</span>
+<span class="c1">#  &#39;100011&#39;,</span>
+<span class="c1">#  &#39;001101&#39;,</span>
+<span class="c1">#  &#39;010101&#39;,</span>
+<span class="c1">#  &#39;100101&#39;,</span>
+<span class="c1">#  &#39;001110&#39;,</span>
+<span class="c1">#  &#39;010110&#39;,</span>
+<span class="c1">#  &#39;100110&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_diag_coulomb_evolution">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_diag_coulomb_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/diag_coulomb.html#apply_diag_coulomb_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_diag_coulomb_evolution" title="Link to this definition">¶</a></dt>
 <dd><p>Apply time evolution by a (rotated) diagonal Coulomb operator.</p>
@@ -3875,7 +3906,7 @@ and spin beta fermions.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.indices_to_strings">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">indices_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#indices_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.indices_to_strings" title="Link to this definition">¶</a></dt>
-<dd><p>Convert statevector indices to bitstrings.</p>
+<dd><p>Convert state vector indices to bitstrings.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
 
@@ -4357,9 +4388,45 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.strings_to_addresses">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#strings_to_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_addresses" title="Link to this definition">¶</a></dt>
+<dd><p>Convert bitstrings to state vector addresses.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
+
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">dim</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="n">ffsim</span><span class="o">.</span><span class="n">strings_to_addresses</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="mb">0b001011</span><span class="p">,</span>
+        <span class="mb">0b010011</span><span class="p">,</span>
+        <span class="mb">0b100011</span><span class="p">,</span>
+        <span class="mb">0b001101</span><span class="p">,</span>
+        <span class="mb">0b010101</span><span class="p">,</span>
+        <span class="mb">0b100101</span><span class="p">,</span>
+        <span class="mb">0b001110</span><span class="p">,</span>
+        <span class="mb">0b010110</span><span class="p">,</span>
+        <span class="mb">0b100110</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">norb</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># output:</span>
+<span class="c1"># array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.strings_to_indices">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#strings_to_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_indices" title="Link to this definition">¶</a></dt>
-<dd><p>Convert bitstrings to statevector indices.</p>
+<dd><p>Convert bitstrings to state vector indices.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
 
@@ -4682,6 +4749,7 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 <li><a class="reference internal" href="#ffsim.UCJOperator.to_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJOperator.to_t_amplitudes()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#ffsim.addresses_to_strings"><code class="docutils literal notranslate"><span class="pre">addresses_to_strings()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_diag_coulomb_evolution"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_fsim_gate"><code class="docutils literal notranslate"><span class="pre">apply_fsim_gate()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_givens_rotation"><code class="docutils literal notranslate"><span class="pre">apply_givens_rotation()</span></code></a></li>
@@ -4725,6 +4793,7 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 <li><a class="reference internal" href="#ffsim.slater_determinant_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdm()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_rdms"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdms()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.spin_square"><code class="docutils literal notranslate"><span class="pre">spin_square()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.strings_to_addresses"><code class="docutils literal notranslate"><span class="pre">strings_to_addresses()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.strings_to_indices"><code class="docutils literal notranslate"><span class="pre">strings_to_indices()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
 </ul>
