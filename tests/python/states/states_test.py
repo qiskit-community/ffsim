@@ -371,7 +371,7 @@ def test_sample_state_vector():
     index = ffsim.strings_to_indices(["1000101101"], norb=norb, nelec=nelec)[0]
     vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
     samples = ffsim.sample_state_vector(
-        vec, indices=[0, 1, 2, 5, 6, 9], shots=10, norb=norb, nelec=nelec
+        vec, orbs=[0, 1, 2, 5, 6, 9], shots=10, norb=norb, nelec=nelec
     )
     assert samples == ["101101"] * 10
 
