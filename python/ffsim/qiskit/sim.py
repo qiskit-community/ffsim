@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from typing import Tuple, cast
 
-import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import Barrier, Measure
 
@@ -271,35 +270,3 @@ def _evolve_statevector_spinful(
         )
 
     raise ValueError(f"Unsupported gate for spinful circuit: {op}.")
-
-
-def sample_statevector(
-    statevector: states.StateVector,
-    *,
-    indices: list[int],
-    shots: int,
-    seed: np.random.Generator | int | None = None,
-) -> list[str]:
-    """Sample bitstrings from a state vector.
-
-    Args:
-        statevector: The state vector to sample from.
-        indices: The indices of the orbitals to sample from. The indices range from
-            ``0`` to ``2 * norb - 1``, with the first half of the range indexing the
-            spin alpha orbitals, and the second half indexing the spin beta orbitals.
-        shots: The number of bitstrings to sample.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-
-    Returns:
-        The sampled bitstrings, as a list of strings of length `shots`.
-    """
-    rng = np.random.default_rng(seed)
-    probabilities = np.abs(statevector.vec) ** 2
-    samples = rng.choice(len(statevector.vec), size=shots, p=probabilities)
-    bitstrings = states.indices_to_strings(samples, statevector.norb, statevector.nelec)
-    if indices == list(range(2 * statevector.norb)):
-        return bitstrings
-    return [
-        "".join(bitstring[-1 - i] for i in indices[::-1]) for bitstring in bitstrings
-    ]
