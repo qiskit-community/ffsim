@@ -306,10 +306,10 @@
 <span class="k">def</span> <span class="nf">qiskit_vec_to_ffsim_vec</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a Qiskit statevector to an ffsim statevector.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a Qiskit state vector to an ffsim state vector.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        vec: A statevector in Qiskit format. It should be a one-dimensional vector</span>
+<span class="sd">        vec: A state vector in Qiskit format. It should be a one-dimensional vector</span>
 <span class="sd">            of length ``2 ** (2 * norb)``.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
@@ -326,10 +326,10 @@
 <span class="k">def</span> <span class="nf">ffsim_vec_to_qiskit_vec</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an ffsim statevector to a Qiskit statevector.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an ffsim state vector to a Qiskit state vector.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        vec: A statevector in ffsim/PySCF format. It should be a one-dimensional vector</span>
+<span class="sd">        vec: A state vector in ffsim/PySCF format. It should be a one-dimensional vector</span>
 <span class="sd">            of length ``comb(norb, n_alpha) * comb(norb, n_beta)``.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>

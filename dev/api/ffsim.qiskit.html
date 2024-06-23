@@ -974,11 +974,11 @@ overridden to extend subclasses.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.ffsim_vec_to_qiskit_vec">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">ffsim_vec_to_qiskit_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/util.html#ffsim_vec_to_qiskit_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec" title="Link to this definition">¶</a></dt>
-<dd><p>Convert an ffsim statevector to a Qiskit statevector.</p>
+<dd><p>Convert an ffsim state vector to a Qiskit state vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A statevector in ffsim/PySCF format. It should be a one-dimensional vector
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in ffsim/PySCF format. It should be a one-dimensional vector
 of length <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">n_alpha)</span> <span class="pre">*</span> <span class="pre">comb(norb,</span> <span class="pre">n_beta)</span></code>.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
@@ -1010,11 +1010,11 @@ and orbital rotation gates.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.qiskit_vec_to_ffsim_vec">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">qiskit_vec_to_ffsim_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/util.html#qiskit_vec_to_ffsim_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec" title="Link to this definition">¶</a></dt>
-<dd><p>Convert a Qiskit statevector to an ffsim statevector.</p>
+<dd><p>Convert a Qiskit state vector to an ffsim state vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A statevector in Qiskit format. It should be a one-dimensional vector
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in Qiskit format. It should be a one-dimensional vector
 of length <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">norb)</span></code>.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a

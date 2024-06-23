@@ -345,9 +345,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A Numpy array representing the final state of the simulation. The shape of the</span>
 <span class="sd">        array depends on the ``n_samples`` argument. If ``n_samples=1`` then it is</span>
-<span class="sd">        just a statevector, a one-dimensional array. Otherwise, it is a two-dimensional</span>
+<span class="sd">        just a state vector, a one-dimensional array. Otherwise, it is a two-dimensional</span>
 <span class="sd">        array of shape ``(n_samples, dim)`` where ``dim`` is the dimension of the</span>
-<span class="sd">        statevector.</span>
+<span class="sd">        state vector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">n_steps</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_steps must be non-negative, got </span><span class="si">{</span><span class="n">n_steps</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>

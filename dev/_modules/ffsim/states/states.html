@@ -442,7 +442,7 @@
 <span class="sd">            that spin sector.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The Slater determinant as a statevector.</span>
+<span class="sd">        The Slater determinant as a state vector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">norb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
@@ -488,7 +488,7 @@
 <span class="sd">            and spin beta fermions.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The Hartree-Fock state as a statevector.</span>
+<span class="sd">        The Hartree-Fock state as a state vector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">nelec</span><span class="p">))</span>
