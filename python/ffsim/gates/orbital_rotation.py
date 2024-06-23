@@ -103,7 +103,7 @@ def _apply_orbital_rotation_spinless(
     vec: np.ndarray, mat: np.ndarray, norb: int, nelec: int
 ):
     givens_rotations, phase_shifts = givens_decomposition(mat)
-    vec = vec.reshape((-1, 1))
+    vec = np.ascontiguousarray(vec.reshape((-1, 1)))
     for c, s, i, j in givens_rotations:
         _apply_orbital_rotation_adjacent_spin_in_place(
             vec, c, s.conjugate(), (i, j), norb, nelec
@@ -124,7 +124,7 @@ def _apply_orbital_rotation_spinful(
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
-    vec = vec.reshape((dim_a, dim_b))
+    vec = np.ascontiguousarray(vec.reshape((dim_a, dim_b)))
 
     if givens_decomp_a is not None:
         # transform alpha
@@ -140,7 +140,7 @@ def _apply_orbital_rotation_spinful(
     if givens_decomp_b is not None:
         # transform beta
         # copy transposed vector to align memory layout
-        vec = vec.T.copy()
+        vec = np.ascontiguousarray(vec.T)
         givens_rotations, phase_shifts = givens_decomp_b
         for c, s, i, j in givens_rotations:
             _apply_orbital_rotation_adjacent_spin_in_place(
@@ -149,7 +149,7 @@ def _apply_orbital_rotation_spinful(
         for i, phase_shift in enumerate(phase_shifts):
             indices = _one_subspace_indices(norb, n_beta, (i,))
             apply_phase_shift_in_place(vec, phase_shift, indices)
-        vec = vec.T.copy()
+        vec = vec.T
 
     return vec.reshape(-1)
 
