@@ -41,6 +41,9 @@ def rdm(
 ) -> np.ndarray | tuple[np.ndarray, ...]:
     """Return the reduced density matrix (RDM) or matrices of a state vector.
 
+    .. warning::
+        This function is deprecated. Use :func:`ffsim.rdms` instead.
+
     The rank 1 RDM is defined as follows:
 
     .. code::

@@ -85,6 +85,9 @@ def dim(norb: int, nelec: int | tuple[int, int]) -> int:
 def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
     """Return an array of all zeros except for a one at a specified index.
 
+    .. warning::
+        This function is deprecated. Use :func:`ffsim.linalg.one_hot` instead.
+
     Args:
         shape: The desired shape of the array.
         index: The index at which to place a one.
@@ -211,6 +214,9 @@ def slater_determinant_rdm(
     spin_summed: bool = True,
 ) -> np.ndarray:
     """Return the reduced density matrix of a `Slater determinant`_.
+
+    .. warning::
+        This function is deprecated. Use :func:`ffsim.slater_determinant_rdms` instead.
 
     Note:
         Currently, only rank 1 is supported.
