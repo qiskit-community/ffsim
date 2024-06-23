@@ -36,7 +36,7 @@ def test_random_num_num_ansatz(norb: int, nelec: tuple[int, int]):
         )
         gate = ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW(num_num_ansatz_op)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )

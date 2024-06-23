@@ -42,7 +42,7 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
         mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
         out_slow = np.zeros_like(vec)
@@ -84,7 +84,7 @@ def test_contract_diag_coulomb_into_buffer_z_rep_slow():
         mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
         out_slow = np.zeros_like(vec)

@@ -256,7 +256,7 @@ def test_diag_coulomb_to_linop():
 
     mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     linop = ffsim.contract.diag_coulomb_linop(
         mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation

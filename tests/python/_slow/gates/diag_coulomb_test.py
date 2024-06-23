@@ -45,7 +45,7 @@ def test_apply_diag_coulomb_evolution_num_rep_slow(norb: int, nelec: tuple[int, 
         mat_exp_aa = np.exp(-1j * time * mat_aa)
         mat_exp_ab = np.exp(-1j * time * mat_ab)
         mat_exp_bb = np.exp(-1j * time * mat_bb)
-        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
@@ -87,7 +87,7 @@ def test_apply_diag_coulomb_evolution_z_rep_slow(norb: int, nelec: tuple[int, in
         mat_exp_aa = np.exp(-1j * time * mat_aa)
         mat_exp_ab = np.exp(-1j * time * mat_ab)
         mat_exp_bb = np.exp(-1j * time * mat_bb)
-        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
@@ -135,7 +135,7 @@ def test_apply_diag_coulomb_evolution_num_rep_numpy(norb: int, nelec: tuple[int,
         mat_exp_aa = np.exp(-1j * time * mat_aa)
         mat_exp_ab = np.exp(-1j * time * mat_ab)
         mat_exp_bb = np.exp(-1j * time * mat_bb)
-        vec_slow = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()

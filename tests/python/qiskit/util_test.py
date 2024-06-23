@@ -22,7 +22,7 @@ def test_ffsim_to_qiskit_roundtrip():
     big_dim = 2 ** (2 * norb)
     small_dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng(9940)
-    ffsim_vec = ffsim.random.random_statevector(small_dim, seed=rng)
+    ffsim_vec = ffsim.random.random_state_vector(small_dim, seed=rng)
     qiskit_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(ffsim_vec, norb=norb, nelec=nelec)
     assert qiskit_vec.shape == (big_dim,)
     ffsim_vec_again = ffsim.qiskit.qiskit_vec_to_ffsim_vec(

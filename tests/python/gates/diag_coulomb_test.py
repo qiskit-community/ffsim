@@ -30,7 +30,7 @@ def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
     for _ in range(3):
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
         time = rng.uniform()
 
         result = ffsim.apply_diag_coulomb_evolution(
@@ -80,7 +80,7 @@ def test_apply_diag_coulomb_evolution_random_symmetric_spin(
     for _ in range(3):
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
         time = rng.uniform()
 
         result = ffsim.apply_diag_coulomb_evolution(
@@ -134,7 +134,7 @@ def test_apply_diag_coulomb_evolution_conserves_spin_squared(
     for _ in range(3):
         mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
         time = rng.uniform()
 
         spin_squared_init = ffsim.spin_square(vec, norb=norb, nelec=nelec)
