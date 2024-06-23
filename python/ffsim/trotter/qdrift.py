@@ -60,9 +60,9 @@ def simulate_qdrift_double_factorized(
     Returns:
         A Numpy array representing the final state of the simulation. The shape of the
         array depends on the ``n_samples`` argument. If ``n_samples=1`` then it is
-        just a statevector, a one-dimensional array. Otherwise, it is a two-dimensional
+        just a state vector, a one-dimensional array. Otherwise, it is a two-dimensional
         array of shape ``(n_samples, dim)`` where ``dim`` is the dimension of the
-        statevector.
+        state vector.
     """
     if n_steps < 0:
         raise ValueError(f"n_steps must be non-negative, got {n_steps}.")

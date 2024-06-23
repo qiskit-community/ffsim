@@ -21,10 +21,10 @@ from ffsim.cistring import make_strings
 def qiskit_vec_to_ffsim_vec(
     vec: np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
-    """Convert a Qiskit statevector to an ffsim statevector.
+    """Convert a Qiskit state vector to an ffsim state vector.
 
     Args:
-        vec: A statevector in Qiskit format. It should be a one-dimensional vector
+        vec: A state vector in Qiskit format. It should be a one-dimensional vector
             of length ``2 ** (2 * norb)``.
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
@@ -38,10 +38,10 @@ def qiskit_vec_to_ffsim_vec(
 def ffsim_vec_to_qiskit_vec(
     vec: np.ndarray, norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
-    """Convert an ffsim statevector to a Qiskit statevector.
+    """Convert an ffsim state vector to a Qiskit state vector.
 
     Args:
-        vec: A statevector in ffsim/PySCF format. It should be a one-dimensional vector
+        vec: A state vector in ffsim/PySCF format. It should be a one-dimensional vector
             of length ``comb(norb, n_alpha) * comb(norb, n_beta)``.
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
