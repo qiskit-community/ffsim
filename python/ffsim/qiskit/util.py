@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from functools import lru_cache
+from functools import cache
 
 import numpy as np
 
@@ -54,7 +54,7 @@ def ffsim_vec_to_qiskit_vec(
     return qiskit_vec
 
 
-@lru_cache(maxsize=None)
+@cache
 def _ffsim_indices(norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
     if isinstance(nelec, int):
         return make_strings(range(norb), nelec)

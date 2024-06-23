@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import math
-from functools import lru_cache
+from functools import cache
 from typing import cast, overload
 
 import numpy as np
@@ -199,7 +199,7 @@ def _apply_orbital_rotation_adjacent_spin_in_place(
     apply_givens_rotation_in_place(vec, c, s, slice1, slice2)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _zero_one_subspace_indices(
     norb: int, nocc: int, target_orbs: tuple[int, int]
 ) -> np.ndarray:
@@ -212,7 +212,7 @@ def _zero_one_subspace_indices(
     return indices[n00 : len(indices) - n11].astype(np.uint, copy=False)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _one_subspace_indices(
     norb: int, nocc: int, target_orbs: tuple[int, ...]
 ) -> np.ndarray:
@@ -226,7 +226,7 @@ def _one_subspace_indices(
     return indices[n0:].astype(np.uint, copy=False)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _shifted_orbitals(norb: int, target_orbs: tuple[int, ...]) -> np.ndarray:
     """Return orbital list with targeted orbitals shifted to the end."""
     orbitals = np.arange(norb - len(target_orbs))
