@@ -36,7 +36,7 @@ from ffsim.qiskit.gates import (
 )
 
 
-def final_statevector(circuit: QuantumCircuit) -> states.StateVector:
+def final_state_vector(circuit: QuantumCircuit) -> states.StateVector:
     """Return the final state vector of a fermionic quantum circuit.
 
     Args:
@@ -48,19 +48,18 @@ def final_statevector(circuit: QuantumCircuit) -> states.StateVector:
     """
     if not circuit.data:
         raise ValueError("Circuit must contain at least one instruction.")
-    statevector = _prepare_statevector(circuit.data[0], circuit)
-    if isinstance(statevector.nelec, int):
-        for instruction in circuit.data[1:]:
-            statevector = _evolve_statevector_spinless(
-                statevector, instruction, circuit
-            )
-    else:
-        for instruction in circuit.data[1:]:
-            statevector = _evolve_statevector_spinful(statevector, instruction, circuit)
-    return statevector
+    state_vector = _prepare_state_vector(circuit.data[0], circuit)
+    evolve_func = (
+        _evolve_state_vector_spinless
+        if isinstance(state_vector.nelec, int)
+        else _evolve_state_vector_spinful
+    )
+    for instruction in circuit.data[1:]:
+        state_vector = evolve_func(state_vector, instruction, circuit)
+    return state_vector
 
 
-def _prepare_statevector(
+def _prepare_state_vector(
     instruction: CircuitInstruction, circuit: QuantumCircuit
 ) -> states.StateVector:
     op = instruction.operation
@@ -116,7 +115,7 @@ def _prepare_statevector(
     )
 
 
-def _evolve_statevector_spinless(
+def _evolve_state_vector_spinless(
     state_vector: states.StateVector,
     instruction: CircuitInstruction,
     circuit: QuantumCircuit,
@@ -180,7 +179,7 @@ def _evolve_statevector_spinless(
     raise ValueError(f"Unsupported gate for spinless circuit: {op}.")
 
 
-def _evolve_statevector_spinful(
+def _evolve_state_vector_spinful(
     state_vector: states.StateVector,
     instruction: CircuitInstruction,
     circuit: QuantumCircuit,
