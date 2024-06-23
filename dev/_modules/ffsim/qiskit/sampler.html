@@ -313,7 +313,7 @@
 <span class="kn">from</span> <span class="nn">qiskit.primitives.containers.sampler_pub</span> <span class="kn">import</span> <span class="n">SamplerPub</span>
 
 <span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">states</span>
-<span class="kn">from</span> <span class="nn">ffsim.qiskit.sim</span> <span class="kn">import</span> <span class="n">final_statevector</span>
+<span class="kn">from</span> <span class="nn">ffsim.qiskit.sim</span> <span class="kn">import</span> <span class="n">final_state_vector</span>
 
 
 <div class="viewcode-block" id="FfsimSampler">
@@ -367,7 +367,7 @@
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">meas_info</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">bound_circuit</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">bound_circuits</span><span class="p">):</span>
-            <span class="n">final_state</span> <span class="o">=</span> <span class="n">final_statevector</span><span class="p">(</span><span class="n">bound_circuit</span><span class="p">)</span>
+            <span class="n">final_state</span> <span class="o">=</span> <span class="n">final_state_vector</span><span class="p">(</span><span class="n">bound_circuit</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">qargs</span><span class="p">:</span>
                 <span class="n">samples</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">sample_state_vector</span><span class="p">(</span>
                     <span class="n">final_state</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">qargs</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">pub</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span>

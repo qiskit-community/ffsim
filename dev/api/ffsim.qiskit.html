@@ -993,6 +993,24 @@ and spin beta fermions.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.qiskit.final_state_vector">
+<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">final_state_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/sim.html#final_state_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.final_state_vector" title="Link to this definition">¶</a></dt>
+<dd><p>Return the final state vector of a fermionic quantum circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>circuit</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></span>) – The circuit composed of fermionic gates.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.StateVector" title="ffsim.states.states.StateVector"><code class="xref py py-class docutils literal notranslate"><span class="pre">StateVector</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The final state vector that results from applying the circuit to the vacuum
+state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.pre_init_passes">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">pre_init_passes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/transpiler_stages.html#pre_init_passes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.pre_init_passes" title="Link to this definition">¶</a></dt>
 <dd><p>Yield transpiler passes recommended for the Qiskit transpiler <code class="docutils literal notranslate"><span class="pre">pre_init</span></code> stage.</p>
@@ -1187,6 +1205,7 @@ and spin beta fermions.</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec"><code class="docutils literal notranslate"><span class="pre">ffsim_vec_to_qiskit_vec()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.final_state_vector"><code class="docutils literal notranslate"><span class="pre">final_state_vector()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.pre_init_passes"><code class="docutils literal notranslate"><span class="pre">pre_init_passes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec"><code class="docutils literal notranslate"><span class="pre">qiskit_vec_to_ffsim_vec()</span></code></a></li>
 </ul>
