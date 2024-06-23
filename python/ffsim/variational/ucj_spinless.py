@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import List, Tuple, cast
+from typing import cast
 
 import numpy as np
 import scipy.linalg
@@ -184,7 +184,7 @@ class UCJOpSpinless:
                 f"Expected {n_params} but got {len(params)}."
             )
         triu_indices = cast(
-            List[Tuple[int, int]],
+            list[tuple[int, int]],
             list(itertools.combinations_with_replacement(range(norb), 2)),
         )
         if interaction_pairs is None:
@@ -258,7 +258,7 @@ class UCJOpSpinless:
         )
 
         triu_indices = cast(
-            List[Tuple[int, int]],
+            list[tuple[int, int]],
             list(itertools.combinations_with_replacement(range(norb), 2)),
         )
         if interaction_pairs is None:
