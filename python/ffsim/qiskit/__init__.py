@@ -32,6 +32,7 @@ from ffsim.qiskit.gates import (
     UCJOpSpinUnbalancedJW,
 )
 from ffsim.qiskit.sampler import FfsimSampler
+from ffsim.qiskit.sim import final_state_vector
 from ffsim.qiskit.transpiler_passes import DropNegligible, MergeOrbitalRotations
 from ffsim.qiskit.transpiler_stages import pre_init_passes
 from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
@@ -67,6 +68,7 @@ __all__ = [
     "UCJOpSpinUnbalancedJW",
     "UCJOpSpinlessJW",
     "ffsim_vec_to_qiskit_vec",
+    "final_state_vector",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",
 ]
