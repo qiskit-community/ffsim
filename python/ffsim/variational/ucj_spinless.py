@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import itertools
-from dataclasses import dataclass
+from dataclasses import InitVar, dataclass
 from typing import cast
 
 import numpy as np
@@ -82,6 +82,53 @@ class UCJOpSpinless:
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, norb, norb)
     orbital_rotations: np.ndarray  # shape: (n_reps, norb, norb)
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
+    validate: InitVar[bool] = True
+    rtol: InitVar[float] = 1e-5
+    atol: InitVar[float] = 1e-8
+
+    def __post_init__(self, validate: bool, rtol: float, atol: float):
+        if validate:
+            if self.diag_coulomb_mats.ndim != 3:
+                raise ValueError(
+                    "diag_coulomb_mats should have shape (n_reps, norb, norb). "
+                    f"Got shape {self.diag_coulomb_mats.shape}."
+                )
+            if self.orbital_rotations.ndim != 3:
+                raise ValueError(
+                    "orbital_rotations should have shape (n_reps, norb, norb). "
+                    f"Got shape {self.orbital_rotations.shape}."
+                )
+            if (
+                self.final_orbital_rotation is not None
+                and self.final_orbital_rotation.ndim != 2
+            ):
+                raise ValueError(
+                    "final_orbital_rotation should have shape (norb, norb). "
+                    f"Got shape {self.final_orbital_rotation.shape}."
+                )
+            if self.diag_coulomb_mats.shape[0] != self.orbital_rotations.shape[0]:
+                raise ValueError(
+                    "diag_coulomb_mats and orbital_rotations should have the same "
+                    "first dimension. "
+                    f"Got {self.diag_coulomb_mats.shape[0]} and "
+                    f"{self.orbital_rotations.shape[0]}."
+                )
+            if not all(
+                linalg.is_real_symmetric(mat, rtol=rtol, atol=atol)
+                for mat in self.diag_coulomb_mats
+            ):
+                raise ValueError(
+                    "Diagonal Coulomb matrices were not all real symmetric."
+                )
+            if not all(
+                linalg.is_unitary(orbital_rotation, rtol=rtol, atol=atol)
+                for orbital_rotation in self.orbital_rotations
+            ):
+                raise ValueError("Orbital rotations were not all unitary.")
+            if self.final_orbital_rotation is not None and not linalg.is_unitary(
+                self.final_orbital_rotation, rtol=rtol, atol=atol
+            ):
+                raise ValueError("Final orbital rotation was not unitary.")
 
     @property
     def norb(self):
