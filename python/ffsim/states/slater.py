@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.linalg
+import typing
 
 
 def sample_slater(
@@ -31,12 +32,17 @@ def sample_slater(
     """
 
     if isinstance(rdm, np.ndarray) and rdm.ndim == 2:
+        # spinless case
+        typing.cast(np.ndarray, rdm)
         sampled_configuration = _sample_spinless(
             rdm, chain_length, n_chains, n_particles_to_move
         )
     else:
         # Spinful case
         rdm_a, rdm_b = rdm
+        typing.cast(np.ndarray, rdm_a)
+        typing.cast(np.ndarray, rdm_b)
+
         sampled_configuration_a = _sample_spinless(
             rdm_a, chain_length, n_chains, n_particles_to_move
         )
