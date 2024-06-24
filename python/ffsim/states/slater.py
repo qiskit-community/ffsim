@@ -30,21 +30,13 @@ def sample_slater(
         Each row is a sample.
     """
 
-    if isinstance(rdm, tuple) or isinstance(rdm, list):
-        rdm_a, rdm_b = rdm[0], rdm[1]
-        spinless = False
-    else:
-        if rdm.ndim == 2:
-            spinless = True
-        if rdm.ndim == 3:
-            rdm_a, rdm_b = rdm[0, :], rdm[1, :]
-            spinless = False
-
-    if spinless:
+    if isinstance(rdm, np.ndarray) and rdm.ndim == 2:
         sampled_configuration = _sample_spinless(
             rdm, chain_length, n_chains, n_particles_to_move
         )
     else:
+        # Spinful case
+        rdm_a, rdm_b = rdm
         sampled_configuration_a = _sample_spinless(
             rdm_a, chain_length, n_chains, n_particles_to_move
         )
@@ -56,6 +48,7 @@ def sample_slater(
         sampled_configuration = np.concatenate(
             (sampled_configuration_a, sampled_configuration_b), axis=1
         )
+
     return sampled_configuration
 
 
