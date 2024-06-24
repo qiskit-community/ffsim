@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.linalg as la
+import scipy.linalg
 
 
 def sample_slater(
@@ -76,7 +76,7 @@ def _propose_move(
 
     positions = np.arange(norb)
 
-    new_state = np.zeros((n_chains, nelec))
+    new_state = np.zeros((n_chains, nelec), dtype=int)
 
     for i in range(n_chains):
         sample_particles_to_move = np.random.choice(
@@ -84,7 +84,7 @@ def _propose_move(
         )
 
         open_orbitals = np.setdiff1d(
-            positions, previous_step[i, :], assume_unique=True)
+            positions, previous_step[i], assume_unique=True)
 
         electron_id = np.sort(
             np.random.choice(np.arange(nelec),
@@ -95,11 +95,11 @@ def _propose_move(
             open_orbitals, sample_particles_to_move, replace=False
         )
 
-        new_state[i, :] = previous_step[i, :]
+        new_state[i] = previous_step[i]
         new_state[i, electron_id] = new_positions
-        new_state[i, :] = np.sort(new_state[i, :])
+        new_state[i] = np.sort(new_state[i])
 
-    return new_state.astype("int")
+    return new_state
 
 
 def _evaluate_logdeterminant_squared(
@@ -188,12 +188,12 @@ def _initialize_chains(
     while count < n_chains:
         attempt = np.sort(
             np.random.choice(
-                np.arange(norb), size=nelec, replace=True, p=np.diag(rdm) / float(nelec)
+                np.arange(norb), size=nelec, replace=True, p=np.diag(rdm) / nelec
             )
         )
 
         if len(np.unique(attempt)) == nelec:
-            positions[count, :] = attempt
+            positions[count] = attempt
             count += 1
 
     return positions.astype("int")
@@ -223,7 +223,7 @@ def _select(
     """
     for i in range(new_pos.shape[0]):
         if not acceptance_vector[i]:
-            new_pos[i, :] = old_pos[i, :]
+            new_pos[i] = old_pos[i]
 
     return new_pos
 
@@ -244,9 +244,9 @@ def _positions_to_fock(positions: np.ndarray, norb: int) -> np.ndarray:
     """
 
     n_samples = positions.shape[0]
-    fock = np.zeros((n_samples, norb)).astype("int")
+    fock = np.zeros((n_samples, norb), dtype=int)
     for i in range(n_samples):
-        fock[i, norb - 1 - positions[i, :]] = 1
+        fock[i, norb - 1 - positions[i]] = 1
     return fock
 
 
@@ -287,18 +287,15 @@ def _sample_spinless(
     if nelec < n_particles_to_move:
         raise ValueError(
             "Number of electrons smaller than ``n_particles_to_move``: "
-            + "number of electrons ("
-            + str(nelec)
-            + ") and  ``n_particles_to_move`` ("
-            + str(n_particles_to_move)
-            + ")"
+            f"number of electrons ({nelec}) "
+            f"and ``n_particles_to_move`` ({n_particles_to_move})."
         )
 
-    _, u = la.eigh(rdm)
+    _, vecs = scipy.linalg.eigh(rdm)
 
-    phi = u[:, -nelec:]
+    phi = vecs[:, -nelec:]
 
-    positions = np.zeros((n_chains, chain_length + 1, nelec)).astype("int")
+    positions = np.zeros((n_chains, chain_length + 1, nelec), dtype=int)
 
     positions[:, 0, :] = _initialize_chains(n_chains, nelec, norb, rdm)
 
