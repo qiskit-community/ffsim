@@ -235,7 +235,7 @@
 <li class="toctree-l2"><a class="reference internal" href="qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/ffsim.html">ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/ffsim.contract.html">ffsim.contract</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/ffsim.linalg.html">ffsim.linalg</a></li>
@@ -245,9 +245,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/ffsim.testing.html">ffsim.testing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer guide</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development Branch Docs</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/releases">Release notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development branch docs</a></li>
 </ul>
 
 </div>
@@ -387,8 +388,8 @@ nelec = (2, 2)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374026  E_corr = -0.04758323886585432
-Energy at initialization: -77.87160024816279
+E(CCSD) = -77.87421536374028  E_corr = -0.04758323886584635
+Energy at initialization: -77.87160024816264
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -426,10 +427,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. of ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.87387392816984
-        x: [-4.775e-01 -9.697e-05 ...  2.656e-04  1.286e-01]
+      fun: -77.87387390560207
+        x: [-4.762e-01  3.179e-04 ...  3.064e-04  1.287e-01]
       nit: 10
-      jac: [-3.695e-05  1.421e-06 ...  0.000e+00  1.279e-05]
+      jac: [ 7.248e-05  4.263e-05 ...  1.990e-05  3.268e-05]
      nfev: 949
      njev: 13
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -477,10 +478,10 @@ Number of parameters: 46
   message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363426408311
-        x: [-4.774e-01 -3.556e-06 ...  3.520e-02  2.561e-01]
+      fun: -77.87363426462774
+        x: [-4.773e-01  3.453e-06 ...  3.520e-02  2.560e-01]
       nit: 5
-      jac: [-5.684e-06 -5.684e-06 ... -2.842e-06 -8.527e-06]
+      jac: [-1.279e-05 -2.842e-06 ... -1.421e-06  0.000e+00]
      nfev: 329
      njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -558,59 +559,59 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Stop: Total number of iterations reached limit.
  success: False
-     fun: -77.87363426055695
-       x: [-4.776e-01  8.281e-04 ...  3.491e-02  2.558e-01]
+     fun: -77.87371038070717
+       x: [-4.436e-01 -4.454e-02 ...  3.717e-02  2.553e-01]
      nit: 10
-     jac: [-1.534e-06  4.769e-06 ... -1.213e-06 -4.562e-06]
-    nfev: 1255
+     jac: [-3.468e-04 -1.427e-04 ... -6.954e-05 -9.469e-04]
+    nfev: 1243
     njev: 10
-  nlinop: 795
+  nlinop: 783
 
 Iteration 1
-    Energy: -77.87362985930879
-    Norm of gradient: 0.001663291529900415
-    Regularization hyperparameter: 0.0015579603341934474
-    Variation hyperparameter: 0.9887924142132948
+    Energy: -77.87362688968717
+    Norm of gradient: 0.002152564000033882
+    Regularization hyperparameter: 0.0010336293069463298
+    Variation hyperparameter: 0.9788634178100243
 Iteration 2
-    Energy: -77.87363424598585
-    Norm of gradient: 8.815062302380867e-05
-    Regularization hyperparameter: 0.0015579603341934474
-    Variation hyperparameter: 0.9887924142132948
+    Energy: -77.87363429614821
+    Norm of gradient: 9.812178311220303e-05
+    Regularization hyperparameter: 0.0025807560644468992
+    Variation hyperparameter: 0.9792205923675421
 Iteration 3
-    Energy: -77.87363424930406
-    Norm of gradient: 7.134923160139907e-05
-    Regularization hyperparameter: 0.8300058018068794
-    Variation hyperparameter: 0.9706698692640411
+    Energy: -77.87363433469143
+    Norm of gradient: 3.129414360448805e-05
+    Regularization hyperparameter: 0.0025807453045007802
+    Variation hyperparameter: 0.9792205966772787
 Iteration 4
-    Energy: -77.87363425169917
-    Norm of gradient: 6.154655515255335e-05
-    Regularization hyperparameter: 0.8300058018068794
-    Variation hyperparameter: 0.9706698692640411
+    Energy: -77.87363453173535
+    Norm of gradient: 0.00010678055934623605
+    Regularization hyperparameter: 0.001147525497951679
+    Variation hyperparameter: 0.9795802429078545
 Iteration 5
-    Energy: -77.87363425361549
-    Norm of gradient: 5.562540688508786e-05
-    Regularization hyperparameter: 0.8300045537827138
-    Variation hyperparameter: 0.9706697664448466
+    Energy: -77.8736801521979
+    Norm of gradient: 0.004218835394635505
+    Regularization hyperparameter: 0.00017607857704533543
+    Variation hyperparameter: 0.9795379346100667
 Iteration 6
-    Energy: -77.87363425525773
-    Norm of gradient: 5.184118392284811e-05
-    Regularization hyperparameter: 0.8300046803886046
-    Variation hyperparameter: 0.9706697879224635
+    Energy: -77.8736871898626
+    Norm of gradient: 0.0037156079239665895
+    Regularization hyperparameter: 1.0251294699333309
+    Variation hyperparameter: 0.9794923105864503
 Iteration 7
-    Energy: -77.87363425672811
-    Norm of gradient: 4.9263472413679626e-05
-    Regularization hyperparameter: 0.8300043582122708
-    Variation hyperparameter: 0.9706700094160818
+    Energy: -77.87369282394211
+    Norm of gradient: 0.0033415569892807587
+    Regularization hyperparameter: 1.0251294937924331
+    Variation hyperparameter: 0.979492310902017
 Iteration 8
-    Energy: -77.87363425808249
-    Norm of gradient: 4.739832284527459e-05
-    Regularization hyperparameter: 0.8300114969205863
-    Variation hyperparameter: 0.9706697005334938
+    Energy: -77.8736975060894
+    Norm of gradient: 0.003059519355505281
+    Regularization hyperparameter: 1.0251295751050522
+    Variation hyperparameter: 0.9794923131330285
 Iteration 9
-    Energy: -77.87363425935172
-    Norm of gradient: 4.597487616620701e-05
-    Regularization hyperparameter: 0.8300114969205863
-    Variation hyperparameter: 0.9706697005334938
+    Energy: -77.87370453753415
+    Norm of gradient: 0.002714147560992172
+    Regularization hyperparameter: 0.5522427628757666
+    Variation hyperparameter: 0.9999982032447832
 </pre></div></div>
 </div>
 </section>
