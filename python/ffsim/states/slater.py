@@ -9,6 +9,7 @@ def sample_slater(
     chain_length: int,
     n_chains: int,
     n_particles_to_move: int = 1,
+    seed=None
 ) -> np.ndarray:
     """
     Collect samples of electronic configurations from a Slater determinant defined
@@ -36,7 +37,7 @@ def sample_slater(
         # spinless case
         typing.cast(np.ndarray, rdm)
         sampled_configuration = _sample_spinless(
-            rdm, chain_length, n_chains, n_particles_to_move
+            rdm, chain_length, n_chains, n_particles_to_move, seed
         )
     else:
         # Spinful case
@@ -45,11 +46,11 @@ def sample_slater(
         typing.cast(np.ndarray, rdm_b)
 
         sampled_configuration_a = _sample_spinless(
-            rdm_a, chain_length, n_chains, n_particles_to_move
+            rdm_a, chain_length, n_chains, n_particles_to_move, seed
         )
 
         sampled_configuration_b = _sample_spinless(
-            rdm_b, chain_length, n_chains, n_particles_to_move
+            rdm_b, chain_length, n_chains, n_particles_to_move, seed
         )
 
         sampled_configuration = np.concatenate(
@@ -60,7 +61,7 @@ def sample_slater(
 
 
 def _propose_move(
-    previous_step: np.ndarray, norb: int, n_particles_to_move: int
+    previous_step: np.ndarray, norb: int, n_particles_to_move: int, rng=None
 ) -> np.ndarray:
     """
     Proposes a new state in the Markov chain. The new state is obtained by allowing
@@ -78,6 +79,8 @@ def _propose_move(
         A Numpy array with the proposed new set of positions of the electrons.
     """
 
+    rng = np.random.default_rng(rng)
+
     n_chains = previous_step.shape[0]
     nelec = previous_step.shape[1]
 
@@ -86,7 +89,7 @@ def _propose_move(
     new_state = np.zeros((n_chains, nelec), dtype=int)
 
     for i in range(n_chains):
-        sample_particles_to_move = np.random.choice(
+        sample_particles_to_move = rng.choice(
             np.arange(n_particles_to_move) + 1, 1
         )
 
@@ -94,11 +97,11 @@ def _propose_move(
             positions, previous_step[i], assume_unique=True)
 
         electron_id = np.sort(
-            np.random.choice(np.arange(nelec),
-                             sample_particles_to_move, replace=False)
+            rng.choice(np.arange(nelec),
+                       sample_particles_to_move, replace=False)
         )
 
-        new_positions = np.random.choice(
+        new_positions = rng.choice(
             open_orbitals, sample_particles_to_move, replace=False
         )
 
@@ -137,6 +140,7 @@ def _evaluate_logdeterminant_squared(
 def _accept(
     logdet_squared_new: tuple[np.ndarray, np.ndarray],
     logdet_squared_old: tuple[np.ndarray, np.ndarray],
+    seed=None
 ) -> np.ndarray:
     """
     Metropolis-Hastings acceptance of the new state of the chain.
@@ -158,8 +162,10 @@ def _accept(
         is accepted (``True``) of rejected (``False``).
     """
 
+    rng = np.random.default_rng(rng)
+
     n_chains = len(logdet_squared_new[0])
-    random_probs = np.random.rand(n_chains)
+    random_probs = rng.rand(n_chains)
     ones_vector = np.ones(n_chains)
 
     p_acceptance = np.minimum(
@@ -172,7 +178,7 @@ def _accept(
 
 
 def _initialize_chains(
-    n_chains: int, nelec: int, norb: int, rdm: np.ndarray
+    n_chains: int, nelec: int, norb: int, rdm: np.ndarray, rng=None
 ) -> np.ndarray:
     """
     Proposes initial positions for the electrons to initialize the Markov chains.
@@ -190,11 +196,13 @@ def _initialize_chains(
         chain. Each row is the initial electronic configuration for each chain.
     """
 
+    rng = np.random.default_rng(rng)
+
     positions = np.zeros((n_chains, nelec))
     count = 0
     while count < n_chains:
         attempt = np.sort(
-            np.random.choice(
+            rng.choice(
                 np.arange(norb), size=nelec, replace=True, p=np.diag(rdm) / nelec
             )
         )
@@ -207,7 +215,7 @@ def _initialize_chains(
 
 
 def _select(
-    acceptance_vector: np.ndarray, new_pos: np.ndarray, old_pos: np.ndarray
+    acceptance_vector: np.ndarray, new_pos: np.ndarray, old_pos: np.ndarray,
 ) -> np.ndarray:
     """
     Based on the acceptance criterion of the Markov chain returns the state for
@@ -262,7 +270,7 @@ def _sample_spinless(
     chain_length: int,
     n_chains: int,
     n_particles_to_move: int = 1,
-    seed: int | None = None,
+    seed=None,
 ) -> np.ndarray:
     """
     Collect samples of electronic configurations from a Slater determinant defined
@@ -285,7 +293,7 @@ def _sample_spinless(
         Each row is a sample.
     """
 
-    np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     norb = rdm.shape[0]
 
@@ -304,11 +312,11 @@ def _sample_spinless(
 
     positions = np.zeros((n_chains, chain_length + 1, nelec), dtype=int)
 
-    positions[:, 0, :] = _initialize_chains(n_chains, nelec, norb, rdm)
+    positions[:, 0, :] = _initialize_chains(n_chains, nelec, norb, rdm, rng)
 
     for i in range(chain_length):
         proposed_move = _propose_move(
-            positions[:, i, :], norb, n_particles_to_move)
+            positions[:, i, :], norb, n_particles_to_move, rng)
 
         slogdet_new = _evaluate_logdeterminant_squared(proposed_move, phi)
         slogdet_old = _evaluate_logdeterminant_squared(positions[:, i, :], phi)
