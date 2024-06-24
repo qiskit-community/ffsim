@@ -1,6 +1,7 @@
+import typing
+
 import numpy as np
 import scipy.linalg
-import typing
 
 
 def sample_slater(
