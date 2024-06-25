@@ -1,5 +1,3 @@
-import typing
-
 import numpy as np
 import scipy.linalg
 
@@ -9,7 +7,7 @@ def sample_slater(
     chain_length: int,
     n_chains: int,
     n_particles_to_move: int = 1,
-    seed=None
+    seed=None,
 ) -> np.ndarray:
     """
     Collect samples of electronic configurations from a Slater determinant defined
@@ -35,26 +33,45 @@ def sample_slater(
 
     if isinstance(rdm, np.ndarray) and rdm.ndim == 2:
         # spinless case
-        typing.cast(np.ndarray, rdm)
+        n = round(np.real(np.sum(np.diag(rdm))))
+        norb = rdm.shape[0]
+
+        if n == 0 or n == norb:
+            # case of zero electrons
+            return np.ones(
+                (n_chains * (chain_length + 1), rdm.shape[0]), dtype=int
+            ) * int(n / norb)
+
         sampled_configuration = _sample_spinless(
             rdm, chain_length, n_chains, n_particles_to_move, seed
         )
     else:
         # Spinful case
         rdm_a, rdm_b = rdm
-        typing.cast(np.ndarray, rdm_a)
-        typing.cast(np.ndarray, rdm_b)
+        n_a = round(np.real(np.sum(np.diag(rdm_a))))
+        n_b = round(np.real(np.sum(np.diag(rdm_b))))
+        norb = rdm_a.shape[0]
 
-        sampled_configuration_a = _sample_spinless(
-            rdm_a, chain_length, n_chains, n_particles_to_move, seed
-        )
+        if n_a == 0 or n_a == norb:
+            sampled_configuration_a = np.ones(
+                (n_chains * (chain_length + 1), norb), dtype=int
+            ) * int(n_a / norb)
+        else:
+            sampled_configuration_a = _sample_spinless(
+                rdm_a, chain_length, n_chains, n_particles_to_move, seed
+            )
 
-        sampled_configuration_b = _sample_spinless(
-            rdm_b, chain_length, n_chains, n_particles_to_move, seed
-        )
+        if n_b == 0 or n_b == norb:
+            sampled_configuration_b = np.ones(
+                (n_chains * (chain_length + 1), norb), dtype=int
+            ) * int(n_a / norb)
+        else:
+            sampled_configuration_b = _sample_spinless(
+                rdm_b, chain_length, n_chains, n_particles_to_move, seed
+            )
 
         sampled_configuration = np.concatenate(
-            (sampled_configuration_a, sampled_configuration_b), axis=1
+            (sampled_configuration_b, sampled_configuration_a), axis=1
         )
 
     return sampled_configuration
@@ -89,16 +106,12 @@ def _propose_move(
     new_state = np.zeros((n_chains, nelec), dtype=int)
 
     for i in range(n_chains):
-        sample_particles_to_move = rng.choice(
-            np.arange(n_particles_to_move) + 1, 1
-        )
+        sample_particles_to_move = rng.choice(np.arange(n_particles_to_move) + 1, 1)
 
-        open_orbitals = np.setdiff1d(
-            positions, previous_step[i], assume_unique=True)
+        open_orbitals = np.setdiff1d(positions, previous_step[i], assume_unique=True)
 
         electron_id = np.sort(
-            rng.choice(np.arange(nelec),
-                       sample_particles_to_move, replace=False)
+            rng.choice(np.arange(nelec), sample_particles_to_move, replace=False)
         )
 
         new_positions = rng.choice(
@@ -140,7 +153,7 @@ def _evaluate_logdeterminant_squared(
 def _accept(
     logdet_squared_new: tuple[np.ndarray, np.ndarray],
     logdet_squared_old: tuple[np.ndarray, np.ndarray],
-    seed=None
+    rng=None,
 ) -> np.ndarray:
     """
     Metropolis-Hastings acceptance of the new state of the chain.
@@ -165,7 +178,7 @@ def _accept(
     rng = np.random.default_rng(rng)
 
     n_chains = len(logdet_squared_new[0])
-    random_probs = rng.rand(n_chains)
+    random_probs = rng.random(n_chains)
     ones_vector = np.ones(n_chains)
 
     p_acceptance = np.minimum(
@@ -198,24 +211,31 @@ def _initialize_chains(
 
     rng = np.random.default_rng(rng)
 
-    positions = np.zeros((n_chains, nelec))
+    positions = np.zeros((n_chains, nelec), dtype=int)
     count = 0
     while count < n_chains:
-        attempt = np.sort(
-            rng.choice(
-                np.arange(norb), size=nelec, replace=True, p=np.diag(rdm) / nelec
+        if nelec > 0:
+            attempt = np.sort(
+                rng.choice(
+                    np.arange(norb),
+                    size=nelec,
+                    replace=True,
+                    p=np.real(np.diag(rdm)) / nelec,
+                )
             )
-        )
-
+        if nelec == 0:
+            attempt = np.zeros(0, dtype=int)
         if len(np.unique(attempt)) == nelec:
             positions[count] = attempt
             count += 1
 
-    return positions.astype("int")
+    return positions
 
 
 def _select(
-    acceptance_vector: np.ndarray, new_pos: np.ndarray, old_pos: np.ndarray,
+    acceptance_vector: np.ndarray,
+    new_pos: np.ndarray,
+    old_pos: np.ndarray,
 ) -> np.ndarray:
     """
     Based on the acceptance criterion of the Markov chain returns the state for
@@ -297,9 +317,9 @@ def _sample_spinless(
 
     norb = rdm.shape[0]
 
-    nelec = round(np.sum(np.diag(rdm)))
+    nelec = round(np.real(np.sum(np.diag(rdm))))
 
-    if nelec < n_particles_to_move:
+    if nelec < n_particles_to_move and nelec > 0:
         raise ValueError(
             "Number of electrons smaller than ``n_particles_to_move``: "
             f"number of electrons ({nelec}) "
@@ -316,15 +336,15 @@ def _sample_spinless(
 
     for i in range(chain_length):
         proposed_move = _propose_move(
-            positions[:, i, :], norb, n_particles_to_move, rng)
+            positions[:, i, :], norb, n_particles_to_move, rng
+        )
 
         slogdet_new = _evaluate_logdeterminant_squared(proposed_move, phi)
         slogdet_old = _evaluate_logdeterminant_squared(positions[:, i, :], phi)
 
         accept_move = _accept(slogdet_new, slogdet_old)
 
-        positions[:, i + 1,
-                  :] = _select(accept_move, proposed_move, positions[:, i, :])
+        positions[:, i + 1, :] = _select(accept_move, proposed_move, positions[:, i, :])
 
     return _positions_to_fock(
         np.reshape(positions, ((chain_length + 1) * n_chains, nelec)), norb

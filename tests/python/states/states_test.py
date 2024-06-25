@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import itertools
+import math
 
 import numpy as np
 import pytest
@@ -268,3 +269,85 @@ def test_indices_and_strings_roundtrip_spinful(norb: int, nelec: tuple[int, int]
     strings = ffsim.indices_to_strings(indices, norb=norb, nelec=nelec)
     indices_again = ffsim.strings_to_indices(strings, norb=norb, nelec=nelec)
     np.testing.assert_array_equal(indices_again, indices)
+
+
+def _empirical_distribution(bts_matrix, norb, nelec):
+    indices = np.zeros(bts_matrix.shape[0], dtype=int)
+    for i, bts in enumerate(bts_matrix):
+        string = np.array2string(bts, separator="")[1:-1]
+        index = ffsim.strings_to_indices([string], norb, nelec)[0]
+        indices[i] = index
+
+    unique_indices, counts = np.unique(indices, return_counts=True)
+
+    if isinstance(nelec, tuple):
+        probabilities = np.zeros(math.comb(norb, nelec[0]) * math.comb(norb, nelec[1]))
+    else:
+        probabilities = np.zeros(math.comb(norb, nelec))
+
+    probabilities[unique_indices] = counts
+
+    probabilities /= np.sum(probabilities)
+
+    return probabilities
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+def test_slater_sampler(norb: int, nelec: tuple[int, int]):
+    """Test Slater determinant sampler."""
+    rng = np.random.default_rng(1234)
+
+    n_samples = 3000
+
+    n_a, n_b = nelec
+
+    rotation_a = ffsim.random.random_unitary(norb, seed=rng)
+    rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+
+    vecs_a = rotation_a[:, :n_a]
+    vecs_b = rotation_b[:, :n_b]
+
+    rdm_a = vecs_a @ np.conjugate(vecs_a.T)
+    rdm_b = vecs_b @ np.conjugate(vecs_b.T)
+
+    test_distribution = (
+        np.absolute(
+            ffsim.slater_determinant(
+                norb, (np.arange(n_a), np.arange(n_b)), (rotation_a, rotation_b)
+            )
+        )
+        ** 2
+    )
+
+    samples = ffsim.sample_slater((rdm_a, rdm_b), n_samples // 10, 10, 1, seed=rng)
+
+    empirical_distribution = _empirical_distribution(samples, norb, nelec)
+
+    assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(1, 5)))
+def test_slater_sampler_spinless(norb: int, nelec: int):
+    """Test Slater determinant sampler."""
+    rng = np.random.default_rng(1234)
+
+    n_samples = 3000
+
+    rotation = ffsim.random.random_unitary(norb, seed=rng)
+
+    vecs = rotation[:, :nelec]
+
+    rdm = vecs @ np.conjugate(vecs.T)
+
+    test_distribution = (
+        np.absolute(
+            ffsim.slater_determinant(norb, (np.arange(nelec), np.arange(0)), rotation)
+        )
+        ** 2
+    )
+
+    samples = ffsim.sample_slater(rdm, n_samples // 10, 10, 1, seed=rng)
+
+    empirical_distribution = _empirical_distribution(samples, norb, nelec)
+
+    assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
