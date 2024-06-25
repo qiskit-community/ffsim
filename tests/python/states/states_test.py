@@ -332,7 +332,6 @@ def test_indices_and_strings_roundtrip_spinful(norb: int, nelec: tuple[int, int]
     np.testing.assert_array_equal(indices_again, indices)
 
 
-
 def _empirical_distribution(bts_matrix, norb, nelec):
     indices = np.zeros(bts_matrix.shape[0], dtype=int)
     for i, bts in enumerate(bts_matrix):
@@ -414,6 +413,7 @@ def test_slater_sampler_spinless(norb: int, nelec: int):
 
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
+
 @pytest.mark.parametrize(
     "norb, nelec, spin_summed",
     [
@@ -493,4 +493,3 @@ def test_slater_determinant_one_rdm_diff_rotation(
     expected = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
 
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
-
