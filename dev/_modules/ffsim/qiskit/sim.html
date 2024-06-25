@@ -414,7 +414,7 @@
     <span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">state_vector</span><span class="o">.</span><span class="n">vec</span>
     <span class="n">norb</span> <span class="o">=</span> <span class="n">state_vector</span><span class="o">.</span><span class="n">norb</span>
-    <span class="n">nelec</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">state_vector</span><span class="o">.</span><span class="n">nelec</span><span class="p">)</span>
+    <span class="n">nelec</span> <span class="o">=</span> <span class="n">state_vector</span><span class="o">.</span><span class="n">nelec</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">DiagCoulombEvolutionSpinlessJW</span><span class="p">):</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
