@@ -55,7 +55,7 @@ def test_diag_coulomb_mats(norb: int, nelec: tuple[int, int]):
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     operator = ffsim.NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats((mat_aa, mat_ab))
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_diag_coulomb_evolution(
         vec, (mat_aa, mat_ab, mat_aa), time=-1.0, norb=norb, nelec=nelec

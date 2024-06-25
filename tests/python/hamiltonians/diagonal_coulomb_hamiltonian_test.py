@@ -57,7 +57,7 @@ def test_linear_operator(norb: int, nelec: tuple[int, int]):
     actual_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
     expected_linop = ffsim.linear_operator(df_hamiltonian, norb, nelec)
 
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
@@ -86,7 +86,7 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     actual_linop = ffsim.linear_operator(op, norb, nelec)
     expected_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
 
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
@@ -116,7 +116,7 @@ def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
     expected_linop = ffsim.linear_operator(op, norb, nelec)
 
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
@@ -149,7 +149,7 @@ def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int
     """Test from_fermion_operator method with the fermi_hubbard_1d model."""
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # open boundary conditions
     op = fermi_hubbard_1d(
@@ -196,7 +196,7 @@ def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int
     """Test from_fermion_operator method with the fermi_hubbard_2d model."""
     dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # open boundary conditions
     op = fermi_hubbard_2d(

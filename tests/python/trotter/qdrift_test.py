@@ -136,7 +136,7 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
             diag_coulomb_mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
         )
 
-        vec = ffsim.random.random_statevector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=rng)
         np.testing.assert_allclose(actual @ vec, expected @ vec)
 
 
@@ -274,7 +274,9 @@ def test_simulate_qdrift_double_factorized_h_chain(
     occupied_orbitals = (range(n_alpha), range(n_beta))
     initial_state = ffsim.slater_determinant(norb, occupied_orbitals)
     original_state = initial_state.copy()
-    one_rdm = ffsim.slater_determinant_rdm(norb, occupied_orbitals, spin_summed=False)
+    one_rdm = scipy.linalg.block_diag(
+        *ffsim.slater_determinant_rdms(norb, occupied_orbitals)
+    )
 
     # compute exact state
     exact_state = scipy.sparse.linalg.expm_multiply(
@@ -372,7 +374,9 @@ def test_simulate_qdrift_double_factorized_random(
     occupied_orbitals = (range(n_alpha), range(n_beta))
     initial_state = ffsim.slater_determinant(norb, occupied_orbitals)
     original_state = initial_state.copy()
-    one_rdm = ffsim.slater_determinant_rdm(norb, occupied_orbitals, spin_summed=False)
+    one_rdm = scipy.linalg.block_diag(
+        *ffsim.slater_determinant_rdms(norb, occupied_orbitals)
+    )
 
     # compute exact state
     exact_state = scipy.sparse.linalg.expm_multiply(

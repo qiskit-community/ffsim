@@ -99,7 +99,7 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     mol_hamiltonian = ffsim.MolecularHamiltonian(
         one_body_tensor, two_body_tensor, constant=constant
     )
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     op = ffsim.fermion_operator(mol_hamiltonian)
     linop = ffsim.linear_operator(op, norb, nelec)
@@ -137,7 +137,7 @@ def test_rotated():
     linop_rotated = ffsim.linear_operator(mol_hamiltonian_rotated, norb, nelec)
 
     # generate a random statevector
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     # rotate the statevector
     rotated_vec = ffsim.apply_orbital_rotation(vec, orbital_rotation, norb, nelec)

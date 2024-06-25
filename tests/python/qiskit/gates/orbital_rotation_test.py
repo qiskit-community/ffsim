@@ -28,7 +28,7 @@ def test_random_orbital_rotation_symmetric_spin(norb: int, nelec: tuple[int, int
         mat = ffsim.random.random_unitary(norb, seed=rng)
         gate = ffsim.qiskit.OrbitalRotationJW(norb, mat)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -54,7 +54,7 @@ def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, in
 
         # (mat_a, mat_b)
         gate = ffsim.qiskit.OrbitalRotationJW(norb, (mat_a, mat_b))
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -69,7 +69,7 @@ def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, in
 
         # (mat_a, None)
         gate = ffsim.qiskit.OrbitalRotationJW(norb, (mat_a, None))
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -84,7 +84,7 @@ def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, in
 
         # (None, mat_b)
         gate = ffsim.qiskit.OrbitalRotationJW(norb, (None, mat_b))
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -99,7 +99,7 @@ def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, in
 
         # (None, None)
         gate = ffsim.qiskit.OrbitalRotationJW(norb, (None, None))
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -114,7 +114,7 @@ def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, in
 
         # Numpy array input
         gate = ffsim.qiskit.OrbitalRotationJW(norb, np.stack([mat_a, mat_b]))
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -138,7 +138,7 @@ def test_random_orbital_rotation_spinless(norb: int, nocc: int):
         mat = ffsim.random.random_unitary(norb, seed=rng)
         gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, mat)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -163,7 +163,7 @@ def test_inverse_same_rotation(norb: int, nelec: tuple[int, int]):
         gate = ffsim.qiskit.OrbitalRotationJW(norb, mat)
 
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
         )
 
         statevec = Statevector(vec).evolve(gate)
@@ -184,7 +184,7 @@ def test_inverse_diff_rotation(norb: int, nelec: tuple[int, int]):
         gate = ffsim.qiskit.OrbitalRotationJW(norb, (mat_a, mat_b))
 
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
         )
 
         statevec = Statevector(vec).evolve(gate)
@@ -204,7 +204,7 @@ def test_inverse_spinless(norb: int, nocc: int):
         gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, mat)
 
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_statevector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
         )
 
         statevec = Statevector(vec).evolve(gate)

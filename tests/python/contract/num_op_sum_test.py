@@ -12,7 +12,8 @@
 
 from __future__ import annotations
 
-from typing import Sequence, cast
+from collections.abc import Sequence
+from typing import cast
 
 import numpy as np
 import pytest
@@ -59,7 +60,7 @@ def test_num_op_sum_to_linop():
 
     coeffs = rng.standard_normal(norb)
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    vec = ffsim.random.random_statevector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     linop = ffsim.contract.num_op_sum_linop(
         coeffs, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation

@@ -12,6 +12,13 @@
 :end-before: <!-- end installation -->
 ```
 
+## Code example
+
+```{include} ../README.md
+:start-after: <!-- start code-example -->
+:end-before: <!-- end code-example -->
+```
+
 ## Citing ffsim
 
 ```{include} ../README.md
@@ -29,7 +36,8 @@ tutorials/index
 explanations/index
 how-to-guides/index
 api/index
-Developer Guide <https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md>
 GitHub <https://github.com/qiskit-community/ffsim>
-Development Branch Docs <https://qiskit-community.github.io/ffsim/dev/>
+Developer guide <https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md>
+Release notes <https://github.com/qiskit-community/ffsim/releases>
+Development branch docs <https://qiskit-community.github.io/ffsim/dev/>
 ```

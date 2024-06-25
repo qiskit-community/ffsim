@@ -33,7 +33,7 @@ def test_contract_num_op_sum_spin_into_buffer_slow():
         dim_b = math.comb(norb, n_beta)
         occupations = cistring.gen_occslst(range(norb), n_alpha)
         coeffs = rng.uniform(size=norb)
-        vec = ffsim.random.random_statevector(dim_a * dim_b, seed=rng).reshape(
+        vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)
         )
         out_slow = np.zeros_like(vec)

@@ -29,7 +29,8 @@ from qiskit.primitives import (
 )
 from qiskit.primitives.containers.sampler_pub import SamplerPub
 
-from ffsim.qiskit.sim import final_statevector, sample_statevector
+from ffsim import states
+from ffsim.qiskit.sim import final_state_vector
 
 
 class FfsimSampler(BaseSamplerV2):
@@ -75,10 +76,10 @@ class FfsimSampler(BaseSamplerV2):
             for item in meas_info
         }
         for index, bound_circuit in np.ndenumerate(bound_circuits):
-            final_state = final_statevector(bound_circuit)
+            final_state = final_state_vector(bound_circuit)
             if qargs:
-                samples = sample_statevector(
-                    final_state, indices=qargs, shots=pub.shots, seed=self._rng
+                samples = states.sample_state_vector(
+                    final_state, orbs=qargs, shots=pub.shots, seed=self._rng
                 )
             else:
                 samples = [""] * pub.shots

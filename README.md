@@ -26,6 +26,8 @@ This method won't work natively on Windows, however. Refer to the [installation 
 
 ## Code example
 
+<!-- start code-example -->
+
 ```python
 import numpy as np
 import pyscf
@@ -55,6 +57,8 @@ linop = ffsim.linear_operator(mol_data.hamiltonian, norb=norb, nelec=nelec)
 energy = np.vdot(vec, linop @ vec).real
 print(energy)  # prints -104.17181289596
 ```
+
+<!-- end code-example -->
 
 ## Citing ffsim
 

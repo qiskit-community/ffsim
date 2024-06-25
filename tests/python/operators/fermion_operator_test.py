@@ -520,7 +520,7 @@ def test_linear_operator_one_body():
             }
         )
         actual_linop = ffsim.linear_operator(op, norb, nelec)
-        vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
         original = vec.copy()
         actual = actual_linop @ vec
         expected = expected_linop @ vec
@@ -540,7 +540,7 @@ def test_linear_operator_one_body():
             }
         )
         actual_linop = ffsim.linear_operator(op, norb, nelec)
-        vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
         original = vec.copy()
         actual = actual_linop @ vec
         expected = expected_linop @ vec

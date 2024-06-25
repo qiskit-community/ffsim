@@ -68,7 +68,7 @@ def test_orbital_rotation(norb: int, nelec: tuple[int, int]):
         norb=norb, interaction_pairs=interaction_pairs, thetas=thetas
     )
 
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_orbital_rotation(
         vec, operator.to_orbital_rotation(), norb=norb, nelec=nelec
     )
@@ -219,7 +219,7 @@ def test_givens_orbital_rotation_unitary(norb: int, nelec: tuple[int, int]):
     rng = np.random.default_rng()
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
         vec, orbital_rotation, norb=norb, nelec=nelec
@@ -260,7 +260,7 @@ def test_givens_orbital_rotation_t_amplitudes():
 
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
     assert len(operator.interaction_pairs) == norb * (norb - 1) // 2
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
         vec, orbital_rotation, norb=norb, nelec=nelec
@@ -279,7 +279,7 @@ def test_givens_orbital_rotation_fully_parameterized():
     )
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
     assert len(operator.interaction_pairs) == norb * (norb - 1) // 2
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
         vec, orbital_rotation, norb=norb, nelec=nelec

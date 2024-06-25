@@ -38,7 +38,7 @@ def test_random_givens_ansatz_operator_spinful(norb: int, nelec: tuple[int, int]
         givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
         gate = ffsim.qiskit.GivensAnsatzOperatorJW(givens_ansatz_op)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -69,7 +69,7 @@ def test_random_givens_ansatz_operator_spinless(norb: int, nocc: int):
         givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
         gate = ffsim.qiskit.GivensAnsatzOperatorSpinlessJW(givens_ansatz_op)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -102,7 +102,7 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
         )
         gate = ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op)
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -136,7 +136,7 @@ def test_random_spinless(norb: int, nelec: int):
         gate = ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op)
         assert gate.num_qubits == norb
 
-        small_vec = ffsim.random.random_statevector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )

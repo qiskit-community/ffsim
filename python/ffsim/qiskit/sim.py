@@ -12,9 +12,8 @@
 
 from __future__ import annotations
 
-from typing import Tuple, cast
+from typing import cast
 
-import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import Barrier, Measure
 
@@ -37,7 +36,7 @@ from ffsim.qiskit.gates import (
 )
 
 
-def final_statevector(circuit: QuantumCircuit) -> states.StateVector:
+def final_state_vector(circuit: QuantumCircuit) -> states.StateVector:
     """Return the final state vector of a fermionic quantum circuit.
 
     Args:
@@ -49,19 +48,18 @@ def final_statevector(circuit: QuantumCircuit) -> states.StateVector:
     """
     if not circuit.data:
         raise ValueError("Circuit must contain at least one instruction.")
-    statevector = _prepare_statevector(circuit.data[0], circuit)
-    if isinstance(statevector.nelec, int):
-        for instruction in circuit.data[1:]:
-            statevector = _evolve_statevector_spinless(
-                statevector, instruction, circuit
-            )
-    else:
-        for instruction in circuit.data[1:]:
-            statevector = _evolve_statevector_spinful(statevector, instruction, circuit)
-    return statevector
+    state_vector = _prepare_state_vector(circuit.data[0], circuit)
+    evolve_func = (
+        _evolve_state_vector_spinless
+        if isinstance(state_vector.nelec, int)
+        else _evolve_state_vector_spinful
+    )
+    for instruction in circuit.data[1:]:
+        state_vector = evolve_func(state_vector, instruction, circuit)
+    return state_vector
 
 
-def _prepare_statevector(
+def _prepare_state_vector(
     instruction: CircuitInstruction, circuit: QuantumCircuit
 ) -> states.StateVector:
     op = instruction.operation
@@ -117,7 +115,7 @@ def _prepare_statevector(
     )
 
 
-def _evolve_statevector_spinless(
+def _evolve_state_vector_spinless(
     state_vector: states.StateVector,
     instruction: CircuitInstruction,
     circuit: QuantumCircuit,
@@ -129,7 +127,7 @@ def _evolve_statevector_spinless(
     )
     vec = state_vector.vec
     norb = state_vector.norb
-    nelec = cast(int, state_vector.nelec)
+    nelec = state_vector.nelec
 
     if isinstance(op, DiagCoulombEvolutionSpinlessJW):
         vec = gates.apply_diag_coulomb_evolution(
@@ -181,7 +179,7 @@ def _evolve_statevector_spinless(
     raise ValueError(f"Unsupported gate for spinless circuit: {op}.")
 
 
-def _evolve_statevector_spinful(
+def _evolve_state_vector_spinful(
     state_vector: states.StateVector,
     instruction: CircuitInstruction,
     circuit: QuantumCircuit,
@@ -193,7 +191,7 @@ def _evolve_statevector_spinful(
     )
     vec = state_vector.vec
     norb = state_vector.norb
-    nelec = cast(Tuple[int, int], state_vector.nelec)
+    nelec = cast(tuple[int, int], state_vector.nelec)
 
     if isinstance(op, DiagCoulombEvolutionJW):
         vec = gates.apply_diag_coulomb_evolution(
@@ -271,35 +269,3 @@ def _evolve_statevector_spinful(
         )
 
     raise ValueError(f"Unsupported gate for spinful circuit: {op}.")
-
-
-def sample_statevector(
-    statevector: states.StateVector,
-    *,
-    indices: list[int],
-    shots: int,
-    seed: np.random.Generator | int | None = None,
-) -> list[str]:
-    """Sample bitstrings from a state vector.
-
-    Args:
-        statevector: The state vector to sample from.
-        indices: The indices of the orbitals to sample from. The indices range from
-            ``0`` to ``2 * norb - 1``, with the first half of the range indexing the
-            spin alpha orbitals, and the second half indexing the spin beta orbitals.
-        shots: The number of bitstrings to sample.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-
-    Returns:
-        The sampled bitstrings, as a list of strings of length `shots`.
-    """
-    rng = np.random.default_rng(seed)
-    probabilities = np.abs(statevector.vec) ** 2
-    samples = rng.choice(len(statevector.vec), size=shots, p=probabilities)
-    bitstrings = states.indices_to_strings(samples, statevector.norb, statevector.nelec)
-    if indices == list(range(2 * statevector.norb)):
-        return bitstrings
-    return [
-        "".join(bitstring[-1 - i] for i in indices[::-1]) for bitstring in bitstrings
-    ]

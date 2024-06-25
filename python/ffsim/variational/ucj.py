@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import List, Tuple, cast
+from typing import cast
 
 import numpy as np
 import scipy.linalg
@@ -609,7 +609,7 @@ def _ucj_from_parameters(
     with_final_orbital_rotation: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray | None]:
     triu_indices = cast(
-        List[Tuple[int, int]],
+        list[tuple[int, int]],
         list(itertools.combinations_with_replacement(range(norb), 2)),
     )
     if alpha_alpha_indices is None:
@@ -674,7 +674,7 @@ def _ucj_to_parameters(
 ) -> np.ndarray:
     n_reps, norb, _ = diag_coulomb_mats_alpha_alpha.shape
     triu_indices = cast(
-        List[Tuple[int, int]],
+        list[tuple[int, int]],
         list(itertools.combinations_with_replacement(range(norb), 2)),
     )
     if alpha_alpha_indices is None:

@@ -32,6 +32,9 @@ from ffsim.variational import UCJOperator
 class UCJOperatorJW(Gate):
     """Unitary cluster Jastrow operator under the Jordan-Wigner transformation.
 
+    .. warning::
+        This class is deprecated. Use :class:`ffsim.qiskit.UCJOpSpinBalancedJW` instead.
+
     See :class:`ffsim.UCJOperator` for a description of this gate's unitary.
 
     This gate assumes that qubits are ordered such that the first `norb` qubits
