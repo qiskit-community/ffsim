@@ -374,7 +374,9 @@ def test_slater_sampler(norb: int, nelec: tuple[int, int]):
     test_distribution = (
         np.absolute(
             ffsim.slater_determinant(
-                norb, (np.arange(n_a), np.arange(n_b)), (rotation_a, rotation_b)
+                norb,
+                (list(np.arange(n_a)), list(np.arange(n_b))),
+                (rotation_a, rotation_b),
             )
         )
         ** 2
@@ -402,7 +404,7 @@ def test_slater_sampler_spinless(norb: int, nelec: int):
 
     test_distribution = (
         np.absolute(
-            ffsim.slater_determinant(norb, (np.arange(nelec), np.arange(0)), rotation)
+            ffsim.slater_determinant(norb, (list(np.arange(nelec)), []), rotation)
         )
         ** 2
     )
