@@ -207,12 +207,14 @@ class MolecularData:
 
     def run_mp2(self, *, store_t2: bool = False):
         """Run MP2 and store results."""
-        scf = pyscf.scf.RHF(self.mole)
+        n_alpha, n_beta = self.nelec
+        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
+        scf = scf_func(self.mole)
         cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
         mp2_solver = pyscf.mp.MP2(
-            scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+            scf, frozen=frozen or None, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
         )
         _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
         self.mp2_energy = mp2_solver.e_tot
