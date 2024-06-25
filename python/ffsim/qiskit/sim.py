@@ -127,7 +127,7 @@ def _evolve_state_vector_spinless(
     )
     vec = state_vector.vec
     norb = state_vector.norb
-    nelec = cast(int, state_vector.nelec)
+    nelec = state_vector.nelec
 
     if isinstance(op, DiagCoulombEvolutionSpinlessJW):
         vec = gates.apply_diag_coulomb_evolution(
