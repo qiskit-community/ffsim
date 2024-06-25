@@ -37,14 +37,14 @@ def sample_slater(
         norb = rdm.shape[0]
 
         if n == 0 or n == norb:
-            # case of zero electrons
-            return np.ones(
+            sampled_configuration = np.ones(
                 (n_chains * (chain_length + 1), rdm.shape[0]), dtype=int
             ) * int(n / norb)
 
-        sampled_configuration = _sample_spinless(
-            rdm, chain_length, n_chains, n_particles_to_move, seed
-        )
+        else:
+            sampled_configuration = _sample_spinless(
+                rdm, chain_length, n_chains, n_particles_to_move, seed
+            )
     else:
         # Spinful case
         rdm_a, rdm_b = rdm
