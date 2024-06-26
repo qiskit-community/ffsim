@@ -12,7 +12,10 @@
 
 from __future__ import annotations
 
+import bz2
 import dataclasses
+import gzip
+import lzma
 import os
 from collections.abc import Iterable
 
@@ -252,22 +255,52 @@ class MolecularData:
         if store_t2:
             self.ccsd_t2 = ccsd_t2
 
-    def to_json(self, file: str | bytes | os.PathLike) -> None:
-        """Serialize the object to JSON format."""
+    def to_json(
+        self, file: str | bytes | os.PathLike, compression: str | None = None
+    ) -> None:
+        """Serialize the object to JSON format.
+
+        Args:
+            file: The file path to save to.
+            compression: The optional compression algorithm to use.
+                Options: ``"gzip"``, ``"bz2"``, ``"lzma"``.
+        """
 
         def default(obj):
             if isinstance(obj, np.ndarray):
                 return np.ascontiguousarray(obj)
             raise TypeError
 
-        with open(file, "wb") as f:
+        open_func = {
+            None: open,
+            "gzip": gzip.open,
+            "bz2": bz2.open,
+            "lzma": lzma.open,
+        }
+        with open_func[compression](file, "wb") as f:
             f.write(
                 orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY, default=default)
             )
 
     @staticmethod
-    def from_json(file: str | bytes | os.PathLike) -> MolecularData:
-        with open(file, "rb") as f:
+    def from_json(
+        file: str | bytes | os.PathLike, compression: str | None = None
+    ) -> MolecularData:
+        """Load a MolecularData from a JSON file.
+
+        Args:
+            file: The file path to save to.
+            compression: The compression algorithm, if any, which was used to compress
+                the file.
+                Options: ``"gzip"``, ``"bz2"``, ``"lzma"``.
+        """
+        open_func = {
+            None: open,
+            "gzip": gzip.open,
+            "bz2": bz2.open,
+            "lzma": lzma.open,
+        }
+        with open_func[compression](file, "rb") as f:
             data = orjson.loads(f.read())
 
         def asarray_or_none(val):
