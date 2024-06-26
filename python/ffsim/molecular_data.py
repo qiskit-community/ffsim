@@ -83,8 +83,7 @@ class MolecularData:
     hf_mo_occ: np.ndarray | None = None
     # MP2 data
     mp2_energy: float | None = None
-    # TODO is this a tuple for open-shell systems?
-    mp2_t2: np.ndarray | None = None
+    mp2_t2: np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
     # CCSD data
     ccsd_energy: float | None = None
     ccsd_t1: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None
@@ -352,17 +351,17 @@ class MolecularData:
             core_energy=data["core_energy"],
             one_body_integrals=np.asarray(data["one_body_integrals"]),
             two_body_integrals=np.asarray(data["two_body_integrals"]),
-            hf_energy=data["hf_energy"],
-            hf_mo_coeff=asarray_or_none(data["hf_mo_coeff"]),
-            hf_mo_occ=asarray_or_none(data["hf_mo_occ"]),
-            mp2_energy=data["mp2_energy"],
-            mp2_t2=asarray_or_none(data["mp2_t2"]),
-            ccsd_energy=data["ccsd_energy"],
+            hf_energy=data.get("hf_energy"),
+            hf_mo_coeff=asarray_or_none(data.get("hf_mo_coeff")),
+            hf_mo_occ=asarray_or_none(data.get("hf_mo_occ")),
+            mp2_energy=data.get("mp2_energy"),
+            mp2_t2=asarray_or_none(data.get("mp2_t2")),
+            ccsd_energy=data.get("ccsd_energy"),
             # TODO this can be a tuple
-            ccsd_t1=asarray_or_none(data["ccsd_t1"]),
-            ccsd_t2=asarray_or_none(data["ccsd_t2"]),
-            fci_energy=data["fci_energy"],
-            fci_vec=asarray_or_none(data["fci_vec"]),
-            dipole_integrals=asarray_or_none(data["dipole_integrals"]),
-            orbital_symmetries=data["orbital_symmetries"],
+            ccsd_t1=asarray_or_none(data.get("ccsd_t1")),
+            ccsd_t2=asarray_or_none(data.get("ccsd_t2")),
+            fci_energy=data.get("fci_energy"),
+            fci_vec=asarray_or_none(data.get("fci_vec")),
+            dipole_integrals=asarray_or_none(data.get("dipole_integrals")),
+            orbital_symmetries=data.get("orbital_symmetries"),
         )
