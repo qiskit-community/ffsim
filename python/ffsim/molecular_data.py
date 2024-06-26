@@ -241,6 +241,8 @@ class MolecularData:
         n_alpha, n_beta = self.nelec
         scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
         scf = scf_func(self.mole)
+        scf.mo_coeff = self.mo_coeff
+        scf.mo_occ = self.mo_occ
         cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
