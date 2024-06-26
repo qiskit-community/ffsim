@@ -216,8 +216,20 @@ class MolecularData:
         cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
+        mo_coeff = self.mo_coeff
+        mo_occ = self.mo_occ
+        if n_alpha != n_beta:
+            mo_coeff = (mo_coeff, mo_coeff)
+            if n_alpha > n_beta:
+                mo_occ_a = mo_occ > 0
+                mo_occ_b = mo_occ == 2
+            else:
+                mo_occ_a = mo_occ == 2
+                mo_occ_b = mo_occ > 0
+            mo_occ = (mo_occ_a, mo_occ_b)
+            mo = (mo, mo)
         mp2_solver = pyscf.mp.MP2(
-            scf, frozen=frozen or None, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+            scf, frozen=frozen or None, mo_coeff=mo_coeff, mo_occ=mo_occ
         )
         _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
         self.mp2_energy = mp2_solver.e_tot
@@ -249,8 +261,19 @@ class MolecularData:
         scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
         scf = scf_func(self.mole)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
+        mo_coeff = self.mo_coeff
+        mo_occ = self.mo_occ
+        if n_alpha != n_beta:
+            mo_coeff = (mo_coeff, mo_coeff)
+            if n_alpha > n_beta:
+                mo_occ_a = mo_occ > 0
+                mo_occ_b = mo_occ == 2
+            else:
+                mo_occ_a = mo_occ == 2
+                mo_occ_b = mo_occ > 0
+            mo_occ = (mo_occ_a, mo_occ_b)
         ccsd_solver = pyscf.cc.CCSD(
-            scf, frozen=frozen or None, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+            scf, frozen=frozen or None, mo_coeff=mo_coeff, mo_occ=mo_occ
         )
         _, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
         self.ccsd_energy = ccsd_solver.e_tot
