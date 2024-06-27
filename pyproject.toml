@@ -25,6 +25,7 @@ classifiers = [
 dependencies = [
     "numpy",
     "opt_einsum",
+    "orjson",
     "pyscf >= 2.4",
     "qiskit >= 1.1",
     "scipy",
