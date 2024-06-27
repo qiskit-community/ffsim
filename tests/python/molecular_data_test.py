@@ -34,9 +34,10 @@ def _assert_mol_data_equal(
         ]:
             if actual is not None:
                 if isinstance(actual, tuple):
-                    for val in actual:
-                        assert isinstance(val, np.ndarray)
-                        np.testing.assert_array_equal(val, expected)
+                    for actual_val, expected_val in zip(actual, expected):
+                        assert isinstance(actual_val, np.ndarray)
+                        assert isinstance(expected_val, np.ndarray)
+                        np.testing.assert_array_equal(actual_val, expected_val)
                 else:
                     assert isinstance(actual, np.ndarray)
                     np.testing.assert_array_equal(actual, expected)
