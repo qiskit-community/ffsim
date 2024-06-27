@@ -18,6 +18,7 @@ import gzip
 import lzma
 import os
 from collections.abc import Iterable
+from typing import Callable
 
 import numpy as np
 import orjson
@@ -303,7 +304,7 @@ class MolecularData:
                 return np.ascontiguousarray(obj)
             raise TypeError
 
-        open_func = {
+        open_func: dict[str | None, Callable] = {
             None: open,
             "gzip": gzip.open,
             "bz2": bz2.open,
@@ -326,7 +327,7 @@ class MolecularData:
                 the file.
                 Options: ``"gzip"``, ``"bz2"``, ``"lzma"``.
         """
-        open_func = {
+        open_func: dict[str | None, Callable] = {
             None: open,
             "gzip": gzip.open,
             "bz2": bz2.open,
