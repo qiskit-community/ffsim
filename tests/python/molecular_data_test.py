@@ -14,38 +14,11 @@ import pathlib
 import numpy as np
 import pyscf
 import pyscf.data.elements
-import pytest
 
 import ffsim
 
 
-def _assert_approx_eq_closed_shell(
-    actual_mol_data: ffsim.MolecularData, expected_mol_data: ffsim.MolecularData
-):
-    for field in dataclasses.fields(actual_mol_data):
-        actual = getattr(actual_mol_data, field.name)
-        expected = getattr(expected_mol_data, field.name)
-        if field.type == "np.ndarray":
-            assert isinstance(actual, np.ndarray)
-            np.testing.assert_array_equal(actual, expected)
-        elif field.type in [
-            "np.ndarray | None",
-            "np.ndarray | tuple[np.ndarray, np.ndarray] | None",
-            "np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None",
-        ]:
-            if actual is not None:
-                if isinstance(actual, tuple):
-                    for val in actual:
-                        assert isinstance(val, np.ndarray)
-                        np.testing.assert_array_equal(val, expected)
-                else:
-                    assert isinstance(actual, np.ndarray)
-                    np.testing.assert_array_equal(actual, expected)
-        else:
-            assert actual == expected
-
-
-def _assert_approx_eq_open_shell(
+def _assert_mol_data_equal(
     actual_mol_data: ffsim.MolecularData, expected_mol_data: ffsim.MolecularData
 ):
     for field in dataclasses.fields(actual_mol_data):
@@ -167,18 +140,14 @@ def test_json_closed_shell(tmp_path: pathlib.Path):
         loaded_mol_data = ffsim.MolecularData.from_json(
             tmp_path / "test.json", compression=compression
         )
-        _assert_approx_eq_closed_shell(loaded_mol_data, mol_data)
+        _assert_mol_data_equal(loaded_mol_data, mol_data)
 
 
-@pytest.mark.skip(
-    "MolecularData does not support open-shell systems yet. "
-    "See https://github.com/qiskit-community/ffsim/issues/207"
-)
 def test_json_open_shell(tmp_path: pathlib.Path):
     """Test saving to and loading from JSON for an open-shell molecule."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["H", (0, 0, 0)], ["O", (0, 0, 1.1)]],
+        atom=[("H", (0, 0, 0)), ("O", (0, 0, 1.1))],
         basis="6-31g",
         spin=1,
         symmetry="Coov",
@@ -194,4 +163,4 @@ def test_json_open_shell(tmp_path: pathlib.Path):
         loaded_mol_data = ffsim.MolecularData.from_json(
             tmp_path / "test.json", compression=compression
         )
-        _assert_approx_eq_open_shell(loaded_mol_data, mol_data)
+        _assert_mol_data_equal(loaded_mol_data, mol_data)

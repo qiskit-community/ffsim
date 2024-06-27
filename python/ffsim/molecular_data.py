@@ -286,7 +286,7 @@ class MolecularData:
     def to_json(
         self, file: str | bytes | os.PathLike, compression: str | None = None
     ) -> None:
-        """Serialize the object to JSON format.
+        """Serialize to JSON format and save to disk.
 
         Args:
             file: The file path to save to.
@@ -331,10 +331,19 @@ class MolecularData:
         with open_func[compression](file, "rb") as f:
             data = orjson.loads(f.read())
 
-        def asarray_or_none(val):
+        def as_array_or_none(val):
             if val is None:
                 return None
             return np.asarray(val)
+
+        def as_array_tuple_or_none(val):
+            if val is None:
+                return None
+            return tuple(np.asarray(arr) for arr in val)
+
+        nelec = tuple(data["nelec"])
+        n_alpha, n_beta = nelec
+        arrays_func = as_array_or_none if n_alpha == n_beta else as_array_tuple_or_none
 
         return MolecularData(
             atom=[
@@ -344,7 +353,7 @@ class MolecularData:
             spin=data["spin"],
             symmetry=data["symmetry"],
             norb=data["norb"],
-            nelec=tuple(data["nelec"]),
+            nelec=nelec,
             mo_coeff=np.asarray(data["mo_coeff"]),
             mo_occ=np.asarray(data["mo_occ"]),
             active_space=data["active_space"],
@@ -352,16 +361,15 @@ class MolecularData:
             one_body_integrals=np.asarray(data["one_body_integrals"]),
             two_body_integrals=np.asarray(data["two_body_integrals"]),
             hf_energy=data.get("hf_energy"),
-            hf_mo_coeff=asarray_or_none(data.get("hf_mo_coeff")),
-            hf_mo_occ=asarray_or_none(data.get("hf_mo_occ")),
+            hf_mo_coeff=as_array_or_none(data.get("hf_mo_coeff")),
+            hf_mo_occ=as_array_or_none(data.get("hf_mo_occ")),
             mp2_energy=data.get("mp2_energy"),
-            mp2_t2=asarray_or_none(data.get("mp2_t2")),
+            mp2_t2=arrays_func(data.get("mp2_t2")),
             ccsd_energy=data.get("ccsd_energy"),
-            # TODO this can be a tuple
-            ccsd_t1=asarray_or_none(data.get("ccsd_t1")),
-            ccsd_t2=asarray_or_none(data.get("ccsd_t2")),
+            ccsd_t1=arrays_func(data.get("ccsd_t1")),
+            ccsd_t2=arrays_func(data.get("ccsd_t2")),
             fci_energy=data.get("fci_energy"),
-            fci_vec=asarray_or_none(data.get("fci_vec")),
-            dipole_integrals=asarray_or_none(data.get("dipole_integrals")),
+            fci_vec=as_array_or_none(data.get("fci_vec")),
+            dipole_integrals=as_array_or_none(data.get("dipole_integrals")),
             orbital_symmetries=data.get("orbital_symmetries"),
         )
