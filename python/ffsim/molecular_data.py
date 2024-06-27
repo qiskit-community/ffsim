@@ -291,7 +291,7 @@ class MolecularData:
     def to_json(
         self, file: str | bytes | os.PathLike, compression: str | None = None
     ) -> None:
-        """Serialize to JSON format and save to disk.
+        """Serialize to JSON format, optionally compressed, and save to disk.
 
         Args:
             file: The file path to save to.
@@ -319,13 +319,15 @@ class MolecularData:
     def from_json(
         file: str | bytes | os.PathLike, compression: str | None = None
     ) -> MolecularData:
-        """Load a MolecularData from a JSON file.
+        """Load a MolecularData from a (possibly compressed) JSON file.
 
         Args:
-            file: The file path to save to.
+            file: The file path to read from.
             compression: The compression algorithm, if any, which was used to compress
                 the file.
                 Options: ``"gzip"``, ``"bz2"``, ``"lzma"``.
+
+        Returns: The MolecularData object.
         """
         open_func: dict[str | None, Callable] = {
             None: open,
