@@ -37,7 +37,7 @@ def minimize_linear_method(
     lindep: float = 1e-8,
     epsilon: float = 1e-8,
     gtol: float = 1e-5,
-    regularization: float = 0.0,
+    regularization: float = 1e-4,
     variation: float = 0.5,
     optimize_regularization: bool = True,
     optimize_variation: bool = True,
