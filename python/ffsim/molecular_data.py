@@ -207,6 +207,20 @@ class MolecularData:
         hartree_fock.run()
         return MolecularData.from_scf(hartree_fock, active_space=active_space)
 
+    def run_fci(self, *, store_fci_vec: bool = False) -> None:
+        """Run FCI and store results."""
+        n_alpha, n_beta = self.nelec
+        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
+        scf = scf_func(self.mole)
+        scf.mo_coeff = self.mo_coeff
+        scf.mo_occ = self.mo_occ
+        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
+        mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
+        _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
+        self.fci_energy = cas.e_tot
+        if store_fci_vec:
+            self.fci_vec = fci_vec
+
     def run_mp2(self, *, store_t2: bool = False):
         """Run MP2 and store results."""
         n_alpha, n_beta = self.nelec
@@ -236,20 +250,6 @@ class MolecularData:
         self.mp2_energy = mp2_solver.e_tot
         if store_t2:
             self.mp2_t2 = mp2_t2
-
-    def run_fci(self, *, store_fci_vec: bool = False) -> None:
-        """Run FCI and store results."""
-        n_alpha, n_beta = self.nelec
-        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
-        scf = scf_func(self.mole)
-        scf.mo_coeff = self.mo_coeff
-        scf.mo_occ = self.mo_occ
-        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
-        mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
-        _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
-        self.fci_energy = cas.e_tot
-        if store_fci_vec:
-            self.fci_vec = fci_vec
 
     def run_ccsd(
         self,
