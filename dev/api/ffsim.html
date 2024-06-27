@@ -1162,6 +1162,26 @@ in the ansatz operator.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularData.from_json">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>Load a MolecularData from a (possibly compressed) JSON file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></span>) – The file path to read from.</p></li>
+<li><p><strong>compression</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The compression algorithm, if any, which was used to compress
+the file.
+Options: <code class="docutils literal notranslate"><span class="pre">&quot;gzip&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;bz2&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;lzma&quot;</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></span></p>
+</dd>
+</dl>
+<p>Returns: The MolecularData object.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ffsim.MolecularData.from_mole">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_func=&lt;function</span> <span class="pre">RHF&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_mole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_mole" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MolecularData object from a PySCF molecule.</p>
@@ -1234,6 +1254,24 @@ in the ansatz operator.</p></li>
 <dt class="sig sig-object py" id="ffsim.MolecularData.run_mp2">
 <span class="sig-name descname"><span class="pre">run_mp2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_t2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.run_mp2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.run_mp2" title="Link to this definition">¶</a></dt>
 <dd><p>Run MP2 and store results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularData.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.to_json" title="Link to this definition">¶</a></dt>
+<dd><p>Serialize to JSON format, optionally compressed, and save to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></span>) – The file path to save to.</p></li>
+<li><p><strong>compression</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional compression algorithm to use.
+Options: <code class="docutils literal notranslate"><span class="pre">&quot;gzip&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;bz2&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;lzma&quot;</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -4672,6 +4710,7 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 <li><a class="reference internal" href="#ffsim.MolecularData.fci_vec"><code class="docutils literal notranslate"><span class="pre">MolecularData.fci_vec</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.dipole_integrals"><code class="docutils literal notranslate"><span class="pre">MolecularData.dipole_integrals</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.orbital_symmetries"><code class="docutils literal notranslate"><span class="pre">MolecularData.orbital_symmetries</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.from_json"><code class="docutils literal notranslate"><span class="pre">MolecularData.from_json()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.from_mole"><code class="docutils literal notranslate"><span class="pre">MolecularData.from_mole()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.from_scf"><code class="docutils literal notranslate"><span class="pre">MolecularData.from_scf()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.hamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularData.hamiltonian</span></code></a></li>
@@ -4679,6 +4718,7 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_ccsd"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_ccsd()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_fci"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_fci()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_mp2"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_mp2()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.to_json"><code class="docutils literal notranslate"><span class="pre">MolecularData.to_json()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a><ul>
