@@ -215,6 +215,8 @@ class MolecularData:
         cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
+        mo_coeff: np.ndarray | tuple[np.ndarray, np.ndarray]
+        mo_occ: np.ndarray | tuple[np.ndarray, np.ndarray]
         mo_coeff = self.mo_coeff
         mo_occ = self.mo_occ
         if n_alpha != n_beta:
@@ -262,6 +264,8 @@ class MolecularData:
         scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
         scf = scf_func(self.mole)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
+        mo_coeff: np.ndarray | tuple[np.ndarray, np.ndarray]
+        mo_occ: np.ndarray | tuple[np.ndarray, np.ndarray]
         mo_coeff = self.mo_coeff
         mo_occ = self.mo_occ
         if n_alpha != n_beta:
