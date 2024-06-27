@@ -12,10 +12,16 @@
 
 from __future__ import annotations
 
+import bz2
 import dataclasses
+import gzip
+import lzma
+import os
 from collections.abc import Iterable
+from typing import Callable
 
 import numpy as np
+import orjson
 import pyscf
 import pyscf.cc
 import pyscf.mcscf
@@ -281,3 +287,96 @@ class MolecularData:
             self.ccsd_t1 = ccsd_t1
         if store_t2:
             self.ccsd_t2 = ccsd_t2
+
+    def to_json(
+        self, file: str | bytes | os.PathLike, compression: str | None = None
+    ) -> None:
+        """Serialize to JSON format, optionally compressed, and save to disk.
+
+        Args:
+            file: The file path to save to.
+            compression: The optional compression algorithm to use.
+                Options: ``"gzip"``, ``"bz2"``, ``"lzma"``.
+        """
+
+        def default(obj):
+            if isinstance(obj, np.ndarray):
+                return np.ascontiguousarray(obj)
+            raise TypeError
+
+        open_func: dict[str | None, Callable] = {
+            None: open,
+            "gzip": gzip.open,
+            "bz2": bz2.open,
+            "lzma": lzma.open,
+        }
+        with open_func[compression](file, "wb") as f:
+            f.write(
+                orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY, default=default)
+            )
+
+    @staticmethod
+    def from_json(
+        file: str | bytes | os.PathLike, compression: str | None = None
+    ) -> MolecularData:
+        """Load a MolecularData from a (possibly compressed) JSON file.
+
+        Args:
+            file: The file path to read from.
+            compression: The compression algorithm, if any, which was used to compress
+                the file.
+                Options: ``"gzip"``, ``"bz2"``, ``"lzma"``.
+
+        Returns: The MolecularData object.
+        """
+        open_func: dict[str | None, Callable] = {
+            None: open,
+            "gzip": gzip.open,
+            "bz2": bz2.open,
+            "lzma": lzma.open,
+        }
+        with open_func[compression](file, "rb") as f:
+            data = orjson.loads(f.read())
+
+        def as_array_or_none(val):
+            if val is None:
+                return None
+            return np.asarray(val)
+
+        def as_array_tuple_or_none(val):
+            if val is None:
+                return None
+            return tuple(np.asarray(arr) for arr in val)
+
+        nelec = tuple(data["nelec"])
+        n_alpha, n_beta = nelec
+        arrays_func = as_array_or_none if n_alpha == n_beta else as_array_tuple_or_none
+
+        return MolecularData(
+            atom=[
+                (element, tuple(coordinates)) for element, coordinates in data["atom"]
+            ],
+            basis=data["basis"],
+            spin=data["spin"],
+            symmetry=data["symmetry"],
+            norb=data["norb"],
+            nelec=nelec,
+            mo_coeff=np.asarray(data["mo_coeff"]),
+            mo_occ=np.asarray(data["mo_occ"]),
+            active_space=data["active_space"],
+            core_energy=data["core_energy"],
+            one_body_integrals=np.asarray(data["one_body_integrals"]),
+            two_body_integrals=np.asarray(data["two_body_integrals"]),
+            hf_energy=data.get("hf_energy"),
+            hf_mo_coeff=as_array_or_none(data.get("hf_mo_coeff")),
+            hf_mo_occ=as_array_or_none(data.get("hf_mo_occ")),
+            mp2_energy=data.get("mp2_energy"),
+            mp2_t2=arrays_func(data.get("mp2_t2")),
+            ccsd_energy=data.get("ccsd_energy"),
+            ccsd_t1=arrays_func(data.get("ccsd_t1")),
+            ccsd_t2=arrays_func(data.get("ccsd_t2")),
+            fci_energy=data.get("fci_energy"),
+            fci_vec=as_array_or_none(data.get("fci_vec")),
+            dipole_integrals=as_array_or_none(data.get("dipole_integrals")),
+            orbital_symmetries=data.get("orbital_symmetries"),
+        )
