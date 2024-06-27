@@ -78,7 +78,7 @@ class MolecularData:
     hf_mo_occ: np.ndarray | None = None
     # MP2 data
     mp2_energy: float | None = None
-    mp2_t2: np.ndarray | None = None
+    mp2_t2: np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
     # CCSD data
     ccsd_energy: float | None = None
     ccsd_t1: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None
@@ -202,29 +202,49 @@ class MolecularData:
         hartree_fock.run()
         return MolecularData.from_scf(hartree_fock, active_space=active_space)
 
-    def run_mp2(self, *, store_t2: bool = False):
-        """Run MP2 and store results."""
-        scf = pyscf.scf.RHF(self.mole)
-        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
-        mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
-        frozen = [i for i in range(self.norb) if i not in self.active_space]
-        mp2_solver = pyscf.mp.MP2(
-            scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
-        )
-        _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
-        self.mp2_energy = mp2_solver.e_tot
-        if store_t2:
-            self.mp2_t2 = mp2_t2
-
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
-        scf = pyscf.scf.RHF(self.mole)
+        n_alpha, n_beta = self.nelec
+        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
+        scf = scf_func(self.mole)
+        scf.mo_coeff = self.mo_coeff
+        scf.mo_occ = self.mo_occ
         cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
         mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
         _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
         self.fci_energy = cas.e_tot
         if store_fci_vec:
             self.fci_vec = fci_vec
+
+    def run_mp2(self, *, store_t2: bool = False):
+        """Run MP2 and store results."""
+        n_alpha, n_beta = self.nelec
+        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
+        scf = scf_func(self.mole)
+        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
+        mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
+        frozen = [i for i in range(self.norb) if i not in self.active_space]
+        mo_coeff: np.ndarray | tuple[np.ndarray, np.ndarray]
+        mo_occ: np.ndarray | tuple[np.ndarray, np.ndarray]
+        mo_coeff = self.mo_coeff
+        mo_occ = self.mo_occ
+        if n_alpha != n_beta:
+            mo_coeff = (mo_coeff, mo_coeff)
+            if n_alpha > n_beta:
+                mo_occ_a = mo_occ > 0
+                mo_occ_b = mo_occ == 2
+            else:
+                mo_occ_a = mo_occ == 2
+                mo_occ_b = mo_occ > 0
+            mo_occ = (mo_occ_a, mo_occ_b)
+            mo = (mo, mo)
+        mp2_solver = pyscf.mp.MP2(
+            scf, frozen=frozen or None, mo_coeff=mo_coeff, mo_occ=mo_occ
+        )
+        _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
+        self.mp2_energy = mp2_solver.e_tot
+        if store_t2:
+            self.mp2_t2 = mp2_t2
 
     def run_ccsd(
         self,
@@ -235,10 +255,25 @@ class MolecularData:
         store_t2: bool = False,
     ) -> None:
         """Run CCSD and store results."""
-        scf = pyscf.scf.RHF(self.mole)
+        n_alpha, n_beta = self.nelec
+        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
+        scf = scf_func(self.mole)
         frozen = [i for i in range(self.norb) if i not in self.active_space]
+        mo_coeff: np.ndarray | tuple[np.ndarray, np.ndarray]
+        mo_occ: np.ndarray | tuple[np.ndarray, np.ndarray]
+        mo_coeff = self.mo_coeff
+        mo_occ = self.mo_occ
+        if n_alpha != n_beta:
+            mo_coeff = (mo_coeff, mo_coeff)
+            if n_alpha > n_beta:
+                mo_occ_a = mo_occ > 0
+                mo_occ_b = mo_occ == 2
+            else:
+                mo_occ_a = mo_occ == 2
+                mo_occ_b = mo_occ > 0
+            mo_occ = (mo_occ_a, mo_occ_b)
         ccsd_solver = pyscf.cc.CCSD(
-            scf, frozen=frozen, mo_coeff=self.mo_coeff, mo_occ=self.mo_occ
+            scf, frozen=frozen or None, mo_coeff=mo_coeff, mo_occ=mo_occ
         )
         _, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
         self.ccsd_energy = ccsd_solver.e_tot
