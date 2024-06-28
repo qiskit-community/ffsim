@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.molecular_data - ffsim 0.0.38 documentation</title>
+        <title>ffsim.molecular_data - ffsim 0.0.39 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">ffsim 0.0.38 documentation</div></a>
+      <a href="../../index.html"><div class="brand">ffsim 0.0.39 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.38 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.39 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -233,7 +233,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/ffsim.html">ffsim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/ffsim.contract.html">ffsim.contract</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/ffsim.linalg.html">ffsim.linalg</a></li>
@@ -243,9 +243,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/ffsim.testing.html">ffsim.testing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development Branch Docs</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/releases">Release notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development branch docs</a></li>
 </ul>
 
 </div>
@@ -295,10 +296,16 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">bz2</span>
 <span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">lzma</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">orjson</span>
 <span class="kn">import</span> <span class="nn">pyscf</span>
 <span class="kn">import</span> <span class="nn">pyscf.cc</span>
 <span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
@@ -363,7 +370,7 @@
     <span class="n">hf_mo_occ</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># MP2 data</span>
     <span class="n">mp2_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">mp2_t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mp2_t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># CCSD data</span>
     <span class="n">ccsd_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">ccsd_t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -493,34 +500,54 @@
         <span class="k">return</span> <span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MolecularData.run_mp2">
-<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_mp2">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_mp2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_t2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run MP2 and store results.&quot;&quot;&quot;</span>
-        <span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mole</span><span class="p">)</span>
-        <span class="n">cas</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mcscf</span><span class="o">.</span><span class="n">CASCI</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">ncas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelecas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nelec</span><span class="p">)</span>
-        <span class="n">mo</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">sort_mo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_space</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">frozen</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_space</span><span class="p">]</span>
-        <span class="n">mp2_solver</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mp</span><span class="o">.</span><span class="n">MP2</span><span class="p">(</span>
-            <span class="n">scf</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="n">frozen</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">mo_occ</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mo_occ</span>
-        <span class="p">)</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">mp2_t2</span> <span class="o">=</span> <span class="n">mp2_solver</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">mo_coeff</span><span class="o">=</span><span class="n">mo</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mp2_energy</span> <span class="o">=</span> <span class="n">mp2_solver</span><span class="o">.</span><span class="n">e_tot</span>
-        <span class="k">if</span> <span class="n">store_t2</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mp2_t2</span> <span class="o">=</span> <span class="n">mp2_t2</span></div>
-
-
 <div class="viewcode-block" id="MolecularData.run_fci">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_fci">[docs]</a>
     <span class="k">def</span> <span class="nf">run_fci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_fci_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run FCI and store results.&quot;&quot;&quot;</span>
-        <span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mole</span><span class="p">)</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelec</span>
+        <span class="n">scf_func</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span> <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">==</span> <span class="n">n_beta</span> <span class="k">else</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">ROHF</span>
+        <span class="n">scf</span> <span class="o">=</span> <span class="n">scf_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mole</span><span class="p">)</span>
+        <span class="n">scf</span><span class="o">.</span><span class="n">mo_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span>
+        <span class="n">scf</span><span class="o">.</span><span class="n">mo_occ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mo_occ</span>
         <span class="n">cas</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mcscf</span><span class="o">.</span><span class="n">CASCI</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">ncas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelecas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nelec</span><span class="p">)</span>
         <span class="n">mo</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">sort_mo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_space</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">fci_vec</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">mo_coeff</span><span class="o">=</span><span class="n">mo</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fci_energy</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">e_tot</span>
         <span class="k">if</span> <span class="n">store_fci_vec</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fci_vec</span> <span class="o">=</span> <span class="n">fci_vec</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.run_mp2">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_mp2">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_mp2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_t2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run MP2 and store results.&quot;&quot;&quot;</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelec</span>
+        <span class="n">scf_func</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span> <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">==</span> <span class="n">n_beta</span> <span class="k">else</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">ROHF</span>
+        <span class="n">scf</span> <span class="o">=</span> <span class="n">scf_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mole</span><span class="p">)</span>
+        <span class="n">cas</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mcscf</span><span class="o">.</span><span class="n">CASCI</span><span class="p">(</span><span class="n">scf</span><span class="p">,</span> <span class="n">ncas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelecas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nelec</span><span class="p">)</span>
+        <span class="n">mo</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">sort_mo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_space</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">frozen</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_space</span><span class="p">]</span>
+        <span class="n">mo_coeff</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+        <span class="n">mo_occ</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+        <span class="n">mo_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span>
+        <span class="n">mo_occ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mo_occ</span>
+        <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">!=</span> <span class="n">n_beta</span><span class="p">:</span>
+            <span class="n">mo_coeff</span> <span class="o">=</span> <span class="p">(</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">&gt;</span> <span class="n">n_beta</span><span class="p">:</span>
+                <span class="n">mo_occ_a</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="n">mo_occ_b</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mo_occ_a</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="n">mo_occ_b</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">mo_occ</span> <span class="o">=</span> <span class="p">(</span><span class="n">mo_occ_a</span><span class="p">,</span> <span class="n">mo_occ_b</span><span class="p">)</span>
+            <span class="n">mo</span> <span class="o">=</span> <span class="p">(</span><span class="n">mo</span><span class="p">,</span> <span class="n">mo</span><span class="p">)</span>
+        <span class="n">mp2_solver</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mp</span><span class="o">.</span><span class="n">MP2</span><span class="p">(</span>
+            <span class="n">scf</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="n">frozen</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="o">=</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">mo_occ</span><span class="o">=</span><span class="n">mo_occ</span>
+        <span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">mp2_t2</span> <span class="o">=</span> <span class="n">mp2_solver</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">mo_coeff</span><span class="o">=</span><span class="n">mo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mp2_energy</span> <span class="o">=</span> <span class="n">mp2_solver</span><span class="o">.</span><span class="n">e_tot</span>
+        <span class="k">if</span> <span class="n">store_t2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mp2_t2</span> <span class="o">=</span> <span class="n">mp2_t2</span></div>
 
 
 <div class="viewcode-block" id="MolecularData.run_ccsd">
@@ -534,10 +561,25 @@
         <span class="n">store_t2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run CCSD and store results.&quot;&quot;&quot;</span>
-        <span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mole</span><span class="p">)</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelec</span>
+        <span class="n">scf_func</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span> <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">==</span> <span class="n">n_beta</span> <span class="k">else</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">ROHF</span>
+        <span class="n">scf</span> <span class="o">=</span> <span class="n">scf_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mole</span><span class="p">)</span>
         <span class="n">frozen</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_space</span><span class="p">]</span>
+        <span class="n">mo_coeff</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+        <span class="n">mo_occ</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+        <span class="n">mo_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span>
+        <span class="n">mo_occ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mo_occ</span>
+        <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">!=</span> <span class="n">n_beta</span><span class="p">:</span>
+            <span class="n">mo_coeff</span> <span class="o">=</span> <span class="p">(</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">&gt;</span> <span class="n">n_beta</span><span class="p">:</span>
+                <span class="n">mo_occ_a</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="n">mo_occ_b</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mo_occ_a</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="n">mo_occ_b</span> <span class="o">=</span> <span class="n">mo_occ</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">mo_occ</span> <span class="o">=</span> <span class="p">(</span><span class="n">mo_occ_a</span><span class="p">,</span> <span class="n">mo_occ_b</span><span class="p">)</span>
         <span class="n">ccsd_solver</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">CCSD</span><span class="p">(</span>
-            <span class="n">scf</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="n">frozen</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">mo_occ</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mo_occ</span>
+            <span class="n">scf</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="n">frozen</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mo_coeff</span><span class="o">=</span><span class="n">mo_coeff</span><span class="p">,</span> <span class="n">mo_occ</span><span class="o">=</span><span class="n">mo_occ</span>
         <span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">ccsd_t1</span><span class="p">,</span> <span class="n">ccsd_t2</span> <span class="o">=</span> <span class="n">ccsd_solver</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">t1</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="n">t2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ccsd_energy</span> <span class="o">=</span> <span class="n">ccsd_solver</span><span class="o">.</span><span class="n">e_tot</span>
@@ -545,6 +587,105 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ccsd_t1</span> <span class="o">=</span> <span class="n">ccsd_t1</span>
         <span class="k">if</span> <span class="n">store_t2</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ccsd_t2</span> <span class="o">=</span> <span class="n">ccsd_t2</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.to_json">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.to_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">compression</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialize to JSON format, optionally compressed, and save to disk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file: The file path to save to.</span>
+<span class="sd">            compression: The optional compression algorithm to use.</span>
+<span class="sd">                Options: ``&quot;gzip&quot;``, ``&quot;bz2&quot;``, ``&quot;lzma&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+
+        <span class="n">open_func</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="kc">None</span><span class="p">:</span> <span class="nb">open</span><span class="p">,</span>
+            <span class="s2">&quot;gzip&quot;</span><span class="p">:</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
+            <span class="s2">&quot;bz2&quot;</span><span class="p">:</span> <span class="n">bz2</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
+            <span class="s2">&quot;lzma&quot;</span><span class="p">:</span> <span class="n">lzma</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="n">open_func</span><span class="p">[</span><span class="n">compression</span><span class="p">](</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="n">orjson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">orjson</span><span class="o">.</span><span class="n">OPT_SERIALIZE_NUMPY</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.from_json">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_json">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span>
+        <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">compression</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a MolecularData from a (possibly compressed) JSON file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file: The file path to read from.</span>
+<span class="sd">            compression: The compression algorithm, if any, which was used to compress</span>
+<span class="sd">                the file.</span>
+<span class="sd">                Options: ``&quot;gzip&quot;``, ``&quot;bz2&quot;``, ``&quot;lzma&quot;``.</span>
+
+<span class="sd">        Returns: The MolecularData object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">open_func</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="kc">None</span><span class="p">:</span> <span class="nb">open</span><span class="p">,</span>
+            <span class="s2">&quot;gzip&quot;</span><span class="p">:</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
+            <span class="s2">&quot;bz2&quot;</span><span class="p">:</span> <span class="n">bz2</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
+            <span class="s2">&quot;lzma&quot;</span><span class="p">:</span> <span class="n">lzma</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="n">open_func</span><span class="p">[</span><span class="n">compression</span><span class="p">](</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">as_array_or_none</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">as_array_tuple_or_none</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="n">nelec</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nelec&quot;</span><span class="p">])</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+        <span class="n">arrays_func</span> <span class="o">=</span> <span class="n">as_array_or_none</span> <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">==</span> <span class="n">n_beta</span> <span class="k">else</span> <span class="n">as_array_tuple_or_none</span>
+
+        <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coordinates</span><span class="p">))</span> <span class="k">for</span> <span class="n">element</span><span class="p">,</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;atom&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">basis</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;basis&quot;</span><span class="p">],</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;spin&quot;</span><span class="p">],</span>
+            <span class="n">symmetry</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;symmetry&quot;</span><span class="p">],</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;norb&quot;</span><span class="p">],</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">mo_coeff</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;mo_coeff&quot;</span><span class="p">]),</span>
+            <span class="n">mo_occ</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;mo_occ&quot;</span><span class="p">]),</span>
+            <span class="n">active_space</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;active_space&quot;</span><span class="p">],</span>
+            <span class="n">core_energy</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;core_energy&quot;</span><span class="p">],</span>
+            <span class="n">one_body_integrals</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;one_body_integrals&quot;</span><span class="p">]),</span>
+            <span class="n">two_body_integrals</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;two_body_integrals&quot;</span><span class="p">]),</span>
+            <span class="n">hf_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hf_energy&quot;</span><span class="p">),</span>
+            <span class="n">hf_mo_coeff</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hf_mo_coeff&quot;</span><span class="p">)),</span>
+            <span class="n">hf_mo_occ</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hf_mo_occ&quot;</span><span class="p">)),</span>
+            <span class="n">mp2_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mp2_energy&quot;</span><span class="p">),</span>
+            <span class="n">mp2_t2</span><span class="o">=</span><span class="n">arrays_func</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mp2_t2&quot;</span><span class="p">)),</span>
+            <span class="n">ccsd_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ccsd_energy&quot;</span><span class="p">),</span>
+            <span class="n">ccsd_t1</span><span class="o">=</span><span class="n">arrays_func</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ccsd_t1&quot;</span><span class="p">)),</span>
+            <span class="n">ccsd_t2</span><span class="o">=</span><span class="n">arrays_func</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ccsd_t2&quot;</span><span class="p">)),</span>
+            <span class="n">fci_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fci_energy&quot;</span><span class="p">),</span>
+            <span class="n">fci_vec</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fci_vec&quot;</span><span class="p">)),</span>
+            <span class="n">dipole_integrals</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dipole_integrals&quot;</span><span class="p">)),</span>
+            <span class="n">orbital_symmetries</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orbital_symmetries&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>
@@ -586,7 +727,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=423071ad"></script>
+</div><script src="../../_static/documentation_options.js?v=e648f5b4"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
