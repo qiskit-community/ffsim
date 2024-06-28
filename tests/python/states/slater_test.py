@@ -18,14 +18,12 @@ def _empirical_distribution(bts_matrix, norb, nelec):
         indices[i] = index
 
     unique_indices, counts = np.unique(indices, return_counts=True)
-
     if isinstance(nelec, tuple):
         probabilities = np.zeros(math.comb(norb, nelec[0]) * math.comb(norb, nelec[1]))
     else:
         probabilities = np.zeros(math.comb(norb, nelec))
 
     probabilities[unique_indices] = counts
-
     probabilities /= np.sum(probabilities)
 
     return probabilities
@@ -43,7 +41,6 @@ def test_slater_sampler(norb: int, nelec: tuple[int, int]):
     rotation_b = ffsim.random.random_unitary(norb, seed=rng)
     rdm_a = ffsim.slater_determinant_rdms(norb, range(n_a), rotation_a, rank=1)
     rdm_b = ffsim.slater_determinant_rdms(norb, range(n_b), rotation_b, rank=1)
-
     test_distribution = (
         np.abs(
             ffsim.slater_determinant(
@@ -52,11 +49,8 @@ def test_slater_sampler(norb: int, nelec: tuple[int, int]):
         )
         ** 2
     )
-
     samples = ffsim.sample_slater((rdm_a, rdm_b), n_samples, seed=rng)
-
     empirical_distribution = _empirical_distribution(samples, norb, nelec)
-
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
 
@@ -66,16 +60,11 @@ def test_slater_sampler_spinless(norb: int, nelec: int):
 
     rng = np.random.default_rng(1234)
     n_samples = 3000
-
     rotation = ffsim.random.random_unitary(norb, seed=rng)
     rdm = ffsim.slater_determinant_rdms(norb, range(nelec), rotation, rank=1)
-
     test_distribution = (
         np.absolute(ffsim.slater_determinant(norb, (range(nelec), []), rotation)) ** 2
     )
-
     samples = ffsim.sample_slater(rdm, n_samples, seed=rng)
-
     empirical_distribution = _empirical_distribution(samples, norb, nelec)
-
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99

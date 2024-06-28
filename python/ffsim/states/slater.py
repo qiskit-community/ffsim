@@ -38,7 +38,6 @@ def sample_slater(
 
         if n == 0 or n == norb:
             sampled_configuration = np.ones((shots, norb), dtype=int) * int(n / norb)
-
         else:
             sampled_configuration = _sample_spinless_direct(rdm, shots, rng)
     else:
