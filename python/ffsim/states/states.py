@@ -276,6 +276,8 @@ def slater_determinant_rdms(
     norb: int,
     occupied_orbitals: Sequence[int],
     orbital_rotation: np.ndarray | None = None,
+    *,
+    rank: int = 1,
 ) -> np.ndarray: ...
 @overload
 def slater_determinant_rdms(
@@ -284,6 +286,8 @@ def slater_determinant_rdms(
     orbital_rotation: np.ndarray
     | tuple[np.ndarray | None, np.ndarray | None]
     | None = None,
+    *,
+    rank: int = 1,
 ) -> np.ndarray: ...
 def slater_determinant_rdms(
     norb: int,
