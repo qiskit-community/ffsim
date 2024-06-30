@@ -423,7 +423,7 @@ def indices_to_strings(
 
 
 def strings_to_indices(
-    strings: Sequence[str] | np.ndarray, norb: int, nelec: int | tuple[int, int]
+    strings: Sequence[str], norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
     """Convert bitstrings to state vector indices.
 
