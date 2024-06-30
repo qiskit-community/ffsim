@@ -583,10 +583,14 @@ def sample_state_vector(
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
-        orbs: The spin-orbitals to sample. These are integers ranging from
+        orbs: The spin-orbitals to sample.
+            In the spinless case (when `nelec` is an integer), these are integers
+            ranging from ``0`` to ``norb``.
+            In the spinful case, these are integers ranging from
             ``0`` to ``2 * norb - 1``, with the first half of the range representing
             the spin alpha orbitals, and the second half representing the spin beta
-            orbitals. If not specified, then all orbitals are sampled.
+            orbitals.
+            If not specified, then all spin-orbitals are sampled.
         shots: The number of bitstrings to sample.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
