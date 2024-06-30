@@ -569,25 +569,25 @@ def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
 def sample_state_vector(
     vec: np.ndarray | StateVector,
     *,
-    orbs: list[int],
-    shots: int,
     norb: int | None = None,
     nelec: int | tuple[int, int] | None = None,
+    orbs: Sequence[int] | None = None,
+    shots: int = 1,
     seed: np.random.Generator | int | None = None,
 ) -> list[str]:
     """Sample bitstrings from a state vector.
 
     Args:
         vec: The state vector to sample from.
-        orbs: The spin-orbitals to sample from. These are integers ranging from
-            ``0`` to ``2 * norb - 1``, with the first half of the range representing
-            the spin alpha orbitals, and the second half representing the spin beta
-            orbitals.
-        shots: The number of bitstrings to sample.
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
+        orbs: The spin-orbitals to sample. These are integers ranging from
+            ``0`` to ``2 * norb - 1``, with the first half of the range representing
+            the spin alpha orbitals, and the second half representing the spin beta
+            orbitals. If not specified, then all orbitals are sampled.
+        shots: The number of bitstrings to sample.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -599,11 +599,13 @@ def sample_state_vector(
         TypeError: When passing vec as a StateVector, norb and nelec must both be None.
     """
     vec, norb, nelec = canonicalize_vec_norb_nelec(vec, norb, nelec)
+    if orbs is None:
+        orbs = range(2 * norb)
     rng = np.random.default_rng(seed)
     probabilities = np.abs(vec) ** 2
     samples = rng.choice(len(vec), size=shots, p=probabilities)
     bitstrings = indices_to_strings(samples, norb, nelec)
-    if orbs == list(range(2 * norb)):
+    if list(orbs) == list(range(2 * norb)):
         return bitstrings
     return ["".join(bitstring[-1 - i] for i in orbs[::-1]) for bitstring in bitstrings]
 
