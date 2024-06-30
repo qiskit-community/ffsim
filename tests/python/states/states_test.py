@@ -364,8 +364,8 @@ def test_slater_determinant_one_rdm_same_rotation(
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
-def test_sample_state_vector():
-    """Test sampling state vector."""
+def test_sample_state_vector_spinful():
+    """Test sampling state vector, spinful."""
     norb = 5
     nelec = (3, 2)
     index = ffsim.strings_to_indices(["1000101101"], norb=norb, nelec=nelec)[0]
@@ -378,6 +378,22 @@ def test_sample_state_vector():
         vec, orbs=[0, 1, 2, 5, 6, 9], shots=10, norb=norb, nelec=nelec
     )
     assert samples == ["101101"] * 10
+
+
+def test_sample_state_vector_spinless():
+    """Test sampling state vector, spinless."""
+    norb = 5
+    nelec = 3
+    index = ffsim.strings_to_indices(["01101"], norb=norb, nelec=nelec)[0]
+    vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
+
+    samples = ffsim.sample_state_vector(vec, norb=norb, nelec=nelec)
+    assert samples == ["01101"]
+
+    samples = ffsim.sample_state_vector(
+        vec, orbs=[0, 1, 3], shots=10, norb=norb, nelec=nelec
+    )
+    assert samples == ["101"] * 10
 
 
 @pytest.mark.parametrize(
