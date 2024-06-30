@@ -599,13 +599,14 @@ def sample_state_vector(
         TypeError: When passing vec as a StateVector, norb and nelec must both be None.
     """
     vec, norb, nelec = canonicalize_vec_norb_nelec(vec, norb, nelec)
+    all_orbs = list(range(norb if isinstance(nelec, (int, np.integer)) else 2 * norb))
     if orbs is None:
-        orbs = range(2 * norb)
+        orbs = all_orbs
     rng = np.random.default_rng(seed)
     probabilities = np.abs(vec) ** 2
     samples = rng.choice(len(vec), size=shots, p=probabilities)
     bitstrings = indices_to_strings(samples, norb, nelec)
-    if list(orbs) == list(range(2 * norb)):
+    if list(orbs) == all_orbs:
         return bitstrings
     return ["".join(bitstring[-1 - i] for i in orbs[::-1]) for bitstring in bitstrings]
 
