@@ -4245,10 +4245,14 @@ The spin-summed 2-RDM is alpha-alpha + alpha-beta + beta-alpha + beta-beta.</p>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
 and spin beta fermions.</p></li>
-<li><p><strong>orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The spin-orbitals to sample. These are integers ranging from
+<li><p><strong>orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The spin-orbitals to sample.
+In the spinless case (when <cite>nelec</cite> is an integer), these are integers
+ranging from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">norb</span></code>.
+In the spinful case, these are integers ranging from
 <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">norb</span> <span class="pre">-</span> <span class="pre">1</span></code>, with the first half of the range representing
 the spin alpha orbitals, and the second half representing the spin beta
-orbitals. If not specified, then all orbitals are sampled.</p></li>
+orbitals.
+If not specified, then all spin-orbitals are sampled.</p></li>
 <li><p><strong>shots</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of bitstrings to sample.</p></li>
 <li><p><strong>seed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A seed to initialize the pseudorandom number generator.
 Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
