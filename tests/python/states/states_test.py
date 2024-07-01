@@ -193,6 +193,12 @@ def test_indices_to_strings():
         "101",
         "110",
     ]
+    strings = ffsim.indices_to_strings(range(dim), norb, nelec, concatenate=False)
+    assert strings == [
+        "011",
+        "101",
+        "110",
+    ]
 
     norb = 3
     nelec = (2, 1)
@@ -208,6 +214,31 @@ def test_indices_to_strings():
         "001110",
         "010110",
         "100110",
+    ]
+    strings_a, strings_b = ffsim.indices_to_strings(
+        range(dim), norb, nelec, concatenate=False
+    )
+    assert strings_a == [
+        "011",
+        "011",
+        "011",
+        "101",
+        "101",
+        "101",
+        "110",
+        "110",
+        "110",
+    ]
+    assert strings_b == [
+        "001",
+        "010",
+        "100",
+        "001",
+        "010",
+        "100",
+        "001",
+        "010",
+        "100",
     ]
 
 
@@ -255,6 +286,8 @@ def test_addresses_to_strings():
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
     np.testing.assert_array_equal(strings, [0b011, 0b101, 0b110])
+    strings = ffsim.addresses_to_strings(range(dim), norb, nelec, concatenate=False)
+    np.testing.assert_array_equal(strings, [0b011, 0b101, 0b110])
 
     norb = 3
     nelec = (2, 1)
@@ -272,6 +305,37 @@ def test_addresses_to_strings():
             0b001110,
             0b010110,
             0b100110,
+        ],
+    )
+    strings_a, strings_b = ffsim.addresses_to_strings(
+        range(dim), norb, nelec, concatenate=False
+    )
+    np.testing.assert_array_equal(
+        strings_a,
+        [
+            0b011,
+            0b011,
+            0b011,
+            0b101,
+            0b101,
+            0b101,
+            0b110,
+            0b110,
+            0b110,
+        ],
+    )
+    np.testing.assert_array_equal(
+        strings_b,
+        [
+            0b001,
+            0b010,
+            0b100,
+            0b001,
+            0b010,
+            0b100,
+            0b001,
+            0b010,
+            0b100,
         ],
     )
 
@@ -310,7 +374,7 @@ def test_strings_to_addresses():
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(1, 6)))
-def test_indices_and_strings_roundtrip_spinless(norb: int, nelec: tuple[int, int]):
+def test_indices_and_strings_roundtrip_spinless(norb: int, nelec: int):
     """Test converting statevector indices to strings."""
     rng = np.random.default_rng(26390)
     dim = ffsim.dim(norb, nelec)
@@ -326,7 +390,9 @@ def test_indices_and_strings_roundtrip_spinful(norb: int, nelec: tuple[int, int]
     rng = np.random.default_rng(26390)
     dim = ffsim.dim(norb, nelec)
     indices = rng.choice(dim, size=10)
-    strings = ffsim.indices_to_strings(indices, norb=norb, nelec=nelec)
+    strings = ffsim.indices_to_strings(
+        indices, norb=norb, nelec=nelec, concatenate=True
+    )
     indices_again = ffsim.strings_to_indices(strings, norb=norb, nelec=nelec)
     np.testing.assert_array_equal(indices_again, indices)
 
@@ -375,9 +441,19 @@ def test_sample_state_vector_spinful():
     assert samples == ["1000101101"]
 
     samples = ffsim.sample_state_vector(
-        vec, orbs=[0, 1, 2, 5, 6, 9], shots=10, norb=norb, nelec=nelec
+        vec, orbs=([0, 1, 2], [0, 1, 3]), shots=10, norb=norb, nelec=nelec
     )
-    assert samples == ["101101"] * 10
+    assert samples == ["001101"] * 10
+
+    samples = ffsim.sample_state_vector(
+        vec,
+        orbs=([0, 1, 2], [0, 1, 3]),
+        shots=10,
+        norb=norb,
+        nelec=nelec,
+        concatenate=False,
+    )
+    assert samples == (["101"] * 10, ["001"] * 10)
 
 
 def test_sample_state_vector_spinless():
@@ -389,9 +465,14 @@ def test_sample_state_vector_spinless():
 
     samples = ffsim.sample_state_vector(vec, norb=norb, nelec=nelec)
     assert samples == ["01101"]
+    samples = ffsim.sample_state_vector(vec, norb=norb, nelec=nelec, concatenate=False)
+    assert samples == ["01101"]
 
     samples = ffsim.sample_state_vector(
         vec, orbs=[0, 1, 3], shots=10, norb=norb, nelec=nelec
+    )
+    samples = ffsim.sample_state_vector(
+        vec, orbs=[0, 1, 3], shots=10, norb=norb, nelec=nelec, concatenate=False
     )
     assert samples == ["101"] * 10
 
