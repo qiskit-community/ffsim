@@ -299,7 +299,7 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
@@ -689,11 +689,35 @@
 
 
 
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">indices_to_strings</span><span class="p">(</span>
+    <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">concatenate</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">indices_to_strings</span><span class="p">(</span>
+    <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">indices_to_strings</span><span class="p">(</span>
+    <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span> <span class="o">...</span>
 <div class="viewcode-block" id="indices_to_strings">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.indices_to_strings">[docs]</a>
 <span class="k">def</span> <span class="nf">indices_to_strings</span><span class="p">(</span>
-    <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert state vector indices to bitstrings.</span>
 
 <span class="sd">    Example:</span>
@@ -716,6 +740,20 @@
 <span class="sd">        #  &#39;001110&#39;,</span>
 <span class="sd">        #  &#39;010110&#39;,</span>
 <span class="sd">        #  &#39;100110&#39;]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        indices: The state vector indices to convert to bitstrings.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
+<span class="sd">        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the</span>
+<span class="sd">            bitstrings. If True, then a single list of concatenated bitstrings is</span>
+<span class="sd">            returned. The strings are concatenated in the order :math:`s_b s_a`,</span>
+<span class="sd">            that is, the alpha string appears on the right.</span>
+<span class="sd">            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that</span>
+<span class="sd">            the list of alpha strings appears first, that is, on the left.</span>
+<span class="sd">            In the spinless case (when `nelec` is an integer), this argument is ignored.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="n">strings</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices</span><span class="p">)</span>
@@ -726,10 +764,11 @@
     <span class="n">indices_a</span><span class="p">,</span> <span class="n">indices_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span>
     <span class="n">strings_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_a</span><span class="p">)</span>
     <span class="n">strings_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_b</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">string_b</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}{</span><span class="n">string_a</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">for</span> <span class="n">string_a</span><span class="p">,</span> <span class="n">string_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span><span class="p">)</span>
-    <span class="p">]</span></div>
+    <span class="k">if</span> <span class="n">concatenate</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">s_b</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}{</span><span class="n">s_a</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">s_a</span><span class="p">,</span> <span class="n">s_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings_a</span><span class="p">],</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">b</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings_b</span><span class="p">]</span></div>
 
 
 
@@ -785,8 +824,11 @@
 <div class="viewcode-block" id="addresses_to_strings">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.addresses_to_strings">[docs]</a>
 <span class="k">def</span> <span class="nf">addresses_to_strings</span><span class="p">(</span>
-    <span class="n">addresses</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">addresses</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert state vector addresses to bitstrings.</span>
 
 <span class="sd">    Example:</span>
@@ -810,6 +852,20 @@
 <span class="sd">        #  &#39;001110&#39;,</span>
 <span class="sd">        #  &#39;010110&#39;,</span>
 <span class="sd">        #  &#39;100110&#39;]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        addresses: The state vector addresses to convert to bitstrings.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
+<span class="sd">        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the</span>
+<span class="sd">            bitstrings. If True, then a single list of concatenated bitstrings is</span>
+<span class="sd">            returned. The strings are concatenated in the order :math:`s_b s_a`,</span>
+<span class="sd">            that is, the alpha string appears on the right.</span>
+<span class="sd">            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that</span>
+<span class="sd">            the list of alpha strings appears first, that is, on the left.</span>
+<span class="sd">            In the spinless case (when `nelec` is an integer), this argument is ignored.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">addresses</span><span class="p">)</span>
@@ -822,7 +878,9 @@
     <span class="n">addresses_a</span><span class="p">,</span> <span class="n">addresses_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">addresses</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span>
     <span class="n">strings_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">addresses_a</span><span class="p">)</span>
     <span class="n">strings_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">addresses_b</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">strings_b</span> <span class="o">&lt;&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">+</span> <span class="n">strings_a</span></div>
+    <span class="k">if</span> <span class="n">concatenate</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">strings_b</span> <span class="o">&lt;&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">+</span> <span class="n">strings_a</span>
+    <span class="k">return</span> <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span></div>
 
 
 
@@ -896,10 +954,11 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">orbs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orbs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample bitstrings from a state vector.</span>
 
 <span class="sd">    Args:</span>
@@ -909,14 +968,20 @@
 <span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
 <span class="sd">            and spin beta fermions.</span>
 <span class="sd">        orbs: The spin-orbitals to sample.</span>
-<span class="sd">            In the spinless case (when `nelec` is an integer), these are integers</span>
-<span class="sd">            ranging from ``0`` to ``norb``.</span>
-<span class="sd">            In the spinful case, these are integers ranging from</span>
-<span class="sd">            ``0`` to ``2 * norb - 1``, with the first half of the range representing</span>
-<span class="sd">            the spin alpha orbitals, and the second half representing the spin beta</span>
-<span class="sd">            orbitals.</span>
+<span class="sd">            In the spinless case (when `nelec` is an integer), this is a list of</span>
+<span class="sd">            integers ranging from ``0`` to ``norb``.</span>
+<span class="sd">            In the spinful case, this is a pair of lists of such integers, with the</span>
+<span class="sd">            first list storing the spin-alpha orbitals and the second list storing</span>
+<span class="sd">            the spin-beta orbitals.</span>
 <span class="sd">            If not specified, then all spin-orbitals are sampled.</span>
 <span class="sd">        shots: The number of bitstrings to sample.</span>
+<span class="sd">        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the</span>
+<span class="sd">            bitstrings. If True, then a single list of concatenated bitstrings is</span>
+<span class="sd">            returned. The strings are concatenated in the order :math:`s_b s_a`,</span>
+<span class="sd">            that is, the alpha string appears on the right.</span>
+<span class="sd">            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that</span>
+<span class="sd">            the list of alpha strings appears first, that is, on the left.</span>
+<span class="sd">            In the spinless case (when `nelec` is an integer), this argument is ignored.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -928,17 +993,74 @@
 <span class="sd">        TypeError: When passing vec as a StateVector, norb and nelec must both be None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">canonicalize_vec_norb_nelec</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-    <span class="n">all_orbs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="k">else</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_sample_state_vector_spinless</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">orbs</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">orbs</span><span class="p">),</span>
+            <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_sample_state_vector_spinful</span><span class="p">(</span>
+        <span class="n">vec</span><span class="p">,</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="n">orbs</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span> <span class="n">orbs</span><span class="p">),</span>
+        <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span>
+        <span class="n">concatenate</span><span class="o">=</span><span class="n">concatenate</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_sample_state_vector_spinless</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">orbs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">orbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">orbs</span> <span class="o">=</span> <span class="n">all_orbs</span>
+        <span class="n">orbs</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">)</span>
     <span class="n">bitstrings</span> <span class="o">=</span> <span class="n">indices_to_strings</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">orbs</span><span class="p">)</span> <span class="o">==</span> <span class="n">all_orbs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">orbs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">bitstrings</span>
-    <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bitstring</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">orbs</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">bitstring</span> <span class="ow">in</span> <span class="n">bitstrings</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bitstring</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">orbs</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">bitstring</span> <span class="ow">in</span> <span class="n">bitstrings</span><span class="p">]</span>
 
+
+<span class="k">def</span> <span class="nf">_sample_state_vector_spinful</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">if</span> <span class="n">orbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">orbs</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">)</span>
+    <span class="n">orbs_a</span><span class="p">,</span> <span class="n">orbs_b</span> <span class="o">=</span> <span class="n">orbs</span>
+
+    <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">orbs_a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">orbs_b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)):</span>
+        <span class="c1"># All orbitals are sampled, so we can simply call indices_to_strings</span>
+        <span class="k">return</span> <span class="n">indices_to_strings</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">concatenate</span><span class="o">=</span><span class="n">concatenate</span><span class="p">)</span>
+
+    <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span> <span class="o">=</span> <span class="n">indices_to_strings</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">concatenate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">strings_a</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">orbs_a</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings_a</span><span class="p">]</span>
+    <span class="n">strings_b</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">orbs_b</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings_b</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">concatenate</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strings</span><span class="p">)</span> <span class="k">for</span> <span class="n">strings</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strings_b</span><span class="p">,</span> <span class="n">strings_a</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span>
 
 
 <span class="k">def</span> <span class="nf">canonicalize_vec_norb_nelec</span><span class="p">(</span>
