@@ -15,7 +15,7 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import cast, overload
+from typing import Literal, Optional, cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -381,9 +381,33 @@ def slater_determinant_rdms(
         )
 
 
+@overload
 def indices_to_strings(
-    indices: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
-) -> list[str]:
+    indices: Sequence[int] | np.ndarray,
+    norb: int,
+    nelec: int | tuple[int, int],
+    concatenate: Literal[True],
+) -> list[str]: ...
+@overload
+def indices_to_strings(
+    indices: Sequence[int] | np.ndarray,
+    norb: int,
+    nelec: int,
+    concatenate: bool = True,
+) -> list[str]: ...
+@overload
+def indices_to_strings(
+    indices: Sequence[int] | np.ndarray,
+    norb: int,
+    nelec: int | tuple[int, int],
+    concatenate: bool = True,
+) -> list[str] | tuple[list[str], list[str]]: ...
+def indices_to_strings(
+    indices: Sequence[int] | np.ndarray,
+    norb: int,
+    nelec: int | tuple[int, int],
+    concatenate: bool = True,
+) -> list[str] | tuple[list[str], list[str]]:
     """Convert state vector indices to bitstrings.
 
     Example:
@@ -406,6 +430,20 @@ def indices_to_strings(
         #  '001110',
         #  '010110',
         #  '100110']
+
+    Args:
+        indices: The state vector indices to convert to bitstrings.
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
+        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
+            bitstrings. If True, then a single list of concatenated bitstrings is
+            returned. The strings are concatenated in the order :math:`s_b s_a`,
+            that is, the alpha string appears on the right.
+            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
+            the list of alpha strings appears first, that is, on the left.
+            In the spinless case (when `nelec` is an integer), this argument is ignored.
     """
     if isinstance(nelec, int):
         strings = cistring.addrs2str(norb=norb, nelec=nelec, addrs=indices)
@@ -416,10 +454,11 @@ def indices_to_strings(
     indices_a, indices_b = np.divmod(indices, dim_b)
     strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)
     strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)
-    return [
-        f"{string_b:0{norb}b}{string_a:0{norb}b}"
-        for string_a, string_b in zip(strings_a, strings_b)
-    ]
+    if concatenate:
+        return [
+            f"{s_b:0{norb}b}{s_a:0{norb}b}" for s_a, s_b in zip(strings_a, strings_b)
+        ]
+    return [f"{s:0{norb}b}" for s in strings_a], [f"{s:0{norb}b}" for s in strings_b]
 
 
 def strings_to_indices(
@@ -469,8 +508,11 @@ def strings_to_indices(
 
 
 def addresses_to_strings(
-    addresses: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
-) -> np.ndarray:
+    addresses: Sequence[int] | np.ndarray,
+    norb: int,
+    nelec: int | tuple[int, int],
+    concatenate: bool = True,
+) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     """Convert state vector addresses to bitstrings.
 
     Example:
@@ -494,6 +536,20 @@ def addresses_to_strings(
         #  '001110',
         #  '010110',
         #  '100110']
+
+    Args:
+        addresses: The state vector addresses to convert to bitstrings.
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
+        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
+            bitstrings. If True, then a single list of concatenated bitstrings is
+            returned. The strings are concatenated in the order :math:`s_b s_a`,
+            that is, the alpha string appears on the right.
+            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
+            the list of alpha strings appears first, that is, on the left.
+            In the spinless case (when `nelec` is an integer), this argument is ignored.
     """
     if isinstance(nelec, int):
         return cistring.addrs2str(norb=norb, nelec=nelec, addrs=addresses)
@@ -506,7 +562,9 @@ def addresses_to_strings(
     addresses_a, addresses_b = np.divmod(addresses, dim_b)
     strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=addresses_a)
     strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=addresses_b)
-    return (strings_b << norb) + strings_a
+    if concatenate:
+        return (strings_b << norb) + strings_a
+    return strings_a, strings_b
 
 
 def strings_to_addresses(
@@ -571,10 +629,11 @@ def sample_state_vector(
     *,
     norb: int | None = None,
     nelec: int | tuple[int, int] | None = None,
-    orbs: Sequence[int] | None = None,
+    orbs: Sequence[int] | tuple[Sequence[int], Sequence[int]] | None = None,
     shots: int = 1,
+    concatenate: bool = True,
     seed: np.random.Generator | int | None = None,
-) -> list[str]:
+) -> list[str] | tuple[list[str], list[str]]:
     """Sample bitstrings from a state vector.
 
     Args:
@@ -584,14 +643,20 @@ def sample_state_vector(
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
         orbs: The spin-orbitals to sample.
-            In the spinless case (when `nelec` is an integer), these are integers
-            ranging from ``0`` to ``norb``.
-            In the spinful case, these are integers ranging from
-            ``0`` to ``2 * norb - 1``, with the first half of the range representing
-            the spin alpha orbitals, and the second half representing the spin beta
-            orbitals.
+            In the spinless case (when `nelec` is an integer), this is a list of
+            integers ranging from ``0`` to ``norb``.
+            In the spinful case, this is a pair of lists of such integers, with the
+            first list storing the spin-alpha orbitals and the second list storing
+            the spin-beta orbitals.
             If not specified, then all spin-orbitals are sampled.
         shots: The number of bitstrings to sample.
+        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
+            bitstrings. If True, then a single list of concatenated bitstrings is
+            returned. The strings are concatenated in the order :math:`s_b s_a`,
+            that is, the alpha string appears on the right.
+            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
+            the list of alpha strings appears first, that is, on the left.
+            In the spinless case (when `nelec` is an integer), this argument is ignored.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -603,16 +668,73 @@ def sample_state_vector(
         TypeError: When passing vec as a StateVector, norb and nelec must both be None.
     """
     vec, norb, nelec = canonicalize_vec_norb_nelec(vec, norb, nelec)
-    all_orbs = list(range(norb if isinstance(nelec, (int, np.integer)) else 2 * norb))
+    if isinstance(nelec, int):
+        return _sample_state_vector_spinless(
+            vec,
+            norb=norb,
+            nelec=nelec,
+            orbs=cast(Optional[Sequence[int]], orbs),
+            shots=shots,
+            seed=seed,
+        )
+    return _sample_state_vector_spinful(
+        vec,
+        norb=norb,
+        nelec=nelec,
+        orbs=cast(Optional[tuple[Sequence[int], Sequence[int]]], orbs),
+        shots=shots,
+        concatenate=concatenate,
+        seed=seed,
+    )
+
+
+def _sample_state_vector_spinless(
+    vec: np.ndarray,
+    *,
+    norb: int,
+    nelec: int,
+    orbs: Sequence[int] | None,
+    shots: int,
+    seed: np.random.Generator | int | None,
+) -> list[str]:
     if orbs is None:
-        orbs = all_orbs
+        orbs = range(norb)
     rng = np.random.default_rng(seed)
     probabilities = np.abs(vec) ** 2
     samples = rng.choice(len(vec), size=shots, p=probabilities)
     bitstrings = indices_to_strings(samples, norb, nelec)
-    if list(orbs) == all_orbs:
+    if list(orbs) == list(range(norb)):
         return bitstrings
     return ["".join(bitstring[-1 - i] for i in orbs[::-1]) for bitstring in bitstrings]
+
+
+def _sample_state_vector_spinful(
+    vec: np.ndarray,
+    *,
+    norb: int,
+    nelec: tuple[int, int],
+    orbs: tuple[Sequence[int], Sequence[int]] | None,
+    shots: int,
+    concatenate: bool = True,
+    seed: np.random.Generator | int | None,
+) -> list[str] | tuple[list[str], list[str]]:
+    if orbs is None:
+        orbs = range(norb), range(norb)
+    rng = np.random.default_rng(seed)
+    probabilities = np.abs(vec) ** 2
+    samples = rng.choice(len(vec), size=shots, p=probabilities)
+    orbs_a, orbs_b = orbs
+
+    if list(orbs_a) == list(orbs_b) == list(range(norb)):
+        # All orbitals are sampled, so we can simply call indices_to_strings
+        return indices_to_strings(samples, norb, nelec, concatenate=concatenate)
+
+    strings_a, strings_b = indices_to_strings(samples, norb, nelec, concatenate=False)
+    strings_a = ["".join(s[-1 - i] for i in orbs_a[::-1]) for s in strings_a]
+    strings_b = ["".join(s[-1 - i] for i in orbs_b[::-1]) for s in strings_b]
+    if concatenate:
+        return ["".join(strings) for strings in zip(strings_b, strings_a)]
+    return strings_a, strings_b
 
 
 def canonicalize_vec_norb_nelec(
