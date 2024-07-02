@@ -37,30 +37,35 @@ class MolecularData:
     """Class for storing molecular data.
 
     Attributes:
-        atom: The coordinates of the atoms in the molecule.
-        basis: The basis set, e.g. "sto-6g".
-        spin: The spin of the molecule.
-        symmetry: The symmetry of the molecule.
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-        mo_coeff: Molecular orbital coefficients in the AO basis.
-        mo_occ: Molecular orbital occupancies.
-        active_space: The molecular orbitals included in the active space.
-        core_energy: The core energy.
-        one_body_integrals: The one-body integrals.
-        two_body_integrals: The two-body integrals in compressed format.
-        hf_energy: The Hartree-Fock energy.
-        hf_mo_coeff: Hartree-Fock canonical orbital coefficients in the AO basis.
-        hf_mo_occ: Hartree-Fock canonical orbital occupancies.
-        mp2_energy: The MP2 energy.
-        mp2_t2: The MP2 t2 amplitudes.
-        ccsd_energy: The CCSD energy.
-        ccsd_t1: The CCSD t1 amplitudes.
-        ccsd_t2: The CCSD t2 amplitudes.
-        fci_energy: The FCI energy.
-        fci_vec: The FCI state vector.
-        dipole_integrals: The dipole integrals.
-        orbital_symmetries: The orbital symmetries.
+        atom (list[tuple[str, tuple[float, float, float]]]): The coordinates of the
+            atoms in the molecule.
+        basis (str): The basis set, e.g. "sto-6g".
+        spin (int): The spin of the molecule.
+        symmetry (str | None): The symmetry of the molecule.
+        norb (int): The number of spatial orbitals.
+        nelec (tuple[int, int]): The number of alpha and beta electrons.
+        mo_coeff (np.ndarray): Molecular orbital coefficients in the AO basis.
+        mo_occ (np.ndarray): Molecular orbital occupancies.
+        active_space (list[int]): The molecular orbitals included in the active space.
+        core_energy (float): The core energy.
+        one_body_integrals (np.ndarray): The one-body integrals.
+        two_body_integrals (np.ndarray): The two-body integrals in compressed format.
+        hf_energy (float | None): The Hartree-Fock energy.
+        hf_mo_coeff (np.ndarray | None): Hartree-Fock canonical orbital coefficients in
+            the AO basis.
+        hf_mo_occ (np.ndarray | None): Hartree-Fock canonical orbital occupancies.
+        mp2_energy (float | None): The MP2 energy.
+        mp2_t2 (np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None): The
+            MP2 t2 amplitudes.
+        ccsd_energy (float | None): The CCSD energy.
+        ccsd_t1 (np.ndarray | tuple[np.ndarray, np.ndarray] | None): The CCSD t1
+            amplitudes.
+        ccsd_t2 (np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None): The
+            CCSD t2 amplitudes.
+        fci_energy (float | None): The FCI energy.
+        fci_vec (np.ndarray | None): The FCI state vector.
+        dipole_integrals (np.ndarray | None): The dipole integrals.
+        orbital_symmetries (list[str] | None): The orbital symmetries.
     """
 
     # molecule information corresponding to attributes of pyscf.gto.Mole
