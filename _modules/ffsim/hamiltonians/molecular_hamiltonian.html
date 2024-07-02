@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.hamiltonians.molecular_hamiltonian - ffsim 0.0.39 documentation</title>
+        <title>ffsim.hamiltonians.molecular_hamiltonian - ffsim 0.0.40 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.39 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.40 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.39 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.40 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -304,6 +304,7 @@
 <span class="kn">from</span> <span class="nn">opt_einsum</span> <span class="kn">import</span> <span class="n">contract</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci.direct_nosym</span> <span class="kn">import</span> <span class="n">absorb_h1e</span><span class="p">,</span> <span class="n">contract_1e</span><span class="p">,</span> <span class="n">contract_2e</span><span class="p">,</span> <span class="n">make_hdiag</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">LinearOperator</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="n">FermionOperator</span>
 <span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">gen_linkstr_index</span>
@@ -342,6 +343,11 @@
 <div class="viewcode-block" id="MolecularHamiltonian.from_fcidump">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonian.from_fcidump">[docs]</a>
     <span class="nd">@staticmethod</span>
+    <span class="nd">@deprecated</span><span class="p">(</span>
+        <span class="s2">&quot;The MolecularHamiltonian.from_fcidump method is deprecated. &quot;</span>
+        <span class="s2">&quot;Instead, use MolecularData.from_fcidump and then access the `hamiltonian` &quot;</span>
+        <span class="s2">&quot;attribute of the returned MolecularData.&quot;</span>
+    <span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularHamiltonian from an FCIDUMP file.</span>
 
@@ -525,7 +531,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=e648f5b4"></script>
+</div><script src="../../../_static/documentation_options.js?v=84bd753f"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
