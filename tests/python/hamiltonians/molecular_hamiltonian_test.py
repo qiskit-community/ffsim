@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-import dataclasses
 import pathlib
 
 import numpy as np
@@ -171,10 +170,9 @@ def test_from_fcidump(tmp_path: pathlib.Path):
         tmp_path / "test.fcidump",
         h1e=mol_data.one_body_integrals,
         h2e=mol_data.two_body_integrals,
+        nuc=mol_data.core_energy,
         nmo=mol_data.norb,
         nelec=mol_data.nelec,
     )
     mol_ham = ffsim.MolecularHamiltonian.from_fcidump(tmp_path / "test.fcidump")
-    assert ffsim.approx_eq(
-        mol_ham, dataclasses.replace(mol_data.hamiltonian, constant=0.0)
-    )
+    assert ffsim.approx_eq(mol_ham, mol_data.hamiltonian)
