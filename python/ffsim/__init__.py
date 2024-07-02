@@ -73,6 +73,7 @@ from ffsim.states import (
     one_hot,
     rdm,
     rdms,
+    sample_slater,
     sample_state_vector,
     slater_determinant,
     slater_determinant_rdm,
@@ -177,6 +178,7 @@ __all__ = [
     "spin_square",
     "strings_to_addresses",
     "strings_to_indices",
+    "sample_slater",
     "testing",
     "trace",
 ]

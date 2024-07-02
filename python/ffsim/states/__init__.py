@@ -12,6 +12,7 @@
 
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm, rdms
+from ffsim.states.slater import sample_slater
 from ffsim.states.states import (
     StateVector,
     addresses_to_strings,
@@ -50,4 +51,5 @@ __all__ = [
     "spin_square",
     "strings_to_addresses",
     "strings_to_indices",
+    "sample_slater",
 ]
