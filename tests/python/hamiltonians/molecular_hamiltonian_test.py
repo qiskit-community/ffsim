@@ -154,6 +154,7 @@ def test_rotated():
     np.testing.assert_allclose(original_expectation, rotated_expectation)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_from_fcidump(tmp_path: pathlib.Path):
     """Test loading from FCIDUMP."""
     mol = pyscf.gto.Mole()
