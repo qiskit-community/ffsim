@@ -20,6 +20,7 @@ import pyscf.tools
 from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
+from typing_extensions import deprecated
 
 from ffsim._lib import FermionOperator
 from ffsim.cistring import gen_linkstr_index
@@ -54,6 +55,11 @@ class MolecularHamiltonian:
     constant: float = 0.0
 
     @staticmethod
+    @deprecated(
+        "The MolecularHamiltonian.from_fcidump method is deprecated. "
+        "Instead, use MolecularData.from_fcidump and then access the `hamiltonian` "
+        "attribute of the returned MolecularData."
+    )
     def from_fcidump(file: str | bytes | os.PathLike) -> MolecularHamiltonian:
         """Initialize a MolecularHamiltonian from an FCIDUMP file.
 
