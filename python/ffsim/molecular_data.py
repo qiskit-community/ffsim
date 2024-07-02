@@ -239,6 +239,11 @@ class MolecularData:
 
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
+        if self.mo_coeff is None or self.mo_occ is None or self.active_space is None:
+            raise RuntimeError(
+                "The run_fci method requires the mo_coeff, mo_occ, and active_space "
+                "attributes to be set to non-None values."
+            )
         n_alpha, n_beta = self.nelec
         scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
         scf = scf_func(self.mole)
@@ -253,6 +258,11 @@ class MolecularData:
 
     def run_mp2(self, *, store_t2: bool = False):
         """Run MP2 and store results."""
+        if self.mo_coeff is None or self.mo_occ is None or self.active_space is None:
+            raise RuntimeError(
+                "The run_mp2 method requires the mo_coeff, mo_occ, and active_space "
+                "attributes to be set to non-None values."
+            )
         n_alpha, n_beta = self.nelec
         scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
         scf = scf_func(self.mole)
@@ -290,6 +300,11 @@ class MolecularData:
         store_t2: bool = False,
     ) -> None:
         """Run CCSD and store results."""
+        if self.mo_coeff is None or self.mo_occ is None or self.active_space is None:
+            raise RuntimeError(
+                "The run_ccsd method requires the mo_coeff, mo_occ, and active_space "
+                "attributes to be set to non-None values."
+            )
         n_alpha, n_beta = self.nelec
         scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
         scf = scf_func(self.mole)
