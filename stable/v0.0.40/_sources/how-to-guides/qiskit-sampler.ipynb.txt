@@ -1,0 +1,353 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# How to use ffsim's Qiskit Sampler primitive\n",
+    "\n",
+    "In this guide, we show how to use [FfsimSampler](../api/ffsim.qiskit.rst#ffsim.qiskit.FfsimSampler), ffsim's implementation of the Qiskit [Sampler primitive](https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2), to sample from quantum circuits built from fermionic gates.\n",
+    "\n",
+    "## Example of using FfsimSampler\n",
+    "\n",
+    "We'll begin with a simple example of using the ffsim Sampler. First, let's create an example circuit using gates from the [ffsim.qiskit](../api/ffsim.qiskit.rst) module.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "from qiskit.circuit import QuantumCircuit, QuantumRegister\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Let's use 8 spatial orbitals with 4 alpha electrons and 4 beta electrons.\n",
+    "norb = 8\n",
+    "nelec = (4, 4)\n",
+    "n_alpha, n_beta = nelec\n",
+    "\n",
+    "# Generate some random data\n",
+    "rng = np.random.default_rng(12345)\n",
+    "orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)\n",
+    "diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)\n",
+    "\n",
+    "# Create an example circuit\n",
+    "qubits = QuantumRegister(2 * norb)\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(\n",
+    "    ffsim.qiskit.PrepareSlaterDeterminantJW(\n",
+    "        norb,\n",
+    "        occupied_orbitals=[range(n_alpha), range(n_beta)],\n",
+    "        orbital_rotation=orbital_rotation,\n",
+    "    ),\n",
+    "    qubits,\n",
+    ")\n",
+    "circuit.append(\n",
+    "    ffsim.qiskit.DiagCoulombEvolutionJW(norb, diag_coulomb_mat, time=1.0), qubits\n",
+    ")\n",
+    "circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation.T.conj()), qubits)\n",
+    "circuit.measure_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, we initialize the ffsim Sampler and use it to sample 10,000 shots from our circuit. The input to the Sampler is a list of [primitive unified blocs](https://docs.quantum.ibm.com/api/qiskit/primitives#overview-of-samplerv2), or PUBs. In the cell output we display only the top 10 most commonly encountered bitstrings.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'0000111100001111': 210,\n",
+       " '0000111100101011': 133,\n",
+       " '0010101100001111': 101,\n",
+       " '0000111100011101': 70,\n",
+       " '0010011100101101': 66,\n",
+       " '0010110100101011': 65,\n",
+       " '0010110100100111': 57,\n",
+       " '0001110100001111': 56,\n",
+       " '0000111100011011': 48,\n",
+       " '0010101100101101': 47}"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Initialize ffsim Sampler\n",
+    "sampler = ffsim.qiskit.FfsimSampler(default_shots=10_000, seed=rng)\n",
+    "\n",
+    "# Form PUB, submit job, retrieve job result, and extract first (and only) PUB result\n",
+    "pub = (circuit,)\n",
+    "job = sampler.run([pub])\n",
+    "result = job.result()\n",
+    "pub_result = result[0]\n",
+    "\n",
+    "# Get counts\n",
+    "counts = pub_result.data.meas.get_counts()\n",
+    "\n",
+    "# Display the 10 most commonly seen bitstrings and their counts\n",
+    "{k: v for k, v in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10]}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Criteria for circuits that FfsimSampler can sample\n",
+    "\n",
+    "FfsimSampler cannot sample from arbitrary Qiskit circuits. It can handle circuits that satisfy the following criteria:\n",
+    "\n",
+    "- The circuit contains only the following types of gates:\n",
+    "  - Any gate from the [ffsim.qiskit](../api/ffsim.qiskit.rst) module.\n",
+    "  - [Barrier](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.Barrier#barrier).\n",
+    "  - [Measure](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.Measure#measure).\n",
+    "- The first gate of the circuit is one of the following gates:\n",
+    "  - [ffsim.qiskit.PrepareHartreeFockJW](../api/ffsim.qiskit.rst#ffsim.qiskit.PrepareHartreeFockJW).\n",
+    "  - [ffsim.qiskit.PrepareHartreeFockSpinlessJW](../api/ffsim.qiskit.rst#ffsim.qiskit.PrepareHartreeFockSpinlessJW).\n",
+    "  - [ffsim.qiskit.PrepareSlaterDeterminantJW](../api/ffsim.qiskit.rst#ffsim.qiskit.PrepareSlaterDeterminantJW).\n",
+    "  - [ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW](../api/ffsim.qiskit.rst#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW).\n",
+    "- The state preparation gates listed in the previous item only appear as the first gate of the circuit.\n",
+    "- All measurements are performed at the end of the circuit. In other words, the circuit does not contain any mid-circuit measurements.\n",
+    "\n",
+    "Due to the need to preserve fermionic statistics, some of the supported gates must be applied to consecutive qubits in ascending order.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## More examples\n",
+    "\n",
+    "### Sampling from an LUCJ circuit for a closed-shell molecule\n",
+    "\n",
+    "The following code cell demonstrates a possible workflow for sampling from a [spin-balanced LUCJ](../explanations/lucj.ipynb) circuit for a nitrogen molecule in the 6-31g basis.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -108.835236570774\n",
+      "norb = 14\n",
+      "nelec = (3, 3)\n",
+      "E(CCSD) = -108.9630419334855  E_corr = -0.1278053627110065\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "{'0000000000011100000000000111': 9924,\n",
+       " '0000000000110100000000001101': 15,\n",
+       " '0000000001011000000000010110': 10,\n",
+       " '0000000001110000000000000111': 10,\n",
+       " '0000000000011100000000011100': 10,\n",
+       " '0001000001010000000000000111': 5,\n",
+       " '0000000001011000100000000110': 4,\n",
+       " '0000000000011100100000001100': 3,\n",
+       " '0010000000011000000000010110': 3,\n",
+       " '0000000000110100010000000101': 3}"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import pyscf\n",
+    "import pyscf.cc\n",
+    "import pyscf.data.elements\n",
+    "\n",
+    "# Build N2 molecule\n",
+    "mol = pyscf.gto.Mole()\n",
+    "mol.build(\n",
+    "    atom=[[\"N\", (0, 0, 0)], [\"N\", (1.0, 0, 0)]],\n",
+    "    basis=\"6-31g\",\n",
+    "    symmetry=\"Dooh\",\n",
+    ")\n",
+    "\n",
+    "# Define active space\n",
+    "n_frozen = 4\n",
+    "active_space = range(n_frozen, mol.nao_nr())\n",
+    "\n",
+    "# Get molecular data and Hamiltonian\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)\n",
+    "norb, nelec = mol_data.norb, mol_data.nelec\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "print(f\"norb = {norb}\")\n",
+    "print(f\"nelec = {nelec}\")\n",
+    "\n",
+    "# Get CCSD t2 amplitudes for initializing the ansatz\n",
+    "ccsd = pyscf.cc.CCSD(\n",
+    "    scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]\n",
+    ").run()\n",
+    "\n",
+    "# Use 2 ansatz layers\n",
+    "n_reps = 2\n",
+    "# Use interactions implementable on a square lattice\n",
+    "pairs_aa = [(p, p + 1) for p in range(norb - 1)]\n",
+    "pairs_ab = [(p, p) for p in range(norb)]\n",
+    "ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(\n",
+    "    ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab)\n",
+    ")\n",
+    "\n",
+    "# Construct circuit\n",
+    "qubits = QuantumRegister(2 * norb)\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)\n",
+    "circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op), qubits)\n",
+    "circuit.measure_all()\n",
+    "\n",
+    "# Sample 10,000 shots from the circuit using FfsimSampler\n",
+    "sampler = ffsim.qiskit.FfsimSampler(default_shots=10_000, seed=12345)\n",
+    "pub = (circuit,)\n",
+    "job = sampler.run([pub])\n",
+    "result = job.result()\n",
+    "pub_result = result[0]\n",
+    "counts = pub_result.data.meas.get_counts()\n",
+    "\n",
+    "# Display the 10 most commonly seen bitstrings and their counts\n",
+    "{k: v for k, v in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10]}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Sampling from an LUCJ circuit for an open-shell molecule\n",
+    "\n",
+    "The following code cell demonstrates a possible workflow for sampling from a [spin-unbalanced LUCJ](../explanations/lucj.ipynb) circuit for a hydroxyl radical in the 6-31g basis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "SCF not converged.\n",
+      "SCF energy = -75.3484557064536\n",
+      "norb = 11\n",
+      "nelec = (5, 4)\n",
+      "\n",
+      "WARN: RCCSD method does not support ROHF method. ROHF object is converted to UHF object and UCCSD method is called.\n",
+      "\n",
+      "E(UCCSD) = -75.45619739137432  E_corr = -0.107741684920739\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "{'0000000111100000011111': 9991,\n",
+       " '0000100101100000111011': 2,\n",
+       " '0000100110100000111011': 1,\n",
+       " '0000000111100110000111': 1,\n",
+       " '0000010101100001011011': 1,\n",
+       " '1000000101100000111011': 1,\n",
+       " '0101000001100000011111': 1,\n",
+       " '0000010110100001011011': 1,\n",
+       " '0100000110100100001111': 1}"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import pyscf.data.elements\n",
+    "from pyscf import cc, gto\n",
+    "\n",
+    "# Build HO molecule\n",
+    "mol = gto.Mole()\n",
+    "mol.build(\n",
+    "    atom=[[\"H\", (0, 0, 0)], [\"O\", (0, 0, 1.1)]],\n",
+    "    basis=\"6-31g\",\n",
+    "    spin=1,\n",
+    "    symmetry=\"Coov\",\n",
+    ")\n",
+    "\n",
+    "# Get molecular data and Hamiltonian\n",
+    "scf = pyscf.scf.ROHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf)\n",
+    "norb, nelec = mol_data.norb, mol_data.nelec\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "print(f\"norb = {norb}\")\n",
+    "print(f\"nelec = {nelec}\")\n",
+    "\n",
+    "# Get CCSD t2 amplitudes for initializing the ansatz\n",
+    "ccsd = cc.CCSD(scf).run()\n",
+    "\n",
+    "# Use 4 layers from opposite-spin amplitudes and 2 layers from same-spin amplitudes\n",
+    "n_reps = (4, 2)\n",
+    "# Use interactions implementable on a square lattice\n",
+    "pairs_aa = [(p, p + 1) for p in range(norb - 1)]\n",
+    "pairs_ab = [(p, p) for p in range(norb)]\n",
+    "pairs_bb = [(p, p + 1) for p in range(norb - 1)]\n",
+    "ucj_op = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(\n",
+    "    ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)\n",
+    ")\n",
+    "\n",
+    "# Construct circuit\n",
+    "qubits = QuantumRegister(2 * norb)\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)\n",
+    "circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op), qubits)\n",
+    "circuit.measure_all()\n",
+    "\n",
+    "# Sample 10,000 shots from the circuit using FfsimSampler\n",
+    "sampler = ffsim.qiskit.FfsimSampler(default_shots=10_000, seed=12345)\n",
+    "pub = (circuit,)\n",
+    "job = sampler.run([pub])\n",
+    "result = job.result()\n",
+    "pub_result = result[0]\n",
+    "counts = pub_result.data.meas.get_counts()\n",
+    "\n",
+    "# Display the 10 most commonly seen bitstrings and their counts\n",
+    "{k: v for k, v in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10]}"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
