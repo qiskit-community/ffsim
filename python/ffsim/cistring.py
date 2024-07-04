@@ -31,7 +31,7 @@ def gen_occslst(orbitals: range, nocc: int) -> np.ndarray:
 
 
 @cache
-def gen_linkstr_index(orbitals: range, nocc: int):
+def gen_linkstr_index(orbitals: range, nocc: int) -> np.ndarray:
     """Cached version of pyscf.fci.cistring.gen_linkstr_index."""
     return cistring.gen_linkstr_index(orbitals, nocc)
 
