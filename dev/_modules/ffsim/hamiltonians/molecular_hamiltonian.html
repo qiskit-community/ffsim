@@ -422,29 +422,23 @@
         <span class="n">linkstr_index_a</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
         <span class="n">linkstr_index_b</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
         <span class="n">link_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">linkstr_index_a</span><span class="p">,</span> <span class="n">linkstr_index_b</span><span class="p">)</span>
-        <span class="n">two_body</span> <span class="o">=</span> <span class="n">absorb_h1e</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="mf">0.5</span>
-        <span class="p">)</span>
-        <span class="n">dim_</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">result</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">contract_1e</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_linear_operator_complex</span><span class="p">(</span>
+                <span class="n">one_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span>
+                <span class="n">two_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span>
+                <span class="n">constant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">result</span> <span class="o">-=</span> <span class="n">contract_1e</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-            <span class="p">)</span>
-            <span class="n">result</span> <span class="o">+=</span> <span class="n">contract_2e</span><span class="p">(</span>
-                <span class="n">two_body</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-            <span class="p">)</span>
-            <span class="n">result</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">contract_2e</span><span class="p">(</span>
-                <span class="n">two_body</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-        <span class="k">return</span> <span class="n">LinearOperator</span><span class="p">(</span>
-            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dim_</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+        <span class="k">return</span> <span class="n">_linear_operator_real</span><span class="p">(</span>
+            <span class="n">one_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span>
+            <span class="n">two_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span>
+            <span class="n">constant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_diag_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -492,6 +486,60 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span></div>
 
+
+
+<span class="k">def</span> <span class="nf">_linear_operator_complex</span><span class="p">(</span>
+    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">link_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">):</span>
+    <span class="n">two_body</span> <span class="o">=</span> <span class="n">absorb_h1e</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">dim_</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">contract_1e</span><span class="p">(</span>
+            <span class="n">one_body_tensor</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">-=</span> <span class="n">contract_1e</span><span class="p">(</span>
+            <span class="n">one_body_tensor</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="n">contract_2e</span><span class="p">(</span><span class="n">two_body</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">contract_2e</span><span class="p">(</span>
+            <span class="n">two_body</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">LinearOperator</span><span class="p">(</span>
+        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dim_</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_linear_operator_real</span><span class="p">(</span>
+    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">link_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">):</span>
+    <span class="n">two_body</span> <span class="o">=</span> <span class="n">absorb_h1e</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">dim_</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="n">contract_2e</span><span class="p">(</span><span class="n">two_body</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">contract_2e</span><span class="p">(</span>
+            <span class="n">two_body</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">LinearOperator</span><span class="p">(</span>
+        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dim_</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+    <span class="p">)</span>
 </pre></div>
         </article>
       </div>
