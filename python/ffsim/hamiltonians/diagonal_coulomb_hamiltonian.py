@@ -14,12 +14,11 @@ import dataclasses
 import itertools
 
 import numpy as np
-import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim._lib import FermionOperator
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
-from ffsim.contract.num_op_sum import num_op_sum_linop
+from ffsim.contract.one_body import one_body_linop
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
 
@@ -65,8 +64,7 @@ class DiagonalCoulombHamiltonian:
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         dim_ = dim(norb, nelec)
-        eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
-        num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
+        one_body = one_body_linop(self.one_body_tensor, norb=norb, nelec=nelec)
         dc_linop = diag_coulomb_linop(
             (
                 self.diag_coulomb_mats[0],
@@ -80,7 +78,7 @@ class DiagonalCoulombHamiltonian:
         def matvec(vec: np.ndarray):
             vec = vec.astype(complex, copy=False)
             result = self.constant * vec
-            result += num_linop @ vec
+            result += one_body @ vec
             result += dc_linop @ vec
             return result
 

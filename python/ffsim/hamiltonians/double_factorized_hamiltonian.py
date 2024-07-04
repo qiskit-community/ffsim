@@ -13,11 +13,10 @@ from __future__ import annotations
 import dataclasses
 
 import numpy as np
-import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
-from ffsim.contract.num_op_sum import num_op_sum_linop
+from ffsim.contract.one_body import one_body_linop
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
 from ffsim.states import dim
@@ -219,8 +218,7 @@ class DoubleFactorizedHamiltonian:
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         dim_ = dim(norb, nelec)
-        eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
-        num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
+        one_body = one_body_linop(self.one_body_tensor, norb=norb, nelec=nelec)
         diag_coulomb_linops = [
             diag_coulomb_linop(
                 diag_coulomb_mat,
@@ -237,7 +235,7 @@ class DoubleFactorizedHamiltonian:
         def matvec(vec: np.ndarray):
             vec = vec.astype(complex, copy=False)
             result = self.constant * vec
-            result += num_linop @ vec
+            result += one_body @ vec
             for linop in diag_coulomb_linops:
                 result += linop @ vec
             return result
