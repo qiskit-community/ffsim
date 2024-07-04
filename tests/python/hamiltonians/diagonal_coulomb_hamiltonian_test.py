@@ -62,6 +62,11 @@ def test_linear_operator(norb: int, nelec: tuple[int, int]):
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
 
+    vec = ffsim.random.random_state_vector(dim, seed=rng, dtype=float)
+    actual = actual_linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected)
+
 
 @TEST_ARGS
 def test_fermion_operator(norb: int, nelec: tuple[int, int]):
