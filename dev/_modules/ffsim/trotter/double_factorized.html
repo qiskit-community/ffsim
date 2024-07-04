@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.trotter.trotter - ffsim 0.0.41.dev0 documentation</title>
+        <title>ffsim.trotter.double_factorized - ffsim 0.0.41.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -281,7 +281,7 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for ffsim.trotter.trotter</h1><div class="highlight"><pre>
+          <h1>Source code for ffsim.trotter.double_factorized</h1><div class="highlight"><pre>
 <span></span><span class="c1"># (C) Copyright IBM 2023.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
@@ -292,9 +292,9 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="sd">&quot;&quot;&quot;Trotter simulation for double-factorized Hamiltonian.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
@@ -305,40 +305,7 @@
     <span class="n">apply_orbital_rotation</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">DoubleFactorizedHamiltonian</span>
-
-
-<span class="k">def</span> <span class="nf">_simulate_trotter_step_iterator</span><span class="p">(</span>
-    <span class="n">n_terms</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-    <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_terms</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">yield from</span> <span class="n">_simulate_trotter_step_iterator_symmetric</span><span class="p">(</span><span class="n">n_terms</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_simulate_trotter_step_iterator_symmetric</span><span class="p">(</span>
-    <span class="n">n_terms</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-    <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_terms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="k">yield</span> <span class="n">n_terms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">time</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_terms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
-            <span class="k">yield</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">split_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-            <span class="k">yield from</span> <span class="n">_simulate_trotter_step_iterator_symmetric</span><span class="p">(</span>
-                <span class="n">n_terms</span><span class="p">,</span> <span class="n">split_time</span><span class="p">,</span> <span class="n">order</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="p">)</span>
-        <span class="k">yield from</span> <span class="n">_simulate_trotter_step_iterator_symmetric</span><span class="p">(</span>
-            <span class="n">n_terms</span><span class="p">,</span> <span class="n">time</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">split_time</span><span class="p">,</span> <span class="n">order</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-            <span class="k">yield from</span> <span class="n">_simulate_trotter_step_iterator_symmetric</span><span class="p">(</span>
-                <span class="n">n_terms</span><span class="p">,</span> <span class="n">split_time</span><span class="p">,</span> <span class="n">order</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ffsim.trotter._util</span> <span class="kn">import</span> <span class="n">simulate_trotter_step_iterator</span>
 
 
 <div class="viewcode-block" id="simulate_trotter_double_factorized">
@@ -424,7 +391,7 @@
     <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-    <span class="k">for</span> <span class="n">term_index</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">_simulate_trotter_step_iterator</span><span class="p">(</span>
+    <span class="k">for</span> <span class="n">term_index</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">simulate_trotter_step_iterator</span><span class="p">(</span>
         <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">),</span> <span class="n">time</span><span class="p">,</span> <span class="n">order</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">term_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
