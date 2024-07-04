@@ -36,6 +36,7 @@ def test_random(
     target_fidelity: float,
 ):
     rng = np.random.default_rng(2488)
+
     # generate random Hamiltonian
     dim = ffsim.dim(norb, nelec)
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
