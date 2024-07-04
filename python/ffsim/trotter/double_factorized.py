@@ -8,9 +8,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from __future__ import annotations
+"""Trotter simulation for double-factorized Hamiltonian."""
 
-from collections.abc import Iterator
+from __future__ import annotations
 
 import numpy as np
 import scipy.linalg
@@ -21,40 +21,7 @@ from ffsim.gates import (
     apply_orbital_rotation,
 )
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
-
-
-def _simulate_trotter_step_iterator(
-    n_terms: int, time: float, order: int = 0
-) -> Iterator[tuple[int, float]]:
-    if order == 0:
-        for i in range(n_terms):
-            yield i, time
-    else:
-        yield from _simulate_trotter_step_iterator_symmetric(n_terms, time, order)
-
-
-def _simulate_trotter_step_iterator_symmetric(
-    n_terms: int, time: float, order: int
-) -> Iterator[tuple[int, float]]:
-    if order == 1:
-        for i in range(n_terms - 1):
-            yield i, time / 2
-        yield n_terms - 1, time
-        for i in reversed(range(n_terms - 1)):
-            yield i, time / 2
-    else:
-        split_time = time / (4 - 4 ** (1 / (2 * order - 1)))
-        for _ in range(2):
-            yield from _simulate_trotter_step_iterator_symmetric(
-                n_terms, split_time, order - 1
-            )
-        yield from _simulate_trotter_step_iterator_symmetric(
-            n_terms, time - 4 * split_time, order - 1
-        )
-        for _ in range(2):
-            yield from _simulate_trotter_step_iterator_symmetric(
-                n_terms, split_time, order - 1
-            )
+from ffsim.trotter._util import simulate_trotter_step_iterator
 
 
 def simulate_trotter_double_factorized(
@@ -137,7 +104,7 @@ def _simulate_trotter_step_double_factorized(
     order: int,
     z_representation: bool,
 ) -> tuple[np.ndarray, np.ndarray]:
-    for term_index, time in _simulate_trotter_step_iterator(
+    for term_index, time in simulate_trotter_step_iterator(
         1 + len(diag_coulomb_mats), time, order
     ):
         if term_index == 0:
