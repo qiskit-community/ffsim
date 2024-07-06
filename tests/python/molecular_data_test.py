@@ -138,8 +138,8 @@ def test_json_open_shell(tmp_path: pathlib.Path):
         _assert_mol_data_equal(loaded_mol_data, mol_data)
 
 
-def test_from_fcidump(tmp_path: pathlib.Path):
-    """Test loading from FCIDUMP."""
+def test_fcidump(tmp_path: pathlib.Path):
+    """Test saving to and loading from FCIDUMP."""
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
@@ -151,14 +151,7 @@ def test_from_fcidump(tmp_path: pathlib.Path):
     active_space = range(n_frozen, mol.nao_nr())
     scf = pyscf.scf.RHF(mol).run()
     mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
-    pyscf.tools.fcidump.from_integrals(
-        tmp_path / "test.fcidump",
-        h1e=mol_data.one_body_integrals,
-        h2e=mol_data.two_body_integrals,
-        nuc=mol_data.core_energy,
-        nmo=mol_data.norb,
-        nelec=mol_data.nelec,
-    )
+    mol_data.to_fcidump(tmp_path / "test.fcidump")
     loaded_mol_data = ffsim.MolecularData.from_fcidump(tmp_path / "test.fcidump")
     assert loaded_mol_data.norb == mol_data.norb
     assert loaded_mol_data.nelec == mol_data.nelec
@@ -174,14 +167,7 @@ def test_from_fcidump(tmp_path: pathlib.Path):
     )
     scf = pyscf.scf.ROHF(mol).run()
     mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
-    pyscf.tools.fcidump.from_integrals(
-        tmp_path / "test.fcidump",
-        h1e=mol_data.one_body_integrals,
-        h2e=mol_data.two_body_integrals,
-        nuc=mol_data.core_energy,
-        nmo=mol_data.norb,
-        nelec=mol_data.nelec,
-    )
+    mol_data.to_fcidump(tmp_path / "test.fcidump")
     loaded_mol_data = ffsim.MolecularData.from_fcidump(tmp_path / "test.fcidump")
     assert loaded_mol_data.norb == mol_data.norb
     assert loaded_mol_data.nelec == mol_data.nelec

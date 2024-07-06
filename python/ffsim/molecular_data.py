@@ -125,27 +125,6 @@ class MolecularData:
         )
 
     @staticmethod
-    def from_fcidump(file: str | bytes | os.PathLike) -> MolecularData:
-        """Initialize a MolecularData from an FCIDUMP file.
-
-        Args:
-            file: The FCIDUMP file path.
-        """
-        data = pyscf.tools.fcidump.read(file, verbose=False)
-        n_electrons = data["NELEC"]
-        spin = data["MS2"]
-        n_alpha = (n_electrons + spin) // 2
-        n_beta = (n_electrons - spin) // 2
-        return MolecularData(
-            core_energy=data["ECORE"],
-            one_body_integrals=data["H1"],
-            two_body_integrals=data["H2"],
-            norb=data["NORB"],
-            nelec=(n_alpha, n_beta),
-            spin=spin,
-        )
-
-    @staticmethod
     def from_scf(
         hartree_fock: pyscf.scf.hf.SCF, active_space: Iterable[int] | None = None
     ) -> "MolecularData":
@@ -399,4 +378,45 @@ class MolecularData:
             fci_vec=as_array_or_none(data.get("fci_vec")),
             dipole_integrals=as_array_or_none(data.get("dipole_integrals")),
             orbital_symmetries=data.get("orbital_symmetries"),
+        )
+
+    def to_fcidump(self, file: str | bytes | os.PathLike) -> None:
+        """Save data to disk in FCIDUMP format.
+
+        .. note::
+            The FCIDUMP format does not retain all information stored in the
+            MolecularData object. To serialize a MolecularData object losslessly, use
+            the :func:`to_json` method to save to JSON format.
+
+        Args:
+            file: The file path to save to.
+        """
+        pyscf.tools.fcidump.from_integrals(
+            file,
+            h1e=self.one_body_integrals,
+            h2e=self.two_body_integrals,
+            nuc=self.core_energy,
+            nmo=self.norb,
+            nelec=self.nelec,
+        )
+
+    @staticmethod
+    def from_fcidump(file: str | bytes | os.PathLike) -> MolecularData:
+        """Initialize a MolecularData from an FCIDUMP file.
+
+        Args:
+            file: The FCIDUMP file path.
+        """
+        data = pyscf.tools.fcidump.read(file, verbose=False)
+        n_electrons = data["NELEC"]
+        spin = data["MS2"]
+        n_alpha = (n_electrons + spin) // 2
+        n_beta = (n_electrons - spin) // 2
+        return MolecularData(
+            core_energy=data["ECORE"],
+            one_body_integrals=data["H1"],
+            two_body_integrals=data["H2"],
+            norb=data["NORB"],
+            nelec=(n_alpha, n_beta),
+            spin=spin,
         )
