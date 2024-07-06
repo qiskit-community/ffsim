@@ -466,29 +466,6 @@
         <span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">core_energy</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">get_h1cas</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span>
         <span class="n">two_body_integrals</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">get_h2cas</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span>
 
-        <span class="c1"># Get dipole integrals.</span>
-        <span class="n">charges</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">atom_charges</span><span class="p">()</span>
-        <span class="n">coords</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">atom_coords</span><span class="p">()</span>
-        <span class="n">nuc_charge_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;z,zx-&gt;x&quot;</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span> <span class="o">/</span> <span class="n">charges</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">mol</span><span class="o">.</span><span class="n">with_common_origin</span><span class="p">(</span><span class="n">nuc_charge_center</span><span class="p">):</span>
-            <span class="n">dipole_integrals</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">intor</span><span class="p">(</span><span class="s2">&quot;cint1e_r_sph&quot;</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-            <span class="n">mo_coeffs</span> <span class="o">=</span> <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">[:,</span> <span class="n">active_space</span><span class="p">]</span>
-            <span class="n">dipole_integrals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
-                <span class="s2">&quot;xij,ip,jq-&gt;xpq&quot;</span><span class="p">,</span> <span class="n">dipole_integrals</span><span class="p">,</span> <span class="n">mo_coeffs</span><span class="p">,</span> <span class="n">mo_coeffs</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Get orbital symmetries.</span>
-        <span class="n">orbsym</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">symmetry</span><span class="p">:</span>
-            <span class="n">orbsym</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                <span class="n">pyscf</span><span class="o">.</span><span class="n">symm</span><span class="o">.</span><span class="n">label_orb_symm</span><span class="p">(</span>
-                    <span class="n">mol</span><span class="p">,</span>
-                    <span class="n">mol</span><span class="o">.</span><span class="n">irrep_name</span><span class="p">,</span>
-                    <span class="n">mol</span><span class="o">.</span><span class="n">symm_orb</span><span class="p">,</span>
-                    <span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_coeff</span><span class="p">[:,</span> <span class="n">active_space</span><span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-
         <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
             <span class="n">core_energy</span><span class="o">=</span><span class="n">core_energy</span><span class="p">,</span>
             <span class="n">one_body_integrals</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
@@ -503,8 +480,6 @@
             <span class="n">mo_occ</span><span class="o">=</span><span class="n">hartree_fock</span><span class="o">.</span><span class="n">mo_occ</span><span class="p">,</span>
             <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">,</span>
             <span class="n">hf_energy</span><span class="o">=</span><span class="n">hf_energy</span><span class="p">,</span>
-            <span class="n">dipole_integrals</span><span class="o">=</span><span class="n">dipole_integrals</span><span class="p">,</span>
-            <span class="n">orbital_symmetries</span><span class="o">=</span><span class="n">orbsym</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
