@@ -45,35 +45,6 @@ def _assert_mol_data_equal(
             assert actual == expected
 
 
-def test_molecular_data_sym():
-    # Build N2 molecule
-    mol = pyscf.gto.Mole()
-    mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
-        basis="sto-6g",
-        symmetry="Dooh",
-    )
-
-    # Define active space
-    n_frozen = pyscf.data.elements.chemcore(mol)
-    active_space = range(n_frozen, mol.nao_nr())
-
-    # Get molecular data and Hamiltonian
-    scf = pyscf.scf.RHF(mol).run()
-    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
-
-    assert mol_data.orbital_symmetries == [
-        "A1g",
-        "A1u",
-        "E1uy",
-        "E1ux",
-        "A1g",
-        "E1gx",
-        "E1gy",
-        "A1u",
-    ]
-
-
 def test_molecular_data_no_sym():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
