@@ -410,30 +410,6 @@
             <span class="n">symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="MolecularData.from_fcidump">
-<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_fcidump">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData from an FCIDUMP file.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            file: The FCIDUMP file path.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">n_electrons</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;NELEC&quot;</span><span class="p">]</span>
-        <span class="n">spin</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;MS2&quot;</span><span class="p">]</span>
-        <span class="n">n_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_electrons</span> <span class="o">+</span> <span class="n">spin</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-        <span class="n">n_beta</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_electrons</span> <span class="o">-</span> <span class="n">spin</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-        <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
-            <span class="n">core_energy</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ECORE&quot;</span><span class="p">],</span>
-            <span class="n">one_body_integrals</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;H1&quot;</span><span class="p">],</span>
-            <span class="n">two_body_integrals</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;H2&quot;</span><span class="p">],</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;NORB&quot;</span><span class="p">],</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">),</span>
-            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
-        <span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="MolecularData.from_scf">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_scf">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -708,6 +684,53 @@
             <span class="n">fci_vec</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fci_vec&quot;</span><span class="p">)),</span>
             <span class="n">dipole_integrals</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dipole_integrals&quot;</span><span class="p">)),</span>
             <span class="n">orbital_symmetries</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orbital_symmetries&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.to_fcidump">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.to_fcidump">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_fcidump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save data to disk in FCIDUMP format.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The FCIDUMP format does not retain all information stored in the</span>
+<span class="sd">            MolecularData object. To serialize a MolecularData object losslessly, use</span>
+<span class="sd">            the :func:`to_json` method to save to JSON format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file: The file path to save to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">from_integrals</span><span class="p">(</span>
+            <span class="n">file</span><span class="p">,</span>
+            <span class="n">h1e</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_integrals</span><span class="p">,</span>
+            <span class="n">h2e</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">two_body_integrals</span><span class="p">,</span>
+            <span class="n">nuc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">core_energy</span><span class="p">,</span>
+            <span class="n">nmo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.from_fcidump">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_fcidump">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData from an FCIDUMP file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file: The FCIDUMP file path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">n_electrons</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;NELEC&quot;</span><span class="p">]</span>
+        <span class="n">spin</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;MS2&quot;</span><span class="p">]</span>
+        <span class="n">n_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_electrons</span> <span class="o">+</span> <span class="n">spin</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">n_beta</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_electrons</span> <span class="o">-</span> <span class="n">spin</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
+            <span class="n">core_energy</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ECORE&quot;</span><span class="p">],</span>
+            <span class="n">one_body_integrals</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;H1&quot;</span><span class="p">],</span>
+            <span class="n">two_body_integrals</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;H2&quot;</span><span class="p">],</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;NORB&quot;</span><span class="p">],</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">),</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

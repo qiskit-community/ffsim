@@ -1397,6 +1397,26 @@ Options: <code class="docutils literal notranslate"><span class="pre">&quot;gzip
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularData.to_fcidump">
+<span class="sig-name descname"><span class="pre">to_fcidump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.to_fcidump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.to_fcidump" title="Link to this definition">¶</a></dt>
+<dd><p>Save data to disk in FCIDUMP format.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The FCIDUMP format does not retain all information stored in the
+MolecularData object. To serialize a MolecularData object losslessly, use
+the <a class="reference internal" href="#ffsim.MolecularData.to_json" title="ffsim.MolecularData.to_json"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_json()</span></code></a> method to save to JSON format.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></span>) – The file path to save to.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ffsim.MolecularData.to_json">
 <span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.to_json" title="Link to this definition">¶</a></dt>
 <dd><p>Serialize to JSON format, optionally compressed, and save to disk.</p>
@@ -4936,6 +4956,7 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_ccsd"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_ccsd()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_fci"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_fci()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.run_mp2"><code class="docutils literal notranslate"><span class="pre">MolecularData.run_mp2()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularData.to_fcidump"><code class="docutils literal notranslate"><span class="pre">MolecularData.to_fcidump()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.to_json"><code class="docutils literal notranslate"><span class="pre">MolecularData.to_json()</span></code></a></li>
 </ul>
 </li>
