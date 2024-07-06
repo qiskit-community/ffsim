@@ -175,29 +175,6 @@ class MolecularData:
         one_body_tensor, core_energy = cas.get_h1cas(mo)
         two_body_integrals = cas.get_h2cas(mo)
 
-        # Get dipole integrals.
-        charges = mol.atom_charges()
-        coords = mol.atom_coords()
-        nuc_charge_center = np.einsum("z,zx->x", charges, coords) / charges.sum()
-        with mol.with_common_origin(nuc_charge_center):
-            dipole_integrals = mol.intor("cint1e_r_sph", comp=3)
-            mo_coeffs = hartree_fock.mo_coeff[:, active_space]
-            dipole_integrals = np.einsum(
-                "xij,ip,jq->xpq", dipole_integrals, mo_coeffs, mo_coeffs
-            )
-
-        # Get orbital symmetries.
-        orbsym = None
-        if mol.symmetry:
-            orbsym = list(
-                pyscf.symm.label_orb_symm(
-                    mol,
-                    mol.irrep_name,
-                    mol.symm_orb,
-                    hartree_fock.mo_coeff[:, active_space],
-                )
-            )
-
         return MolecularData(
             core_energy=core_energy,
             one_body_integrals=one_body_tensor,
@@ -212,8 +189,6 @@ class MolecularData:
             mo_occ=hartree_fock.mo_occ,
             active_space=active_space,
             hf_energy=hf_energy,
-            dipole_integrals=dipole_integrals,
-            orbital_symmetries=orbsym,
         )
 
     @staticmethod
