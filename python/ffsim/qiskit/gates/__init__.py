@@ -21,6 +21,10 @@ from ffsim.qiskit.gates.givens_ansatz import (
     GivensAnsatzOpSpinlessJW,
 )
 from ffsim.qiskit.gates.num_num_ansatz import NumNumAnsatzOpSpinBalancedJW
+from ffsim.qiskit.gates.num_op_sum import (
+    NumOpSumEvolutionJW,
+    NumOpSumEvolutionSpinlessJW,
+)
 from ffsim.qiskit.gates.orbital_rotation import (
     OrbitalRotationJW,
     OrbitalRotationSpinlessJW,
@@ -46,6 +50,8 @@ __all__ = [
     "GivensAnsatzOperatorJW",
     "GivensAnsatzOperatorSpinlessJW",
     "NumNumAnsatzOpSpinBalancedJW",
+    "NumOpSumEvolutionJW",
+    "NumOpSumEvolutionSpinlessJW",
     "OrbitalRotationJW",
     "OrbitalRotationSpinlessJW",
     "PrepareHartreeFockJW",
