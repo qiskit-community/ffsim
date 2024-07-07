@@ -454,19 +454,17 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </div>
 </div>
 </section>
-<section id="Diagonal-Coulomb-evolution">
-<h2>Diagonal Coulomb evolution<a class="headerlink" href="#Diagonal-Coulomb-evolution" title="Link to this heading">¶</a></h2>
-<p>Time evolution by a diagonal Coulomb Hamiltonian is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW"><span class="std std-ref">DiagCoulombEvolutionJW</span></a> gate. This gate decomposes into a layer of PhaseGates followed by a sequence of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CPhaseGate#cphasegate">CPhaseGates</a>.</p>
+<section id="Number-operator-sum-evolution">
+<h2>Number operator sum evolution<a class="headerlink" href="#Number-operator-sum-evolution" title="Link to this heading">¶</a></h2>
+<p>Time evolution by a linear combination of number operators is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.NumOpSumEvolutionJW"><span class="std std-ref">NumOpSumEvolutionJW</span></a> gate. This gate decomposes into a layer of PhaseGates.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">diag_coulomb_mat</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coeffs</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
-<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-    <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">qubits</span>
-<span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">NumOpSumEvolutionJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
 
 <span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
@@ -481,22 +479,19 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </div>
 </div>
 </section>
-<section id="Unitary-cluster-Jastrow-(UCJ)-operator">
-<h2>Unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h2>
-<p>There are several gate variants for the UCJ operator:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinBalancedJW"><span class="std std-ref">UCJOpSpinBalancedJW</span></a></p></li>
-<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinUnbalancedJW"><span class="std std-ref">UCJOpSpinUnbalancedJW</span></a></p></li>
-</ul>
-<p>All variants decompose into a sequence of diagonal Coulomb evolutions sandwiched by orbital rotations. The number of diagonal Coulomb evolutions is equal to the number of ansatz repetitions (in this example, two).</p>
+<section id="Diagonal-Coulomb-evolution">
+<h2>Diagonal Coulomb evolution<a class="headerlink" href="#Diagonal-Coulomb-evolution" title="Link to this heading">¶</a></h2>
+<p>Time evolution by a diagonal Coulomb Hamiltonian is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW"><span class="std std-ref">DiagCoulombEvolutionJW</span></a> gate. This gate decomposes into a layer of PhaseGates followed by a sequence of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CPhaseGate#cphasegate">CPhaseGates</a>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_balanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">diag_coulomb_mat</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
-<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinBalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">DiagCoulombEvolutionJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">diag_coulomb_mat</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">qubits</span>
+<span class="p">)</span>
 
 <span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
@@ -510,19 +505,25 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <img alt="../_images/explanations_qiskit-gate-decompositions_16_0.png" src="../_images/explanations_qiskit-gate-decompositions_16_0.png" />
 </div>
 </div>
-<section id="Merging-orbital-rotations">
-<h3>Merging orbital rotations<a class="headerlink" href="#Merging-orbital-rotations" title="Link to this heading">¶</a></h3>
-<p>The gate decomposition displayed above is not optimal because it contains adjacent orbital rotation gates, which can be merged. In <a class="reference internal" href="../how-to-guides/qiskit-circuits.html#Circuit-transpilation"><span class="std std-ref">How to build and transpile Qiskit quantum circuits</span></a> we showed how to use ffsim’s transpiler passes to optimize circuits constructed from fermionic gates. Here, we explain how this works in a bit more detail.</p>
-<p>Consider a circuit that prepares the Hartree-Fock state and then applies a UCJ operator to it:</p>
+</section>
+<section id="Unitary-cluster-Jastrow-(UCJ)-operator">
+<h2>Unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h2>
+<p>There are several gate variants for the UCJ operator:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinBalancedJW"><span class="std std-ref">UCJOpSpinBalancedJW</span></a></p></li>
+<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinUnbalancedJW"><span class="std std-ref">UCJOpSpinUnbalancedJW</span></a></p></li>
+</ul>
+<p>All variants decompose into a sequence of diagonal Coulomb evolutions sandwiched by orbital rotations. The number of diagonal Coulomb evolutions is equal to the number of ansatz repetitions (in this example, two).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
-<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_balanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinBalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
 
-<span class="n">circuit</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -534,12 +535,25 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <img alt="../_images/explanations_qiskit-gate-decompositions_18_0.png" src="../_images/explanations_qiskit-gate-decompositions_18_0.png" />
 </div>
 </div>
-<p>Let’s decompose the circuit once:</p>
+</section>
+<section id="Trotter-simulation-of-double-factorized-Hamiltonian">
+<h2>Trotter simulation of double-factorized Hamiltonian<a class="headerlink" href="#Trotter-simulation-of-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h2>
+<p>Trotter simulation of a double-factorized Hamiltonian is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW"><span class="std std-ref">SimulateTrotterDoubleFactorizedJW</span></a> gate. This gate decomposes into a sequence of orbital rotations, number operator sum evolutions, and diagonal Coulomb evolutions.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_double_factorized_hamiltonian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">SimulateTrotterDoubleFactorizedJW</span><span class="p">(</span>
+        <span class="n">df_hamiltonian</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">),</span>
+    <span class="n">qubits</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -551,6 +565,47 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 <img alt="../_images/explanations_qiskit-gate-decompositions_20_0.png" src="../_images/explanations_qiskit-gate-decompositions_20_0.png" />
 </div>
 </div>
+<section id="Merging-orbital-rotations">
+<h3>Merging orbital rotations<a class="headerlink" href="#Merging-orbital-rotations" title="Link to this heading">¶</a></h3>
+<p>The gate decomposition displayed above is not optimal because it contains adjacent orbital rotation gates, which can be merged. In <a class="reference internal" href="../how-to-guides/qiskit-circuits.html#Circuit-transpilation"><span class="std std-ref">How to build and transpile Qiskit quantum circuits</span></a> we showed how to use ffsim’s transpiler passes to optimize circuits constructed from fermionic gates. Here, we explain how this works in a bit more detail.</p>
+<p>Consider a circuit that prepares the Hartree-Fock state and then applies a UCJ operator to it:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinBalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/explanations_qiskit-gate-decompositions_22_0.png" src="../_images/explanations_qiskit-gate-decompositions_22_0.png" />
+</div>
+</div>
+<p>Let’s decompose the circuit once:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/explanations_qiskit-gate-decompositions_24_0.png" src="../_images/explanations_qiskit-gate-decompositions_24_0.png" />
+</div>
+</div>
 <p>There are two places that this circuit can be optimized:</p>
 <ul class="simple">
 <li><p>The first two gates can be merged into a single Slater determinant preparation gate.</p></li>
@@ -558,7 +613,7 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </ul>
 <p>The following code cell performs this optimization using a pass manager consisting of the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.MergeOrbitalRotations"><span class="std std-ref">MergeOrbitalRotations</span></a> pass.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">PassManager</span>
@@ -571,16 +626,16 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/explanations_qiskit-gate-decompositions_22_0.png" src="../_images/explanations_qiskit-gate-decompositions_22_0.png" />
+<img alt="../_images/explanations_qiskit-gate-decompositions_26_0.png" src="../_images/explanations_qiskit-gate-decompositions_26_0.png" />
 </div>
 </div>
 <p>Note that the MergeOrbitalRotations pass needs to be run on the decomposed circuit. Running it on the original circuit will have no effect because the orbital rotations are not exposed:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transpiled</span> <span class="o">=</span> <span class="n">pass_manager</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
@@ -590,16 +645,16 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/explanations_qiskit-gate-decompositions_24_0.png" src="../_images/explanations_qiskit-gate-decompositions_24_0.png" />
+<img alt="../_images/explanations_qiskit-gate-decompositions_28_0.png" src="../_images/explanations_qiskit-gate-decompositions_28_0.png" />
 </div>
 </div>
 <p>This issue can addressed by adding a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.passes.Decompose#decompose">Decompose</a> pass that decomposes Hartree-Fock and UCJ gates before the MergeOrbitalRotations pass:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.transpiler.passes</span> <span class="kn">import</span> <span class="n">Decompose</span>
@@ -617,17 +672,17 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/explanations_qiskit-gate-decompositions_26_0.png" src="../_images/explanations_qiskit-gate-decompositions_26_0.png" />
+<img alt="../_images/explanations_qiskit-gate-decompositions_30_0.png" src="../_images/explanations_qiskit-gate-decompositions_30_0.png" />
 </div>
 </div>
 <p>The <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.PRE_INIT"><span class="std std-ref">ffsim.qiskit.PRE_INIT</span></a> constant stores a pass manager with transpiler passes that decompose gates into orbital rotations and then merges them. The constant is so named because we recommend using it for the <code class="docutils literal notranslate"><span class="pre">pre_init</span></code> stage of Qiskit’s transpiler pipeline.</p>
 <p>Let’s do a full transpilation of the circuit with and without the <code class="docutils literal notranslate"><span class="pre">PRE_INIT</span></code> pass manager, and then print the final gate counts.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">GenericBackendV2</span>
@@ -673,7 +728,7 @@ OrderedDict({&#39;cp&#39;: 56, &#39;xx_plus_yy&#39;: 32, &#39;p&#39;: 24, &#39;x
 <p>Recall that the UCJ operator decomposes into orbital rotations and diagonal Coulomb evolutions. As explained <a class="reference internal" href="#Orbital-rotation"><span class="std std-ref">previously</span></a>, orbital rotations decompose into a pattern of XXPlusYYGates that can be implemented using only linear qubit connectivity. However, the diagonal Coulomb evolutions decompose into a pattern of controlled phase gates which in general require all-to-all connectivity, and their implementation on a limited connectivity qubit device would involve the insertion
 of swap gates. The following code cell constructs a UCJ operator with a single ansatz repetition, decomposes its diagonal Coulomb evolution, and draws the resulting circuit, showing the high number of controlled phase gates.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_balanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -686,17 +741,17 @@ of swap gates. The following code cell constructs a UCJ operator with a single a
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/explanations_qiskit-gate-decompositions_30_0.png" src="../_images/explanations_qiskit-gate-decompositions_30_0.png" />
+<img alt="../_images/explanations_qiskit-gate-decompositions_34_0.png" src="../_images/explanations_qiskit-gate-decompositions_34_0.png" />
 </div>
 </div>
 <p>The local UCJ (LUCJ) ansatz is more amenable to qubit hardware with limited connectivity. It works by allowing diagonal Coulomb interactions only between certain pairs of orbitals, with the choice of interactions motivated by the connectivity of the target hardware. As explained in <a class="reference internal" href="lucj.html#The-local-UCJ-(LUCJ)-ansatz"><span class="std std-ref">The local unitary cluster Jastrow (LUCJ) ansatz</span></a>, if interactions between orbitals of the same spin are restricted to a line topology and interactions between orbitals of
 opposing spins allowed only within the same spatial orbital, then the diagonal Coulomb interactions can be implemented directly on a square lattice topology without swap gates by mapping the <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> orbitals onto adjacent parallel lines. The following code cell shows how to add these restrictions.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pairs_aa</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
@@ -720,11 +775,11 @@ opposing spins allowed only within the same spatial orbital, then the diagonal C
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/explanations_qiskit-gate-decompositions_32_0.png" src="../_images/explanations_qiskit-gate-decompositions_32_0.png" />
+<img alt="../_images/explanations_qiskit-gate-decompositions_36_0.png" src="../_images/explanations_qiskit-gate-decompositions_36_0.png" />
 </div>
 </div>
 <p>Now, there are much fewer controlled-phase gates, and the gates that are retained act on neighboring qubits if the orbitals are mapped onto a square lattice as described above.</p>
@@ -797,8 +852,10 @@ opposing spins allowed only within the same spatial orbital, then the diagonal C
 <li><a class="reference internal" href="#">Qubit gate decompositions of fermionic gates</a><ul>
 <li><a class="reference internal" href="#Hartree-Fock-and-Slater-determinant-preparation">Hartree-Fock and Slater determinant preparation</a></li>
 <li><a class="reference internal" href="#Orbital-rotation">Orbital rotation</a></li>
+<li><a class="reference internal" href="#Number-operator-sum-evolution">Number operator sum evolution</a></li>
 <li><a class="reference internal" href="#Diagonal-Coulomb-evolution">Diagonal Coulomb evolution</a></li>
-<li><a class="reference internal" href="#Unitary-cluster-Jastrow-(UCJ)-operator">Unitary cluster Jastrow (UCJ) operator</a><ul>
+<li><a class="reference internal" href="#Unitary-cluster-Jastrow-(UCJ)-operator">Unitary cluster Jastrow (UCJ) operator</a></li>
+<li><a class="reference internal" href="#Trotter-simulation-of-double-factorized-Hamiltonian">Trotter simulation of double-factorized Hamiltonian</a><ul>
 <li><a class="reference internal" href="#Merging-orbital-rotations">Merging orbital rotations</a></li>
 <li><a class="reference internal" href="#Locality-in-the-UCJ-operator">Locality in the UCJ operator</a></li>
 </ul>
