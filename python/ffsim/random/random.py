@@ -275,7 +275,7 @@ def random_molecular_hamiltonian(
     """Sample a random molecular Hamiltonian.
 
     Args:
-        norb: The number of orbitals.
+        norb: The number of spatial orbitals.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the one- and two-body tensors. The constant
@@ -353,7 +353,7 @@ def random_ucj_op_spin_balanced(
     """Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.
 
     Args:
-        norb: The number of orbitals.
+        norb: The number of spatial orbitals.
         n_reps: The number of ansatz repetitions.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
@@ -473,4 +473,38 @@ def random_ucj_op_spinless(
         diag_coulomb_mats=diag_coulomb_mats,
         orbital_rotations=orbital_rotations,
         final_orbital_rotation=final_orbital_rotation,
+    )
+
+
+def random_double_factorized_hamiltonian(
+    norb: int, *, rank: int | None = None, z_representation: bool = False, seed=None
+) -> hamiltonians.DoubleFactorizedHamiltonian:
+    """Sample a random double-factorized Hamiltonian.
+
+    Args:
+        norb: The number of spatial orbitals.
+        rank: The desired number of terms in the two-body part of the Hamiltonian.
+            If not specified, it will be set to ``norb * (norb + 1) // 2``.
+        z_representation: Whether to return a Hamiltonian in the "Z" representation.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled double-factorized Hamiltonian.
+    """
+    if rank is None:
+        rank = norb * (norb + 1) // 2
+    rng = np.random.default_rng(seed)
+    one_body_tensor = random_hermitian(norb, seed=rng)
+    diag_coulomb_mats = np.stack(
+        [random_real_symmetric_matrix(norb, seed=rng) for _ in range(rank)]
+    )
+    orbital_rotations = np.stack([random_unitary(norb, seed=rng) for _ in range(rank)])
+    constant = rng.standard_normal()
+    return hamiltonians.DoubleFactorizedHamiltonian(
+        one_body_tensor=one_body_tensor,
+        diag_coulomb_mats=diag_coulomb_mats,
+        orbital_rotations=orbital_rotations,
+        constant=constant,
+        z_representation=z_representation,
     )
