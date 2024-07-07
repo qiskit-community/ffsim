@@ -944,6 +944,34 @@ and raise an error if it isn’t.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.SimulateTrotterDoubleFactorizedJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">SimulateTrotterDoubleFactorizedJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/double_factorized_trotter.html#SimulateTrotterDoubleFactorizedJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Trotter time evolution of double-factorized Hamiltonian, Jordan-Wigner.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/double_factorized_trotter.html#SimulateTrotterDoubleFactorizedJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create double-factorized Trotter evolution gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> – The number of spatial orbitals.</p></li>
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></span>) – The Hamiltonian.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>n_steps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of Trotter steps.</p></li>
+<li><p><strong>order</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The order of the Trotter decomposition.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.UCJOpSpinBalancedJW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinBalancedJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOpSpinBalancedJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOpSpinBalancedJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
@@ -1280,6 +1308,10 @@ and spin beta fermions.</p></li>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantSpinlessJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantSpinlessJW.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW"><code class="docutils literal notranslate"><span class="pre">SimulateTrotterDoubleFactorizedJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.__init__"><code class="docutils literal notranslate"><span class="pre">SimulateTrotterDoubleFactorizedJW.__init__()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOpSpinBalancedJW"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalancedJW</span></code></a><ul>
