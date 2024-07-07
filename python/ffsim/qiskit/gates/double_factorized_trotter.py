@@ -12,7 +12,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Generator, Iterator, Sequence
 
 import numpy as np
 import scipy.linalg
@@ -126,7 +126,7 @@ def _simulate_trotter_step_double_factorized(
     norb: int,
     order: int,
     z_representation: bool,
-) -> Iterator[CircuitInstruction]:
+) -> Generator[CircuitInstruction, None, np.ndarray]:
     for term_index, time in simulate_trotter_step_iterator(
         1 + len(diag_coulomb_mats), time, order
     ):
