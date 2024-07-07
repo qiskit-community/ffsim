@@ -58,6 +58,12 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
         norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
     )
+    df_hamiltonian_num_rep = ffsim.random.random_double_factorized_hamiltonian(
+        norb, rank=3, z_representation=False, seed=rng
+    )
+    df_hamiltonian_z_rep = ffsim.random.random_double_factorized_hamiltonian(
+        norb, rank=3, z_representation=True, seed=rng
+    )
     interaction_pairs = list(_brickwork(norb, norb))
     thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
     givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
@@ -72,6 +78,16 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     circuit.append(ffsim.qiskit.UCJOperatorJW(ucj_op), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op_balanced), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced), qubits)
+    circuit.append(
+        ffsim.qiskit.SimulateTrotterDoubleFactorizedJW(
+            df_hamiltonian_num_rep, time=1.0
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.SimulateTrotterDoubleFactorizedJW(df_hamiltonian_z_rep, time=1.0),
+        qubits,
+    )
     circuit.measure_all()
 
     shots = 3000
