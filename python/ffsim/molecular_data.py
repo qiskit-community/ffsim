@@ -142,7 +142,7 @@ class MolecularData:
 
         # Get core energy and one- and two-body integrals.
         if active_space is None:
-            norb = mol.nao_nr()
+            norb = mol.nao
             active_space = range(norb)
         active_space = list(active_space)
         norb = len(active_space)
