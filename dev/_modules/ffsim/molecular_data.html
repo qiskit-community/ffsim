@@ -430,7 +430,7 @@
 
         <span class="c1"># Get core energy and one- and two-body integrals.</span>
         <span class="k">if</span> <span class="n">active_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">norb</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao_nr</span><span class="p">()</span>
+            <span class="n">norb</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">nao</span>
             <span class="n">active_space</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
         <span class="n">active_space</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">active_space</span><span class="p">)</span>
         <span class="n">norb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_space</span><span class="p">)</span>
