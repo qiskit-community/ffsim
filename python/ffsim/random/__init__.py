@@ -13,6 +13,8 @@
 from ffsim.random.random import (
     random_antihermitian,
     random_double_factorized_hamiltonian,
+    random_fermion_hamiltonian,
+    random_fermion_operator,
     random_hermitian,
     random_molecular_hamiltonian,
     random_orthogonal,
@@ -32,6 +34,8 @@ from ffsim.random.random import (
 __all__ = [
     "random_antihermitian",
     "random_double_factorized_hamiltonian",
+    "random_fermion_hamiltonian",
+    "random_fermion_operator",
     "random_hermitian",
     "random_molecular_hamiltonian",
     "random_orthogonal",
