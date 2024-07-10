@@ -43,6 +43,18 @@ class StateVector:
     norb: int
     nelec: int | tuple[int, int]
 
+    def __array__(self, dtype=None, copy=None):
+        # TODO in Numpy 2.0 this can be simplified to
+        # return np.array(self.vec, dtype=dtype, copy=copy)
+        if copy:
+            if dtype is None:
+                return self.vec.copy()
+            else:
+                return self.vec.astype(dtype, copy=True)
+        if dtype is None:
+            return self.vec
+        return self.vec.astype(dtype, copy=False)
+
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
     """Get the dimensions of the FCI space.
