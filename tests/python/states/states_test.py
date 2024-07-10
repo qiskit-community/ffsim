@@ -511,3 +511,12 @@ def test_slater_determinant_one_rdm_diff_rotation(
     expected = ffsim.rdm(vec, norb, nelec, spin_summed=spin_summed)
 
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
+
+
+def test_state_vector_array():
+    """Test StateVector's __array__ method."""
+    norb = 5
+    nelec = (3, 2)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=3556)
+    state_vec = ffsim.StateVector(vec, norb, nelec)
+    assert np.array_equal(np.abs(state_vec), np.abs(vec))
