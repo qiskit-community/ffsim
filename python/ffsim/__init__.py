@@ -61,6 +61,7 @@ from ffsim.protocols import (
 )
 from ffsim.spin import Spin
 from ffsim.states import (
+    BitstringType,
     ProductStateSum,
     StateVector,
     addresses_to_strings,
@@ -101,6 +102,7 @@ from ffsim.variational import (
 )
 
 __all__ = [
+    "BitstringType",
     "DiagonalCoulombHamiltonian",
     "DoubleFactorizedHamiltonian",
     "FermionAction",
