@@ -11,11 +11,12 @@
 from __future__ import annotations
 
 import itertools
+from collections import defaultdict
 
 import numpy as np
 from typing_extensions import deprecated
 
-from ffsim import hamiltonians, variational
+from ffsim import hamiltonians, operators, variational
 
 
 @deprecated(
@@ -507,4 +508,97 @@ def random_double_factorized_hamiltonian(
         orbital_rotations=orbital_rotations,
         constant=constant,
         z_representation=z_representation,
+    )
+
+
+def random_fermion_operator(
+    norb: int, n_terms: int | None = None, max_term_length: int | None = None, seed=None
+) -> operators.FermionOperator:
+    """Sample a random fermion operator.
+
+    Args:
+        norb: The number of spatial orbitals.
+        n_terms: The number of terms to include in the operator. If not specified,
+            `norb` is used.
+        max_term_length: The maximum length of a term. If not specified, `norb` is used.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled fermion operator.
+    """
+    rng = np.random.default_rng(seed)
+    if n_terms is None:
+        n_terms = norb
+    if max_term_length is None:
+        max_term_length = norb
+    coeffs: defaultdict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(
+        complex
+    )
+    for _ in range(n_terms):
+        term_length = int(rng.integers(1, max_term_length + 1))
+        actions = [bool(i) for i in rng.integers(2, size=term_length)]
+        spins = [bool(i) for i in rng.integers(2, size=term_length)]
+        indices = [int(i) for i in rng.integers(norb, size=term_length)]
+        coeff = rng.standard_normal() + 1j * rng.standard_normal()
+        term = tuple(zip(actions, spins, indices))
+        coeffs[term] += coeff
+    return operators.FermionOperator(coeffs)
+
+
+def random_fermion_hamiltonian(
+    norb: int, n_terms: int | None = None, seed=None
+) -> operators.FermionOperator:
+    """Sample a random fermion Hamiltonian.
+
+    A fermion Hamiltonian is hermitian and conserves particle number and spin Z.
+
+    Args:
+        norb: The number of spatial orbitals.
+        n_terms: The number of terms to include in the operator. If not specified,
+            `norb` is used.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled fermion Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    if n_terms is None:
+        n_terms = norb
+    coeffs: defaultdict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(
+        complex
+    )
+    for _ in range(n_terms):
+        n_excitations = int(rng.integers(1, norb + 1))
+        term = _random_num_and_spin_z_conserving_term(norb, n_excitations, seed=rng)
+        term_adjoint = _adjoint_term(term)
+        coeff = rng.standard_normal() + 1j * rng.standard_normal()
+        coeffs[term] += coeff
+        coeffs[term_adjoint] += coeff.conjugate()
+    return operators.FermionOperator(coeffs)
+
+
+def _random_num_and_spin_z_conserving_term(
+    norb: int, n_excitations: int, seed=None
+) -> tuple[tuple[bool, bool, int], ...]:
+    rng = np.random.default_rng(seed)
+    term = []
+    for _ in range(n_excitations):
+        spin = bool(rng.integers(2))
+        orb_1, orb_2 = [int(x) for x in rng.integers(norb, size=2)]
+        action_1, action_2 = [
+            bool(x) for x in rng.choice([True, False], size=2, replace=False)
+        ]
+        term.append(operators.FermionAction(action_1, spin, orb_1))
+        term.append(operators.FermionAction(action_2, spin, orb_2))
+    return tuple(term)
+
+
+def _adjoint_term(
+    term: tuple[tuple[bool, bool, int], ...],
+) -> tuple[tuple[bool, bool, int], ...]:
+    return tuple(
+        operators.FermionAction(bool(1 - action), spin, orb)
+        for action, spin, orb in reversed(term)
     )
