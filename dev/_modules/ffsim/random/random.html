@@ -295,11 +295,12 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">variational</span>
+<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">operators</span><span class="p">,</span> <span class="n">variational</span>
 
 
 <div class="viewcode-block" id="random_statevector">
@@ -840,6 +841,105 @@
         <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
     <span class="p">)</span></div>
 
+
+
+<div class="viewcode-block" id="random_fermion_operator">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_fermion_operator">[docs]</a>
+<span class="k">def</span> <span class="nf">random_fermion_operator</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_term_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">operators</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random fermion operator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        n_terms: The number of terms to include in the operator. If not specified,</span>
+<span class="sd">            `norb` is used.</span>
+<span class="sd">        max_term_length: The maximum length of a term. If not specified, `norb` is used.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled fermion operator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_terms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_terms</span> <span class="o">=</span> <span class="n">norb</span>
+    <span class="k">if</span> <span class="n">max_term_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_term_length</span> <span class="o">=</span> <span class="n">norb</span>
+    <span class="n">coeffs</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="nb">complex</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span>
+        <span class="nb">complex</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_terms</span><span class="p">):</span>
+        <span class="n">term_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_term_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">term_length</span><span class="p">)]</span>
+        <span class="n">spins</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">term_length</span><span class="p">)]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">term_length</span><span class="p">)]</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span>
+        <span class="n">term</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="n">spins</span><span class="p">,</span> <span class="n">indices</span><span class="p">))</span>
+        <span class="n">coeffs</span><span class="p">[</span><span class="n">term</span><span class="p">]</span> <span class="o">+=</span> <span class="n">coeff</span>
+    <span class="k">return</span> <span class="n">operators</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_fermion_hamiltonian">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_fermion_hamiltonian">[docs]</a>
+<span class="k">def</span> <span class="nf">random_fermion_hamiltonian</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">operators</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random fermion Hamiltonian.</span>
+
+<span class="sd">    A fermion Hamiltonian is hermitian and conserves particle number and spin Z.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        n_terms: The number of terms to include in the operator. If not specified,</span>
+<span class="sd">            `norb` is used.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled fermion Hamiltonian.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_terms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_terms</span> <span class="o">=</span> <span class="n">norb</span>
+    <span class="n">coeffs</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="nb">complex</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span>
+        <span class="nb">complex</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_terms</span><span class="p">):</span>
+        <span class="n">n_excitations</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">term</span> <span class="o">=</span> <span class="n">_random_num_and_spin_z_conserving_term</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_excitations</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        <span class="n">term_adjoint</span> <span class="o">=</span> <span class="n">_adjoint_term</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span>
+        <span class="n">coeffs</span><span class="p">[</span><span class="n">term</span><span class="p">]</span> <span class="o">+=</span> <span class="n">coeff</span>
+        <span class="n">coeffs</span><span class="p">[</span><span class="n">term_adjoint</span><span class="p">]</span> <span class="o">+=</span> <span class="n">coeff</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">operators</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_random_num_and_spin_z_conserving_term</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_excitations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">term</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_excitations</span><span class="p">):</span>
+        <span class="n">spin</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">orb_1</span><span class="p">,</span> <span class="n">orb_2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="n">action_1</span><span class="p">,</span> <span class="n">action_2</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">bool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operators</span><span class="o">.</span><span class="n">FermionAction</span><span class="p">(</span><span class="n">action_1</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orb_1</span><span class="p">))</span>
+        <span class="n">term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operators</span><span class="o">.</span><span class="n">FermionAction</span><span class="p">(</span><span class="n">action_2</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orb_2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_adjoint_term</span><span class="p">(</span>
+    <span class="n">term</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">operators</span><span class="o">.</span><span class="n">FermionAction</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">action</span><span class="p">),</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orb</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">action</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+    <span class="p">)</span>
 </pre></div>
         </article>
       </div>

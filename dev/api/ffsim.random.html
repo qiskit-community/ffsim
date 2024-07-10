@@ -339,6 +339,54 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_fermion_hamiltonian">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_fermion_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_fermion_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_fermion_hamiltonian" title="Link to this definition">¶</a></dt>
+<dd><p>Sample a random fermion Hamiltonian.</p>
+<p>A fermion Hamiltonian is hermitian and conserves particle number and spin Z.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>n_terms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of terms to include in the operator. If not specified,
+<cite>norb</cite> is used.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled fermion Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_fermion_operator">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_term_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_fermion_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_fermion_operator" title="Link to this definition">¶</a></dt>
+<dd><p>Sample a random fermion operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>n_terms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of terms to include in the operator. If not specified,
+<cite>norb</cite> is used.</p></li>
+<li><p><strong>max_term_length</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The maximum length of a term. If not specified, <cite>norb</cite> is used.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled fermion operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.random.random_hermitian">
 <span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_hermitian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_hermitian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_hermitian" title="Link to this definition">¶</a></dt>
 <dd><p>Return a random Hermitian matrix.</p>
@@ -741,6 +789,8 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <li><a class="reference internal" href="#">ffsim.random</a><ul>
 <li><a class="reference internal" href="#ffsim.random.random_antihermitian"><code class="docutils literal notranslate"><span class="pre">random_antihermitian()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_double_factorized_hamiltonian"><code class="docutils literal notranslate"><span class="pre">random_double_factorized_hamiltonian()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.random.random_fermion_hamiltonian"><code class="docutils literal notranslate"><span class="pre">random_fermion_hamiltonian()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.random.random_fermion_operator"><code class="docutils literal notranslate"><span class="pre">random_fermion_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_hermitian"><code class="docutils literal notranslate"><span class="pre">random_hermitian()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_molecular_hamiltonian"><code class="docutils literal notranslate"><span class="pre">random_molecular_hamiltonian()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_orthogonal()</span></code></a></li>

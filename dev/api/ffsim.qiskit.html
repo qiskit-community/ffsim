@@ -1125,6 +1125,36 @@ state.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.qiskit.jordan_wigner">
+<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/jordan_wigner.html#jordan_wigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.jordan_wigner" title="Link to this definition">¶</a></dt>
+<dd><p>Jordan-Wigner transformation.</p>
+<p>Transform a fermion operator to a qubit operator using the Jordan-Wigner
+transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span>) – The fermion operator to transform.</p></li>
+<li><p><strong>n_qubits</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of qubits to include in the output qubit operator. If not
+specified, the minimum number of qubits needed to accommodate the fermion
+operator will be used. Must be non-negative.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparsePauliOp</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The qubit operator as a Qiskit SparsePauliOp.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Number of qubits was negative.</p></li>
+<li><p><strong>ValueError</strong> – Number of qubits was not enough to accommodate the fermion operator.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.pre_init_passes">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">pre_init_passes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/transpiler_stages.html#pre_init_passes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.pre_init_passes" title="Link to this definition">¶</a></dt>
 <dd><p>Yield transpiler passes recommended for the Qiskit transpiler <code class="docutils literal notranslate"><span class="pre">pre_init</span></code> stage.</p>
@@ -1334,6 +1364,7 @@ and spin beta fermions.</p></li>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec"><code class="docutils literal notranslate"><span class="pre">ffsim_vec_to_qiskit_vec()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.final_state_vector"><code class="docutils literal notranslate"><span class="pre">final_state_vector()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.jordan_wigner"><code class="docutils literal notranslate"><span class="pre">jordan_wigner()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.pre_init_passes"><code class="docutils literal notranslate"><span class="pre">pre_init_passes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec"><code class="docutils literal notranslate"><span class="pre">qiskit_vec_to_ffsim_vec()</span></code></a></li>
 </ul>
