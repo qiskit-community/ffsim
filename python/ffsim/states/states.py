@@ -15,7 +15,7 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal, Optional, cast, overload
+from typing import Optional, cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -25,6 +25,12 @@ from typing_extensions import deprecated
 
 from ffsim import linalg
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
+from ffsim.states.bitstring import (
+    BitstringType,
+    concatenate_bitstrings,
+    indices_to_strings,
+    restrict_bitstrings,
+)
 
 
 @dataclass
@@ -393,237 +399,6 @@ def slater_determinant_rdms(
         )
 
 
-@overload
-def indices_to_strings(
-    indices: Sequence[int] | np.ndarray,
-    norb: int,
-    nelec: int | tuple[int, int],
-    concatenate: Literal[True],
-) -> list[str]: ...
-@overload
-def indices_to_strings(
-    indices: Sequence[int] | np.ndarray,
-    norb: int,
-    nelec: int,
-    concatenate: bool = True,
-) -> list[str]: ...
-@overload
-def indices_to_strings(
-    indices: Sequence[int] | np.ndarray,
-    norb: int,
-    nelec: int | tuple[int, int],
-    concatenate: bool = True,
-) -> list[str] | tuple[list[str], list[str]]: ...
-def indices_to_strings(
-    indices: Sequence[int] | np.ndarray,
-    norb: int,
-    nelec: int | tuple[int, int],
-    concatenate: bool = True,
-) -> list[str] | tuple[list[str], list[str]]:
-    """Convert state vector indices to bitstrings.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.indices_to_strings(range(dim), norb, nelec)
-        # output:
-        # ['001011',
-        #  '010011',
-        #  '100011',
-        #  '001101',
-        #  '010101',
-        #  '100101',
-        #  '001110',
-        #  '010110',
-        #  '100110']
-
-    Args:
-        indices: The state vector indices to convert to bitstrings.
-        norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
-        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
-            bitstrings. If True, then a single list of concatenated bitstrings is
-            returned. The strings are concatenated in the order :math:`s_b s_a`,
-            that is, the alpha string appears on the right.
-            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
-            the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
-    """
-    if isinstance(nelec, int):
-        strings = cistring.addrs2str(norb=norb, nelec=nelec, addrs=indices)
-        return [f"{string:0{norb}b}" for string in strings]
-
-    n_alpha, n_beta = nelec
-    dim_b = math.comb(norb, n_beta)
-    indices_a, indices_b = np.divmod(indices, dim_b)
-    strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)
-    strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)
-    if concatenate:
-        return [
-            f"{s_b:0{norb}b}{s_a:0{norb}b}" for s_a, s_b in zip(strings_a, strings_b)
-        ]
-    return [f"{s:0{norb}b}" for s in strings_a], [f"{s:0{norb}b}" for s in strings_b]
-
-
-def strings_to_indices(
-    strings: Sequence[str], norb: int, nelec: int | tuple[int, int]
-) -> np.ndarray:
-    """Convert bitstrings to state vector indices.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.strings_to_indices(
-            [
-                "001011",
-                "010011",
-                "100011",
-                "001101",
-                "010101",
-                "100101",
-                "001110",
-                "010110",
-                "100110",
-            ],
-            norb,
-            nelec,
-        )
-        # output:
-        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
-    """
-    if isinstance(nelec, int):
-        return cistring.strs2addr(
-            norb=norb, nelec=nelec, strings=[int(s, base=2) for s in strings]
-        )
-
-    n_alpha, n_beta = nelec
-    strings_a = [int(s[norb:], base=2) for s in strings]
-    strings_b = [int(s[:norb], base=2) for s in strings]
-    addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
-    addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
-    dim_b = math.comb(norb, n_beta)
-    return addrs_a * dim_b + addrs_b
-
-
-def addresses_to_strings(
-    addresses: Sequence[int] | np.ndarray,
-    norb: int,
-    nelec: int | tuple[int, int],
-    concatenate: bool = True,
-) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
-    """Convert state vector addresses to bitstrings.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
-        [format(s, f"06b") for s in strings]
-        # output:
-        # ['001011',
-        #  '010011',
-        #  '100011',
-        #  '001101',
-        #  '010101',
-        #  '100101',
-        #  '001110',
-        #  '010110',
-        #  '100110']
-
-    Args:
-        addresses: The state vector addresses to convert to bitstrings.
-        norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
-        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
-            bitstrings. If True, then a single list of concatenated bitstrings is
-            returned. The strings are concatenated in the order :math:`s_b s_a`,
-            that is, the alpha string appears on the right.
-            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
-            the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
-    """
-    if isinstance(nelec, int):
-        return cistring.addrs2str(norb=norb, nelec=nelec, addrs=addresses)
-    if norb >= 32:
-        raise NotImplementedError(
-            "addresses_to_strings currently does not support norb >= 32."
-        )
-    n_alpha, n_beta = nelec
-    dim_b = math.comb(norb, n_beta)
-    addresses_a, addresses_b = np.divmod(addresses, dim_b)
-    strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=addresses_a)
-    strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=addresses_b)
-    if concatenate:
-        return (strings_b << norb) + strings_a
-    return strings_a, strings_b
-
-
-def strings_to_addresses(
-    strings: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
-) -> np.ndarray:
-    """Convert bitstrings to state vector addresses.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.strings_to_addresses(
-            [
-                0b001011,
-                0b010011,
-                0b100011,
-                0b001101,
-                0b010101,
-                0b100101,
-                0b001110,
-                0b010110,
-                0b100110,
-            ],
-            norb,
-            nelec,
-        )
-        # output:
-        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
-    """
-    if isinstance(nelec, int):
-        return cistring.strs2addr(norb=norb, nelec=nelec, strings=strings)
-
-    n_alpha, n_beta = nelec
-    strings = np.asarray(strings)
-    strings_a = strings & ((1 << norb) - 1)
-    strings_b = strings >> norb
-    addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
-    addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
-    dim_b = math.comb(norb, n_beta)
-    return addrs_a * dim_b + addrs_b
-
-
 # source: pyscf.fci.spin_op.spin_square0
 # modified to support complex wavefunction
 def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
@@ -644,6 +419,7 @@ def sample_state_vector(
     orbs: Sequence[int] | tuple[Sequence[int], Sequence[int]] | None = None,
     shots: int = 1,
     concatenate: bool = True,
+    bitstring_type: BitstringType = BitstringType.STRING,
     seed: np.random.Generator | int | None = None,
 ) -> list[str] | tuple[list[str], list[str]]:
     """Sample bitstrings from a state vector.
@@ -669,6 +445,7 @@ def sample_state_vector(
             If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
             the list of alpha strings appears first, that is, on the left.
             In the spinless case (when `nelec` is an integer), this argument is ignored.
+        bitstring_type: The desired type of bitstring output.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -687,6 +464,7 @@ def sample_state_vector(
             nelec=nelec,
             orbs=cast(Optional[Sequence[int]], orbs),
             shots=shots,
+            bitstring_type=bitstring_type,
             seed=seed,
         )
     return _sample_state_vector_spinful(
@@ -696,6 +474,7 @@ def sample_state_vector(
         orbs=cast(Optional[tuple[Sequence[int], Sequence[int]]], orbs),
         shots=shots,
         concatenate=concatenate,
+        bitstring_type=bitstring_type,
         seed=seed,
     )
 
@@ -707,6 +486,7 @@ def _sample_state_vector_spinless(
     nelec: int,
     orbs: Sequence[int] | None,
     shots: int,
+    bitstring_type: BitstringType,
     seed: np.random.Generator | int | None,
 ) -> list[str]:
     if orbs is None:
@@ -714,10 +494,10 @@ def _sample_state_vector_spinless(
     rng = np.random.default_rng(seed)
     probabilities = np.abs(vec) ** 2
     samples = rng.choice(len(vec), size=shots, p=probabilities)
-    bitstrings = indices_to_strings(samples, norb, nelec)
+    strings = indices_to_strings(samples, norb, nelec, bitstring_type=bitstring_type)
     if list(orbs) == list(range(norb)):
-        return bitstrings
-    return ["".join(bitstring[-1 - i] for i in orbs[::-1]) for bitstring in bitstrings]
+        return strings
+    return restrict_bitstrings(strings, orbs, bitstring_type=bitstring_type)
 
 
 def _sample_state_vector_spinful(
@@ -728,6 +508,7 @@ def _sample_state_vector_spinful(
     orbs: tuple[Sequence[int], Sequence[int]] | None,
     shots: int,
     concatenate: bool = True,
+    bitstring_type: BitstringType,
     seed: np.random.Generator | int | None,
 ) -> list[str] | tuple[list[str], list[str]]:
     if orbs is None:
@@ -739,13 +520,19 @@ def _sample_state_vector_spinful(
 
     if list(orbs_a) == list(orbs_b) == list(range(norb)):
         # All orbitals are sampled, so we can simply call indices_to_strings
-        return indices_to_strings(samples, norb, nelec, concatenate=concatenate)
+        return indices_to_strings(
+            samples, norb, nelec, concatenate=concatenate, bitstring_type=bitstring_type
+        )
 
-    strings_a, strings_b = indices_to_strings(samples, norb, nelec, concatenate=False)
-    strings_a = ["".join(s[-1 - i] for i in orbs_a[::-1]) for s in strings_a]
-    strings_b = ["".join(s[-1 - i] for i in orbs_b[::-1]) for s in strings_b]
+    strings_a, strings_b = indices_to_strings(
+        samples, norb, nelec, concatenate=False, bitstring_type=bitstring_type
+    )
+    strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=bitstring_type)
+    strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=bitstring_type)
     if concatenate:
-        return ["".join(strings) for strings in zip(strings_b, strings_a)]
+        return concatenate_bitstrings(
+            strings_a, strings_b, bitstring_type=bitstring_type, length=len(orbs_a)
+        )
     return strings_a, strings_b
 
 
