@@ -292,6 +292,42 @@
 <span id="ffsim"></span><h1>ffsim<a class="headerlink" href="#module-ffsim" title="Link to this heading">¶</a></h1>
 <p>ffsim is a software library for fast simulation of fermionic quantum circuits.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.BitstringType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">BitstringType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#BitstringType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.BitstringType" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration for indicating the data type of bitstrings.</p>
+<dl class="simple">
+<dt>String:</dt><dd><p>[“0101”, “0110”]</p>
+</dd>
+<dt>Integer:</dt><dd><p>[5, 6]</p>
+</dd>
+<dt>Bit array:</dt><dd><dl class="simple">
+<dt>[[False, True, False, True],</dt><dd><p>[False, True, True, False]]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.BitstringType.BIT_ARRAY">
+<span class="sig-name descname"><span class="pre">BIT_ARRAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#ffsim.BitstringType.BIT_ARRAY" title="Link to this definition">¶</a></dt>
+<dd><p>Bit array.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.BitstringType.INT">
+<span class="sig-name descname"><span class="pre">INT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#ffsim.BitstringType.INT" title="Link to this definition">¶</a></dt>
+<dd><p>Integer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.BitstringType.STRING">
+<span class="sig-name descname"><span class="pre">STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#ffsim.BitstringType.STRING" title="Link to this definition">¶</a></dt>
+<dd><p>String.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">DiagonalCoulombHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/diagonal_coulomb_hamiltonian.html#DiagonalCoulombHamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -3061,7 +3097,7 @@ lower triangular indices will raise an error.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.addresses_to_strings">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">addresses_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#addresses_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.addresses_to_strings" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">addresses_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#addresses_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.addresses_to_strings" title="Link to this definition">¶</a></dt>
 <dd><p>Convert state vector addresses to bitstrings.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
@@ -4120,7 +4156,7 @@ and spin beta fermions.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.indices_to_strings">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">indices_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#indices_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.indices_to_strings" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">indices_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstring_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BitstringType.STRING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#indices_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.indices_to_strings" title="Link to this definition">¶</a></dt>
 <dd><p>Convert state vector indices to bitstrings.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
@@ -4149,6 +4185,7 @@ and spin beta fermions.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
 and spin beta fermions.</p></li>
+<li><p><strong>bitstring_type</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.BitstringType" title="ffsim.states.bitstring.BitstringType"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitstringType</span></code></a></span>) – The desired type of bitstring output.</p></li>
 <li><p><strong>concatenate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to concatenate the spin-alpha and spin-beta parts of the
 bitstrings. If True, then a single list of concatenated bitstrings is
 returned. The strings are concatenated in the order <span class="math notranslate nohighlight">\(s_b s_a\)</span>,
@@ -4157,9 +4194,6 @@ If False, then two lists are returned, <code class="docutils literal notranslate
 the list of alpha strings appears first, that is, on the left.
 In the spinless case (when <cite>nelec</cite> is an integer), this argument is ignored.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4427,7 +4461,7 @@ The spin-summed 2-RDM is alpha-alpha + alpha-beta + beta-alpha + beta-beta.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.sample_state_vector">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">sample_state_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#sample_state_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.sample_state_vector" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">sample_state_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstring_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BitstringType.STRING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#sample_state_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.sample_state_vector" title="Link to this definition">¶</a></dt>
 <dd><p>Sample bitstrings from a state vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4452,6 +4486,7 @@ that is, the alpha string appears on the right.
 If False, then two lists are returned, <code class="docutils literal notranslate"><span class="pre">(strings_a,</span> <span class="pre">strings_b)</span></code>. Note that
 the list of alpha strings appears first, that is, on the left.
 In the spinless case (when <cite>nelec</cite> is an integer), this argument is ignored.</p></li>
+<li><p><strong>bitstring_type</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.BitstringType" title="ffsim.states.bitstring.BitstringType"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitstringType</span></code></a></span>) – The desired type of bitstring output.</p></li>
 <li><p><strong>seed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A seed to initialize the pseudorandom number generator.
 Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
 </ul>
@@ -4713,7 +4748,7 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.strings_to_addresses">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#strings_to_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_addresses" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#strings_to_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_addresses" title="Link to this definition">¶</a></dt>
 <dd><p>Convert bitstrings to state vector addresses.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
@@ -4749,7 +4784,7 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.strings_to_indices">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#strings_to_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_indices" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#strings_to_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_indices" title="Link to this definition">¶</a></dt>
 <dd><p>Convert bitstrings to state vector indices.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
@@ -4859,6 +4894,12 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">ffsim</a><ul>
+<li><a class="reference internal" href="#ffsim.BitstringType"><code class="docutils literal notranslate"><span class="pre">BitstringType</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.BitstringType.BIT_ARRAY"><code class="docutils literal notranslate"><span class="pre">BitstringType.BIT_ARRAY</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.BitstringType.INT"><code class="docutils literal notranslate"><span class="pre">BitstringType.INT</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.BitstringType.STRING"><code class="docutils literal notranslate"><span class="pre">BitstringType.STRING</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian.one_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian.diag_coulomb_mats"><code class="docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian.diag_coulomb_mats</span></code></a></li>
