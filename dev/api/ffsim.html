@@ -3097,7 +3097,7 @@ lower triangular indices will raise an error.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.addresses_to_strings">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">addresses_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#addresses_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.addresses_to_strings" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">addresses_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstring_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BitstringType.INT</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#addresses_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.addresses_to_strings" title="Link to this definition">¶</a></dt>
 <dd><p>Convert state vector addresses to bitstrings.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
@@ -3127,6 +3127,7 @@ lower triangular indices will raise an error.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
 and spin beta fermions.</p></li>
+<li><p><strong>bitstring_type</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.BitstringType" title="ffsim.states.bitstring.BitstringType"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitstringType</span></code></a></span>) – The desired type of bitstring output.</p></li>
 <li><p><strong>concatenate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to concatenate the spin-alpha and spin-beta parts of the
 bitstrings. If True, then a single list of concatenated bitstrings is
 returned. The strings are concatenated in the order <span class="math notranslate nohighlight">\(s_b s_a\)</span>,
@@ -3135,9 +3136,6 @@ If False, then two lists are returned, <code class="docutils literal notranslate
 the list of alpha strings appears first, that is, on the left.
 In the spinless case (when <cite>nelec</cite> is an integer), this argument is ignored.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 </dl>
 </dd></dl>

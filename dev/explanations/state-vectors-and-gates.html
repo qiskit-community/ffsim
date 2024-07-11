@@ -335,12 +335,14 @@ On the other hand, 2 ** (2 * norb) = 64.
 </pre></div></div>
 </div>
 <p>Each entry of the state vector is associated with an electronic configuration, which can be labeled by the concatenation of two bitstrings, <span class="math notranslate nohighlight">\(\lvert s_\beta s_\alpha \rangle\)</span>, where <span class="math notranslate nohighlight">\(s_\alpha\)</span> is a bitstring of length <span class="math notranslate nohighlight">\(N\)</span> with Hamming weight <span class="math notranslate nohighlight">\(N_\alpha\)</span>, and <span class="math notranslate nohighlight">\(s_\beta\)</span> is a bitstring of length <span class="math notranslate nohighlight">\(N\)</span> with Hamming weight <span class="math notranslate nohighlight">\(N_\beta\)</span>. A full specification of the state vector representation requires a choice of ordering for the bitstrings. ffsim uses the same
-ordering as <a class="reference external" href="https://pyscf.org/">PySCF</a>’s FCI module, <code class="docutils literal notranslate"><span class="pre">pyscf.fci</span></code>. You can use the <code class="docutils literal notranslate"><span class="pre">indices_to_strings</span></code> function in ffsim to convert a list of state vector indices to the corresponding bitstrings.</p>
+ordering as <a class="reference external" href="https://pyscf.org/">PySCF</a>’s FCI module, <code class="docutils literal notranslate"><span class="pre">pyscf.fci</span></code>. You can use the <code class="docutils literal notranslate"><span class="pre">addresses_to_strings</span></code> function in ffsim to convert a list of state vector indices to the corresponding bitstrings.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">strings</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">indices_to_strings</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">strings</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">addresses_to_strings</span><span class="p">(</span>
+    <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">ffsim</span><span class="o">.</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">STRING</span>
+<span class="p">)</span>
 
 <span class="n">strings</span>
 </pre></div>

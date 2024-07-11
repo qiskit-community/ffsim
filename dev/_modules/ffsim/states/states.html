@@ -311,8 +311,8 @@
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
 <span class="kn">from</span> <span class="nn">ffsim.states.bitstring</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BitstringType</span><span class="p">,</span>
+    <span class="n">addresses_to_strings</span><span class="p">,</span>
     <span class="n">concatenate_bitstrings</span><span class="p">,</span>
-    <span class="n">indices_to_strings</span><span class="p">,</span>
     <span class="n">restrict_bitstrings</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -808,7 +808,7 @@
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">)</span>
-    <span class="n">strings</span> <span class="o">=</span> <span class="n">indices_to_strings</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">)</span>
+    <span class="n">strings</span> <span class="o">=</span> <span class="n">addresses_to_strings</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">orbs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">strings</span>
     <span class="k">return</span> <span class="n">restrict_bitstrings</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">orbs</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">)</span>
@@ -833,12 +833,12 @@
     <span class="n">orbs_a</span><span class="p">,</span> <span class="n">orbs_b</span> <span class="o">=</span> <span class="n">orbs</span>
 
     <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">orbs_a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">orbs_b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)):</span>
-        <span class="c1"># All orbitals are sampled, so we can simply call indices_to_strings</span>
-        <span class="k">return</span> <span class="n">indices_to_strings</span><span class="p">(</span>
+        <span class="c1"># All orbitals are sampled, so we can simply call addresses_to_strings</span>
+        <span class="k">return</span> <span class="n">addresses_to_strings</span><span class="p">(</span>
             <span class="n">samples</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">concatenate</span><span class="o">=</span><span class="n">concatenate</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">bitstring_type</span>
         <span class="p">)</span>
 
-    <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span> <span class="o">=</span> <span class="n">indices_to_strings</span><span class="p">(</span>
+    <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span> <span class="o">=</span> <span class="n">addresses_to_strings</span><span class="p">(</span>
         <span class="n">samples</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">concatenate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">bitstring_type</span>
     <span class="p">)</span>
     <span class="n">strings_a</span> <span class="o">=</span> <span class="n">restrict_bitstrings</span><span class="p">(</span><span class="n">strings_a</span><span class="p">,</span> <span class="n">orbs_a</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">)</span>
