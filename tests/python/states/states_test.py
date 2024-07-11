@@ -219,7 +219,7 @@ def test_sample_state_vector_spinful_string():
     """Test sampling state vector, spinful, output type string."""
     norb = 5
     nelec = (3, 2)
-    index = ffsim.strings_to_indices(["1000101101"], norb=norb, nelec=nelec)[0]
+    index = ffsim.strings_to_addresses(["1000101101"], norb=norb, nelec=nelec)[0]
     vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
 
     samples = ffsim.sample_state_vector(vec, norb=norb, nelec=nelec)
@@ -248,7 +248,7 @@ def test_sample_state_vector_spinful_int():
     """Test sampling state vector, spinful, output type int."""
     norb = 5
     nelec = (3, 2)
-    index = ffsim.strings_to_indices(["1000101101"], norb=norb, nelec=nelec)[0]
+    index = ffsim.strings_to_addresses(["1000101101"], norb=norb, nelec=nelec)[0]
     vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
 
     samples = ffsim.sample_state_vector(
@@ -287,7 +287,7 @@ def test_sample_state_vector_spinful_bit_array():
     """Test sampling state vector, spinful, output type bit array."""
     norb = 5
     nelec = (3, 2)
-    index = ffsim.strings_to_indices(["1000101101"], norb=norb, nelec=nelec)[0]
+    index = ffsim.strings_to_addresses(["1000101101"], norb=norb, nelec=nelec)[0]
     vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
 
     samples = ffsim.sample_state_vector(
@@ -398,7 +398,7 @@ def test_sample_state_vector_spinless_string():
     """Test sampling state vector, spinless, output type string."""
     norb = 5
     nelec = 3
-    index = ffsim.strings_to_indices(["01101"], norb=norb, nelec=nelec)[0]
+    index = ffsim.strings_to_addresses(["01101"], norb=norb, nelec=nelec)[0]
     vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
 
     samples = ffsim.sample_state_vector(vec, norb=norb, nelec=nelec)
@@ -425,7 +425,7 @@ def test_sample_state_vector_spinless_int():
     """Test sampling state vector, spinless, output type int."""
     norb = 5
     nelec = 3
-    index = ffsim.strings_to_indices(["01101"], norb=norb, nelec=nelec)[0]
+    index = ffsim.strings_to_addresses(["01101"], norb=norb, nelec=nelec)[0]
     vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
 
     samples = ffsim.sample_state_vector(
@@ -473,7 +473,7 @@ def test_sample_state_vector_spinless_bit_array():
     """Test sampling state vector, spinless, output type bit_array."""
     norb = 5
     nelec = 3
-    index = ffsim.strings_to_indices(["01101"], norb=norb, nelec=nelec)[0]
+    index = ffsim.strings_to_addresses(["01101"], norb=norb, nelec=nelec)[0]
     vec = ffsim.linalg.one_hot(ffsim.dim(norb, nelec), index)
 
     samples = ffsim.sample_state_vector(
