@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "ffsim"
 requires-python = ">=3.9"
-version = "0.0.40.dev"
+version = "0.0.41.dev"
 description = "Faster simulations of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -87,4 +87,6 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y openssl-devel rust cargo openblas-devel"
+# mirrorlist.centos.org doesn't exist anymore
+# Workaround from https://serverfault.com/a/1161847
+before-all = "sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo && yum install -y openssl-devel rust cargo openblas-devel"

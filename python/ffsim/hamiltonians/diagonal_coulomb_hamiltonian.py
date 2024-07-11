@@ -78,6 +78,7 @@ class DiagonalCoulombHamiltonian:
         )
 
         def matvec(vec: np.ndarray):
+            vec = vec.astype(complex, copy=False)
             result = self.constant * vec
             result += num_linop @ vec
             result += dc_linop @ vec

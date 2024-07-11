@@ -8,9 +8,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from __future__ import annotations
+"""Trotter simulation for diagonal Coulomb Hamiltonian."""
 
-from collections.abc import Iterator
+from __future__ import annotations
 
 import numpy as np
 import scipy.linalg
@@ -20,46 +20,13 @@ from ffsim.gates import (
     apply_num_op_sum_evolution,
     apply_orbital_rotation,
 )
-from ffsim.hamiltonians import DoubleFactorizedHamiltonian
+from ffsim.hamiltonians import DiagonalCoulombHamiltonian
+from ffsim.trotter._util import simulate_trotter_step_iterator
 
 
-def _simulate_trotter_step_iterator(
-    n_terms: int, time: float, order: int = 0
-) -> Iterator[tuple[int, float]]:
-    if order == 0:
-        for i in range(n_terms):
-            yield i, time
-    else:
-        yield from _simulate_trotter_step_iterator_symmetric(n_terms, time, order)
-
-
-def _simulate_trotter_step_iterator_symmetric(
-    n_terms: int, time: float, order: int
-) -> Iterator[tuple[int, float]]:
-    if order == 1:
-        for i in range(n_terms - 1):
-            yield i, time / 2
-        yield n_terms - 1, time
-        for i in reversed(range(n_terms - 1)):
-            yield i, time / 2
-    else:
-        split_time = time / (4 - 4 ** (1 / (2 * order - 1)))
-        for _ in range(2):
-            yield from _simulate_trotter_step_iterator_symmetric(
-                n_terms, split_time, order - 1
-            )
-        yield from _simulate_trotter_step_iterator_symmetric(
-            n_terms, time - 4 * split_time, order - 1
-        )
-        for _ in range(2):
-            yield from _simulate_trotter_step_iterator_symmetric(
-                n_terms, split_time, order - 1
-            )
-
-
-def simulate_trotter_double_factorized(
+def simulate_trotter_diag_coulomb_split_op(
     vec: np.ndarray,
-    hamiltonian: DoubleFactorizedHamiltonian,
+    hamiltonian: DiagonalCoulombHamiltonian,
     time: float,
     *,
     norb: int,
@@ -68,7 +35,7 @@ def simulate_trotter_double_factorized(
     order: int = 0,
     copy: bool = True,
 ) -> np.ndarray:
-    """Double-factorized Hamiltonian simulation using Trotter-Suzuki formula.
+    """Diagonal Coulomb Hamiltonian simulation using split-operator method.
 
     Args:
         vec: The state vector to evolve.
@@ -106,40 +73,36 @@ def simulate_trotter_double_factorized(
 
     current_basis = np.eye(norb, dtype=complex)
     for _ in range(n_steps):
-        vec, current_basis = _simulate_trotter_step_double_factorized(
+        vec, current_basis = _simulate_trotter_step_diag_coulomb_split_op(
             vec,
             current_basis,
             one_body_energies,
             one_body_basis_change,
             hamiltonian.diag_coulomb_mats,
-            hamiltonian.orbital_rotations,
             step_time,
             norb=norb,
             nelec=nelec,
             order=order,
-            z_representation=hamiltonian.z_representation,
         )
     vec = apply_orbital_rotation(vec, current_basis, norb=norb, nelec=nelec, copy=False)
 
     return vec
 
 
-def _simulate_trotter_step_double_factorized(
+def _simulate_trotter_step_diag_coulomb_split_op(
     vec: np.ndarray,
     current_basis: np.ndarray,
     one_body_energies: np.ndarray,
     one_body_basis_change: np.ndarray,
     diag_coulomb_mats: np.ndarray,
-    orbital_rotations: np.ndarray,
     time: float,
     norb: int,
     nelec: tuple[int, int],
     order: int,
-    z_representation: bool,
 ) -> tuple[np.ndarray, np.ndarray]:
-    for term_index, time in _simulate_trotter_step_iterator(
-        1 + len(diag_coulomb_mats), time, order
-    ):
+    diag_coulomb_aa, diag_coulomb_ab = diag_coulomb_mats
+    eye = np.eye(norb)
+    for term_index, time in simulate_trotter_step_iterator(2, time, order):
         if term_index == 0:
             vec = apply_orbital_rotation(
                 vec,
@@ -158,22 +121,20 @@ def _simulate_trotter_step_double_factorized(
             )
             current_basis = one_body_basis_change
         else:
-            orbital_rotation = orbital_rotations[term_index - 1]
             vec = apply_orbital_rotation(
                 vec,
-                orbital_rotation.T.conj() @ current_basis,
+                current_basis,
                 norb=norb,
                 nelec=nelec,
                 copy=False,
             )
             vec = apply_diag_coulomb_evolution(
                 vec,
-                diag_coulomb_mats[term_index - 1],
+                (diag_coulomb_aa, diag_coulomb_ab, diag_coulomb_aa),
                 time,
                 norb=norb,
                 nelec=nelec,
-                z_representation=z_representation,
                 copy=False,
             )
-            current_basis = orbital_rotation
+            current_basis = eye
     return vec, current_basis

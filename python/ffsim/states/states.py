@@ -15,7 +15,7 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import cast, overload
+from typing import Optional, cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -25,6 +25,12 @@ from typing_extensions import deprecated
 
 from ffsim import linalg
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
+from ffsim.states.bitstring import (
+    BitstringType,
+    concatenate_bitstrings,
+    indices_to_strings,
+    restrict_bitstrings,
+)
 
 
 @dataclass
@@ -42,6 +48,18 @@ class StateVector:
     vec: np.ndarray
     norb: int
     nelec: int | tuple[int, int]
+
+    def __array__(self, dtype=None, copy=None):
+        # TODO in Numpy 2.0 this can be simplified to
+        # return np.array(self.vec, dtype=dtype, copy=copy)
+        if copy:
+            if dtype is None:
+                return self.vec.copy()
+            else:
+                return self.vec.astype(dtype, copy=True)
+        if dtype is None:
+            return self.vec
+        return self.vec.astype(dtype, copy=False)
 
 
 def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
@@ -381,179 +399,6 @@ def slater_determinant_rdms(
         )
 
 
-def indices_to_strings(
-    indices: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
-) -> list[str]:
-    """Convert state vector indices to bitstrings.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.indices_to_strings(range(dim), norb, nelec)
-        # output:
-        # ['001011',
-        #  '010011',
-        #  '100011',
-        #  '001101',
-        #  '010101',
-        #  '100101',
-        #  '001110',
-        #  '010110',
-        #  '100110']
-    """
-    if isinstance(nelec, int):
-        strings = cistring.addrs2str(norb=norb, nelec=nelec, addrs=indices)
-        return [f"{string:0{norb}b}" for string in strings]
-
-    n_alpha, n_beta = nelec
-    dim_b = math.comb(norb, n_beta)
-    indices_a, indices_b = np.divmod(indices, dim_b)
-    strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)
-    strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)
-    return [
-        f"{string_b:0{norb}b}{string_a:0{norb}b}"
-        for string_a, string_b in zip(strings_a, strings_b)
-    ]
-
-
-def strings_to_indices(
-    strings: Sequence[str] | np.ndarray, norb: int, nelec: int | tuple[int, int]
-) -> np.ndarray:
-    """Convert bitstrings to state vector indices.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.strings_to_indices(
-            [
-                "001011",
-                "010011",
-                "100011",
-                "001101",
-                "010101",
-                "100101",
-                "001110",
-                "010110",
-                "100110",
-            ],
-            norb,
-            nelec,
-        )
-        # output:
-        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
-    """
-    if isinstance(nelec, int):
-        return cistring.strs2addr(
-            norb=norb, nelec=nelec, strings=[int(s, base=2) for s in strings]
-        )
-
-    n_alpha, n_beta = nelec
-    strings_a = [int(s[norb:], base=2) for s in strings]
-    strings_b = [int(s[:norb], base=2) for s in strings]
-    addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
-    addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
-    dim_b = math.comb(norb, n_beta)
-    return addrs_a * dim_b + addrs_b
-
-
-def addresses_to_strings(
-    addresses: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
-) -> np.ndarray:
-    """Convert state vector addresses to bitstrings.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
-        [format(s, f"06b") for s in strings]
-        # output:
-        # ['001011',
-        #  '010011',
-        #  '100011',
-        #  '001101',
-        #  '010101',
-        #  '100101',
-        #  '001110',
-        #  '010110',
-        #  '100110']
-    """
-    if isinstance(nelec, int):
-        return cistring.addrs2str(norb=norb, nelec=nelec, addrs=addresses)
-    if norb >= 32:
-        raise NotImplementedError(
-            "addresses_to_strings currently does not support norb >= 32."
-        )
-    n_alpha, n_beta = nelec
-    dim_b = math.comb(norb, n_beta)
-    addresses_a, addresses_b = np.divmod(addresses, dim_b)
-    strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=addresses_a)
-    strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=addresses_b)
-    return (strings_b << norb) + strings_a
-
-
-def strings_to_addresses(
-    strings: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
-) -> np.ndarray:
-    """Convert bitstrings to state vector addresses.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.strings_to_addresses(
-            [
-                0b001011,
-                0b010011,
-                0b100011,
-                0b001101,
-                0b010101,
-                0b100101,
-                0b001110,
-                0b010110,
-                0b100110,
-            ],
-            norb,
-            nelec,
-        )
-        # output:
-        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
-    """
-    if isinstance(nelec, int):
-        return cistring.strs2addr(norb=norb, nelec=nelec, strings=strings)
-
-    n_alpha, n_beta = nelec
-    strings = np.asarray(strings)
-    strings_a = strings & ((1 << norb) - 1)
-    strings_b = strings >> norb
-    addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
-    addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
-    dim_b = math.comb(norb, n_beta)
-    return addrs_a * dim_b + addrs_b
-
-
 # source: pyscf.fci.spin_op.spin_square0
 # modified to support complex wavefunction
 def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
@@ -569,25 +414,38 @@ def spin_square(fcivec: np.ndarray, norb: int, nelec: tuple[int, int]):
 def sample_state_vector(
     vec: np.ndarray | StateVector,
     *,
-    orbs: list[int],
-    shots: int,
     norb: int | None = None,
     nelec: int | tuple[int, int] | None = None,
+    orbs: Sequence[int] | tuple[Sequence[int], Sequence[int]] | None = None,
+    shots: int = 1,
+    concatenate: bool = True,
+    bitstring_type: BitstringType = BitstringType.STRING,
     seed: np.random.Generator | int | None = None,
-) -> list[str]:
+) -> list[str] | tuple[list[str], list[str]]:
     """Sample bitstrings from a state vector.
 
     Args:
         vec: The state vector to sample from.
-        orbs: The spin-orbitals to sample from. These are integers ranging from
-            ``0`` to ``2 * norb - 1``, with the first half of the range representing
-            the spin alpha orbitals, and the second half representing the spin beta
-            orbitals.
-        shots: The number of bitstrings to sample.
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
+        orbs: The spin-orbitals to sample.
+            In the spinless case (when `nelec` is an integer), this is a list of
+            integers ranging from ``0`` to ``norb``.
+            In the spinful case, this is a pair of lists of such integers, with the
+            first list storing the spin-alpha orbitals and the second list storing
+            the spin-beta orbitals.
+            If not specified, then all spin-orbitals are sampled.
+        shots: The number of bitstrings to sample.
+        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
+            bitstrings. If True, then a single list of concatenated bitstrings is
+            returned. The strings are concatenated in the order :math:`s_b s_a`,
+            that is, the alpha string appears on the right.
+            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
+            the list of alpha strings appears first, that is, on the left.
+            In the spinless case (when `nelec` is an integer), this argument is ignored.
+        bitstring_type: The desired type of bitstring output.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -599,13 +457,83 @@ def sample_state_vector(
         TypeError: When passing vec as a StateVector, norb and nelec must both be None.
     """
     vec, norb, nelec = canonicalize_vec_norb_nelec(vec, norb, nelec)
+    if isinstance(nelec, int):
+        return _sample_state_vector_spinless(
+            vec,
+            norb=norb,
+            nelec=nelec,
+            orbs=cast(Optional[Sequence[int]], orbs),
+            shots=shots,
+            bitstring_type=bitstring_type,
+            seed=seed,
+        )
+    return _sample_state_vector_spinful(
+        vec,
+        norb=norb,
+        nelec=nelec,
+        orbs=cast(Optional[tuple[Sequence[int], Sequence[int]]], orbs),
+        shots=shots,
+        concatenate=concatenate,
+        bitstring_type=bitstring_type,
+        seed=seed,
+    )
+
+
+def _sample_state_vector_spinless(
+    vec: np.ndarray,
+    *,
+    norb: int,
+    nelec: int,
+    orbs: Sequence[int] | None,
+    shots: int,
+    bitstring_type: BitstringType,
+    seed: np.random.Generator | int | None,
+) -> list[str]:
+    if orbs is None:
+        orbs = range(norb)
     rng = np.random.default_rng(seed)
     probabilities = np.abs(vec) ** 2
     samples = rng.choice(len(vec), size=shots, p=probabilities)
-    bitstrings = indices_to_strings(samples, norb, nelec)
-    if orbs == list(range(2 * norb)):
-        return bitstrings
-    return ["".join(bitstring[-1 - i] for i in orbs[::-1]) for bitstring in bitstrings]
+    strings = indices_to_strings(samples, norb, nelec, bitstring_type=bitstring_type)
+    if list(orbs) == list(range(norb)):
+        return strings
+    return restrict_bitstrings(strings, orbs, bitstring_type=bitstring_type)
+
+
+def _sample_state_vector_spinful(
+    vec: np.ndarray,
+    *,
+    norb: int,
+    nelec: tuple[int, int],
+    orbs: tuple[Sequence[int], Sequence[int]] | None,
+    shots: int,
+    concatenate: bool = True,
+    bitstring_type: BitstringType,
+    seed: np.random.Generator | int | None,
+) -> list[str] | tuple[list[str], list[str]]:
+    if orbs is None:
+        orbs = range(norb), range(norb)
+    rng = np.random.default_rng(seed)
+    probabilities = np.abs(vec) ** 2
+    samples = rng.choice(len(vec), size=shots, p=probabilities)
+    orbs_a, orbs_b = orbs
+
+    if list(orbs_a) == list(orbs_b) == list(range(norb)):
+        # All orbitals are sampled, so we can simply call indices_to_strings
+        return indices_to_strings(
+            samples, norb, nelec, concatenate=concatenate, bitstring_type=bitstring_type
+        )
+
+    strings_a, strings_b = indices_to_strings(
+        samples, norb, nelec, concatenate=False, bitstring_type=bitstring_type
+    )
+    strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=bitstring_type)
+    strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=bitstring_type)
+    if concatenate:
+        return concatenate_bitstrings(
+            strings_a, strings_b, bitstring_type=bitstring_type, length=len(orbs_a)
+        )
+    return strings_a, strings_b
 
 
 def canonicalize_vec_norb_nelec(

@@ -42,11 +42,15 @@ def test_linear_operator(z_representation: bool):
     expected_linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     dim = ffsim.dim(norb, nelec)
-    state = ffsim.random.random_state_vector(dim, seed=rng)
 
+    state = ffsim.random.random_state_vector(dim, seed=rng)
     actual = actual_linop @ state
     expected = expected_linop @ state
+    np.testing.assert_allclose(actual, expected)
 
+    state = ffsim.random.random_state_vector(dim, seed=rng, dtype=float)
+    actual = actual_linop @ state
+    expected = expected_linop @ state
     np.testing.assert_allclose(actual, expected)
 
 

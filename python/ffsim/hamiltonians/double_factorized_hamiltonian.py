@@ -235,6 +235,7 @@ class DoubleFactorizedHamiltonian:
         ]
 
         def matvec(vec: np.ndarray):
+            vec = vec.astype(complex, copy=False)
             result = self.constant * vec
             result += num_linop @ vec
             for linop in diag_coulomb_linops:

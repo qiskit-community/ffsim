@@ -78,8 +78,15 @@ class FfsimSampler(BaseSamplerV2):
         for index, bound_circuit in np.ndenumerate(bound_circuits):
             final_state = final_state_vector(bound_circuit)
             if qargs:
+                norb, nelec = final_state.norb, final_state.nelec
+                if isinstance(nelec, int):
+                    orbs = qargs
+                else:
+                    orbs_a = [q for q in qargs if q < norb]
+                    orbs_b = [q % norb for q in qargs if q >= norb]
+                    orbs = (orbs_a, orbs_b)
                 samples = states.sample_state_vector(
-                    final_state, orbs=qargs, shots=pub.shots, seed=self._rng
+                    final_state, orbs=orbs, shots=pub.shots, seed=self._rng
                 )
             else:
                 samples = [""] * pub.shots

@@ -45,35 +45,6 @@ def _assert_mol_data_equal(
             assert actual == expected
 
 
-def test_molecular_data_sym():
-    # Build N2 molecule
-    mol = pyscf.gto.Mole()
-    mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
-        basis="sto-6g",
-        symmetry="Dooh",
-    )
-
-    # Define active space
-    n_frozen = pyscf.data.elements.chemcore(mol)
-    active_space = range(n_frozen, mol.nao_nr())
-
-    # Get molecular data and Hamiltonian
-    scf = pyscf.scf.RHF(mol).run()
-    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
-
-    assert mol_data.orbital_symmetries == [
-        "A1g",
-        "A1u",
-        "E1uy",
-        "E1ux",
-        "A1g",
-        "E1gx",
-        "E1gy",
-        "A1u",
-    ]
-
-
 def test_molecular_data_no_sym():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
@@ -165,3 +136,40 @@ def test_json_open_shell(tmp_path: pathlib.Path):
             tmp_path / "test.json", compression=compression
         )
         _assert_mol_data_equal(loaded_mol_data, mol_data)
+
+
+def test_fcidump(tmp_path: pathlib.Path):
+    """Test saving to and loading from FCIDUMP."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+        spin=0,
+    )
+    n_frozen = pyscf.data.elements.chemcore(mol)
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    mol_data.to_fcidump(tmp_path / "test.fcidump")
+    loaded_mol_data = ffsim.MolecularData.from_fcidump(tmp_path / "test.fcidump")
+    assert loaded_mol_data.norb == mol_data.norb
+    assert loaded_mol_data.nelec == mol_data.nelec
+    assert loaded_mol_data.spin == mol_data.spin
+    assert ffsim.approx_eq(loaded_mol_data.hamiltonian, mol_data.hamiltonian)
+
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["H", (0, 0, 0)], ["O", (0, 0, 1.1)]],
+        basis="6-31g",
+        spin=1,
+        symmetry="Coov",
+    )
+    scf = pyscf.scf.ROHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    mol_data.to_fcidump(tmp_path / "test.fcidump")
+    loaded_mol_data = ffsim.MolecularData.from_fcidump(tmp_path / "test.fcidump")
+    assert loaded_mol_data.norb == mol_data.norb
+    assert loaded_mol_data.nelec == mol_data.nelec
+    assert loaded_mol_data.spin == mol_data.spin
+    assert ffsim.approx_eq(loaded_mol_data.hamiltonian, mol_data.hamiltonian)

@@ -61,6 +61,7 @@ from ffsim.protocols import (
 )
 from ffsim.spin import Spin
 from ffsim.states import (
+    BitstringType,
     ProductStateSum,
     StateVector,
     addresses_to_strings,
@@ -84,6 +85,7 @@ from ffsim.states import (
 )
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
+    simulate_trotter_diag_coulomb_split_op,
     simulate_trotter_double_factorized,
 )
 from ffsim.variational import (
@@ -101,6 +103,7 @@ from ffsim.variational import (
 )
 
 __all__ = [
+    "BitstringType",
     "DiagonalCoulombHamiltonian",
     "DoubleFactorizedHamiltonian",
     "FermionAction",
@@ -171,6 +174,7 @@ __all__ = [
     "rdms",
     "sample_state_vector",
     "simulate_qdrift_double_factorized",
+    "simulate_trotter_diag_coulomb_split_op",
     "simulate_trotter_double_factorized",
     "slater_determinant",
     "slater_determinant_rdm",

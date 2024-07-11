@@ -17,7 +17,7 @@ from typing import cast
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import Barrier, Measure
 
-from ffsim import gates, protocols, states
+from ffsim import gates, protocols, states, trotter
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
     DiagCoulombEvolutionSpinlessJW,
@@ -29,6 +29,7 @@ from ffsim.qiskit.gates import (
     PrepareHartreeFockSpinlessJW,
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
+    SimulateTrotterDoubleFactorizedJW,
     UCJOperatorJW,
     UCJOpSpinBalancedJW,
     UCJOpSpinlessJW,
@@ -234,6 +235,19 @@ def _evolve_state_vector_spinful(
             (None, op.orbital_rotation_b),
             norb=norb,
             nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, SimulateTrotterDoubleFactorizedJW):
+        vec = trotter.simulate_trotter_double_factorized(
+            vec,
+            op.hamiltonian,
+            op.time,
+            norb=norb,
+            nelec=nelec,
+            n_steps=op.n_steps,
+            order=op.order,
             copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
