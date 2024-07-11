@@ -27,8 +27,8 @@ from ffsim import linalg
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.states.bitstring import (
     BitstringType,
+    addresses_to_strings,
     concatenate_bitstrings,
-    indices_to_strings,
     restrict_bitstrings,
 )
 
@@ -494,7 +494,7 @@ def _sample_state_vector_spinless(
     rng = np.random.default_rng(seed)
     probabilities = np.abs(vec) ** 2
     samples = rng.choice(len(vec), size=shots, p=probabilities)
-    strings = indices_to_strings(samples, norb, nelec, bitstring_type=bitstring_type)
+    strings = addresses_to_strings(samples, norb, nelec, bitstring_type=bitstring_type)
     if list(orbs) == list(range(norb)):
         return strings
     return restrict_bitstrings(strings, orbs, bitstring_type=bitstring_type)
@@ -519,12 +519,12 @@ def _sample_state_vector_spinful(
     orbs_a, orbs_b = orbs
 
     if list(orbs_a) == list(orbs_b) == list(range(norb)):
-        # All orbitals are sampled, so we can simply call indices_to_strings
-        return indices_to_strings(
+        # All orbitals are sampled, so we can simply call addresses_to_strings
+        return addresses_to_strings(
             samples, norb, nelec, concatenate=concatenate, bitstring_type=bitstring_type
         )
 
-    strings_a, strings_b = indices_to_strings(
+    strings_a, strings_b = addresses_to_strings(
         samples, norb, nelec, concatenate=False, bitstring_type=bitstring_type
     )
     strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=bitstring_type)
