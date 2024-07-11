@@ -10,27 +10,31 @@
 
 """States."""
 
+from ffsim.states.bitstring import (
+    BitstringType,
+    addresses_to_strings,
+    indices_to_strings,
+    strings_to_addresses,
+    strings_to_indices,
+)
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm, rdms
 from ffsim.states.states import (
     StateVector,
-    addresses_to_strings,
     dim,
     dims,
     hartree_fock_state,
-    indices_to_strings,
     one_hot,
     sample_state_vector,
     slater_determinant,
     slater_determinant_rdm,
     slater_determinant_rdms,
     spin_square,
-    strings_to_addresses,
-    strings_to_indices,
 )
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
 __all__ = [
+    "BitstringType",
     "ProductStateSum",
     "StateVector",
     "addresses_to_strings",
