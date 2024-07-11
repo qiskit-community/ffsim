@@ -19,6 +19,7 @@ from typing import cast
 
 import numpy as np
 from pyscf.fci import cistring
+from typing_extensions import deprecated
 
 
 class BitstringType(Enum):
@@ -45,6 +46,10 @@ class BitstringType(Enum):
     """Bit array."""
 
 
+@deprecated(
+    "ffsim.indices_to_strings is deprecated. "
+    "Instead, use ffsim.addresses_to_strings."
+)
 def indices_to_strings(
     indices: Sequence[int] | np.ndarray,
     norb: int,
@@ -93,7 +98,6 @@ def indices_to_strings(
     if isinstance(nelec, int):
         # Spinless case
         return convert_bitstring_type(
-            # TODO convert to python int
             list(cistring.addrs2str(norb=norb, nelec=nelec, addrs=indices)),
             input_type=BitstringType.INT,
             output_type=bitstring_type,
@@ -105,14 +109,12 @@ def indices_to_strings(
     dim_b = math.comb(norb, n_beta)
     indices_a, indices_b = np.divmod(indices, dim_b)
     strings_a = convert_bitstring_type(
-        # TODO convert to python int
         list(cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)),
         input_type=BitstringType.INT,
         output_type=bitstring_type,
         length=norb,
     )
     strings_b = convert_bitstring_type(
-        # TODO convert to python int
         list(cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)),
         input_type=BitstringType.INT,
         output_type=bitstring_type,
@@ -126,7 +128,7 @@ def indices_to_strings(
 
 
 def convert_bitstring_type(
-    strings: list[str] | list[int] | np.ndarray,
+    strings: Sequence[str] | Sequence[int] | np.ndarray,
     input_type: BitstringType,
     output_type: BitstringType,
     length: int,
@@ -154,7 +156,7 @@ def convert_bitstring_type(
             return np.array([[b == "1" for b in s] for s in strings])
 
     if input_type is BitstringType.INT:
-        strings = cast(list[int], strings)
+        strings = cast(Sequence[int], strings)
         if output_type is BitstringType.STRING:
             return [f"{string:0{length}b}" for string in strings]
 
@@ -222,6 +224,10 @@ def concatenate_bitstrings(
         return np.concatenate([strings_b, strings_a], axis=1)
 
 
+@deprecated(
+    "ffsim.strings_to_indices is deprecated. "
+    "Instead, use ffsim.strings_to_addresses."
+)
 def strings_to_indices(
     strings: Sequence[str], norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
@@ -273,7 +279,8 @@ def addresses_to_strings(
     norb: int,
     nelec: int | tuple[int, int],
     concatenate: bool = True,
-) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
+    bitstring_type: BitstringType = BitstringType.INT,
+):
     """Convert state vector addresses to bitstrings.
 
     Example:
@@ -304,6 +311,7 @@ def addresses_to_strings(
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
+        bitstring_type: The desired type of bitstring output.
         concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
             bitstrings. If True, then a single list of concatenated bitstrings is
             returned. The strings are concatenated in the order :math:`s_b s_a`,
@@ -313,23 +321,44 @@ def addresses_to_strings(
             In the spinless case (when `nelec` is an integer), this argument is ignored.
     """
     if isinstance(nelec, int):
-        return cistring.addrs2str(norb=norb, nelec=nelec, addrs=addresses)
-    if norb >= 32:
-        raise NotImplementedError(
-            "addresses_to_strings currently does not support norb >= 32."
+        # Spinless case
+        return convert_bitstring_type(
+            [
+                int(s)
+                for s in cistring.addrs2str(norb=norb, nelec=nelec, addrs=addresses)
+            ],
+            input_type=BitstringType.INT,
+            output_type=bitstring_type,
+            length=norb,
         )
+
+    # Spinful case
     n_alpha, n_beta = nelec
     dim_b = math.comb(norb, n_beta)
-    addresses_a, addresses_b = np.divmod(addresses, dim_b)
-    strings_a = cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=addresses_a)
-    strings_b = cistring.addrs2str(norb=norb, nelec=n_beta, addrs=addresses_b)
+    indices_a, indices_b = np.divmod(addresses, dim_b)
+    strings_a = convert_bitstring_type(
+        [int(s) for s in cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)],
+        input_type=BitstringType.INT,
+        output_type=bitstring_type,
+        length=norb,
+    )
+    strings_b = convert_bitstring_type(
+        [int(s) for s in cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)],
+        input_type=BitstringType.INT,
+        output_type=bitstring_type,
+        length=norb,
+    )
     if concatenate:
-        return (strings_b << norb) + strings_a
+        return concatenate_bitstrings(
+            strings_a, strings_b, bitstring_type=bitstring_type, length=norb
+        )
     return strings_a, strings_b
 
 
 def strings_to_addresses(
-    strings: Sequence[int] | np.ndarray, norb: int, nelec: int | tuple[int, int]
+    strings: Sequence[int] | Sequence[str] | np.ndarray,
+    norb: int,
+    nelec: int | tuple[int, int],
 ) -> np.ndarray:
     """Convert bitstrings to state vector addresses.
 
@@ -360,9 +389,19 @@ def strings_to_addresses(
         # output:
         # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
     """
+    if not len(strings):
+        return np.array([])
+    if isinstance(strings, np.ndarray):
+        bitstring_type = BitstringType.BIT_ARRAY
+    elif isinstance(strings[0], str):
+        bitstring_type = BitstringType.STRING
+    else:
+        bitstring_type = BitstringType.INT
+    strings = convert_bitstring_type(
+        strings, input_type=bitstring_type, output_type=BitstringType.INT, length=norb
+    )
     if isinstance(nelec, int):
         return cistring.strs2addr(norb=norb, nelec=nelec, strings=strings)
-
     n_alpha, n_beta = nelec
     strings = np.asarray(strings)
     strings_a = strings & ((1 << norb) - 1)
