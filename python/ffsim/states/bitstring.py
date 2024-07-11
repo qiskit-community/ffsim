@@ -165,7 +165,10 @@ def convert_bitstring_type(
 
     if input_type is BitstringType.BIT_ARRAY:
         strings = cast(np.ndarray, strings)
-        raise NotImplementedError
+        string_rep = [np.array2string(string, separator="")[1:-1] for string in strings]
+        if output_type is BitstringType.INT:
+            return [int(s, base=2) for s in string_rep]
+        return string_rep
 
 
 def restrict_bitstrings(
