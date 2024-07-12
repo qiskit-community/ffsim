@@ -7,6 +7,39 @@ import numpy as np
 from ffsim.states.bitstring import BitstringType, convert_bitstring_type
 
 
+# @overload
+# def sample_slater(
+#    rdm: np.ndarray,
+#    norb: int,
+#    nelec: int,
+#    orbs: Sequence[int] | None = None,
+#    shots: int = 1,
+#    concatenate: bool = True,
+#    bitstring_type: BitstringType = BitstringType.STRING,
+#    seed: np.random.Generator | int | None = None,
+# ) -> list[str] | np.ndarray: ...
+# @overload
+# def sample_slater(
+#    rdm: tuple[np.ndarray, np.ndarray],
+#    norb: int,
+#    nelec: tuple[int, int],
+#    orbs: Sequence[int] | None = None,
+#    shots: int = 1,
+#    concatenate: bool = True,
+#    bitstring_type: BitstringType = BitstringType.STRING,
+#    seed: np.random.Generator | int | None = None,
+# ) -> tuple[list[str], list[str]] | tuple[np.ndarray, np.ndarray]: ...
+# def sample_slater(
+#    rdm: tuple[np.ndarray, np.ndarray],
+#    norb: int,
+#    nelec: tuple[int, int],
+#    *,
+#    orbs: tuple[Sequence[int], Sequence[int]] | None = None,
+#    shots: int = 1,
+#    concatenate: bool = True,
+#    bitstring_type: BitstringType = BitstringType.STRING,
+#    seed: np.random.Generator | int | None = None,
+# ) -> tuple[list[str], list[str]] | tuple[np.ndarray, np.ndarray]:
 def sample_slater(
     rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
     norb: int,
@@ -17,9 +50,7 @@ def sample_slater(
     concatenate: bool = True,
     bitstring_type: BitstringType = BitstringType.STRING,
     seed: np.random.Generator | int | None = None,
-) -> (
-    list[str] | np.ndarray | tuple[list[str], list[str]] | tuple[np.ndarray, np.ndarray]
-):
+) -> Sequence[int] | Sequence[str] | np.ndarray:
     """Collect samples of electronic configurations from a Slater determinant.
 
     The Slater determinant is defined by its one-body reduced density matrix (RDM).
@@ -60,7 +91,7 @@ def sample_slater(
         norb, _ = rdm.shape
 
         if orbs is None:
-            orbs = np.arange(norb, dtype=int)
+            orbs = range(norb)  # np.arange(norb, dtype=int)
 
         if n == 0:
             sampled_configuration = np.zeros((shots, norb), dtype=int)
@@ -93,9 +124,9 @@ def sample_slater(
         norb, _ = rdm_a.shape
 
         if orbs is None:
-            orbs_a = np.arange(norb, dtype=int)
-            orbs_b = np.arange(norb, dtype=int)
-        elif isinstance(orbs, np.ndarray):
+            orbs_a = range(norb)  # np.arange(norb, dtype=int)
+            orbs_b = range(norb)  # np.arange(norb, dtype=int)
+        elif isinstance(orbs, list):
             orbs_a = orbs
             orbs_b = orbs
         else:

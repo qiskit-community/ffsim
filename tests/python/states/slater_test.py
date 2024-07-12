@@ -11,23 +11,6 @@ import ffsim
 from ffsim.states.bitstring import BitstringType
 
 
-def _empirical_distribution(bts_matrix, norb, nelec):
-    indices = np.zeros(bts_matrix.shape[0], dtype=int)
-    for i, bts in enumerate(bts_matrix):
-        string = np.array2string(bts, separator="")[1:-1]
-        index = ffsim.strings_to_indices([string], norb, nelec)[0]
-        indices[i] = index
-
-    unique_indices, counts = np.unique(indices, return_counts=True)
-
-    probabilities = np.zeros(ffsim.dim(norb, nelec))
-
-    probabilities[unique_indices] = counts
-    probabilities /= np.sum(probabilities)
-
-    return probabilities
-
-
 @pytest.mark.parametrize(
     "norb, nelec, bitstring_type",
     [
@@ -74,7 +57,6 @@ def test_slater_sampler(
     empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
     empirical_distribution[indices] = counts / np.sum(counts)
 
-    # empirical_distribution = _empirical_distribution(samples, norb, nelec)
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
 
@@ -106,5 +88,4 @@ def test_slater_sampler_spinless(norb: int, nelec: int, bitstring_type: Bitstrin
     empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
     empirical_distribution[indices] = counts / np.sum(counts)
 
-    # empirical_distribution = _empirical_distribution(samples, norb, nelec)
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
