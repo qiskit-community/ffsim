@@ -149,6 +149,7 @@ def convert_bitstring_type(
 
     if input_type is BitstringType.STRING:
         strings = cast(list[str], strings)
+
         if output_type is BitstringType.INT:
             return [int(s, base=2) for s in strings]
 
@@ -157,6 +158,7 @@ def convert_bitstring_type(
 
     if input_type is BitstringType.INT:
         strings = cast(Sequence[int], strings)
+
         if output_type is BitstringType.STRING:
             return [f"{string:0{length}b}" for string in strings]
 
@@ -165,7 +167,15 @@ def convert_bitstring_type(
 
     if input_type is BitstringType.BIT_ARRAY:
         strings = cast(np.ndarray, strings)
-        raise NotImplementedError
+
+        if output_type is BitstringType.STRING:
+            return ["".join("1" if bit else "0" for bit in bits) for bits in strings]
+
+        if output_type is BitstringType.INT:
+            return [
+                sum(bit * (1 << i) for i, bit in enumerate(bits[::-1]))
+                for bits in strings
+            ]
 
 
 def restrict_bitstrings(
