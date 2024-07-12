@@ -1,3 +1,15 @@
+# (C) Copyright IBM 2024.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""Utilities for sampling from Slater determinants"""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -146,8 +158,7 @@ def sample_slater(
 def _generate_conditionals_unormalized(
     rdm: np.ndarray, pos_array: np.ndarray, empty_orbitals: np.ndarray, marginal: float
 ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Generates the conditional and marginal probabilities for adding a particle
+    """Generates the conditional and marginal probabilities for adding a particle
     to the available empty orbitals.
 
     This is a step of the autoregressive sampling, and uses Bayes's rule.
@@ -188,8 +199,7 @@ def _autoregressive_slater(
     nelec: int,
     seed: np.random.Generator | int | None = None,
 ) -> np.ndarray:
-    """
-    Autoregressively sample positions of particles for a Slater-determinant wave
+    """Autoregressively sample positions of particles for a Slater-determinant wave
     function using a determinantal point process.
 
     Args:
@@ -228,9 +238,8 @@ def _autoregressive_slater(
     return np.array(position, dtype=int)
 
 
-def _positions_to_fock(positions: np.ndarray, norb: int) -> np.ndarray:
-    """
-    Transforms electronic configurations defined by the position of the electrons
+def _positions_to_bit_array(positions: np.ndarray, norb: int) -> np.ndarray:
+    """Transforms electronic configurations defined by the position of the electrons
     to the occupation representation.
 
     Args:
@@ -255,8 +264,7 @@ def _sample_spinless_direct(
     shots: int,
     seed: np.random.Generator | int | None = None,
 ) -> np.ndarray:
-    """
-    Collect samples of electronic configurations from a Slater determinant for
+    """Collect samples of electronic configurations from a Slater determinant for
     spin-polarized systems.
 
     The Slater determinat is defined by its one-body reduced density matrix (RDM).
@@ -285,4 +293,4 @@ def _sample_spinless_direct(
     for i in range(shots):
         positions[i] = _autoregressive_slater(rdm, norb, nelec, rng)
 
-    return _positions_to_fock(positions, norb)
+    return _positions_to_bit_array(positions, norb)
