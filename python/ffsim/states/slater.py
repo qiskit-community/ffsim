@@ -1,45 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import overload
 
 import numpy as np
 
 from ffsim.states.bitstring import BitstringType, convert_bitstring_type
 
 
-# @overload
-# def sample_slater(
-#    rdm: np.ndarray,
-#    norb: int,
-#    nelec: int,
-#    orbs: Sequence[int] | None = None,
-#    shots: int = 1,
-#    concatenate: bool = True,
-#    bitstring_type: BitstringType = BitstringType.STRING,
-#    seed: np.random.Generator | int | None = None,
-# ) -> list[str] | np.ndarray: ...
-# @overload
-# def sample_slater(
-#    rdm: tuple[np.ndarray, np.ndarray],
-#    norb: int,
-#    nelec: tuple[int, int],
-#    orbs: Sequence[int] | None = None,
-#    shots: int = 1,
-#    concatenate: bool = True,
-#    bitstring_type: BitstringType = BitstringType.STRING,
-#    seed: np.random.Generator | int | None = None,
-# ) -> tuple[list[str], list[str]] | tuple[np.ndarray, np.ndarray]: ...
-# def sample_slater(
-#    rdm: tuple[np.ndarray, np.ndarray],
-#    norb: int,
-#    nelec: tuple[int, int],
-#    *,
-#    orbs: tuple[Sequence[int], Sequence[int]] | None = None,
-#    shots: int = 1,
-#    concatenate: bool = True,
-#    bitstring_type: BitstringType = BitstringType.STRING,
-#    seed: np.random.Generator | int | None = None,
-# ) -> tuple[list[str], list[str]] | tuple[np.ndarray, np.ndarray]:
 def sample_slater(
     rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
     norb: int,
