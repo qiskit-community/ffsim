@@ -32,18 +32,23 @@ def orbital_rotation_to_parameters(orbital_rotation: np.ndarray) -> np.ndarray:
         The list of real numbers parameterizing the orbital rotation.
     """
     norb, _ = orbital_rotation.shape
-    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
     triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     mat = scipy.linalg.logm(orbital_rotation)
-    params = np.zeros(norb**2)
+    params = np.zeros(
+        norb**2 if np.iscomplexobj(orbital_rotation) else norb * (norb - 1) // 2
+    )
     # real part
     params[: len(triu_indices_no_diag)] = mat[tuple(zip(*triu_indices_no_diag))].real
     # imaginary part
-    params[len(triu_indices_no_diag) :] = mat[tuple(zip(*triu_indices))].imag
+    if np.iscomplexobj(orbital_rotation):
+        triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+        params[len(triu_indices_no_diag) :] = mat[tuple(zip(*triu_indices))].imag
     return params
 
 
-def orbital_rotation_from_parameters(params: np.ndarray, norb: int) -> np.ndarray:
+def orbital_rotation_from_parameters(
+    params: np.ndarray, norb: int, real: bool = False
+) -> np.ndarray:
     """Construct an orbital rotation from parameters.
 
     Converts a real-valued parameter vector to an orbital rotation. The parameter vector
@@ -54,18 +59,20 @@ def orbital_rotation_from_parameters(params: np.ndarray, norb: int) -> np.ndarra
         params: The real-valued parameters.
         norb: The number of spatial orbitals, which gives the width and height of the
             orbital rotation matrix.
+        real: Whether to construct a real-valued orbital rotation
 
     Returns:
         The orbital rotation.
     """
-    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
     triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
-    generator = np.zeros((norb, norb), dtype=complex)
-    # imaginary part
-    vals = 1j * params[len(triu_indices_no_diag) :]
-    rows, cols = zip(*triu_indices)
-    generator[rows, cols] = vals
-    generator[cols, rows] = vals
+    generator = np.zeros((norb, norb), dtype=float if real else complex)
+    if not real:
+        # imaginary part
+        triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+        vals = 1j * params[len(triu_indices_no_diag) :]
+        rows, cols = zip(*triu_indices)
+        generator[rows, cols] = vals
+        generator[cols, rows] = vals
     # real part
     vals = params[: len(triu_indices_no_diag)]
     rows, cols = zip(*triu_indices_no_diag)
