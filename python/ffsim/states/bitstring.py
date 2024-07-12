@@ -163,7 +163,10 @@ def convert_bitstring_type(
             return [f"{string:0{length}b}" for string in strings]
 
         if output_type is BitstringType.BIT_ARRAY:
-            return np.array([[b == "1" for b in f"{s:0{length}b}"] for s in strings])
+            return np.array(
+                [[s >> i & 1 for i in range(length - 1, -1, -1)] for s in strings],
+                dtype=bool,
+            )
 
     if input_type is BitstringType.BIT_ARRAY:
         strings = cast(np.ndarray, strings)
