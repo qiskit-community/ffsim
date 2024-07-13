@@ -348,7 +348,7 @@
             <span class="n">qubit_op</span> <span class="o">@=</span> <span class="n">_qubit_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">orb</span> <span class="o">+</span> <span class="n">spin</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="n">n_qubits</span><span class="p">)</span>
         <span class="n">qubit_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit_op</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">qubit_terms</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">qubit_terms</span><span class="p">)</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span></div>
 
 
 
