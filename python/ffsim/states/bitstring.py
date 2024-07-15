@@ -59,6 +59,9 @@ def indices_to_strings(
 ):
     """Convert state vector indices to bitstrings.
 
+    .. warning::
+        This function is deprecated. Use :class:`ffsim.addresses_to_strings` instead.
+
     Example:
 
     .. code::
@@ -245,6 +248,9 @@ def strings_to_indices(
     strings: Sequence[str], norb: int, nelec: int | tuple[int, int]
 ) -> np.ndarray:
     """Convert bitstrings to state vector indices.
+
+    .. warning::
+        This function is deprecated. Use :class:`ffsim.strings_to_addresses` instead.
 
     Example:
 
