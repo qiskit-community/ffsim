@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.random" href="ffsim.random.html" /><link rel="prev" title="ffsim.optimize" href="ffsim.optimize.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>ffsim.qiskit - ffsim 0.0.40 documentation</title>
+    <!-- Generated with Sphinx 7.4.3 and Furo 2024.05.06 -->
+        <title>ffsim.qiskit - ffsim 0.0.41 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -179,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.40 documentation</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.41 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -203,7 +203,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.40 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.41 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -623,6 +623,87 @@ beta orbitals.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumOpSumEvolutionJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">NumOpSumEvolutionJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_op_sum.html#NumOpSumEvolutionJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumOpSumEvolutionJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Number operator sum evolution under the Jordan-Wigner transformation.</p>
+<p>The number operator sum evolution gate has the unitary</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\exp\left(-i t \sum_{\sigma, i} \lambda^{(\sigma)}_i n_{\sigma, i}\right)\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(n_{\sigma, i}\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span>
+with spin <span class="math notranslate nohighlight">\(\sigma\)</span> and the <span class="math notranslate nohighlight">\(\lambda_i\)</span> are real numbers.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumOpSumEvolutionJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_op_sum.html#NumOpSumEvolutionJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumOpSumEvolutionJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create new number operator sum evolution gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – The coefficients of the linear combination.
+You can pass either a single Numpy array specifying the coefficients
+to apply to both spin sectors, or you can pass a pair of Numpy arrays
+specifying independent coefficients for spin alpha and spin beta.
+If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
+values in the pair to indicate that no operation should be applied to
+that spin sector.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumOpSumEvolutionJW.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_op_sum.html#NumOpSumEvolutionJW.inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumOpSumEvolutionJW.inverse" title="Link to this definition">¶</a></dt>
+<dd><p>Inverse gate.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumOpSumEvolutionSpinlessJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">NumOpSumEvolutionSpinlessJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_op_sum.html#NumOpSumEvolutionSpinlessJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumOpSumEvolutionSpinlessJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Spinless number operator sum evolution under the Jordan-Wigner transformation.</p>
+<p>The spinless number operator sum evolution gate has the unitary</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\exp\left(-i t \sum_{i} \lambda_i n_{i}\right)\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(n_i\)</span> denotes the number operator on orbital <span class="math notranslate nohighlight">\(i\)</span> and the
+<span class="math notranslate nohighlight">\(\lambda_i\)</span> are real numbers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumOpSumEvolutionSpinlessJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_op_sum.html#NumOpSumEvolutionSpinlessJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumOpSumEvolutionSpinlessJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create new number operator sum evolution gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>coeffs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The coefficients of the linear combination.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.NumOpSumEvolutionSpinlessJW.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/num_op_sum.html#NumOpSumEvolutionSpinlessJW.inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.NumOpSumEvolutionSpinlessJW.inverse" title="Link to this definition">¶</a></dt>
+<dd><p>Inverse gate.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.OrbitalRotationJW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">OrbitalRotationJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/orbital_rotation.html#OrbitalRotationJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.OrbitalRotationJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
@@ -863,6 +944,34 @@ and raise an error if it isn’t.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.qiskit.SimulateTrotterDoubleFactorizedJW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">SimulateTrotterDoubleFactorizedJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/double_factorized_trotter.html#SimulateTrotterDoubleFactorizedJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
+<p>Trotter time evolution of double-factorized Hamiltonian, Jordan-Wigner.</p>
+<p>This gate assumes that qubits are ordered such that the first <cite>norb</cite> qubits
+correspond to the alpha orbitals and the last <cite>norb</cite> qubits correspond to the
+beta orbitals.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/double_factorized_trotter.html#SimulateTrotterDoubleFactorizedJW.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create double-factorized Trotter evolution gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> – The number of spatial orbitals.</p></li>
+<li><p><strong>hamiltonian</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.DoubleFactorizedHamiltonian" title="ffsim.hamiltonians.double_factorized_hamiltonian.DoubleFactorizedHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DoubleFactorizedHamiltonian</span></code></a></span>) – The Hamiltonian.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The evolution time.</p></li>
+<li><p><strong>n_steps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of Trotter steps.</p></li>
+<li><p><strong>order</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The order of the Trotter decomposition.</p></li>
+<li><p><strong>label</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The label of the gate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.qiskit.UCJOpSpinBalancedJW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinBalancedJW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_op</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/gates/ucj.html#UCJOpSpinBalancedJW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.UCJOpSpinBalancedJW" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></p>
@@ -1016,6 +1125,36 @@ state.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.qiskit.jordan_wigner">
+<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/jordan_wigner.html#jordan_wigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.jordan_wigner" title="Link to this definition">¶</a></dt>
+<dd><p>Jordan-Wigner transformation.</p>
+<p>Transform a fermion operator to a qubit operator using the Jordan-Wigner
+transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span>) – The fermion operator to transform.</p></li>
+<li><p><strong>n_qubits</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of qubits to include in the output qubit operator. If not
+specified, the minimum number of qubits needed to accommodate the fermion
+operator will be used. Must be non-negative.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparsePauliOp</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The qubit operator as a Qiskit SparsePauliOp.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Number of qubits was negative.</p></li>
+<li><p><strong>ValueError</strong> – Number of qubits was not enough to accommodate the fermion operator.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.pre_init_passes">
 <span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">pre_init_passes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/transpiler_stages.html#pre_init_passes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.pre_init_passes" title="Link to this definition">¶</a></dt>
 <dd><p>Yield transpiler passes recommended for the Qiskit transpiler <code class="docutils literal notranslate"><span class="pre">pre_init</span></code> stage.</p>
@@ -1164,6 +1303,16 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW.__init__"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalancedJW.__init__()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#ffsim.qiskit.NumOpSumEvolutionJW"><code class="docutils literal notranslate"><span class="pre">NumOpSumEvolutionJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.NumOpSumEvolutionJW.__init__"><code class="docutils literal notranslate"><span class="pre">NumOpSumEvolutionJW.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.NumOpSumEvolutionJW.inverse"><code class="docutils literal notranslate"><span class="pre">NumOpSumEvolutionJW.inverse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.qiskit.NumOpSumEvolutionSpinlessJW"><code class="docutils literal notranslate"><span class="pre">NumOpSumEvolutionSpinlessJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.NumOpSumEvolutionSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">NumOpSumEvolutionSpinlessJW.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.NumOpSumEvolutionSpinlessJW.inverse"><code class="docutils literal notranslate"><span class="pre">NumOpSumEvolutionSpinlessJW.inverse()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW.__init__"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.OrbitalRotationJW.inverse"><code class="docutils literal notranslate"><span class="pre">OrbitalRotationJW.inverse()</span></code></a></li>
@@ -1191,6 +1340,10 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__"><code class="docutils literal notranslate"><span class="pre">PrepareSlaterDeterminantSpinlessJW.__init__()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW"><code class="docutils literal notranslate"><span class="pre">SimulateTrotterDoubleFactorizedJW</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.__init__"><code class="docutils literal notranslate"><span class="pre">SimulateTrotterDoubleFactorizedJW.__init__()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOpSpinBalancedJW"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalancedJW</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.qiskit.UCJOpSpinBalancedJW.__init__"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalancedJW.__init__()</span></code></a></li>
 </ul>
@@ -1211,6 +1364,7 @@ and spin beta fermions.</p></li>
 </li>
 <li><a class="reference internal" href="#ffsim.qiskit.ffsim_vec_to_qiskit_vec"><code class="docutils literal notranslate"><span class="pre">ffsim_vec_to_qiskit_vec()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.final_state_vector"><code class="docutils literal notranslate"><span class="pre">final_state_vector()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.qiskit.jordan_wigner"><code class="docutils literal notranslate"><span class="pre">jordan_wigner()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.pre_init_passes"><code class="docutils literal notranslate"><span class="pre">pre_init_passes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.qiskit.qiskit_vec_to_ffsim_vec"><code class="docutils literal notranslate"><span class="pre">qiskit_vec_to_ffsim_vec()</span></code></a></li>
 </ul>
@@ -1224,7 +1378,7 @@ and spin beta fermions.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=84bd753f"></script>
+</div><script src="../_static/documentation_options.js?v=20c5f126"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
