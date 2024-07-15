@@ -606,18 +606,25 @@
 <span class="sd">        norb = 3</span>
 <span class="sd">        nelec = (2, 1)</span>
 <span class="sd">        dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        strings = ffsim.addresses_to_strings(range(dim), norb, nelec)</span>
-<span class="sd">        [format(s, f&quot;06b&quot;) for s in strings]</span>
-<span class="sd">        # output:</span>
-<span class="sd">        # [&#39;001011&#39;,</span>
-<span class="sd">        #  &#39;010011&#39;,</span>
-<span class="sd">        #  &#39;100011&#39;,</span>
-<span class="sd">        #  &#39;001101&#39;,</span>
-<span class="sd">        #  &#39;010101&#39;,</span>
-<span class="sd">        #  &#39;100101&#39;,</span>
-<span class="sd">        #  &#39;001110&#39;,</span>
-<span class="sd">        #  &#39;010110&#39;,</span>
-<span class="sd">        #  &#39;100110&#39;]</span>
+
+<span class="sd">        strings = ffsim.addresses_to_strings(range(5), norb, nelec)</span>
+<span class="sd">        print(strings)  # prints [11, 19, 35, 13, 21]</span>
+
+<span class="sd">        strings = ffsim.addresses_to_strings(</span>
+<span class="sd">            range(5), norb, nelec, bitstring_type=ffsim.BitstringType.STRING</span>
+<span class="sd">        )</span>
+<span class="sd">        print(strings)  # prints [&#39;001011&#39;, &#39;010011&#39;, &#39;100011&#39;, &#39;001101&#39;, &#39;010101&#39;]</span>
+
+<span class="sd">        strings = ffsim.addresses_to_strings(</span>
+<span class="sd">            range(5), norb, nelec, bitstring_type=ffsim.BitstringType.BIT_ARRAY</span>
+<span class="sd">        )</span>
+<span class="sd">        print(strings)</span>
+<span class="sd">        # prints</span>
+<span class="sd">        # [[False False  True False  True  True]</span>
+<span class="sd">        #  [False  True False False  True  True]</span>
+<span class="sd">        #  [ True False False False  True  True]</span>
+<span class="sd">        #  [False False  True  True False  True]</span>
+<span class="sd">        #  [False  True False  True False  True]]</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        addresses: The state vector addresses to convert to bitstrings.</span>
@@ -633,6 +640,10 @@
 <span class="sd">            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that</span>
 <span class="sd">            the list of alpha strings appears first, that is, on the left.</span>
 <span class="sd">            In the spinless case (when `nelec` is an integer), this argument is ignored.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The bitstrings. The type of the output depends on `bitstring_type` and</span>
+<span class="sd">        `concatenate`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="c1"># Spinless case</span>
@@ -683,28 +694,65 @@
 
 <span class="sd">    .. code::</span>
 
+<span class="sd">        import numpy as np</span>
+
 <span class="sd">        import ffsim</span>
 
 <span class="sd">        norb = 3</span>
 <span class="sd">        nelec = (2, 1)</span>
 <span class="sd">        dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        ffsim.strings_to_addresses(</span>
+
+<span class="sd">        addresses = ffsim.strings_to_addresses(</span>
 <span class="sd">            [</span>
 <span class="sd">                0b001011,</span>
-<span class="sd">                0b010011,</span>
-<span class="sd">                0b100011,</span>
-<span class="sd">                0b001101,</span>
 <span class="sd">                0b010101,</span>
 <span class="sd">                0b100101,</span>
-<span class="sd">                0b001110,</span>
 <span class="sd">                0b010110,</span>
 <span class="sd">                0b100110,</span>
 <span class="sd">            ],</span>
 <span class="sd">            norb,</span>
 <span class="sd">            nelec,</span>
 <span class="sd">        )</span>
-<span class="sd">        # output:</span>
-<span class="sd">        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
+<span class="sd">        print(addresses)  # prints [0 4 5 7 8]</span>
+
+<span class="sd">        addresses = ffsim.strings_to_addresses(</span>
+<span class="sd">            [</span>
+<span class="sd">                &quot;001011&quot;,</span>
+<span class="sd">                &quot;010101&quot;,</span>
+<span class="sd">                &quot;100101&quot;,</span>
+<span class="sd">                &quot;010110&quot;,</span>
+<span class="sd">                &quot;100110&quot;,</span>
+<span class="sd">            ],</span>
+<span class="sd">            norb,</span>
+<span class="sd">            nelec,</span>
+<span class="sd">        )</span>
+<span class="sd">        print(addresses)  # prints [0 4 5 7 8]</span>
+
+<span class="sd">        addresses = ffsim.strings_to_addresses(</span>
+<span class="sd">            np.array(</span>
+<span class="sd">                [</span>
+<span class="sd">                    [False, False, True, False, True, True],</span>
+<span class="sd">                    [False, True, False, True, False, True],</span>
+<span class="sd">                    [True, False, False, True, False, True],</span>
+<span class="sd">                    [False, True, False, True, True, False],</span>
+<span class="sd">                    [True, False, False, True, True, False],</span>
+<span class="sd">                ]</span>
+<span class="sd">            ),</span>
+<span class="sd">            norb,</span>
+<span class="sd">            nelec,</span>
+<span class="sd">        )</span>
+<span class="sd">        print(addresses)  # prints [0 4 5 7 8]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        strings: The bitstrings to convert to state vector addresses.</span>
+<span class="sd">            Can be a list of strings, a list of integers, or a Numpy array of bits.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The state vector addresses, as a Numpy array of integers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">strings</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
