@@ -385,28 +385,62 @@ def strings_to_addresses(
 
     .. code::
 
+        import numpy as np
+
         import ffsim
 
         norb = 3
         nelec = (2, 1)
         dim = ffsim.dim(norb, nelec)
-        ffsim.strings_to_addresses(
+
+        addresses = ffsim.strings_to_addresses(
             [
                 0b001011,
-                0b010011,
-                0b100011,
-                0b001101,
                 0b010101,
                 0b100101,
-                0b001110,
                 0b010110,
                 0b100110,
             ],
             norb,
             nelec,
         )
-        # output:
-        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
+        print(addresses)  # prints [0 4 5 7 8]
+
+        addresses = ffsim.strings_to_addresses(
+            [
+                "001011",
+                "010101",
+                "100101",
+                "010110",
+                "100110",
+            ],
+            norb,
+            nelec,
+        )
+        print(addresses)  # prints [0 4 5 7 8]
+
+        addresses = ffsim.strings_to_addresses(
+            np.array(
+                [
+                    [False, False, True, False, True, True],
+                    [False, True, False, True, False, True],
+                    [True, False, False, True, False, True],
+                    [False, True, False, True, True, False],
+                    [True, False, False, True, True, False],
+                ]
+            ),
+            norb,
+            nelec,
+        )
+        print(addresses)  # prints [0 4 5 7 8]
+
+    Args:
+        strings: The bitstrings to convert to state vector addresses.
+            Can be a list of strings, a list of integers, or a Numpy array of bits.
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
     """
     if not len(strings):
         return np.array([])
