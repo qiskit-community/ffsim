@@ -20,11 +20,11 @@ import ffsim
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, time, n_steps, order, target_fidelity",
+    "norb, nelec, time, n_steps, order, atol",
     [
-        (3, (1, 1), 0.3, 20, 0, 0.999),
-        (4, (2, 1), 0.3, 10, 2, 0.999),
-        (4, (2, 2), 0.3, 10, 1, 0.999),
+        (3, (1, 1), 0.1, 20, 0, 1e-2),
+        (4, (2, 1), 0.1, 10, 2, 1e-3),
+        (4, (2, 2), 0.1, 10, 1, 1e-3),
     ],
 )
 def test_random(
@@ -33,7 +33,7 @@ def test_random(
     time: float,
     n_steps: int,
     order: int,
-    target_fidelity: float,
+    atol: float,
 ):
     rng = np.random.default_rng(2488)
 
@@ -43,8 +43,9 @@ def test_random(
     diag_coulomb_mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     diag_coulomb_mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     diag_coulomb_mats = np.stack([diag_coulomb_mat_aa, diag_coulomb_mat_ab])
+    constant = rng.uniform(-10, 10)
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
-        one_body_tensor, diag_coulomb_mats
+        one_body_tensor, diag_coulomb_mats, constant=constant
     )
     linop = ffsim.linear_operator(dc_hamiltonian, norb=norb, nelec=nelec)
 
@@ -79,8 +80,7 @@ def test_random(
 
     # check agreement
     np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
-    fidelity = np.abs(np.vdot(final_state, exact_state))
-    assert fidelity >= target_fidelity
+    np.testing.assert_allclose(final_state, exact_state, atol=atol)
 
 
 def test_hubbard():
@@ -103,7 +103,7 @@ def test_hubbard():
     time = 0.1
     n_steps = 1
     order = 1
-    target_fidelity = 0.999
+    atol = 1e-3
 
     dim = ffsim.dim(norb, nelec)
     linop = ffsim.linear_operator(dc_hamiltonian, norb=norb, nelec=nelec)
@@ -139,5 +139,4 @@ def test_hubbard():
 
     # check agreement
     np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
-    fidelity = np.abs(np.vdot(final_state, exact_state))
-    assert fidelity >= target_fidelity
+    np.testing.assert_allclose(final_state, exact_state, atol=atol)

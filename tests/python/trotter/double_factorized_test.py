@@ -20,14 +20,14 @@ import ffsim
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, time, n_steps, order, z_representation, target_fidelity",
+    "norb, nelec, time, n_steps, order, z_representation, atol",
     [
-        (3, (1, 1), 0.1, 10, 0, False, 0.999),
-        (3, (1, 1), 0.1, 2, 1, True, 0.999),
-        (4, (2, 1), 0.1, 1, 2, False, 0.999),
-        (4, (1, 2), 0.1, 3, 2, True, 0.999),
-        (4, (2, 2), 0.1, 4, 1, False, 0.999),
-        (5, (3, 2), 0.1, 5, 1, True, 0.999),
+        (3, (1, 1), 0.1, 20, 0, False, 1e-2),
+        (3, (1, 1), 0.1, 10, 1, True, 3e-3),
+        (4, (2, 1), 0.1, 1, 2, False, 3e-3),
+        (4, (1, 2), 0.1, 3, 2, True, 3e-3),
+        (4, (2, 2), 0.1, 4, 1, False, 3e-3),
+        (5, (3, 2), 0.1, 5, 1, True, 3e-3),
     ],
 )
 def test_random(
@@ -37,7 +37,7 @@ def test_random(
     n_steps: int,
     order: int,
     z_representation: bool,
-    target_fidelity: float,
+    atol: float,
 ):
     """Test random Hamiltonian."""
     rng = np.random.default_rng(2488)
@@ -80,5 +80,4 @@ def test_random(
 
     # check agreement
     np.testing.assert_allclose(np.linalg.norm(final_state), 1.0)
-    fidelity = np.abs(np.vdot(final_state, exact_state))
-    assert fidelity >= target_fidelity
+    np.testing.assert_allclose(final_state, exact_state, atol=atol)
