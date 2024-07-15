@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import cmath
+
 import numpy as np
 import scipy.linalg
 
@@ -85,6 +87,7 @@ def simulate_trotter_diag_coulomb_split_op(
             order=order,
         )
     vec = apply_orbital_rotation(vec, current_basis, norb=norb, nelec=nelec, copy=False)
+    vec *= cmath.exp(-1j * time * hamiltonian.constant)
 
     return vec
 
