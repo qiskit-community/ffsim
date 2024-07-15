@@ -23,6 +23,7 @@ from qiskit.circuit import (
     QuantumRegister,
     Qubit,
 )
+from qiskit.circuit.library import GlobalPhaseGate
 
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
 from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
@@ -113,6 +114,7 @@ def _simulate_trotter_double_factorized(
             z_representation=hamiltonian.z_representation,
         )
     yield CircuitInstruction(OrbitalRotationJW(hamiltonian.norb, current_basis), qubits)
+    yield CircuitInstruction(GlobalPhaseGate(-time * hamiltonian.constant), [])
 
 
 def _simulate_trotter_step_double_factorized(
