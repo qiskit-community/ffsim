@@ -893,6 +893,10 @@ single-orbital phase gates.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">GivensAnsatzOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/givens.html#GivensAnsatzOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.GivensAnsatzOperator" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Givens rotation ansatz operator.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class is deprecated. Use <a class="reference internal" href="#ffsim.GivensAnsatzOp" title="ffsim.GivensAnsatzOp"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.GivensAnsatzOp</span></code></a> instead.</p>
+</div>
 <p>The Givens rotation ansatz consists of a sequence of <a class="reference external" href="ffsim.html#ffsim.apply_givens_rotation">Givens rotations</a>.</p>
 <p>Note that this ansatz does not implement any interactions between spin alpha and
 spin beta orbitals.</p>
@@ -4156,6 +4160,10 @@ and spin beta fermions.</p></li>
 <dt class="sig sig-object py" id="ffsim.indices_to_strings">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">indices_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstring_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BitstringType.STRING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#indices_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.indices_to_strings" title="Link to this definition">¶</a></dt>
 <dd><p>Convert state vector indices to bitstrings.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.addresses_to_strings" title="ffsim.addresses_to_strings"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.addresses_to_strings</span></code></a> instead.</p>
+</div>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
 
@@ -4783,7 +4791,12 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.strings_to_indices">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#strings_to_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_indices" title="Link to this definition">¶</a></dt>
-<dd><p>Convert bitstrings to state vector indices.</p>
+<dd><p>Convert bitstrings to state vector indices.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.strings_to_addresses" title="ffsim.strings_to_addresses"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.strings_to_addresses</span></code></a> instead.</p>
+</div>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
 
@@ -4809,11 +4822,6 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 <span class="c1"># array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
 </pre></div>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
