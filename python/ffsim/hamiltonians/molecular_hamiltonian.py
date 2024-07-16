@@ -63,6 +63,10 @@ class MolecularHamiltonian:
     def from_fcidump(file: str | bytes | os.PathLike) -> MolecularHamiltonian:
         """Initialize a MolecularHamiltonian from an FCIDUMP file.
 
+        .. warning::
+            This function is deprecated. Instead, use MolecularData.from_fcidump and
+            then access the `hamiltonian` attribute of the returned MolecularData.
+
         Args:
             file: The FCIDUMP file path.
         """
