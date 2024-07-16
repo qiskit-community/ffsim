@@ -82,6 +82,6 @@ def test_apply_quadratic_hamiltonian_evolution(norb: int, nelec: tuple[int, int]
     )
     op = ffsim.contract.one_body_linop(mat, norb=norb, nelec=nelec)
     expected = scipy.sparse.linalg.expm_multiply(
-        -1j * time * op, vec, traceA=np.sum(np.abs(mat))
+        -1j * time * op, vec, traceA=-1j * time * np.sum(np.abs(mat))
     )
     np.testing.assert_allclose(result, expected)

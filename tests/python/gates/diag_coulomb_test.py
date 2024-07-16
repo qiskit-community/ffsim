@@ -47,15 +47,11 @@ def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
             orbital_op = ffsim.contract.one_body_linop(
                 scipy.linalg.logm(orbital_rotation), norb=norb, nelec=(nelec, 0)
             )
+            expected = scipy.sparse.linalg.expm_multiply(-orbital_op, vec, traceA=0)
             expected = scipy.sparse.linalg.expm_multiply(
-                -orbital_op, vec, traceA=np.sum(np.abs(orbital_rotation))
+                -1j * time * op, expected, traceA=-1j * time * np.sum(np.abs(mat))
             )
-            expected = scipy.sparse.linalg.expm_multiply(
-                -1j * time * op, expected, traceA=np.sum(np.abs(mat))
-            )
-            expected = scipy.sparse.linalg.expm_multiply(
-                orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
-            )
+            expected = scipy.sparse.linalg.expm_multiply(orbital_op, expected, traceA=0)
         else:
             expected = vec
 
@@ -100,15 +96,11 @@ def test_apply_diag_coulomb_evolution_random_symmetric_spin(
             orbital_op = ffsim.contract.one_body_linop(
                 scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
             )
+            expected = scipy.sparse.linalg.expm_multiply(-orbital_op, vec, traceA=0)
             expected = scipy.sparse.linalg.expm_multiply(
-                -orbital_op, vec, traceA=np.sum(np.abs(orbital_rotation))
+                -1j * time * op, expected, traceA=-1j * time * np.sum(np.abs(mat))
             )
-            expected = scipy.sparse.linalg.expm_multiply(
-                -1j * time * op, expected, traceA=np.sum(np.abs(mat))
-            )
-            expected = scipy.sparse.linalg.expm_multiply(
-                orbital_op, expected, traceA=np.sum(np.abs(orbital_rotation))
-            )
+            expected = scipy.sparse.linalg.expm_multiply(orbital_op, expected, traceA=0)
         else:
             expected = vec
 

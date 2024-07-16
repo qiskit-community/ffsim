@@ -58,7 +58,7 @@ def test_random(
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * linop,
         initial_state,
-        traceA=1.0,
+        traceA=-1j * time,
     )
 
     # make sure time is not too small
