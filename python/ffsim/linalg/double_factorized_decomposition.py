@@ -223,6 +223,11 @@ def double_factorized(
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
+    if np.iscomplexobj(two_body_tensor):
+        raise ValueError(
+            "Double-factorization of complex two-body tensors is not supported."
+        )
+
     _validate_diag_coulomb_indices(diag_coulomb_indices)
 
     norb, _, _, _ = two_body_tensor.shape

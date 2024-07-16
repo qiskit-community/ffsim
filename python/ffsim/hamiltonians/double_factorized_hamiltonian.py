@@ -216,6 +216,26 @@ class DoubleFactorizedHamiltonian:
 
         return df_hamiltonian
 
+    def to_molecular_hamiltonian(self):
+        """Convert the DoubleFactorizedHamiltonian to a MolecularHamiltonian."""
+        df_hamiltonian = self.to_number_representation()
+        two_body_tensor = np.einsum(
+            "kpi,kqi,kij,krj,ksj->pqrs",
+            df_hamiltonian.orbital_rotations,
+            df_hamiltonian.orbital_rotations,
+            df_hamiltonian.diag_coulomb_mats,
+            df_hamiltonian.orbital_rotations,
+            df_hamiltonian.orbital_rotations,
+        )
+        one_body_tensor = df_hamiltonian.one_body_tensor + 0.5 * np.einsum(
+            "prqr", two_body_tensor
+        )
+        return MolecularHamiltonian(
+            one_body_tensor=one_body_tensor,
+            two_body_tensor=two_body_tensor,
+            constant=df_hamiltonian.constant,
+        )
+
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         dim_ = dim(norb, nelec)
@@ -245,6 +265,10 @@ class DoubleFactorizedHamiltonian:
         return LinearOperator(
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
+
+    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+        """Return the diagonal entries of the Hamiltonian."""
+        return self.to_molecular_hamiltonian()._diag_(norb, nelec)
 
 
 def _df_z_representation(
