@@ -351,6 +351,10 @@
     <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularHamiltonian from an FCIDUMP file.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            This function is deprecated. Instead, use MolecularData.from_fcidump and</span>
+<span class="sd">            then access the `hamiltonian` attribute of the returned MolecularData.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            file: The FCIDUMP file path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>

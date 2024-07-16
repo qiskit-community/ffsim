@@ -1528,6 +1528,11 @@ the two-body tensor.</p>
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.from_fcidump">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fcidump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian.from_fcidump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonian.from_fcidump" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MolecularHamiltonian from an FCIDUMP file.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is deprecated. Instead, use MolecularData.from_fcidump and
+then access the <cite>hamiltonian</cite> attribute of the returned MolecularData.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></span>) – The FCIDUMP file path.</p>
