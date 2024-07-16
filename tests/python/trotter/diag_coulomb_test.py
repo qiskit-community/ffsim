@@ -58,7 +58,7 @@ def test_random(
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * linop,
         initial_state,
-        traceA=np.sum(np.abs(diag_coulomb_mats)),
+        traceA=-1j * time * np.sum(np.abs(diag_coulomb_mats)),
     )
 
     # make sure time is not too small
@@ -117,7 +117,7 @@ def test_hubbard():
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * linop,
         initial_state,
-        traceA=np.sum(np.abs(dc_hamiltonian.diag_coulomb_mats)),
+        traceA=-1j * time * np.sum(np.abs(dc_hamiltonian.diag_coulomb_mats)),
     )
 
     # make sure time is not too small
