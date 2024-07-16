@@ -78,6 +78,20 @@ def test_linear_operator():
     np.testing.assert_allclose(eig, energy_fci)
 
 
+def test_trace():
+    """Test trace."""
+    rng = np.random.default_rng(2222)
+    norb = 5
+    nelec = (3, 2)
+    # TODO remove dtype=float once complex is supported
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
+    hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
+    np.testing.assert_allclose(
+        ffsim.trace(hamiltonian, norb=norb, nelec=nelec), np.trace(hamiltonian_dense)
+    )
+
+
 @pytest.mark.parametrize(
     "norb, nelec",
     [
