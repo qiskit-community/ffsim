@@ -78,8 +78,8 @@ def test_linear_operator():
     np.testing.assert_allclose(eig, energy_fci)
 
 
-def test_trace():
-    """Test trace."""
+def test_diag():
+    """Test computing diagonal."""
     rng = np.random.default_rng(2222)
     norb = 5
     nelec = (3, 2)
@@ -88,7 +88,7 @@ def test_trace():
     linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
     hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
     np.testing.assert_allclose(
-        ffsim.trace(hamiltonian, norb=norb, nelec=nelec), np.trace(hamiltonian_dense)
+        ffsim.diag(hamiltonian, norb=norb, nelec=nelec), np.diag(hamiltonian_dense)
     )
 
 

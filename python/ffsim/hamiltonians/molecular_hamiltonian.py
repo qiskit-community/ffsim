@@ -155,6 +155,12 @@ class MolecularHamiltonian:
 
     def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the Hamiltonian."""
+        if np.iscomplexobj(self.two_body_tensor) or np.iscomplexobj(
+            self.one_body_tensor
+        ):
+            raise ValueError(
+                "Computing diagonal of complex molecular Hamiltonian is not supported."
+            )
         return (
             make_hdiag(self.one_body_tensor, self.two_body_tensor, norb, nelec)
             + self.constant
