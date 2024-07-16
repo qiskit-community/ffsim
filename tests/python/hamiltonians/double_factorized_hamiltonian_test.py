@@ -55,6 +55,7 @@ def test_linear_operator(z_representation: bool):
 
 
 def test_z_representation_round_trip():
+    """Test converting to and from Z-representation"""
     norb = 4
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=2474)
@@ -76,3 +77,39 @@ def test_z_representation_round_trip():
     )
     np.testing.assert_allclose(df_hamiltonian.constant, df_hamiltonian_num.constant)
     assert df_hamiltonian.z_representation == df_hamiltonian_num.z_representation
+
+
+@pytest.mark.parametrize("z_representation", [False, True])
+def test_to_molecular_hamiltonian(z_representation: bool):
+    """Test converting to molecular Hamiltonian"""
+    rng = np.random.default_rng(2787)
+    norb = 5
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    hamiltonian_roundtrip = (
+        ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
+            hamiltonian, z_representation=z_representation
+        ).to_molecular_hamiltonian()
+    )
+    np.testing.assert_allclose(
+        hamiltonian_roundtrip.one_body_tensor, hamiltonian.one_body_tensor
+    )
+    np.testing.assert_allclose(
+        hamiltonian_roundtrip.two_body_tensor, hamiltonian.two_body_tensor
+    )
+    np.testing.assert_allclose(hamiltonian_roundtrip.constant, hamiltonian.constant)
+
+
+def test_diag():
+    """Test computing diagonal."""
+    rng = np.random.default_rng(2222)
+    norb = 5
+    nelec = (3, 2)
+    # TODO remove dtype=float once complex is supported
+    hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
+        ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    )
+    linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
+    hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
+    np.testing.assert_allclose(
+        ffsim.diag(hamiltonian, norb=norb, nelec=nelec), np.diag(hamiltonian_dense)
+    )
