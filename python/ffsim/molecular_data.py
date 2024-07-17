@@ -182,6 +182,10 @@ class MolecularData:
     ) -> "MolecularData":
         """Initialize a MolecularData object from a PySCF molecule.
 
+        .. warning::
+            This method is deprecated. Instead, pass an SCF object directly to
+            :func:`from_scf`.
+
         Args:
             molecule: The molecule.
             active_space: An optional list of orbitals to use for the active space.
