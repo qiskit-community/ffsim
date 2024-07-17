@@ -301,6 +301,7 @@
 <span class="kn">import</span> <span class="nn">gzip</span>
 <span class="kn">import</span> <span class="nn">lzma</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 
@@ -308,6 +309,7 @@
 <span class="kn">import</span> <span class="nn">orjson</span>
 <span class="kn">import</span> <span class="nn">pyscf</span>
 <span class="kn">import</span> <span class="nn">pyscf.cc</span>
+<span class="kn">import</span> <span class="nn">pyscf.ci</span>
 <span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
 <span class="kn">import</span> <span class="nn">pyscf.mp</span>
 <span class="kn">import</span> <span class="nn">pyscf.symm</span>
@@ -350,6 +352,8 @@
 <span class="sd">            amplitudes.</span>
 <span class="sd">        ccsd_t2 (np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None): The</span>
 <span class="sd">            CCSD t2 amplitudes.</span>
+<span class="sd">        cisd_energy (float | None): The CISD energy.</span>
+<span class="sd">        cisd_vec (np.ndarray | None): The CISD state vector.</span>
 <span class="sd">        fci_energy (float | None): The FCI energy.</span>
 <span class="sd">        fci_vec (np.ndarray | None): The FCI state vector.</span>
 <span class="sd">        dipole_integrals (np.ndarray | None): The dipole integrals.</span>
@@ -383,6 +387,9 @@
     <span class="n">ccsd_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">ccsd_t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">ccsd_t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># CISD data</span>
+    <span class="n">cisd_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cisd_vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># FCI data</span>
     <span class="n">fci_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">fci_vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -409,6 +416,14 @@
             <span class="n">spin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">,</span>
             <span class="n">symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry</span><span class="p">,</span>
         <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">hf</span><span class="o">.</span><span class="n">SCF</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A PySCF SCF class for this molecular data.&quot;&quot;&quot;</span>
+        <span class="c1"># HACK Not sure if there&#39;s a better way to do this...</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_fcidump</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">to_scf</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MolecularData.from_scf">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_scf">[docs]</a>
@@ -485,6 +500,17 @@
         <span class="n">hartree_fock</span> <span class="o">=</span> <span class="n">scf_func</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
         <span class="n">hartree_fock</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.run_cisd">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_cisd">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_cisd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_cisd_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run CISD and store results.&quot;&quot;&quot;</span>
+        <span class="n">cisd</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">ci</span><span class="o">.</span><span class="n">CISD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">cisd_vec</span> <span class="o">=</span> <span class="n">cisd</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">=</span> <span class="n">cisd</span><span class="o">.</span><span class="n">e_tot</span>
+        <span class="k">if</span> <span class="n">store_cisd_vec</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cisd_vec</span> <span class="o">=</span> <span class="n">cisd_vec</span></div>
 
 
 <div class="viewcode-block" id="MolecularData.run_fci">
@@ -684,6 +710,8 @@
             <span class="n">ccsd_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ccsd_energy&quot;</span><span class="p">),</span>
             <span class="n">ccsd_t1</span><span class="o">=</span><span class="n">arrays_func</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ccsd_t1&quot;</span><span class="p">)),</span>
             <span class="n">ccsd_t2</span><span class="o">=</span><span class="n">arrays_func</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ccsd_t2&quot;</span><span class="p">)),</span>
+            <span class="n">cisd_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cisd_energy&quot;</span><span class="p">),</span>
+            <span class="n">cisd_vec</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cisd_vec&quot;</span><span class="p">)),</span>
             <span class="n">fci_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fci_energy&quot;</span><span class="p">),</span>
             <span class="n">fci_vec</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fci_vec&quot;</span><span class="p">)),</span>
             <span class="n">dipole_integrals</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dipole_integrals&quot;</span><span class="p">)),</span>
