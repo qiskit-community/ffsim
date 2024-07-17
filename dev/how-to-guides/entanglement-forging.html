@@ -343,15 +343,27 @@
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -75.6787887956297
+Parsing /tmp/tmp00uixpgf
+converged SCF energy = -75.6787887956314
 CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 norb = 6
 nelec = (4, 4)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf.RHF&#39;&gt;
+/home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.12/site-packages/pyscf/gto/mole.py:1284: UserWarning: Function mol.dumps drops attribute energy_nuc because it is not JSON-serializable
+  warnings.warn(msg)
 </pre></div></div>
 </div>
 </section>
@@ -425,7 +437,7 @@ nelec = (4, 4)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialialization: -75.67794403659724
+Energy at initialialization: -75.67794403659725
 </pre></div></div>
 </div>
 </section>
@@ -471,10 +483,10 @@ Number of parameters: 15
   message: STOP: TOTAL NO. of f AND g EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -75.68381560164421
-        x: [-1.603e-01  6.415e-03 ...  5.746e-02 -1.005e-01]
+      fun: -75.68381567990146
+        x: [-1.603e-01  6.416e-03 ...  5.747e-02 -1.005e-01]
       nit: 3
-      jac: [ 2.075e-04  1.094e-04 ... -4.741e-03  7.384e-03]
+      jac: [ 2.132e-04  1.080e-04 ... -4.736e-03  7.424e-03]
      nfev: 112
      njev: 7
  hess_inv: &lt;15x15 LbfgsInvHessProduct with dtype=float64&gt;
