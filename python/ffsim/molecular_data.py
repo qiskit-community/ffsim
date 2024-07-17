@@ -17,6 +17,7 @@ import dataclasses
 import gzip
 import lzma
 import os
+import tempfile
 from collections.abc import Iterable
 from typing import Callable
 
@@ -24,6 +25,7 @@ import numpy as np
 import orjson
 import pyscf
 import pyscf.cc
+import pyscf.ci
 import pyscf.mcscf
 import pyscf.mp
 import pyscf.symm
@@ -64,6 +66,8 @@ class MolecularData:
             amplitudes.
         ccsd_t2 (np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None): The
             CCSD t2 amplitudes.
+        cisd_energy (float | None): The CISD energy.
+        cisd_vec (np.ndarray | None): The CISD state vector.
         fci_energy (float | None): The FCI energy.
         fci_vec (np.ndarray | None): The FCI state vector.
         dipole_integrals (np.ndarray | None): The dipole integrals.
@@ -97,6 +101,9 @@ class MolecularData:
     ccsd_energy: float | None = None
     ccsd_t1: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None
     ccsd_t2: np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
+    # CISD data
+    cisd_energy: float | None = None
+    cisd_vec: np.ndarray | None = None
     # FCI data
     fci_energy: float | None = None
     fci_vec: np.ndarray | None = None
@@ -123,6 +130,14 @@ class MolecularData:
             spin=self.spin,
             symmetry=self.symmetry,
         )
+
+    @property
+    def scf(self) -> pyscf.scf.hf.SCF:
+        """A PySCF SCF class for this molecular data."""
+        # HACK Not sure if there's a better way to do this...
+        fp = tempfile.NamedTemporaryFile()
+        self.to_fcidump(fp.name)
+        return pyscf.tools.fcidump.to_scf(fp.name)
 
     @staticmethod
     def from_scf(
@@ -194,6 +209,14 @@ class MolecularData:
         hartree_fock = scf_func(molecule)
         hartree_fock.run()
         return MolecularData.from_scf(hartree_fock, active_space=active_space)
+
+    def run_cisd(self, *, store_cisd_vec: bool = False) -> None:
+        """Run CISD and store results."""
+        cisd = pyscf.ci.CISD(self.scf.run())
+        _, cisd_vec = cisd.kernel()
+        self.cisd_energy = cisd.e_tot
+        if store_cisd_vec:
+            self.cisd_vec = cisd_vec
 
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
@@ -378,6 +401,8 @@ class MolecularData:
             ccsd_energy=data.get("ccsd_energy"),
             ccsd_t1=arrays_func(data.get("ccsd_t1")),
             ccsd_t2=arrays_func(data.get("ccsd_t2")),
+            cisd_energy=data.get("cisd_energy"),
+            cisd_vec=as_array_or_none(data.get("cisd_vec")),
             fci_energy=data.get("fci_energy"),
             fci_vec=as_array_or_none(data.get("fci_vec")),
             dipole_integrals=as_array_or_none(data.get("dipole_integrals")),
