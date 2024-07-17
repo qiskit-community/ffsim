@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.contract" href="ffsim.contract.html" /><link rel="prev" title="API reference" href="index.html" />
 
-    <!-- Generated with Sphinx 7.4.4 and Furo 2024.05.06 -->
+    <!-- Generated with Sphinx 7.4.5 and Furo 2024.05.06 -->
         <title>ffsim - ffsim 0.0.42.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
@@ -1371,6 +1371,11 @@ Options: <code class="docutils literal notranslate"><span class="pre">&quot;gzip
 <dt class="sig sig-object py" id="ffsim.MolecularData.from_mole">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_func=&lt;function</span> <span class="pre">RHF&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_mole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_mole" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MolecularData object from a PySCF molecule.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This method is deprecated. Instead, pass an SCF object directly to
+<a class="reference internal" href="#ffsim.MolecularData.from_scf" title="ffsim.MolecularData.from_scf"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_scf()</span></code></a>.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

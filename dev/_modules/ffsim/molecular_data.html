@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.4.4 and Furo 2024.05.06 -->
+    <!-- Generated with Sphinx 7.4.5 and Furo 2024.05.06 -->
         <title>ffsim.molecular_data - ffsim 0.0.42.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
@@ -472,6 +472,10 @@
         <span class="n">scf_func</span><span class="o">=</span><span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MolecularData&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData object from a PySCF molecule.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            This method is deprecated. Instead, pass an SCF object directly to</span>
+<span class="sd">            :func:`from_scf`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            molecule: The molecule.</span>
