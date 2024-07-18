@@ -12,15 +12,16 @@
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Sequence
-from typing import overload
 
 import numpy as np
 
 from ffsim.states.bitstring import (
     BitstringType,
-    convert_bitstring_type,
     concatenate_bitstrings,
+    convert_bitstring_type,
+    restrict_bitstrings,
 )
 
 
@@ -76,16 +77,16 @@ def sample_slater(
             orbs = range(norb)
 
         if nelec == 0:
-            sampled_configuration = np.zeros((shots, norb), dtype=int)
-            sampled_configuration = np.ones((shots, norb), dtype=int)
+            strings = [0 for i in range(shots)]
         elif nelec == norb:
-            sampled_configuration = np.ones((shots, norb), dtype=int)
-
+            strings = [sum(1 << j for j in range(norb)) for i in range(shots)]
         else:
-            sampled_configuration = _sample_spinless_direct(rdm, nelec, shots, rng)
+            strings = _sample_spinless_direct(rdm, nelec, shots, rng)
+
+        strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
 
         return convert_bitstring_type(
-            sampled_configuration,
+            strings,
             BitstringType.INT,
             bitstring_type,
             length=len(orbs),
@@ -98,47 +99,52 @@ def sample_slater(
         norb, _ = rdm_a.shape
 
         if orbs is None:
-            orbs_a = range(norb)
-            orbs_b = range(norb)
-        else:
-            orbs_a = orbs[0]
-            orbs_b = orbs[1]
+            orbs = (range(norb), range(norb))
+        orbs_a = orbs[0]
+        orbs_b = orbs[1]
 
         if n_a == 0:
-            sampled_configuration_a = np.zeros((shots, norb), dtype=int)
+            strings_a = [0 for i in range(shots)]
         elif n_a == norb:
-            sampled_configuration_a = np.ones((shots, norb), dtype=int)
+            strings_a = [sum(1 << j for j in range(norb)) for i in range(shots)]
         else:
-            sampled_configuration_a = _sample_spinless_direct(rdm_a, n_a, shots, rng)
+            strings_a = _sample_spinless_direct(rdm_a, n_a, shots, rng)
 
         if n_b == 0:
-            sampled_configuration_b = np.zeros((shots, norb), dtype=int)
+            strings_b = [0 for i in range(shots)]
         elif n_b == norb:
-            sampled_configuration_b = np.ones((shots, norb), dtype=int)
+            strings_b = [sum(1 << j for j in range(norb)) for i in range(shots)]
         else:
-            sampled_configuration_b = _sample_spinless_direct(rdm_b, n_b, shots, rng)
+            strings_b = _sample_spinless_direct(rdm_b, n_b, shots, rng)
+
+        strings_a = restrict_bitstrings(
+            strings_a, orbs_a, bitstring_type=BitstringType.INT
+        )
+        strings_b = restrict_bitstrings(
+            strings_b, orbs_b, bitstring_type=BitstringType.INT
+        )
 
         if concatenate:
-            sampled_configuration = concatenate_bitstrings(
-                sampled_configuration_a,
-                sampled_configuration_b,
+            strings = concatenate_bitstrings(
+                strings_a,
+                strings_b,
                 BitstringType.INT,
-                norb,
+                length=len(orbs_a),
             )
             return convert_bitstring_type(
-                sampled_configuration,
+                strings,
                 BitstringType.INT,
                 bitstring_type,
                 length=len(orbs_a) + len(orbs_b),
             )
 
         return convert_bitstring_type(
-            sampled_configuration_b,
+            strings_a,
             BitstringType.INT,
             bitstring_type,
-            length=len(orbs_b),
+            length=len(orbs_a),
         ), convert_bitstring_type(
-            sampled_configuration_a,
+            strings_b,
             BitstringType.INT,
             bitstring_type,
             length=len(orbs_b),
@@ -146,7 +152,7 @@ def sample_slater(
 
 
 def _generate_conditionals_unormalized(
-    rdm: np.ndarray, pos_array: list[int], empty_orbitals: set[int], marginal: float
+    rdm: np.ndarray, sample: list[int], empty_orbitals: set[int], marginal: float
 ) -> tuple[np.ndarray, np.ndarray]:
     """Generates the conditional and marginal probabilities for adding a particle.
 
@@ -172,9 +178,10 @@ def _generate_conditionals_unormalized(
     marginals = np.zeros(len(empty_orbitals), dtype=complex)
 
     for i, orbital in enumerate(empty_orbitals):
-        new_pos_array = np.append(pos_array, [orbital])
-        rest_rdm = rdm[new_pos_array, :]
-        rest_rdm = rest_rdm[:, new_pos_array]
+        new_sample = copy.deepcopy(sample)
+        new_sample.append(orbital)
+        rest_rdm = rdm[new_sample, :]
+        rest_rdm = rest_rdm[:, new_sample]
         marginals[i] = np.linalg.det(rest_rdm)
         conditionals[i] = marginals[i] / marginal
 
@@ -186,7 +193,7 @@ def _autoregressive_slater(
     norb: int,
     nelec: int,
     seed: np.random.Generator | int | None = None,
-) -> np.ndarray:
+) -> list[int]:
     """Autoregressively sample positions of particles for a Slater-determinant wave
     function using a determinantal point process.
 
@@ -202,17 +209,13 @@ def _autoregressive_slater(
     rng = np.random.default_rng(seed)
 
     probs = np.diag(rdm).real / nelec
-    position = [rng.choice(norb, p=probs)]
-    marginal = [probs[position[0]]]
+    sample = [rng.choice(norb, p=probs)]
+    marginal = [probs[sample[0]]]
 
     for k in range(nelec - 1):
-        ##pos_array = np.array(position, dtype=int)
-
-        ##empty_orbitals = np.setdiff1d(np.arange(norb), pos_array, assume_unique=True)
-
-        empty_orbitals = list(set(range(norb)).difference(set(position)))
+        empty_orbitals = list(set(range(norb)).difference(set(sample)))
         u_conditionals, marginals = _generate_conditionals_unormalized(
-            rdm, position, empty_orbitals, marginal[-1]
+            rdm, sample, empty_orbitals, marginal[-1]
         )
 
         conditionals = np.real(u_conditionals)
@@ -220,35 +223,12 @@ def _autoregressive_slater(
 
         index = rng.choice(len(empty_orbitals), p=conditionals)
 
-        new_pos = empty_orbitals[index]
+        new_sample = empty_orbitals[index]
 
-        position.append(new_pos)
-        position.sort()
+        sample.append(new_sample)
+        sample.sort()
         marginal.append(marginals[index])
-    return np.array(position, dtype=int)
-
-
-'''
-def _positions_to_bit_array(positions: np.ndarray, norb: int) -> np.ndarray:
-    """Transforms electronic configurations defined by the position of the electrons
-    to the occupation representation.
-
-    Args:
-        positions: A Numpy array of positions of electrons. Each row corresponds
-            to an electronic configuration.
-        norb: number of orbitals.
-
-    Returns:
-        A 2Dimensional Numpy array of electronic configurations represented by
-        the orbital occupancy. Each row is an electronic configuration.
-    """
-
-    n_samples = positions.shape[0]
-    fock = np.zeros((n_samples, norb), dtype=int)
-    for i in range(n_samples):
-        fock[i, norb - 1 - positions[i]] = 1
-    return fock
-'''
+    return sample
 
 
 def _sample_spinless_direct(
@@ -256,7 +236,7 @@ def _sample_spinless_direct(
     nelec: int,
     shots: int,
     seed: np.random.Generator | int | None = None,
-) -> np.ndarray:
+) -> Sequence[int]:
     """Collect samples of electronic configurations from a Slater determinant for
     spin-polarized systems.
 
@@ -280,9 +260,9 @@ def _sample_spinless_direct(
 
     rng = np.random.default_rng(seed)
     norb, _ = rdm.shape
-    positions = np.zeros((shots, nelec), dtype=int)
+    samples = []
 
     for i in range(shots):
-        positions[i] = _autoregressive_slater(rdm, norb, nelec, rng)
+        samples.append(_autoregressive_slater(rdm, norb, nelec, rng))
 
-    return [sum(1 << orb for orb in orbs) for orbs in positions]
+    return [sum(1 << orb for orb in sample) for sample in samples]

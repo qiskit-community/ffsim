@@ -10,7 +10,7 @@ import pytest
 import ffsim
 from ffsim.states.bitstring import BitstringType
 
-'''
+
 @pytest.mark.parametrize(
     "norb, nelec, bitstring_type",
     [
@@ -52,13 +52,11 @@ def test_slater_sampler(
     )
 
     addresses = ffsim.strings_to_addresses(samples, norb, nelec)
-
     indices, counts = np.unique(addresses, return_counts=True)
     empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
     empirical_distribution[indices] = counts / np.sum(counts)
 
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
-'''
 
 
 @pytest.mark.parametrize(
@@ -85,7 +83,6 @@ def test_slater_sampler_spinless(norb: int, nelec: int, bitstring_type: Bitstrin
         rdm, norb, nelec, shots=shots, bitstring_type=bitstring_type, seed=rng
     )
     addresses = ffsim.strings_to_addresses(samples, norb, nelec)
-    print(addresses)
     indices, counts = np.unique(addresses, return_counts=True)
     empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
     empirical_distribution[indices] = counts / np.sum(counts)
