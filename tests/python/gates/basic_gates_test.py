@@ -301,7 +301,7 @@ def test_apply_num_interaction_spinful(
         )
         generator = theta * ffsim.number_operator(target_orb, spin=spin)
         linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
-        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=1j * theta)
         np.testing.assert_allclose(result, expected)
 
 
@@ -318,7 +318,7 @@ def test_apply_num_interaction_spinless(norb: int, nelec: int):
         )
         generator = theta * ffsim.number_operator(target_orb, spin=ffsim.Spin.ALPHA)
         linop = ffsim.linear_operator(generator, norb=norb, nelec=(nelec, 0))
-        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=1j * theta)
         np.testing.assert_allclose(result, expected)
 
 
@@ -349,7 +349,9 @@ def test_apply_num_num_interaction_spinful(
                 ] = theta
             generator = ffsim.FermionOperator(coeffs)
             linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
-            expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+            expected = scipy.sparse.linalg.expm_multiply(
+                1j * linop, vec, traceA=1j * theta
+            )
             np.testing.assert_allclose(result, expected)
 
 
@@ -371,7 +373,9 @@ def test_apply_num_num_interaction_spinless(norb: int, nelec: int):
             )
             generator = ffsim.FermionOperator(coeffs)
             linop = ffsim.linear_operator(generator, norb=norb, nelec=(nelec, 0))
-            expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+            expected = scipy.sparse.linalg.expm_multiply(
+                1j * linop, vec, traceA=1j * theta
+            )
             np.testing.assert_allclose(result, expected)
 
 
@@ -420,7 +424,7 @@ def test_apply_on_site_interaction(norb: int, nelec: tuple[int, int]):
             }
         )
         linop = ffsim.linear_operator(generator, norb=norb, nelec=nelec)
-        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=theta)
+        expected = scipy.sparse.linalg.expm_multiply(1j * linop, vec, traceA=1j * theta)
         np.testing.assert_allclose(result, expected)
 
 

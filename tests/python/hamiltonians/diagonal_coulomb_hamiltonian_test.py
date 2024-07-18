@@ -19,7 +19,8 @@ import ffsim
 from ffsim import fermi_hubbard_1d, fermi_hubbard_2d
 from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamiltonian
 
-TEST_ARGS = pytest.mark.parametrize(
+
+@pytest.mark.parametrize(
     "norb, nelec",
     [
         (4, (2, 2)),
@@ -28,9 +29,6 @@ TEST_ARGS = pytest.mark.parametrize(
         (4, (0, 0)),
     ],
 )
-
-
-@TEST_ARGS
 def test_linear_operator(norb: int, nelec: tuple[int, int]):
     """Test linear_operator method."""
     dim = ffsim.dim(norb, nelec)
@@ -68,7 +66,15 @@ def test_linear_operator(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-@TEST_ARGS
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
 def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test fermion_operator method."""
     dim = ffsim.dim(norb, nelec)
@@ -97,7 +103,15 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-@TEST_ARGS
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
 def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test from_fermion_operator method."""
     dim = ffsim.dim(norb, nelec)
@@ -149,7 +163,15 @@ def test_from_fermion_operator_failure():
         DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
 
-@TEST_ARGS
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
 def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int]):
     """Test from_fermion_operator method with the fermi_hubbard_1d model."""
     dim = ffsim.dim(norb, nelec)
@@ -196,7 +218,15 @@ def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int
     np.testing.assert_allclose(actual_periodic, expected_periodic)
 
 
-@TEST_ARGS
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
 def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int]):
     """Test from_fermion_operator method with the fermi_hubbard_2d model."""
     dim = ffsim.dim(norb, nelec)

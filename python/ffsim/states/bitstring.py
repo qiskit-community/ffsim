@@ -59,6 +59,9 @@ def indices_to_strings(
 ):
     """Convert state vector indices to bitstrings.
 
+    .. warning::
+        This function is deprecated. Use :class:`ffsim.addresses_to_strings` instead.
+
     Example:
 
     .. code::
@@ -149,6 +152,7 @@ def convert_bitstring_type(
 
     if input_type is BitstringType.STRING:
         strings = cast(list[str], strings)
+
         if output_type is BitstringType.INT:
             return [int(s, base=2) for s in strings]
 
@@ -157,18 +161,27 @@ def convert_bitstring_type(
 
     if input_type is BitstringType.INT:
         strings = cast(Sequence[int], strings)
+
         if output_type is BitstringType.STRING:
             return [f"{string:0{length}b}" for string in strings]
 
         if output_type is BitstringType.BIT_ARRAY:
-            return np.array([[b == "1" for b in f"{s:0{length}b}"] for s in strings])
+            return np.array(
+                [[s >> i & 1 for i in range(length - 1, -1, -1)] for s in strings],
+                dtype=bool,
+            )
 
     if input_type is BitstringType.BIT_ARRAY:
         strings = cast(np.ndarray, strings)
-        string_rep = [np.array2string(string, separator="")[1:-1] for string in strings]
+
+        if output_type is BitstringType.STRING:
+            return ["".join("1" if bit else "0" for bit in bits) for bits in strings]
+
         if output_type is BitstringType.INT:
-            return [int(s, base=2) for s in string_rep]
-        return string_rep
+            return [
+                sum(bit * (1 << i) for i, bit in enumerate(bits[::-1]))
+                for bits in strings
+            ]
 
 
 def restrict_bitstrings(
@@ -236,6 +249,9 @@ def strings_to_indices(
 ) -> np.ndarray:
     """Convert bitstrings to state vector indices.
 
+    .. warning::
+        This function is deprecated. Use :class:`ffsim.strings_to_addresses` instead.
+
     Example:
 
     .. code::
@@ -295,18 +311,25 @@ def addresses_to_strings(
         norb = 3
         nelec = (2, 1)
         dim = ffsim.dim(norb, nelec)
-        strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
-        [format(s, f"06b") for s in strings]
-        # output:
-        # ['001011',
-        #  '010011',
-        #  '100011',
-        #  '001101',
-        #  '010101',
-        #  '100101',
-        #  '001110',
-        #  '010110',
-        #  '100110']
+
+        strings = ffsim.addresses_to_strings(range(5), norb, nelec)
+        print(strings)  # prints [11, 19, 35, 13, 21]
+
+        strings = ffsim.addresses_to_strings(
+            range(5), norb, nelec, bitstring_type=ffsim.BitstringType.STRING
+        )
+        print(strings)  # prints ['001011', '010011', '100011', '001101', '010101']
+
+        strings = ffsim.addresses_to_strings(
+            range(5), norb, nelec, bitstring_type=ffsim.BitstringType.BIT_ARRAY
+        )
+        print(strings)
+        # prints
+        # [[False False  True False  True  True]
+        #  [False  True False False  True  True]
+        #  [ True False False False  True  True]
+        #  [False False  True  True False  True]
+        #  [False  True False  True False  True]]
 
     Args:
         addresses: The state vector addresses to convert to bitstrings.
@@ -322,6 +345,10 @@ def addresses_to_strings(
             If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
             the list of alpha strings appears first, that is, on the left.
             In the spinless case (when `nelec` is an integer), this argument is ignored.
+
+    Returns:
+        The bitstrings. The type of the output depends on `bitstring_type` and
+        `concatenate`.
     """
     if isinstance(nelec, int):
         # Spinless case
@@ -369,28 +396,65 @@ def strings_to_addresses(
 
     .. code::
 
+        import numpy as np
+
         import ffsim
 
         norb = 3
         nelec = (2, 1)
         dim = ffsim.dim(norb, nelec)
-        ffsim.strings_to_addresses(
+
+        addresses = ffsim.strings_to_addresses(
             [
                 0b001011,
-                0b010011,
-                0b100011,
-                0b001101,
                 0b010101,
                 0b100101,
-                0b001110,
                 0b010110,
                 0b100110,
             ],
             norb,
             nelec,
         )
-        # output:
-        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
+        print(addresses)  # prints [0 4 5 7 8]
+
+        addresses = ffsim.strings_to_addresses(
+            [
+                "001011",
+                "010101",
+                "100101",
+                "010110",
+                "100110",
+            ],
+            norb,
+            nelec,
+        )
+        print(addresses)  # prints [0 4 5 7 8]
+
+        addresses = ffsim.strings_to_addresses(
+            np.array(
+                [
+                    [False, False, True, False, True, True],
+                    [False, True, False, True, False, True],
+                    [True, False, False, True, False, True],
+                    [False, True, False, True, True, False],
+                    [True, False, False, True, True, False],
+                ]
+            ),
+            norb,
+            nelec,
+        )
+        print(addresses)  # prints [0 4 5 7 8]
+
+    Args:
+        strings: The bitstrings to convert to state vector addresses.
+            Can be a list of strings, a list of integers, or a Numpy array of bits.
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
+
+    Returns:
+        The state vector addresses, as a Numpy array of integers.
     """
     if not len(strings):
         return np.array([])

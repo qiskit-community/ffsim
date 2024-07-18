@@ -62,7 +62,7 @@ def jordan_wigner(op: FermionOperator, n_qubits: int | None = None) -> SparsePau
             qubit_op @= _qubit_action(action, orb + spin * norb, n_qubits)
         qubit_terms.append(qubit_op)
 
-    return SparsePauliOp.sum(qubit_terms)
+    return SparsePauliOp.sum(qubit_terms).simplify()
 
 
 @functools.cache

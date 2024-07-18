@@ -16,6 +16,7 @@ import numpy as np
 import pytest
 
 import ffsim
+from ffsim.states.bitstring import convert_bitstring_type
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
@@ -628,3 +629,56 @@ def test_addresses_and_strings_roundtrip_spinful(norb: int, nelec: tuple[int, in
     )
     indices_again = ffsim.strings_to_addresses(strings, norb=norb, nelec=nelec)
     np.testing.assert_array_equal(indices_again, indices)
+
+
+def test_convert_bitstring_type_bit_array():
+    """Test converting bit array to other bitstring type."""
+    bit_array = np.array(
+        [
+            [False, False, True, False, True, True],
+            [False, True, False, False, True, True],
+            [True, False, False, False, True, True],
+            [False, False, True, True, False, True],
+            [False, True, False, True, False, True],
+            [True, False, False, True, False, True],
+            [False, False, True, True, True, False],
+            [False, True, False, True, True, False],
+            [True, False, False, True, True, False],
+        ]
+    )
+
+    ints = convert_bitstring_type(
+        bit_array,
+        input_type=ffsim.BitstringType.BIT_ARRAY,
+        output_type=ffsim.BitstringType.INT,
+        length=6,
+    )
+    assert ints == [
+        0b001011,
+        0b010011,
+        0b100011,
+        0b001101,
+        0b010101,
+        0b100101,
+        0b001110,
+        0b010110,
+        0b100110,
+    ]
+
+    strings = convert_bitstring_type(
+        bit_array,
+        input_type=ffsim.BitstringType.BIT_ARRAY,
+        output_type=ffsim.BitstringType.STRING,
+        length=6,
+    )
+    assert strings == [
+        "001011",
+        "010011",
+        "100011",
+        "001101",
+        "010101",
+        "100101",
+        "001110",
+        "010110",
+        "100110",
+    ]

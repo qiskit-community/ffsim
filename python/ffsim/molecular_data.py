@@ -17,6 +17,7 @@ import dataclasses
 import gzip
 import lzma
 import os
+import tempfile
 from collections.abc import Iterable
 from typing import Callable
 
@@ -24,6 +25,7 @@ import numpy as np
 import orjson
 import pyscf
 import pyscf.cc
+import pyscf.ci
 import pyscf.mcscf
 import pyscf.mp
 import pyscf.symm
@@ -64,6 +66,8 @@ class MolecularData:
             amplitudes.
         ccsd_t2 (np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None): The
             CCSD t2 amplitudes.
+        cisd_energy (float | None): The CISD energy.
+        cisd_vec (np.ndarray | None): The CISD state vector.
         fci_energy (float | None): The FCI energy.
         fci_vec (np.ndarray | None): The FCI state vector.
         dipole_integrals (np.ndarray | None): The dipole integrals.
@@ -97,6 +101,9 @@ class MolecularData:
     ccsd_energy: float | None = None
     ccsd_t1: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None
     ccsd_t2: np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
+    # CISD data
+    cisd_energy: float | None = None
+    cisd_vec: np.ndarray | None = None
     # FCI data
     fci_energy: float | None = None
     fci_vec: np.ndarray | None = None
@@ -123,6 +130,16 @@ class MolecularData:
             spin=self.spin,
             symmetry=self.symmetry,
         )
+
+    @property
+    def scf(self) -> pyscf.scf.hf.SCF:
+        """A PySCF SCF class for this molecular data."""
+        # HACK Not sure if there's a better way to do this...
+        fp = tempfile.NamedTemporaryFile()
+        self.to_fcidump(fp.name)
+        # HACK without the following line, PySCF computations fail with a KeyError
+        _remove_sym_from_fcidump(fp.name)
+        return pyscf.tools.fcidump.to_scf(fp.name)
 
     @staticmethod
     def from_scf(
@@ -182,6 +199,10 @@ class MolecularData:
     ) -> "MolecularData":
         """Initialize a MolecularData object from a PySCF molecule.
 
+        .. warning::
+            This method is deprecated. Instead, pass an SCF object directly to
+            :func:`from_scf`.
+
         Args:
             molecule: The molecule.
             active_space: An optional list of orbitals to use for the active space.
@@ -191,57 +212,27 @@ class MolecularData:
         hartree_fock.run()
         return MolecularData.from_scf(hartree_fock, active_space=active_space)
 
+    def run_cisd(self, *, store_cisd_vec: bool = False) -> None:
+        """Run CISD and store results."""
+        cisd = pyscf.ci.CISD(self.scf.run())
+        _, cisd_vec = cisd.kernel()
+        self.cisd_energy = cisd.e_tot
+        if store_cisd_vec:
+            self.cisd_vec = cisd_vec
+
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
-        if self.mo_coeff is None or self.mo_occ is None or self.active_space is None:
-            raise RuntimeError(
-                "The run_fci method requires the mo_coeff, mo_occ, and active_space "
-                "attributes to be set to non-None values."
-            )
-        n_alpha, n_beta = self.nelec
-        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
-        scf = scf_func(self.mole)
-        scf.mo_coeff = self.mo_coeff
-        scf.mo_occ = self.mo_occ
-        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
-        mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
-        _, _, fci_vec, _, _ = cas.kernel(mo_coeff=mo)
+        cas = pyscf.mcscf.CASCI(self.scf.run(), ncas=self.norb, nelecas=self.nelec)
+        _, _, fci_vec, _, _ = cas.kernel()
         self.fci_energy = cas.e_tot
         if store_fci_vec:
             self.fci_vec = fci_vec
 
     def run_mp2(self, *, store_t2: bool = False):
         """Run MP2 and store results."""
-        if self.mo_coeff is None or self.mo_occ is None or self.active_space is None:
-            raise RuntimeError(
-                "The run_mp2 method requires the mo_coeff, mo_occ, and active_space "
-                "attributes to be set to non-None values."
-            )
-        n_alpha, n_beta = self.nelec
-        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
-        scf = scf_func(self.mole)
-        cas = pyscf.mcscf.CASCI(scf, ncas=self.norb, nelecas=self.nelec)
-        mo = cas.sort_mo(self.active_space, mo_coeff=self.mo_coeff, base=0)
-        frozen = [i for i in range(self.norb) if i not in self.active_space]
-        mo_coeff: np.ndarray | tuple[np.ndarray, np.ndarray]
-        mo_occ: np.ndarray | tuple[np.ndarray, np.ndarray]
-        mo_coeff = self.mo_coeff
-        mo_occ = self.mo_occ
-        if n_alpha != n_beta:
-            mo_coeff = (mo_coeff, mo_coeff)
-            if n_alpha > n_beta:
-                mo_occ_a = mo_occ > 0
-                mo_occ_b = mo_occ == 2
-            else:
-                mo_occ_a = mo_occ == 2
-                mo_occ_b = mo_occ > 0
-            mo_occ = (mo_occ_a, mo_occ_b)
-            mo = (mo, mo)
-        mp2_solver = pyscf.mp.MP2(
-            scf, frozen=frozen or None, mo_coeff=mo_coeff, mo_occ=mo_occ
-        )
-        _, mp2_t2 = mp2_solver.kernel(mo_coeff=mo)
-        self.mp2_energy = mp2_solver.e_tot
+        mp2 = pyscf.mp.MP2(self.scf.run())
+        _, mp2_t2 = mp2.kernel()
+        self.mp2_energy = mp2.e_tot
         if store_t2:
             self.mp2_t2 = mp2_t2
 
@@ -254,33 +245,9 @@ class MolecularData:
         store_t2: bool = False,
     ) -> None:
         """Run CCSD and store results."""
-        if self.mo_coeff is None or self.mo_occ is None or self.active_space is None:
-            raise RuntimeError(
-                "The run_ccsd method requires the mo_coeff, mo_occ, and active_space "
-                "attributes to be set to non-None values."
-            )
-        n_alpha, n_beta = self.nelec
-        scf_func = pyscf.scf.RHF if n_alpha == n_beta else pyscf.scf.ROHF
-        scf = scf_func(self.mole)
-        frozen = [i for i in range(self.norb) if i not in self.active_space]
-        mo_coeff: np.ndarray | tuple[np.ndarray, np.ndarray]
-        mo_occ: np.ndarray | tuple[np.ndarray, np.ndarray]
-        mo_coeff = self.mo_coeff
-        mo_occ = self.mo_occ
-        if n_alpha != n_beta:
-            mo_coeff = (mo_coeff, mo_coeff)
-            if n_alpha > n_beta:
-                mo_occ_a = mo_occ > 0
-                mo_occ_b = mo_occ == 2
-            else:
-                mo_occ_a = mo_occ == 2
-                mo_occ_b = mo_occ > 0
-            mo_occ = (mo_occ_a, mo_occ_b)
-        ccsd_solver = pyscf.cc.CCSD(
-            scf, frozen=frozen or None, mo_coeff=mo_coeff, mo_occ=mo_occ
-        )
-        _, ccsd_t1, ccsd_t2 = ccsd_solver.kernel(t1=t1, t2=t2)
-        self.ccsd_energy = ccsd_solver.e_tot
+        ccsd = pyscf.cc.CCSD(self.scf.run())
+        _, ccsd_t1, ccsd_t2 = ccsd.kernel(t1=t1, t2=t2)
+        self.ccsd_energy = ccsd.e_tot
         if store_t1:
             self.ccsd_t1 = ccsd_t1
         if store_t2:
@@ -374,6 +341,8 @@ class MolecularData:
             ccsd_energy=data.get("ccsd_energy"),
             ccsd_t1=arrays_func(data.get("ccsd_t1")),
             ccsd_t2=arrays_func(data.get("ccsd_t2")),
+            cisd_energy=data.get("cisd_energy"),
+            cisd_vec=as_array_or_none(data.get("cisd_vec")),
             fci_energy=data.get("fci_energy"),
             fci_vec=as_array_or_none(data.get("fci_vec")),
             dipole_integrals=as_array_or_none(data.get("dipole_integrals")),
@@ -420,3 +389,12 @@ class MolecularData:
             nelec=(n_alpha, n_beta),
             spin=spin,
         )
+
+
+def _remove_sym_from_fcidump(filepath):
+    """Remove ORBSYM and ISYM information from an FCIDUMP file."""
+    with open(filepath, "r") as f:
+        lines = f.readlines()
+    lines = [line for line in lines if not line.strip().startswith(("ORBSYM", "ISYM"))]
+    with open(filepath, "w") as f:
+        f.writelines(lines)

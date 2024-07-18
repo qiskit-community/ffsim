@@ -32,6 +32,9 @@ from ffsim.gates import apply_orbital_rotation
 class GivensAnsatzOperator:
     """A Givens rotation ansatz operator.
 
+    .. warning::
+        This class is deprecated. Use :class:`ffsim.GivensAnsatzOp` instead.
+
     The Givens rotation ansatz consists of a sequence of `Givens rotations`_.
 
     Note that this ansatz does not implement any interactions between spin alpha and

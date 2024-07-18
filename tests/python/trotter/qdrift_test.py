@@ -282,7 +282,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * hamiltonian,
         initial_state,
-        traceA=ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec),
+        traceA=-1j * time * ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec),
     )
 
     # make sure time is not too small
@@ -382,7 +382,7 @@ def test_simulate_qdrift_double_factorized_random(
     exact_state = scipy.sparse.linalg.expm_multiply(
         -1j * time * hamiltonian,
         initial_state,
-        traceA=ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec),
+        traceA=-1j * time * ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec),
     )
 
     # make sure time is not too small

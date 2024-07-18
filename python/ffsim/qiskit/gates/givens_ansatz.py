@@ -34,6 +34,9 @@ from ffsim.variational import GivensAnsatzOp, GivensAnsatzOperator
 class GivensAnsatzOperatorJW(Gate):
     """Givens rotation ansatz operator under the Jordan-Wigner transformation.
 
+    .. warning::
+        This class is deprecated. Use :class:`ffsim.qiskit.GivensAnsatzOpJW` instead.
+
     See :class:`ffsim.GivensAnsatzOperator` for a description of this gate's unitary.
     """
 
