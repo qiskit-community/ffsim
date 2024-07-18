@@ -17,7 +17,11 @@ from typing import overload
 
 import numpy as np
 
-from ffsim.states.bitstring import BitstringType, convert_bitstring_type
+from ffsim.states.bitstring import (
+    BitstringType,
+    convert_bitstring_type,
+    concatenate_bitstrings,
+)
 
 
 def sample_slater(
@@ -62,53 +66,40 @@ def sample_slater(
         A 2D Numpy array with samples of electronic configurations.
         Each row is a sample.
     """
-
     rng = np.random.default_rng(seed)
 
-    if isinstance(rdm, np.ndarray) and rdm.ndim == 2:
+    if isinstance(nelec, int):
         # spinless case
-        n = nelec
         norb, _ = rdm.shape
 
         if orbs is None:
-            orbs = range(norb)  # np.arange(norb, dtype=int)
+            orbs = range(norb)
 
-        if n == 0:
+        if nelec == 0:
             sampled_configuration = np.zeros((shots, norb), dtype=int)
             sampled_configuration = np.ones((shots, norb), dtype=int)
-        elif n == norb:
+        elif nelec == norb:
             sampled_configuration = np.ones((shots, norb), dtype=int)
 
         else:
-            sampled_configuration = _sample_spinless_direct(rdm, shots, rng)
+            sampled_configuration = _sample_spinless_direct(rdm, nelec, shots, rng)
 
         return convert_bitstring_type(
-            sampled_configuration[:, orbs],
-            BitstringType.BIT_ARRAY,
+            sampled_configuration,
+            BitstringType.INT,
             bitstring_type,
             length=len(orbs),
         )
 
     else:
-        # Spinful case
         rdm_a, rdm_b = rdm
 
-        if isinstance(nelec, tuple):
-            n_a, n_b = nelec
-        else:
-            n_a = nelec // 2
-            n_b = nelec // 2
-
-        n_a = round(np.real(np.sum(np.diag(rdm_a))))
-        n_b = round(np.real(np.sum(np.diag(rdm_b))))
+        n_a, n_b = nelec
         norb, _ = rdm_a.shape
 
         if orbs is None:
-            orbs_a = range(norb)  # np.arange(norb, dtype=int)
-            orbs_b = range(norb)  # np.arange(norb, dtype=int)
-        elif isinstance(orbs, list):
-            orbs_a = orbs
-            orbs_b = orbs
+            orbs_a = range(norb)
+            orbs_b = range(norb)
         else:
             orbs_a = orbs[0]
             orbs_b = orbs[1]
@@ -118,48 +109,46 @@ def sample_slater(
         elif n_a == norb:
             sampled_configuration_a = np.ones((shots, norb), dtype=int)
         else:
-            sampled_configuration_a = _sample_spinless_direct(rdm_a, shots, rng)
+            sampled_configuration_a = _sample_spinless_direct(rdm_a, n_a, shots, rng)
 
         if n_b == 0:
             sampled_configuration_b = np.zeros((shots, norb), dtype=int)
         elif n_b == norb:
             sampled_configuration_b = np.ones((shots, norb), dtype=int)
         else:
-            sampled_configuration_b = _sample_spinless_direct(rdm_b, shots, rng)
+            sampled_configuration_b = _sample_spinless_direct(rdm_b, n_b, shots, rng)
 
         if concatenate:
-            sampled_configuration = np.concatenate(
-                (
-                    sampled_configuration_b[:, orbs_b],
-                    sampled_configuration_a[:, orbs_a],
-                ),
-                axis=1,
+            sampled_configuration = concatenate_bitstrings(
+                sampled_configuration_a,
+                sampled_configuration_b,
+                BitstringType.INT,
+                norb,
             )
             return convert_bitstring_type(
                 sampled_configuration,
-                BitstringType.BIT_ARRAY,
+                BitstringType.INT,
                 bitstring_type,
                 length=len(orbs_a) + len(orbs_b),
             )
 
         return convert_bitstring_type(
-            sampled_configuration_b[:, orbs_b],
-            BitstringType.BIT_ARRAY,
+            sampled_configuration_b,
+            BitstringType.INT,
             bitstring_type,
             length=len(orbs_b),
         ), convert_bitstring_type(
-            sampled_configuration_a[:, orbs_a],
-            BitstringType.BIT_ARRAY,
+            sampled_configuration_a,
+            BitstringType.INT,
             bitstring_type,
             length=len(orbs_b),
         )
 
 
 def _generate_conditionals_unormalized(
-    rdm: np.ndarray, pos_array: np.ndarray, empty_orbitals: np.ndarray, marginal: float
+    rdm: np.ndarray, pos_array: list[int], empty_orbitals: set[int], marginal: float
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Generates the conditional and marginal probabilities for adding a particle
-    to the available empty orbitals.
+    """Generates the conditional and marginal probabilities for adding a particle.
 
     This is a step of the autoregressive sampling, and uses Bayes's rule.
 
@@ -179,7 +168,6 @@ def _generate_conditionals_unormalized(
         follow the same order as ``empty_orbitals``.
 
     """
-
     conditionals = np.zeros(len(empty_orbitals), dtype=complex)
     marginals = np.zeros(len(empty_orbitals), dtype=complex)
 
@@ -213,16 +201,18 @@ def _autoregressive_slater(
     """
     rng = np.random.default_rng(seed)
 
-    position = [rng.choice(norb, p=np.real(np.diag(rdm)) / nelec)]
-    marginal = [np.real(np.diag(rdm) / nelec)[position[0]]]
+    probs = np.diag(rdm).real / nelec
+    position = [rng.choice(norb, p=probs)]
+    marginal = [probs[position[0]]]
 
     for k in range(nelec - 1):
-        pos_array = np.array(position, dtype=int)
+        ##pos_array = np.array(position, dtype=int)
 
-        empty_orbitals = np.setdiff1d(np.arange(norb), pos_array, assume_unique=True)
+        ##empty_orbitals = np.setdiff1d(np.arange(norb), pos_array, assume_unique=True)
 
+        empty_orbitals = list(set(range(norb)).difference(set(position)))
         u_conditionals, marginals = _generate_conditionals_unormalized(
-            rdm, pos_array, empty_orbitals, marginal[-1]
+            rdm, position, empty_orbitals, marginal[-1]
         )
 
         conditionals = np.real(u_conditionals)
@@ -238,6 +228,7 @@ def _autoregressive_slater(
     return np.array(position, dtype=int)
 
 
+'''
 def _positions_to_bit_array(positions: np.ndarray, norb: int) -> np.ndarray:
     """Transforms electronic configurations defined by the position of the electrons
     to the occupation representation.
@@ -257,10 +248,12 @@ def _positions_to_bit_array(positions: np.ndarray, norb: int) -> np.ndarray:
     for i in range(n_samples):
         fock[i, norb - 1 - positions[i]] = 1
     return fock
+'''
 
 
 def _sample_spinless_direct(
     rdm: np.ndarray,
+    nelec: int,
     shots: int,
     seed: np.random.Generator | int | None = None,
 ) -> np.ndarray:
@@ -287,10 +280,9 @@ def _sample_spinless_direct(
 
     rng = np.random.default_rng(seed)
     norb, _ = rdm.shape
-    nelec = round(np.real(np.sum(np.diag(rdm))))
     positions = np.zeros((shots, nelec), dtype=int)
 
     for i in range(shots):
         positions[i] = _autoregressive_slater(rdm, norb, nelec, rng)
 
-    return _positions_to_bit_array(positions, norb)
+    return [sum(1 << orb for orb in orbs) for orbs in positions]
