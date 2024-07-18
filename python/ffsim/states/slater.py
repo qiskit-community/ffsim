@@ -42,6 +42,9 @@ def sample_slater(
     The sampler uses a determinantal point process to auto-regressively produce
     uncorrelated samples.
 
+    This sampling strategy is known as
+    `determinantal point processes <https://arxiv.org/abs/1207.6083>`_
+
     Args:
         rdm: The one-body reduced density matrix that defines the Slater determinant
             This is either a single Numpy array specifying the 1-RDM of a
