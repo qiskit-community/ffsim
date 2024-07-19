@@ -31,6 +31,7 @@ def _assert_mol_data_equal(
             "np.ndarray | None",
             "np.ndarray | tuple[np.ndarray, np.ndarray] | None",
             "np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None",
+            "tuple[np.ndarray, np.ndarray, np.ndarray] | None",
         ]:
             if actual is not None:
                 if isinstance(actual, tuple):
@@ -85,11 +86,13 @@ def test_molecular_data_run_methods():
     mol_data.run_mp2()
     mol_data.run_ccsd()
     mol_data.run_cisd()
+    mol_data.run_sci()
     mol_data.run_fci()
 
     np.testing.assert_allclose(mol_data.mp2_energy, -108.58852784026)
     np.testing.assert_allclose(mol_data.ccsd_energy, -108.5933309085008)
     np.testing.assert_allclose(mol_data.cisd_energy, -108.5878344909782)
+    np.testing.assert_allclose(mol_data.sci_energy, -108.59598682615388)
     np.testing.assert_allclose(mol_data.fci_energy, -108.595987350986)
 
 
@@ -108,6 +111,7 @@ def test_json_closed_shell(tmp_path: pathlib.Path):
     mol_data.run_mp2(store_t2=True)
     mol_data.run_ccsd(store_t1=True, store_t2=True)
     mol_data.run_cisd(store_cisd_vec=True)
+    mol_data.run_sci(store_sci_vec=True)
     mol_data.run_fci(store_fci_vec=True)
 
     for compression in [None, "gzip", "bz2", "lzma"]:
@@ -132,6 +136,7 @@ def test_json_open_shell(tmp_path: pathlib.Path):
     mol_data.run_mp2(store_t2=True)
     mol_data.run_ccsd(store_t1=True, store_t2=True)
     mol_data.run_cisd(store_cisd_vec=True)
+    mol_data.run_sci(store_sci_vec=True)
     mol_data.run_fci(store_fci_vec=True)
 
     for compression in [None, "gzip", "bz2", "lzma"]:
