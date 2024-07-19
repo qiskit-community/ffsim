@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.4.5 and Furo 2024.05.06 -->
+    <!-- Generated with Sphinx 7.4.6 and Furo 2024.07.18 -->
         <title>ffsim.molecular_data - ffsim 0.0.42.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
     
     
 
@@ -87,19 +87,6 @@
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
-    </svg>
-  </symbol>
   <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
     <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -140,7 +127,7 @@
       <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
       <path d="M13.5 6.5l4 4" />
       <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" /
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
   <symbol id="svg-eye" viewBox="0 0 24 24">
@@ -310,6 +297,7 @@
 <span class="kn">import</span> <span class="nn">pyscf</span>
 <span class="kn">import</span> <span class="nn">pyscf.cc</span>
 <span class="kn">import</span> <span class="nn">pyscf.ci</span>
+<span class="kn">import</span> <span class="nn">pyscf.fci</span>
 <span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
 <span class="kn">import</span> <span class="nn">pyscf.mp</span>
 <span class="kn">import</span> <span class="nn">pyscf.symm</span>
@@ -354,6 +342,9 @@
 <span class="sd">            CCSD t2 amplitudes.</span>
 <span class="sd">        cisd_energy (float | None): The CISD energy.</span>
 <span class="sd">        cisd_vec (np.ndarray | None): The CISD state vector.</span>
+<span class="sd">        sci_energy (float | None): The SCI energy.</span>
+<span class="sd">        sci_vec (tuple[np.ndarray, np.ndarray, np.ndarray] | None): The SCI state</span>
+<span class="sd">            vector coefficients, spin alpha strings, and spin beta strings.</span>
 <span class="sd">        fci_energy (float | None): The FCI energy.</span>
 <span class="sd">        fci_vec (np.ndarray | None): The FCI state vector.</span>
 <span class="sd">        dipole_integrals (np.ndarray | None): The dipole integrals.</span>
@@ -390,6 +381,9 @@
     <span class="c1"># CISD data</span>
     <span class="n">cisd_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">cisd_vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># SCI data</span>
+    <span class="n">sci_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sci_vec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># FCI data</span>
     <span class="n">fci_energy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">fci_vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -513,6 +507,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">=</span> <span class="n">cisd</span><span class="o">.</span><span class="n">e_tot</span>
         <span class="k">if</span> <span class="n">store_cisd_vec</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cisd_vec</span> <span class="o">=</span> <span class="n">cisd_vec</span></div>
+
+
+<div class="viewcode-block" id="MolecularData.run_sci">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_sci">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_sci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_sci_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run SCI and store results.&quot;&quot;&quot;</span>
+        <span class="n">sci</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">fci</span><span class="o">.</span><span class="n">SCI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
+        <span class="n">sci_energy</span><span class="p">,</span> <span class="n">sci_vec</span> <span class="o">=</span> <span class="n">sci</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_integrals</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">two_body_integrals</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sci_energy</span> <span class="o">=</span> <span class="n">sci_energy</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">core_energy</span>
+        <span class="k">if</span> <span class="n">store_sci_vec</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sci_vec</span> <span class="o">=</span> <span class="p">(</span><span class="n">sci_vec</span><span class="p">,</span> <span class="o">*</span><span class="n">sci_vec</span><span class="o">.</span><span class="n">_strs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MolecularData.run_fci">
@@ -652,6 +662,8 @@
             <span class="n">ccsd_t2</span><span class="o">=</span><span class="n">arrays_func</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ccsd_t2&quot;</span><span class="p">)),</span>
             <span class="n">cisd_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cisd_energy&quot;</span><span class="p">),</span>
             <span class="n">cisd_vec</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cisd_vec&quot;</span><span class="p">)),</span>
+            <span class="n">sci_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sci_energy&quot;</span><span class="p">),</span>
+            <span class="n">sci_vec</span><span class="o">=</span><span class="n">as_array_tuple_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sci_vec&quot;</span><span class="p">)),</span>
             <span class="n">fci_energy</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fci_energy&quot;</span><span class="p">),</span>
             <span class="n">fci_vec</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fci_vec&quot;</span><span class="p">)),</span>
             <span class="n">dipole_integrals</span><span class="o">=</span><span class="n">as_array_or_none</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dipole_integrals&quot;</span><span class="p">)),</span>
@@ -757,7 +769,7 @@
 </div><script src="../../_static/documentation_options.js?v=723753da"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     </body>
 </html>
