@@ -559,30 +559,13 @@ class UCJOpSpinUnbalanced:
             orbital_rotations = np.concatenate(
                 [orbital_rotations_ab, orbital_rotations_same_spin]
             )[:n_reps]
-        else:
-            n_reps_ab, n_reps_same_spin = n_reps
-            diag_coulomb_mats = np.concatenate(
-                [
-                    diag_coulomb_mats_ab[:n_reps_ab],
-                    diag_coulomb_mats_same_spin[:n_reps_same_spin],
-                ]
-            )
-            orbital_rotations = np.concatenate(
-                [
-                    orbital_rotations_ab[:n_reps_ab],
-                    orbital_rotations_same_spin[:n_reps_same_spin],
-                ]
-            )
-
-        n_vecs, _, _, _ = diag_coulomb_mats.shape
-        if n_reps is not None:
-            total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
-            if n_vecs < total_n_reps:
+            n_vecs, _, _, _ = diag_coulomb_mats.shape
+            if n_reps is not None and n_vecs < n_reps:
                 # Pad with no-ops to the requested number of repetitions
                 diag_coulomb_mats = np.concatenate(
                     [
                         diag_coulomb_mats,
-                        np.zeros((total_n_reps - n_vecs, 3, norb, norb)),
+                        np.zeros((n_reps - n_vecs, 3, norb, norb)),
                     ]
                 )
                 eye = np.eye(norb)
@@ -590,10 +573,61 @@ class UCJOpSpinUnbalanced:
                     [
                         orbital_rotations,
                         np.stack(
-                            [np.stack([eye, eye]) for _ in range(total_n_reps - n_vecs)]
+                            [np.stack([eye, eye]) for _ in range(n_reps - n_vecs)]
                         ),
                     ]
                 )
+        else:
+            n_reps_ab, n_reps_same_spin = n_reps
+            diag_coulomb_mats_ab = diag_coulomb_mats_ab[:n_reps_ab]
+            orbital_rotations_ab = orbital_rotations_ab[:n_reps_ab]
+            diag_coulomb_mats_same_spin = diag_coulomb_mats_same_spin[:n_reps_same_spin]
+            orbital_rotations_same_spin = orbital_rotations_same_spin[:n_reps_same_spin]
+            n_vecs, _, _, _ = diag_coulomb_mats_ab.shape
+            if n_reps_ab is not None and n_vecs < n_reps_ab:
+                # Pad with no-ops to the requested number of repetitions
+                diag_coulomb_mats_ab = np.concatenate(
+                    [
+                        diag_coulomb_mats_ab,
+                        np.zeros((n_reps_ab - n_vecs, 3, norb, norb)),
+                    ]
+                )
+                eye = np.eye(norb)
+                orbital_rotations_ab = np.concatenate(
+                    [
+                        orbital_rotations_ab,
+                        np.stack(
+                            [np.stack([eye, eye]) for _ in range(n_reps_ab - n_vecs)]
+                        ),
+                    ]
+                )
+            n_vecs, _, _, _ = diag_coulomb_mats_same_spin.shape
+            if n_reps_same_spin is not None and n_vecs < n_reps_same_spin:
+                # Pad with no-ops to the requested number of repetitions
+                diag_coulomb_mats_same_spin = np.concatenate(
+                    [
+                        diag_coulomb_mats_same_spin,
+                        np.zeros((n_reps_same_spin - n_vecs, 3, norb, norb)),
+                    ]
+                )
+                eye = np.eye(norb)
+                orbital_rotations_same_spin = np.concatenate(
+                    [
+                        orbital_rotations_same_spin,
+                        np.stack(
+                            [
+                                np.stack([eye, eye])
+                                for _ in range(n_reps_same_spin - n_vecs)
+                            ]
+                        ),
+                    ]
+                )
+            diag_coulomb_mats = np.concatenate(
+                [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
+            )
+            orbital_rotations = np.concatenate(
+                [orbital_rotations_ab, orbital_rotations_same_spin]
+            )
 
         final_orbital_rotation = None
         if t1 is not None:
