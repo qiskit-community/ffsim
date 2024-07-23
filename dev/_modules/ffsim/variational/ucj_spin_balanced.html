@@ -694,7 +694,12 @@
 <span class="sd">        Args:</span>
 <span class="sd">            t2: The t2 amplitudes.</span>
 <span class="sd">            t1: The t1 amplitudes.</span>
-<span class="sd">            n_reps: The number of ansatz repetitions.</span>
+<span class="sd">            n_reps: The number of ansatz repetitions. If not specified, then it is set</span>
+<span class="sd">                to the number of terms resulting from the double-factorization of the</span>
+<span class="sd">                t2 amplitudes. If the specified number of repetitions is larger than the</span>
+<span class="sd">                number of terms resulting from the double-factorization, then the ansatz</span>
+<span class="sd">                is padded with additional identity operators up to the specified number</span>
+<span class="sd">                of repetitions.</span>
 <span class="sd">            interaction_pairs: Optional restrictions on allowed orbital interactions</span>
 <span class="sd">                for the diagonal Coulomb operators.</span>
 <span class="sd">                If specified, `interaction_pairs` should be a pair of lists,</span>
@@ -733,6 +738,17 @@
         <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)[:</span><span class="n">n_reps</span><span class="p">]</span>
         <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">diag_coulomb_mats</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)[:</span><span class="n">n_reps</span><span class="p">]</span>
+
+        <span class="n">n_vecs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">n_reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_vecs</span> <span class="o">&lt;</span> <span class="n">n_reps</span><span class="p">:</span>
+            <span class="c1"># Pad with no-ops to the requested number of repetitions</span>
+            <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_reps</span> <span class="o">-</span> <span class="n">n_vecs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))]</span>
+            <span class="p">)</span>
+            <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
+            <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">eye</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span> <span class="o">-</span> <span class="n">n_vecs</span><span class="p">)])]</span>
+            <span class="p">)</span>
 
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">t1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

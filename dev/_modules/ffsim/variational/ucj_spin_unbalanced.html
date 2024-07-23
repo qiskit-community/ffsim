@@ -752,6 +752,12 @@
 <span class="sd">                the number of terms to use from the alpha-beta t2 amplitudes,</span>
 <span class="sd">                and the second integer specifies the number of terms to use from the</span>
 <span class="sd">                alpha-alpha and beta-beta t2 amplitudes.</span>
+<span class="sd">                If not specified, then it is set</span>
+<span class="sd">                to the number of terms resulting from the double-factorization of the</span>
+<span class="sd">                t2 amplitudes. If the specified number of repetitions is larger than the</span>
+<span class="sd">                number of terms resulting from the double-factorization, then the ansatz</span>
+<span class="sd">                is padded with additional identity operators up to the specified number</span>
+<span class="sd">                of repetitions.</span>
 <span class="sd">            interaction_pairs: Optional restrictions on allowed orbital interactions</span>
 <span class="sd">                for the diagonal Coulomb operators.</span>
 <span class="sd">                If specified, `interaction_pairs` should be a tuple of 3 lists,</span>
@@ -808,23 +814,27 @@
         <span class="n">diag_coulomb_mats_bb</span> <span class="o">=</span> <span class="n">diag_coulomb_mats_bb</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)</span>
         <span class="n">orbital_rotations_bb</span> <span class="o">=</span> <span class="n">orbital_rotations_bb</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)</span>
         <span class="n">zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
-        <span class="n">diag_coulomb_mats_same_spin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="p">[</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">zero</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_bb</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">zip_longest</span><span class="p">(</span>
-                    <span class="n">diag_coulomb_mats_aa</span><span class="p">,</span> <span class="n">diag_coulomb_mats_bb</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="n">zero</span>
-                <span class="p">)</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
-        <span class="n">orbital_rotations_same_spin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="p">[</span><span class="n">orbital_rotation_aa</span><span class="p">,</span> <span class="n">orbital_rotation_bb</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">orbital_rotation_aa</span><span class="p">,</span> <span class="n">orbital_rotation_bb</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">zip_longest</span><span class="p">(</span>
-                    <span class="n">orbital_rotations_aa</span><span class="p">,</span> <span class="n">orbital_rotations_bb</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="n">eye</span>
-                <span class="p">)</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_coulomb_mats_aa</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_coulomb_mats_bb</span><span class="p">):</span>
+            <span class="n">diag_coulomb_mats_same_spin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">zero</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_bb</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">zip_longest</span><span class="p">(</span>
+                        <span class="n">diag_coulomb_mats_aa</span><span class="p">,</span> <span class="n">diag_coulomb_mats_bb</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="n">zero</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
+            <span class="n">orbital_rotations_same_spin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">[</span><span class="n">orb_rot_aa</span><span class="p">,</span> <span class="n">orb_rot_bb</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">orb_rot_aa</span><span class="p">,</span> <span class="n">orb_rot_bb</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">zip_longest</span><span class="p">(</span>
+                        <span class="n">orbital_rotations_aa</span><span class="p">,</span> <span class="n">orbital_rotations_bb</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="n">eye</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diag_coulomb_mats_same_spin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+            <span class="n">orbital_rotations_same_spin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
         <span class="c1"># concatenate</span>
         <span class="k">if</span> <span class="n">n_reps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_reps</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
@@ -833,19 +843,27 @@
             <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">orbital_rotations_ab</span><span class="p">,</span> <span class="n">orbital_rotations_same_spin</span><span class="p">]</span>
             <span class="p">)[:</span><span class="n">n_reps</span><span class="p">]</span>
+            <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">_pad_diag_coulomb_mats</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">)</span>
+            <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_pad_orbital_rotations</span><span class="p">(</span><span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">n_reps_ab</span><span class="p">,</span> <span class="n">n_reps_same_spin</span> <span class="o">=</span> <span class="n">n_reps</span>
+            <span class="n">diag_coulomb_mats_ab</span> <span class="o">=</span> <span class="n">_pad_diag_coulomb_mats</span><span class="p">(</span>
+                <span class="n">diag_coulomb_mats_ab</span><span class="p">[:</span><span class="n">n_reps_ab</span><span class="p">],</span> <span class="n">n_reps_ab</span>
+            <span class="p">)</span>
+            <span class="n">orbital_rotations_ab</span> <span class="o">=</span> <span class="n">_pad_orbital_rotations</span><span class="p">(</span>
+                <span class="n">orbital_rotations_ab</span><span class="p">[:</span><span class="n">n_reps_ab</span><span class="p">],</span> <span class="n">n_reps_ab</span>
+            <span class="p">)</span>
+            <span class="n">diag_coulomb_mats_same_spin</span> <span class="o">=</span> <span class="n">_pad_diag_coulomb_mats</span><span class="p">(</span>
+                <span class="n">diag_coulomb_mats_same_spin</span><span class="p">[:</span><span class="n">n_reps_same_spin</span><span class="p">],</span> <span class="n">n_reps_same_spin</span>
+            <span class="p">)</span>
+            <span class="n">orbital_rotations_same_spin</span> <span class="o">=</span> <span class="n">_pad_orbital_rotations</span><span class="p">(</span>
+                <span class="n">orbital_rotations_same_spin</span><span class="p">[:</span><span class="n">n_reps_same_spin</span><span class="p">],</span> <span class="n">n_reps_same_spin</span>
+            <span class="p">)</span>
             <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">diag_coulomb_mats_ab</span><span class="p">[:</span><span class="n">n_reps_ab</span><span class="p">],</span>
-                    <span class="n">diag_coulomb_mats_same_spin</span><span class="p">[:</span><span class="n">n_reps_same_spin</span><span class="p">],</span>
-                <span class="p">]</span>
+                <span class="p">[</span><span class="n">diag_coulomb_mats_ab</span><span class="p">,</span> <span class="n">diag_coulomb_mats_same_spin</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">orbital_rotations_ab</span><span class="p">[:</span><span class="n">n_reps_ab</span><span class="p">],</span>
-                    <span class="n">orbital_rotations_same_spin</span><span class="p">[:</span><span class="n">n_reps_same_spin</span><span class="p">],</span>
-                <span class="p">]</span>
+                <span class="p">[</span><span class="n">orbital_rotations_ab</span><span class="p">,</span> <span class="n">orbital_rotations_same_spin</span><span class="p">]</span>
             <span class="p">)</span>
 
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
@@ -962,6 +980,31 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span></div>
 
+
+
+<span class="k">def</span> <span class="nf">_pad_diag_coulomb_mats</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">n_vecs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">n_reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_vecs</span> <span class="o">&lt;</span> <span class="n">n_reps</span><span class="p">:</span>
+        <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">diag_coulomb_mats</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_reps</span> <span class="o">-</span> <span class="n">n_vecs</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">diag_coulomb_mats</span>
+
+
+<span class="k">def</span> <span class="nf">_pad_orbital_rotations</span><span class="p">(</span><span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">n_vecs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">n_reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_vecs</span> <span class="o">&lt;</span> <span class="n">n_reps</span><span class="p">:</span>
+        <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
+        <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">orbital_rotations</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">eye</span><span class="p">,</span> <span class="n">eye</span><span class="p">])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span> <span class="o">-</span> <span class="n">n_vecs</span><span class="p">)]),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">orbital_rotations</span>
 </pre></div>
         </article>
       </div>

@@ -2339,7 +2339,12 @@ of the absolute value of the corresponding eigenvalue in the factorization.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes.</p></li>
 <li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes.</p></li>
-<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions. If not specified, then it is set
+to the number of terms resulting from the double-factorization of the
+t2 amplitudes. If the specified number of repetitions is larger than the
+number of terms resulting from the double-factorization, then the ansatz
+is padded with additional identity operators up to the specified number
+of repetitions.</p></li>
 <li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
 for the diagonal Coulomb operators.
 If specified, <cite>interaction_pairs</cite> should be a pair of lists,
@@ -2607,7 +2612,13 @@ used before including any terms from the alpha-alpha and beta-beta
 t2 amplitudes. If a pair of integers, then the first integer specifies
 the number of terms to use from the alpha-beta t2 amplitudes,
 and the second integer specifies the number of terms to use from the
-alpha-alpha and beta-beta t2 amplitudes.</p></li>
+alpha-alpha and beta-beta t2 amplitudes.
+If not specified, then it is set
+to the number of terms resulting from the double-factorization of the
+t2 amplitudes. If the specified number of repetitions is larger than the
+number of terms resulting from the double-factorization, then the ansatz
+is padded with additional identity operators up to the specified number
+of repetitions.</p></li>
 <li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
 for the diagonal Coulomb operators.
 If specified, <cite>interaction_pairs</cite> should be a tuple of 3 lists,
@@ -2852,7 +2863,12 @@ of the absolute value of the corresponding eigenvalue in the factorization.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes.</p></li>
 <li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes.</p></li>
-<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions.</p></li>
+<li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions. If not specified, then it is set
+to the number of terms resulting from the double-factorization of the
+t2 amplitudes. If the specified number of repetitions is larger than the
+number of terms resulting from the double-factorization, then the ansatz
+is padded with additional identity operators up to the specified number
+of repetitions.</p></li>
 <li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
 for the diagonal Coulomb operators.
 If specified, <cite>interaction_pairs</cite> should be a list of integer pairs
