@@ -384,6 +384,17 @@ class UCJOpSpinless:
         diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
         orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
+        n_vecs, _, _ = diag_coulomb_mats.shape
+        if n_vecs < n_reps:
+            # Pad with no-ops to the requested number of repetitions
+            diag_coulomb_mats = np.concatenate(
+                [diag_coulomb_mats, np.zeros((n_reps - n_vecs, norb, norb))]
+            )
+            eye = np.eye(norb)
+            orbital_rotations = np.concatenate(
+                [orbital_rotations, np.stack([eye for _ in range(n_reps - n_vecs)])]
+            )
+
         final_orbital_rotation = None
         if t1 is not None:
             final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)

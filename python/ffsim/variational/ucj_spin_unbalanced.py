@@ -524,23 +524,27 @@ class UCJOpSpinUnbalanced:
         diag_coulomb_mats_bb = diag_coulomb_mats_bb.reshape(-1, norb, norb)
         orbital_rotations_bb = orbital_rotations_bb.reshape(-1, norb, norb)
         zero = np.zeros((norb, norb))
-        diag_coulomb_mats_same_spin = np.stack(
-            [
-                [mat_aa, zero, mat_bb]
-                for mat_aa, mat_bb in itertools.zip_longest(
-                    diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
-                )
-            ]
-        )
-        eye = np.eye(norb)
-        orbital_rotations_same_spin = np.stack(
-            [
-                [orbital_rotation_aa, orbital_rotation_bb]
-                for orbital_rotation_aa, orbital_rotation_bb in itertools.zip_longest(
-                    orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
-                )
-            ]
-        )
+        if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
+            diag_coulomb_mats_same_spin = np.stack(
+                [
+                    [mat_aa, zero, mat_bb]
+                    for mat_aa, mat_bb in itertools.zip_longest(
+                        diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
+                    )
+                ]
+            )
+            eye = np.eye(norb)
+            orbital_rotations_same_spin = np.stack(
+                [
+                    [orb_rot_aa, orb_rot_bb]
+                    for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
+                        orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
+                    )
+                ]
+            )
+        else:
+            diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
+            orbital_rotations_same_spin = np.empty((0, 2, norb, norb))
         # concatenate
         if n_reps is None or isinstance(n_reps, int):
             diag_coulomb_mats = np.concatenate(
@@ -561,6 +565,23 @@ class UCJOpSpinUnbalanced:
                 [
                     orbital_rotations_ab[:n_reps_ab],
                     orbital_rotations_same_spin[:n_reps_same_spin],
+                ]
+            )
+
+        n_vecs, _, _, _ = diag_coulomb_mats.shape
+        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+        if n_vecs < total_n_reps:
+            # Pad with no-ops to the requested number of repetitions
+            diag_coulomb_mats = np.concatenate(
+                [diag_coulomb_mats, np.zeros((total_n_reps - n_vecs, 3, norb, norb))]
+            )
+            eye = np.eye(norb)
+            orbital_rotations = np.concatenate(
+                [
+                    orbital_rotations,
+                    np.stack(
+                        [np.stack([eye, eye]) for _ in range(total_n_reps - n_vecs)]
+                    ),
                 ]
             )
 
