@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.4.3 and Furo 2024.05.06 -->
-        <title>ffsim.states.bitstring - ffsim 0.0.41 documentation</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
+        <title>ffsim.states.bitstring - ffsim 0.0.42 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=387cc868" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
     
     
 
@@ -87,19 +87,6 @@
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
-    </svg>
-  </symbol>
   <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
     <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -140,7 +127,7 @@
       <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
       <path d="M13.5 6.5l4 4" />
       <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" /
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
   <symbol id="svg-eye" viewBox="0 0 24 24">
@@ -178,7 +165,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.41 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.42 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +189,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.41 documentation</span>
+  <span class="sidebar-brand-text">ffsim 0.0.42 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -347,6 +334,9 @@
     <span class="n">bitstring_type</span><span class="p">:</span> <span class="n">BitstringType</span> <span class="o">=</span> <span class="n">BitstringType</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert state vector indices to bitstrings.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This function is deprecated. Use :class:`ffsim.addresses_to_strings` instead.</span>
 
 <span class="sd">    Example:</span>
 
@@ -538,6 +528,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bitstrings to state vector indices.</span>
 
+<span class="sd">    .. warning::</span>
+<span class="sd">        This function is deprecated. Use :class:`ffsim.strings_to_addresses` instead.</span>
+
 <span class="sd">    Example:</span>
 
 <span class="sd">    .. code::</span>
@@ -600,18 +593,25 @@
 <span class="sd">        norb = 3</span>
 <span class="sd">        nelec = (2, 1)</span>
 <span class="sd">        dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        strings = ffsim.addresses_to_strings(range(dim), norb, nelec)</span>
-<span class="sd">        [format(s, f&quot;06b&quot;) for s in strings]</span>
-<span class="sd">        # output:</span>
-<span class="sd">        # [&#39;001011&#39;,</span>
-<span class="sd">        #  &#39;010011&#39;,</span>
-<span class="sd">        #  &#39;100011&#39;,</span>
-<span class="sd">        #  &#39;001101&#39;,</span>
-<span class="sd">        #  &#39;010101&#39;,</span>
-<span class="sd">        #  &#39;100101&#39;,</span>
-<span class="sd">        #  &#39;001110&#39;,</span>
-<span class="sd">        #  &#39;010110&#39;,</span>
-<span class="sd">        #  &#39;100110&#39;]</span>
+
+<span class="sd">        strings = ffsim.addresses_to_strings(range(5), norb, nelec)</span>
+<span class="sd">        print(strings)  # prints [11, 19, 35, 13, 21]</span>
+
+<span class="sd">        strings = ffsim.addresses_to_strings(</span>
+<span class="sd">            range(5), norb, nelec, bitstring_type=ffsim.BitstringType.STRING</span>
+<span class="sd">        )</span>
+<span class="sd">        print(strings)  # prints [&#39;001011&#39;, &#39;010011&#39;, &#39;100011&#39;, &#39;001101&#39;, &#39;010101&#39;]</span>
+
+<span class="sd">        strings = ffsim.addresses_to_strings(</span>
+<span class="sd">            range(5), norb, nelec, bitstring_type=ffsim.BitstringType.BIT_ARRAY</span>
+<span class="sd">        )</span>
+<span class="sd">        print(strings)</span>
+<span class="sd">        # prints</span>
+<span class="sd">        # [[False False  True False  True  True]</span>
+<span class="sd">        #  [False  True False False  True  True]</span>
+<span class="sd">        #  [ True False False False  True  True]</span>
+<span class="sd">        #  [False False  True  True False  True]</span>
+<span class="sd">        #  [False  True False  True False  True]]</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        addresses: The state vector addresses to convert to bitstrings.</span>
@@ -627,6 +627,10 @@
 <span class="sd">            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that</span>
 <span class="sd">            the list of alpha strings appears first, that is, on the left.</span>
 <span class="sd">            In the spinless case (when `nelec` is an integer), this argument is ignored.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The bitstrings. The type of the output depends on `bitstring_type` and</span>
+<span class="sd">        `concatenate`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="c1"># Spinless case</span>
@@ -677,28 +681,65 @@
 
 <span class="sd">    .. code::</span>
 
+<span class="sd">        import numpy as np</span>
+
 <span class="sd">        import ffsim</span>
 
 <span class="sd">        norb = 3</span>
 <span class="sd">        nelec = (2, 1)</span>
 <span class="sd">        dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        ffsim.strings_to_addresses(</span>
+
+<span class="sd">        addresses = ffsim.strings_to_addresses(</span>
 <span class="sd">            [</span>
 <span class="sd">                0b001011,</span>
-<span class="sd">                0b010011,</span>
-<span class="sd">                0b100011,</span>
-<span class="sd">                0b001101,</span>
 <span class="sd">                0b010101,</span>
 <span class="sd">                0b100101,</span>
-<span class="sd">                0b001110,</span>
 <span class="sd">                0b010110,</span>
 <span class="sd">                0b100110,</span>
 <span class="sd">            ],</span>
 <span class="sd">            norb,</span>
 <span class="sd">            nelec,</span>
 <span class="sd">        )</span>
-<span class="sd">        # output:</span>
-<span class="sd">        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
+<span class="sd">        print(addresses)  # prints [0 4 5 7 8]</span>
+
+<span class="sd">        addresses = ffsim.strings_to_addresses(</span>
+<span class="sd">            [</span>
+<span class="sd">                &quot;001011&quot;,</span>
+<span class="sd">                &quot;010101&quot;,</span>
+<span class="sd">                &quot;100101&quot;,</span>
+<span class="sd">                &quot;010110&quot;,</span>
+<span class="sd">                &quot;100110&quot;,</span>
+<span class="sd">            ],</span>
+<span class="sd">            norb,</span>
+<span class="sd">            nelec,</span>
+<span class="sd">        )</span>
+<span class="sd">        print(addresses)  # prints [0 4 5 7 8]</span>
+
+<span class="sd">        addresses = ffsim.strings_to_addresses(</span>
+<span class="sd">            np.array(</span>
+<span class="sd">                [</span>
+<span class="sd">                    [False, False, True, False, True, True],</span>
+<span class="sd">                    [False, True, False, True, False, True],</span>
+<span class="sd">                    [True, False, False, True, False, True],</span>
+<span class="sd">                    [False, True, False, True, True, False],</span>
+<span class="sd">                    [True, False, False, True, True, False],</span>
+<span class="sd">                ]</span>
+<span class="sd">            ),</span>
+<span class="sd">            norb,</span>
+<span class="sd">            nelec,</span>
+<span class="sd">        )</span>
+<span class="sd">        print(addresses)  # prints [0 4 5 7 8]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        strings: The bitstrings to convert to state vector addresses.</span>
+<span class="sd">            Can be a list of strings, a list of integers, or a Numpy array of bits.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The state vector addresses, as a Numpy array of integers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">strings</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
@@ -761,10 +802,10 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=20c5f126"></script>
+</div><script src="../../../_static/documentation_options.js?v=173d7b4c"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     </body>
 </html>
