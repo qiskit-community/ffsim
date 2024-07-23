@@ -353,7 +353,12 @@ class UCJOpSpinless:
         Args:
             t2: The t2 amplitudes.
             t1: The t1 amplitudes.
-            n_reps: The number of ansatz repetitions.
+            n_reps: The number of ansatz repetitions. If not specified, then it is set
+                to the number of terms resulting from the double-factorization of the
+                t2 amplitudes. If the specified number of repetitions is larger than the
+                number of terms resulting from the double-factorization, then the ansatz
+                is padded with additional identity operators up to the specified number
+                of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
                 If specified, `interaction_pairs` should be a list of integer pairs
