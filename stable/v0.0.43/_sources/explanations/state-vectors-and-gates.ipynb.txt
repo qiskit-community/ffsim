@@ -1,0 +1,302 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# State vectors and gates\n",
+    "\n",
+    "This page explains how state vectors are represented in ffsim and how you apply gates to them.\n",
+    "\n",
+    "## State vectors\n",
+    "\n",
+    "In ffsim, state vectors are represented as plain one-dimensional NumPy arrays. The length of a state vector is determined by the number of orbitals in the system and their occupancies. The number of $\\alpha$ (spin up) electrons and the number of $\\beta$ (spin down) electrons are each assumed to be fixed. For a system with $N$ spatial orbitals, $N_\\alpha$ electrons with spin $\\alpha$, and $N_\\beta$ electrons with spin $\\beta$, the state vector has length\n",
+    "\n",
+    "$$\n",
+    "{N \\choose N_\\alpha} \\times {N \\choose N_\\beta}.\n",
+    "$$\n",
+    "\n",
+    "You can contrast this expression with a generic quantum circuit simulator, for which a state vector would have length $2^{2N}$.\n",
+    "\n",
+    "ffsim includes convenient functions to calculate the full dimension of the vector space as well as the dimensions of the individual spin subsystems."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The dimension of the vector space is 9.\n",
+      "On the other hand, 2 ** (2 * norb) = 64.\n"
+     ]
+    }
+   ],
+   "source": [
+    "import ffsim\n",
+    "\n",
+    "# Let's use 3 spatial orbitals with 2 alpha electrons and 1 beta electron.\n",
+    "norb = 3\n",
+    "nelec = (2, 1)\n",
+    "\n",
+    "# Get the dimension of the vector space.\n",
+    "dim = ffsim.dim(norb, nelec)\n",
+    "\n",
+    "# We can also get the dimensions of the alpha- and beta- spaces separately.\n",
+    "dim_a, dim_b = ffsim.dims(norb, nelec)\n",
+    "\n",
+    "# The full dimension is the product of alpha- and beta- dimensions.\n",
+    "assert dim == dim_a * dim_b\n",
+    "\n",
+    "print(f\"The dimension of the vector space is {dim}.\")\n",
+    "print(f\"On the other hand, 2 ** (2 * norb) = {2 ** (2 * norb)}.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Each entry of the state vector is associated with an electronic configuration, which can be labeled by the concatenation of two bitstrings, $\\lvert s_\\beta s_\\alpha \\rangle$, where $s_\\alpha$ is a bitstring of length $N$ with Hamming weight $N_\\alpha$, and $s_\\beta$ is a bitstring of length $N$ with Hamming weight $N_\\beta$. A full specification of the state vector representation requires a choice of ordering for the bitstrings. ffsim uses the same ordering as [PySCF](https://pyscf.org/)'s FCI module, `pyscf.fci`. You can use the `addresses_to_strings` function in ffsim to convert a list of state vector indices to the corresponding bitstrings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['001011',\n",
+       " '010011',\n",
+       " '100011',\n",
+       " '001101',\n",
+       " '010101',\n",
+       " '100101',\n",
+       " '001110',\n",
+       " '010110',\n",
+       " '100110']"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "strings = ffsim.addresses_to_strings(\n",
+    "    range(dim), norb=norb, nelec=nelec, bitstring_type=ffsim.BitstringType.STRING\n",
+    ")\n",
+    "\n",
+    "strings"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The first electronic configuration always has the electrons occupying the lowest-numbered orbitals (note that the bit positions increase from right to left). When using molecular orbitals, this configuration corresponds to the Hartree-Fock state. ffsim includes a convenient function to construct the Hartree-Fock state, which is just a vector with a 1 in its first position and 0 everywhere else:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j,\n",
+       "       0.+0.j])"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "vec = ffsim.hartree_fock_state(norb, nelec)\n",
+    "\n",
+    "vec"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It is sometimes convenient to represent the state vector as a matrix whose rows are indexed by the spin $\\alpha$ part of the bitstring and whose columns are indexed by the spin $\\beta$ part. To convert the vector into this representation, simply reshape it:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[1.+0.j, 0.+0.j, 0.+0.j],\n",
+       "       [0.+0.j, 0.+0.j, 0.+0.j],\n",
+       "       [0.+0.j, 0.+0.j, 0.+0.j]])"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "mat = vec.reshape((dim_a, dim_b))\n",
+    "\n",
+    "mat"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Gates\n",
+    "\n",
+    "In ffsim, you apply a unitary gate to a state vector by calling a function whose name begins with `apply_`. For example, the function for applying an orbital rotation is called `apply_orbital_rotation`. The first argument to the function is always the state vector itself. The number of orbitals, as well as the number of alpha and beta electrons, are passed as the arguments `norb` and `nelec`. See the [API reference](../api/ffsim.rst) for the full list of supported gates and their definitions (search for `ffsim.apply_`).\n",
+    "\n",
+    "As an example, the following code cell generates a random orbital rotation (represented by an $N \\times N$ unitary matrix) and applies it to the Hartree-Fock state vector we created previously."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([ 0.23611476+0.03101213j, -0.06273307+0.1102529j ,\n",
+       "        0.09723851+0.36730125j,  0.13113848+0.17276745j,\n",
+       "       -0.11157654+0.02998708j, -0.17558331+0.29821173j,\n",
+       "       -0.20881506-0.33731417j,  0.20835741-0.03525116j,\n",
+       "        0.3714141 -0.51253171j])"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Generate a random orbital rotation.\n",
+    "orbital_rotation = ffsim.random.random_unitary(norb, seed=1234)\n",
+    "\n",
+    "# Apply the orbital rotation to the state vector.\n",
+    "rotated_vec = ffsim.apply_orbital_rotation(\n",
+    "    vec, orbital_rotation, norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "rotated_vec"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "As a further demonstration, let's apply a few more gates to the rotated state vector."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([ 0.22392824+0.02459434j, -0.06551571+0.13327423j,\n",
+       "        0.09723851+0.36730125j,  0.15828306+0.13957088j,\n",
+       "       -0.12204343+0.06677383j, -0.15624569+0.31980058j,\n",
+       "       -0.21928194-0.30052742j,  0.23550198-0.06844774j,\n",
+       "        0.39075171-0.49094286j])"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Apply some more gates\n",
+    "rotated_vec = ffsim.apply_on_site_interaction(\n",
+    "    rotated_vec, 0.1, 2, norb=norb, nelec=nelec\n",
+    ")\n",
+    "rotated_vec = ffsim.apply_tunneling_interaction(\n",
+    "    rotated_vec, 0.1, (0, 1), norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "rotated_vec"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Treating spinless fermions\n",
+    "\n",
+    "Many functions in ffsim support spinless fermions, which are not distinguished into spin $\\alpha$ and spin $\\beta$. With spinless fermions, the `nelec` variable is simply an integer, rather than a pair of integers. The following code cell gives an example of creating a spinless state vector and applying a gate to it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([-0.4390672 -0.1561685j , -0.18007105-0.38435478j,\n",
+       "        0.26121865+0.73105542j])"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "norb = 3\n",
+    "nelec = 2\n",
+    "\n",
+    "vec = ffsim.hartree_fock_state(norb, nelec)\n",
+    "orbital_rotation = ffsim.random.random_unitary(norb, seed=1234)\n",
+    "rotated_vec = ffsim.apply_orbital_rotation(\n",
+    "    vec, orbital_rotation, norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "rotated_vec"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim-1cfkSnAR",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
