@@ -468,6 +468,12 @@ class UCJOpSpinUnbalanced:
                 the number of terms to use from the alpha-beta t2 amplitudes,
                 and the second integer specifies the number of terms to use from the
                 alpha-alpha and beta-beta t2 amplitudes.
+                If not specified, then it is set
+                to the number of terms resulting from the double-factorization of the
+                t2 amplitudes. If the specified number of repetitions is larger than the
+                number of terms resulting from the double-factorization, then the ansatz
+                is padded with additional identity operators up to the specified number
+                of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
                 If specified, `interaction_pairs` should be a tuple of 3 lists,
@@ -524,23 +530,27 @@ class UCJOpSpinUnbalanced:
         diag_coulomb_mats_bb = diag_coulomb_mats_bb.reshape(-1, norb, norb)
         orbital_rotations_bb = orbital_rotations_bb.reshape(-1, norb, norb)
         zero = np.zeros((norb, norb))
-        diag_coulomb_mats_same_spin = np.stack(
-            [
-                [mat_aa, zero, mat_bb]
-                for mat_aa, mat_bb in itertools.zip_longest(
-                    diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
-                )
-            ]
-        )
-        eye = np.eye(norb)
-        orbital_rotations_same_spin = np.stack(
-            [
-                [orbital_rotation_aa, orbital_rotation_bb]
-                for orbital_rotation_aa, orbital_rotation_bb in itertools.zip_longest(
-                    orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
-                )
-            ]
-        )
+        if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
+            diag_coulomb_mats_same_spin = np.stack(
+                [
+                    [mat_aa, zero, mat_bb]
+                    for mat_aa, mat_bb in itertools.zip_longest(
+                        diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
+                    )
+                ]
+            )
+            eye = np.eye(norb)
+            orbital_rotations_same_spin = np.stack(
+                [
+                    [orb_rot_aa, orb_rot_bb]
+                    for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
+                        orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
+                    )
+                ]
+            )
+        else:
+            diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
+            orbital_rotations_same_spin = np.empty((0, 2, norb, norb))
         # concatenate
         if n_reps is None or isinstance(n_reps, int):
             diag_coulomb_mats = np.concatenate(
@@ -549,19 +559,27 @@ class UCJOpSpinUnbalanced:
             orbital_rotations = np.concatenate(
                 [orbital_rotations_ab, orbital_rotations_same_spin]
             )[:n_reps]
+            diag_coulomb_mats = _pad_diag_coulomb_mats(diag_coulomb_mats, n_reps)
+            orbital_rotations = _pad_orbital_rotations(orbital_rotations, n_reps)
         else:
             n_reps_ab, n_reps_same_spin = n_reps
+            diag_coulomb_mats_ab = _pad_diag_coulomb_mats(
+                diag_coulomb_mats_ab[:n_reps_ab], n_reps_ab
+            )
+            orbital_rotations_ab = _pad_orbital_rotations(
+                orbital_rotations_ab[:n_reps_ab], n_reps_ab
+            )
+            diag_coulomb_mats_same_spin = _pad_diag_coulomb_mats(
+                diag_coulomb_mats_same_spin[:n_reps_same_spin], n_reps_same_spin
+            )
+            orbital_rotations_same_spin = _pad_orbital_rotations(
+                orbital_rotations_same_spin[:n_reps_same_spin], n_reps_same_spin
+            )
             diag_coulomb_mats = np.concatenate(
-                [
-                    diag_coulomb_mats_ab[:n_reps_ab],
-                    diag_coulomb_mats_same_spin[:n_reps_same_spin],
-                ]
+                [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
             )
             orbital_rotations = np.concatenate(
-                [
-                    orbital_rotations_ab[:n_reps_ab],
-                    orbital_rotations_same_spin[:n_reps_same_spin],
-                ]
+                [orbital_rotations_ab, orbital_rotations_same_spin]
             )
 
         final_orbital_rotation = None
@@ -676,3 +694,28 @@ class UCJOpSpinUnbalanced:
                 )
             return True
         return NotImplemented
+
+
+def _pad_diag_coulomb_mats(diag_coulomb_mats: np.ndarray, n_reps: int | None):
+    n_vecs, _, norb, _ = diag_coulomb_mats.shape
+    if n_reps is not None and n_vecs < n_reps:
+        diag_coulomb_mats = np.concatenate(
+            [
+                diag_coulomb_mats,
+                np.zeros((n_reps - n_vecs, 3, norb, norb)),
+            ]
+        )
+    return diag_coulomb_mats
+
+
+def _pad_orbital_rotations(orbital_rotations: np.ndarray, n_reps: int | None):
+    n_vecs, _, norb, _ = orbital_rotations.shape
+    if n_reps is not None and n_vecs < n_reps:
+        eye = np.eye(norb)
+        orbital_rotations = np.concatenate(
+            [
+                orbital_rotations,
+                np.stack([np.stack([eye, eye]) for _ in range(n_reps - n_vecs)]),
+            ]
+        )
+    return orbital_rotations
