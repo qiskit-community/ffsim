@@ -118,17 +118,7 @@ def test_t_amplitudes_energy():
     mol_hamiltonian = mol_data.hamiltonian
 
     # Construct UCJ operator
-    n_reps = 2
-    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
-        ccsd.t2, t1=ccsd.t1, n_reps=n_reps
-    )
-
-    # Check number of parameters
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinBalanced.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(ccsd.t2, t1=ccsd.t1)
 
     # Construct the Hartree-Fock state to use as the reference state
     n_alpha, n_beta = nelec
@@ -144,7 +134,7 @@ def test_t_amplitudes_energy():
     # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
-    np.testing.assert_allclose(energy, -108.563917)
+    np.testing.assert_allclose(energy, -108.591373)
 
 
 def test_t_amplitudes_random_n_reps():
@@ -155,17 +145,16 @@ def test_t_amplitudes_random_n_reps():
     nvrt = norb - nocc
 
     # Construct UCJ operator
-    n_reps = 15
-    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
-    t1 = rng.standard_normal((nocc, nvrt))
-    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-
-    # Check number of parameters
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinBalanced.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    for n_reps in [3, 15]:
+        t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
+        t1 = rng.standard_normal((nocc, nvrt))
+        operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        assert operator.n_reps == n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinBalanced.n_params(
+            norb, n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
 
 
 def test_t_amplitudes_zero_n_reps():
@@ -174,17 +163,16 @@ def test_t_amplitudes_zero_n_reps():
     nvrt = norb - nocc
 
     # Construct UCJ operator
-    n_reps = 5
-    t2 = np.zeros((nocc, nocc, nvrt, nvrt))
-    t1 = np.zeros((nocc, nvrt))
-    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-
-    # Check number of parameters
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinBalanced.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    for n_reps in [3, 15]:
+        t2 = np.zeros((nocc, nocc, nvrt, nvrt))
+        t1 = np.zeros((nocc, nvrt))
+        operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        assert operator.n_reps == n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinBalanced.n_params(
+            norb, n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
 
 
 def test_t_amplitudes_restrict_indices():

@@ -121,13 +121,6 @@ def test_t_amplitudes_energy():
         ccsd.t2, t1=ccsd.t1, n_reps=n_reps
     )
 
-    # Check number of parameters
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinUnbalanced.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
-
     # Construct the Hartree-Fock state to use as the reference state
     n_alpha, n_beta = nelec
     reference_state = ffsim.slater_determinant(
@@ -149,16 +142,19 @@ def test_t_amplitudes_energy():
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
         ccsd.t2, t1=ccsd.t1, n_reps=n_reps
     )
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinUnbalanced.n_params(
-        norb, sum(n_reps), with_final_orbital_rotation=True
-    )
-    assert actual == expected
     ansatz_state = ffsim.apply_unitary(
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
     np.testing.assert_allclose(energy, -15.124832)
+
+    # Test setting number of reps as None
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, t1=ccsd.t1)
+    ansatz_state = ffsim.apply_unitary(
+        reference_state, operator, norb=norb, nelec=nelec
+    )
+    energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
+    np.testing.assert_allclose(energy, -15.132263)
 
 
 def test_t_amplitudes_random_n_reps():
@@ -169,24 +165,22 @@ def test_t_amplitudes_random_n_reps():
     nvrt_a = norb - nocc_a
     nvrt_b = norb - nocc_b
 
-    # Construct UCJ operator
-    n_reps = 50
-    t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
-    t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
-    t1a = rng.standard_normal((nocc_a, nvrt_a))
-    t1b = rng.standard_normal((nocc_b, nvrt_b))
-    t2 = (t2aa, t2ab, t2bb)
-    t1 = (t1a, t1b)
-    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-
-    # Check number of parameters
-    assert operator.n_reps == n_reps
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinUnbalanced.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    for n_reps in [5, 50, (10, 5)]:
+        t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
+        t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+        t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
+        t1a = rng.standard_normal((nocc_a, nvrt_a))
+        t1b = rng.standard_normal((nocc_b, nvrt_b))
+        t2 = (t2aa, t2ab, t2bb)
+        t1 = (t1a, t1b)
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+        assert operator.n_reps == total_n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinUnbalanced.n_params(
+            norb, total_n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
 
 
 def test_t_amplitudes_zero_n_reps():
@@ -196,24 +190,22 @@ def test_t_amplitudes_zero_n_reps():
     nvrt_a = norb - nocc_a
     nvrt_b = norb - nocc_b
 
-    # Construct UCJ operator
-    n_reps = 5
-    t2aa = np.zeros((nocc_a, nocc_a, nvrt_a, nvrt_a))
-    t2ab = np.zeros((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2bb = np.zeros((nocc_b, nocc_b, nvrt_b, nvrt_b))
-    t1a = np.zeros((nocc_a, nvrt_a))
-    t1b = np.zeros((nocc_b, nvrt_b))
-    t2 = (t2aa, t2ab, t2bb)
-    t1 = (t1a, t1b)
-    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-
-    # Check number of parameters
-    assert operator.n_reps == n_reps
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinUnbalanced.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    for n_reps in [5, 50, (10, 5)]:
+        t2aa = np.zeros((nocc_a, nocc_a, nvrt_a, nvrt_a))
+        t2ab = np.zeros((nocc_a, nocc_b, nvrt_a, nvrt_b))
+        t2bb = np.zeros((nocc_b, nocc_b, nvrt_b, nvrt_b))
+        t1a = np.zeros((nocc_a, nvrt_a))
+        t1b = np.zeros((nocc_b, nvrt_b))
+        t2 = (t2aa, t2ab, t2bb)
+        t1 = (t1a, t1b)
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+        assert operator.n_reps == total_n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinUnbalanced.n_params(
+            norb, total_n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
 
 
 def test_t_amplitudes_restrict_indices():

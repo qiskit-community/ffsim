@@ -385,7 +385,7 @@ class UCJOpSpinless:
         orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
         n_vecs, _, _ = diag_coulomb_mats.shape
-        if n_vecs < n_reps:
+        if n_reps is not None and n_vecs < n_reps:
             # Pad with no-ops to the requested number of repetitions
             diag_coulomb_mats = np.concatenate(
                 [diag_coulomb_mats, np.zeros((n_reps - n_vecs, norb, norb))]

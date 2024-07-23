@@ -113,15 +113,7 @@ def test_t_amplitudes_energy():
     mol_hamiltonian = mol_data.hamiltonian
 
     # Construct UCJ operator
-    n_reps = 2
-    operator = ffsim.UCJOpSpinless.from_t_amplitudes(ccsd.t2, t1=ccsd.t1, n_reps=n_reps)
-
-    # Check number of parameters
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinless.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    operator = ffsim.UCJOpSpinless.from_t_amplitudes(ccsd.t2, t1=ccsd.t1)
 
     # Compute energy using entanglement forging
     reference_occupations_spatial = [
@@ -150,7 +142,7 @@ def test_t_amplitudes_energy():
         nelec=nelec,
     )
     np.testing.assert_allclose(energy, energy_alt)
-    np.testing.assert_allclose(energy, -108.519714)
+    np.testing.assert_allclose(energy, -108.511945)
 
 
 def test_t_amplitudes_random_n_reps():
@@ -160,18 +152,16 @@ def test_t_amplitudes_random_n_reps():
     nocc = 3
     nvrt = norb - nocc
 
-    # Construct UCJ operator
-    n_reps = 15
-    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
-    t1 = rng.standard_normal((nocc, nvrt))
-    operator = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-
-    # Check number of parameters
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinless.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    for n_reps in [3, 15]:
+        t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
+        t1 = rng.standard_normal((nocc, nvrt))
+        operator = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        assert operator.n_reps == n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinless.n_params(
+            norb, n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
 
 
 def test_t_amplitudes_zero_n_reps():
@@ -179,18 +169,16 @@ def test_t_amplitudes_zero_n_reps():
     nocc = 3
     nvrt = norb - nocc
 
-    # Construct UCJ operator
-    n_reps = 5
-    t2 = np.zeros((nocc, nocc, nvrt, nvrt))
-    t1 = np.zeros((nocc, nvrt))
-    operator = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-
-    # Check number of parameters
-    actual = len(operator.to_parameters())
-    expected = ffsim.UCJOpSpinless.n_params(
-        norb, n_reps, with_final_orbital_rotation=True
-    )
-    assert actual == expected
+    for n_reps in [3, 15]:
+        t2 = np.zeros((nocc, nocc, nvrt, nvrt))
+        t1 = np.zeros((nocc, nvrt))
+        operator = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        assert operator.n_reps == n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinless.n_params(
+            norb, n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
 
 
 def test_t_amplitudes_restrict_indices():

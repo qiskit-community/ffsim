@@ -569,21 +569,25 @@ class UCJOpSpinUnbalanced:
             )
 
         n_vecs, _, _, _ = diag_coulomb_mats.shape
-        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
-        if n_vecs < total_n_reps:
-            # Pad with no-ops to the requested number of repetitions
-            diag_coulomb_mats = np.concatenate(
-                [diag_coulomb_mats, np.zeros((total_n_reps - n_vecs, 3, norb, norb))]
-            )
-            eye = np.eye(norb)
-            orbital_rotations = np.concatenate(
-                [
-                    orbital_rotations,
-                    np.stack(
-                        [np.stack([eye, eye]) for _ in range(total_n_reps - n_vecs)]
-                    ),
-                ]
-            )
+        if n_reps is not None:
+            total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+            if n_vecs < total_n_reps:
+                # Pad with no-ops to the requested number of repetitions
+                diag_coulomb_mats = np.concatenate(
+                    [
+                        diag_coulomb_mats,
+                        np.zeros((total_n_reps - n_vecs, 3, norb, norb)),
+                    ]
+                )
+                eye = np.eye(norb)
+                orbital_rotations = np.concatenate(
+                    [
+                        orbital_rotations,
+                        np.stack(
+                            [np.stack([eye, eye]) for _ in range(total_n_reps - n_vecs)]
+                        ),
+                    ]
+                )
 
         final_orbital_rotation = None
         if t1 is not None:
