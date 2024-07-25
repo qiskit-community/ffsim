@@ -573,7 +573,6 @@ def test_apply_fsim_gate_matrix_spinless(norb: int):
         return np.array([[c, -1j * s], [-1j * s, c]])
 
     phase_00 = 1
-    phase_11 = -1
 
     for _ in range(3):
         theta = rng.uniform(-10, 10)
