@@ -570,3 +570,53 @@ def apply_fsim_gate(
         vec, -phi, target_orbs, norb=norb, nelec=nelec, spin=spin, copy=False
     )
     return vec
+
+
+def apply_fswap_gate(
+    vec: np.ndarray,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
+    *,
+    copy: bool = True,
+) -> np.adarray:
+    r"""Apply a fSWAP gate 
+
+        .. math::
+
+        \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & 0 & 1 & 0 \\
+            0 & 1 & 0 & 0 \\
+            0 & 0 & 0 & -1 \\
+        \end{pmatrix}
+
+    Args:
+        vec: The state vector to be transformed. 
+        target_orbs: The orbitals (p, q) to swap.
+        norb (int): The number of spatial orbitals.
+        nelec (tuple[int, int]): Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
+        spin: Choice of spin sector(s) to act on.
+        copy: Whether to copy the vector before operating on it.
+
+            - If `copy=True` then this function always returns a newly allocated
+                vector and the original vector is left untouched.
+            - If `copy=False` then this function may still return a newly allocated
+                vector, but the original vector may have its data overwritten.
+                It is also possible that the original vector is returned,
+                modified in-place.
+    """
+    if copy:
+        vec = vec.copy()
+    mat = np.eye(norb, dtype=complex)
+    mat[np.ix_(target_orbs, target_orbs)] = [[0, 1], [1, 0]]
+    if isinstance(nelec, int):
+        vec = apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=False)
+    else:
+        vec =  apply_orbital_rotation(
+            vec, pair_for_spin(mat, spin=spin), norb=norb, nelec=nelec, copy=False
+        )
+    return vec

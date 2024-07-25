@@ -15,6 +15,7 @@ from ffsim.cistring import init_cache
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
+    apply_fswap_gate,
     apply_givens_rotation,
     apply_hop_gate,
     apply_num_interaction,
@@ -131,6 +132,7 @@ __all__ = [
     "addresses_to_strings",
     "apply_diag_coulomb_evolution",
     "apply_fsim_gate",
+    "apply_fswap_gate",
     "apply_givens_rotation",
     "apply_hop_gate",
     "apply_num_interaction",

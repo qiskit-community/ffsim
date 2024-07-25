@@ -573,6 +573,7 @@ def test_apply_fsim_gate_matrix_spinless(norb: int):
         return np.array([[c, -1j * s], [-1j * s, c]])
 
     phase_00 = 1
+    phase_11 = -1
 
     for _ in range(3):
         theta = rng.uniform(-10, 10)
@@ -591,6 +592,64 @@ def test_apply_fsim_gate_matrix_spinless(norb: int):
                     ),
                     target_orbs=target_orbs,
                     mat=mat(theta),
+                    phase_00=phase_00,
+                    phase_11=phase_11,
+                    norb=norb,
+                )
+
+
+@pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
+def test_apply_fswap_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
+    """Test applying fSWAP gate matrix."""
+    rng = np.random.default_rng()
+
+    mat01 = np.array([[0, 1], [1, 0]])
+
+    phase_00 = 1
+    phase_11 = -1
+
+    for _ in range(3):
+        for i, j in itertools.combinations(range(norb), 2):
+            for target_orbs in [(i, j), (j, i)]:
+                assert_has_two_orbital_matrix(
+                    lambda vec, norb, nelec: ffsim.apply_fswap_gate(
+                        vec,
+                        target_orbs=target_orbs,
+                        norb=norb,
+                        nelec=nelec,
+                        spin=spin,
+                    ),
+                    target_orbs=target_orbs,
+                    mat=mat01,
+                    phase_00=phase_00,
+                    phase_11=phase_11,
+                    norb=norb,
+                    spin=spin,
+                )
+
+
+@pytest.mark.parametrize("norb", range(4))
+def test_apply_fswap_gate_matrix_spinless(norb: int):
+    """Test applying fSWAP gate matrix, spinless."""
+    rng = np.random.default_rng()
+
+    mat01 = np.array([[0, 1], [1, 0]])
+
+    phase_00 = 1
+    phase_11 = -1
+
+    for _ in range(3):
+        for i, j in itertools.combinations(range(norb), 2):
+            for target_orbs in [(i, j), (j, i)]:
+                assert_has_two_orbital_matrix_spinless(
+                    lambda vec, norb, nelec: ffsim.apply_fswap_gate(
+                        vec,
+                        target_orbs=target_orbs,
+                        norb=norb,
+                        nelec=nelec,
+                    ),
+                    target_orbs=target_orbs,
+                    mat=mat01,
                     phase_00=phase_00,
                     phase_11=phase_11,
                     norb=norb,
