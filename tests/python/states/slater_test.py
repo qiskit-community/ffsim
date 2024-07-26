@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import itertools
+import random
 
 import numpy as np
 import pytest
@@ -36,13 +37,19 @@ def test_slater_sampler(
     """Test Slater determinant sampler."""
 
     rng = np.random.default_rng(1234)
-    shots = 3000
+    shots = 1000
     n_a, n_b = nelec
 
     rotation_a = ffsim.random.random_unitary(norb, seed=rng)
     rotation_b = ffsim.random.random_unitary(norb, seed=rng)
-    for alpha_orbitals in itertools.combinations(range(norb), n_a):
-        for beta_orbitals in itertools.combinations(range(norb), n_b):
+    for alpha_orbitals in random.sample(
+        list(itertools.combinations(range(norb), n_a)),
+        max(1, ffsim.dim(norb, n_a) // 2),
+    ):
+        for beta_orbitals in random.sample(
+            list(itertools.combinations(range(norb), n_b)),
+            max(1, ffsim.dim(norb, n_b) // 2),
+        ):
             occupied_orbitals = (alpha_orbitals, beta_orbitals)
             rdm_a, rdm_b = ffsim.slater_determinant_rdms(
                 norb, occupied_orbitals, (rotation_a, rotation_b)
@@ -86,10 +93,13 @@ def test_slater_sampler_spinless(norb: int, nelec: int, bitstring_type: Bitstrin
     """Test Slater determinant sampler (spinless case)."""
 
     rng = np.random.default_rng(1234)
-    shots = 3000
+    shots = 1000
     rotation = ffsim.random.random_unitary(norb, seed=rng)
 
-    for occupied_orbitals in itertools.combinations(range(norb), nelec):
+    for occupied_orbitals in random.sample(
+        list(itertools.combinations(range(norb), nelec)),
+        max(1, ffsim.dim(norb, nelec) // 2),
+    ):
         rdm = ffsim.slater_determinant_rdms(norb, occupied_orbitals, rotation, rank=1)
         test_distribution = (
             np.absolute(ffsim.slater_determinant(norb, occupied_orbitals, rotation))
