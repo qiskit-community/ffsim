@@ -26,6 +26,7 @@ import orjson
 import pyscf
 import pyscf.cc
 import pyscf.ci
+import pyscf.fci
 import pyscf.mcscf
 import pyscf.mp
 import pyscf.symm
@@ -68,6 +69,9 @@ class MolecularData:
             CCSD t2 amplitudes.
         cisd_energy (float | None): The CISD energy.
         cisd_vec (np.ndarray | None): The CISD state vector.
+        sci_energy (float | None): The SCI energy.
+        sci_vec (tuple[np.ndarray, np.ndarray, np.ndarray] | None): The SCI state
+            vector coefficients, spin alpha strings, and spin beta strings.
         fci_energy (float | None): The FCI energy.
         fci_vec (np.ndarray | None): The FCI state vector.
         dipole_integrals (np.ndarray | None): The dipole integrals.
@@ -104,6 +108,9 @@ class MolecularData:
     # CISD data
     cisd_energy: float | None = None
     cisd_vec: np.ndarray | None = None
+    # SCI data
+    sci_energy: float | None = None
+    sci_vec: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
     # FCI data
     fci_energy: float | None = None
     fci_vec: np.ndarray | None = None
@@ -219,6 +226,19 @@ class MolecularData:
         self.cisd_energy = cisd.e_tot
         if store_cisd_vec:
             self.cisd_vec = cisd_vec
+
+    def run_sci(self, *, store_sci_vec: bool = False) -> None:
+        """Run SCI and store results."""
+        sci = pyscf.fci.SCI(self.scf.run())
+        sci_energy, sci_vec = sci.kernel(
+            self.one_body_integrals,
+            self.two_body_integrals,
+            norb=self.norb,
+            nelec=self.nelec,
+        )
+        self.sci_energy = sci_energy + self.core_energy
+        if store_sci_vec:
+            self.sci_vec = (sci_vec, *sci_vec._strs)
 
     def run_fci(self, *, store_fci_vec: bool = False) -> None:
         """Run FCI and store results."""
@@ -343,6 +363,8 @@ class MolecularData:
             ccsd_t2=arrays_func(data.get("ccsd_t2")),
             cisd_energy=data.get("cisd_energy"),
             cisd_vec=as_array_or_none(data.get("cisd_vec")),
+            sci_energy=data.get("sci_energy"),
+            sci_vec=as_array_tuple_or_none(data.get("sci_vec")),
             fci_energy=data.get("fci_energy"),
             fci_vec=as_array_or_none(data.get("fci_vec")),
             dipole_integrals=as_array_or_none(data.get("dipole_integrals")),

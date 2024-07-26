@@ -15,6 +15,7 @@ import itertools
 
 import numpy as np
 import scipy.linalg
+from pyscf.fci.direct_uhf import make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim._lib import FermionOperator
@@ -174,3 +175,23 @@ class DiagonalCoulombHamiltonian:
             diag_coulomb_mats=diag_coulomb_mats,
             constant=constant,
         )
+
+    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+        """Return the diagonal entries of the Hamiltonian."""
+        if np.iscomplexobj(self.one_body_tensor):
+            raise NotImplementedError(
+                "Computing diagonal of complex diagonal Coulomb Hamiltonian is not yet "
+                "supported."
+            )
+        two_body_tensor_aa = np.zeros((self.norb, self.norb, self.norb, self.norb))
+        two_body_tensor_ab = np.zeros((self.norb, self.norb, self.norb, self.norb))
+        diag_coulomb_mat_aa, diag_coulomb_mat_ab = self.diag_coulomb_mats
+        for p, q in itertools.product(range(self.norb), repeat=2):
+            two_body_tensor_aa[p, p, q, q] = diag_coulomb_mat_aa[p, q]
+            two_body_tensor_ab[p, p, q, q] = diag_coulomb_mat_ab[p, q]
+        one_body_tensor = self.one_body_tensor + 0.5 * np.einsum(
+            "prqr", two_body_tensor_aa
+        )
+        h1e = (one_body_tensor, one_body_tensor)
+        h2e = (two_body_tensor_aa, two_body_tensor_ab, two_body_tensor_aa)
+        return make_hdiag(h1e, h2e, norb=norb, nelec=nelec) + self.constant
