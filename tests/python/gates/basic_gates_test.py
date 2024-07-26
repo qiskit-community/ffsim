@@ -565,7 +565,6 @@ def test_apply_fsim_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
 @pytest.mark.parametrize("norb", range(4))
 def test_apply_fsim_gate_matrix_spinless(norb: int):
     """Test applying fSim gate matrix, spinless."""
-    rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
         c = np.cos(theta)
@@ -600,7 +599,6 @@ def test_apply_fsim_gate_matrix_spinless(norb: int):
 @pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_fswap_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
     """Test applying fSWAP gate matrix."""
-    rng = np.random.default_rng()
 
     mat01 = np.array([[0, 1], [1, 0]])
 
