@@ -604,8 +604,8 @@ def apply_fswap_gate(
     Args:
         vec: The state vector to be transformed. 
         target_orbs: The orbitals (p, q) to swap.
-        norb (int): The number of spatial orbitals.
-        nelec (tuple[int, int]): Either a single integer representing the number of fermions for a
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
         spin: Choice of spin sector(s) to act on.
