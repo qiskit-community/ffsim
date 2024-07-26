@@ -194,7 +194,7 @@ def _autoregressive_slater(
     all_orbs = set(range(norb))
     empty_orbitals = list(all_orbs.difference(sample))
     for k in range(nelec - 1):
-        marginals = _generate_marginals(rdm, sample, empty_orbitals, marginal[-1])
+        marginals = _generate_marginals(rdm, sample, empty_orbitals)
         conditionals = marginals / marginal[-1]
         conditionals /= np.sum(conditionals)
         index = rng.choice(len(empty_orbitals), p=conditionals)
