@@ -25,7 +25,7 @@ from ffsim.states.bitstring import (
 )
 
 
-def sample_slater(
+def sample_slater_determinant(
     rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
     norb: int,
     nelec: int | tuple[int, int],

@@ -19,7 +19,7 @@ from ffsim.states.bitstring import (
 )
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm, rdms
-from ffsim.states.slater import sample_slater
+from ffsim.states.slater import sample_slater_determinant
 from ffsim.states.states import (
     StateVector,
     dim,
@@ -48,6 +48,7 @@ __all__ = [
     "one_hot",
     "rdm",
     "rdms",
+    "sample_slater_determinant",
     "sample_state_vector",
     "slater_determinant",
     "slater_determinant_rdm",
@@ -55,5 +56,4 @@ __all__ = [
     "spin_square",
     "strings_to_addresses",
     "strings_to_indices",
-    "sample_slater",
 ]

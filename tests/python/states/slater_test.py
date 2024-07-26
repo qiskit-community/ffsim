@@ -31,7 +31,7 @@ from ffsim.states.bitstring import BitstringType
         )
     ],
 )
-def test_slater_sampler(
+def test_sample_slater_determinant_spinful(
     norb: int, nelec: tuple[int, int], bitstring_type: BitstringType
 ):
     """Test Slater determinant sampler."""
@@ -63,7 +63,7 @@ def test_slater_sampler(
                 )
                 ** 2
             )
-            samples = ffsim.sample_slater(
+            samples = ffsim.sample_slater_determinant(
                 (rdm_a, rdm_b),
                 norb,
                 nelec,
@@ -89,7 +89,9 @@ def test_slater_sampler(
         )
     ],
 )
-def test_slater_sampler_spinless(norb: int, nelec: int, bitstring_type: BitstringType):
+def test_sample_slater_determinant_spinless(
+    norb: int, nelec: int, bitstring_type: BitstringType
+):
     """Test Slater determinant sampler (spinless case)."""
 
     rng = np.random.default_rng(1234)
@@ -105,7 +107,7 @@ def test_slater_sampler_spinless(norb: int, nelec: int, bitstring_type: Bitstrin
             np.absolute(ffsim.slater_determinant(norb, occupied_orbitals, rotation))
             ** 2
         )
-        samples = ffsim.sample_slater(
+        samples = ffsim.sample_slater_determinant(
             rdm, norb, nelec, shots=shots, bitstring_type=bitstring_type, seed=rng
         )
         addresses = ffsim.strings_to_addresses(samples, norb, nelec)
