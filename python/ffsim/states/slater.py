@@ -165,7 +165,7 @@ def _generate_marginals(
         new_sample = sample.copy()
         new_sample = sample + [orbital]
         rest_rdm = rdm[np.ix_(new_sample, new_sample)]
-        marginals[i] = np.linalg.det(rest_rdm)
+        marginals[i] = np.linalg.det(rest_rdm).real
     return marginals
 
 
@@ -194,14 +194,15 @@ def _autoregressive_slater(
     sample = [rng.choice(norb, p=probs)]
     marginal = [probs[sample[0]]]
     all_orbs = set(range(norb))
+    empty_orbitals = list(all_orbs.difference(sample))
     for k in range(nelec - 1):
-        empty_orbitals = list(all_orbs.difference(sample))
         marginals = _generate_marginals(rdm, sample, empty_orbitals, marginal[-1])
         conditionals = marginals / marginal[-1]
         conditionals /= np.sum(conditionals)
         index = rng.choice(len(empty_orbitals), p=conditionals)
         sample.append(empty_orbitals[index])
         marginal.append(marginals[index])
+        empty_orbitals.pop(index)
     return sample
 
 
