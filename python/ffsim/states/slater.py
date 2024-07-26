@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utilities for sampling from Slater determinants"""
+"""Functions for creating and manipulating Slater determinants."""
 
 from __future__ import annotations
 
@@ -79,7 +79,7 @@ def sample_slater(
 
         if orbs is None:
             orbs = range(norb)
-        orbs = cast(Sequence, orbs)
+        orbs = cast(Sequence[int], orbs)
 
         strings = _sample_spinless_direct(rdm, nelec, shots, rng)
         strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
@@ -100,8 +100,8 @@ def sample_slater(
         if orbs is None:
             orbs = (range(norb), range(norb))
         orbs_a, orbs_b = orbs
-        orbs_a = cast(Sequence, orbs_a)
-        orbs_b = cast(Sequence, orbs_b)
+        orbs_a = cast(Sequence[int], orbs_a)
+        orbs_b = cast(Sequence[int], orbs_b)
 
         strings_a = _sample_spinless_direct(rdm_a, n_a, shots, rng)
         strings_b = _sample_spinless_direct(rdm_b, n_b, shots, rng)
@@ -142,24 +142,22 @@ def sample_slater(
 def _generate_marginals(
     rdm: np.ndarray, sample: list[int], empty_orbitals: list[int], marginal: float
 ) -> np.ndarray:
-    """Generates the conditional and marginal probabilities for adding a particle.
+    """Computes the marginal probabilities for adding a particle.
 
     This is a step of the autoregressive sampling, and uses Bayes's rule.
 
     Args:
         rdm: A Numpy array with the one-body reduced density matrix.
-        pos_array: A numpy array with the positions of the particles.
-        empty_orbitals: A numpy array with the empty orbitals that a new particle
+        pos_array: A Numpy array with the positions of the particles.
+        empty_orbitals: A Numpy array with the empty orbitals that a new particle
             may occupy. The sorted union of ``pos_array`` and ``empty_orbitals``
             must be equal to ``numpy.arange(num_orbitals)``.
         marginal: The marginal probability associated to having the particles
             in the positions determined by ``pos_array``.
+
     Returns:
-        A tuple of Numpy arrays. The first is the unormalized conditionals for
-        adding a particle to any of the empty orbitals specified in the input.
-        The second is the marginal corresponding to having the particles in the
-        position array and one extra in all possible empty orbitals. Both arrays
-        follow the same order as ``empty_orbitals``.
+        A Numpy array with the marginal corresponding to having the particles in the
+        position array and one extra in all possible empty orbitals.
 
     """
     marginals = np.zeros(len(empty_orbitals), dtype=float)
@@ -177,17 +175,18 @@ def _autoregressive_slater(
     nelec: int,
     seed: np.random.Generator | int | None = None,
 ) -> list[int]:
-    """Autoregressively sample positions of particles for a Slater-determinant wave
+    """Autoregressively sample positions of particles for a Slater determinant wave
     function using a determinantal point process.
 
     Args:
-        rdm: A numpy array with the one-body reduced density matrix.
+        rdm: A Numpy array with the one-body reduced density matrix.
         norb: Number of orbitals.
         nelec: Number of electrons.
         seed: Either a Numpy random generator, an integer seed for the random number
             generator or ``None``.
+
     Returns:
-        A numpy array with the position of the sampled electrons.
+        A Numpy array with the position of the sampled electrons.
     """
     rng = np.random.default_rng(seed)
 
@@ -235,9 +234,9 @@ def _sample_spinless_direct(
     norb, _ = rdm.shape
 
     if nelec == 0:
-        return [0 for i in range(shots)]
+        return [0] * shots
     if nelec == norb:
-        return [sum(1 << j for j in range(norb)) for i in range(shots)]
+        return [(1 << norb) - 1] * shots
     rng = np.random.default_rng(seed)
     samples = []
     samples = [_autoregressive_slater(rdm, norb, nelec, rng) for _ in range(shots)]
