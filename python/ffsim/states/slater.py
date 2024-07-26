@@ -180,49 +180,43 @@ def _autoregressive_slater(
         rdm: A Numpy array with the one-body reduced density matrix.
         norb: Number of orbitals.
         nelec: Number of electrons.
-        seed: Either a Numpy random generator, an integer seed for the random number
-            generator or ``None``.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
 
     Returns:
         A Numpy array with the position of the sampled electrons.
     """
     rng = np.random.default_rng(seed)
     empty_orbitals = list(range(norb))
-    probs = np.diag(rdm).real / nelec
-    index = rng.choice(len(empty_orbitals), p=probs)
+    index = rng.choice(len(empty_orbitals), p=np.diag(rdm).real / nelec)
     sample = [empty_orbitals[index]]
-    marginal = [probs[index]]
     empty_orbitals.pop(index)
     for _ in range(nelec - 1):
-        marginals = _generate_marginals(rdm, sample, empty_orbitals)
-        conditionals = marginals / marginal[-1]
-        conditionals /= np.sum(conditionals)
-        index = rng.choice(len(empty_orbitals), p=conditionals)
+        probs = _generate_probs(rdm, sample, empty_orbitals)
+        index = rng.choice(len(empty_orbitals), p=probs)
         sample.append(empty_orbitals[index])
-        marginal.append(marginals[index])
         empty_orbitals.pop(index)
     return sample
 
 
-def _generate_marginals(
+def _generate_probs(
     rdm: np.ndarray, sample: list[int], empty_orbitals: list[int]
 ) -> np.ndarray:
-    """Computes the marginal probabilities for adding a particle.
+    """Computes the probabilities for the next occupied orbital.
 
     This is a step of the autoregressive sampling, and uses Bayes's rule.
 
     Args:
         rdm: A Numpy array with the one-body reduced density matrix.
-        sample: The list of particle positions to add to.
+        sample: The list of already occupied orbitals
         empty_orbitals: The empty orbitals.
 
     Returns:
-        A Numpy array with the marginal corresponding to having the particles in the
-        position array and one extra in all possible empty orbitals.
+        The probabilities for the next empty orbital to occupy.
     """
-    marginals = np.zeros(len(empty_orbitals), dtype=float)
+    probs = np.zeros(len(empty_orbitals))
     for i, orbital in enumerate(empty_orbitals):
         new_sample = sample + [orbital]
         rest_rdm = rdm[np.ix_(new_sample, new_sample)]
-        marginals[i] = np.linalg.det(rest_rdm).real
-    return marginals
+        probs[i] = np.linalg.det(rest_rdm).real
+    return probs / np.sum(probs)
