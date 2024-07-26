@@ -286,6 +286,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
+<span class="kn">from</span> <span class="nn">pyscf.fci.direct_uhf</span> <span class="kn">import</span> <span class="n">make_hdiag</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">LinearOperator</span>
 
 <span class="kn">from</span> <span class="nn">ffsim._lib</span> <span class="kn">import</span> <span class="n">FermionOperator</span>
@@ -449,7 +450,27 @@
             <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
             <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">,</span>
         <span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span> <span class="nf">_diag_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the diagonal entries of the Hamiltonian.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Computing diagonal of complex diagonal Coulomb Hamiltonian is not yet &quot;</span>
+                <span class="s2">&quot;supported.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">two_body_tensor_aa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">))</span>
+        <span class="n">two_body_tensor_ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">))</span>
+        <span class="n">diag_coulomb_mat_aa</span><span class="p">,</span> <span class="n">diag_coulomb_mat_ab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">),</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">two_body_tensor_aa</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span> <span class="o">=</span> <span class="n">diag_coulomb_mat_aa</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span>
+            <span class="n">two_body_tensor_ab</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span> <span class="o">=</span> <span class="n">diag_coulomb_mat_ab</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+            <span class="s2">&quot;prqr&quot;</span><span class="p">,</span> <span class="n">two_body_tensor_aa</span>
+        <span class="p">)</span>
+        <span class="n">h1e</span> <span class="o">=</span> <span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">one_body_tensor</span><span class="p">)</span>
+        <span class="n">h2e</span> <span class="o">=</span> <span class="p">(</span><span class="n">two_body_tensor_aa</span><span class="p">,</span> <span class="n">two_body_tensor_ab</span><span class="p">,</span> <span class="n">two_body_tensor_aa</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">make_hdiag</span><span class="p">(</span><span class="n">h1e</span><span class="p">,</span> <span class="n">h2e</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span></div>
 
 </pre></div>
         </article>
