@@ -213,7 +213,7 @@ def _sample_spinless_direct(
     """Collect samples of electronic configurations from a Slater determinant for
     spin-polarized systems.
 
-    The Slater determinat is defined by its one-body reduced density matrix (RDM).
+    The Slater determinant is defined by its one-body reduced density matrix (RDM).
     The sampler uses a determinantal point process to auto-regressively produce
     uncorrelated samples.
 
