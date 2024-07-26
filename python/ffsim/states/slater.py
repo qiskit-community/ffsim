@@ -162,7 +162,6 @@ def _generate_marginals(
     """
     marginals = np.zeros(len(empty_orbitals), dtype=float)
     for i, orbital in enumerate(empty_orbitals):
-        new_sample = sample.copy()
         new_sample = sample + [orbital]
         rest_rdm = rdm[np.ix_(new_sample, new_sample)]
         marginals[i] = np.linalg.det(rest_rdm).real
@@ -189,13 +188,12 @@ def _autoregressive_slater(
         A Numpy array with the position of the sampled electrons.
     """
     rng = np.random.default_rng(seed)
-
     probs = np.diag(rdm).real / nelec
     sample = [rng.choice(norb, p=probs)]
     marginal = [probs[sample[0]]]
     all_orbs = set(range(norb))
     empty_orbitals = list(all_orbs.difference(sample))
-    for k in range(nelec - 1):
+    for _ in range(nelec - 1):
         marginals = _generate_marginals(rdm, sample, empty_orbitals, marginal[-1])
         conditionals = marginals / marginal[-1]
         conditionals /= np.sum(conditionals)
@@ -233,12 +231,10 @@ def _sample_spinless_direct(
         Each row is a sample.
     """
     norb, _ = rdm.shape
-
     if nelec == 0:
         return [0] * shots
     if nelec == norb:
         return [(1 << norb) - 1] * shots
     rng = np.random.default_rng(seed)
-    samples = []
     samples = [_autoregressive_slater(rdm, norb, nelec, rng) for _ in range(shots)]
     return [sum(1 << orb for orb in sample) for sample in samples]
