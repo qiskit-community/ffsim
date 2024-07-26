@@ -158,8 +158,9 @@ class MolecularHamiltonian:
         if np.iscomplexobj(self.two_body_tensor) or np.iscomplexobj(
             self.one_body_tensor
         ):
-            raise ValueError(
-                "Computing diagonal of complex molecular Hamiltonian is not supported."
+            raise NotImplementedError(
+                "Computing diagonal of complex molecular Hamiltonian is not yet "
+                "supported."
             )
         return (
             make_hdiag(self.one_body_tensor, self.two_body_tensor, norb, nelec)
