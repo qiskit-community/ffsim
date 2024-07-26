@@ -140,7 +140,9 @@ def sample_slater(
 
 
 def _generate_marginals(
-    rdm: np.ndarray, sample: list[int], empty_orbitals: list[int], marginal: float
+    rdm: np.ndarray,
+    sample: list[int],
+    empty_orbitals: list[int],
 ) -> np.ndarray:
     """Computes the marginal probabilities for adding a particle.
 
@@ -152,8 +154,6 @@ def _generate_marginals(
         empty_orbitals: A Numpy array with the empty orbitals that a new particle
             may occupy. The sorted union of ``pos_array`` and ``empty_orbitals``
             must be equal to ``numpy.arange(num_orbitals)``.
-        marginal: The marginal probability associated to having the particles
-            in the positions determined by ``pos_array``.
 
     Returns:
         A Numpy array with the marginal corresponding to having the particles in the
@@ -196,7 +196,7 @@ def _autoregressive_slater(
     all_orbs = set(range(norb))
     empty_orbitals = list(all_orbs.difference(sample))
     for k in range(nelec - 1):
-        marginals = _generate_marginals(rdm, sample, empty_orbitals, marginal[-1])
+        marginals = _generate_marginals(rdm, sample, empty_orbitals)
         conditionals = marginals / marginal[-1]
         conditionals /= np.sum(conditionals)
         index = rng.choice(len(empty_orbitals), p=conditionals)
