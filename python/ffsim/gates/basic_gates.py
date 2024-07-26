@@ -581,12 +581,12 @@ def apply_fswap_gate(
     *,
     copy: bool = True,
 ) -> np.adarray:
-    r"""Apply a fSWAP gate that swaps target orbitals.
+    r"""Apply an FSWAP gate.
 
-    An fSwap gate is defined as
+    The FSWAP gate swaps two orbitals. It is represented by the operator
 
     .. math::
-        f_\text{swap}(p, q) = 
+        \text{FSWAP}(p, q) = 
         1 + a^\dagger_p a_q + a^\dagger_q a_p - a_p^\dagger a_p - a_q^\dagger a_q
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied 
