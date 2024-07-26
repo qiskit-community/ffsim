@@ -273,3 +273,24 @@ def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int
     actual_periodic = actual_linop_periodic @ vec
     expected_periodic = expected_linop_periodic @ vec
     np.testing.assert_allclose(actual_periodic, expected_periodic)
+
+
+def test_diag():
+    """Test computing diagonal."""
+    rng = np.random.default_rng(2222)
+    norb = 5
+    nelec = (3, 2)
+    # TODO test complex one-body after adding support for it
+    one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    diag_coulomb_mat_a = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    diag_coulomb_mat_b = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    diag_coulomb_mats = np.stack([diag_coulomb_mat_a, diag_coulomb_mat_b])
+    constant = rng.standard_normal()
+    hamiltonian = ffsim.DiagonalCoulombHamiltonian(
+        one_body_tensor, diag_coulomb_mats, constant=constant
+    )
+    linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
+    hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
+    np.testing.assert_allclose(
+        ffsim.diag(hamiltonian, norb=norb, nelec=nelec), np.diag(hamiltonian_dense)
+    )
