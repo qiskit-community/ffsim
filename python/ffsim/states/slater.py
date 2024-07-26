@@ -12,8 +12,8 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Sequence
+from typing import cast
 
 import numpy as np
 
@@ -43,7 +43,7 @@ def sample_slater(
     uncorrelated samples.
 
     This sampling strategy is known as
-    `determinantal point processes <https://arxiv.org/abs/1207.6083>`_
+    `determinantal point processes <https://arxiv.org/abs/1207.6083>`
 
     Args:
         rdm: The one-body reduced density matrix that defines the Slater determinant
@@ -74,18 +74,14 @@ def sample_slater(
 
     if isinstance(nelec, int):
         # spinless case
+        rdm = cast(np.ndarray, rdm)
         norb, _ = rdm.shape
 
         if orbs is None:
             orbs = range(norb)
+        orbs = cast(Sequence, orbs)
 
-        if nelec == 0:
-            strings = [0 for i in range(shots)]
-        elif nelec == norb:
-            strings = [sum(1 << j for j in range(norb)) for i in range(shots)]
-        else:
-            strings = _sample_spinless_direct(rdm, nelec, shots, rng)
-
+        strings = _sample_spinless_direct(rdm, nelec, shots, rng)
         strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
 
         return convert_bitstring_type(
@@ -103,23 +99,12 @@ def sample_slater(
 
         if orbs is None:
             orbs = (range(norb), range(norb))
-        orbs_a = orbs[0]
-        orbs_b = orbs[1]
+        orbs_a, orbs_b = orbs
+        orbs_a = cast(Sequence, orbs_a)
+        orbs_b = cast(Sequence, orbs_b)
 
-        if n_a == 0:
-            strings_a = [0 for i in range(shots)]
-        elif n_a == norb:
-            strings_a = [sum(1 << j for j in range(norb)) for i in range(shots)]
-        else:
-            strings_a = _sample_spinless_direct(rdm_a, n_a, shots, rng)
-
-        if n_b == 0:
-            strings_b = [0 for i in range(shots)]
-        elif n_b == norb:
-            strings_b = [sum(1 << j for j in range(norb)) for i in range(shots)]
-        else:
-            strings_b = _sample_spinless_direct(rdm_b, n_b, shots, rng)
-
+        strings_a = _sample_spinless_direct(rdm_a, n_a, shots, rng)
+        strings_b = _sample_spinless_direct(rdm_b, n_b, shots, rng)
         strings_a = restrict_bitstrings(
             strings_a, orbs_a, bitstring_type=BitstringType.INT
         )
@@ -154,9 +139,9 @@ def sample_slater(
         )
 
 
-def _generate_conditionals_unormalized(
-    rdm: np.ndarray, sample: list[int], empty_orbitals: set[int], marginal: float
-) -> tuple[np.ndarray, np.ndarray]:
+def _generate_marginals(
+    rdm: np.ndarray, sample: list[int], empty_orbitals: list[int], marginal: float
+) -> np.ndarray:
     """Generates the conditional and marginal probabilities for adding a particle.
 
     This is a step of the autoregressive sampling, and uses Bayes's rule.
@@ -177,18 +162,13 @@ def _generate_conditionals_unormalized(
         follow the same order as ``empty_orbitals``.
 
     """
-    conditionals = np.zeros(len(empty_orbitals), dtype=complex)
-    marginals = np.zeros(len(empty_orbitals), dtype=complex)
-
+    marginals = np.zeros(len(empty_orbitals), dtype=float)
     for i, orbital in enumerate(empty_orbitals):
-        new_sample = copy.deepcopy(sample)
-        new_sample.append(orbital)
-        rest_rdm = rdm[new_sample, :]
-        rest_rdm = rest_rdm[:, new_sample]
+        new_sample = sample.copy()
+        new_sample = sample + [orbital]
+        rest_rdm = rdm[np.ix_(new_sample, new_sample)]
         marginals[i] = np.linalg.det(rest_rdm)
-        conditionals[i] = marginals[i] / marginal
-
-    return conditionals, marginals
+    return marginals
 
 
 def _autoregressive_slater(
@@ -214,22 +194,14 @@ def _autoregressive_slater(
     probs = np.diag(rdm).real / nelec
     sample = [rng.choice(norb, p=probs)]
     marginal = [probs[sample[0]]]
-
+    all_orbs = set(range(norb))
     for k in range(nelec - 1):
-        empty_orbitals = list(set(range(norb)).difference(set(sample)))
-        u_conditionals, marginals = _generate_conditionals_unormalized(
-            rdm, sample, empty_orbitals, marginal[-1]
-        )
-
-        conditionals = np.real(u_conditionals)
+        empty_orbitals = list(all_orbs.difference(sample))
+        marginals = _generate_marginals(rdm, sample, empty_orbitals, marginal[-1])
+        conditionals = marginals / marginal[-1]
         conditionals /= np.sum(conditionals)
-
         index = rng.choice(len(empty_orbitals), p=conditionals)
-
-        new_sample = empty_orbitals[index]
-
-        sample.append(new_sample)
-        sample.sort()
+        sample.append(empty_orbitals[index])
         marginal.append(marginals[index])
     return sample
 
@@ -239,7 +211,7 @@ def _sample_spinless_direct(
     nelec: int,
     shots: int,
     seed: np.random.Generator | int | None = None,
-) -> Sequence[int]:
+) -> list[int]:
     """Collect samples of electronic configurations from a Slater determinant for
     spin-polarized systems.
 
@@ -260,12 +232,13 @@ def _sample_spinless_direct(
         A 2D Numpy array with samples of electronic configurations.
         Each row is a sample.
     """
-
-    rng = np.random.default_rng(seed)
     norb, _ = rdm.shape
+
+    if nelec == 0:
+        return [0 for i in range(shots)]
+    if nelec == norb:
+        return [sum(1 << j for j in range(norb)) for i in range(shots)]
+    rng = np.random.default_rng(seed)
     samples = []
-
-    for i in range(shots):
-        samples.append(_autoregressive_slater(rdm, norb, nelec, rng))
-
+    samples = [_autoregressive_slater(rdm, norb, nelec, rng) for _ in range(shots)]
     return [sum(1 << orb for orb in sample) for sample in samples]

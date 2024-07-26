@@ -31,32 +31,36 @@ def test_slater_sampler(
 
     rotation_a = ffsim.random.random_unitary(norb, seed=rng)
     rotation_b = ffsim.random.random_unitary(norb, seed=rng)
-    rdm_a, rdm_b = ffsim.slater_determinant_rdms(
-        norb, (range(n_a), range(n_b)), (rotation_a, rotation_b)
-    )
-    test_distribution = (
-        np.abs(
-            ffsim.slater_determinant(
-                norb, (range(n_a), range(n_b)), (rotation_a, rotation_b)
+    for alpha_orbitals in itertools.combinations(range(norb), n_a):
+        for beta_orbitals in itertools.combinations(range(norb), n_b):
+            occupied_orbitals = (alpha_orbitals, beta_orbitals)
+            rdm_a, rdm_b = ffsim.slater_determinant_rdms(
+                norb, occupied_orbitals, (rotation_a, rotation_b)
             )
-        )
-        ** 2
-    )
-    samples = ffsim.sample_slater(
-        (rdm_a, rdm_b),
-        norb,
-        nelec,
-        shots=shots,
-        bitstring_type=bitstring_type,
-        seed=rng,
-    )
 
-    addresses = ffsim.strings_to_addresses(samples, norb, nelec)
-    indices, counts = np.unique(addresses, return_counts=True)
-    empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
-    empirical_distribution[indices] = counts / np.sum(counts)
+            test_distribution = (
+                np.abs(
+                    ffsim.slater_determinant(
+                        norb, occupied_orbitals, (rotation_a, rotation_b)
+                    )
+                )
+                ** 2
+            )
+            samples = ffsim.sample_slater(
+                (rdm_a, rdm_b),
+                norb,
+                nelec,
+                shots=shots,
+                bitstring_type=bitstring_type,
+                seed=rng,
+            )
 
-    assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+            addresses = ffsim.strings_to_addresses(samples, norb, nelec)
+            indices, counts = np.unique(addresses, return_counts=True)
+            empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+            empirical_distribution[indices] = counts / np.sum(counts)
+
+            assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
 
 @pytest.mark.parametrize(
@@ -74,17 +78,19 @@ def test_slater_sampler_spinless(norb: int, nelec: int, bitstring_type: Bitstrin
     rng = np.random.default_rng(1234)
     shots = 3000
     rotation = ffsim.random.random_unitary(norb, seed=rng)
-    rdm = ffsim.slater_determinant_rdms(norb, range(nelec), rotation, rank=1)
-    test_distribution = (
-        np.absolute(ffsim.slater_determinant(norb, range(nelec), rotation)) ** 2
-    )
-    print(test_distribution)
-    samples = ffsim.sample_slater(
-        rdm, norb, nelec, shots=shots, bitstring_type=bitstring_type, seed=rng
-    )
-    addresses = ffsim.strings_to_addresses(samples, norb, nelec)
-    indices, counts = np.unique(addresses, return_counts=True)
-    empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
-    empirical_distribution[indices] = counts / np.sum(counts)
 
-    assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+    for occupied_orbitals in itertools.combinations(range(norb), nelec):
+        rdm = ffsim.slater_determinant_rdms(norb, occupied_orbitals, rotation, rank=1)
+        test_distribution = (
+            np.absolute(ffsim.slater_determinant(norb, occupied_orbitals, rotation))
+            ** 2
+        )
+        samples = ffsim.sample_slater(
+            rdm, norb, nelec, shots=shots, bitstring_type=bitstring_type, seed=rng
+        )
+        addresses = ffsim.strings_to_addresses(samples, norb, nelec)
+        indices, counts = np.unique(addresses, return_counts=True)
+        empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+        empirical_distribution[indices] = counts / np.sum(counts)
+
+        assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
