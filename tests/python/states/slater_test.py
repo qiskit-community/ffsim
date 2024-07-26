@@ -94,3 +94,29 @@ def test_sample_slater_determinant_spinless(
         empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
         empirical_distribution[indices] = counts / shots
         assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+
+
+def test_sample_slater_determinant_large():
+    """Test sample Slater determinant for a larger number of orbitals."""
+    norb = 6
+    nelec = (3, 2)
+
+    rng = np.random.default_rng(1234)
+    shots = 5000
+    rotation_a = ffsim.random.random_unitary(norb, seed=rng)
+    rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+    occupied_orbitals = [(0, 2, 3), (2, 4)]
+    rdm_a, rdm_b = ffsim.slater_determinant_rdms(
+        norb, occupied_orbitals, (rotation_a, rotation_b)
+    )
+    vec = ffsim.slater_determinant(norb, occupied_orbitals, (rotation_a, rotation_b))
+    test_distribution = np.abs(vec) ** 2
+    samples = ffsim.sample_slater_determinant(
+        (rdm_a, rdm_b), norb, nelec, shots=shots, seed=rng
+    )
+    addresses = ffsim.strings_to_addresses(samples, norb, nelec)
+    indices, counts = np.unique(addresses, return_counts=True)
+    assert np.sum(counts) == shots
+    empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+    empirical_distribution[indices] = counts / shots
+    assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
