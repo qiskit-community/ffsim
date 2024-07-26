@@ -410,7 +410,12 @@ class UCJOpSpinBalanced:
         Args:
             t2: The t2 amplitudes.
             t1: The t1 amplitudes.
-            n_reps: The number of ansatz repetitions.
+            n_reps: The number of ansatz repetitions. If not specified, then it is set
+                to the number of terms resulting from the double-factorization of the
+                t2 amplitudes. If the specified number of repetitions is larger than the
+                number of terms resulting from the double-factorization, then the ansatz
+                is padded with additional identity operators up to the specified number
+                of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
                 If specified, `interaction_pairs` should be a pair of lists,
@@ -449,6 +454,17 @@ class UCJOpSpinBalanced:
         diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
         orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
+
+        n_vecs, _, _, _ = diag_coulomb_mats.shape
+        if n_reps is not None and n_vecs < n_reps:
+            # Pad with no-ops to the requested number of repetitions
+            diag_coulomb_mats = np.concatenate(
+                [diag_coulomb_mats, np.zeros((n_reps - n_vecs, 2, norb, norb))]
+            )
+            eye = np.eye(norb)
+            orbital_rotations = np.concatenate(
+                [orbital_rotations, np.stack([eye for _ in range(n_reps - n_vecs)])]
+            )
 
         final_orbital_rotation = None
         if t1 is not None:
