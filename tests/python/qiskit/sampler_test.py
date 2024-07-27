@@ -90,27 +90,25 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     )
     circuit.measure_all()
 
-    shots = 3000
-
-    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
-    pub = (circuit,)
-    job = sampler.run([pub])
-    result = job.result()
-    pub_result = result[0]
-    counts = pub_result.data.meas.get_counts()
-    ffsim_probs = {bitstring: count / shots for bitstring, count in counts.items()}
-    np.testing.assert_allclose(sum(ffsim_probs.values()), 1)
+    shots = 5000
 
     sampler = StatevectorSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
     pub_result = result[0]
-    counts = pub_result.data.meas.get_counts()
-    qiskit_probs = {bitstring: count / shots for bitstring, count in counts.items()}
-    np.testing.assert_allclose(sum(qiskit_probs.values()), 1)
+    samples = pub_result.data.meas.get_counts()
 
-    assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
+    vec = ffsim.qiskit.final_state_vector(
+        circuit.remove_final_measurements(inplace=False)
+    )
+    exact_probs = np.abs(vec) ** 2
+    strings, counts = zip(*samples.items())
+    addresses = ffsim.strings_to_addresses(strings, norb, nelec)
+    assert sum(counts) == shots
+    empirical_probs = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+    empirical_probs[addresses] = np.array(counts) / shots
+    assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
 # TODO remove after removing UCJOperatorJW
@@ -141,27 +139,25 @@ def test_random_gates_spinless(norb: int, nocc: int):
     circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op), qubits)
     circuit.measure_all()
 
-    shots = 3000
-
-    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
-    pub = (circuit,)
-    job = sampler.run([pub])
-    result = job.result()
-    pub_result = result[0]
-    counts = pub_result.data.meas.get_counts()
-    ffsim_probs = {bitstring: count / shots for bitstring, count in counts.items()}
-    np.testing.assert_allclose(sum(ffsim_probs.values()), 1)
+    shots = 1000
 
     sampler = StatevectorSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
     pub_result = result[0]
-    counts = pub_result.data.meas.get_counts()
-    qiskit_probs = {bitstring: count / shots for bitstring, count in counts.items()}
-    np.testing.assert_allclose(sum(qiskit_probs.values()), 1)
+    samples = pub_result.data.meas.get_counts()
 
-    assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
+    vec = ffsim.qiskit.final_state_vector(
+        circuit.remove_final_measurements(inplace=False)
+    )
+    exact_probs = np.abs(vec) ** 2
+    strings, counts = zip(*samples.items())
+    addresses = ffsim.strings_to_addresses(strings, norb, nocc)
+    assert sum(counts) == shots
+    empirical_probs = np.zeros(ffsim.dim(norb, nocc), dtype=float)
+    empirical_probs[addresses] = np.array(counts) / shots
+    assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
 # TODO remove after removing UCJOperatorJW
