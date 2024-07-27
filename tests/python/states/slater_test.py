@@ -120,3 +120,17 @@ def test_sample_slater_determinant_large():
     empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
     empirical_distribution[indices] = counts / shots
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+
+
+def test_sample_slater_determinant_restrict():
+    """Test sample Slater determinant with subset of orbitals."""
+    norb = 8
+    nelec = (4, 3)
+
+    shots = 10
+    occupied_orbitals = [(0, 2, 3, 5), (2, 3, 4)]
+    rdm_a, rdm_b = ffsim.slater_determinant_rdms(norb, occupied_orbitals)
+    samples = ffsim.sample_slater_determinant(
+        (rdm_a, rdm_b), norb, nelec, orbs=([1, 2, 5], [3, 4, 5]), shots=shots
+    )
+    assert samples == ["011110"] * 10
