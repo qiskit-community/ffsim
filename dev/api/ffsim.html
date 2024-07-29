@@ -4569,6 +4569,49 @@ The spin-summed 2-RDM is alpha-alpha + alpha-beta + beta-alpha + beta-beta.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.sample_slater_determinant">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">sample_slater_determinant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstring_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BitstringType.STRING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/slater.html#sample_slater_determinant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.sample_slater_determinant" title="Link to this definition">¶</a></dt>
+<dd><p>Collect samples of electronic configurations from a Slater determinant.</p>
+<p>The Slater determinant is defined by its one-body reduced density matrix (RDM).
+The sampler uses a determinantal point process to auto-regressively produce
+uncorrelated samples.</p>
+<p>This sampling strategy is known as
+<cite>determinantal point processes &lt;https://arxiv.org/abs/1207.6083&gt;</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rdm</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span>) – The one-body reduced density matrix that defines the Slater determinant
+This is either a single Numpy array specifying the 1-RDM of a
+spin-polarized system, or a pair of Numpy arrays where each element
+of the pair contains the 1-RDM for each spin sector.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
+spinless system, or a pair of integers storing the numbers of spin alpha
+and spin beta fermions.</p></li>
+<li><p><strong>shots</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of bitstrings to sample.</p></li>
+<li><p><strong>concatenate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to concatenate the spin-alpha and spin-beta parts of the
+bitstrings. If True, then a single list of concatenated bitstrings is
+returned. The strings are concatenated in the order <span class="math notranslate nohighlight">\(s_b s_a\)</span>,
+that is, the alpha string appears on the right.
+If False, then two lists are returned, <code class="docutils literal notranslate"><span class="pre">(strings_a,</span> <span class="pre">strings_b)</span></code>. Note that
+the list of alpha strings appears first, that is, on the left.
+In the spinless case (when <cite>nelec</cite> is an integer), this argument is ignored.</p></li>
+<li><p><strong>bitstring_type</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.BitstringType" title="ffsim.states.bitstring.BitstringType"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitstringType</span></code></a></span>) – The desired type of bitstring output.</p></li>
+<li><p><strong>seed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A 2D Numpy array with samples of electronic configurations.
+Each row is a sample.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.sample_state_vector">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">sample_state_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstring_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BitstringType.STRING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#sample_state_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.sample_state_vector" title="Link to this definition">¶</a></dt>
 <dd><p>Sample bitstrings from a state vector.</p>
@@ -5312,6 +5355,7 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.one_hot"><code class="docutils literal notranslate"><span class="pre">one_hot()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.rdm"><code class="docutils literal notranslate"><span class="pre">rdm()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.rdms"><code class="docutils literal notranslate"><span class="pre">rdms()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.sample_slater_determinant"><code class="docutils literal notranslate"><span class="pre">sample_slater_determinant()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.sample_state_vector"><code class="docutils literal notranslate"><span class="pre">sample_state_vector()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.simulate_qdrift_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_qdrift_double_factorized()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.simulate_trotter_diag_coulomb_split_op"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_diag_coulomb_split_op()</span></code></a></li>
