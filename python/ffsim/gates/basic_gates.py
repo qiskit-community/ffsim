@@ -623,9 +623,7 @@ def apply_fswap_gate(
     mat = np.eye(norb, dtype=complex)
     mat[np.ix_(target_orbs, target_orbs)] = [[0, 1], [1, 0]]
     if isinstance(nelec, int):
-        vec = apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=False)
-    else:
-        vec = apply_orbital_rotation(
+        return apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=False)
+return apply_orbital_rotation(
             vec, pair_for_spin(mat, spin=spin), norb=norb, nelec=nelec, copy=False
         )
-    return vec
