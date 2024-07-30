@@ -12,6 +12,7 @@
 
 from ffsim.gates.basic_gates import (
     apply_fsim_gate,
+    apply_fswap_gate,
     apply_givens_rotation,
     apply_hop_gate,
     apply_num_interaction,
@@ -27,6 +28,7 @@ from ffsim.gates.orbital_rotation import apply_orbital_rotation
 __all__ = [
     "apply_diag_coulomb_evolution",
     "apply_fsim_gate",
+    "apply_fswap_gate",
     "apply_givens_rotation",
     "apply_hop_gate",
     "apply_num_interaction",
