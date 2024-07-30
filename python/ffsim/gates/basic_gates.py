@@ -625,7 +625,7 @@ def apply_fswap_gate(
     if isinstance(nelec, int):
         vec = apply_orbital_rotation(vec, mat, norb=norb, nelec=nelec, copy=False)
     else:
-        vec =  apply_orbital_rotation(
+        vec = apply_orbital_rotation(
             vec, pair_for_spin(mat, spin=spin), norb=norb, nelec=nelec, copy=False
         )
     return vec
