@@ -3375,6 +3375,61 @@ modified in-place.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.apply_fswap_gate">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_fswap_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/basic_gates.html#apply_fswap_gate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_fswap_gate" title="Link to this definition">¶</a></dt>
+<dd><p>Apply an FSWAP gate.</p>
+<p>The FSWAP gate swaps two orbitals. It is represented by the operator</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{FSWAP}(p, q) =
+1 + a^\dagger_p a_q + a^\dagger_q a_p - a_p^\dagger a_p - a_q^\dagger a_q\]</div>
+</div>
+<p>Under the Jordan-Wigner transform, this gate has the following matrix when applied
+to neighboring qubits:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+    1 &amp; 0 &amp; 0 &amp; 0 \\
+    0 &amp; 0 &amp; 1 &amp; 0 \\
+    0 &amp; 1 &amp; 0 &amp; 0 \\
+    0 &amp; 0 &amp; 0 &amp; -1 \\
+\end{pmatrix}\end{split}\]</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector to be transformed.</p></li>
+<li><p><strong>target_orbs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The orbitals (p, q) to swap.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
+spinless system, or a pair of integers storing the numbers of spin alpha
+and spin beta fermions.</p></li>
+<li><p><strong>spin</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.Spin" title="ffsim.spin.Spin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spin</span></code></a></span>) – Choice of spin sector(s) to act on.</p></li>
+<li><p><strong>copy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – <p>Whether to copy the vector before operating on it.</p>
+<ul>
+<li><dl class="simple">
+<dt>If <cite>copy=True</cite> then this function always returns a newly allocated</dt><dd><p>vector and the original vector is left untouched.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>If <cite>copy=False</cite> then this function may still return a newly allocated</dt><dd><p>vector, but the original vector may have its data overwritten.
+It is also possible that the original vector is returned,
+modified in-place.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.apply_givens_rotation">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">apply_givens_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=&lt;Spin.ALPHA_AND_BETA:</span> <span class="pre">3&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi=0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/gates/basic_gates.html#apply_givens_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.apply_givens_rotation" title="Link to this definition">¶</a></dt>
 <dd><p>Apply a Givens rotation gate.</p>
@@ -5320,6 +5375,7 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.addresses_to_strings"><code class="docutils literal notranslate"><span class="pre">addresses_to_strings()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_diag_coulomb_evolution"><code class="docutils literal notranslate"><span class="pre">apply_diag_coulomb_evolution()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_fsim_gate"><code class="docutils literal notranslate"><span class="pre">apply_fsim_gate()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.apply_fswap_gate"><code class="docutils literal notranslate"><span class="pre">apply_fswap_gate()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_givens_rotation"><code class="docutils literal notranslate"><span class="pre">apply_givens_rotation()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_hop_gate"><code class="docutils literal notranslate"><span class="pre">apply_hop_gate()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_num_interaction"><code class="docutils literal notranslate"><span class="pre">apply_num_interaction()</span></code></a></li>
