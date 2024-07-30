@@ -580,7 +580,7 @@ def apply_fswap_gate(
     spin: Spin = Spin.ALPHA_AND_BETA,
     *,
     copy: bool = True,
-) -> np.adarray:
+) -> np.ndarray:
     r"""Apply an FSWAP gate.
 
     The FSWAP gate swaps two orbitals. It is represented by the operator
