@@ -82,6 +82,8 @@ def test_minimize_linear_method():
     assert result.nit < result.nlinop < result.nfev
     assert len(set(info["regularization"])) > 1
     assert len(set(info["variation"])) > 1
+    assert result.success
+    assert result.message == "Convergence: Norm of projected gradient <= gtol."
 
     # optimization without optimizing hyperparameters
     info = defaultdict(list)
@@ -103,6 +105,8 @@ def test_minimize_linear_method():
     assert result.nit < result.nlinop < result.nfev
     assert set(info["regularization"]) == {0.01}
     assert set(info["variation"]) == {0.9}
+    assert result.success
+    assert result.message == "Convergence: Norm of projected gradient <= gtol."
 
     # optimization without optimizing regularization
     info = defaultdict(list)
@@ -123,6 +127,8 @@ def test_minimize_linear_method():
     assert result.nit < result.nlinop < result.nfev
     assert set(info["regularization"]) == {0.01}
     assert len(set(info["variation"])) > 1
+    assert result.success
+    assert result.message == "Convergence: Norm of projected gradient <= gtol."
 
     # optimization without optimizing variation
     info = defaultdict(list)
@@ -143,6 +149,8 @@ def test_minimize_linear_method():
     assert result.nit < result.nlinop < result.nfev
     assert len(set(info["regularization"])) > 1
     assert set(info["variation"]) == {0.9}
+    assert result.success
+    assert result.message == "Convergence: Norm of projected gradient <= gtol."
 
     # optimization with maxiter
     info = defaultdict(list)
@@ -154,6 +162,8 @@ def test_minimize_linear_method():
     assert len(info["fun"]) == 3
     assert len(info["jac"]) == 2
     np.testing.assert_allclose(energy(result.x), result.fun)
+    assert not result.success
+    assert result.message == "Stop: Total number of iterations reached limit."
 
     # test raising errors
     with pytest.raises(ValueError, match="regularization"):
