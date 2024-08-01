@@ -17,6 +17,7 @@ from collections.abc import Sequence
 from typing import cast
 
 import numpy as np
+import scipy.linalg
 
 from ffsim.states.bitstring import (
     BitstringType,
@@ -209,5 +210,7 @@ def _generate_probs(rdm: np.ndarray, sample: set[int], norb: int) -> np.ndarray:
     empty_orbitals = (orb for orb in range(norb) if orb not in sample)
     for i, orb in enumerate(empty_orbitals):
         indices = list(sample | {orb})
-        probs[i] = np.linalg.det(rdm[indices][:, indices]).real
+        probs[i] = scipy.linalg.det(
+            rdm[indices][:, indices], overwrite_a=True, check_finite=False
+        ).real
     return probs / np.sum(probs)
