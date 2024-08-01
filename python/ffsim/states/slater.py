@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import functools
+import itertools
 from collections.abc import Sequence
 from typing import cast
 
@@ -159,60 +161,29 @@ def _sample_slater_spinless(
         return [(1 << norb) - 1] * shots
 
     rng = np.random.default_rng(seed)
-    samples = [_autoregressive_slater(rdm, norb, nelec, rng) for _ in range(shots)]
+
+    @functools.cache
+    def det(indices: frozenset[int]):
+        indices = list(indices)
+        return np.linalg.det(rdm[np.ix_(indices, indices)]).real
+
+    @functools.cache
+    def probs(sample: frozenset[int]):
+        empty_orbitals = (orb for orb in range(norb) if orb not in sample)
+        probs = np.zeros(norb - len(sample))
+        for i, orb in enumerate(empty_orbitals):
+            probs[i] = det(sample | {orb})
+        probs /= np.sum(probs)
+        return probs
+
+    def autoregressive_slater() -> list[int]:
+        orb = rng.choice(norb, p=np.diag(rdm).real / nelec)
+        sample = frozenset({orb})
+        for i in range(nelec - 1):
+            index = rng.choice(norb - 1 - i, p=probs(sample))
+            empty_orbitals = (orb for orb in range(norb) if orb not in sample)
+            sample |= {next(itertools.islice(empty_orbitals, index, None))}
+        return sample
+
+    samples = [autoregressive_slater() for _ in range(shots)]
     return [sum(1 << orb for orb in sample) for sample in samples]
-
-
-def _autoregressive_slater(
-    rdm: np.ndarray,
-    norb: int,
-    nelec: int,
-    seed: np.random.Generator | int | None = None,
-) -> list[int]:
-    """Autoregressively sample positions of particles for a Slater determinant wave
-    function using a determinantal point process.
-
-    Args:
-        rdm: A Numpy array with the one-body reduced density matrix.
-        norb: Number of orbitals.
-        nelec: Number of electrons.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-
-    Returns:
-        A Numpy array with the position of the sampled electrons.
-    """
-    rng = np.random.default_rng(seed)
-    empty_orbitals = list(range(norb))
-    index = rng.choice(len(empty_orbitals), p=np.diag(rdm).real / nelec)
-    sample = [empty_orbitals[index]]
-    empty_orbitals.pop(index)
-    for _ in range(nelec - 1):
-        probs = _generate_probs(rdm, sample, empty_orbitals)
-        index = rng.choice(len(empty_orbitals), p=probs)
-        sample.append(empty_orbitals[index])
-        empty_orbitals.pop(index)
-    return sample
-
-
-def _generate_probs(
-    rdm: np.ndarray, sample: list[int], empty_orbitals: list[int]
-) -> np.ndarray:
-    """Computes the probabilities for the next occupied orbital.
-
-    This is a step of the autoregressive sampling, and uses Bayes's rule.
-
-    Args:
-        rdm: A Numpy array with the one-body reduced density matrix.
-        sample: The list of already occupied orbitals
-        empty_orbitals: The empty orbitals.
-
-    Returns:
-        The probabilities for the next empty orbital to occupy.
-    """
-    probs = np.zeros(len(empty_orbitals))
-    for i, orbital in enumerate(empty_orbitals):
-        new_sample = sample + [orbital]
-        rest_rdm = rdm[np.ix_(new_sample, new_sample)]
-        probs[i] = np.linalg.det(rest_rdm).real
-    return probs / np.sum(probs)
