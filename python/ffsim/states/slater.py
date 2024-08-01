@@ -209,5 +209,5 @@ def _generate_probs(rdm: np.ndarray, sample: set[int], norb: int) -> np.ndarray:
     empty_orbitals = (orb for orb in range(norb) if orb not in sample)
     for i, orb in enumerate(empty_orbitals):
         indices = list(sample | {orb})
-        probs[i] = np.linalg.det(rdm[np.ix_(indices, indices)]).real
+        probs[i] = np.linalg.det(rdm[indices][:, indices]).real
     return probs / np.sum(probs)
