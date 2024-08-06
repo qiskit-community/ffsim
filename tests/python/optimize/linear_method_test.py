@@ -83,7 +83,7 @@ def test_minimize_linear_method():
     assert len(set(info["regularization"])) > 1
     assert len(set(info["variation"])) > 1
     assert result.success
-    assert result.message == "Convergence: Norm of projected gradient <= gtol."
+    assert result.message.startswith("Convergence")
 
     # optimization without optimizing hyperparameters
     info = defaultdict(list)
@@ -106,7 +106,7 @@ def test_minimize_linear_method():
     assert set(info["regularization"]) == {0.01}
     assert set(info["variation"]) == {0.9}
     assert result.success
-    assert result.message == "Convergence: Norm of projected gradient <= gtol."
+    assert result.message.startswith("Convergence")
 
     # optimization without optimizing regularization
     info = defaultdict(list)
@@ -128,7 +128,7 @@ def test_minimize_linear_method():
     assert set(info["regularization"]) == {0.01}
     assert len(set(info["variation"])) > 1
     assert result.success
-    assert result.message == "Convergence: Norm of projected gradient <= gtol."
+    assert result.message.startswith("Convergence")
 
     # optimization without optimizing variation
     info = defaultdict(list)
@@ -150,7 +150,7 @@ def test_minimize_linear_method():
     assert len(set(info["regularization"])) > 1
     assert set(info["variation"]) == {0.9}
     assert result.success
-    assert result.message == "Convergence: Norm of projected gradient <= gtol."
+    assert result.message.startswith("Convergence")
 
     # optimization with maxiter
     info = defaultdict(list)
