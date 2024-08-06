@@ -36,6 +36,7 @@ def minimize_linear_method(
     maxiter: int = 1000,
     lindep: float = 1e-8,
     epsilon: float = 1e-8,
+    ftol: float = 1e-8,
     gtol: float = 1e-5,
     regularization: float = 1e-4,
     variation: float = 0.5,
@@ -61,7 +62,10 @@ def minimize_linear_method(
             eigenvalue problem.
         epsilon: Increment to use for approximating the gradient using
             finite difference.
-        gtol: Convergence threshold for the norm of the projected gradient.
+        ftol: Convergence threshold for the objective function value. The optimization
+            stops when `(f^k - f^{k+1})/max{|f^k|,|f^{k+1}|,1} <= ftol`.
+        gtol: Convergence threshold for the gradient. The optimization stops when
+            `max{|g_i| i = 1, ..., n} <= gtol`.
         regularization: Hyperparameter controlling regularization of the
             energy matrix. Its value must be positive. A larger value results in
             greater regularization.
@@ -128,7 +132,8 @@ def minimize_linear_method(
         optimize_kwargs = dict(method="L-BFGS-B")
 
     params = x0.copy()
-    converged = False
+    success = False
+    message = "Stop: Total number of iterations reached limit."
     intermediate_result = OptimizeResult(
         x=None, fun=None, jac=None, nfev=0, njev=0, nit=0, nlinop=0
     )
@@ -144,6 +149,8 @@ def minimize_linear_method(
         energy_mat, overlap_mat = _linear_method_matrices(vec, jac, hamiltonian)
         energy = energy_mat[0, 0]
         grad = 2 * energy_mat[0, 1:]
+
+        previous_energy = intermediate_result.fun
         intermediate_result.njev += 1
 
         if i > 0 and callback is not None:
@@ -156,8 +163,18 @@ def minimize_linear_method(
             intermediate_result.variation = variation
             callback(intermediate_result)
 
-        if np.linalg.norm(grad) < gtol:
-            converged = True
+        if (
+            previous_energy is not None
+            and abs(previous_energy - energy)
+            / max(abs(previous_energy), abs(energy), 1)
+            <= ftol
+        ):
+            success = True
+            message = "Convergence: Relative reduction of objective function <= ftol."
+            break
+        if np.max(np.abs(grad)) <= gtol:
+            success = True
+            message = "Convergence: Norm of gradient <= gtol."
             break
 
         if optimize_regularization and optimize_variation:
@@ -253,13 +270,6 @@ def minimize_linear_method(
     del intermediate_result.jac
     if callback is not None:
         callback(intermediate_result)
-
-    if converged:
-        success = True
-        message = "Convergence: Norm of projected gradient <= gtol."
-    else:
-        success = False
-        message = "Stop: Total number of iterations reached limit."
 
     return OptimizeResult(
         x=params,
