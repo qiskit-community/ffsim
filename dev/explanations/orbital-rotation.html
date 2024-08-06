@@ -281,21 +281,21 @@
 <p>This page discusses orbital rotations and how they can be used to implement time evolution by a quadratic Hamiltonian.</p>
 <section id="Orbital-rotations">
 <h2>Orbital rotations<a class="headerlink" href="#Orbital-rotations" title="Link to this heading">¶</a></h2>
-<p>The orbital rotation is a fundamental operation in the simulation of a system of fermionic modes. An orbital rotation is described by an <span class="math notranslate nohighlight">\(N \times N\)</span> unitary matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> (here <span class="math notranslate nohighlight">\(N\)</span> is the number spatial orbitals), and we denote the corresponding operator as <span class="math notranslate nohighlight">\(\mathcal{W}\)</span>. This operator has the following action on the fermionic creation operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span>:</p>
+<p>The orbital rotation is a fundamental operation in the simulation of a system of fermionic modes. An orbital rotation is described by an <span class="math notranslate nohighlight">\(N \times N\)</span> unitary matrix <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> (here <span class="math notranslate nohighlight">\(N\)</span> is the number spatial orbitals), and we denote the corresponding operator as <span class="math notranslate nohighlight">\(\mathcal{U}\)</span>. This operator has the following action on the fermionic creation operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span>:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\mathcal{W} a^\dagger_{\sigma, i} \mathcal{W}^\dagger = \sum_j \mathbf{W}_{ji} a^\dagger_{\sigma, j}.\]</div>
+\[\mathcal{U} a^\dagger_{\sigma, i} \mathcal{U}^\dagger = \sum_j \mathbf{U}_{ji} a^\dagger_{\sigma, j}.\]</div>
 </div>
-<p>That is, <span class="math notranslate nohighlight">\(a^\dagger_{\sigma, i}\)</span> is mapped to a new operator <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> where <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> is a linear combination of the operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span> with coefficients given by the <span class="math notranslate nohighlight">\(i\)</span>-th column of <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>. The <span class="math notranslate nohighlight">\(\set{b^\dagger_{\sigma, i}}\)</span> also satisfy the fermionic anticommutation relations, so they are creation operators in a rotated basis. The mapping <span class="math notranslate nohighlight">\(\mathbf{W} \mapsto \mathcal{W}\)</span> satisfies the
+<p>That is, <span class="math notranslate nohighlight">\(a^\dagger_{\sigma, i}\)</span> is mapped to a new operator <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> where <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> is a linear combination of the operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span> with coefficients given by the <span class="math notranslate nohighlight">\(i\)</span>-th column of <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>. The <span class="math notranslate nohighlight">\(\set{b^\dagger_{\sigma, i}}\)</span> also satisfy the fermionic anticommutation relations, so they are creation operators in a rotated basis. The mapping <span class="math notranslate nohighlight">\(\mathbf{U} \mapsto \mathcal{U}\)</span> satisfies the
 properties</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
-    \mathbf{W}^\dagger &amp;\mapsto \mathcal{W}^\dagger, \\
-    \mathbf{W}_1 \mathbf{W}_2 &amp;\mapsto \mathcal{W}_1 \mathcal{W}_2
+    \mathbf{U}^\dagger &amp;\mapsto \mathcal{U}^\dagger, \\
+    \mathbf{U}_1 \mathbf{U}_2 &amp;\mapsto \mathcal{U}_1 \mathcal{U}_2
 \end{align*}\end{split}\]</div>
 </div>
-<p>for any unitary matrices <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{W}_1\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{W}_2\)</span>.</p>
+<p>for any unitary matrices <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{U}_1\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{U}_2\)</span>.</p>
 </section>
 <section id="Time-evolution-by-a-quadratic-Hamiltonian">
 <h2>Time evolution by a quadratic Hamiltonian<a class="headerlink" href="#Time-evolution-by-a-quadratic-Hamiltonian" title="Link to this heading">¶</a></h2>
@@ -307,19 +307,19 @@ properties</p>
 <p>where <span class="math notranslate nohighlight">\(\mathbf{M}\)</span> is a Hermitian matrix. A quadratic Hamiltonian can always be rewritten as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\mathcal{M} = \mathcal{W} \left(\sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)\mathcal{W}^\dagger\]</div>
+\[\mathcal{M} = \mathcal{U} \left(\sum_{\sigma, i} \lambda_i n_{\sigma, i}\right)\mathcal{U}^\dagger\]</div>
 </div>
-<p>where the <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> are real numbers which we’ll refer to as orbital energies, <span class="math notranslate nohighlight">\(\mathcal{W}\)</span> is an orbital rotation, and we have introduced the occupation number operator <span class="math notranslate nohighlight">\(n_{\sigma, i} = a^\dagger_{\sigma, i} a_{\sigma, i}\)</span>. The <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the unitary matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> describing the orbital rotation are obtained from an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>:</p>
+<p>where the <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> are real numbers which we’ll refer to as orbital energies, <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> is an orbital rotation, and we have introduced the occupation number operator <span class="math notranslate nohighlight">\(n_{\sigma, i} = a^\dagger_{\sigma, i} a_{\sigma, i}\)</span>. The <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the unitary matrix <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> describing the orbital rotation are obtained from an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\mathbf{M}_{ij} = \sum_k \lambda_k \mathbf{W}_{ik} \mathbf{W}_{jk}^*.\]</div>
+\[\mathbf{M}_{ij} = \sum_k \lambda_k \mathbf{U}_{ik} \mathbf{U}_{jk}^*.\]</div>
 </div>
 <p>Time evolution by <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> can be implemented with the following steps:</p>
 <ul class="simple">
-<li><p>Compute the orbital energies <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the orbital rotation matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> by performing an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>.</p></li>
-<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}^\dagger\)</span>.</p></li>
+<li><p>Compute the orbital energies <span class="math notranslate nohighlight">\(\set{\lambda_i}\)</span> and the orbital rotation matrix <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> by performing an eigendecomposition of <span class="math notranslate nohighlight">\(\mathbf{M}\)</span>.</p></li>
+<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{U}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{U}^\dagger\)</span>.</p></li>
 <li><p>Perform time evolution by the operator <span class="math notranslate nohighlight">\(\sum_{\sigma, i} \lambda_i n_{\sigma, i}\)</span>.</p></li>
-<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{W}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{W}\)</span>.</p></li>
+<li><p>Perform the orbital rotation <span class="math notranslate nohighlight">\(\mathcal{U}^\dagger\)</span>, which corresponds to the matrix <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>.</p></li>
 </ul>
 <p>This logic can be implemented in ffsim as follows:</p>
 <div class="nbinput nblast docutils container">
