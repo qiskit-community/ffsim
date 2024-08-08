@@ -477,6 +477,32 @@ def random_ucj_op_spinless(
     )
 
 
+def random_diagonal_coulomb_hamiltonian(
+    norb: int, *, seed=None
+) -> hamiltonians.DiagonalCoulombHamiltonian:
+    """Sample a random diagonal Coulomb Hamiltonian.
+
+    Args:
+        norb: The number of spatial orbitals.
+        rank: The desired number of terms in the two-body part of the Hamiltonian.
+            If not specified, it will be set to ``norb * (norb + 1) // 2``.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled diagonal Coulomb Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    one_body_tensor = random_hermitian(norb, seed=rng)
+    diag_coulomb_mat_a = random_real_symmetric_matrix(norb, seed=rng)
+    diag_coulomb_mat_b = random_real_symmetric_matrix(norb, seed=rng)
+    diag_coulomb_mats = np.stack([diag_coulomb_mat_a, diag_coulomb_mat_b])
+    constant = rng.standard_normal()
+    return hamiltonians.DiagonalCoulombHamiltonian(
+        one_body_tensor, diag_coulomb_mats, constant=constant
+    )
+
+
 def random_double_factorized_hamiltonian(
     norb: int, *, rank: int | None = None, z_representation: bool = False, seed=None
 ) -> hamiltonians.DoubleFactorizedHamiltonian:
