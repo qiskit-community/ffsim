@@ -23,9 +23,13 @@ import ffsim
     "norb, nelec, time, n_steps, order, z_representation",
     [
         (4, (2, 2), 0.1, 1, 0, False),
+        (4, (2, 2), 0.1, 1, 0, True),
         (4, (2, 2), 0.1, 2, 0, False),
+        (4, (2, 2), 0.1, 2, 0, True),
         (4, (2, 2), 0.1, 1, 1, False),
+        (4, (2, 2), 0.1, 1, 1, True),
         (4, (2, 2), 0.1, 1, 2, False),
+        (4, (2, 2), 0.1, 1, 2, True),
     ],
 )
 def test_random(
