@@ -793,6 +793,35 @@
 
 
 
+<div class="viewcode-block" id="random_diagonal_coulomb_hamiltonian">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_diagonal_coulomb_hamiltonian">[docs]</a>
+<span class="k">def</span> <span class="nf">random_diagonal_coulomb_hamiltonian</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hamiltonians</span><span class="o">.</span><span class="n">DiagonalCoulombHamiltonian</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random diagonal Coulomb Hamiltonian.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        rank: The desired number of terms in the two-body part of the Hamiltonian.</span>
+<span class="sd">            If not specified, it will be set to ``norb * (norb + 1) // 2``.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled diagonal Coulomb Hamiltonian.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">random_hermitian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="n">diag_coulomb_mat_a</span> <span class="o">=</span> <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="n">diag_coulomb_mat_b</span> <span class="o">=</span> <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">diag_coulomb_mat_a</span><span class="p">,</span> <span class="n">diag_coulomb_mat_b</span><span class="p">])</span>
+    <span class="n">constant</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">hamiltonians</span><span class="o">.</span><span class="n">DiagonalCoulombHamiltonian</span><span class="p">(</span>
+        <span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">constant</span><span class="o">=</span><span class="n">constant</span>
+    <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="random_double_factorized_hamiltonian">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_double_factorized_hamiltonian">[docs]</a>
 <span class="k">def</span> <span class="nf">random_double_factorized_hamiltonian</span><span class="p">(</span>
