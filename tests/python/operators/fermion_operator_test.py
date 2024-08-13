@@ -12,8 +12,6 @@
 
 from __future__ import annotations
 
-# from copy import deepcopy
-
 import numpy as np
 import pytest
 
@@ -611,7 +609,6 @@ def test_copy():
             (ffsim.cre_b(2), ffsim.des_b(1)): 1 - 0.5j,
         }
     )
-    # copy = deepcopy(op)
     copy = op.copy()
     assert copy == op
 
