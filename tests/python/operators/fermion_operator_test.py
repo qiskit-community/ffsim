@@ -454,12 +454,6 @@ def test_get_set():
     assert op[(ffsim.cre_a(1), ffsim.des_a(3))] == 0.5
 
     op[(ffsim.cre_a(1), ffsim.des_a(3))] = 0.25
-    # op = FermionOperator(
-    #     {
-    #         (ffsim.cre_a(1), ffsim.des_a(3)): 0.25,
-    #         (ffsim.des_a(3), ffsim.cre_a(7)): 0.75,
-    #     }
-    # )
     assert op[(ffsim.cre_a(1), ffsim.des_a(3))] == 0.25
 
 
