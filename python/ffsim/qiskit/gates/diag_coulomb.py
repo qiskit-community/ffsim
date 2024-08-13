@@ -145,9 +145,7 @@ class DiagCoulombEvolutionSpinlessJW(Gate):
 
     def inverse(self):
         """Inverse gate."""
-        return DiagCoulombEvolutionSpinlessJW(
-            self.norb, self.mat, -self.time
-        )
+        return DiagCoulombEvolutionSpinlessJW(self.norb, self.mat, -self.time)
 
 
 def _diag_coulomb_evo_num_rep_spinless_jw(

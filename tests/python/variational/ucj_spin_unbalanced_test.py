@@ -95,7 +95,7 @@ def test_parameters_roundtrip():
         if with_final_orbital_rotation:
             np.testing.assert_allclose(
                 np.asarray(roundtripped.final_orbital_rotation),
-                np.asarray(operator.final_orbital_rotation)
+                np.asarray(operator.final_orbital_rotation),
             )
 
 
@@ -183,7 +183,9 @@ def test_t_amplitudes_random_n_reps():
         t1b = rng.standard_normal((nocc_b, nvrt_b))
         t2 = (t2aa, t2ab, t2bb)
         t1 = (t1a, t1b)
-        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps_type(n_reps))
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, t1=t1, n_reps=n_reps_type(n_reps)
+        )
         total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps_type(n_reps))
         assert operator.n_reps == total_n_reps
         actual = len(operator.to_parameters())
@@ -208,7 +210,9 @@ def test_t_amplitudes_zero_n_reps():
         t1b = np.zeros((nocc_b, nvrt_b))
         t2 = (t2aa, t2ab, t2bb)
         t1 = (t1a, t1b)
-        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps_type(n_reps))
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, t1=t1, n_reps=n_reps_type(n_reps)
+        )
         total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps_type(n_reps))
         assert operator.n_reps == total_n_reps
         actual = len(operator.to_parameters())
