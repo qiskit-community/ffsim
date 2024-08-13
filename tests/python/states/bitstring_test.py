@@ -22,8 +22,8 @@ from ffsim.states.bitstring import convert_bitstring_type
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_indices_to_strings_string():
     """Test converting statevector indices to strings, output type string."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(range(dim), norb, nelec)
     assert strings == [
@@ -83,8 +83,8 @@ def test_indices_to_strings_string():
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_indices_to_strings_int():
     """Test converting statevector indices to strings, output type int."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(
         range(dim), norb, nelec, bitstring_type=ffsim.BitstringType.INT
@@ -158,8 +158,8 @@ def test_indices_to_strings_int():
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_indices_to_strings_bit_array():
     """Test converting statevector indices to strings, output type bit array."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(
         range(dim), norb, nelec, bitstring_type=ffsim.BitstringType.BIT_ARRAY
@@ -257,8 +257,8 @@ def test_indices_to_strings_bit_array():
 
 def test_addresses_to_strings_int_spinless():
     """Test converting statevector addresses to strings, int output, spinless."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
 
     strings = ffsim.addresses_to_strings(
@@ -286,8 +286,8 @@ def test_addresses_to_strings_int_spinless():
 
 def test_addresses_to_strings_int_spinful():
     """Test converting statevector addresses to strings, int output, spinful."""
-    norb = 3
-    nelec = (2, 1)
+    norb: int = 3
+    nelec: int | tuple[int, int] = (2, 1)
     dim = ffsim.dim(norb, nelec)
 
     strings = ffsim.addresses_to_strings(range(dim), norb, nelec)
@@ -332,8 +332,8 @@ def test_addresses_to_strings_int_spinful():
 
 def test_addresses_to_strings_string_spinless():
     """Test converting statevector addresses to strings, string output, spinless."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
 
     strings = ffsim.addresses_to_strings(
@@ -361,8 +361,8 @@ def test_addresses_to_strings_string_spinless():
 
 def test_addresses_to_strings_string_spinful():
     """Test converting statevector addresses to strings, string output, spinful."""
-    norb = 3
-    nelec = (2, 1)
+    norb: int = 3
+    nelec: int | tuple[int, int] = (2, 1)
     dim = ffsim.dim(norb, nelec)
 
     strings = ffsim.addresses_to_strings(
@@ -413,8 +413,8 @@ def test_addresses_to_strings_string_spinful():
 
 def test_addresses_to_strings_bit_array_spinless():
     """Test converting statevector addresses to strings, bit array output, spinless."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.addresses_to_strings(
         range(dim), norb, nelec, bitstring_type=ffsim.BitstringType.BIT_ARRAY
@@ -450,8 +450,8 @@ def test_addresses_to_strings_bit_array_spinless():
 
 def test_addresses_to_strings_bit_array_spinful():
     """Test converting statevector addresses to strings, bit array output, spinful."""
-    norb = 3
-    nelec = (2, 1)
+    norb: int = 3
+    nelec: int | tuple[int, int] = (2, 1)
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.addresses_to_strings(
         range(dim), norb, nelec, bitstring_type=ffsim.BitstringType.BIT_ARRAY
@@ -515,8 +515,8 @@ def test_addresses_to_strings_bit_array_spinful():
 
 def test_addresses_to_strings_large_address():
     """Test converting statevector addresses to strings with a large address."""
-    norb = 33
-    nelec = (3, 3)
+    norb: int = 33
+    nelec: int | tuple[int, int] = (3, 3)
 
     strings = ffsim.addresses_to_strings(range(29767920, 29767930), norb, nelec)
     assert strings == [
@@ -535,8 +535,8 @@ def test_addresses_to_strings_large_address():
 
 def test_strings_to_addresses_int():
     """Test converting statevector strings to addresses, input type int."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     indices = ffsim.strings_to_addresses(
         [0b011, 0b101, 0b110],
@@ -568,8 +568,8 @@ def test_strings_to_addresses_int():
 
 def test_strings_to_addresses_string():
     """Test converting statevector strings to indices, input type string."""
-    norb = 3
-    nelec = 2
+    norb: int = 3
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     indices = ffsim.strings_to_addresses(
         [

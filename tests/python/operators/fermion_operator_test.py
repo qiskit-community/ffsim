@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from copy import deepcopy
 
 import ffsim
 from ffsim import FermionOperator
@@ -452,6 +453,12 @@ def test_get_set():
     assert op[(ffsim.cre_a(1), ffsim.des_a(3))] == 0.5
 
     op[(ffsim.cre_a(1), ffsim.des_a(3))] = 0.25
+    # op = FermionOperator(
+    #     {
+    #         (ffsim.cre_a(1), ffsim.des_a(3)): 0.25,
+    #         (ffsim.des_a(3), ffsim.cre_a(7)): 0.75,
+    #     }
+    # )
     assert op[(ffsim.cre_a(1), ffsim.des_a(3))] == 0.25
 
 
@@ -609,7 +616,7 @@ def test_copy():
             (ffsim.cre_b(2), ffsim.des_b(1)): 1 - 0.5j,
         }
     )
-    copy = op.copy()
+    copy = deepcopy(op)
     assert copy == op
 
     copy *= 2

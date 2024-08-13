@@ -130,8 +130,8 @@ def test_parameters_roundtrip():
         operator.orbital_rotations,
     )
     np.testing.assert_allclose(
-        roundtripped.final_orbital_rotation,
-        operator.final_orbital_rotation,
+        np.asarray(roundtripped.final_orbital_rotation),
+        np.asarray(operator.final_orbital_rotation),
     )
 
 
@@ -334,8 +334,8 @@ def test_real_ucj_parameters_roundtrip():
         operator.orbital_rotations,
     )
     np.testing.assert_allclose(
-        roundtripped.final_orbital_rotation,
-        operator.final_orbital_rotation,
+        np.asarray(roundtripped.final_orbital_rotation),
+        np.asarray(operator.final_orbital_rotation),
     )
 
 

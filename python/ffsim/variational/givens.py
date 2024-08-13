@@ -127,17 +127,17 @@ class GivensAnsatzOp:
         if len(self.thetas) != len(self.interaction_pairs):
             raise ValueError(
                 "The number of thetas must equal the number of interaction pairs. "
-                f"Got {len(self.phis)} and {len(self.interaction_pairs)}."
+                f"Got {len(np.asarray(self.phis))} and {len(self.interaction_pairs)}."
             )
-        if self.phis is not None and len(self.phis) != len(self.interaction_pairs):
+        if self.phis is not None and len(np.asarray(self.phis)) != len(self.interaction_pairs):
             raise ValueError(
                 "The number of phis must equal the number of interaction pairs. "
-                f"Got {len(self.phis)} and {len(self.interaction_pairs)}."
+                f"Got {len(np.asarray(self.phis))} and {len(self.interaction_pairs)}."
             )
-        if self.phase_angles is not None and len(self.phase_angles) != self.norb:
+        if self.phase_angles is not None and len(np.asarray(self.phase_angles)) != self.norb:
             raise ValueError(
                 "The number of phase angles must equal the number of orbitals. "
-                f"Got {len(self.phase_angles)} and {self.norb}."
+                f"Got {len(np.asarray(self.phase_angles))} and {self.norb}."
             )
 
     def _apply_unitary_(

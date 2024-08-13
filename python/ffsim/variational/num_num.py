@@ -85,7 +85,7 @@ class NumNumAnsatzOpSpinBalanced:
         )
 
     @staticmethod
-    def n_params(interaction_pairs: list[tuple[int, int]]) -> int:
+    def n_params(interaction_pairs: tuple[list[tuple[int, int]], list[tuple[int, int]]]) -> int:
         """Return the number of parameters of an ansatz with given settings.
 
         Args:

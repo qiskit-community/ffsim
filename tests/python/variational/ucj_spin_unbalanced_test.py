@@ -94,7 +94,8 @@ def test_parameters_roundtrip():
         )
         if with_final_orbital_rotation:
             np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
+                np.asarray(roundtripped.final_orbital_rotation),
+                np.asarray(operator.final_orbital_rotation)
             )
 
 
@@ -116,7 +117,7 @@ def test_t_amplitudes_energy():
     mol_hamiltonian = mol_data.hamiltonian
 
     # Construct UCJ operator
-    n_reps = 4
+    n_reps: int | tuple[int, int] | None = 4
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
         ccsd.t2, t1=ccsd.t1, n_reps=n_reps
     )
@@ -157,6 +158,15 @@ def test_t_amplitudes_energy():
     np.testing.assert_allclose(energy, -15.132263)
 
 
+def n_reps_type(sub):
+    if isinstance(sub, int):
+        return int(sub)
+    elif isinstance(sub, tuple):
+        return tuple(int(ele) for ele in sub)
+    else:
+        return None
+
+
 def test_t_amplitudes_random_n_reps():
     rng = np.random.default_rng(3899)
     norb = 5
@@ -173,8 +183,8 @@ def test_t_amplitudes_random_n_reps():
         t1b = rng.standard_normal((nocc_b, nvrt_b))
         t2 = (t2aa, t2ab, t2bb)
         t1 = (t1a, t1b)
-        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps_type(n_reps))
+        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps_type(n_reps))
         assert operator.n_reps == total_n_reps
         actual = len(operator.to_parameters())
         expected = ffsim.UCJOpSpinUnbalanced.n_params(
@@ -198,8 +208,8 @@ def test_t_amplitudes_zero_n_reps():
         t1b = np.zeros((nocc_b, nvrt_b))
         t2 = (t2aa, t2ab, t2bb)
         t1 = (t1a, t1b)
-        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
-        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps_type(n_reps))
+        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps_type(n_reps))
         assert operator.n_reps == total_n_reps
         actual = len(operator.to_parameters())
         expected = ffsim.UCJOpSpinUnbalanced.n_params(

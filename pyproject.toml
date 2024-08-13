@@ -62,6 +62,7 @@ module-name = "ffsim._lib"
 testpaths = ["tests"]
 
 [tool.mypy]
+check_untyped_defs = true
 ignore_missing_imports = true
 files = ["python/**/*.py", "python/**/*.pyi", "tests/**/*.py", "docs/**/*.py"]
 
