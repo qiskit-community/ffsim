@@ -158,11 +158,12 @@ def test_t_amplitudes_energy():
     np.testing.assert_allclose(energy, -15.132263)
 
 
-def n_reps_type(sub):
+def n_reps_type(sub, total=False):
     if isinstance(sub, int):
         return int(sub)
     elif isinstance(sub, tuple):
-        return tuple(int(ele) for ele in sub)
+        sub_type = tuple(int(ele) for ele in sub)
+        return sub_type if not total else sum(sub_type)
     else:
         return None
 
@@ -186,7 +187,7 @@ def test_t_amplitudes_random_n_reps():
         operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
             t2, t1=t1, n_reps=n_reps_type(n_reps)
         )
-        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps_type(n_reps))
+        total_n_reps = n_reps_type(n_reps, total=True)
         assert operator.n_reps == total_n_reps
         actual = len(operator.to_parameters())
         expected = ffsim.UCJOpSpinUnbalanced.n_params(
@@ -213,7 +214,7 @@ def test_t_amplitudes_zero_n_reps():
         operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
             t2, t1=t1, n_reps=n_reps_type(n_reps)
         )
-        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps_type(n_reps))
+        total_n_reps = n_reps_type(n_reps, total=True)
         assert operator.n_reps == total_n_reps
         actual = len(operator.to_parameters())
         expected = ffsim.UCJOpSpinUnbalanced.n_params(
