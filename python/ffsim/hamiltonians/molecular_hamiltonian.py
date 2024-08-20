@@ -22,9 +22,8 @@ from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hd
 from scipy.sparse.linalg import LinearOperator
 from typing_extensions import deprecated
 
-from ffsim._lib import FermionOperator
 from ffsim.cistring import gen_linkstr_index
-from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
+from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
 
 
