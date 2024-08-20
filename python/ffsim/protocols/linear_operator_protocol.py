@@ -19,7 +19,7 @@ import pyscf.fci
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import states
-from ffsim._lib import FermionOperator
+from ffsim.operators import FermionOperator
 
 
 class SupportsLinearOperator(Protocol):

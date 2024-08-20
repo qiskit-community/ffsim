@@ -18,10 +18,9 @@ import scipy.linalg
 from pyscf.fci.direct_uhf import make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim._lib import FermionOperator
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
-from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
+from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
 
 

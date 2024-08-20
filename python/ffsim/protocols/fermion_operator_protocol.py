@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from ffsim._lib import FermionOperator
+from ffsim.operators import FermionOperator
 
 
 class SupportsFermionOperator(Protocol):
