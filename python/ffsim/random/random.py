@@ -526,7 +526,9 @@ def random_double_factorized_hamiltonian(
     diag_coulomb_mats = np.stack(
         [random_real_symmetric_matrix(norb, seed=rng) for _ in range(rank)]
     )
-    orbital_rotations = np.stack([random_unitary(norb, seed=rng) for _ in range(rank)])
+    orbital_rotations = np.stack(
+        [random_orthogonal(norb, seed=rng) for _ in range(rank)]
+    )
     constant = rng.standard_normal()
     return hamiltonians.DoubleFactorizedHamiltonian(
         one_body_tensor=one_body_tensor,
