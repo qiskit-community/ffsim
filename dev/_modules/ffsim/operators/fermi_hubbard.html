@@ -385,6 +385,8 @@
     <span class="n">chemical_potential</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">nearest_neighbor_interaction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">periodic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">periodic_x</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">periodic_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Two-dimensional Fermi-Hubbard model Hamiltonian on a square lattice.</span>
 
@@ -419,7 +421,10 @@
 <span class="sd">        chemical_potential: The chemical potential :math:`\mu`.</span>
 <span class="sd">        nearest_neighbor_interaction: The nearest-neighbor interaction strength</span>
 <span class="sd">            :math:`V`.</span>
-<span class="sd">        periodic: Whether to use periodic boundary conditions.</span>
+<span class="sd">        periodic: Whether to use periodic boundary conditions in all dimensions.</span>
+<span class="sd">            This argument overrides the `periodic_x` and `periodic_y` arguments.</span>
+<span class="sd">        periodic_x: Whether to use periodic boundary conditions in the X dimension.</span>
+<span class="sd">        periodic_y: Whether to use periodic boundary conditions in the Y dimension.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The two-dimensional Fermi-Hubbard model Hamiltonian.</span>
@@ -439,18 +444,18 @@
         <span class="n">orb_up</span> <span class="o">=</span> <span class="n">norb_x</span> <span class="o">*</span> <span class="n">y_up</span> <span class="o">+</span> <span class="n">x</span>
 
         <span class="k">if</span> <span class="n">tunneling</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">norb_x</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">norb_x</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span> <span class="ow">or</span> <span class="n">periodic_x</span><span class="p">:</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
-            <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">norb_y</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">norb_y</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span> <span class="ow">or</span> <span class="n">periodic_y</span><span class="p">:</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">tunneling</span>
         <span class="k">if</span> <span class="n">nearest_neighbor_interaction</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">norb_x</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">norb_x</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span> <span class="ow">or</span> <span class="n">periodic_x</span><span class="p">:</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_right</span><span class="p">)]</span> <span class="o">+=</span> <span class="p">(</span>
                     <span class="n">nearest_neighbor_interaction</span>
                 <span class="p">)</span>
@@ -463,7 +468,7 @@
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">orb_right</span><span class="p">)]</span> <span class="o">+=</span> <span class="p">(</span>
                     <span class="n">nearest_neighbor_interaction</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">norb_y</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">norb_y</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">periodic</span> <span class="ow">or</span> <span class="n">periodic_y</span><span class="p">:</span>
                 <span class="n">coeffs</span><span class="p">[</span><span class="n">cre_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">orb_up</span><span class="p">)]</span> <span class="o">+=</span> <span class="p">(</span>
                     <span class="n">nearest_neighbor_interaction</span>
                 <span class="p">)</span>
