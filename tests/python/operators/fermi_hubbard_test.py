@@ -19,10 +19,8 @@ import ffsim
 from ffsim import cre_a, cre_b, des_a, des_b, fermi_hubbard_1d, fermi_hubbard_2d
 
 
-def test_fermi_hubbard_1d():
-    """Test terms of the one-dimensional Fermi-Hubbard model Hamiltonian."""
-
-    # open boundary conditions
+def test_fermi_hubbard_1d_open():
+    """Test 1-D Fermi-Hubbard model, open boundary conditions."""
     assert dict(
         fermi_hubbard_1d(
             norb=4,
@@ -70,7 +68,9 @@ def test_fermi_hubbard_1d():
         (cre_b(2), des_b(2), cre_b(3), des_b(3)): 4,
     }
 
-    # periodic boundary conditions
+
+def test_fermi_hubbard_1d_periodic():
+    """Test 1-D Fermi-Hubbard model, periodic boundary conditions."""
     assert dict(
         fermi_hubbard_1d(
             norb=4,
@@ -159,10 +159,8 @@ def test_fermi_hubbard_1d():
     }
 
 
-def test_fermi_hubbard_2d():
-    """Test terms of the two-dimensional Fermi-Hubbard model Hamiltonian."""
-
-    # open boundary conditions
+def test_fermi_hubbard_2d_open():
+    """Test 2-D Fermi-Hubbard model, open boundary conditions."""
     assert dict(
         fermi_hubbard_2d(
             norb_x=2,
@@ -219,7 +217,9 @@ def test_fermi_hubbard_2d():
         (cre_b(1), des_b(1), cre_b(3), des_b(3)): 4,
     }
 
-    # periodic boundary conditions
+
+def test_fermi_hubbard_2d_periodic():
+    """Test 2-D Fermi-Hubbard model, periodic boundary conditions."""
     assert dict(
         fermi_hubbard_2d(
             norb_x=3,
@@ -404,7 +404,9 @@ def test_fermi_hubbard_2d():
         (cre_b(8), des_b(8), cre_b(2), des_b(2)): 4,
     }
 
-    # periodic boundary conditions (edge case)
+
+def test_fermi_hubbard_2d_2x2_periodic():
+    """Test 2x2 2-D Fermi-Hubbard model, periodic boundary conditions."""
     assert dict(
         fermi_hubbard_2d(
             norb_x=2,
