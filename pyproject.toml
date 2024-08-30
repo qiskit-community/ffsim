@@ -48,7 +48,7 @@ dev = [
     "pytest",
     "qiskit[visualization]",
     "qiskit-sphinx-theme == 2.0.0rc2",
-    "ruff == 0.4.4",
+    "ruff == 0.6.2",
     "sphinx",
     "sphinx-autodoc-typehints",
 ]

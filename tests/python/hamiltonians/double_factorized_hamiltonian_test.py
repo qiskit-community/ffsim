@@ -113,3 +113,28 @@ def test_diag():
     np.testing.assert_allclose(
         ffsim.diag(hamiltonian, norb=norb, nelec=nelec), np.diag(hamiltonian_dense)
     )
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_fermion_operator(norb: int, nelec: tuple[int, int]):
+    """Test FermionOperator."""
+    rng = np.random.default_rng()
+
+    df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(norb, seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+
+    op = ffsim.fermion_operator(df_hamiltonian)
+    linop = ffsim.linear_operator(op, norb, nelec)
+    expected_linop = ffsim.linear_operator(df_hamiltonian, norb, nelec)
+
+    actual = linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected)

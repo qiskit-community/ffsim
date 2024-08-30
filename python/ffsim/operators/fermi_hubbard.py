@@ -109,6 +109,8 @@ def fermi_hubbard_2d(
     chemical_potential: float = 0,
     nearest_neighbor_interaction: float = 0,
     periodic: bool = False,
+    periodic_x: bool = False,
+    periodic_y: bool = False,
 ) -> FermionOperator:
     r"""Two-dimensional Fermi-Hubbard model Hamiltonian on a square lattice.
 
@@ -143,7 +145,10 @@ def fermi_hubbard_2d(
         chemical_potential: The chemical potential :math:`\mu`.
         nearest_neighbor_interaction: The nearest-neighbor interaction strength
             :math:`V`.
-        periodic: Whether to use periodic boundary conditions.
+        periodic: Whether to use periodic boundary conditions in all dimensions.
+            This argument overrides the `periodic_x` and `periodic_y` arguments.
+        periodic_x: Whether to use periodic boundary conditions in the X dimension.
+        periodic_y: Whether to use periodic boundary conditions in the Y dimension.
 
     Returns:
         The two-dimensional Fermi-Hubbard model Hamiltonian.
@@ -163,18 +168,18 @@ def fermi_hubbard_2d(
         orb_up = norb_x * y_up + x
 
         if tunneling:
-            if x != norb_x - 1 or periodic:
+            if x != norb_x - 1 or periodic or periodic_x:
                 coeffs[cre_a(orb), des_a(orb_right)] -= tunneling
                 coeffs[cre_a(orb_right), des_a(orb)] -= tunneling
                 coeffs[cre_b(orb), des_b(orb_right)] -= tunneling
                 coeffs[cre_b(orb_right), des_b(orb)] -= tunneling
-            if y != norb_y - 1 or periodic:
+            if y != norb_y - 1 or periodic or periodic_y:
                 coeffs[cre_a(orb), des_a(orb_up)] -= tunneling
                 coeffs[cre_a(orb_up), des_a(orb)] -= tunneling
                 coeffs[cre_b(orb), des_b(orb_up)] -= tunneling
                 coeffs[cre_b(orb_up), des_b(orb)] -= tunneling
         if nearest_neighbor_interaction:
-            if x != norb_x - 1 or periodic:
+            if x != norb_x - 1 or periodic or periodic_x:
                 coeffs[cre_a(orb), des_a(orb), cre_a(orb_right), des_a(orb_right)] += (
                     nearest_neighbor_interaction
                 )
@@ -187,7 +192,7 @@ def fermi_hubbard_2d(
                 coeffs[cre_b(orb), des_b(orb), cre_b(orb_right), des_b(orb_right)] += (
                     nearest_neighbor_interaction
                 )
-            if y != norb_y - 1 or periodic:
+            if y != norb_y - 1 or periodic or periodic_y:
                 coeffs[cre_a(orb), des_a(orb), cre_a(orb_up), des_a(orb_up)] += (
                     nearest_neighbor_interaction
                 )
