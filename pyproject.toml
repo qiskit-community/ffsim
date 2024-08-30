@@ -39,7 +39,6 @@ Documentation = "https://qiskit-community.github.io/ffsim/"
 [project.optional-dependencies]
 dev = [
     "coverage",
-    "furo",
     "maturin",
     "mypy",
     "myst-parser",
@@ -48,6 +47,7 @@ dev = [
     "pre-commit",
     "pytest",
     "qiskit[visualization]",
+    "qiskit-sphinx-theme",
     "ruff == 0.6.2",
     "sphinx",
     "sphinx-autodoc-typehints",
