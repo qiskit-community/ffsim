@@ -47,7 +47,7 @@ dev = [
     "pre-commit",
     "pytest",
     "qiskit[visualization]",
-    "qiskit-sphinx-theme == 2.0.0rc2",
+    "qiskit-sphinx-theme",
     "ruff == 0.6.2",
     "sphinx",
     "sphinx-autodoc-typehints",
