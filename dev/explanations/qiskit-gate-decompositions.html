@@ -492,22 +492,22 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </div>
 </div>
 </section>
-<section id="Unitary-cluster-Jastrow-(UCJ)-operator">
-<h2>Unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h2>
-<p>There are several gate variants for the UCJ operator:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinBalancedJW"><span class="std std-ref">UCJOpSpinBalancedJW</span></a></p></li>
-<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinUnbalancedJW"><span class="std std-ref">UCJOpSpinUnbalancedJW</span></a></p></li>
-</ul>
-<p>All variants decompose into a sequence of diagonal Coulomb evolutions sandwiched by orbital rotations. The number of diagonal Coulomb evolutions is equal to the number of ansatz repetitions (in this example, two).</p>
+<section id="Trotter-simulation-of-double-factorized-Hamiltonian">
+<h2>Trotter simulation of double-factorized Hamiltonian<a class="headerlink" href="#Trotter-simulation-of-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h2>
+<p>Trotter simulation of a double-factorized Hamiltonian is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW"><span class="std std-ref">SimulateTrotterDoubleFactorizedJW</span></a> gate. This gate decomposes into a sequence of orbital rotations, number operator sum evolutions, and diagonal Coulomb evolutions.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_balanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_double_factorized_hamiltonian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
-<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinBalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">SimulateTrotterDoubleFactorizedJW</span><span class="p">(</span>
+        <span class="n">df_hamiltonian</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">),</span>
+    <span class="n">qubits</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
@@ -522,22 +522,22 @@ minimize the number of XXPlusYYGates in the result. The decomposition is more ef
 </div>
 </div>
 </section>
-<section id="Trotter-simulation-of-double-factorized-Hamiltonian">
-<h2>Trotter simulation of double-factorized Hamiltonian<a class="headerlink" href="#Trotter-simulation-of-double-factorized-Hamiltonian" title="Link to this heading">¶</a></h2>
-<p>Trotter simulation of a double-factorized Hamiltonian is implemented by the <a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW"><span class="std std-ref">SimulateTrotterDoubleFactorizedJW</span></a> gate. This gate decomposes into a sequence of orbital rotations, number operator sum evolutions, and diagonal Coulomb evolutions.</p>
+<section id="Unitary-cluster-Jastrow-(UCJ)-operator">
+<h2>Unitary cluster Jastrow (UCJ) operator<a class="headerlink" href="#Unitary-cluster-Jastrow-(UCJ)-operator" title="Link to this heading">¶</a></h2>
+<p>There are several gate variants for the UCJ operator:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinBalancedJW"><span class="std std-ref">UCJOpSpinBalancedJW</span></a></p></li>
+<li><p><a class="reference internal" href="../api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinUnbalancedJW"><span class="std std-ref">UCJOpSpinUnbalancedJW</span></a></p></li>
+</ul>
+<p>All variants decompose into a sequence of diagonal Coulomb evolutions sandwiched by orbital rotations. The number of diagonal Coulomb evolutions is equal to the number of ansatz repetitions (in this example, two).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_double_factorized_hamiltonian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_ucj_op_spin_balanced</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
-<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-    <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">SimulateTrotterDoubleFactorizedJW</span><span class="p">(</span>
-        <span class="n">df_hamiltonian</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span>
-    <span class="p">),</span>
-    <span class="n">qubits</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">UCJOpSpinBalancedJW</span><span class="p">(</span><span class="n">ucj_op</span><span class="p">),</span> <span class="n">qubits</span><span class="p">)</span>
 
 <span class="n">circuit</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
@@ -833,8 +833,8 @@ opposing spins allowed only within the same spatial orbital, then the diagonal C
 <li><a class="reference internal" href="#Orbital-rotation">Orbital rotation</a></li>
 <li><a class="reference internal" href="#Number-operator-sum-evolution">Number operator sum evolution</a></li>
 <li><a class="reference internal" href="#Diagonal-Coulomb-evolution">Diagonal Coulomb evolution</a></li>
-<li><a class="reference internal" href="#Unitary-cluster-Jastrow-(UCJ)-operator">Unitary cluster Jastrow (UCJ) operator</a></li>
-<li><a class="reference internal" href="#Trotter-simulation-of-double-factorized-Hamiltonian">Trotter simulation of double-factorized Hamiltonian</a><ul>
+<li><a class="reference internal" href="#Trotter-simulation-of-double-factorized-Hamiltonian">Trotter simulation of double-factorized Hamiltonian</a></li>
+<li><a class="reference internal" href="#Unitary-cluster-Jastrow-(UCJ)-operator">Unitary cluster Jastrow (UCJ) operator</a><ul>
 <li><a class="reference internal" href="#Merging-orbital-rotations">Merging orbital rotations</a></li>
 <li><a class="reference internal" href="#Locality-in-the-UCJ-operator">Locality in the UCJ operator</a></li>
 </ul>
