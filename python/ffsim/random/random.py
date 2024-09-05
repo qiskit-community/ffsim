@@ -504,7 +504,12 @@ def random_diagonal_coulomb_hamiltonian(
 
 
 def random_double_factorized_hamiltonian(
-    norb: int, *, rank: int | None = None, z_representation: bool = False, seed=None
+    norb: int,
+    *,
+    rank: int | None = None,
+    z_representation: bool = False,
+    real: bool = False,
+    seed=None,
 ) -> hamiltonians.DoubleFactorizedHamiltonian:
     """Sample a random double-factorized Hamiltonian.
 
@@ -513,6 +518,7 @@ def random_double_factorized_hamiltonian(
         rank: The desired number of terms in the two-body part of the Hamiltonian.
             If not specified, it will be set to ``norb * (norb + 1) // 2``.
         z_representation: Whether to return a Hamiltonian in the "Z" representation.
+        real: Whether to sample a real-valued object rather than a complex-valued one.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -522,12 +528,18 @@ def random_double_factorized_hamiltonian(
     if rank is None:
         rank = norb * (norb + 1) // 2
     rng = np.random.default_rng(seed)
-    one_body_tensor = random_hermitian(norb, seed=rng)
+    if real:
+        one_body_tensor = random_real_symmetric_matrix(norb, seed=rng)
+        orbital_rotations = np.stack(
+            [random_orthogonal(norb, seed=rng) for _ in range(rank)]
+        )
+    else:
+        one_body_tensor = random_hermitian(norb, seed=rng)
+        orbital_rotations = np.stack(
+            [random_unitary(norb, seed=rng) for _ in range(rank)]
+        )
     diag_coulomb_mats = np.stack(
         [random_real_symmetric_matrix(norb, seed=rng) for _ in range(rank)]
-    )
-    orbital_rotations = np.stack(
-        [random_orthogonal(norb, seed=rng) for _ in range(rank)]
     )
     constant = rng.standard_normal()
     return hamiltonians.DoubleFactorizedHamiltonian(
