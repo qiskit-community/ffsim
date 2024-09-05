@@ -501,12 +501,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the DoubleFactorizedHamiltonian to a MolecularHamiltonian.&quot;&quot;&quot;</span>
         <span class="n">df_hamiltonian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_number_representation</span><span class="p">()</span>
         <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
-            <span class="s2">&quot;kpi,kqi,kij,krj,ksj-&gt;pqrs&quot;</span><span class="p">,</span>
-            <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
-            <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="s2">&quot;kij,kpi,kqi,krj,ksj-&gt;pqrs&quot;</span><span class="p">,</span>
             <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
             <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
             <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">df_hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
             <span class="s2">&quot;prqr&quot;</span><span class="p">,</span> <span class="n">two_body_tensor</span>
