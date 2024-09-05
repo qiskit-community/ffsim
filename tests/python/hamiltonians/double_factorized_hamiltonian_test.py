@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import pytest
 
@@ -80,8 +82,8 @@ def test_z_representation_round_trip():
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
-def test_to_molecular_hamiltonian(z_representation: bool):
-    """Test converting to molecular Hamiltonian"""
+def test_to_molecular_hamiltonian_roundtrip(z_representation: bool):
+    """Test converting to molecular Hamiltonian."""
     rng = np.random.default_rng(2787)
     norb = 5
     hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
@@ -97,6 +99,23 @@ def test_to_molecular_hamiltonian(z_representation: bool):
         hamiltonian_roundtrip.two_body_tensor, hamiltonian.two_body_tensor
     )
     np.testing.assert_allclose(hamiltonian_roundtrip.constant, hamiltonian.constant)
+
+
+@pytest.mark.parametrize("z_representation", [False, True])
+def test_to_molecular_hamiltonian_symmetry(z_representation: bool):
+    """Test molecular Hamiltonian symmetry."""
+    rng = np.random.default_rng(2787)
+    norb = 5
+    df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(
+        norb, z_representation=z_representation, seed=rng
+    )
+    mol_hamiltonian = df_hamiltonian.to_molecular_hamiltonian()
+    two_body_tensor = mol_hamiltonian.two_body_tensor
+    for i, j, k, ell in itertools.product(range(norb), repeat=4):
+        val = two_body_tensor[i, j, k, ell]
+        np.testing.assert_allclose(two_body_tensor[k, ell, i, j], val)
+        np.testing.assert_allclose(two_body_tensor[j, i, ell, k], val.conjugate())
+        np.testing.assert_allclose(two_body_tensor[ell, k, j, i], val.conjugate())
 
 
 def test_diag():
@@ -128,7 +147,9 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test FermionOperator."""
     rng = np.random.default_rng()
 
-    df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(norb, seed=rng)
+    df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(
+        norb, real=True, seed=rng
+    )
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     op = ffsim.fermion_operator(df_hamiltonian)

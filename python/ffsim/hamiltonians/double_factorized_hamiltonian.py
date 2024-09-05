@@ -222,12 +222,12 @@ class DoubleFactorizedHamiltonian:
         """Convert the DoubleFactorizedHamiltonian to a MolecularHamiltonian."""
         df_hamiltonian = self.to_number_representation()
         two_body_tensor = np.einsum(
-            "kpi,kqi,kij,krj,ksj->pqrs",
-            df_hamiltonian.orbital_rotations,
-            df_hamiltonian.orbital_rotations,
+            "kij,kpi,kqi,krj,ksj->pqrs",
             df_hamiltonian.diag_coulomb_mats,
             df_hamiltonian.orbital_rotations,
+            df_hamiltonian.orbital_rotations.conj(),
             df_hamiltonian.orbital_rotations,
+            df_hamiltonian.orbital_rotations.conj(),
         )
         one_body_tensor = df_hamiltonian.one_body_tensor + 0.5 * np.einsum(
             "prqr", two_body_tensor
