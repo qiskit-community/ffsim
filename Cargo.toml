@@ -12,8 +12,8 @@ crate-type = ["cdylib"]
 blas = "0.22"
 ndarray = { version = "0.15", features = ["rayon"] }
 blas-src = { version = "0.10" }
-numpy = "0.18"
-pyo3 = { version = "0.18", features = [
+numpy = "0.19"
+pyo3 = { version = "0.19", features = [
     "extension-module",
     "num-complex",
     "abi3-py39",

@@ -104,7 +104,6 @@ impl KeysIterator {
 ///     coeffs (dict[tuple[tuple[bool, bool, int], ...], complex]): The coefficients of the
 ///         operator.
 #[pyclass(module = "ffsim", mapping)]
-#[pyo3(text_signature = "(coeffs)")]
 #[derive(Clone)]
 pub struct FermionOperator {
     coeffs: HashMap<Vec<(bool, bool, i32)>, Complex64>,
@@ -112,7 +111,7 @@ pub struct FermionOperator {
 
 #[pymethods]
 impl FermionOperator {
-    #[new]
+    #[new(text_signature = "(coeffs)")]
     fn new(coeffs: HashMap<Vec<(bool, bool, i32)>, Complex64>) -> Self {
         Self { coeffs }
     }
