@@ -111,7 +111,7 @@ pub struct FermionOperator {
 
 #[pymethods]
 impl FermionOperator {
-    #[new(text_signature = "(coeffs)")]
+    #[new]
     fn new(coeffs: HashMap<Vec<(bool, bool, i32)>, Complex64>) -> Self {
         Self { coeffs }
     }
