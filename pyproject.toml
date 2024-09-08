@@ -79,7 +79,7 @@ include = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "NPY"]
+select = ["E", "F", "I", "N", "NPY", "NPY201"]
 
 [tool.cibuildwheel]
 build = "cp39-macosx* cp39-manylinux_x86_64 cp39-manylinux_aarch64"
