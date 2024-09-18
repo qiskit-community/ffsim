@@ -1,0 +1,214 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Hamiltonians\n",
+    "\n",
+    "This page explains how ffsim represents Hamiltonians.\n",
+    "\n",
+    "## Data representation\n",
+    "\n",
+    "ffsim includes several classes for representing Hamiltonians in different forms. In this page we'll focus on the molecular Hamiltonian of the form\n",
+    "\n",
+    "$$\n",
+    "H = \\sum_{\\sigma, pq} h_{pq} a^\\dagger_{\\sigma, p} a_{\\sigma, q}\n",
+    "    + \\frac12 \\sum_{\\sigma \\tau, pqrs} h_{pqrs}\n",
+    "    a^\\dagger_{\\sigma, p} a^\\dagger_{\\tau, r} a_{\\tau, s} a_{\\sigma, q}\n",
+    "    + \\text{constant}.\n",
+    "$$\n",
+    "\n",
+    "To represent this Hamiltonian, the information that needs to be stored consists of ($N$ is the number of spatial orbitals):\n",
+    "\n",
+    "- The one-body tensor $h_{pq}$, which is an $N \\times N$ matrix (stored as a NumPy array).\n",
+    "- The two-body tensor $h_{pqrs}$, which is an $N \\times N \\times N \\times N$ tensor (stored as a NumPy array).\n",
+    "- The constant, which is a real number (stored as a float).\n",
+    "\n",
+    "In order to have some concrete objects to work with, we sample some random instances of these data in the following code cell."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Use 4 spatial orbitals, as an example.\n",
+    "norb = 4\n",
+    "\n",
+    "rng = np.random.default_rng(1234)\n",
+    "one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)\n",
+    "# Pass dtype=float to obtain a real-valued two-body tensor.\n",
+    "# Complex tensors are not fully supported yet.\n",
+    "two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)\n",
+    "constant = rng.standard_normal()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The molecular Hamiltonian is represented in ffsim using the [MolecularHamiltonian](../api/ffsim.rst#ffsim.MolecularHamiltonian) class. You initialize the class by passing the three pieces of information (the constant is optional and defaults to zero if not specified):"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mol_hamiltonian = ffsim.MolecularHamiltonian(\n",
+    "    one_body_tensor=one_body_tensor,\n",
+    "    two_body_tensor=two_body_tensor,\n",
+    "    constant=constant,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The arguments passed to the initialization are now available as attributes of the same name, i.e., `mol_hamiltonian.one_body_tensor` accesses the one-body tensor.\n",
+    "\n",
+    "## Operator action via SciPy LinearOperators\n",
+    "\n",
+    "The basic operation that a Hamiltonian represention should support is applying its action, as a linear operator, to a vector. This basic operation can be used to implement more complex ones, such as operator exponentiation and eigenvalue computation. ffsim uses Scipy's [LinearOperator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html) class to support these operations for Hamiltonians. To obtain a LinearOperator, call the `linear_operator` function:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Use 2 alpha electrons and 2 beta electrons, as an example.\n",
+    "nelec = (2, 2)\n",
+    "\n",
+    "linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The `linear_operator` function requires the number of orbitals and the number of alpha and beta electrons to be passed because this information is needed to fully specify the vector space on which the linear operator acts.\n",
+    "\n",
+    "LinearOperators support matrix multiplication with a vector:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "vec = ffsim.hartree_fock_state(norb, nelec)\n",
+    "\n",
+    "result = linop @ vec"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "They also work with many of Scipy's sparse linear algebra routines. For example, you can compute the ground state energy using the `eigsh` eigenvalue routine:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "-99.55717072551589"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import scipy.sparse.linalg\n",
+    "\n",
+    "eigs, vecs = scipy.sparse.linalg.eigsh(linop, k=1, which=\"SA\")\n",
+    "energy = eigs[0]\n",
+    "\n",
+    "energy"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Time evolution by the Hamiltonian can be computed using `expm_multiply`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_622962/2190712273.py:2: UserWarning: Trace of LinearOperator not available, it will be estimated. Provide `traceA` to ensure performance.\n",
+      "  evolved_vec = scipy.sparse.linalg.expm_multiply(-1j * time * linop, vec)\n"
+     ]
+    }
+   ],
+   "source": [
+    "time = 1.0\n",
+    "evolved_vec = scipy.sparse.linalg.expm_multiply(-1j * time * linop, vec)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "When passing a LinearOperator to `expm_multiply`, Scipy issues a warning if an estimate of the trace is not provided via the `traceA` argument. You can avoid this warning by passing an estimate of the trace. For Hamiltonians with real-valued tensors, the `trace` function can compute the exact trace (complex-valued tensors are not supported yet):"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trace = ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec)\n",
+    "evolved_vec_2 = scipy.sparse.linalg.expm_multiply(\n",
+    "    -1j * time * linop, vec, traceA=-1j * time * trace\n",
+    ")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim-1cfkSnAR",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
