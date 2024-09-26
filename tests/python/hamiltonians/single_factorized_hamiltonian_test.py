@@ -33,7 +33,6 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     """Test linear operator."""
     rng = np.random.default_rng(2474)
 
-    # TODO remove dtype=float once complex two-body is supported
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=rng, dtype=float
     )
@@ -58,7 +57,6 @@ def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
     """Test computing reduced matrix on product states."""
     rng = np.random.default_rng(7869)
 
-    # TODO remove dtype=float once complex two-body is supported
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=rng, dtype=float
     )
@@ -104,7 +102,6 @@ def test_expectation_product_state_slater_determinant(
     """Test computing expectation value on Slater determinant product state."""
     rng = np.random.default_rng(3400)
 
-    # TODO remove dtype=float once complex two-body is supported
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=rng, dtype=float
     )
@@ -137,7 +134,6 @@ def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     """Test computing expectation value on product state."""
     rng = np.random.default_rng(6775)
 
-    # TODO remove dtype=float once complex two-body is supported
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=rng, dtype=float
     )

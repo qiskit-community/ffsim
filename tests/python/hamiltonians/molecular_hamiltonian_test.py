@@ -106,8 +106,7 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     rng = np.random.default_rng()
 
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    # TODO remove dtype=float after adding support for complex
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng)
     constant = rng.standard_normal()
     mol_hamiltonian = ffsim.MolecularHamiltonian(
         one_body_tensor, two_body_tensor, constant=constant
@@ -132,8 +131,7 @@ def test_rotated():
 
     # generate a random molecular Hamiltonian
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    # TODO remove dtype=float after adding support for complex
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng)
     constant = rng.standard_normal()
     mol_hamiltonian = ffsim.MolecularHamiltonian(
         one_body_tensor, two_body_tensor, constant=constant
