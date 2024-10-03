@@ -481,3 +481,7 @@ def strings_to_addresses(
     addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
     dim_b = math.comb(norb, n_beta)
     return addrs_a * dim_b + addrs_b
+
+
+def bitstring_to_occupied_orbitals(bitstring: int) -> list[int]:
+    return [i for i in range(bitstring.bit_length()) if bitstring >> i & 1]

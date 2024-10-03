@@ -21,6 +21,55 @@ import ffsim
 from ffsim.states.bitstring import BitstringType
 
 
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc([4, 5]))
+def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
+    """Test computing Slater determinant amplitudes, spinless."""
+    rng = np.random.default_rng(3725)
+
+    dim = ffsim.dim(norb, nelec)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+
+    for occupied_orbitals in itertools.combinations(range(norb), nelec):
+        bitstrings = ffsim.addresses_to_strings(range(dim), norb=norb, nelec=nelec)
+        rdm = ffsim.slater_determinant_rdms(
+            norb, occupied_orbitals=occupied_orbitals, orbital_rotation=orbital_rotation
+        )
+        actual = ffsim.slater_determinant_amplitudes(bitstrings, rdm)
+        expected = ffsim.slater_determinant(
+            norb, occupied_orbitals=occupied_orbitals, orbital_rotation=orbital_rotation
+        )
+        ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec([3, 4]))
+def test_slater_determinant_amplitudes_spinful(norb: int, nelec: int):
+    """Test computing Slater determinant amplitudes, spinful."""
+    rng = np.random.default_rng(3725)
+
+    dim_a, dim_b = ffsim.dims(norb, nelec)
+    n_alpha, n_beta = nelec
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+
+    bitstrings_a = ffsim.addresses_to_strings(range(dim_a), norb=norb, nelec=n_alpha)
+    bitstrings_b = ffsim.addresses_to_strings(range(dim_b), norb=norb, nelec=n_beta)
+    bitstrings = list(zip(*itertools.product(bitstrings_a, bitstrings_b)))
+
+    for occ_a in itertools.combinations(range(norb), n_alpha):
+        for occ_b in itertools.combinations(range(norb), n_beta):
+            rdms = ffsim.slater_determinant_rdms(
+                norb,
+                occupied_orbitals=(occ_a, occ_b),
+                orbital_rotation=orbital_rotation,
+            )
+            actual = ffsim.slater_determinant_amplitudes(bitstrings, rdms)
+            expected = ffsim.slater_determinant(
+                norb,
+                occupied_orbitals=(occ_a, occ_b),
+                orbital_rotation=orbital_rotation,
+            )
+            ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
+
+
 @pytest.mark.parametrize(
     "norb, nelec, bitstring_type",
     [

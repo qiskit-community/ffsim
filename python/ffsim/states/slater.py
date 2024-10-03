@@ -17,13 +17,41 @@ from collections.abc import Sequence
 from typing import cast
 
 import numpy as np
+import scipy.linalg
 
 from ffsim.states.bitstring import (
     BitstringType,
+    bitstring_to_occupied_orbitals,
     concatenate_bitstrings,
     convert_bitstring_type,
     restrict_bitstrings,
 )
+
+
+def slater_determinant_amplitudes(
+    bitstrings: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    # TODO take orbital rotation instead to match ffsim.slater_determinant
+    rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
+) -> np.ndarray:
+    """Compute state vector amplitudes for a Slater determinant."""
+    if isinstance(rdm, np.ndarray) and rdm.ndim == 2:
+        # Spinless case
+        eigs, vecs = scipy.linalg.eigh(rdm)
+        rounded_eigs = np.round(eigs)
+        assert np.allclose(eigs, rounded_eigs)
+        vecs = vecs[:, np.flatnonzero(rounded_eigs)].conj()
+        amplitudes = []
+        for bitstring in bitstrings:
+            orbs = bitstring_to_occupied_orbitals(bitstring)
+            amplitudes.append(scipy.linalg.det(vecs[orbs]))
+        return np.array(amplitudes)
+
+    # Spinful case
+    bitstrings_a, bitstrings_b = bitstrings
+    rdm_a, rdm_b = rdm
+    amplitudes_a = slater_determinant_amplitudes(bitstrings_a, rdm_a)
+    amplitudes_b = slater_determinant_amplitudes(bitstrings_b, rdm_b)
+    return amplitudes_a * amplitudes_b
 
 
 def sample_slater_determinant(
