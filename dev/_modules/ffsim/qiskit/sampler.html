@@ -350,8 +350,8 @@
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">meas_info</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">bound_circuit</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">bound_circuits</span><span class="p">):</span>
-            <span class="n">final_state</span> <span class="o">=</span> <span class="n">final_state_vector</span><span class="p">(</span><span class="n">bound_circuit</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">qargs</span><span class="p">:</span>
+                <span class="n">final_state</span> <span class="o">=</span> <span class="n">final_state_vector</span><span class="p">(</span><span class="n">bound_circuit</span><span class="p">)</span>
                 <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">final_state</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">final_state</span><span class="o">.</span><span class="n">nelec</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                     <span class="n">orbs</span> <span class="o">=</span> <span class="n">qargs</span>
@@ -359,14 +359,15 @@
                     <span class="n">orbs_a</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qargs</span> <span class="k">if</span> <span class="n">q</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">]</span>
                     <span class="n">orbs_b</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span> <span class="o">%</span> <span class="n">norb</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qargs</span> <span class="k">if</span> <span class="n">q</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span>
                     <span class="n">orbs</span> <span class="o">=</span> <span class="p">(</span><span class="n">orbs_a</span><span class="p">,</span> <span class="n">orbs_b</span><span class="p">)</span>
-                <span class="n">samples</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">sample_state_vector</span><span class="p">(</span>
-                    <span class="n">final_state</span><span class="p">,</span> <span class="n">orbs</span><span class="o">=</span><span class="n">orbs</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">pub</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span>
+                <span class="n">samples_array</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">sample_state_vector</span><span class="p">(</span>
+                    <span class="n">final_state</span><span class="p">,</span>
+                    <span class="n">orbs</span><span class="o">=</span><span class="n">orbs</span><span class="p">,</span>
+                    <span class="n">shots</span><span class="o">=</span><span class="n">pub</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
+                    <span class="n">bitstring_type</span><span class="o">=</span><span class="n">states</span><span class="o">.</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">BIT_ARRAY</span><span class="p">,</span>
+                    <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">pub</span><span class="o">.</span><span class="n">shots</span>
-            <span class="n">samples_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span>
-            <span class="p">)</span>
+                <span class="n">samples_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">pub</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">meas_info</span><span class="p">:</span>
                 <span class="n">ary</span> <span class="o">=</span> <span class="n">_samples_to_packed_array</span><span class="p">(</span>
                     <span class="n">samples_array</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">num_bits</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">qreg_indices</span>
