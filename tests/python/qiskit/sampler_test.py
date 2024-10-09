@@ -282,8 +282,8 @@ def test_global_depolarizing(norb: int, nelec: tuple[int, int]):
 
     vec = ffsim.qiskit.final_state_vector(
         circuit.remove_final_measurements(inplace=False)
-    )
-    vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(vec.vec, norb, nelec)
+    ).vec
+    vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(vec, norb, nelec)
     exact_probs = np.abs(vec) ** 2
 
     strings, counts = zip(*samples.items())
