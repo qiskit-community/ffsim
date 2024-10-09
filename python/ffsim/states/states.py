@@ -421,7 +421,7 @@ def sample_state_vector(
     concatenate: bool = True,
     bitstring_type: BitstringType = BitstringType.STRING,
     seed: np.random.Generator | int | None = None,
-) -> list[str] | tuple[list[str], list[str]]:
+):
     """Sample bitstrings from a state vector.
 
     Args:
@@ -488,7 +488,7 @@ def _sample_state_vector_spinless(
     shots: int,
     bitstring_type: BitstringType,
     seed: np.random.Generator | int | None,
-) -> list[str]:
+):
     if orbs is None:
         orbs = range(norb)
     rng = np.random.default_rng(seed)
@@ -510,7 +510,7 @@ def _sample_state_vector_spinful(
     concatenate: bool = True,
     bitstring_type: BitstringType,
     seed: np.random.Generator | int | None,
-) -> list[str] | tuple[list[str], list[str]]:
+):
     if orbs is None:
         orbs = range(norb), range(norb)
     rng = np.random.default_rng(seed)

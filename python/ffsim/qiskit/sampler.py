@@ -76,8 +76,8 @@ class FfsimSampler(BaseSamplerV2):
             for item in meas_info
         }
         for index, bound_circuit in np.ndenumerate(bound_circuits):
-            final_state = final_state_vector(bound_circuit)
             if qargs:
+                final_state = final_state_vector(bound_circuit)
                 norb, nelec = final_state.norb, final_state.nelec
                 if isinstance(nelec, int):
                     orbs = qargs
@@ -85,14 +85,15 @@ class FfsimSampler(BaseSamplerV2):
                     orbs_a = [q for q in qargs if q < norb]
                     orbs_b = [q % norb for q in qargs if q >= norb]
                     orbs = (orbs_a, orbs_b)
-                samples = states.sample_state_vector(
-                    final_state, orbs=orbs, shots=pub.shots, seed=self._rng
+                samples_array = states.sample_state_vector(
+                    final_state,
+                    orbs=orbs,
+                    shots=pub.shots,
+                    bitstring_type=states.BitstringType.BIT_ARRAY,
+                    seed=self._rng,
                 )
             else:
-                samples = [""] * pub.shots
-            samples_array = np.array(
-                [np.fromiter(sample, dtype=np.uint8) for sample in samples]
-            )
+                samples_array = np.empty((pub.shots, 0), dtype=bool)
             for item in meas_info:
                 ary = _samples_to_packed_array(
                     samples_array, item.num_bits, item.qreg_indices
