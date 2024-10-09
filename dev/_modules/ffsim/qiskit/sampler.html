@@ -310,16 +310,21 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+        <span class="n">global_depolarizing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ffsim sampler.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            default_shots: The default shots to use if not specified during run.</span>
+<span class="sd">            global_depolarizing: Depolarizing probability for a noisy simulation.</span>
+<span class="sd">                Specifies the probability of sampling from the uniform distribution</span>
+<span class="sd">                instead of the state vector.</span>
 <span class="sd">            seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">                Should be a valid input to ``np.random.default_rng``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_shots</span> <span class="o">=</span> <span class="n">default_shots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global_depolarizing</span> <span class="o">=</span> <span class="n">global_depolarizing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
 
@@ -355,17 +360,28 @@
                 <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">final_state</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">final_state</span><span class="o">.</span><span class="n">nelec</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                     <span class="n">orbs</span> <span class="o">=</span> <span class="n">qargs</span>
+                    <span class="n">n_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">orbs</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">orbs_a</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qargs</span> <span class="k">if</span> <span class="n">q</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">]</span>
                     <span class="n">orbs_b</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span> <span class="o">%</span> <span class="n">norb</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qargs</span> <span class="k">if</span> <span class="n">q</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span>
                     <span class="n">orbs</span> <span class="o">=</span> <span class="p">(</span><span class="n">orbs_a</span><span class="p">,</span> <span class="n">orbs_b</span><span class="p">)</span>
-                <span class="n">samples_array</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">sample_state_vector</span><span class="p">(</span>
+                    <span class="n">n_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">orbs_a</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">orbs_b</span><span class="p">)</span>
+                <span class="n">uniform_shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">pub</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global_depolarizing</span><span class="p">)</span>
+                <span class="n">exact_shots</span> <span class="o">=</span> <span class="n">pub</span><span class="o">.</span><span class="n">shots</span> <span class="o">-</span> <span class="n">uniform_shots</span>
+                <span class="n">uniform_samples_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span>
+                    <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">uniform_shots</span><span class="p">,</span> <span class="n">n_qubits</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span>
+                <span class="p">)</span>
+                <span class="n">exact_samples_array</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">sample_state_vector</span><span class="p">(</span>
                     <span class="n">final_state</span><span class="p">,</span>
                     <span class="n">orbs</span><span class="o">=</span><span class="n">orbs</span><span class="p">,</span>
-                    <span class="n">shots</span><span class="o">=</span><span class="n">pub</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
+                    <span class="n">shots</span><span class="o">=</span><span class="n">exact_shots</span><span class="p">,</span>
                     <span class="n">bitstring_type</span><span class="o">=</span><span class="n">states</span><span class="o">.</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">BIT_ARRAY</span><span class="p">,</span>
                     <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="p">,</span>
                 <span class="p">)</span>
+                <span class="n">samples_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">uniform_samples_array</span><span class="p">,</span> <span class="n">exact_samples_array</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">samples_array</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">samples_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">pub</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">meas_info</span><span class="p">:</span>
