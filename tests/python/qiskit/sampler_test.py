@@ -256,8 +256,17 @@ def test_measure_subset_spinless(norb: int, nocc: int):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-@pytest.mark.parametrize("norb, nelec", [(5, (3, 2))])
-def test_global_depolarizing(norb: int, nelec: tuple[int, int]):
+@pytest.mark.parametrize(
+    "norb, nelec, global_depolarizing",
+    [
+        (5, (3, 2), 0.0),
+        (5, (3, 2), 0.1),
+        (5, (3, 2), 1.0),
+    ],
+)
+def test_global_depolarizing(
+    norb: int, nelec: tuple[int, int], global_depolarizing: float
+):
     """Test sampler with global depolarizing noise."""
     rng = np.random.default_rng(12285)
 
@@ -269,7 +278,6 @@ def test_global_depolarizing(norb: int, nelec: tuple[int, int]):
     circuit.measure_all()
 
     shots = 10_000
-    global_depolarizing = 0.1
 
     sampler = ffsim.qiskit.FfsimSampler(
         default_shots=shots, global_depolarizing=global_depolarizing, seed=rng
@@ -297,7 +305,7 @@ def test_global_depolarizing(norb: int, nelec: tuple[int, int]):
 
     fidelity = np.sum(np.sqrt(exact_probs * empirical_probs))
     expected_fidelity = np.sum(np.sqrt(exact_probs * expected_probs))
-    assert np.allclose(fidelity, expected_fidelity, rtol=1e-2)
+    assert np.allclose(fidelity, expected_fidelity, rtol=1e-2, atol=1e-3)
 
 
 # TODO remove after removing UCJOperatorJW

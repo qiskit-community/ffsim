@@ -157,6 +157,8 @@ def convert_bitstring_type(
             return [int(s, base=2) for s in strings]
 
         if output_type is BitstringType.BIT_ARRAY:
+            if not strings:
+                return np.empty((0, length), dtype=bool)
             return np.array([[b == "1" for b in s] for s in strings])
 
     if input_type is BitstringType.INT:
@@ -166,6 +168,8 @@ def convert_bitstring_type(
             return [f"{string:0{length}b}" for string in strings]
 
         if output_type is BitstringType.BIT_ARRAY:
+            if not strings:
+                return np.empty((0, length), dtype=bool)
             return np.array(
                 [[s >> i & 1 for i in range(length - 1, -1, -1)] for s in strings],
                 dtype=bool,
