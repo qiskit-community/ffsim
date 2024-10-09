@@ -296,3 +296,17 @@ def test_reproducible_with_seed():
     counts_2 = pub_result.data.meas.get_counts()
 
     assert counts_1 == counts_2
+
+
+def test_edge_cases():
+    """Test edge cases."""
+    with pytest.raises(
+        ValueError, match="Circuit must contain at least one instruction."
+    ):
+        qubits = QuantumRegister(1, name="q")
+        circuit = QuantumCircuit(qubits)
+        circuit.measure_all()
+        sampler = ffsim.qiskit.FfsimSampler(default_shots=1)
+        pub = (circuit,)
+        job = sampler.run([pub])
+        _ = job.result()
