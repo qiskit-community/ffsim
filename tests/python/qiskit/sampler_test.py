@@ -92,7 +92,7 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     shots = 5000
 
-    sampler = StatevectorSampler(default_shots=shots, seed=rng)
+    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
@@ -141,7 +141,7 @@ def test_random_gates_spinless(norb: int, nocc: int):
 
     shots = 1000
 
-    sampler = StatevectorSampler(default_shots=shots, seed=rng)
+    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
