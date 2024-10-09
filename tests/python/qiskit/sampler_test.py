@@ -256,6 +256,50 @@ def test_measure_subset_spinless(norb: int, nocc: int):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
+@pytest.mark.parametrize("norb, nelec", [(5, (3, 2))])
+def test_global_depolarizing(norb: int, nelec: tuple[int, int]):
+    """Test sampler with global depolarizing noise."""
+    rng = np.random.default_rng(12285)
+
+    qubits = QuantumRegister(2 * norb)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+    circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
+    circuit.measure_all()
+
+    shots = 10_000
+    global_depolarizing = 0.1
+
+    sampler = ffsim.qiskit.FfsimSampler(
+        default_shots=shots, global_depolarizing=global_depolarizing, seed=rng
+    )
+    pub = (circuit,)
+    job = sampler.run([pub])
+    result = job.result()
+    pub_result = result[0]
+    samples = pub_result.data.meas.get_counts()
+
+    vec = ffsim.qiskit.final_state_vector(
+        circuit.remove_final_measurements(inplace=False)
+    ).vec
+    vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(vec, norb, nelec)
+    exact_probs = np.abs(vec) ** 2
+
+    strings, counts = zip(*samples.items())
+    assert sum(counts) == shots
+    addresses = [int(s, 2) for s in strings]
+    dim = 1 << 2 * norb
+
+    empirical_probs = np.zeros(dim, dtype=float)
+    empirical_probs[addresses] = np.array(counts) / shots
+    expected_probs = (1 - global_depolarizing) * exact_probs + global_depolarizing / dim
+
+    fidelity = np.sum(np.sqrt(exact_probs * empirical_probs))
+    expected_fidelity = np.sum(np.sqrt(exact_probs * expected_probs))
+    assert np.allclose(fidelity, expected_fidelity, rtol=1e-2)
+
+
 # TODO remove after removing UCJOperatorJW
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_reproducible_with_seed():
