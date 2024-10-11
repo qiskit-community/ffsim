@@ -105,7 +105,7 @@ def test_sample_slater_determinant_large():
     shots = 5000
     rotation_a = ffsim.random.random_unitary(norb, seed=rng)
     rotation_b = ffsim.random.random_unitary(norb, seed=rng)
-    occupied_orbitals = [(0, 2, 3), (2, 4)]
+    occupied_orbitals = ((0, 2, 3), (2, 4))
     rdm_a, rdm_b = ffsim.slater_determinant_rdms(
         norb, occupied_orbitals, (rotation_a, rotation_b)
     )
@@ -128,7 +128,7 @@ def test_sample_slater_determinant_restrict():
     nelec = (4, 3)
 
     shots = 10
-    occupied_orbitals = [(0, 2, 3, 5), (2, 3, 4)]
+    occupied_orbitals = ((0, 2, 3, 5), (2, 3, 4))
     rdm_a, rdm_b = ffsim.slater_determinant_rdms(norb, occupied_orbitals)
     samples = ffsim.sample_slater_determinant(
         (rdm_a, rdm_b), norb, nelec, orbs=([1, 2, 5], [3, 4, 5]), shots=shots
