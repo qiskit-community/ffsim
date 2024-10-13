@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.testing" href="ffsim.testing.html" /><link rel="prev" title="ffsim.qiskit" href="ffsim.qiskit.html" />
 
-    <!-- Generated with Sphinx 8.1.0 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.2 and Furo 2024.08.06 -->
         <title>ffsim.random - ffsim 0.0.48.dev0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
@@ -611,6 +611,31 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_uccsd_restricted">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_uccsd_restricted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_uccsd_restricted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_uccsd_restricted" title="Link to this definition">¶</a></dt>
+<dd><p>Sample a random UCCSD operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nocc</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals that are occupied by electrons.</p></li>
+<li><p><strong>with_final_orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to include a final orbital rotation
+in the operator.</p></li>
+<li><p><strong>real</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to sample a real-valued object rather than a complex-valued one.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.UCCSDOpRestrictedReal" title="ffsim.variational.uccsd.UCCSDOpRestrictedReal"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCCSDOpRestrictedReal</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled UCCSD operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.random.random_ucj_op_spin_balanced">
 <span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_ucj_op_spin_balanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_ucj_op_spin_balanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_ucj_op_spin_balanced" title="Link to this definition">¶</a></dt>
 <dd><p>Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</p>
@@ -804,6 +829,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <li><a class="reference internal" href="#ffsim.random.random_statevector"><code class="docutils literal notranslate"><span class="pre">random_statevector()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_t2_amplitudes"><code class="docutils literal notranslate"><span class="pre">random_t2_amplitudes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_two_body_tensor"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.random.random_uccsd_restricted"><code class="docutils literal notranslate"><span class="pre">random_uccsd_restricted()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_ucj_op_spin_balanced"><code class="docutils literal notranslate"><span class="pre">random_ucj_op_spin_balanced()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_ucj_op_spin_unbalanced"><code class="docutils literal notranslate"><span class="pre">random_ucj_op_spin_unbalanced()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_ucj_op_spinless"><code class="docutils literal notranslate"><span class="pre">random_ucj_op_spinless()</span></code></a></li>

@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 8.1.0 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.2 and Furo 2024.08.06 -->
         <title>ffsim.random.random - ffsim 0.0.48.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
@@ -642,6 +642,47 @@
         <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
         <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_uccsd_restricted">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_uccsd_restricted">[docs]</a>
+<span class="k">def</span> <span class="nf">random_uccsd_restricted</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">real</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCCSDOpRestrictedReal</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random UCCSD operator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nocc: The number of spatial orbitals that are occupied by electrons.</span>
+<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">            in the operator.</span>
+<span class="sd">        real: Whether to sample a real-valued object rather than a complex-valued one.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled UCCSD operator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span> <span class="k">if</span> <span class="n">real</span> <span class="k">else</span> <span class="nb">complex</span>
+    <span class="n">nvrt</span> <span class="o">=</span> <span class="n">norb</span> <span class="o">-</span> <span class="n">nocc</span>
+    <span class="n">t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">real</span><span class="p">:</span>
+        <span class="n">t1</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">))</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">random_t2_amplitudes</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
+        <span class="n">unitary_func</span> <span class="o">=</span> <span class="n">random_orthogonal</span> <span class="k">if</span> <span class="n">real</span> <span class="k">else</span> <span class="n">random_unitary</span>
+        <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">unitary_func</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCCSDOpRestrictedReal</span><span class="p">(</span>
+        <span class="n">t1</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="n">t2</span><span class="p">,</span> <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span>
     <span class="p">)</span></div>
 
 
