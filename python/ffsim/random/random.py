@@ -367,9 +367,12 @@ def random_uccsd_restricted(
         The sampled UCCSD operator.
     """
     rng = np.random.default_rng(seed)
+    dtype = float if real else complex
     nvrt = norb - nocc
-    t1 = rng.standard_normal((nocc, nvrt))
-    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=float if real else complex)
+    t1: np.ndarray = rng.standard_normal((nocc, nvrt)).astype(dtype, copy=False)
+    if not real:
+        t1 += 1j * rng.standard_normal((nocc, nvrt))
+    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=dtype)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         unitary_func = random_orthogonal if real else random_unitary
