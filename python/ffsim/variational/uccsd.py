@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Spin-balanced (local) unitary cluster Jastrow ansatz."""
+"""Unitary coupled cluster, singles and doubles ansatz."""
 
 from __future__ import annotations
 

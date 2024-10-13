@@ -344,7 +344,6 @@ def random_ucj_operator(
     )
 
 
-# TODO rename if UCCSDOpRestricted is renamed
 def random_uccsd_restricted(
     norb: int,
     nocc: int,
