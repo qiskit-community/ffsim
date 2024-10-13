@@ -219,7 +219,7 @@ def test_validate():
     norb = 4
     eye = np.eye(norb)
     diag_coulomb_mats = np.stack([eye for _ in range(n_reps)])
-    orbital_rotations = np.stack([eye for _ in range(n_reps)])
+    orbital_rotations = np.stack([eye.astype(complex) for _ in range(n_reps)])
 
     _ = ffsim.UCJOpSpinless(
         diag_coulomb_mats=rng.standard_normal(10),
@@ -241,13 +241,13 @@ def test_validate():
     with pytest.raises(ValueError, match="shape"):
         _ = ffsim.UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,
-            orbital_rotations=rng.standard_normal(10),
+            orbital_rotations=rng.standard_normal(10).astype(complex),
         )
     with pytest.raises(ValueError, match="shape"):
         _ = ffsim.UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
-            final_orbital_rotation=rng.standard_normal(10),
+            final_orbital_rotation=rng.standard_normal(10).astype(complex),
         )
     with pytest.raises(ValueError, match="dimension"):
         _ = ffsim.UCJOpSpinless(
@@ -262,11 +262,11 @@ def test_validate():
     with pytest.raises(ValueError, match="unitary"):
         _ = ffsim.UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,
-            orbital_rotations=rng.standard_normal((n_reps, norb, norb)),
+            orbital_rotations=rng.standard_normal((n_reps, norb, norb)).astype(complex),
         )
     with pytest.raises(ValueError, match="unitary"):
         _ = ffsim.UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
-            final_orbital_rotation=rng.standard_normal((norb, norb)),
+            final_orbital_rotation=rng.standard_normal((norb, norb)).astype(complex),
         )

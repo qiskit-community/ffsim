@@ -98,6 +98,12 @@ class UCJOpSpinBalanced:
     atol: InitVar[float] = 1e-8
 
     def __post_init__(self, validate: bool, rtol: float, atol: float):
+        if not np.iscomplexobj(self.orbital_rotations):
+            raise TypeError("Orbital rotations must have complex data type.")
+        if self.final_orbital_rotation is not None and not np.iscomplexobj(
+            self.final_orbital_rotation
+        ):
+            raise TypeError("Final orbital rotation must have complex data type.")
         if validate:
             if self.diag_coulomb_mats.ndim != 4 or self.diag_coulomb_mats.shape[1] != 2:
                 raise ValueError(

@@ -249,7 +249,9 @@ def test_validate():
     norb = 4
     eye = np.eye(norb)
     diag_coulomb_mats = np.stack([np.stack([eye, eye, eye]) for _ in range(n_reps)])
-    orbital_rotations = np.stack([np.stack([eye, eye]) for _ in range(n_reps)])
+    orbital_rotations = np.stack(
+        [np.stack([eye, eye]).astype(complex) for _ in range(n_reps)]
+    )
 
     _ = ffsim.UCJOpSpinUnbalanced(
         diag_coulomb_mats=rng.standard_normal(10),
