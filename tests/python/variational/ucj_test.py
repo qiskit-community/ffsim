@@ -35,11 +35,9 @@ def test_n_params():
     ):
         diag_coulomb_mats_alpha_alpha = np.zeros((n_reps, norb, norb))
         diag_coulomb_mats_alpha_beta = np.zeros((n_reps, norb, norb))
-        orbital_rotations = np.stack(
-            [np.eye(norb, dtype=complex) for _ in range(n_reps)]
-        )
+        orbital_rotations = np.stack([np.eye(norb) for _ in range(n_reps)])
 
-        final_orbital_rotation = np.eye(norb, dtype=complex)
+        final_orbital_rotation = np.eye(norb)
         operator = ffsim.UCJOperator(
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
@@ -256,11 +254,9 @@ def test_real_ucj_n_params():
     ):
         diag_coulomb_mats_alpha_alpha = np.zeros((n_reps, norb, norb))
         diag_coulomb_mats_alpha_beta = np.zeros((n_reps, norb, norb))
-        orbital_rotations = np.stack(
-            [np.eye(norb, dtype=complex) for _ in range(n_reps)]
-        )
+        orbital_rotations = np.stack([np.eye(norb) for _ in range(n_reps)])
 
-        final_orbital_rotation = np.eye(norb, dtype=complex)
+        final_orbital_rotation = np.eye(norb)
         operator = ffsim.RealUCJOperator(
             diag_coulomb_mats_alpha_alpha=diag_coulomb_mats_alpha_alpha,
             diag_coulomb_mats_alpha_beta=diag_coulomb_mats_alpha_beta,
