@@ -18,7 +18,9 @@ import numpy as np
 import scipy.linalg
 
 
-def orbital_rotation_to_parameters(orbital_rotation: np.ndarray) -> np.ndarray:
+def orbital_rotation_to_parameters(
+    orbital_rotation: np.ndarray, real: bool = False
+) -> np.ndarray:
     """Convert an orbital rotation to parameters.
 
     Converts an orbital rotation to a real-valued parameter vector. The parameter vector
@@ -27,20 +29,27 @@ def orbital_rotation_to_parameters(orbital_rotation: np.ndarray) -> np.ndarray:
 
     Args:
         orbital_rotation: The orbital rotation.
+        real: Whether to construct a parameter vector for a real-valued
+            orbital rotation. If True, the orbital rotation must have a real-valued
+            data type.
 
     Returns:
         The list of real numbers parameterizing the orbital rotation.
     """
+    if real and np.iscomplexobj(orbital_rotation):
+        raise TypeError(
+            "real was set to True, but the orbital rotation has a complex data type. "
+            "Try passing an orbital rotation with a real-valued data type, or else "
+            "set real=False."
+        )
     norb, _ = orbital_rotation.shape
     triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     mat = scipy.linalg.logm(orbital_rotation)
-    params = np.zeros(
-        norb**2 if np.iscomplexobj(orbital_rotation) else norb * (norb - 1) // 2
-    )
+    params = np.zeros(norb * (norb - 1) // 2 if real else norb**2)
     # real part
     params[: len(triu_indices_no_diag)] = mat[tuple(zip(*triu_indices_no_diag))].real
     # imaginary part
-    if np.iscomplexobj(orbital_rotation):
+    if not real:
         triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
         params[len(triu_indices_no_diag) :] = mat[tuple(zip(*triu_indices))].imag
     return params
@@ -59,7 +68,7 @@ def orbital_rotation_from_parameters(
         params: The real-valued parameters.
         norb: The number of spatial orbitals, which gives the width and height of the
             orbital rotation matrix.
-        real: Whether to construct a real-valued orbital rotation
+        real: Whether the parameter vector describes a real-valued orbital rotation.
 
     Returns:
         The orbital rotation.
