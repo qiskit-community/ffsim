@@ -194,7 +194,9 @@ class UCCSDOpRestrictedReal:
             index += 1
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
-            params[index:] = orbital_rotation_to_parameters(self.final_orbital_rotation)
+            params[index:] = orbital_rotation_to_parameters(
+                self.final_orbital_rotation, real=True
+            )
         return params
 
     def _apply_unitary_(
