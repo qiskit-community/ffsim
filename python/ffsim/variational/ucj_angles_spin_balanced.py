@@ -57,7 +57,7 @@ class UCJAnglesOpSpinBalanced:
         n_params_givens = 2 * len(givens_interaction_pairs) + norb
         return (
             n_reps * (n_params_num_num + n_params_givens)
-            + with_final_givens_ansatz_op * n_params_givens
+            + with_final_givens_ansatz_op * norb**2
         )
 
     @staticmethod
@@ -71,6 +71,19 @@ class UCJAnglesOpSpinBalanced:
         with_final_givens_ansatz_op: bool = False,
     ) -> UCJAnglesOpSpinBalanced:
         r"""Initialize the UCJ operator from a real-valued parameter vector."""
+        n_params = UCJAnglesOpSpinBalanced.n_params(
+            norb,
+            n_reps,
+            num_num_interaction_pairs=num_num_interaction_pairs,
+            givens_interaction_pairs=givens_interaction_pairs,
+            with_final_givens_ansatz_op=with_final_givens_ansatz_op,
+        )
+        if len(params) != n_params:
+            raise ValueError(
+                "The number of parameters passed did not match the number expected "
+                "based on the function inputs. "
+                f"Expected {n_params} but got {len(params)}."
+            )
         n_params_num_num = sum(len(pairs) for pairs in num_num_interaction_pairs)
         n_params_givens = 2 * len(givens_interaction_pairs) + norb
         num_num_ansatz_ops = []
@@ -102,7 +115,7 @@ class UCJAnglesOpSpinBalanced:
             final_givens_ansatz_op = GivensAnsatzOp.from_parameters(
                 params[index:],
                 norb=norb,
-                interaction_pairs=givens_interaction_pairs,
+                interaction_pairs=list(brickwork(norb, norb)),
             )
         return UCJAnglesOpSpinBalanced(
             norb,
@@ -226,3 +239,9 @@ class UCJAnglesOpSpinBalanced:
                 return False
             return True
         return NotImplemented
+
+
+def brickwork(norb: int, n_layers: int):
+    for i in range(n_layers):
+        for j in range(i % 2, norb - 1, 2):
+            yield (j, j + 1)
