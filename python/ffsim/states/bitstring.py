@@ -484,4 +484,5 @@ def strings_to_addresses(
 
 
 def bitstring_to_occupied_orbitals(bitstring: int) -> list[int]:
+    """Return a list of bit indices where a bitstring is equal to one."""
     return [i for i in range(bitstring.bit_length()) if bitstring >> i & 1]
