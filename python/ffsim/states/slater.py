@@ -32,11 +32,30 @@ def slater_determinant_amplitudes(
     bitstrings: Sequence[int] | tuple[Sequence[int], Sequence[int]],
     norb: int,
     occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray
-    | tuple[np.ndarray | None, np.ndarray | None]
-    | None = None,
+    orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
 ) -> np.ndarray:
-    """Compute state vector amplitudes for a Slater determinant."""
+    """Compute state vector amplitudes for a Slater determinant.
+
+    Args:
+        bitstrings: The bitstrings to return the amplitudes for, in integer
+            representation. If a pair of lists is given, they specify the alpha
+            and beta parts of the strings (each list must have the same length).
+        norb: The number of spatial orbitals.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is either a list of integers specifying spinless orbitals, or a
+            pair of lists, where the first list specifies the spin alpha orbitals and
+            the second list specifies the spin beta orbitals.
+        orbital_rotation: The orbital rotation describing the Slater determinant.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to
+            that spin sector.
+
+    Returns:
+        The amplitudes of the requested bitstrings.
+    """
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
         if orbital_rotation is None:

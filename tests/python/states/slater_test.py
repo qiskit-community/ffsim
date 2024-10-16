@@ -37,7 +37,7 @@ def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
         expected = ffsim.slater_determinant(
             norb, occupied_orbitals=occupied_orbitals, orbital_rotation=orbital_rotation
         )
-        ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
+        np.testing.assert_allclose(actual, expected)
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec([3, 4]))
@@ -73,7 +73,7 @@ def test_slater_determinant_amplitudes_spinful(norb: int, nelec: int):
                 occupied_orbitals=(occ_a, occ_b),
                 orbital_rotation=(None, orb_rot_b),
             )
-            ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
+            np.testing.assert_allclose(actual, expected)
 
 
 @pytest.mark.parametrize(
