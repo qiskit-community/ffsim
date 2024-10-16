@@ -30,16 +30,18 @@ from ffsim.states.bitstring import (
 
 def slater_determinant_amplitudes(
     bitstrings: Sequence[int] | tuple[Sequence[int], Sequence[int]],
-    # TODO take orbital rotation instead to match ffsim.slater_determinant
-    rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
+    norb: int,
+    occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
 ) -> np.ndarray:
     """Compute state vector amplitudes for a Slater determinant."""
-    if isinstance(rdm, np.ndarray) and rdm.ndim == 2:
+    if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
-        eigs, vecs = scipy.linalg.eigh(rdm)
-        rounded_eigs = np.round(eigs)
-        assert np.allclose(eigs, rounded_eigs)
-        vecs = vecs[:, np.flatnonzero(rounded_eigs)].conj()
+        if orbital_rotation is None:
+            orbital_rotation = np.eye(norb)
+        vecs = orbital_rotation[:, occupied_orbitals]
         amplitudes = []
         for bitstring in bitstrings:
             orbs = bitstring_to_occupied_orbitals(bitstring)
@@ -47,10 +49,19 @@ def slater_determinant_amplitudes(
         return np.array(amplitudes)
 
     # Spinful case
+    occupied_orbitals_a, occupied_orbitals_b = occupied_orbitals
     bitstrings_a, bitstrings_b = bitstrings
-    rdm_a, rdm_b = rdm
-    amplitudes_a = slater_determinant_amplitudes(bitstrings_a, rdm_a)
-    amplitudes_b = slater_determinant_amplitudes(bitstrings_b, rdm_b)
+    if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
+        orbital_rotation_a = orbital_rotation
+        orbital_rotation_b = orbital_rotation
+    else:
+        orbital_rotation_a, orbital_rotation_b = orbital_rotation
+    amplitudes_a = slater_determinant_amplitudes(
+        bitstrings_a, norb, occupied_orbitals_a, orbital_rotation_a
+    )
+    amplitudes_b = slater_determinant_amplitudes(
+        bitstrings_b, norb, occupied_orbitals_b, orbital_rotation_b
+    )
     return amplitudes_a * amplitudes_b
 
 

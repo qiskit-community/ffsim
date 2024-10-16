@@ -31,10 +31,9 @@ def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
 
     for occupied_orbitals in itertools.combinations(range(norb), nelec):
         bitstrings = ffsim.addresses_to_strings(range(dim), norb=norb, nelec=nelec)
-        rdm = ffsim.slater_determinant_rdms(
-            norb, occupied_orbitals=occupied_orbitals, orbital_rotation=orbital_rotation
+        actual = ffsim.slater_determinant_amplitudes(
+            bitstrings, norb, occupied_orbitals, orbital_rotation
         )
-        actual = ffsim.slater_determinant_amplitudes(bitstrings, rdm)
         expected = ffsim.slater_determinant(
             norb, occupied_orbitals=occupied_orbitals, orbital_rotation=orbital_rotation
         )
@@ -48,7 +47,8 @@ def test_slater_determinant_amplitudes_spinful(norb: int, nelec: int):
 
     dim_a, dim_b = ffsim.dims(norb, nelec)
     n_alpha, n_beta = nelec
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orb_rot_a = ffsim.random.random_unitary(norb, seed=rng)
+    orb_rot_b = ffsim.random.random_unitary(norb, seed=rng)
 
     bitstrings_a = ffsim.addresses_to_strings(range(dim_a), norb=norb, nelec=n_alpha)
     bitstrings_b = ffsim.addresses_to_strings(range(dim_b), norb=norb, nelec=n_beta)
@@ -56,16 +56,22 @@ def test_slater_determinant_amplitudes_spinful(norb: int, nelec: int):
 
     for occ_a in itertools.combinations(range(norb), n_alpha):
         for occ_b in itertools.combinations(range(norb), n_beta):
-            rdms = ffsim.slater_determinant_rdms(
-                norb,
-                occupied_orbitals=(occ_a, occ_b),
-                orbital_rotation=orbital_rotation,
+            actual = ffsim.slater_determinant_amplitudes(
+                bitstrings, norb, (occ_a, occ_b), (orb_rot_a, orb_rot_b)
             )
-            actual = ffsim.slater_determinant_amplitudes(bitstrings, rdms)
             expected = ffsim.slater_determinant(
                 norb,
                 occupied_orbitals=(occ_a, occ_b),
-                orbital_rotation=orbital_rotation,
+                orbital_rotation=(orb_rot_a, orb_rot_b),
+            )
+            ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
+            actual = ffsim.slater_determinant_amplitudes(
+                bitstrings, norb, (occ_a, occ_b), (None, orb_rot_b)
+            )
+            expected = ffsim.slater_determinant(
+                norb,
+                occupied_orbitals=(occ_a, occ_b),
+                orbital_rotation=(None, orb_rot_b),
             )
             ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
 
