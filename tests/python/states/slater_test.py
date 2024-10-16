@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import itertools
+from typing import cast
 
 import numpy as np
 import pytest
@@ -41,7 +42,7 @@ def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
 
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec([3, 4]))
-def test_slater_determinant_amplitudes_spinful(norb: int, nelec: int):
+def test_slater_determinant_amplitudes_spinful(norb: int, nelec: tuple[int, int]):
     """Test computing Slater determinant amplitudes, spinful."""
     rng = np.random.default_rng(3725)
 
@@ -52,7 +53,10 @@ def test_slater_determinant_amplitudes_spinful(norb: int, nelec: int):
 
     bitstrings_a = ffsim.addresses_to_strings(range(dim_a), norb=norb, nelec=n_alpha)
     bitstrings_b = ffsim.addresses_to_strings(range(dim_b), norb=norb, nelec=n_beta)
-    bitstrings = list(zip(*itertools.product(bitstrings_a, bitstrings_b)))
+    bitstrings = cast(
+        tuple[tuple[int], tuple[int]],
+        tuple(zip(*itertools.product(bitstrings_a, bitstrings_b))),
+    )
 
     for occ_a in itertools.combinations(range(norb), n_alpha):
         for occ_b in itertools.combinations(range(norb), n_beta):
@@ -65,15 +69,6 @@ def test_slater_determinant_amplitudes_spinful(norb: int, nelec: int):
                 orbital_rotation=(orb_rot_a, orb_rot_b),
             )
             ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
-            actual = ffsim.slater_determinant_amplitudes(
-                bitstrings, norb, (occ_a, occ_b), (None, orb_rot_b)
-            )
-            expected = ffsim.slater_determinant(
-                norb,
-                occupied_orbitals=(occ_a, occ_b),
-                orbital_rotation=(None, orb_rot_b),
-            )
-            np.testing.assert_allclose(actual, expected)
 
 
 @pytest.mark.parametrize(

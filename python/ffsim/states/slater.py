@@ -32,14 +32,15 @@ def slater_determinant_amplitudes(
     bitstrings: Sequence[int] | tuple[Sequence[int], Sequence[int]],
     norb: int,
     occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
+    orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray],
 ) -> np.ndarray:
     """Compute state vector amplitudes for a Slater determinant.
 
     Args:
         bitstrings: The bitstrings to return the amplitudes for, in integer
-            representation. If a pair of lists is given, they specify the alpha
-            and beta parts of the strings (each list must have the same length).
+            representation. In the spinless case this is a list of integers. In the
+            spinful case, this is a pair of lists of equal length specifying the
+            alpha and beta parts of the bitstrings.
         norb: The number of spatial orbitals.
         occupied_orbitals: The occupied orbitals in the electronic configuration.
             This is either a list of integers specifying spinless orbitals, or a
@@ -49,27 +50,24 @@ def slater_determinant_amplitudes(
             You can pass either a single Numpy array specifying the orbital rotation
             to apply to both spin sectors, or you can pass a pair of Numpy arrays
             specifying independent orbital rotations for spin alpha and spin beta.
-            If passing a pair, you can use ``None`` for one of the
-            values in the pair to indicate that no operation should be applied to
-            that spin sector.
 
     Returns:
         The amplitudes of the requested bitstrings.
     """
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
-        if orbital_rotation is None:
-            orbital_rotation = np.eye(norb)
-        vecs = orbital_rotation[:, occupied_orbitals]
+        vecs = cast(np.ndarray, orbital_rotation)[:, occupied_orbitals]
         amplitudes = []
-        for bitstring in bitstrings:
+        for bitstring in cast(Sequence[int], bitstrings):
             orbs = bitstring_to_occupied_orbitals(bitstring)
             amplitudes.append(scipy.linalg.det(vecs[orbs]))
         return np.array(amplitudes)
 
     # Spinful case
-    occupied_orbitals_a, occupied_orbitals_b = occupied_orbitals
-    bitstrings_a, bitstrings_b = bitstrings
+    occupied_orbitals_a, occupied_orbitals_b = cast(
+        tuple[Sequence[int], Sequence[int]], occupied_orbitals
+    )
+    bitstrings_a, bitstrings_b = cast(tuple[Sequence[int], Sequence[int]], bitstrings)
     if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
         orbital_rotation_a = orbital_rotation
         orbital_rotation_b = orbital_rotation
