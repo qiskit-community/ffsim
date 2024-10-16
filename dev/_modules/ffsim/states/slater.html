@@ -278,20 +278,312 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
+<span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
+<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
+<span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
 <span class="kn">from</span> <span class="nn">ffsim.states.bitstring</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">BitstringType</span><span class="p">,</span>
     <span class="n">bitstring_to_occupied_orbitals</span><span class="p">,</span>
-    <span class="n">concatenate_bitstrings</span><span class="p">,</span>
-    <span class="n">convert_bitstring_type</span><span class="p">,</span>
-    <span class="n">restrict_bitstrings</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ffsim.states.states</span> <span class="kn">import</span> <span class="n">dims</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
+<div class="viewcode-block" id="slater_determinant">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant">[docs]</a>
+<span class="k">def</span> <span class="nf">slater_determinant</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a Slater determinant.</span>
+
+<span class="sd">    A Slater determinant is a state of the form</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \mathcal{U} \lvert x \rangle,</span>
+
+<span class="sd">    where :math:`\mathcal{U}` is an</span>
+<span class="sd">    :doc:`orbital rotation &lt;/explanations/orbital-rotation&gt;` and</span>
+<span class="sd">    :math:`\lvert x \rangle` is an electronic configuration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        occupied_orbitals: The occupied orbitals in the electronic configuration.</span>
+<span class="sd">            This is either a list of integers specifying spinless orbitals, or a</span>
+<span class="sd">            pair of lists, where the first list specifies the spin alpha orbitals and</span>
+<span class="sd">            the second list specifies the spin beta orbitals.</span>
+<span class="sd">        orbital_rotation: The optional orbital rotation.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to</span>
+<span class="sd">            that spin sector.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Slater determinant as a state vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">norb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">occupied_orbitals</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+        <span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">occupied_orbitals</span><span class="p">),</span> <span class="p">[])</span>
+
+    <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
+    <span class="p">)</span>
+    <span class="n">n_alpha</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
+    <span class="n">n_beta</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
+    <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+    <span class="n">dim1</span><span class="p">,</span> <span class="n">dim2</span> <span class="o">=</span> <span class="n">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+    <span class="n">alpha_bits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">alpha_bits</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">alpha_string</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="n">b</span> <span class="k">else</span> <span class="s2">&quot;0&quot;</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">alpha_bits</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">alpha_index</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">str2addr</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_alpha</span><span class="p">,</span> <span class="n">alpha_string</span><span class="p">)</span>
+    <span class="n">beta_bits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">beta_bits</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">beta_string</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="n">b</span> <span class="k">else</span> <span class="s2">&quot;0&quot;</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">beta_bits</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">beta_index</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">str2addr</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">,</span> <span class="n">beta_string</span><span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">dim1</span><span class="p">,</span> <span class="n">dim2</span><span class="p">),</span> <span class="p">(</span><span class="n">alpha_index</span><span class="p">,</span> <span class="n">beta_index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span></div>
+
+
+
+<div class="viewcode-block" id="hartree_fock_state">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.hartree_fock_state">[docs]</a>
+<span class="k">def</span> <span class="nf">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the Hartree-Fock state.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Hartree-Fock state as a state vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">nelec</span><span class="p">))</span>
+
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="k">return</span> <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="slater_determinant_rdm">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_rdm">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;ffsim.slater_determinant_rdm is deprecated. &quot;</span>
+    <span class="s2">&quot;Instead, use ffsim.slater_determinant_rdms.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">slater_determinant_rdm</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">spin_summed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrix of a `Slater determinant`_.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This function is deprecated. Use :func:`ffsim.slater_determinant_rdms` instead.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Currently, only rank 1 is supported.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        occupied_orbitals: The occupied orbitals in the electronic configuration.</span>
+<span class="sd">            This is a pair of lists of integers, where the first list specifies the</span>
+<span class="sd">            spin alpha orbitals and the second list specifies the spin beta</span>
+<span class="sd">            orbitals.</span>
+<span class="sd">        orbital_rotation: The optional orbital rotation.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to that</span>
+<span class="sd">            spin sector.</span>
+<span class="sd">        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the</span>
+<span class="sd">            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</span>
+<span class="sd">        spin_summed: Whether to sum over the spin index.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The reduced density matrix of the Slater determinant.</span>
+
+<span class="sd">    .. _Slater determinant: ffsim.html#ffsim.slater_determinant</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">alpha_orbitals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">):</span>
+            <span class="n">rdm_a</span><span class="p">[(</span><span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">alpha_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">):</span>
+            <span class="n">rdm_b</span><span class="p">[(</span><span class="n">beta_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">orbital_rotation_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="n">orbital_rotation_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+            <span class="k">if</span> <span class="n">orbital_rotation_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_a</span> <span class="o">@</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">if</span> <span class="n">orbital_rotation_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_b</span> <span class="o">@</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">if</span> <span class="n">spin_summed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rdm_a</span> <span class="o">+</span> <span class="n">rdm_b</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">rdm_a</span><span class="p">,</span> <span class="n">rdm_b</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Returning the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not supported.&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">slater_determinant_rdms</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">slater_determinant_rdms</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="o">...</span>
+<div class="viewcode-block" id="slater_determinant_rdms">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_rdms">[docs]</a>
+<span class="k">def</span> <span class="nf">slater_determinant_rdms</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrices of a `Slater determinant`_.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Currently, only rank 1 is supported.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        occupied_orbitals: The occupied orbitals in the electronic configuration.</span>
+<span class="sd">            This is either a list of integers specifying spinless orbitals, or a</span>
+<span class="sd">            pair of lists, where the first list specifies the spin alpha orbitals and</span>
+<span class="sd">            the second list specifies the spin beta orbitals.</span>
+<span class="sd">        orbital_rotation: The optional orbital rotation.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
+<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
+<span class="sd">            values in the pair to indicate that no operation should be applied to</span>
+<span class="sd">            that spin sector.</span>
+<span class="sd">        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the</span>
+<span class="sd">            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The reduced density matrices of the Slater determinant.</span>
+<span class="sd">        All RDMs up to and including the specified rank are returned, in increasing</span>
+<span class="sd">        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.</span>
+<span class="sd">        The representation of an RDM depends on whether `occupied_orbitals` is a</span>
+<span class="sd">        sequence of integers (spinless case), or a pair of such sequences</span>
+<span class="sd">        (spinful case). In the spinless case, the full RDM is returned.</span>
+<span class="sd">        In the spinful case, each RDM is represented as a stacked Numpy</span>
+<span class="sd">        array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, alpha-beta), and</span>
+<span class="sd">        the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</span>
+
+<span class="sd">    .. _Slater determinant: ffsim.html#ffsim.slater_determinant</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">occupied_orbitals</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+        <span class="c1"># Spinless case</span>
+        <span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">occupied_orbitals</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">occupied_orbitals</span><span class="p">:</span>
+                <span class="n">rdm</span><span class="p">[(</span><span class="n">occupied_orbitals</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">)</span>
+                <span class="n">rdm</span> <span class="o">=</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm</span> <span class="o">@</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="n">rdm</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Returning the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not &quot;</span>
+            <span class="s2">&quot;supported.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Spinful case</span>
+        <span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
+        <span class="p">)</span>
+        <span class="n">alpha_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">)</span>
+        <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+            <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">alpha_orbitals</span><span class="p">:</span>
+                <span class="n">rdm_a</span><span class="p">[(</span><span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">alpha_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">beta_orbitals</span><span class="p">:</span>
+                <span class="n">rdm_b</span><span class="p">[(</span><span class="n">beta_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="p">):</span>
+                    <span class="n">orbital_rotation_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                    <span class="n">orbital_rotation_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+                <span class="k">if</span> <span class="n">orbital_rotation_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_a</span> <span class="o">@</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span>
+                <span class="k">if</span> <span class="n">orbital_rotation_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_b</span> <span class="o">@</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">rdm_a</span><span class="p">,</span> <span class="n">rdm_b</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Returning the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not &quot;</span>
+            <span class="s2">&quot;supported.&quot;</span>
+        <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="slater_determinant_amplitudes">
@@ -349,196 +641,6 @@
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">amplitudes_a</span> <span class="o">*</span> <span class="n">amplitudes_b</span></div>
 
-
-
-<div class="viewcode-block" id="sample_slater_determinant">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.sample_slater_determinant">[docs]</a>
-<span class="k">def</span> <span class="nf">sample_slater_determinant</span><span class="p">(</span>
-    <span class="n">rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">orbs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">bitstring_type</span><span class="p">:</span> <span class="n">BitstringType</span> <span class="o">=</span> <span class="n">BitstringType</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
-    <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect samples of electronic configurations from a Slater determinant.</span>
-
-<span class="sd">    The Slater determinant is defined by its one-body reduced density matrix (RDM).</span>
-<span class="sd">    The sampler uses a determinantal point process to auto-regressively produce</span>
-<span class="sd">    uncorrelated samples.</span>
-
-<span class="sd">    This sampling strategy is known as</span>
-<span class="sd">    `determinantal point processes &lt;https://arxiv.org/abs/1207.6083&gt;`</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        rdm: The one-body reduced density matrix that defines the Slater determinant</span>
-<span class="sd">            This is either a single Numpy array specifying the 1-RDM of a</span>
-<span class="sd">            spin-polarized system, or a pair of Numpy arrays where each element</span>
-<span class="sd">            of the pair contains the 1-RDM for each spin sector.</span>
-<span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
-<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
-<span class="sd">            and spin beta fermions.</span>
-<span class="sd">        shots: The number of bitstrings to sample.</span>
-<span class="sd">        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the</span>
-<span class="sd">            bitstrings. If True, then a single list of concatenated bitstrings is</span>
-<span class="sd">            returned. The strings are concatenated in the order :math:`s_b s_a`,</span>
-<span class="sd">            that is, the alpha string appears on the right.</span>
-<span class="sd">            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that</span>
-<span class="sd">            the list of alpha strings appears first, that is, on the left.</span>
-<span class="sd">            In the spinless case (when `nelec` is an integer), this argument is ignored.</span>
-<span class="sd">        bitstring_type: The desired type of bitstring output.</span>
-<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
-<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A 2D Numpy array with samples of electronic configurations.</span>
-<span class="sd">        Each row is a sample.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="c1"># Spinless case</span>
-        <span class="n">rdm</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">rdm</span><span class="p">)</span>
-        <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">rdm</span><span class="o">.</span><span class="n">shape</span>
-        <span class="k">if</span> <span class="n">orbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">orbs</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
-        <span class="n">orbs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">orbs</span><span class="p">)</span>
-        <span class="n">strings</span> <span class="o">=</span> <span class="n">_sample_slater_spinless</span><span class="p">(</span><span class="n">rdm</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
-        <span class="n">strings</span> <span class="o">=</span> <span class="n">restrict_bitstrings</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">orbs</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">convert_bitstring_type</span><span class="p">(</span>
-            <span class="n">strings</span><span class="p">,</span>
-            <span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-            <span class="n">bitstring_type</span><span class="p">,</span>
-            <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">orbs</span><span class="p">),</span>
-        <span class="p">)</span>
-
-    <span class="c1"># Spinful case</span>
-    <span class="n">rdm_a</span><span class="p">,</span> <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">rdm</span>
-    <span class="n">n_a</span><span class="p">,</span> <span class="n">n_b</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">rdm_a</span><span class="o">.</span><span class="n">shape</span>
-    <span class="k">if</span> <span class="n">orbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">orbs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">))</span>
-    <span class="n">orbs_a</span><span class="p">,</span> <span class="n">orbs_b</span> <span class="o">=</span> <span class="n">orbs</span>
-    <span class="n">orbs_a</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">orbs_a</span><span class="p">)</span>
-    <span class="n">orbs_b</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">orbs_b</span><span class="p">)</span>
-    <span class="n">strings_a</span> <span class="o">=</span> <span class="n">_sample_slater_spinless</span><span class="p">(</span><span class="n">rdm_a</span><span class="p">,</span> <span class="n">n_a</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
-    <span class="n">strings_b</span> <span class="o">=</span> <span class="n">_sample_slater_spinless</span><span class="p">(</span><span class="n">rdm_b</span><span class="p">,</span> <span class="n">n_b</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
-    <span class="n">strings_a</span> <span class="o">=</span> <span class="n">restrict_bitstrings</span><span class="p">(</span><span class="n">strings_a</span><span class="p">,</span> <span class="n">orbs_a</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
-    <span class="n">strings_b</span> <span class="o">=</span> <span class="n">restrict_bitstrings</span><span class="p">(</span><span class="n">strings_b</span><span class="p">,</span> <span class="n">orbs_b</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">concatenate</span><span class="p">:</span>
-        <span class="n">strings</span> <span class="o">=</span> <span class="n">concatenate_bitstrings</span><span class="p">(</span>
-            <span class="n">strings_a</span><span class="p">,</span>
-            <span class="n">strings_b</span><span class="p">,</span>
-            <span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-            <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">orbs_a</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">convert_bitstring_type</span><span class="p">(</span>
-            <span class="n">strings</span><span class="p">,</span>
-            <span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-            <span class="n">bitstring_type</span><span class="p">,</span>
-            <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">orbs_a</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">orbs_b</span><span class="p">),</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">convert_bitstring_type</span><span class="p">(</span>
-        <span class="n">strings_a</span><span class="p">,</span>
-        <span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-        <span class="n">bitstring_type</span><span class="p">,</span>
-        <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">orbs_a</span><span class="p">),</span>
-    <span class="p">),</span> <span class="n">convert_bitstring_type</span><span class="p">(</span>
-        <span class="n">strings_b</span><span class="p">,</span>
-        <span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-        <span class="n">bitstring_type</span><span class="p">,</span>
-        <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">orbs_b</span><span class="p">),</span>
-    <span class="p">)</span></div>
-
-
-
-<span class="k">def</span> <span class="nf">_sample_slater_spinless</span><span class="p">(</span>
-    <span class="n">rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect samples of electronic configurations from a Slater determinant.</span>
-
-<span class="sd">    The Slater determinant is defined by its one-body reduced density matrix (RDM).</span>
-<span class="sd">    The sampler uses a determinantal point process to auto-regressively produce</span>
-<span class="sd">    uncorrelated samples.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        rdm: The one-body reduced density matrix that defines the Slater determinant.</span>
-<span class="sd">        shots: Number of samples to collect.</span>
-<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
-<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The sampled bitstrings in integer format.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">rdm</span><span class="o">.</span><span class="n">shape</span>
-
-    <span class="k">if</span> <span class="n">nelec</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">shots</span>
-
-    <span class="k">if</span> <span class="n">nelec</span> <span class="o">==</span> <span class="n">norb</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">shots</span>
-
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">_autoregressive_slater</span><span class="p">(</span><span class="n">rdm</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shots</span><span class="p">)]</span>
-    <span class="k">return</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">orb</span> <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">)</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span>
-
-
-<span class="k">def</span> <span class="nf">_autoregressive_slater</span><span class="p">(</span>
-    <span class="n">rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Autoregressively sample occupied orbitals for a Slater determinant.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        rdm: The one-body reduced density matrix.</span>
-<span class="sd">        norb: The number of orbitals.</span>
-<span class="sd">        nelec: The number of electrons.</span>
-<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
-<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A set containing the occupied orbitals.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">orb</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">rdm</span><span class="p">)</span><span class="o">.</span><span class="n">real</span> <span class="o">/</span> <span class="n">nelec</span><span class="p">)</span>
-    <span class="n">sample</span> <span class="o">=</span> <span class="p">{</span><span class="n">orb</span><span class="p">}</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nelec</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">_generate_probs</span><span class="p">(</span><span class="n">rdm</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
-        <span class="n">empty_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="n">orb</span> <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span> <span class="k">if</span> <span class="n">orb</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">)</span>
-        <span class="n">sample</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="n">empty_orbitals</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="kc">None</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">sample</span>
-
-
-<span class="k">def</span> <span class="nf">_generate_probs</span><span class="p">(</span><span class="n">rdm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the probabilities for the next occupied orbital.</span>
-
-<span class="sd">    This is a step of the autoregressive sampling, and uses Bayes&#39;s rule.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        rdm: A Numpy array with the one-body reduced density matrix.</span>
-<span class="sd">        sample: The list of already occupied orbitals.</span>
-<span class="sd">        norb: The number of orbitals.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The probabilities for the next empty orbital to occupy.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span>
-    <span class="n">empty_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="n">orb</span> <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span> <span class="k">if</span> <span class="n">orb</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">empty_orbitals</span><span class="p">):</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sample</span> <span class="o">|</span> <span class="p">{</span><span class="n">orb</span><span class="p">})</span>
-        <span class="n">probs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">rdm</span><span class="p">[</span><span class="n">indices</span><span class="p">][:,</span> <span class="n">indices</span><span class="p">])</span><span class="o">.</span><span class="n">real</span>
-    <span class="k">return</span> <span class="n">probs</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>
