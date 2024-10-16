@@ -283,13 +283,72 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.states.bitstring</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BitstringType</span><span class="p">,</span>
+    <span class="n">bitstring_to_occupied_orbitals</span><span class="p">,</span>
     <span class="n">concatenate_bitstrings</span><span class="p">,</span>
     <span class="n">convert_bitstring_type</span><span class="p">,</span>
     <span class="n">restrict_bitstrings</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<div class="viewcode-block" id="slater_determinant_amplitudes">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_amplitudes">[docs]</a>
+<span class="k">def</span> <span class="nf">slater_determinant_amplitudes</span><span class="p">(</span>
+    <span class="n">bitstrings</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute state vector amplitudes for a Slater determinant.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bitstrings: The bitstrings to return the amplitudes for, in integer</span>
+<span class="sd">            representation. In the spinless case this is a list of integers. In the</span>
+<span class="sd">            spinful case, this is a pair of lists of equal length specifying the</span>
+<span class="sd">            alpha and beta parts of the bitstrings.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        occupied_orbitals: The occupied orbitals in the electronic configuration.</span>
+<span class="sd">            This is either a list of integers specifying spinless orbitals, or a</span>
+<span class="sd">            pair of lists, where the first list specifies the spin alpha orbitals and</span>
+<span class="sd">            the second list specifies the spin beta orbitals.</span>
+<span class="sd">        orbital_rotation: The orbital rotation describing the Slater determinant.</span>
+<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
+<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
+<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The amplitudes of the requested bitstrings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">occupied_orbitals</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+        <span class="c1"># Spinless case</span>
+        <span class="n">vecs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">)[:,</span> <span class="n">occupied_orbitals</span><span class="p">]</span>
+        <span class="n">amplitudes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">bitstring</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">bitstrings</span><span class="p">):</span>
+            <span class="n">orbs</span> <span class="o">=</span> <span class="n">bitstring_to_occupied_orbitals</span><span class="p">(</span><span class="n">bitstring</span><span class="p">)</span>
+            <span class="n">amplitudes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">vecs</span><span class="p">[</span><span class="n">orbs</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">amplitudes</span><span class="p">)</span>
+
+    <span class="c1"># Spinful case</span>
+    <span class="n">occupied_orbitals_a</span><span class="p">,</span> <span class="n">occupied_orbitals_b</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">occupied_orbitals</span>
+    <span class="p">)</span>
+    <span class="n">bitstrings_a</span><span class="p">,</span> <span class="n">bitstrings_b</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">bitstrings</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">orbital_rotation_a</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+        <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
+    <span class="n">amplitudes_a</span> <span class="o">=</span> <span class="n">slater_determinant_amplitudes</span><span class="p">(</span>
+        <span class="n">bitstrings_a</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals_a</span><span class="p">,</span> <span class="n">orbital_rotation_a</span>
+    <span class="p">)</span>
+    <span class="n">amplitudes_b</span> <span class="o">=</span> <span class="n">slater_determinant_amplitudes</span><span class="p">(</span>
+        <span class="n">bitstrings_b</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals_b</span><span class="p">,</span> <span class="n">orbital_rotation_b</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">amplitudes_a</span> <span class="o">*</span> <span class="n">amplitudes_b</span></div>
+
 
 
 <div class="viewcode-block" id="sample_slater_determinant">
