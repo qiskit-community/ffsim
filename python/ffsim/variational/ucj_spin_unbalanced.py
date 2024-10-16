@@ -175,6 +175,7 @@ class UCJOpSpinUnbalanced:
         r"""Return the number of parameters of an ansatz with given settings.
 
         Args:
+            norb: The number of spatial orbitals.
             n_reps: The number of ansatz repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
