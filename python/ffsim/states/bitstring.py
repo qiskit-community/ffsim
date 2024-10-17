@@ -462,7 +462,7 @@ def strings_to_addresses(
     """
     if not len(strings):
         return np.array([])
-    if isinstance(strings, np.ndarray):
+    if isinstance(strings, np.ndarray) and strings.ndim == 2:
         bitstring_type = BitstringType.BIT_ARRAY
     elif isinstance(strings[0], str):
         bitstring_type = BitstringType.STRING
