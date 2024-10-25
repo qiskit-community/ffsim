@@ -29,8 +29,6 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
         cons_N = params.get("cons_N", "N")
         cons_Sz = params.get("cons_Sz", "Sz")
         site = SpinHalfFermionSite(cons_N=cons_N, cons_Sz=cons_Sz)
-        print(sorted(site.opnames))
-        print(site.state_labels)
         return site
 
     def init_lattice(self, params):
