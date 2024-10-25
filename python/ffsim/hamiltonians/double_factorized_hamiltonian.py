@@ -20,6 +20,8 @@ from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
+from ffsim.operators import FermionOperator
+from ffsim.protocols import fermion_operator
 from ffsim.states import dim
 
 
@@ -220,12 +222,12 @@ class DoubleFactorizedHamiltonian:
         """Convert the DoubleFactorizedHamiltonian to a MolecularHamiltonian."""
         df_hamiltonian = self.to_number_representation()
         two_body_tensor = np.einsum(
-            "kpi,kqi,kij,krj,ksj->pqrs",
-            df_hamiltonian.orbital_rotations,
-            df_hamiltonian.orbital_rotations,
+            "kij,kpi,kqi,krj,ksj->pqrs",
             df_hamiltonian.diag_coulomb_mats,
             df_hamiltonian.orbital_rotations,
+            df_hamiltonian.orbital_rotations.conj(),
             df_hamiltonian.orbital_rotations,
+            df_hamiltonian.orbital_rotations.conj(),
         )
         one_body_tensor = df_hamiltonian.one_body_tensor + 0.5 * np.einsum(
             "prqr", two_body_tensor
@@ -269,6 +271,10 @@ class DoubleFactorizedHamiltonian:
     def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the Hamiltonian."""
         return self.to_molecular_hamiltonian()._diag_(norb, nelec)
+
+    def _fermion_operator_(self) -> FermionOperator:
+        """Return a FermionOperator representing the object."""
+        return fermion_operator(self.to_molecular_hamiltonian())
 
 
 def _df_z_representation(

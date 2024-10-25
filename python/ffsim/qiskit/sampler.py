@@ -40,16 +40,21 @@ class FfsimSampler(BaseSamplerV2):
         self,
         *,
         default_shots: int = 1024,
+        global_depolarizing: float = 0.0,
         seed: np.random.Generator | int | None = None,
     ):
         """Initialize the ffsim sampler.
 
         Args:
             default_shots: The default shots to use if not specified during run.
+            global_depolarizing: Depolarizing probability for a noisy simulation.
+                Specifies the probability of sampling from the uniform distribution
+                instead of the state vector.
             seed: A seed to initialize the pseudorandom number generator.
                 Should be a valid input to ``np.random.default_rng``.
         """
         self._default_shots = default_shots
+        self._global_depolarizing = global_depolarizing
         self._rng = np.random.default_rng(seed)
 
     def run(
@@ -76,23 +81,35 @@ class FfsimSampler(BaseSamplerV2):
             for item in meas_info
         }
         for index, bound_circuit in np.ndenumerate(bound_circuits):
-            final_state = final_state_vector(bound_circuit)
             if qargs:
+                final_state = final_state_vector(bound_circuit)
                 norb, nelec = final_state.norb, final_state.nelec
                 if isinstance(nelec, int):
                     orbs = qargs
+                    n_qubits = len(orbs)
                 else:
                     orbs_a = [q for q in qargs if q < norb]
                     orbs_b = [q % norb for q in qargs if q >= norb]
                     orbs = (orbs_a, orbs_b)
-                samples = states.sample_state_vector(
-                    final_state, orbs=orbs, shots=pub.shots, seed=self._rng
+                    n_qubits = len(orbs_a) + len(orbs_b)
+                uniform_shots = self._rng.binomial(pub.shots, self._global_depolarizing)
+                exact_shots = pub.shots - uniform_shots
+                uniform_samples_array = self._rng.integers(
+                    2, size=(uniform_shots, n_qubits), dtype=bool
                 )
+                exact_samples_array = states.sample_state_vector(
+                    final_state,
+                    orbs=orbs,
+                    shots=exact_shots,
+                    bitstring_type=states.BitstringType.BIT_ARRAY,
+                    seed=self._rng,
+                )
+                samples_array = np.concatenate(
+                    [uniform_samples_array, exact_samples_array]
+                )
+                self._rng.shuffle(samples_array)
             else:
-                samples = [""] * pub.shots
-            samples_array = np.array(
-                [np.fromiter(sample, dtype=np.uint8) for sample in samples]
-            )
+                samples_array = np.empty((pub.shots, 0), dtype=bool)
             for item in meas_info:
                 ary = _samples_to_packed_array(
                     samples_array, item.num_bits, item.qreg_indices

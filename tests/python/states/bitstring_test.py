@@ -549,17 +549,19 @@ def test_strings_to_addresses_int():
     nelec = (2, 1)
     dim = ffsim.dim(norb, nelec)
     indices = ffsim.strings_to_addresses(
-        [
-            0b001011,
-            0b010011,
-            0b100011,
-            0b001101,
-            0b010101,
-            0b100101,
-            0b001110,
-            0b010110,
-            0b100110,
-        ],
+        np.array(
+            [
+                0b001011,
+                0b010011,
+                0b100011,
+                0b001101,
+                0b010101,
+                0b100101,
+                0b001110,
+                0b010110,
+                0b100110,
+            ]
+        ),
         norb,
         nelec,
     )

@@ -33,7 +33,7 @@ impl KeysIterator {
             return self
                 .keys
                 .next()
-                .map(|vec| PyTuple::new(py, &vec).to_object(py));
+                .map(|vec| PyTuple::new_bound(py, &vec).to_object(py));
         })
     }
 }
@@ -104,7 +104,6 @@ impl KeysIterator {
 ///     coeffs (dict[tuple[tuple[bool, bool, int], ...], complex]): The coefficients of the
 ///         operator.
 #[pyclass(module = "ffsim", mapping)]
-#[pyo3(text_signature = "(coeffs)")]
 #[derive(Clone)]
 pub struct FermionOperator {
     coeffs: HashMap<Vec<(bool, bool, i32)>, Complex64>,

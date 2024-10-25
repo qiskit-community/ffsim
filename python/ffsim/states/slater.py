@@ -12,202 +12,351 @@
 
 from __future__ import annotations
 
-import itertools
 from collections.abc import Sequence
-from typing import cast
+from typing import cast, overload
 
 import numpy as np
+import scipy.linalg
+from pyscf.fci import cistring
+from typing_extensions import deprecated
 
+from ffsim import linalg
+from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.states.bitstring import (
-    BitstringType,
-    concatenate_bitstrings,
-    convert_bitstring_type,
-    restrict_bitstrings,
+    bitstring_to_occupied_orbitals,
 )
+from ffsim.states.states import dims
 
 
-def sample_slater_determinant(
-    rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
+@overload
+def slater_determinant(
     norb: int,
-    nelec: int | tuple[int, int],
-    *,
-    orbs: Sequence[int] | tuple[Sequence[int], Sequence[int]] | None = None,
-    shots: int = 1,
-    concatenate: bool = True,
-    bitstring_type: BitstringType = BitstringType.STRING,
-    seed: np.random.Generator | int | None = None,
-) -> Sequence[int] | Sequence[str] | np.ndarray:
-    """Collect samples of electronic configurations from a Slater determinant.
+    occupied_orbitals: Sequence[int],
+    orbital_rotation: np.ndarray | None = None,
+) -> np.ndarray: ...
+@overload
+def slater_determinant(
+    norb: int,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+) -> np.ndarray: ...
+def slater_determinant(
+    norb: int,
+    occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+) -> np.ndarray:
+    r"""Return a Slater determinant.
 
-    The Slater determinant is defined by its one-body reduced density matrix (RDM).
-    The sampler uses a determinantal point process to auto-regressively produce
-    uncorrelated samples.
+    A Slater determinant is a state of the form
 
-    This sampling strategy is known as
-    `determinantal point processes <https://arxiv.org/abs/1207.6083>`
+    .. math::
+
+        \mathcal{U} \lvert x \rangle,
+
+    where :math:`\mathcal{U}` is an
+    :doc:`orbital rotation </explanations/orbital-rotation>` and
+    :math:`\lvert x \rangle` is an electronic configuration.
 
     Args:
-        rdm: The one-body reduced density matrix that defines the Slater determinant
-            This is either a single Numpy array specifying the 1-RDM of a
-            spin-polarized system, or a pair of Numpy arrays where each element
-            of the pair contains the 1-RDM for each spin sector.
+        norb: The number of spatial orbitals.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is either a list of integers specifying spinless orbitals, or a
+            pair of lists, where the first list specifies the spin alpha orbitals and
+            the second list specifies the spin beta orbitals.
+        orbital_rotation: The optional orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to
+            that spin sector.
+
+    Returns:
+        The Slater determinant as a state vector.
+    """
+    if norb == 0:
+        return np.ones(1, dtype=complex)
+
+    if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
+        occupied_orbitals = (cast(Sequence[int], occupied_orbitals), [])
+
+    alpha_orbitals, beta_orbitals = cast(
+        tuple[Sequence[int], Sequence[int]], occupied_orbitals
+    )
+    n_alpha = len(alpha_orbitals)
+    n_beta = len(beta_orbitals)
+    nelec = (n_alpha, n_beta)
+    dim1, dim2 = dims(norb, nelec)
+    alpha_bits = np.zeros(norb, dtype=bool)
+    alpha_bits[list(alpha_orbitals)] = 1
+    alpha_string = int("".join("1" if b else "0" for b in alpha_bits[::-1]), base=2)
+    alpha_index = cistring.str2addr(norb, n_alpha, alpha_string)
+    beta_bits = np.zeros(norb, dtype=bool)
+    beta_bits[list(beta_orbitals)] = 1
+    beta_string = int("".join("1" if b else "0" for b in beta_bits[::-1]), base=2)
+    beta_index = cistring.str2addr(norb, n_beta, beta_string)
+    vec = linalg.one_hot(
+        (dim1, dim2), (alpha_index, beta_index), dtype=complex
+    ).reshape(-1)
+    if orbital_rotation is not None:
+        vec = apply_orbital_rotation(
+            vec, orbital_rotation, norb=norb, nelec=nelec, copy=False
+        )
+    return vec
+
+
+def hartree_fock_state(norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
+    """Return the Hartree-Fock state.
+
+    Args:
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
-        shots: The number of bitstrings to sample.
-        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
-            bitstrings. If True, then a single list of concatenated bitstrings is
-            returned. The strings are concatenated in the order :math:`s_b s_a`,
-            that is, the alpha string appears on the right.
-            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
-            the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
-        bitstring_type: The desired type of bitstring output.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
 
     Returns:
-        A 2D Numpy array with samples of electronic configurations.
-        Each row is a sample.
+        The Hartree-Fock state as a state vector.
     """
-    rng = np.random.default_rng(seed)
-
     if isinstance(nelec, int):
-        # Spinless case
-        rdm = cast(np.ndarray, rdm)
-        norb, _ = rdm.shape
-        if orbs is None:
-            orbs = range(norb)
-        orbs = cast(Sequence[int], orbs)
-        strings = _sample_slater_spinless(rdm, nelec, shots, rng)
-        strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
-        return convert_bitstring_type(
-            strings,
-            BitstringType.INT,
-            bitstring_type,
-            length=len(orbs),
-        )
+        return slater_determinant(norb, occupied_orbitals=range(nelec))
 
-    # Spinful case
-    rdm_a, rdm_b = rdm
-    n_a, n_b = nelec
-    norb, _ = rdm_a.shape
-    if orbs is None:
-        orbs = (range(norb), range(norb))
-    orbs_a, orbs_b = orbs
-    orbs_a = cast(Sequence[int], orbs_a)
-    orbs_b = cast(Sequence[int], orbs_b)
-    strings_a = _sample_slater_spinless(rdm_a, n_a, shots, rng)
-    strings_b = _sample_slater_spinless(rdm_b, n_b, shots, rng)
-    strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=BitstringType.INT)
-    strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=BitstringType.INT)
+    n_alpha, n_beta = nelec
+    return slater_determinant(norb, occupied_orbitals=(range(n_alpha), range(n_beta)))
 
-    if concatenate:
-        strings = concatenate_bitstrings(
-            strings_a,
-            strings_b,
-            BitstringType.INT,
-            length=len(orbs_a),
-        )
-        return convert_bitstring_type(
-            strings,
-            BitstringType.INT,
-            bitstring_type,
-            length=len(orbs_a) + len(orbs_b),
-        )
 
-    return convert_bitstring_type(
-        strings_a,
-        BitstringType.INT,
-        bitstring_type,
-        length=len(orbs_a),
-    ), convert_bitstring_type(
-        strings_b,
-        BitstringType.INT,
-        bitstring_type,
-        length=len(orbs_b),
+@deprecated(
+    "ffsim.slater_determinant_rdm is deprecated. "
+    "Instead, use ffsim.slater_determinant_rdms."
+)
+def slater_determinant_rdm(
+    norb: int,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+    rank: int = 1,
+    spin_summed: bool = True,
+) -> np.ndarray:
+    """Return the reduced density matrix of a `Slater determinant`_.
+
+    .. warning::
+        This function is deprecated. Use :func:`ffsim.slater_determinant_rdms` instead.
+
+    Note:
+        Currently, only rank 1 is supported.
+
+    Args:
+        norb: The number of spatial orbitals.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is a pair of lists of integers, where the first list specifies the
+            spin alpha orbitals and the second list specifies the spin beta
+            orbitals.
+        orbital_rotation: The optional orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to that
+            spin sector.
+        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the
+            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.
+        spin_summed: Whether to sum over the spin index.
+
+    Returns:
+        The reduced density matrix of the Slater determinant.
+
+    .. _Slater determinant: ffsim.html#ffsim.slater_determinant
+    """
+    if rank == 1:
+        rdm_a = np.zeros((norb, norb), dtype=complex)
+        rdm_b = np.zeros((norb, norb), dtype=complex)
+        alpha_orbitals = np.array(occupied_orbitals[0])
+        beta_orbitals = np.array(occupied_orbitals[1])
+        if len(alpha_orbitals):
+            rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
+        if len(beta_orbitals):
+            rdm_b[(beta_orbitals, beta_orbitals)] = 1
+        if orbital_rotation is not None:
+            if isinstance(orbital_rotation, np.ndarray):
+                orbital_rotation_a: np.ndarray | None = orbital_rotation
+                orbital_rotation_b: np.ndarray | None = orbital_rotation
+            else:
+                orbital_rotation_a, orbital_rotation_b = orbital_rotation
+            if orbital_rotation_a is not None:
+                rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
+            if orbital_rotation_b is not None:
+                rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
+        if spin_summed:
+            return rdm_a + rdm_b
+        return scipy.linalg.block_diag(rdm_a, rdm_b)
+    raise NotImplementedError(
+        f"Returning the rank {rank} reduced density matrix is currently not supported."
     )
 
 
-def _sample_slater_spinless(
-    rdm: np.ndarray,
-    nelec: int,
-    shots: int,
-    seed: np.random.Generator | int | None = None,
-) -> list[int]:
-    """Collect samples of electronic configurations from a Slater determinant.
-
-    The Slater determinant is defined by its one-body reduced density matrix (RDM).
-    The sampler uses a determinantal point process to auto-regressively produce
-    uncorrelated samples.
-
-    Args:
-        rdm: The one-body reduced density matrix that defines the Slater determinant.
-        shots: Number of samples to collect.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-
-    Returns:
-        The sampled bitstrings in integer format.
-    """
-    norb, _ = rdm.shape
-
-    if nelec == 0:
-        return [0] * shots
-
-    if nelec == norb:
-        return [(1 << norb) - 1] * shots
-
-    rng = np.random.default_rng(seed)
-    samples = [_autoregressive_slater(rdm, norb, nelec, rng) for _ in range(shots)]
-    return [sum(1 << orb for orb in sample) for sample in samples]
-
-
-def _autoregressive_slater(
-    rdm: np.ndarray,
+@overload
+def slater_determinant_rdms(
     norb: int,
-    nelec: int,
-    seed: np.random.Generator | int | None = None,
-) -> set[int]:
-    """Autoregressively sample occupied orbitals for a Slater determinant.
+    occupied_orbitals: Sequence[int],
+    orbital_rotation: np.ndarray | None = None,
+    *,
+    rank: int = 1,
+) -> np.ndarray: ...
+@overload
+def slater_determinant_rdms(
+    norb: int,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+    *,
+    rank: int = 1,
+) -> np.ndarray: ...
+def slater_determinant_rdms(
+    norb: int,
+    occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+    *,
+    rank: int = 1,
+) -> np.ndarray:
+    """Return the reduced density matrices of a `Slater determinant`_.
+
+    Note:
+        Currently, only rank 1 is supported.
 
     Args:
-        rdm: The one-body reduced density matrix.
-        norb: The number of orbitals.
-        nelec: The number of electrons.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
+        norb: The number of spatial orbitals.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is either a list of integers specifying spinless orbitals, or a
+            pair of lists, where the first list specifies the spin alpha orbitals and
+            the second list specifies the spin beta orbitals.
+        orbital_rotation: The optional orbital rotation.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
+            If passing a pair, you can use ``None`` for one of the
+            values in the pair to indicate that no operation should be applied to
+            that spin sector.
+        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the
+            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.
 
     Returns:
-        A set containing the occupied orbitals.
+        The reduced density matrices of the Slater determinant.
+        All RDMs up to and including the specified rank are returned, in increasing
+        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
+        The representation of an RDM depends on whether `occupied_orbitals` is a
+        sequence of integers (spinless case), or a pair of such sequences
+        (spinful case). In the spinless case, the full RDM is returned.
+        In the spinful case, each RDM is represented as a stacked Numpy
+        array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, alpha-beta), and
+        the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
+
+    .. _Slater determinant: ffsim.html#ffsim.slater_determinant
     """
-    rng = np.random.default_rng(seed)
-    orb = rng.choice(norb, p=np.diag(rdm).real / nelec)
-    sample = {orb}
-    for i in range(nelec - 1):
-        index = rng.choice(norb - 1 - i, p=_generate_probs(rdm, sample, norb))
-        empty_orbitals = (orb for orb in range(norb) if orb not in sample)
-        sample.add(next(itertools.islice(empty_orbitals, index, None)))
-    return sample
+    if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
+        # Spinless case
+        occupied_orbitals = list(cast(Sequence[int], occupied_orbitals))
+        if rank == 1:
+            rdm = np.zeros((norb, norb), dtype=complex)
+            if occupied_orbitals:
+                rdm[(occupied_orbitals, occupied_orbitals)] = 1
+            if orbital_rotation is not None:
+                orbital_rotation = cast(np.ndarray, orbital_rotation)
+                rdm = orbital_rotation.conj() @ rdm @ orbital_rotation.T
+            return rdm
+        raise NotImplementedError(
+            f"Returning the rank {rank} reduced density matrix is currently not "
+            "supported."
+        )
+    else:
+        # Spinful case
+        alpha_orbitals, beta_orbitals = cast(
+            tuple[Sequence[int], Sequence[int]], occupied_orbitals
+        )
+        alpha_orbitals = list(alpha_orbitals)
+        beta_orbitals = list(beta_orbitals)
+        if rank == 1:
+            rdm_a = np.zeros((norb, norb))
+            rdm_b = np.zeros((norb, norb))
+            if alpha_orbitals:
+                rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
+            if beta_orbitals:
+                rdm_b[(beta_orbitals, beta_orbitals)] = 1
+            if orbital_rotation is not None:
+                if (
+                    isinstance(orbital_rotation, np.ndarray)
+                    and orbital_rotation.ndim == 2
+                ):
+                    orbital_rotation_a: np.ndarray | None = orbital_rotation
+                    orbital_rotation_b: np.ndarray | None = orbital_rotation
+                else:
+                    orbital_rotation_a, orbital_rotation_b = orbital_rotation
+                if orbital_rotation_a is not None:
+                    rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
+                if orbital_rotation_b is not None:
+                    rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
+            return np.stack([rdm_a, rdm_b])
+        raise NotImplementedError(
+            f"Returning the rank {rank} reduced density matrix is currently not "
+            "supported."
+        )
 
 
-def _generate_probs(rdm: np.ndarray, sample: set[int], norb: int) -> np.ndarray:
-    """Computes the probabilities for the next occupied orbital.
-
-    This is a step of the autoregressive sampling, and uses Bayes's rule.
+def slater_determinant_amplitudes(
+    bitstrings: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    norb: int,
+    occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray | tuple[np.ndarray, np.ndarray],
+) -> np.ndarray:
+    """Compute state vector amplitudes for a Slater determinant.
 
     Args:
-        rdm: A Numpy array with the one-body reduced density matrix.
-        sample: The list of already occupied orbitals.
-        norb: The number of orbitals.
+        bitstrings: The bitstrings to return the amplitudes for, in integer
+            representation. In the spinless case this is a list of integers. In the
+            spinful case, this is a pair of lists of equal length specifying the
+            alpha and beta parts of the bitstrings.
+        norb: The number of spatial orbitals.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is either a list of integers specifying spinless orbitals, or a
+            pair of lists, where the first list specifies the spin alpha orbitals and
+            the second list specifies the spin beta orbitals.
+        orbital_rotation: The orbital rotation describing the Slater determinant.
+            You can pass either a single Numpy array specifying the orbital rotation
+            to apply to both spin sectors, or you can pass a pair of Numpy arrays
+            specifying independent orbital rotations for spin alpha and spin beta.
 
     Returns:
-        The probabilities for the next empty orbital to occupy.
+        The amplitudes of the requested bitstrings.
     """
-    probs = np.zeros(norb - len(sample))
-    empty_orbitals = (orb for orb in range(norb) if orb not in sample)
-    for i, orb in enumerate(empty_orbitals):
-        indices = list(sample | {orb})
-        probs[i] = np.linalg.det(rdm[indices][:, indices]).real
-    return probs / np.sum(probs)
+    if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
+        # Spinless case
+        vecs = cast(np.ndarray, orbital_rotation)[:, occupied_orbitals]
+        amplitudes = []
+        for bitstring in cast(Sequence[int], bitstrings):
+            orbs = bitstring_to_occupied_orbitals(bitstring)
+            amplitudes.append(scipy.linalg.det(vecs[orbs]))
+        return np.array(amplitudes)
+
+    # Spinful case
+    occupied_orbitals_a, occupied_orbitals_b = cast(
+        tuple[Sequence[int], Sequence[int]], occupied_orbitals
+    )
+    bitstrings_a, bitstrings_b = cast(tuple[Sequence[int], Sequence[int]], bitstrings)
+    if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
+        orbital_rotation_a = orbital_rotation
+        orbital_rotation_b = orbital_rotation
+    else:
+        orbital_rotation_a, orbital_rotation_b = orbital_rotation
+    amplitudes_a = slater_determinant_amplitudes(
+        bitstrings_a, norb, occupied_orbitals_a, orbital_rotation_a
+    )
+    amplitudes_b = slater_determinant_amplitudes(
+        bitstrings_b, norb, occupied_orbitals_b, orbital_rotation_b
+    )
+    return amplitudes_a * amplitudes_b

@@ -11,14 +11,14 @@ crate-type = ["cdylib"]
 [dependencies]
 blas = "0.22"
 ndarray = { version = "0.15", features = ["rayon"] }
-blas-src = { version = "0.9" }
-numpy = "0.18"
-pyo3 = { version = "0.18", features = [
+blas-src = { version = "0.10" }
+numpy = "0.21"
+pyo3 = { version = "0.21", features = [
     "extension-module",
     "num-complex",
     "abi3-py39",
 ] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-blas-src = { version = "0.9", features = ["openblas"] }
+blas-src = { version = "0.10", features = ["openblas"] }
 openblas-src = { version = "0.10", features = ["system"] }

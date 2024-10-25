@@ -18,13 +18,12 @@ import numpy as np
 import pyscf.ao2mo
 import pyscf.tools
 from opt_einsum import contract
-from pyscf.fci.direct_nosym import absorb_h1e, contract_1e, contract_2e, make_hdiag
+from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
 from typing_extensions import deprecated
 
-from ffsim._lib import FermionOperator
 from ffsim.cistring import gen_linkstr_index
-from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
+from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
 
 
@@ -123,34 +122,22 @@ class MolecularHamiltonian:
 
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
-        if np.iscomplexobj(self.two_body_tensor):
-            raise NotImplementedError(
-                "This Hamiltonian has a complex-valued two-body tensor. "
-                "LinearOperator support for complex two-body tensors is not yet "
-                "implemented. See https://github.com/qiskit-community/ffsim/issues/81."
-            )
-
         n_alpha, n_beta = nelec
         linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
         linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
         link_index = (linkstr_index_a, linkstr_index_b)
+        two_body = absorb_h1e(
+            self.one_body_tensor, self.two_body_tensor, norb, nelec, 0.5
+        )
 
-        if np.iscomplexobj(self.one_body_tensor):
-            return _linear_operator_complex(
-                one_body_tensor=self.one_body_tensor,
-                two_body_tensor=self.two_body_tensor,
-                constant=self.constant,
-                norb=norb,
-                nelec=nelec,
-                link_index=link_index,
-            )
-        return _linear_operator_real(
-            one_body_tensor=self.one_body_tensor,
-            two_body_tensor=self.two_body_tensor,
-            constant=self.constant,
-            norb=norb,
-            nelec=nelec,
-            link_index=link_index,
+        def matvec(vec: np.ndarray):
+            result = self.constant * vec.astype(complex, copy=False)
+            result += contract_2e(two_body, vec, norb, nelec, link_index=link_index)
+            return result
+
+        dim_ = dim(norb, nelec)
+        return LinearOperator(
+            shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
 
     def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
@@ -204,57 +191,3 @@ class MolecularHamiltonian:
                 return False
             return True
         return NotImplemented
-
-
-def _linear_operator_complex(
-    one_body_tensor: np.ndarray,
-    two_body_tensor: np.ndarray,
-    constant: float,
-    norb: int,
-    nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray],
-):
-    two_body = absorb_h1e(one_body_tensor.real, two_body_tensor, norb, nelec, 0.5)
-    dim_ = dim(norb, nelec)
-
-    def matvec(vec: np.ndarray):
-        result = constant * vec.astype(complex, copy=False)
-        result += 1j * contract_1e(
-            one_body_tensor.imag, vec.real, norb, nelec, link_index=link_index
-        )
-        result -= contract_1e(
-            one_body_tensor.imag, vec.imag, norb, nelec, link_index=link_index
-        )
-        result += contract_2e(two_body, vec.real, norb, nelec, link_index=link_index)
-        result += 1j * contract_2e(
-            two_body, vec.imag, norb, nelec, link_index=link_index
-        )
-        return result
-
-    return LinearOperator(
-        shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
-    )
-
-
-def _linear_operator_real(
-    one_body_tensor: np.ndarray,
-    two_body_tensor: np.ndarray,
-    constant: float,
-    norb: int,
-    nelec: tuple[int, int],
-    link_index: tuple[np.ndarray, np.ndarray],
-):
-    two_body = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
-    dim_ = dim(norb, nelec)
-
-    def matvec(vec: np.ndarray):
-        result = constant * vec.astype(complex, copy=False)
-        result += contract_2e(two_body, vec.real, norb, nelec, link_index=link_index)
-        result += 1j * contract_2e(
-            two_body, vec.imag, norb, nelec, link_index=link_index
-        )
-        return result
-
-    return LinearOperator(
-        shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
-    )

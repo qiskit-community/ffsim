@@ -34,7 +34,7 @@ def _truncated_eigh(
     indices = np.argsort(np.abs(eigs))[::-1]
     eigs = eigs[indices]
     vecs = vecs[:, indices]
-    n_discard = np.searchsorted(np.cumsum(np.abs(eigs[::-1])), tol)
+    n_discard = int(np.searchsorted(np.cumsum(np.abs(eigs[::-1])), tol))
     n_vecs = cast(int, min(max_vecs, len(eigs) - n_discard))
     return eigs[:n_vecs], vecs[:, :n_vecs]
 
@@ -48,7 +48,7 @@ def _truncated_svd(
     left_vecs, singular_vals, right_vecs = scipy.linalg.svd(mat, full_matrices=False)
     if max_vecs is None:
         max_vecs = len(singular_vals)
-    n_discard = np.searchsorted(np.cumsum(singular_vals[::-1]), tol)
+    n_discard = int(np.searchsorted(np.cumsum(singular_vals[::-1]), tol))
     n_vecs = cast(int, min(max_vecs, len(singular_vals) - n_discard))
     return left_vecs[:, :n_vecs], singular_vals[:n_vecs], right_vecs[:n_vecs]
 

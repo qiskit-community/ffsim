@@ -157,6 +157,8 @@ def convert_bitstring_type(
             return [int(s, base=2) for s in strings]
 
         if output_type is BitstringType.BIT_ARRAY:
+            if not strings:
+                return np.empty((0, length), dtype=bool)
             return np.array([[b == "1" for b in s] for s in strings])
 
     if input_type is BitstringType.INT:
@@ -166,6 +168,8 @@ def convert_bitstring_type(
             return [f"{string:0{length}b}" for string in strings]
 
         if output_type is BitstringType.BIT_ARRAY:
+            if not strings:
+                return np.empty((0, length), dtype=bool)
             return np.array(
                 [[s >> i & 1 for i in range(length - 1, -1, -1)] for s in strings],
                 dtype=bool,
@@ -458,7 +462,7 @@ def strings_to_addresses(
     """
     if not len(strings):
         return np.array([])
-    if isinstance(strings, np.ndarray):
+    if isinstance(strings, np.ndarray) and strings.ndim == 2:
         bitstring_type = BitstringType.BIT_ARRAY
     elif isinstance(strings[0], str):
         bitstring_type = BitstringType.STRING
@@ -477,3 +481,8 @@ def strings_to_addresses(
     addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
     dim_b = math.comb(norb, n_beta)
     return addrs_a * dim_b + addrs_b
+
+
+def bitstring_to_occupied_orbitals(bitstring: int) -> list[int]:
+    """Return a list of bit indices where a bitstring is equal to one."""
+    return [i for i in range(bitstring.bit_length()) if bitstring >> i & 1]

@@ -19,17 +19,20 @@ from ffsim.states.bitstring import (
 )
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import rdm, rdms
-from ffsim.states.slater import sample_slater_determinant
+from ffsim.states.sample_slater import sample_slater_determinant
+from ffsim.states.slater import (
+    hartree_fock_state,
+    slater_determinant,
+    slater_determinant_amplitudes,
+    slater_determinant_rdm,
+    slater_determinant_rdms,
+)
 from ffsim.states.states import (
     StateVector,
     dim,
     dims,
-    hartree_fock_state,
     one_hot,
     sample_state_vector,
-    slater_determinant,
-    slater_determinant_rdm,
-    slater_determinant_rdms,
     spin_square,
 )
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
@@ -51,6 +54,7 @@ __all__ = [
     "sample_slater_determinant",
     "sample_state_vector",
     "slater_determinant",
+    "slater_determinant_amplitudes",
     "slater_determinant_rdm",
     "slater_determinant_rdms",
     "spin_square",
