@@ -25,7 +25,7 @@ from typing_extensions import deprecated
 from ffsim.cistring import gen_linkstr_index
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
-from ffsim.tenpy.hamiltonians import MolecularHamiltonianMPO
+from ffsim.tenpy.hamiltonians import MolecularHamiltonianMPOModel
 
 
 @dataclasses.dataclass(frozen=True)
@@ -152,7 +152,7 @@ class MolecularHamiltonian:
             two_body_tensor=two_body_tensor,
             constant=self.constant,
         )
-        mpo_model = MolecularHamiltonianMPO(model_params)
+        mpo_model = MolecularHamiltonianMPOModel(model_params)
 
         return mpo_model.H_MPO
 

@@ -21,7 +21,7 @@ class MolecularChain(Lattice):
         super().__init__([L, 1], [site_a] * norb, **kwargs)
 
 
-class MolecularHamiltonianMPO(CouplingMPOModel):
+class MolecularHamiltonianMPOModel(CouplingMPOModel):
     def __init__(self, params):
         CouplingMPOModel.__init__(self, params)
 

@@ -8,14 +8,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Classes for converting Hamiltonians to TeNPy MPO objects."""
+"""Classes for converting Hamiltonians to TeNPy MPOModel objects."""
 
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import (
     MolecularChain,
-    MolecularHamiltonianMPO,
+    MolecularHamiltonianMPOModel,
 )
 
 __all__ = [
     "MolecularChain",
-    "MolecularHamiltonianMPO",
+    "MolecularHamiltonianMPOModel",
 ]
