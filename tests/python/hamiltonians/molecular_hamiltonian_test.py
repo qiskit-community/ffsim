@@ -198,7 +198,7 @@ def test_to_mpo(norb: int, nelec: tuple[int, int]):
     product_state = np.zeros(dim)
     product_state[idx] = 1
 
-    # convert random product state to MPS
+    # convert product state to MPS
     product_state_mps = product_state_to_mps(norb, nelec, idx)
 
     # test expectation is preserved
