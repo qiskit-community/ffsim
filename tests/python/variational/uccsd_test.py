@@ -69,7 +69,8 @@ def test_parameters_roundtrip():
         np.testing.assert_allclose(roundtripped.t2, operator.t2)
         if with_final_orbital_rotation:
             np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
+                np.asarray(roundtripped.final_orbital_rotation),
+                np.asarray(operator.final_orbital_rotation),
             )
 
 
