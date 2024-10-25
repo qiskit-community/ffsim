@@ -30,6 +30,7 @@ dependencies = [
     "qiskit >= 1.1",
     "scipy",
     "typing-extensions",
+    "physics-tenpy"
 ]
 
 [project.urls]

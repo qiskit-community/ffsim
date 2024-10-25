@@ -22,6 +22,7 @@ import pytest
 import scipy.sparse.linalg
 
 import ffsim
+from ffsim.tenpy.util import product_state_to_mps
 
 
 def test_linear_operator():
@@ -164,6 +165,46 @@ def test_rotated():
     original_expectation = np.vdot(vec, linop @ vec)
     rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
     np.testing.assert_allclose(original_expectation, rotated_expectation)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_to_mpo(norb: int, nelec: tuple[int, int]):
+    """Test MPO conversion."""
+    rng = np.random.default_rng()
+
+    # generate a random molecular Hamiltonian
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng)
+    constant = rng.standard_normal()
+    mol_hamiltonian = ffsim.MolecularHamiltonian(
+        one_body_tensor, two_body_tensor, constant=constant
+    )
+    linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo = mol_hamiltonian.to_mpo()
+
+    # generate a random product state
+    dim = ffsim.dim(norb, nelec)
+    idx = rng.integers(0, high=dim)
+    product_state = np.zeros(dim)
+    product_state[idx] = 1
+
+    # convert random product state to MPS
+    product_state_mps = product_state_to_mps(norb, nelec, idx)
+
+    # test expectation is preserved
+    original_expectation = np.vdot(product_state, linop @ product_state)
+    mpo_expectation = mol_hamiltonian_mpo.expectation_value_finite(product_state_mps)
+    np.testing.assert_allclose(original_expectation, mpo_expectation)
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
