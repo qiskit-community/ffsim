@@ -8,6 +8,8 @@ from tenpy.networks.site import SpinHalfFermionSite
 
 
 class MolecularChain(Lattice):
+    """Molecular chain."""
+
     def __init__(self, L, norb, site_a, **kwargs):
         basis = np.array(([norb, 0.0], [0, 1]))
         pos = np.array([[i, 0] for i in range(norb)])
@@ -22,6 +24,8 @@ class MolecularChain(Lattice):
 
 
 class MolecularHamiltonianMPOModel(CouplingMPOModel):
+    """Molecular Hamiltonian MPOModel."""
+
     def __init__(self, params):
         CouplingMPOModel.__init__(self, params)
 
