@@ -4,7 +4,7 @@ from tenpy.networks.site import SpinHalfFermionSite
 import ffsim
 
 
-def product_state_to_mps(norb, nelec, idx):
+def product_state_as_mps(norb, nelec, idx):
     r"""Return the product state as an MPS.
 
     Return type:

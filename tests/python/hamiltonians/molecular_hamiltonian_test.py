@@ -22,7 +22,7 @@ import pytest
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.tenpy.util import product_state_to_mps
+from ffsim.tenpy.util import product_state_as_mps
 
 
 def test_linear_operator():
@@ -199,7 +199,7 @@ def test_to_mpo(norb: int, nelec: tuple[int, int]):
     product_state[idx] = 1
 
     # convert product state to MPS
-    product_state_mps = product_state_to_mps(norb, nelec, idx)
+    product_state_mps = product_state_as_mps(norb, nelec, idx)
 
     # test expectation is preserved
     original_expectation = np.vdot(product_state, linop @ product_state)
