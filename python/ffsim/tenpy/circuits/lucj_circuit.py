@@ -16,7 +16,7 @@ from ffsim.tenpy.util import product_state_as_mps
 # from tenpy.models.hubbard import FermiHubbardChain
 
 
-def lucj_circuit_as_mps(norb, nelec, lucj_operator, trunc_params, norm_tol=1e-5):
+def lucj_circuit_as_mps(norb, nelec, lucj_operator, options, norm_tol=1e-5):
     r"""Return the LUCJ circuit as an MPS.
 
     Args:
@@ -25,7 +25,7 @@ def lucj_circuit_as_mps(norb, nelec, lucj_operator, trunc_params, norm_tol=1e-5)
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
         lucj_operator: The LUCJ operator.
-        trunc_params: The truncation parameters for the TEBD gates, as defined in the
+        options: The parameters passed to the TEBDEngine, as defined in the
             TeNPy documentation.
         norm_tol: The norm error above which we recanonicalize the wavefunction, as
             defined in the TeNPy documentation.
@@ -49,10 +49,7 @@ def lucj_circuit_as_mps(norb, nelec, lucj_operator, trunc_params, norm_tol=1e-5)
     circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(lucj_operator), qubits)
 
     # define the TEBD engine
-    # dummy_model = FermiHubbardChain(
-    #     {'cons_N': 'N', 'cons_Sz': 'Sz', 'L': 2 * norb, 't': 1, 'U': 2, 'mu': 0,
-    #     'V': 0, 'bc_x': 'open', 'bc_MPS': 'finite'})
-    eng = TEBDEngine(psi, None, {"trunc_params": trunc_params})
+    eng = TEBDEngine(psi, None, options)
 
     # execute the tenpy circuit
     for ins in circuit.decompose(reps=2):
@@ -115,4 +112,4 @@ def lucj_circuit_as_mps(norb, nelec, lucj_operator, trunc_params, norm_tol=1e-5)
         else:
             raise ValueError(f"gate {ins.operation.name} not implemented.")
 
-    return psi
+    return psi, chi_list
