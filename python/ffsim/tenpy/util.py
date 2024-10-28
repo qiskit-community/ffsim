@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from tenpy.networks.mps import MPS
 from tenpy.networks.site import SpinHalfFermionSite
 
