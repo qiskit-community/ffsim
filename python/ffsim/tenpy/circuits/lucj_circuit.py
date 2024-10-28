@@ -7,8 +7,8 @@ from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
 from ffsim.tenpy.circuits.gates import (
-    cphase,
-    cphase_onsite,
+    cphase1,
+    cphase2,
     gate1,
     gate2,
     phase,
@@ -20,7 +20,7 @@ from ffsim.tenpy.util import product_state_as_mps
 def lucj_circuit_as_mps(
     norb: int,
     nelec: tuple,
-    lucj_operator: ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced,
+    lucj_operator: "ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced",
     options: dict,
     norm_tol: float = 1e-5,
 ) -> Tuple[tenpy.networks.mps.MPS, list[int]]:
@@ -40,7 +40,7 @@ def lucj_circuit_as_mps(
         `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
             LUCJ circuit as an MPS.
 
-        list
+        list[int]
             Complete list of MPS bond dimensions compiled during circuit evaluation.
     """
 
@@ -95,16 +95,16 @@ def lucj_circuit_as_mps(
             lmbda = ins.operation.params[0]
             # onsite (different spins)
             if np.abs(idx0 - idx1) == norb:
-                gate1(cphase_onsite(lmbda), min(idx0, idx1), psi)
+                gate1(cphase1(lmbda), min(idx0, idx1), psi)
             # NN (up spins)
             elif np.abs(idx0 - idx1) == 1 and idx0 < norb and idx1 < norb:
                 gate2(
-                    cphase("up", lmbda), max(idx0, idx1), psi, eng, chi_list, norm_tol
+                    cphase2("up", lmbda), max(idx0, idx1), psi, eng, chi_list, norm_tol
                 )
             # NN (down spins)
             elif np.abs(idx0 - idx1) == 1 and idx0 >= norb and idx1 >= norb:
                 gate2(
-                    cphase("down", lmbda),
+                    cphase2("down", lmbda),
                     max(idx0 % norb, idx1 % norb),
                     psi,
                     eng,

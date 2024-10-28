@@ -15,13 +15,13 @@ shfsc = LegPipe([shfs.leg, shfs.leg])
 
 
 def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
-    r"""Convert a gate to the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+    r"""Convert a gate to the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
         gate: The quantum gate.
 
     Returns:
-        The quantum gate in the (N, Sz)-symmetry-conserved basis.
+        The quantum gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
     # convert to (N, Sz)-symmetry-conserved basis
@@ -48,7 +48,7 @@ def xy(spin: str, theta: float, beta: float, conj: bool = False) -> np.ndarray:
 
     The XXPlusYY gate as defined in the
     `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.XXPlusYYGate>`__,
-    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
         spin: The spin sector ("up" or "down").
@@ -58,7 +58,7 @@ def xy(spin: str, theta: float, beta: float, conj: bool = False) -> np.ndarray:
             convention, as in Qiskit.
 
     Returns:
-        The XXPlusYY gate in the (N, Sz)-symmetry-conserved basis.
+        The XXPlusYY gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
     # define conjugate operator
@@ -125,14 +125,14 @@ def phase(spin: str, theta: float) -> np.ndarray:
 
     The Phase gate as defined in the
     `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PhaseGate>`__,
-    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
         spin: The spin sector ("up" or "down").
         theta: The rotation angle.
 
     Returns:
-        The Phase gate in the (N, Sz)-symmetry-conserved basis.
+        The Phase gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
     # define operators
@@ -159,18 +159,22 @@ def phase(spin: str, theta: float) -> np.ndarray:
     return Pgate_sym
 
 
-def cphase_onsite(theta: float) -> np.ndarray:
-    r"""The on-site CPhase gate.
+def cphase1(theta: float) -> np.ndarray:
+    r"""The single-site CPhase gate.
 
-    The on-site CPhase gate as defined in the
+    The single-site CPhase gate as defined in the
     `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CPhaseGate>`__,
-    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
+
+    .. note::
+        A two-site CPhase gate in the qubit basis may translate to a single-site CPhase
+        gate in the fermion basis.
 
     Args:
         theta: The rotation angle.
 
     Returns:
-        The on-site CPhase gate in the (N, Sz)-symmetry-conserved basis.
+        The single-site CPhase gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
     CPgate = np.eye(4, dtype=complex)
@@ -182,19 +186,23 @@ def cphase_onsite(theta: float) -> np.ndarray:
     return CPgate_sym
 
 
-def cphase(spin: str, theta: float) -> np.ndarray:
-    r"""The off-site CPhase gate.
+def cphase2(spin: str, theta: float) -> np.ndarray:
+    r"""The two-site CPhase gate.
 
-    The off-site CPhase gate as defined in the
+    The two-site CPhase gate as defined in the
     `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.XXPlusYYGate>`__,
-    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
+
+    .. note::
+        A two-site CPhase gate in the qubit basis may translate to a single-site CPhase
+        gate in the fermion basis.
 
     Args:
         spin: The spin sector ("up" or "down").
         theta: The rotation angle.
 
     Returns:
-        The off-site CPhase gate in the (N, Sz)-symmetry-conserved basis.
+        The two-site CPhase gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
     # define operators

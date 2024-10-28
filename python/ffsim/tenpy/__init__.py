@@ -11,8 +11,8 @@
 """Code that uses TeNPy, e.g. for emulating quantum circuits."""
 
 from ffsim.tenpy.circuits.gates import (
-    cphase,
-    cphase_onsite,
+    cphase1,
+    cphase2,
     gate1,
     gate2,
     phase,
@@ -29,8 +29,8 @@ __all__ = [
     "sym_cons_basis",
     "xy",
     "phase",
-    "cphase_onsite",
-    "cphase",
+    "cphase1",
+    "cphase2",
     "gate1",
     "gate2",
     "lucj_circuit_as_mps",

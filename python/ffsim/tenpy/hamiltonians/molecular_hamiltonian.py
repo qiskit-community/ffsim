@@ -9,7 +9,7 @@ from ffsim.tenpy.hamiltonians.lattices import MolecularChain
 
 
 class MolecularHamiltonianMPOModel(CouplingMPOModel):
-    """Molecular Hamiltonian MPOModel."""
+    """Molecular Hamiltonian."""
 
     def __init__(self, params):
         CouplingMPOModel.__init__(self, params)

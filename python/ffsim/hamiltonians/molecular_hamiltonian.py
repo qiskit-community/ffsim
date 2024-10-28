@@ -17,6 +17,7 @@ import os
 import numpy as np
 import pyscf.ao2mo
 import pyscf.tools
+import tenpy
 from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
@@ -121,16 +122,15 @@ class MolecularHamiltonian:
             constant=self.constant,
         )
 
-    def to_mpo(self, decimal_places=None):
+    def to_mpo(self, decimal_places: int | None = None) -> tenpy.networks.mpo.MPO:
         r"""Return the Hamiltonian as an MPO.
 
         Args:
             decimal_places: The number of decimal places to which to round the input
-                one-body and two-body tensors. Rounding can sometimes reduce the MPO
-                bond dimension.
+                one-body and two-body tensors.
 
-        Return type:
-            `TeNPy MPO <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mpo.MPO.html#tenpy.networks.mpo.MPO>`__
+                .. note::
+                    Rounding may reduce the MPO bond dimension.
 
         Returns:
             The Hamiltonian as an MPO.
