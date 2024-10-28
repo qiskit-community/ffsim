@@ -1,12 +1,12 @@
 import numpy as np
 import scipy as sp
-import tenpy.linalg.np_conserved as npc  # TeNPy wrapper around numpy
+import tenpy
+import tenpy.linalg.np_conserved as npc
 from tenpy.linalg.charges import LegPipe
 from tenpy.networks.site import SpinHalfFermionSite
 
-# ignore lowercase function, argument, and variable checks to maintain TeNPy naming
-# conventions
-# ruff: noqa: N802, N803, N806
+# ignore lowercase argument and variable checks to maintain TeNPy naming conventions
+# ruff: noqa: N803, N806
 
 # define sites
 shfs_nosym = SpinHalfFermionSite(cons_N=None, cons_Sz=None)
@@ -14,7 +14,16 @@ shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
 shfsc = LegPipe([shfs.leg, shfs.leg])
 
 
-def sym_cons_basis(gate):
+def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
+    r"""Convert a gate to the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+
+    Args:
+        gate: The quantum gate.
+
+    Returns:
+        The quantum gate in the (N, Sz)-symmetry-conserved basis.
+    """
+
     # convert to (N, Sz)-symmetry-conserved basis
     if np.shape(gate) == (4, 4):  # 1-site gate
         swap_list = [1, 3, 0, 2]
@@ -34,7 +43,24 @@ def sym_cons_basis(gate):
     return gate_sym
 
 
-def XXPlusYY(spin, theta, beta, conj=False):
+def xy(spin: str, theta: float, beta: float, conj: bool = False) -> np.ndarray:
+    r"""The XXPlusYY gate.
+
+    The XXPlusYY gate as defined in the
+    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.XXPlusYYGate>`__,
+    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+
+    Args:
+        spin: The spin sector ("up" or "down").
+        theta: The rotation angle.
+        beta: The phase angle.
+        conj: The direction of the gate. By default, we use the little endian
+            convention, as in Qiskit.
+
+    Returns:
+        The XXPlusYY gate in the (N, Sz)-symmetry-conserved basis.
+    """
+
     # define conjugate operator
     if conj:
         beta = -beta
@@ -94,7 +120,21 @@ def XXPlusYY(spin, theta, beta, conj=False):
     return XYgate_sym
 
 
-def Phase(spin, theta):
+def phase(spin: str, theta: float) -> np.ndarray:
+    r"""The Phase gate.
+
+    The Phase gate as defined in the
+    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PhaseGate>`__,
+    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+
+    Args:
+        spin: The spin sector ("up" or "down").
+        theta: The rotation angle.
+
+    Returns:
+        The Phase gate in the (N, Sz)-symmetry-conserved basis.
+    """
+
     # define operators
     Id = shfs_nosym.get_op("Id").to_ndarray()
 
@@ -119,7 +159,20 @@ def Phase(spin, theta):
     return Pgate_sym
 
 
-def CPhase_onsite(theta):
+def cphase_onsite(theta: float) -> np.ndarray:
+    r"""The on-site CPhase gate.
+
+    The on-site CPhase gate as defined in the
+    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CPhaseGate>`__,
+    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+
+    Args:
+        theta: The rotation angle.
+
+    Returns:
+        The on-site CPhase gate in the (N, Sz)-symmetry-conserved basis.
+    """
+
     CPgate = np.eye(4, dtype=complex)
     CPgate[3, 3] = np.exp(-1j * theta)  # minus sign
 
@@ -129,7 +182,21 @@ def CPhase_onsite(theta):
     return CPgate_sym
 
 
-def CPhase(spin, theta):
+def cphase(spin: str, theta: float) -> np.ndarray:
+    r"""The off-site CPhase gate.
+
+    The off-site CPhase gate as defined in the
+    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.XXPlusYYGate>`__,
+    returned in the (N, Sz)-symmetry-conserved basis, as defined in TeNPy.
+
+    Args:
+        spin: The spin sector ("up" or "down").
+        theta: The rotation angle.
+
+    Returns:
+        The off-site CPhase gate in the (N, Sz)-symmetry-conserved basis.
+    """
+
     # define operators
     Id = shfs_nosym.get_op("Id").to_ndarray()
 
@@ -176,13 +243,56 @@ def CPhase(spin, theta):
     return CPgate_sym
 
 
-def gate1(U1, site, psi):
+def gate1(U1: np.ndarray, site: int, psi: tenpy.networks.mps.MPS) -> None:
+    r"""Apply a single-site gate to a
+    `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+    wavefunction.
+
+    Args:
+        U1: The single-site quantum gate.
+        site: The gate will be applied to `site` on the
+            `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+            wavefunction.
+        psi: The wavefunction MPS.
+
+    Returns:
+        None
+    """
+
     # on-site
     U1_npc = npc.Array.from_ndarray(U1, [shfs.leg, shfs.leg.conj()], labels=["p", "p*"])
     psi.apply_local_op(site, U1_npc)
 
 
-def gate2(U2, site, psi, eng, chi_list, norm_tol):
+def gate2(
+    U2: np.ndarray,
+    site: int,
+    psi: tenpy.networks.mps.MPS,
+    eng: tenpy.algorithms.tebd.TEBDEngine,
+    chi_list: list,
+    norm_tol: float,
+) -> None:
+    r"""Apply a two-site gate to a `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+    wavefunction.
+
+    Args:
+        U2: The two-site quantum gate.
+        site: The gate will be applied to `(site-1, site)` on the `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+            wavefunction.
+        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+            wavefunction.
+        eng: The
+            `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
+        chi_list: The list to which to append the MPS bond dimensions as the circuit is
+            evaluated.
+        norm_tol: The norm error above which we recanonicalize the wavefunction, as
+            defined in the
+            `TeNPy documentation <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.dmrg.DMRGEngine.html#cfg-option-DMRGEngine.norm_tol>`__.
+
+    Returns:
+        None
+    """
+
     # bond between (site-1, site)
     U2_npc = npc.Array.from_ndarray(
         U2, [shfsc, shfsc.conj()], labels=["(p0.p1)", "(p0*.p1*)"]
@@ -193,5 +303,4 @@ def gate2(U2, site, psi, eng, chi_list, norm_tol):
 
     # recanonicalize psi if below error threshold
     if np.linalg.norm(psi.norm_test()) > norm_tol:
-        # print("norm error = ", np.linalg.norm(psi.norm_test()))
         psi.canonical_form_finite()

@@ -10,7 +10,7 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import contract, linalg, optimize, qiskit, random, testing
+from ffsim import contract, linalg, optimize, qiskit, random, tenpy, testing
 from ffsim.cistring import init_cache
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
@@ -175,6 +175,7 @@ __all__ = [
     "optimize",
     "qiskit",
     "random",
+    "tenpy",
     "rdm",
     "rdms",
     "sample_slater_determinant",

@@ -1,44 +1,51 @@
+from typing import Tuple
+
 import numpy as np
+import tenpy
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
 from ffsim.tenpy.circuits.gates import (
-    CPhase,
-    CPhase_onsite,
-    Phase,
-    XXPlusYY,
+    cphase,
+    cphase_onsite,
     gate1,
     gate2,
+    phase,
+    xy,
 )
 from ffsim.tenpy.util import product_state_as_mps
 
-# from tenpy.models.hubbard import FermiHubbardChain
 
-
-def lucj_circuit_as_mps(norb, nelec, lucj_operator, options, norm_tol=1e-5):
-    r"""Return the LUCJ circuit as an MPS.
+def lucj_circuit_as_mps(
+    norb: int,
+    nelec: tuple,
+    lucj_operator: ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced,
+    options: dict,
+    norm_tol: float = 1e-5,
+) -> Tuple[tenpy.networks.mps.MPS, list[int]]:
+    r"""Construct the LUCJ circuit as an MPS.
 
     Args:
         norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
+        nelec: The number of alpha and beta electrons.
         lucj_operator: The LUCJ operator.
-        options: The parameters passed to the TEBDEngine, as defined in the
-            TeNPy documentation.
+        options: The options parsed by the
+            `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
         norm_tol: The norm error above which we recanonicalize the wavefunction, as
-            defined in the TeNPy documentation.
-
-    Return type:
-        `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+            defined in the
+            `TeNPy documentation <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.dmrg.DMRGEngine.html#cfg-option-DMRGEngine.norm_tol>`__.
 
     Returns:
-        The LUCJ circuit as an MPS.
+        `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+            LUCJ circuit as an MPS.
+
+        list
+            Complete list of MPS bond dimensions compiled during circuit evaluation.
     """
 
     # initialize chi_list
-    chi_list = []
+    chi_list: list[int] = []
 
     # prepare initial Hartree-Fock state
     psi = product_state_as_mps(norb, nelec, 0)
@@ -58,7 +65,7 @@ def lucj_circuit_as_mps(norb, nelec, lucj_operator, options, norm_tol=1e-5):
             idx = qubit._index
             spin_flag = "up" if idx < norb else "down"
             lmbda = ins.operation.params[0]
-            gate1(Phase(spin_flag, lmbda), idx % norb, psi)
+            gate1(phase(spin_flag, lmbda), idx % norb, psi)
         elif ins.operation.name == "xx_plus_yy":
             qubit0 = ins.qubits[0]
             qubit1 = ins.qubits[1]
@@ -74,7 +81,7 @@ def lucj_circuit_as_mps(norb, nelec, lucj_operator, options, norm_tol=1e-5):
             # directionality important when beta!=0
             conj_flag = True if idx0 > idx1 else False
             gate2(
-                XXPlusYY(spin_flag, theta_val, beta_val, conj_flag),
+                xy(spin_flag, theta_val, beta_val, conj_flag),
                 max(idx0 % norb, idx1 % norb),
                 psi,
                 eng,
@@ -88,16 +95,16 @@ def lucj_circuit_as_mps(norb, nelec, lucj_operator, options, norm_tol=1e-5):
             lmbda = ins.operation.params[0]
             # onsite (different spins)
             if np.abs(idx0 - idx1) == norb:
-                gate1(CPhase_onsite(lmbda), min(idx0, idx1), psi)
+                gate1(cphase_onsite(lmbda), min(idx0, idx1), psi)
             # NN (up spins)
             elif np.abs(idx0 - idx1) == 1 and idx0 < norb and idx1 < norb:
                 gate2(
-                    CPhase("up", lmbda), max(idx0, idx1), psi, eng, chi_list, norm_tol
+                    cphase("up", lmbda), max(idx0, idx1), psi, eng, chi_list, norm_tol
                 )
             # NN (down spins)
             elif np.abs(idx0 - idx1) == 1 and idx0 >= norb and idx1 >= norb:
                 gate2(
-                    CPhase("down", lmbda),
+                    cphase("down", lmbda),
                     max(idx0 % norb, idx1 % norb),
                     psi,
                     eng,
