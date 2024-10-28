@@ -4,11 +4,13 @@ from tenpy.networks.site import SpinHalfFermionSite
 import ffsim
 
 
-def product_state_as_mps(norb, nelec, idx):
+def product_state_as_mps(norb: int, nelec: int | tuple, idx: int) -> MPS:
     r"""Return the product state as an MPS.
 
-    Return type:
-        `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+    Args:
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        idx: The index of the product state in the ffsim basis.
 
     Returns:
         The product state as an MPS.

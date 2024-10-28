@@ -22,6 +22,7 @@ from ffsim.tenpy.circuits.gates import (
 from ffsim.tenpy.circuits.lucj_circuit import lucj_circuit_as_mps
 from ffsim.tenpy.hamiltonians.lattices import MolecularChain
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
+from ffsim.tenpy.util import product_state_as_mps
 
 __all__ = [
     "MolecularChain",
@@ -34,4 +35,5 @@ __all__ = [
     "gate1",
     "gate2",
     "lucj_circuit_as_mps",
+    "product_state_as_mps",
 ]
