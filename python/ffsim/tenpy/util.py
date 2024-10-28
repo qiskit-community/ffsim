@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from typing import Tuple
+
 from tenpy.networks.mps import MPS
 from tenpy.networks.site import SpinHalfFermionSite
 
 import ffsim
 
 
-def product_state_as_mps(norb: int, nelec: int | tuple, idx: int) -> MPS:
+def product_state_as_mps(norb: int, nelec: int | Tuple[int, int], idx: int) -> MPS:
     r"""Return the product state as an MPS.
 
     Args:
