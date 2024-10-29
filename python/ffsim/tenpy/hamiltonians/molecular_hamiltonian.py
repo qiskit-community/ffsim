@@ -38,7 +38,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
         for p in range(norb):
             for q in range(norb):
-                h1 = one_body_tensor[p, q]
+                h1 = one_body_tensor[q, p]
                 if p == q:
                     self.add_onsite(h1, p, "Nu")
                     self.add_onsite(h1, p, "Nd")
@@ -49,7 +49,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
                 for r in range(norb):
                     for s in range(norb):
-                        h2 = two_body_tensor[p, q, r, s]
+                        h2 = two_body_tensor[q, p, s, r]
                         if p == q == r == s:
                             self.add_onsite(h2 / 2, p, "Nu")
                             self.add_onsite(-h2 / 2, p, "Nu Nu")
