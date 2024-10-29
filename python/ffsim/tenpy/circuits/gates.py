@@ -1,8 +1,9 @@
 import numpy as np
 import scipy as sp
-import tenpy
 import tenpy.linalg.np_conserved as npc
+from tenpy.algorithms.tebd import TEBDEngine
 from tenpy.linalg.charges import LegPipe
+from tenpy.networks.mps import MPS
 from tenpy.networks.site import SpinHalfFermionSite
 
 # ignore lowercase argument and variable checks to maintain TeNPy naming conventions
@@ -251,7 +252,7 @@ def cphase2(spin: str, theta: float) -> np.ndarray:
     return CPgate_sym
 
 
-def gate1(U1: np.ndarray, site: int, psi: tenpy.networks.mps.MPS) -> None:
+def gate1(U1: np.ndarray, site: int, psi: MPS) -> None:
     r"""Apply a single-site gate to a
     `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
     wavefunction.
@@ -275,8 +276,8 @@ def gate1(U1: np.ndarray, site: int, psi: tenpy.networks.mps.MPS) -> None:
 def gate2(
     U2: np.ndarray,
     site: int,
-    psi: tenpy.networks.mps.MPS,
-    eng: tenpy.algorithms.tebd.TEBDEngine,
+    psi: MPS,
+    eng: TEBDEngine,
     chi_list: list,
     norm_tol: float,
 ) -> None:
