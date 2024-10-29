@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 
-from typing import Union
 import ffsim
 from ffsim.tenpy.circuits.lucj_circuit import lucj_circuit_as_mps
 
