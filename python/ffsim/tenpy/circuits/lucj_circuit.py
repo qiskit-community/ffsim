@@ -1,9 +1,9 @@
 from typing import Tuple
 
 import numpy as np
-import tenpy
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from tenpy.algorithms.tebd import TEBDEngine
+from tenpy.networks.mps import MPS
 
 import ffsim
 from ffsim.tenpy.circuits.gates import (
@@ -23,7 +23,7 @@ def lucj_circuit_as_mps(
     lucj_operator: "ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced",
     options: dict,
     norm_tol: float = 1e-5,
-) -> Tuple[tenpy.networks.mps.MPS, list[int]]:
+) -> Tuple[MPS, list[int]]:
     r"""Construct the LUCJ circuit as an MPS.
 
     Args:
