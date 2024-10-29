@@ -23,26 +23,8 @@ from ffsim import gates, linalg
 from ffsim.variational.util import (
     orbital_rotation_from_parameters,
     orbital_rotation_to_parameters,
+    validate_interaction_pairs,
 )
-
-
-def _validate_interaction_pairs(
-    interaction_pairs: list[tuple[int, int]] | None, ordered: bool
-) -> None:
-    if interaction_pairs is None:
-        return
-    if len(set(interaction_pairs)) != len(interaction_pairs):
-        raise ValueError(
-            f"Duplicate interaction pairs encountered: {interaction_pairs}."
-        )
-    if not ordered:
-        for i, j in interaction_pairs:
-            if i > j:
-                raise ValueError(
-                    "When specifying alpha-alpha or beta-beta interaction pairs, "
-                    "you must provide only upper triangular pairs. "
-                    f"Got {(i, j)}, which is a lower triangular pair."
-                )
 
 
 @dataclass(frozen=True)
@@ -204,9 +186,9 @@ class UCJOpSpinUnbalanced:
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        _validate_interaction_pairs(pairs_aa, ordered=False)
-        _validate_interaction_pairs(pairs_ab, ordered=True)
-        _validate_interaction_pairs(pairs_bb, ordered=False)
+        validate_interaction_pairs(pairs_aa, ordered=False)
+        validate_interaction_pairs(pairs_ab, ordered=True)
+        validate_interaction_pairs(pairs_bb, ordered=False)
         # Each same-spin diagonal Coulomb matrix has one parameter per upper triangular
         # entry unless indices are passed explicitly
         n_triu_indices = norb * (norb + 1) // 2
@@ -309,17 +291,28 @@ class UCJOpSpinUnbalanced:
                 )
                 index += n_params
             # Diag Coulomb matrices
-            for indices, this_diag_coulomb_mat in zip(
-                (pairs_aa, pairs_ab, pairs_bb),
-                diag_coulomb_mat,
-            ):
-                if indices:
-                    n_params = len(indices)
-                    rows, cols = zip(*indices)
-                    vals = params[index : index + n_params]
-                    this_diag_coulomb_mat[cols, rows] = vals
-                    this_diag_coulomb_mat[rows, cols] = vals
-                    index += n_params
+            # for indices, this_diag_coulomb_mat in zip(
+            #     (pairs_aa, pairs_ab, pairs_bb),
+            #     diag_coulomb_mat,
+            # ):
+            #     if indices:
+            n_params = len(pairs_aa)
+            rows, cols = zip(*pairs_aa)
+            vals = params[index : index + n_params]
+            diag_coulomb_mat[0, cols, rows] = vals
+            diag_coulomb_mat[0, rows, cols] = vals
+            index += n_params
+            n_params = len(pairs_ab)
+            rows, cols = zip(*pairs_ab)
+            vals = params[index : index + n_params]
+            diag_coulomb_mat[1, rows, cols] = vals
+            index += n_params
+            n_params = len(pairs_bb)
+            rows, cols = zip(*pairs_bb)
+            vals = params[index : index + n_params]
+            diag_coulomb_mat[2, cols, rows] = vals
+            diag_coulomb_mat[2, rows, cols] = vals
+            index += n_params
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -505,9 +498,9 @@ class UCJOpSpinUnbalanced:
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        _validate_interaction_pairs(pairs_aa, ordered=False)
-        _validate_interaction_pairs(pairs_bb, ordered=True)
-        _validate_interaction_pairs(pairs_bb, ordered=False)
+        validate_interaction_pairs(pairs_aa, ordered=False)
+        validate_interaction_pairs(pairs_bb, ordered=True)
+        validate_interaction_pairs(pairs_bb, ordered=False)
 
         t2aa, t2ab, t2bb = t2
         nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
@@ -615,7 +608,6 @@ class UCJOpSpinUnbalanced:
             mask = np.zeros((norb, norb), dtype=bool)
             rows, cols = zip(*pairs_ab)
             mask[rows, cols] = True
-            mask[cols, rows] = True
             diag_coulomb_mats[:, 1] *= mask
         if pairs_bb is not None:
             mask = np.zeros((norb, norb), dtype=bool)
