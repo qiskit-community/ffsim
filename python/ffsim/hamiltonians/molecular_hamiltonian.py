@@ -17,10 +17,10 @@ import os
 import numpy as np
 import pyscf.ao2mo
 import pyscf.tools
-import tenpy
 from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
+from tenpy.networks.mpo import MPO
 from typing_extensions import deprecated
 
 from ffsim.cistring import gen_linkstr_index
@@ -122,7 +122,7 @@ class MolecularHamiltonian:
             constant=self.constant,
         )
 
-    def to_mpo(self, decimal_places: int | None = None) -> tenpy.networks.mpo.MPO:
+    def to_mpo(self, decimal_places: int | None = None) -> MPO:
         r"""Return the Hamiltonian as an MPO.
 
         Args:
