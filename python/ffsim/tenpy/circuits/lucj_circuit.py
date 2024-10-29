@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit, QuantumRegister
@@ -23,7 +23,7 @@ def lucj_circuit_as_mps(
     lucj_operator: "ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced",
     options: dict,
     norm_tol: float = 1e-5,
-) -> Tuple[MPS, list[int]]:
+) -> tuple[MPS, list[int]]:
     r"""Construct the LUCJ circuit as an MPS.
 
     Args:
