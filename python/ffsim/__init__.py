@@ -175,7 +175,6 @@ __all__ = [
     "optimize",
     "qiskit",
     "random",
-    "tenpy",
     "rdm",
     "rdms",
     "sample_slater_determinant",
@@ -190,6 +189,7 @@ __all__ = [
     "spin_square",
     "strings_to_addresses",
     "strings_to_indices",
+    "tenpy",
     "testing",
     "trace",
 ]
