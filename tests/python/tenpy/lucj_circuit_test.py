@@ -2,13 +2,14 @@ import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 
+from typing import Union
 import ffsim
 from ffsim.tenpy.circuits.lucj_circuit import lucj_circuit_as_mps
 
 
 def _interaction_pairs_spin_balanced_(
     connectivity: str, norb: int
-) -> tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]:
+) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
     """Returns alpha-alpha and alpha-beta diagonal Coulomb interaction pairs."""
     if connectivity == "square":
         pairs_aa = [(p, p + 1) for p in range(norb - 1)]
