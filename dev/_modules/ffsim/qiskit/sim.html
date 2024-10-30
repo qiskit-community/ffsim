@@ -287,8 +287,8 @@
 <span class="kn">from</span> <span class="nn">ffsim.qiskit.gates</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">DiagCoulombEvolutionJW</span><span class="p">,</span>
     <span class="n">DiagCoulombEvolutionSpinlessJW</span><span class="p">,</span>
-    <span class="n">GivensAnsatzOperatorJW</span><span class="p">,</span>
-    <span class="n">GivensAnsatzOperatorSpinlessJW</span><span class="p">,</span>
+    <span class="n">GivensAnsatzOpJW</span><span class="p">,</span>
+    <span class="n">GivensAnsatzOpSpinlessJW</span><span class="p">,</span>
     <span class="n">OrbitalRotationJW</span><span class="p">,</span>
     <span class="n">OrbitalRotationSpinlessJW</span><span class="p">,</span>
     <span class="n">PrepareHartreeFockJW</span><span class="p">,</span>
@@ -296,7 +296,6 @@
     <span class="n">PrepareSlaterDeterminantJW</span><span class="p">,</span>
     <span class="n">PrepareSlaterDeterminantSpinlessJW</span><span class="p">,</span>
     <span class="n">SimulateTrotterDoubleFactorizedJW</span><span class="p">,</span>
-    <span class="n">UCJOperatorJW</span><span class="p">,</span>
     <span class="n">UCJOpSpinBalancedJW</span><span class="p">,</span>
     <span class="n">UCJOpSpinlessJW</span><span class="p">,</span>
     <span class="n">UCJOpSpinUnbalancedJW</span><span class="p">,</span>
@@ -405,14 +404,14 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">GivensAnsatzOperatorSpinlessJW</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">GivensAnsatzOpSpinlessJW</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">consecutive_sorted</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
                 <span class="s2">&quot;consecutive qubits, in ascending order.&quot;</span>
             <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">protocols</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">givens_ansatz_op</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -475,14 +474,14 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">GivensAnsatzOperatorJW</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">GivensAnsatzOpJW</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">consecutive_sorted</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
                 <span class="s2">&quot;consecutive qubits, in ascending order.&quot;</span>
             <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">protocols</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">givens_ansatz_operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">givens_ansatz_op</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -529,17 +528,6 @@
             <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">protocols</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">ucj_op</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">UCJOperatorJW</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">consecutive_sorted</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
-                <span class="s2">&quot;consecutive qubits, in ascending order.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">protocols</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">ucj_operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
