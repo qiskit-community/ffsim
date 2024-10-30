@@ -19,8 +19,6 @@ from ffsim.qiskit.gates.double_factorized_trotter import (
     SimulateTrotterDoubleFactorizedJW,
 )
 from ffsim.qiskit.gates.givens_ansatz import (
-    GivensAnsatzOperatorJW,
-    GivensAnsatzOperatorSpinlessJW,
     GivensAnsatzOpJW,
     GivensAnsatzOpSpinlessJW,
 )
@@ -44,15 +42,12 @@ from ffsim.qiskit.gates.ucj import (
     UCJOpSpinlessJW,
     UCJOpSpinUnbalancedJW,
 )
-from ffsim.qiskit.gates.ucj_operator import UCJOperatorJW
 
 __all__ = [
     "DiagCoulombEvolutionJW",
     "DiagCoulombEvolutionSpinlessJW",
     "GivensAnsatzOpJW",
     "GivensAnsatzOpSpinlessJW",
-    "GivensAnsatzOperatorJW",
-    "GivensAnsatzOperatorSpinlessJW",
     "NumNumAnsatzOpSpinBalancedJW",
     "NumOpSumEvolutionJW",
     "NumOpSumEvolutionSpinlessJW",
@@ -64,7 +59,6 @@ __all__ = [
     "PrepareSlaterDeterminantSpinlessJW",
     "SimulateTrotterDiagCoulombSplitOpJW",
     "SimulateTrotterDoubleFactorizedJW",
-    "UCJOperatorJW",
     "UCJOpSpinBalancedJW",
     "UCJOpSpinUnbalancedJW",
     "UCJOpSpinlessJW",
