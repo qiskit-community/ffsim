@@ -18,6 +18,25 @@ import numpy as np
 import scipy.linalg
 
 
+def validate_interaction_pairs(
+    interaction_pairs: list[tuple[int, int]] | None, ordered: bool
+) -> None:
+    if interaction_pairs is None:
+        return
+    if len(set(interaction_pairs)) != len(interaction_pairs):
+        raise ValueError(
+            f"Duplicate interaction pairs encountered: {interaction_pairs}."
+        )
+    if not ordered:
+        for i, j in interaction_pairs:
+            if i > j:
+                raise ValueError(
+                    "When specifying spinless, alpha-alpha or beta-beta "
+                    "interaction pairs, you must provide only upper triangular pairs. "
+                    f"Got {(i, j)}, which is a lower triangular pair."
+                )
+
+
 def orbital_rotation_to_parameters(
     orbital_rotation: np.ndarray, real: bool = False
 ) -> np.ndarray:
