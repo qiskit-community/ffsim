@@ -23,7 +23,7 @@ from ffsim.states.bitstring import convert_bitstring_type
 def test_indices_to_strings_string():
     """Test converting statevector indices to strings, output type string."""
     norb = 3
-    nelec = 2
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(range(dim), norb, nelec)
     assert strings == [
@@ -84,7 +84,7 @@ def test_indices_to_strings_string():
 def test_indices_to_strings_int():
     """Test converting statevector indices to strings, output type int."""
     norb = 3
-    nelec = 2
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(
         range(dim), norb, nelec, bitstring_type=ffsim.BitstringType.INT
@@ -159,7 +159,7 @@ def test_indices_to_strings_int():
 def test_indices_to_strings_bit_array():
     """Test converting statevector indices to strings, output type bit array."""
     norb = 3
-    nelec = 2
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     strings = ffsim.indices_to_strings(
         range(dim), norb, nelec, bitstring_type=ffsim.BitstringType.BIT_ARRAY
@@ -536,7 +536,7 @@ def test_addresses_to_strings_large_address():
 def test_strings_to_addresses_int():
     """Test converting statevector strings to addresses, input type int."""
     norb = 3
-    nelec = 2
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     indices = ffsim.strings_to_addresses(
         [0b011, 0b101, 0b110],
@@ -571,7 +571,7 @@ def test_strings_to_addresses_int():
 def test_strings_to_addresses_string():
     """Test converting statevector strings to indices, input type string."""
     norb = 3
-    nelec = 2
+    nelec: int | tuple[int, int] = 2
     dim = ffsim.dim(norb, nelec)
     indices = ffsim.strings_to_addresses(
         [

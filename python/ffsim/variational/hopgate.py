@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 
@@ -113,3 +114,25 @@ class HopGateAnsatzOperator:
             thetas=params,
             final_orbital_rotation=final_orbital_rotation,
         )
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, HopGateAnsatzOperator):
+            if self.norb != other.norb:
+                return False
+            if self.interaction_pairs != other.interaction_pairs:
+                return False
+            if not np.allclose(self.thetas, other.thetas, rtol=rtol, atol=atol):
+                return False
+            if (self.final_orbital_rotation is None) != (
+                other.final_orbital_rotation is None
+            ):
+                return False
+            if self.final_orbital_rotation is not None:
+                return np.allclose(
+                    cast(np.ndarray, self.final_orbital_rotation),
+                    cast(np.ndarray, other.final_orbital_rotation),
+                    rtol=rtol,
+                    atol=atol,
+                )
+            return True
+        return NotImplemented
