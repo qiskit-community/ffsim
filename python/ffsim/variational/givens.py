@@ -57,7 +57,7 @@ class GivensAnsatzOp:
         if len(self.thetas) != len(self.interaction_pairs):
             raise ValueError(
                 "The number of thetas must equal the number of interaction pairs. "
-                f"Got {len(self.phis)} and {len(self.interaction_pairs)}."
+                f"Got {len(self.thetas)} and {len(self.interaction_pairs)}."
             )
         if self.phis is not None and len(self.phis) != len(self.interaction_pairs):
             raise ValueError(

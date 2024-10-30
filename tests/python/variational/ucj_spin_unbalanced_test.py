@@ -86,16 +86,7 @@ def test_parameters_roundtrip_all_to_all():
             n_reps=n_reps,
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        np.testing.assert_allclose(
-            roundtripped.diag_coulomb_mats, operator.diag_coulomb_mats
-        )
-        np.testing.assert_allclose(
-            roundtripped.orbital_rotations, operator.orbital_rotations
-        )
-        if with_final_orbital_rotation:
-            np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-            )
+        assert ffsim.approx_eq(roundtripped, operator)
 
 
 def test_parameters_roundtrip_interaction_pairs():
@@ -119,16 +110,7 @@ def test_parameters_roundtrip_interaction_pairs():
             interaction_pairs=interaction_pairs,
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        np.testing.assert_allclose(
-            roundtripped.diag_coulomb_mats, operator.diag_coulomb_mats
-        )
-        np.testing.assert_allclose(
-            roundtripped.orbital_rotations, operator.orbital_rotations
-        )
-        if with_final_orbital_rotation:
-            np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-            )
+        assert ffsim.approx_eq(roundtripped, operator)
 
 
 def test_t_amplitudes_energy():
@@ -149,7 +131,7 @@ def test_t_amplitudes_energy():
     mol_hamiltonian = mol_data.hamiltonian
 
     # Construct UCJ operator
-    n_reps = 4
+    n_reps: int | tuple[int, int] = 4
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
         ccsd.t2, t1=ccsd.t1, n_reps=n_reps
     )
@@ -198,7 +180,8 @@ def test_t_amplitudes_random_n_reps():
     nvrt_a = norb - nocc_a
     nvrt_b = norb - nocc_b
 
-    for n_reps in [5, 50, (10, 5)]:
+    n_reps: int | tuple[int, int]
+    for n_reps in [5, 50, (10, 5)]:  # type: ignore
         t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
         t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
         t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
@@ -223,7 +206,8 @@ def test_t_amplitudes_zero_n_reps():
     nvrt_a = norb - nocc_a
     nvrt_b = norb - nocc_b
 
-    for n_reps in [5, 50, (10, 5)]:
+    n_reps: int | tuple[int, int]
+    for n_reps in [5, 50, (10, 5)]:  # type: ignore
         t2aa = np.zeros((nocc_a, nocc_a, nvrt_a, nvrt_a))
         t2ab = np.zeros((nocc_a, nocc_b, nvrt_a, nvrt_b))
         t2bb = np.zeros((nocc_b, nocc_b, nvrt_b, nvrt_b))

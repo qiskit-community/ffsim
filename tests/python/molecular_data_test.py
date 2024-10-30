@@ -89,10 +89,15 @@ def test_molecular_data_run_methods():
     mol_data.run_sci()
     mol_data.run_fci()
 
+    assert isinstance(mol_data.mp2_energy, float)
     np.testing.assert_allclose(mol_data.mp2_energy, -108.58852784026)
+    assert isinstance(mol_data.ccsd_energy, float)
     np.testing.assert_allclose(mol_data.ccsd_energy, -108.5933309085008)
+    assert isinstance(mol_data.cisd_energy, float)
     np.testing.assert_allclose(mol_data.cisd_energy, -108.5878344909782)
+    assert isinstance(mol_data.sci_energy, float)
     np.testing.assert_allclose(mol_data.sci_energy, -108.59598682615388)
+    assert isinstance(mol_data.fci_energy, float)
     np.testing.assert_allclose(mol_data.fci_energy, -108.595987350986)
 
 
