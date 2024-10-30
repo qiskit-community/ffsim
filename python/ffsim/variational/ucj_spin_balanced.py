@@ -23,26 +23,8 @@ from ffsim import gates, linalg
 from ffsim.variational.util import (
     orbital_rotation_from_parameters,
     orbital_rotation_to_parameters,
+    validate_interaction_pairs,
 )
-
-
-def _validate_interaction_pairs(
-    interaction_pairs: list[tuple[int, int]] | None, ordered: bool
-) -> None:
-    if interaction_pairs is None:
-        return
-    if len(set(interaction_pairs)) != len(interaction_pairs):
-        raise ValueError(
-            f"Duplicate interaction pairs encountered: {interaction_pairs}."
-        )
-    if not ordered:
-        for i, j in interaction_pairs:
-            if i > j:
-                raise ValueError(
-                    "When specifying alpha-alpha or beta-beta interaction pairs, "
-                    "you must provide only upper triangular pairs. "
-                    f"Got {(i, j)}, which is a lower triangular pair."
-                )
 
 
 @dataclass(frozen=True)
@@ -193,8 +175,8 @@ class UCJOpSpinBalanced:
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
-        _validate_interaction_pairs(pairs_aa, ordered=False)
-        _validate_interaction_pairs(pairs_ab, ordered=False)
+        validate_interaction_pairs(pairs_aa, ordered=False)
+        validate_interaction_pairs(pairs_ab, ordered=False)
         # Each diagonal Coulomb matrix has one parameter per upper triangular
         # entry unless indices are passed explicitly
         n_triu_indices = norb * (norb + 1) // 2
@@ -445,8 +427,8 @@ class UCJOpSpinBalanced:
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
-        _validate_interaction_pairs(pairs_aa, ordered=False)
-        _validate_interaction_pairs(pairs_ab, ordered=False)
+        validate_interaction_pairs(pairs_aa, ordered=False)
+        validate_interaction_pairs(pairs_ab, ordered=False)
 
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
