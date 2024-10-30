@@ -289,26 +289,8 @@
 <span class="kn">from</span> <span class="nn">ffsim.variational.util</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">orbital_rotation_from_parameters</span><span class="p">,</span>
     <span class="n">orbital_rotation_to_parameters</span><span class="p">,</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">,</span>
 <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_validate_interaction_pairs</span><span class="p">(</span>
-    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ordered</span><span class="p">:</span> <span class="nb">bool</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Duplicate interaction pairs encountered: </span><span class="si">{</span><span class="n">interaction_pairs</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">ordered</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">interaction_pairs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;When specifying interaction pairs, &quot;</span>
-                    <span class="s2">&quot;you must provide only upper triangular pairs. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}</span><span class="s2">, which is a lower triangular pair.&quot;</span>
-                <span class="p">)</span>
 
 
 <div class="viewcode-block" id="UCJOpSpinless">
@@ -441,7 +423,7 @@
 <span class="sd">            ValueError: Interaction pairs list contained duplicate interactions.</span>
 <span class="sd">            ValueError: Interaction pairs list contained lower triangular pairs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_validate_interaction_pairs</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="c1"># Each diagonal Coulomb matrix has one parameter per upper triangular</span>
         <span class="c1"># entry unless indices are passed explicitly</span>
         <span class="n">n_triu_indices</span> <span class="o">=</span> <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
@@ -660,7 +642,7 @@
 <span class="sd">            ValueError: Interaction pairs list contained duplicate interactions.</span>
 <span class="sd">            ValueError: Interaction pairs list contained lower triangular pairs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_validate_interaction_pairs</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>

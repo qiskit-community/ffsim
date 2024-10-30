@@ -283,6 +283,7 @@
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">operators</span><span class="p">,</span> <span class="n">variational</span>
+<span class="kn">from</span> <span class="nn">ffsim.variational.util</span> <span class="kn">import</span> <span class="n">validate_interaction_pairs</span>
 
 
 <div class="viewcode-block" id="random_statevector">
@@ -694,21 +695,41 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
+<span class="sd">            for the diagonal Coulomb operators.</span>
+<span class="sd">            If specified, `interaction_pairs` should be a pair of lists,</span>
+<span class="sd">            for alpha-alpha and alpha-beta interactions, in that order.</span>
+<span class="sd">            Either list can be substituted with ``None`` to indicate no restrictions</span>
+<span class="sd">            on interactions.</span>
+<span class="sd">            Each list should contain pairs of integers representing the orbitals</span>
+<span class="sd">            that are allowed to interact. These pairs can also be interpreted as</span>
+<span class="sd">            indices of diagonal Coulomb matrix entries that are allowed to be</span>
+<span class="sd">            nonzero.</span>
+<span class="sd">            Each integer pair must be upper triangular, that is, of the form</span>
+<span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled UCJ operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span> <span class="o">=</span> <span class="n">interaction_pairs</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span>
@@ -727,6 +748,21 @@
     <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Zero out diagonal coulomb matrix entries if requested</span>
+    <span class="k">if</span> <span class="n">pairs_aa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+    <span class="k">if</span> <span class="n">pairs_ab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+
     <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="p">(</span>
         <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
@@ -741,14 +777,33 @@
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinUnbalanced</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
+<span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
+<span class="sd">            for the diagonal Coulomb operators.</span>
+<span class="sd">            If specified, `interaction_pairs` should be a tuple of 3 lists,</span>
+<span class="sd">            for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.</span>
+<span class="sd">            Any list can be substituted with ``None`` to indicate no restrictions</span>
+<span class="sd">            on interactions.</span>
+<span class="sd">            Each list should contain pairs of integers representing the orbitals</span>
+<span class="sd">            that are allowed to interact. These pairs can also be interpreted as</span>
+<span class="sd">            indices of diagonal Coulomb matrix entries that are allowed to be</span>
+<span class="sd">            nonzero.</span>
+<span class="sd">            For the alpha-alpha and beta-beta interactions, each integer</span>
+<span class="sd">            pair must be upper triangular, that is, of the form :math:`(i, j)` where</span>
+<span class="sd">            :math:`i \leq j`.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
@@ -757,6 +812,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled UCJ operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span><span class="p">,</span> <span class="n">pairs_bb</span> <span class="o">=</span> <span class="n">interaction_pairs</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_bb</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_bb</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span>
@@ -781,6 +843,26 @@
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
             <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)]</span>
         <span class="p">)</span>
+
+    <span class="c1"># Zero out diagonal coulomb matrix entries if requested</span>
+    <span class="k">if</span> <span class="n">pairs_aa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+    <span class="k">if</span> <span class="n">pairs_ab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+    <span class="k">if</span> <span class="n">pairs_bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_bb</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+
     <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinUnbalanced</span><span class="p">(</span>
         <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
@@ -795,22 +877,33 @@
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinless</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spinless unitary cluster Jastrow (UCJ) operator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spinless unitary cluster Jastrow (UCJ) operator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
+<span class="sd">            for the diagonal Coulomb operators.</span>
+<span class="sd">            If specified, `interaction_pairs` should be a list of integer pairs</span>
+<span class="sd">            representing the orbitals that are allowed to interact. These pairs</span>
+<span class="sd">            can also be interpreted as indices of diagonal Coulomb matrix entries</span>
+<span class="sd">            that are allowed to be nonzero.</span>
+<span class="sd">            Each integer pair must be upper triangular, that is, of the form</span>
+<span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled UCJ operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
@@ -821,6 +914,15 @@
     <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Zero out diagonal coulomb matrix entries if requested</span>
+    <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">interaction_pairs</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span> <span class="o">*=</span> <span class="n">mask</span>
+
     <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinless</span><span class="p">(</span>
         <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
