@@ -1,0 +1,528 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Implementing Trotter simulation of the double-factorized Hamiltonian\n",
+    "\n",
+    "In this tutorial, we'll write a function to implement approximate time evolution of the double-factorized Hamiltonian via a Trotter-Suzuki formula. See [Double-factorized representation of the molecular Hamiltonian](../explanations/double-factorized.ipynb) for background information. We'll compare our implementation with exact time evolution computed using direct operator exponentiation, as well as ffsim's built-in implementation [simulate_trotter_double_factorized](../api/ffsim.rst#ffsim.simulate_trotter_double_factorized).\n",
+    "\n",
+    "## Build the Hamiltonian\n",
+    "\n",
+    "We begin by building a molecular Hamiltonian to test our code on. We'll create a nitrogen molecule in an active space of 8 orbitals and 10 electrons. We use ffsim's [MolecularData](../api/ffsim.rst#ffsim.MolecularData) class, which implements a simplistic wrapper around PySCF to compute a representation of the Hamiltonian as an instance of [MolecularHamiltonian](../api/ffsim.rst#ffsim.MolecularHamiltonian), which we store in the `mol_hamiltonian` variable."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -108.464957764796\n",
+      "norb = 8\n",
+      "nelec = (5, 5)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pyscf\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Build N2 molecule\n",
+    "mol = pyscf.gto.Mole()\n",
+    "mol.build(\n",
+    "    atom=[[\"N\", (0, 0, 0)], [\"N\", (1.0, 0, 0)]],\n",
+    "    basis=\"sto-6g\",\n",
+    "    symmetry=\"Dooh\",\n",
+    ")\n",
+    "\n",
+    "# Define active space\n",
+    "n_frozen = pyscf.data.elements.chemcore(mol)\n",
+    "active_space = range(n_frozen, mol.nao_nr())\n",
+    "\n",
+    "# Get molecular data and Hamiltonian\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)\n",
+    "norb, nelec = mol_data.norb, mol_data.nelec\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "\n",
+    "print(f\"norb = {norb}\")\n",
+    "print(f\"nelec = {nelec}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Next, we compute the double-factorized representation of the Hamiltonian. In ffsim, the [DoubleFactorizedHamiltonian](../api/ffsim.rst#ffsim.DoubleFactorizedHamiltonian) class is used to store this Hamiltonian representation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Get the Hamiltonian in the double-factorized representation\n",
+    "df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(\n",
+    "    mol_hamiltonian\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To get a sense of how the two different Hamiltonian representations differ, let's print out the shapes of the tensors describing the original and double-factorized representations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Original representation\n",
+      "-----------------------\n",
+      "One-body tensor shape:\n",
+      "(8, 8)\n",
+      "\n",
+      "Two-body tensor shape:\n",
+      "(8, 8, 8, 8)\n",
+      "\n",
+      "Double-factorized representation\n",
+      "--------------------------------\n",
+      "One-body tensor shape:\n",
+      "(8, 8)\n",
+      "\n",
+      "Diagonal Coulomb matrices shape:\n",
+      "(35, 8, 8)\n",
+      "\n",
+      "Orbital rotations shape:\n",
+      "(35, 8, 8)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Original representation\")\n",
+    "print(\"-----------------------\")\n",
+    "print(\"One-body tensor shape:\")\n",
+    "print(mol_hamiltonian.one_body_tensor.shape)\n",
+    "print()\n",
+    "print(\"Two-body tensor shape:\")\n",
+    "print(mol_hamiltonian.two_body_tensor.shape)\n",
+    "print()\n",
+    "\n",
+    "print(\"Double-factorized representation\")\n",
+    "print(\"--------------------------------\")\n",
+    "print(\"One-body tensor shape:\")\n",
+    "print(df_hamiltonian.one_body_tensor.shape)\n",
+    "print()\n",
+    "print(\"Diagonal Coulomb matrices shape:\")\n",
+    "print(df_hamiltonian.diag_coulomb_mats.shape)\n",
+    "print()\n",
+    "print(\"Orbital rotations shape:\")\n",
+    "print(df_hamiltonian.orbital_rotations.shape)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We see that instead of an $N \\times N \\times N \\times N$ two-body tensor ($N$ is the number of spatial orbitals), the double-factorized representation stores a list of $L$ diagonal Coulomb matrices as well as a list of $L$ orbital rotations. Here, $L = 35$. The value of $L$ depends on the per-tensor-entry error tolerance allowed in the double factorization, which defaults to $10^{-8}$. Setting a higher error tolerance may yield a more compact representation with a smaller $L$. Let's see this in action by setting the error tolerance to $10^{-3}$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of terms: 26\n"
+     ]
+    }
+   ],
+   "source": [
+    "df_hamiltonian_alt = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(\n",
+    "    mol_hamiltonian, tol=1e-3\n",
+    ")\n",
+    "print(f\"Number of terms: {len(df_hamiltonian_alt.diag_coulomb_mats)}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "With an error tolerance of $10^{-3}$, the factorization results in $L = 26$.\n",
+    "\n",
+    "In addition to setting the error tolerance, you can also specify a maximum value for $L$ via the `max_vecs` argument. Bear in mind that setting a low value for the maximum number of terms may introduce significant error in the decomposition. The `max_vecs` argument is always respected, so the resulting decomposition may exceed the error tolerance specified by the `tol` argument. Let's try setting the maximum number of terms to 10."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of terms: 10\n"
+     ]
+    }
+   ],
+   "source": [
+    "df_hamiltonian_alt = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(\n",
+    "    mol_hamiltonian, max_vecs=10\n",
+    ")\n",
+    "print(f\"Number of terms: {len(df_hamiltonian_alt.diag_coulomb_mats)}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The error in the decomposition can be computed by reconstructing the two-body tensor from its factorized form. The following code cell performs this reconstruction using `np.einsum`, then prints out the maximum error in one of the tensor entries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Maximum error in a tensor entry: 0.0366854173098341\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "reconstructed = np.einsum(\n",
+    "    \"kij,kpi,kqi,krj,ksj->pqrs\",\n",
+    "    df_hamiltonian_alt.diag_coulomb_mats,\n",
+    "    df_hamiltonian_alt.orbital_rotations,\n",
+    "    df_hamiltonian_alt.orbital_rotations,\n",
+    "    df_hamiltonian_alt.orbital_rotations,\n",
+    "    df_hamiltonian_alt.orbital_rotations,\n",
+    ")\n",
+    "max_error = np.max(np.abs(reconstructed - mol_hamiltonian.two_body_tensor))\n",
+    "\n",
+    "print(f\"Maximum error in a tensor entry: {max_error}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Implement Trotter simulation\n",
+    "\n",
+    "As explained in  [Double-factorized representation of the molecular Hamiltonian](../explanations/double-factorized.ipynb#Application-to-the-double-factorized-Hamiltonian), the doubled-factorized Hamiltonian can be expressed as a sum of $L + 1$ terms,\n",
+    "\n",
+    "$$\n",
+    "H = \\sum_{k=0}^L H_k,\n",
+    "$$\n",
+    "\n",
+    "where\n",
+    "\n",
+    "- $H_0$ is a [quadratic Hamiltonian](../explanations/orbital-rotation.ipynb#Time-evolution-by-a-quadratic-Hamiltonian), and\n",
+    "- $H_k$ is a rotated [diagonal Coulomb operator](../explanations/double-factorized.ipynb#Double-factorized-representation) for $k = 1, \\ldots, L$.\n",
+    "\n",
+    "Let's write a function to simulate a single Trotter step of the Hamiltonian. Our function will perform the following steps:\n",
+    "\n",
+    "1. Diagonalize $H_0$ to obtain the orbital energies and rotation needed to simulate it.\n",
+    "2. Apply time evolution by $H_0$ using the function [apply_num_op_sum_evolution](../api/ffsim.rst#ffsim.apply_num_op_sum_evolution).\n",
+    "3. For $k = 1, \\ldots, L$, apply time evolution by $H_k$ using the function [apply_diag_coulomb_evolution](../api/ffsim.rst#ffsim.apply_diag_coulomb_evolution)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "\n",
+    "def simulate_trotter_step_double_factorized(\n",
+    "    vec: np.ndarray,\n",
+    "    hamiltonian: ffsim.DoubleFactorizedHamiltonian,\n",
+    "    time: float,\n",
+    "    norb: int,\n",
+    "    nelec: tuple[int, int],\n",
+    ") -> np.ndarray:\n",
+    "    # Diagonalize the one-body term\n",
+    "    one_body_energies, one_body_basis_change = np.linalg.eigh(\n",
+    "        hamiltonian.one_body_tensor\n",
+    "    )\n",
+    "    # Simulate the one-body term\n",
+    "    vec = ffsim.apply_num_op_sum_evolution(\n",
+    "        vec,\n",
+    "        one_body_energies,\n",
+    "        time,\n",
+    "        norb=norb,\n",
+    "        nelec=nelec,\n",
+    "        orbital_rotation=one_body_basis_change,\n",
+    "    )\n",
+    "    # Simulate the two-body terms\n",
+    "    for diag_coulomb_mat, orbital_rotation in zip(\n",
+    "        hamiltonian.diag_coulomb_mats, hamiltonian.orbital_rotations\n",
+    "    ):\n",
+    "        vec = ffsim.apply_diag_coulomb_evolution(\n",
+    "            vec,\n",
+    "            diag_coulomb_mat,\n",
+    "            time,\n",
+    "            norb=norb,\n",
+    "            nelec=nelec,\n",
+    "            orbital_rotation=orbital_rotation,\n",
+    "        )\n",
+    "    return vec"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To finish, we need to write a higher-level function that handles splitting the total time evolution into multiple Trotter steps and simulates each Trotter step using the function we just wrote."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def simulate_trotter_double_factorized(\n",
+    "    vec: np.ndarray,\n",
+    "    hamiltonian: ffsim.DoubleFactorizedHamiltonian,\n",
+    "    time: float,\n",
+    "    norb: int,\n",
+    "    nelec: tuple[int, int],\n",
+    "    n_steps: int = 1,\n",
+    ") -> np.ndarray:\n",
+    "    step_time = time / n_steps\n",
+    "    for _ in range(n_steps):\n",
+    "        vec = simulate_trotter_step_double_factorized(\n",
+    "            vec,\n",
+    "            hamiltonian,\n",
+    "            step_time,\n",
+    "            norb=norb,\n",
+    "            nelec=nelec,\n",
+    "        )\n",
+    "    return vec"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To test our implementation, let's apply time evolution to the Hartree-Fock state. Before calling our Trotter simulation function, let's first compute the exact result of time evolution by directly exponentiating the Hamiltonian using SciPy. Later, we'll compare the result of our approximate time evolution with this exact result. In order to perform the operator exponentiation, we convert the Hamiltonian to a Scipy [LinearOperator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html) (see [Hamiltonians](../explanations/hamiltonians.ipynb))."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import scipy.sparse.linalg\n",
+    "\n",
+    "# Construct the initial state.\n",
+    "initial_state = ffsim.hartree_fock_state(norb, nelec)\n",
+    "\n",
+    "# Set the evolution time.\n",
+    "time = 1.0\n",
+    "\n",
+    "# Convert the Hamiltonian to a LinearOperator\n",
+    "linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)\n",
+    "\n",
+    "# Compute the exact result of time evolution\n",
+    "exact_state = scipy.sparse.linalg.expm_multiply(\n",
+    "    -1j * time * linop,\n",
+    "    initial_state,\n",
+    "    traceA=-1j * time * ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec),\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, let's test our implementation. First, let's evolve the initial state using a single Trotter step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Fidelity of Trotter-evolved state with exact state: 0.9402435115158934\n"
+     ]
+    }
+   ],
+   "source": [
+    "final_state = simulate_trotter_double_factorized(\n",
+    "    initial_state,\n",
+    "    df_hamiltonian,\n",
+    "    time,\n",
+    "    norb=norb,\n",
+    "    nelec=nelec,\n",
+    "    n_steps=1,\n",
+    ")\n",
+    "\n",
+    "fidelity = abs(np.vdot(final_state, exact_state))\n",
+    "print(f\"Fidelity of Trotter-evolved state with exact state: {fidelity}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The fidelity of the final result can be improved by increasing the number of Trotter steps."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Fidelity of Trotter-evolved state with exact state: 0.9985212854200636\n"
+     ]
+    }
+   ],
+   "source": [
+    "final_state = simulate_trotter_double_factorized(\n",
+    "    initial_state,\n",
+    "    df_hamiltonian,\n",
+    "    time,\n",
+    "    norb=norb,\n",
+    "    nelec=nelec,\n",
+    "    n_steps=5,\n",
+    ")\n",
+    "\n",
+    "fidelity = abs(np.vdot(final_state, exact_state))\n",
+    "print(f\"Fidelity of Trotter-evolved state with exact state: {fidelity}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In the code cell below, we reproduce the results of our manually implemented function using ffsim's built-in implementation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Fidelity of Trotter-evolved state with exact state: 0.9985212854201162\n"
+     ]
+    }
+   ],
+   "source": [
+    "final_state = ffsim.simulate_trotter_double_factorized(\n",
+    "    initial_state,\n",
+    "    df_hamiltonian,\n",
+    "    time,\n",
+    "    norb=norb,\n",
+    "    nelec=nelec,\n",
+    "    n_steps=5,\n",
+    "    order=0,\n",
+    ")\n",
+    "\n",
+    "fidelity = abs(np.vdot(final_state, exact_state))\n",
+    "print(f\"Fidelity of Trotter-evolved state with exact state: {fidelity}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A higher order formula achieves a higher fidelity with fewer Trotter steps:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Fidelity of Trotter-evolved state with exact state: 0.9996731164188479\n"
+     ]
+    }
+   ],
+   "source": [
+    "final_state = ffsim.simulate_trotter_double_factorized(\n",
+    "    initial_state,\n",
+    "    df_hamiltonian,\n",
+    "    time,\n",
+    "    norb=norb,\n",
+    "    nelec=nelec,\n",
+    "    n_steps=2,\n",
+    "    order=1,\n",
+    ")\n",
+    "\n",
+    "fidelity = abs(np.vdot(final_state, exact_state))\n",
+    "print(f\"Fidelity of Trotter-evolved state with exact state: {fidelity}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "You've made it to the end of this tutorial!"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim-1cfkSnAR",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
