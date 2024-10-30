@@ -78,16 +78,7 @@ def test_parameters_roundtrip_all_to_all():
             n_reps=n_reps,
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        np.testing.assert_allclose(
-            roundtripped.diag_coulomb_mats, operator.diag_coulomb_mats
-        )
-        np.testing.assert_allclose(
-            roundtripped.orbital_rotations, operator.orbital_rotations
-        )
-        if with_final_orbital_rotation:
-            np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-            )
+        assert ffsim.approx_eq(roundtripped, operator)
 
 
 def test_parameters_roundtrip_interaction_pairs():
@@ -111,16 +102,7 @@ def test_parameters_roundtrip_interaction_pairs():
             interaction_pairs=interaction_pairs,
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        np.testing.assert_allclose(
-            roundtripped.diag_coulomb_mats, operator.diag_coulomb_mats
-        )
-        np.testing.assert_allclose(
-            roundtripped.orbital_rotations, operator.orbital_rotations
-        )
-        if with_final_orbital_rotation:
-            np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-            )
+        assert ffsim.approx_eq(roundtripped, operator)
 
 
 def test_t_amplitudes_energy():
