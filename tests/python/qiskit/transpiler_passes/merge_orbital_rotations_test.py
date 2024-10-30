@@ -224,24 +224,6 @@ def test_merge_ucj(norb: int, nelec: tuple[int, int]):
     qubits = QuantumRegister(2 * norb)
     n_reps = 3
 
-    with pytest.deprecated_call():
-        circuit = QuantumCircuit(qubits)
-        circuit.append(
-            ffsim.qiskit.PrepareHartreeFockJW(norb, nelec),
-            qubits,
-        )
-        ucj_op = ffsim.random.random_ucj_operator(
-            norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
-        )
-        circuit.append(ffsim.qiskit.UCJOperatorJW(ucj_op), qubits)
-        transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
-        assert circuit.count_ops() == {"hartree_fock_jw": 1, "ucj_jw": 1}
-        assert transpiled.count_ops()["slater_jw"] == 1
-        assert transpiled.count_ops()["orb_rot_jw"] == n_reps
-        ffsim.testing.assert_allclose_up_to_global_phase(
-            np.array(Statevector(circuit)), np.array(Statevector(transpiled))
-        )
-
     circuit = QuantumCircuit(qubits)
     circuit.append(
         ffsim.qiskit.PrepareHartreeFockJW(norb, nelec),
