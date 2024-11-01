@@ -15,12 +15,13 @@ from ffsim.tenpy.circuits.gates import (
     xy,
 )
 from ffsim.tenpy.util import product_state_as_mps
+from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
 
 
 def lucj_circuit_as_mps(
     norb: int,
     nelec: tuple,
-    lucj_operator: "ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced",
+    ucj_op: UCJOpSpinBalanced,
     options: dict,
     norm_tol: float = 1e-5,
 ) -> tuple[MPS, list[int]]:
@@ -29,7 +30,7 @@ def lucj_circuit_as_mps(
     Args:
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
-        lucj_operator: The LUCJ operator.
+        ucj_op: The LUCJ operator.
         options: The options parsed by the
             `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
         norm_tol: The norm error above which we recanonicalize the wavefunction, as
@@ -53,7 +54,7 @@ def lucj_circuit_as_mps(
     # construct the qiskit circuit
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
-    circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(lucj_operator), qubits)
+    circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op), qubits)
 
     # define the TEBD engine
     eng = TEBDEngine(psi, None, options)
