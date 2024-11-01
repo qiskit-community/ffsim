@@ -1,9 +1,22 @@
+# (C) Copyright IBM 2024.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""Tests for LUCJ circuit TeNPy methods."""
+
 import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 
 import ffsim
 from ffsim.tenpy.circuits.lucj_circuit import lucj_circuit_as_mps
+from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 
 
 def _interaction_pairs_spin_balanced_(
@@ -50,7 +63,10 @@ def test_lucj_circuit_as_mps(norb: int, nelec: tuple[int, int], connectivity: st
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo = mol_hamiltonian.to_mpo()
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random LUCJ ansatz
     n_params = ffsim.UCJOpSpinBalanced.n_params(

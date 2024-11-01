@@ -20,13 +20,11 @@ import pyscf.tools
 from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
-from tenpy.networks.mpo import MPO
 from typing_extensions import deprecated
 
 from ffsim.cistring import gen_linkstr_index
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
-from ffsim.tenpy.hamiltonians import MolecularHamiltonianMPOModel
 
 
 @dataclasses.dataclass(frozen=True)
@@ -121,40 +119,6 @@ class MolecularHamiltonian:
             two_body_tensor=two_body_tensor_rotated,
             constant=self.constant,
         )
-
-    def to_mpo(self, decimal_places: int | None = None) -> MPO:
-        r"""Return the Hamiltonian as an MPO.
-
-        Args:
-            decimal_places: The number of decimal places to which to round the input
-                one-body and two-body tensors.
-
-                .. note::
-                    Rounding may reduce the MPO bond dimension.
-
-        Returns:
-            The Hamiltonian as an MPO.
-        """
-
-        if decimal_places:
-            one_body_tensor = np.round(self.one_body_tensor, decimals=decimal_places)
-            two_body_tensor = np.round(self.two_body_tensor, decimals=decimal_places)
-        else:
-            one_body_tensor = self.one_body_tensor
-            two_body_tensor = self.two_body_tensor
-
-        model_params = dict(
-            cons_N="N",
-            cons_Sz="Sz",
-            L=1,
-            norb=self.norb,
-            one_body_tensor=one_body_tensor,
-            two_body_tensor=two_body_tensor,
-            constant=self.constant,
-        )
-        mpo_model = MolecularHamiltonianMPOModel(model_params)
-
-        return mpo_model.H_MPO
 
     def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
