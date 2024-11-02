@@ -285,7 +285,6 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 
 <div class="viewcode-block" id="BitstringType">
@@ -312,93 +311,6 @@
 
     <span class="n">BIT_ARRAY</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bit array.&quot;&quot;&quot;</span></div>
-
-
-
-<div class="viewcode-block" id="indices_to_strings">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.indices_to_strings">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="s2">&quot;ffsim.indices_to_strings is deprecated. &quot;</span>
-    <span class="s2">&quot;Instead, use ffsim.addresses_to_strings.&quot;</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">indices_to_strings</span><span class="p">(</span>
-    <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">concatenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">bitstring_type</span><span class="p">:</span> <span class="n">BitstringType</span> <span class="o">=</span> <span class="n">BitstringType</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert state vector indices to bitstrings.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This function is deprecated. Use :class:`ffsim.addresses_to_strings` instead.</span>
-
-<span class="sd">    Example:</span>
-
-<span class="sd">    .. code::</span>
-
-<span class="sd">        import ffsim</span>
-
-<span class="sd">        norb = 3</span>
-<span class="sd">        nelec = (2, 1)</span>
-<span class="sd">        dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        ffsim.indices_to_strings(range(dim), norb, nelec)</span>
-<span class="sd">        # output:</span>
-<span class="sd">        # [&#39;001011&#39;,</span>
-<span class="sd">        #  &#39;010011&#39;,</span>
-<span class="sd">        #  &#39;100011&#39;,</span>
-<span class="sd">        #  &#39;001101&#39;,</span>
-<span class="sd">        #  &#39;010101&#39;,</span>
-<span class="sd">        #  &#39;100101&#39;,</span>
-<span class="sd">        #  &#39;001110&#39;,</span>
-<span class="sd">        #  &#39;010110&#39;,</span>
-<span class="sd">        #  &#39;100110&#39;]</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        indices: The state vector indices to convert to bitstrings.</span>
-<span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
-<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
-<span class="sd">            and spin beta fermions.</span>
-<span class="sd">        bitstring_type: The desired type of bitstring output.</span>
-<span class="sd">        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the</span>
-<span class="sd">            bitstrings. If True, then a single list of concatenated bitstrings is</span>
-<span class="sd">            returned. The strings are concatenated in the order :math:`s_b s_a`,</span>
-<span class="sd">            that is, the alpha string appears on the right.</span>
-<span class="sd">            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that</span>
-<span class="sd">            the list of alpha strings appears first, that is, on the left.</span>
-<span class="sd">            In the spinless case (when `nelec` is an integer), this argument is ignored.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="c1"># Spinless case</span>
-        <span class="k">return</span> <span class="n">convert_bitstring_type</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices</span><span class="p">)),</span>
-            <span class="n">input_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-            <span class="n">output_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">,</span>
-            <span class="n">length</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="c1"># Spinful case</span>
-    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
-    <span class="n">indices_a</span><span class="p">,</span> <span class="n">indices_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span>
-    <span class="n">strings_a</span> <span class="o">=</span> <span class="n">convert_bitstring_type</span><span class="p">(</span>
-        <span class="nb">list</span><span class="p">(</span><span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_a</span><span class="p">)),</span>
-        <span class="n">input_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-        <span class="n">output_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">,</span>
-        <span class="n">length</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">strings_b</span> <span class="o">=</span> <span class="n">convert_bitstring_type</span><span class="p">(</span>
-        <span class="nb">list</span><span class="p">(</span><span class="n">cistring</span><span class="o">.</span><span class="n">addrs2str</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">addrs</span><span class="o">=</span><span class="n">indices_b</span><span class="p">)),</span>
-        <span class="n">input_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
-        <span class="n">output_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">,</span>
-        <span class="n">length</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">concatenate</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">concatenate_bitstrings</span><span class="p">(</span>
-            <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span><span class="p">,</span> <span class="n">bitstring_type</span><span class="o">=</span><span class="n">bitstring_type</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">norb</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span></div>
 
 
 
@@ -514,62 +426,6 @@
         <span class="k">return</span> <span class="p">[(</span><span class="n">s_b</span> <span class="o">&lt;&lt;</span> <span class="n">length</span><span class="p">)</span> <span class="o">+</span> <span class="n">s_a</span> <span class="k">for</span> <span class="n">s_a</span><span class="p">,</span> <span class="n">s_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">bitstring_type</span> <span class="ow">is</span> <span class="n">BitstringType</span><span class="o">.</span><span class="n">BIT_ARRAY</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">strings_b</span><span class="p">,</span> <span class="n">strings_a</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="strings_to_indices">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.strings_to_indices">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="s2">&quot;ffsim.strings_to_indices is deprecated. &quot;</span>
-    <span class="s2">&quot;Instead, use ffsim.strings_to_addresses.&quot;</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">strings_to_indices</span><span class="p">(</span>
-    <span class="n">strings</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bitstrings to state vector indices.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This function is deprecated. Use :class:`ffsim.strings_to_addresses` instead.</span>
-
-<span class="sd">    Example:</span>
-
-<span class="sd">    .. code::</span>
-
-<span class="sd">        import ffsim</span>
-
-<span class="sd">        norb = 3</span>
-<span class="sd">        nelec = (2, 1)</span>
-<span class="sd">        dim = ffsim.dim(norb, nelec)</span>
-<span class="sd">        ffsim.strings_to_indices(</span>
-<span class="sd">            [</span>
-<span class="sd">                &quot;001011&quot;,</span>
-<span class="sd">                &quot;010011&quot;,</span>
-<span class="sd">                &quot;100011&quot;,</span>
-<span class="sd">                &quot;001101&quot;,</span>
-<span class="sd">                &quot;010101&quot;,</span>
-<span class="sd">                &quot;100101&quot;,</span>
-<span class="sd">                &quot;001110&quot;,</span>
-<span class="sd">                &quot;010110&quot;,</span>
-<span class="sd">                &quot;100110&quot;,</span>
-<span class="sd">            ],</span>
-<span class="sd">            norb,</span>
-<span class="sd">            nelec,</span>
-<span class="sd">        )</span>
-<span class="sd">        # output:</span>
-<span class="sd">        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
-        <span class="p">)</span>
-
-    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">strings_a</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">norb</span><span class="p">:],</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
-    <span class="n">strings_b</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="n">norb</span><span class="p">],</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
-    <span class="n">addrs_a</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_a</span><span class="p">)</span>
-    <span class="n">addrs_b</span> <span class="o">=</span> <span class="n">cistring</span><span class="o">.</span><span class="n">strs2addr</span><span class="p">(</span><span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">,</span> <span class="n">strings</span><span class="o">=</span><span class="n">strings_b</span><span class="p">)</span>
-    <span class="n">dim_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">addrs_a</span> <span class="o">*</span> <span class="n">dim_b</span> <span class="o">+</span> <span class="n">addrs_b</span></div>
-
 
 
 <div class="viewcode-block" id="addresses_to_strings">

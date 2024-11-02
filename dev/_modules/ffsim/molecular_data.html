@@ -297,7 +297,6 @@
 <span class="kn">import</span> <span class="nn">pyscf.mp</span>
 <span class="kn">import</span> <span class="nn">pyscf.symm</span>
 <span class="kn">import</span> <span class="nn">pyscf.tools</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
 
@@ -463,34 +462,6 @@
             <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">,</span>
             <span class="n">hf_energy</span><span class="o">=</span><span class="n">hf_energy</span><span class="p">,</span>
         <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="MolecularData.from_mole">
-<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_mole">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="nd">@deprecated</span><span class="p">(</span>
-        <span class="s2">&quot;The from_mole method is deprecated. Instead, pass an SCF object directly to &quot;</span>
-        <span class="s2">&quot;from_scf.&quot;</span>
-    <span class="p">)</span>
-    <span class="k">def</span> <span class="nf">from_mole</span><span class="p">(</span>
-        <span class="n">molecule</span><span class="p">:</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">,</span>
-        <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">scf_func</span><span class="o">=</span><span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MolecularData&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData object from a PySCF molecule.</span>
-
-<span class="sd">        .. warning::</span>
-<span class="sd">            This method is deprecated. Instead, pass an SCF object directly to</span>
-<span class="sd">            :func:`from_scf`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            molecule: The molecule.</span>
-<span class="sd">            active_space: An optional list of orbitals to use for the active space.</span>
-<span class="sd">            scf_func: The PySCF SCF function to use for the Hartree-Fock calculation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">hartree_fock</span> <span class="o">=</span> <span class="n">scf_func</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
-        <span class="n">hartree_fock</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">hartree_fock</span><span class="p">,</span> <span class="n">active_space</span><span class="o">=</span><span class="n">active_space</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MolecularData.run_cisd">

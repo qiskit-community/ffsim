@@ -284,7 +284,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci</span> <span class="kn">import</span> <span class="n">cistring</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
 <span class="kn">from</span> <span class="nn">ffsim.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
@@ -397,79 +396,6 @@
 
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="k">return</span> <span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">)))</span></div>
-
-
-
-<div class="viewcode-block" id="slater_determinant_rdm">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.slater_determinant_rdm">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="s2">&quot;ffsim.slater_determinant_rdm is deprecated. &quot;</span>
-    <span class="s2">&quot;Instead, use ffsim.slater_determinant_rdms.&quot;</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">slater_determinant_rdm</span><span class="p">(</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-    <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">spin_summed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrix of a `Slater determinant`_.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This function is deprecated. Use :func:`ffsim.slater_determinant_rdms` instead.</span>
-
-<span class="sd">    Note:</span>
-<span class="sd">        Currently, only rank 1 is supported.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        occupied_orbitals: The occupied orbitals in the electronic configuration.</span>
-<span class="sd">            This is a pair of lists of integers, where the first list specifies the</span>
-<span class="sd">            spin alpha orbitals and the second list specifies the spin beta</span>
-<span class="sd">            orbitals.</span>
-<span class="sd">        orbital_rotation: The optional orbital rotation.</span>
-<span class="sd">            You can pass either a single Numpy array specifying the orbital rotation</span>
-<span class="sd">            to apply to both spin sectors, or you can pass a pair of Numpy arrays</span>
-<span class="sd">            specifying independent orbital rotations for spin alpha and spin beta.</span>
-<span class="sd">            If passing a pair, you can use ``None`` for one of the</span>
-<span class="sd">            values in the pair to indicate that no operation should be applied to that</span>
-<span class="sd">            spin sector.</span>
-<span class="sd">        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the</span>
-<span class="sd">            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</span>
-<span class="sd">        spin_summed: Whether to sum over the spin index.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The reduced density matrix of the Slater determinant.</span>
-
-<span class="sd">    .. _Slater determinant: ffsim.html#ffsim.slater_determinant</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-        <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-        <span class="n">alpha_orbitals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">beta_orbitals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupied_orbitals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">):</span>
-            <span class="n">rdm_a</span><span class="p">[(</span><span class="n">alpha_orbitals</span><span class="p">,</span> <span class="n">alpha_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">):</span>
-            <span class="n">rdm_b</span><span class="p">[(</span><span class="n">beta_orbitals</span><span class="p">,</span> <span class="n">beta_orbitals</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                <span class="n">orbital_rotation_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-                <span class="n">orbital_rotation_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-            <span class="k">if</span> <span class="n">orbital_rotation_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">rdm_a</span> <span class="o">=</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_a</span> <span class="o">@</span> <span class="n">orbital_rotation_a</span><span class="o">.</span><span class="n">T</span>
-            <span class="k">if</span> <span class="n">orbital_rotation_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">rdm_b</span> <span class="o">=</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">rdm_b</span> <span class="o">@</span> <span class="n">orbital_rotation_b</span><span class="o">.</span><span class="n">T</span>
-        <span class="k">if</span> <span class="n">spin_summed</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">rdm_a</span> <span class="o">+</span> <span class="n">rdm_b</span>
-        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">rdm_a</span><span class="p">,</span> <span class="n">rdm_b</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Returning the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not supported.&quot;</span>
-    <span class="p">)</span></div>
 
 
 

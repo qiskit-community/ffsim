@@ -280,41 +280,9 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">operators</span><span class="p">,</span> <span class="n">variational</span>
 <span class="kn">from</span> <span class="nn">ffsim.variational.util</span> <span class="kn">import</span> <span class="n">validate_interaction_pairs</span>
-
-
-<div class="viewcode-block" id="random_statevector">
-<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_statevector">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="s2">&quot;ffsim.random.random_statevector is deprecated. &quot;</span>
-    <span class="s2">&quot;Instead, use ffsim.random.random_state_vector.&quot;</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">random_statevector</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random state vector sampled from the uniform distribution.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This function is deprecated. Use :func:`ffsim.random.random_state_vector`</span>
-<span class="sd">        instead.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        dim: The dimension of the state vector.</span>
-<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
-<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
-<span class="sd">        dtype: The data type to use for the result.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The sampled state vector.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
-        <span class="n">vec</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">vec</span></div>
-
 
 
 <div class="viewcode-block" id="random_state_vector">

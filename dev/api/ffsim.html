@@ -1322,29 +1322,6 @@ Options: <code class="docutils literal notranslate"><span class="pre">&quot;gzip
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ffsim.MolecularData.from_mole">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_func=&lt;function</span> <span class="pre">RHF&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_mole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_mole" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize a MolecularData object from a PySCF molecule.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This method is deprecated. Instead, pass an SCF object directly to
-<a class="reference internal" href="#ffsim.MolecularData.from_scf" title="ffsim.MolecularData.from_scf"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_scf()</span></code></a>.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>molecule</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mole</span></code></span>) – The molecule.</p></li>
-<li><p><strong>active_space</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional list of orbitals to use for the active space.</p></li>
-<li><p><strong>scf_func</strong> – The PySCF SCF function to use for the Hartree-Fock calculation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularData" title="ffsim.molecular_data.MolecularData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularData</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ffsim.MolecularData.from_scf">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_scf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hartree_fock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/molecular_data.html#MolecularData.from_scf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularData.from_scf" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MolecularData object from a Hartree-Fock calculation.</p>
@@ -1513,25 +1490,6 @@ the two-body tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.from_fcidump">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fcidump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian.from_fcidump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonian.from_fcidump" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize a MolecularHamiltonian from an FCIDUMP file.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This function is deprecated. Instead, use MolecularData.from_fcidump and
-then access the <cite>hamiltonian</cite> attribute of the returned MolecularData.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></span>) – The FCIDUMP file path.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -3927,54 +3885,6 @@ and spin beta fermions.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.indices_to_strings">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">indices_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstring_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BitstringType.STRING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#indices_to_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.indices_to_strings" title="Link to this definition">¶</a></dt>
-<dd><p>Convert state vector indices to bitstrings.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.addresses_to_strings" title="ffsim.addresses_to_strings"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.addresses_to_strings</span></code></a> instead.</p>
-</div>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
-
-<span class="n">norb</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">dim</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-<span class="n">ffsim</span><span class="o">.</span><span class="n">indices_to_strings</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-<span class="c1"># output:</span>
-<span class="c1"># [&#39;001011&#39;,</span>
-<span class="c1">#  &#39;010011&#39;,</span>
-<span class="c1">#  &#39;100011&#39;,</span>
-<span class="c1">#  &#39;001101&#39;,</span>
-<span class="c1">#  &#39;010101&#39;,</span>
-<span class="c1">#  &#39;100101&#39;,</span>
-<span class="c1">#  &#39;001110&#39;,</span>
-<span class="c1">#  &#39;010110&#39;,</span>
-<span class="c1">#  &#39;100110&#39;]</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector indices to convert to bitstrings.</p></li>
-<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
-spinless system, or a pair of integers storing the numbers of spin alpha
-and spin beta fermions.</p></li>
-<li><p><strong>bitstring_type</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.BitstringType" title="ffsim.states.bitstring.BitstringType"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitstringType</span></code></a></span>) – The desired type of bitstring output.</p></li>
-<li><p><strong>concatenate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to concatenate the spin-alpha and spin-beta parts of the
-bitstrings. If True, then a single list of concatenated bitstrings is
-returned. The strings are concatenated in the order <span class="math notranslate nohighlight">\(s_b s_a\)</span>,
-that is, the alpha string appears on the right.
-If False, then two lists are returned, <code class="docutils literal notranslate"><span class="pre">(strings_a,</span> <span class="pre">strings_b)</span></code>. Note that
-the list of alpha strings appears first, that is, on the left.
-In the spinless case (when <cite>nelec</cite> is an integer), this argument is ignored.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.init_cache">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">init_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/cistring.html#init_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.init_cache" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize cached objects.</p>
@@ -4102,89 +4012,9 @@ this argument is ignored.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.one_hot">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">one_hot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#one_hot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.one_hot" title="Link to this definition">¶</a></dt>
-<dd><p>Return an array of all zeros except for a one at a specified index.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This function is deprecated. Use <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.one_hot" title="ffsim.linalg.one_hot"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.linalg.one_hot()</span></code></a> instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]</span>) – The desired shape of the array.</p></li>
-<li><p><strong>index</strong> – The index at which to place a one.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The one-hot vector.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.rdm">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_lower_ranks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/rdm.html#rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.rdm" title="Link to this definition">¶</a></dt>
-<dd><p>Return the reduced density matrix (RDM) or matrices of a state vector.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.rdms" title="ffsim.rdms"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.rdms()</span></code></a> instead.</p>
-</div>
-<p>The rank 1 RDM is defined as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm1[p, q] = ⟨p+ q⟩
-</pre></div>
-</div>
-<p>The definition of higher-rank RDMs depends on the <code class="docutils literal notranslate"><span class="pre">reordered</span></code> argument, which
-defaults to True.</p>
-<p><strong>reordered = True</strong></p>
-<p>The reordered RDMs are defined as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm2[p, q, r, s] = ⟨p+ r+ s q⟩
-rdm3[p, q, r, s, t, u] = ⟨p+ r+ t+ u s q⟩
-rdm4[p, q, r, s, t, u, v, w] = ⟨p+ r+ t+ v+ w u s q⟩
-</pre></div>
-</div>
-<p><strong>reordered = False</strong></p>
-<p>If reordered is set to False, the RDMs are defined as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm2[p, q, r, s] = ⟨p+ q r+ s⟩
-rdm3[p, q, r, s, t, u] = ⟨p+ q r+ s t+ u⟩
-rdm4[p, q, r, s, t, u, v, w] = ⟨p+ q r+ s t+ u v+ w⟩
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Currently, only ranks 1 and 2 are supported.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector whose reduced density matrix is desired.</p></li>
-<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
-<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The rank of the reduced density matrix.</p></li>
-<li><p><strong>spin_summed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to sum over the spin index.</p></li>
-<li><p><strong>reordered</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to reorder the indices of the reduced density matrix.</p></li>
-<li><p><strong>return_lower_ranks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to return lower rank RDMs in addition to the
-specified rank. If True, then this function returns all RDMs up to and
-including the specified rank, in increasing order of rank. For example,
-if <cite>rank=2</cite> then a tuple <cite>(rdm1, rdm2)</cite> is returned.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The reduced density matrix or matrices. If <cite>return_lower_ranks</cite> is False,
-then a single matrix is returned. If <cite>return_lower_ranks</cite> is True, then
-a <cite>rank</cite>-length tuple of matrices is returned, containing the RDMs up to
-the specified rank in increasing order of rank.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.rdms">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">rdms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/rdm.html#rdms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.rdms" title="Link to this definition">¶</a></dt>
-<dd><p>Return the spin-separated reduced density matrices of a state vector.</p>
+<dd><p>Return the reduced density matrices of a state vector.</p>
 <p>The rank 1 RDM is defined as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rdm1[p, q] = ⟨p+ q⟩
 </pre></div>
@@ -4503,47 +4333,6 @@ specifying independent orbital rotations for spin alpha and spin beta.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.slater_determinant_rdm">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">slater_determinant_rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_summed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/slater.html#slater_determinant_rdm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slater_determinant_rdm" title="Link to this definition">¶</a></dt>
-<dd><p>Return the reduced density matrix of a <a class="reference external" href="ffsim.html#ffsim.slater_determinant">Slater determinant</a>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.slater_determinant_rdms" title="ffsim.slater_determinant_rdms"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.slater_determinant_rdms()</span></code></a> instead.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Currently, only rank 1 is supported.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>occupied_orbitals</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span>) – The occupied orbitals in the electronic configuration.
-This is a pair of lists of integers, where the first list specifies the
-spin alpha orbitals and the second list specifies the spin beta
-orbitals.</p></li>
-<li><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The optional orbital rotation.
-You can pass either a single Numpy array specifying the orbital rotation
-to apply to both spin sectors, or you can pass a pair of Numpy arrays
-specifying independent orbital rotations for spin alpha and spin beta.
-If passing a pair, you can use <code class="docutils literal notranslate"><span class="pre">None</span></code> for one of the
-values in the pair to indicate that no operation should be applied to that
-spin sector.</p></li>
-<li><p><strong>rank</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The rank of the reduced density matrix. I.e., rank 1 corresponds to the
-one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.</p></li>
-<li><p><strong>spin_summed</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to sum over the spin index.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The reduced density matrix of the Slater determinant.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.slater_determinant_rdms">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">slater_determinant_rdms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/slater.html#slater_determinant_rdms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slater_determinant_rdms" title="Link to this definition">¶</a></dt>
 <dd><p>Return the reduced density matrices of a <a class="reference external" href="ffsim.html#ffsim.slater_determinant">Slater determinant</a>.</p>
@@ -4666,42 +4455,6 @@ and spin beta fermions.</p></li>
 <dd class="field-odd"><p>The state vector addresses, as a Numpy array of integers.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ffsim.strings_to_indices">
-<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#strings_to_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_indices" title="Link to this definition">¶</a></dt>
-<dd><p>Convert bitstrings to state vector indices.
-:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.strings_to_addresses" title="ffsim.strings_to_addresses"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffsim.strings_to_addresses</span></code></a> instead.</p>
-</div>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ffsim</span>
-
-<span class="n">norb</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">dim</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-<span class="n">ffsim</span><span class="o">.</span><span class="n">strings_to_indices</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="s2">&quot;001011&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;010011&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;100011&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;001101&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;010101&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;100101&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;001110&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;010110&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;100110&quot;</span><span class="p">,</span>
-    <span class="p">],</span>
-    <span class="n">norb</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="c1"># output:</span>
-<span class="c1"># array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py function">
@@ -4866,7 +4619,6 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.orbital_symmetries"><code class="docutils literal notranslate"><span class="pre">MolecularData.orbital_symmetries</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.from_fcidump"><code class="docutils literal notranslate"><span class="pre">MolecularData.from_fcidump()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.from_json"><code class="docutils literal notranslate"><span class="pre">MolecularData.from_json()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.MolecularData.from_mole"><code class="docutils literal notranslate"><span class="pre">MolecularData.from_mole()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.from_scf"><code class="docutils literal notranslate"><span class="pre">MolecularData.from_scf()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.hamiltonian"><code class="docutils literal notranslate"><span class="pre">MolecularData.hamiltonian</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularData.mole"><code class="docutils literal notranslate"><span class="pre">MolecularData.mole</span></code></a></li>
@@ -4884,7 +4636,6 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.one_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.two_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.two_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.constant</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.MolecularHamiltonian.from_fcidump"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.from_fcidump()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.rotated"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.rotated()</span></code></a></li>
 </ul>
@@ -5006,14 +4757,11 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.fermi_hubbard_2d"><code class="docutils literal notranslate"><span class="pre">fermi_hubbard_2d()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.fermion_operator"><code class="docutils literal notranslate"><span class="pre">fermion_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.hartree_fock_state"><code class="docutils literal notranslate"><span class="pre">hartree_fock_state()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.init_cache"><code class="docutils literal notranslate"><span class="pre">init_cache()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.linear_operator"><code class="docutils literal notranslate"><span class="pre">linear_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.multireference_state"><code class="docutils literal notranslate"><span class="pre">multireference_state()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.multireference_state_prod"><code class="docutils literal notranslate"><span class="pre">multireference_state_prod()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.number_operator"><code class="docutils literal notranslate"><span class="pre">number_operator()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.one_hot"><code class="docutils literal notranslate"><span class="pre">one_hot()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.rdm"><code class="docutils literal notranslate"><span class="pre">rdm()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.rdms"><code class="docutils literal notranslate"><span class="pre">rdms()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.sample_slater_determinant"><code class="docutils literal notranslate"><span class="pre">sample_slater_determinant()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.sample_state_vector"><code class="docutils literal notranslate"><span class="pre">sample_state_vector()</span></code></a></li>
@@ -5022,11 +4770,9 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.simulate_trotter_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_double_factorized()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_amplitudes"><code class="docutils literal notranslate"><span class="pre">slater_determinant_amplitudes()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.slater_determinant_rdm"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdm()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_rdms"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdms()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.spin_square"><code class="docutils literal notranslate"><span class="pre">spin_square()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.strings_to_addresses"><code class="docutils literal notranslate"><span class="pre">strings_to_addresses()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.strings_to_indices"><code class="docutils literal notranslate"><span class="pre">strings_to_indices()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
 </ul>
 </li>

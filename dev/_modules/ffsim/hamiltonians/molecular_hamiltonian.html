@@ -278,15 +278,11 @@
 
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pyscf.ao2mo</span>
-<span class="kn">import</span> <span class="nn">pyscf.tools</span>
 <span class="kn">from</span> <span class="nn">opt_einsum</span> <span class="kn">import</span> <span class="n">contract</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci.direct_nosym</span> <span class="kn">import</span> <span class="n">absorb_h1e</span><span class="p">,</span> <span class="n">contract_2e</span><span class="p">,</span> <span class="n">make_hdiag</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">LinearOperator</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">gen_linkstr_index</span>
 <span class="kn">from</span> <span class="nn">ffsim.operators</span> <span class="kn">import</span> <span class="n">FermionOperator</span><span class="p">,</span> <span class="n">cre_a</span><span class="p">,</span> <span class="n">cre_b</span><span class="p">,</span> <span class="n">des_a</span><span class="p">,</span> <span class="n">des_b</span>
@@ -320,32 +316,6 @@
     <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-
-<div class="viewcode-block" id="MolecularHamiltonian.from_fcidump">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonian.from_fcidump">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="nd">@deprecated</span><span class="p">(</span>
-        <span class="s2">&quot;The MolecularHamiltonian.from_fcidump method is deprecated. &quot;</span>
-        <span class="s2">&quot;Instead, use MolecularData.from_fcidump and then access the `hamiltonian` &quot;</span>
-        <span class="s2">&quot;attribute of the returned MolecularData.&quot;</span>
-    <span class="p">)</span>
-    <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularHamiltonian from an FCIDUMP file.</span>
-
-<span class="sd">        .. warning::</span>
-<span class="sd">            This function is deprecated. Instead, use MolecularData.from_fcidump and</span>
-<span class="sd">            then access the `hamiltonian` attribute of the returned MolecularData.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            file: The FCIDUMP file path.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">MolecularHamiltonian</span><span class="p">(</span>
-            <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;H1&quot;</span><span class="p">],</span>
-            <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">pyscf</span><span class="o">.</span><span class="n">ao2mo</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;H2&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;NORB&quot;</span><span class="p">]),</span>
-            <span class="n">constant</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ECORE&quot;</span><span class="p">],</span>
-        <span class="p">)</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">norb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>

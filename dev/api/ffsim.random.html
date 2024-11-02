@@ -536,33 +536,6 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ffsim.random.random_statevector">
-<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_statevector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_statevector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_statevector" title="Link to this definition">¶</a></dt>
-<dd><p>Return a random state vector sampled from the uniform distribution.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This function is deprecated. Use <a class="reference internal" href="#ffsim.random.random_state_vector" title="ffsim.random.random_state_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.random.random_state_vector()</span></code></a>
-instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dim</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The dimension of the state vector.</p></li>
-<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
-Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
-<li><p><strong>dtype</strong> – The data type to use for the result.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The sampled state vector.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.random.random_t2_amplitudes">
 <span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_t2_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nocc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_t2_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_t2_amplitudes" title="Link to this definition">¶</a></dt>
 <dd><p>Sample a random t2 amplitudes tensor.</p>
@@ -835,7 +808,6 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <li><a class="reference internal" href="#ffsim.random.random_real_symmetric_matrix"><code class="docutils literal notranslate"><span class="pre">random_real_symmetric_matrix()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_special_orthogonal"><code class="docutils literal notranslate"><span class="pre">random_special_orthogonal()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_state_vector"><code class="docutils literal notranslate"><span class="pre">random_state_vector()</span></code></a></li>
-<li><a class="reference internal" href="#ffsim.random.random_statevector"><code class="docutils literal notranslate"><span class="pre">random_statevector()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_t2_amplitudes"><code class="docutils literal notranslate"><span class="pre">random_t2_amplitudes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_two_body_tensor"><code class="docutils literal notranslate"><span class="pre">random_two_body_tensor()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_uccsd_restricted"><code class="docutils literal notranslate"><span class="pre">random_uccsd_restricted()</span></code></a></li>

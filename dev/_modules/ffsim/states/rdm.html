@@ -279,7 +279,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">from</span> <span class="nn">pyscf.fci.direct_spin1</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">make_rdm1</span><span class="p">,</span>
     <span class="n">make_rdm1s</span><span class="p">,</span>
@@ -290,211 +289,8 @@
     <span class="n">trans_rdm12</span><span class="p">,</span>
     <span class="n">trans_rdm12s</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">gen_linkstr_index</span>
-
-
-<div class="viewcode-block" id="rdm">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.rdm">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span><span class="s2">&quot;ffsim.rdm is deprecated. Instead, use ffsim.rdms.&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">rdm</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">spin_summed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">reordered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">return_lower_ranks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrix (RDM) or matrices of a state vector.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This function is deprecated. Use :func:`ffsim.rdms` instead.</span>
-
-<span class="sd">    The rank 1 RDM is defined as follows:</span>
-
-<span class="sd">    .. code::</span>
-
-<span class="sd">        rdm1[p, q] = ⟨p+ q⟩</span>
-
-<span class="sd">    The definition of higher-rank RDMs depends on the ``reordered`` argument, which</span>
-<span class="sd">    defaults to True.</span>
-
-<span class="sd">    **reordered = True**</span>
-
-<span class="sd">    The reordered RDMs are defined as follows:</span>
-
-<span class="sd">    .. code::</span>
-
-<span class="sd">        rdm2[p, q, r, s] = ⟨p+ r+ s q⟩</span>
-<span class="sd">        rdm3[p, q, r, s, t, u] = ⟨p+ r+ t+ u s q⟩</span>
-<span class="sd">        rdm4[p, q, r, s, t, u, v, w] = ⟨p+ r+ t+ v+ w u s q⟩</span>
-
-<span class="sd">    **reordered = False**</span>
-
-<span class="sd">    If reordered is set to False, the RDMs are defined as follows:</span>
-
-<span class="sd">    .. code::</span>
-
-<span class="sd">        rdm2[p, q, r, s] = ⟨p+ q r+ s⟩</span>
-<span class="sd">        rdm3[p, q, r, s, t, u] = ⟨p+ q r+ s t+ u⟩</span>
-<span class="sd">        rdm4[p, q, r, s, t, u, v, w] = ⟨p+ q r+ s t+ u v+ w⟩</span>
-
-<span class="sd">    Note:</span>
-<span class="sd">        Currently, only ranks 1 and 2 are supported.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        vec: The state vector whose reduced density matrix is desired.</span>
-<span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
-<span class="sd">        rank: The rank of the reduced density matrix.</span>
-<span class="sd">        spin_summed: Whether to sum over the spin index.</span>
-<span class="sd">        reordered: Whether to reorder the indices of the reduced density matrix.</span>
-<span class="sd">        return_lower_ranks: Whether to return lower rank RDMs in addition to the</span>
-<span class="sd">            specified rank. If True, then this function returns all RDMs up to and</span>
-<span class="sd">            including the specified rank, in increasing order of rank. For example,</span>
-<span class="sd">            if `rank=2` then a tuple `(rdm1, rdm2)` is returned.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The reduced density matrix or matrices. If `return_lower_ranks` is False,</span>
-<span class="sd">        then a single matrix is returned. If `return_lower_ranks` is True, then</span>
-<span class="sd">        a `rank`-length tuple of matrices is returned, containing the RDMs up to</span>
-<span class="sd">        the specified rank in increasing order of rank.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
-    <span class="n">link_index_a</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
-    <span class="n">link_index_b</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
-    <span class="n">link_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">link_index_a</span><span class="p">,</span> <span class="n">link_index_b</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">spin_summed</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_rdm1_spin_summed</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_rdm1</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">spin_summed</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_rdm2_spin_summed_deprecated</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="p">,</span> <span class="n">return_lower_ranks</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_rdm2</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="p">,</span> <span class="n">return_lower_ranks</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Computing the rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> reduced density matrix is currently not supported.&quot;</span>
-    <span class="p">)</span></div>
-
-
-
-<span class="k">def</span> <span class="nf">_rdm2_spin_summed_deprecated</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">reordered</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">link_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">return_lower_ranks</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-    <span class="n">rdm1_real</span><span class="p">,</span> <span class="n">rdm2_real</span> <span class="o">=</span> <span class="n">make_rdm12</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">rdm1_imag</span><span class="p">,</span> <span class="n">rdm2_imag</span> <span class="o">=</span> <span class="n">make_rdm12</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">trans_rdm1_real_imag</span><span class="p">,</span> <span class="n">trans_rdm2_real_imag</span> <span class="o">=</span> <span class="n">trans_rdm12</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">rdm2</span> <span class="o">=</span> <span class="n">_assemble_rdm2_spin_summed</span><span class="p">(</span><span class="n">rdm2_real</span><span class="p">,</span> <span class="n">rdm2_imag</span><span class="p">,</span> <span class="n">trans_rdm2_real_imag</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">return_lower_ranks</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">rdm2</span>
-    <span class="n">rdm1</span> <span class="o">=</span> <span class="n">_assemble_rdm1_spin_summed</span><span class="p">(</span><span class="n">rdm1_real</span><span class="p">,</span> <span class="n">rdm1_imag</span><span class="p">,</span> <span class="n">trans_rdm1_real_imag</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">rdm1</span><span class="p">,</span> <span class="n">rdm2</span>
-
-
-<span class="k">def</span> <span class="nf">_rdm1</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">link_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="n">rdms1_real</span> <span class="o">=</span> <span class="n">make_rdm1s</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">)</span>
-    <span class="n">rdms1_imag</span> <span class="o">=</span> <span class="n">make_rdm1s</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">)</span>
-    <span class="n">trans_rdms1_real_imag</span> <span class="o">=</span> <span class="n">trans_rdm1s</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">trans_rdms1_imag_real</span> <span class="o">=</span> <span class="n">trans_rdm1s</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_assemble_rdm1</span><span class="p">(</span>
-        <span class="n">rdms1_real</span><span class="p">,</span> <span class="n">rdms1_imag</span><span class="p">,</span> <span class="n">trans_rdms1_real_imag</span><span class="p">,</span> <span class="n">trans_rdms1_imag_real</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_assemble_rdm1</span><span class="p">(</span>
-    <span class="n">rdms1_real</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">rdms1_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">trans_rdms1_real_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">trans_rdms1_imag_real</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="n">rdms1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">rdms1_real</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">)</span>
-    <span class="n">rdms1</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">rdms1_imag</span><span class="p">)</span>
-    <span class="c1"># use minus sign for real-imag and plus sign for imag-real because</span>
-    <span class="c1"># the rdm1 convention in pyscf is transposed</span>
-    <span class="n">rdms1</span> <span class="o">-=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">trans_rdms1_real_imag</span><span class="p">)</span>
-    <span class="n">rdms1</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">trans_rdms1_imag_real</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">rdms1</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_rdm2</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">reordered</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">link_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">return_lower_ranks</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-    <span class="n">rdms1_real</span><span class="p">,</span> <span class="n">rdms2_real</span> <span class="o">=</span> <span class="n">make_rdm12s</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">rdms1_imag</span><span class="p">,</span> <span class="n">rdms2_imag</span> <span class="o">=</span> <span class="n">make_rdm12s</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">trans_rdms1_real_imag</span><span class="p">,</span> <span class="n">trans_rdms2_real_imag</span> <span class="o">=</span> <span class="n">trans_rdm12s</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">trans_rdms1_imag_real</span><span class="p">,</span> <span class="n">trans_rdms2_imag_real</span> <span class="o">=</span> <span class="n">trans_rdm12s</span><span class="p">(</span>
-        <span class="n">vec</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reordered</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span>
-    <span class="p">)</span>
-    <span class="n">rdm2</span> <span class="o">=</span> <span class="n">_assemble_rdm2</span><span class="p">(</span>
-        <span class="n">rdms2_real</span><span class="p">,</span> <span class="n">rdms2_imag</span><span class="p">,</span> <span class="n">trans_rdms2_real_imag</span><span class="p">,</span> <span class="n">trans_rdms2_imag_real</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">return_lower_ranks</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">rdm2</span>
-    <span class="n">rdm1</span> <span class="o">=</span> <span class="n">_assemble_rdm1</span><span class="p">(</span>
-        <span class="n">rdms1_real</span><span class="p">,</span> <span class="n">rdms1_imag</span><span class="p">,</span> <span class="n">trans_rdms1_real_imag</span><span class="p">,</span> <span class="n">trans_rdms1_imag_real</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">rdm1</span><span class="p">,</span> <span class="n">rdm2</span>
-
-
-<span class="k">def</span> <span class="nf">_assemble_rdm2</span><span class="p">(</span>
-    <span class="n">rdms2_real</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">rdms2_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">trans_rdms2_real_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">trans_rdms2_imag_real</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="n">rdms2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">rdms2_real</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">)</span>
-    <span class="n">rdms2</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">rdms2_imag</span><span class="p">)</span>
-    <span class="c1"># rdms2 is currently [rdm_aa, rdm_ab, rdm_bb]</span>
-    <span class="c1"># the following line transforms it into [rdm_aa, rdm_ab, rdm_ba, rdm_bb]</span>
-    <span class="n">rdms2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">rdms2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">rdms2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">rdms2</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">trans_rdms2_real_imag</span><span class="p">)</span>
-    <span class="n">rdms2</span> <span class="o">-=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">trans_rdms2_imag_real</span><span class="p">)</span>
-
-    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">rdms2_real</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">rdm2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-    <span class="n">rdm_aa</span><span class="p">,</span> <span class="n">rdm_ab</span><span class="p">,</span> <span class="n">rdm_ba</span><span class="p">,</span> <span class="n">rdm_bb</span> <span class="o">=</span> <span class="n">rdms2</span>
-    <span class="n">rdm2</span><span class="p">[:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdm_aa</span>
-    <span class="n">rdm2</span><span class="p">[:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:]</span> <span class="o">=</span> <span class="n">rdm_ab</span>
-    <span class="n">rdm2</span><span class="p">[</span><span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdm_ba</span>
-    <span class="n">rdm2</span><span class="p">[</span><span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:]</span> <span class="o">=</span> <span class="n">rdm_bb</span>
-    <span class="k">return</span> <span class="n">rdm2</span>
 
 
 <div class="viewcode-block" id="rdms">
@@ -508,7 +304,7 @@
     <span class="n">spin_summed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">reorder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the spin-separated reduced density matrices of a state vector.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the reduced density matrices of a state vector.</span>
 
 <span class="sd">    The rank 1 RDM is defined as follows:</span>
 
