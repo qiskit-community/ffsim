@@ -18,7 +18,6 @@ from typing import cast, overload
 import numpy as np
 import scipy.linalg
 from pyscf.fci import cistring
-from typing_extensions import deprecated
 
 from ffsim import linalg
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
@@ -126,76 +125,6 @@ def hartree_fock_state(norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
 
     n_alpha, n_beta = nelec
     return slater_determinant(norb, occupied_orbitals=(range(n_alpha), range(n_beta)))
-
-
-@deprecated(
-    "ffsim.slater_determinant_rdm is deprecated. "
-    "Instead, use ffsim.slater_determinant_rdms."
-)
-def slater_determinant_rdm(
-    norb: int,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
-    orbital_rotation: np.ndarray
-    | tuple[np.ndarray | None, np.ndarray | None]
-    | None = None,
-    rank: int = 1,
-    spin_summed: bool = True,
-) -> np.ndarray:
-    """Return the reduced density matrix of a `Slater determinant`_.
-
-    .. warning::
-        This function is deprecated. Use :func:`ffsim.slater_determinant_rdms` instead.
-
-    Note:
-        Currently, only rank 1 is supported.
-
-    Args:
-        norb: The number of spatial orbitals.
-        occupied_orbitals: The occupied orbitals in the electronic configuration.
-            This is a pair of lists of integers, where the first list specifies the
-            spin alpha orbitals and the second list specifies the spin beta
-            orbitals.
-        orbital_rotation: The optional orbital rotation.
-            You can pass either a single Numpy array specifying the orbital rotation
-            to apply to both spin sectors, or you can pass a pair of Numpy arrays
-            specifying independent orbital rotations for spin alpha and spin beta.
-            If passing a pair, you can use ``None`` for one of the
-            values in the pair to indicate that no operation should be applied to that
-            spin sector.
-        rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the
-            one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.
-        spin_summed: Whether to sum over the spin index.
-
-    Returns:
-        The reduced density matrix of the Slater determinant.
-
-    .. _Slater determinant: ffsim.html#ffsim.slater_determinant
-    """
-    if rank == 1:
-        rdm_a = np.zeros((norb, norb), dtype=complex)
-        rdm_b = np.zeros((norb, norb), dtype=complex)
-        alpha_orbitals = np.array(occupied_orbitals[0])
-        beta_orbitals = np.array(occupied_orbitals[1])
-        if len(alpha_orbitals):
-            rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
-        if len(beta_orbitals):
-            rdm_b[(beta_orbitals, beta_orbitals)] = 1
-        if orbital_rotation is not None:
-            if isinstance(orbital_rotation, np.ndarray):
-                orbital_rotation_a: np.ndarray | None = orbital_rotation
-                orbital_rotation_b: np.ndarray | None = orbital_rotation
-            else:
-                orbital_rotation_a, orbital_rotation_b = orbital_rotation
-            if orbital_rotation_a is not None:
-                rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
-            if orbital_rotation_b is not None:
-                rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
-        if spin_summed:
-            return rdm_a + rdm_b
-        return scipy.linalg.block_diag(rdm_a, rdm_b)
-    raise NotImplementedError(
-        f"Returning the rank {rank} reduced density matrix is currently not supported."
-    )
 
 
 @overload

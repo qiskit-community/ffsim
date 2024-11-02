@@ -12,15 +12,11 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
-import os
 
 import numpy as np
-import pyscf.ao2mo
-import pyscf.tools
 from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
-from typing_extensions import deprecated
 
 from ffsim.cistring import gen_linkstr_index
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
@@ -52,29 +48,6 @@ class MolecularHamiltonian:
     one_body_tensor: np.ndarray
     two_body_tensor: np.ndarray
     constant: float = 0.0
-
-    @staticmethod
-    @deprecated(
-        "The MolecularHamiltonian.from_fcidump method is deprecated. "
-        "Instead, use MolecularData.from_fcidump and then access the `hamiltonian` "
-        "attribute of the returned MolecularData."
-    )
-    def from_fcidump(file: str | bytes | os.PathLike) -> MolecularHamiltonian:
-        """Initialize a MolecularHamiltonian from an FCIDUMP file.
-
-        .. warning::
-            This function is deprecated. Instead, use MolecularData.from_fcidump and
-            then access the `hamiltonian` attribute of the returned MolecularData.
-
-        Args:
-            file: The FCIDUMP file path.
-        """
-        data = pyscf.tools.fcidump.read(file, verbose=False)
-        return MolecularHamiltonian(
-            one_body_tensor=data["H1"],
-            two_body_tensor=pyscf.ao2mo.restore(1, data["H2"], data["NORB"]),
-            constant=data["ECORE"],
-        )
 
     @property
     def norb(self) -> int:

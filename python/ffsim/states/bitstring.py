@@ -19,7 +19,6 @@ from typing import cast
 
 import numpy as np
 from pyscf.fci import cistring
-from typing_extensions import deprecated
 
 
 class BitstringType(Enum):
@@ -44,90 +43,6 @@ class BitstringType(Enum):
 
     BIT_ARRAY = auto()
     """Bit array."""
-
-
-@deprecated(
-    "ffsim.indices_to_strings is deprecated. "
-    "Instead, use ffsim.addresses_to_strings."
-)
-def indices_to_strings(
-    indices: Sequence[int] | np.ndarray,
-    norb: int,
-    nelec: int | tuple[int, int],
-    concatenate: bool = True,
-    bitstring_type: BitstringType = BitstringType.STRING,
-):
-    """Convert state vector indices to bitstrings.
-
-    .. warning::
-        This function is deprecated. Use :class:`ffsim.addresses_to_strings` instead.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.indices_to_strings(range(dim), norb, nelec)
-        # output:
-        # ['001011',
-        #  '010011',
-        #  '100011',
-        #  '001101',
-        #  '010101',
-        #  '100101',
-        #  '001110',
-        #  '010110',
-        #  '100110']
-
-    Args:
-        indices: The state vector indices to convert to bitstrings.
-        norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
-        bitstring_type: The desired type of bitstring output.
-        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
-            bitstrings. If True, then a single list of concatenated bitstrings is
-            returned. The strings are concatenated in the order :math:`s_b s_a`,
-            that is, the alpha string appears on the right.
-            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
-            the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
-    """
-    if isinstance(nelec, int):
-        # Spinless case
-        return convert_bitstring_type(
-            list(cistring.addrs2str(norb=norb, nelec=nelec, addrs=indices)),
-            input_type=BitstringType.INT,
-            output_type=bitstring_type,
-            length=norb,
-        )
-
-    # Spinful case
-    n_alpha, n_beta = nelec
-    dim_b = math.comb(norb, n_beta)
-    indices_a, indices_b = np.divmod(indices, dim_b)
-    strings_a = convert_bitstring_type(
-        list(cistring.addrs2str(norb=norb, nelec=n_alpha, addrs=indices_a)),
-        input_type=BitstringType.INT,
-        output_type=bitstring_type,
-        length=norb,
-    )
-    strings_b = convert_bitstring_type(
-        list(cistring.addrs2str(norb=norb, nelec=n_beta, addrs=indices_b)),
-        input_type=BitstringType.INT,
-        output_type=bitstring_type,
-        length=norb,
-    )
-    if concatenate:
-        return concatenate_bitstrings(
-            strings_a, strings_b, bitstring_type=bitstring_type, length=norb
-        )
-    return strings_a, strings_b
 
 
 def convert_bitstring_type(
@@ -242,59 +157,6 @@ def concatenate_bitstrings(
         return [(s_b << length) + s_a for s_a, s_b in zip(strings_a, strings_b)]
     if bitstring_type is BitstringType.BIT_ARRAY:
         return np.concatenate([strings_b, strings_a], axis=1)
-
-
-@deprecated(
-    "ffsim.strings_to_indices is deprecated. "
-    "Instead, use ffsim.strings_to_addresses."
-)
-def strings_to_indices(
-    strings: Sequence[str], norb: int, nelec: int | tuple[int, int]
-) -> np.ndarray:
-    """Convert bitstrings to state vector indices.
-
-    .. warning::
-        This function is deprecated. Use :class:`ffsim.strings_to_addresses` instead.
-
-    Example:
-
-    .. code::
-
-        import ffsim
-
-        norb = 3
-        nelec = (2, 1)
-        dim = ffsim.dim(norb, nelec)
-        ffsim.strings_to_indices(
-            [
-                "001011",
-                "010011",
-                "100011",
-                "001101",
-                "010101",
-                "100101",
-                "001110",
-                "010110",
-                "100110",
-            ],
-            norb,
-            nelec,
-        )
-        # output:
-        # array([0, 1, 2, 3, 4, 5, 6, 7, 8], dtype=int32)
-    """
-    if isinstance(nelec, int):
-        return cistring.strs2addr(
-            norb=norb, nelec=nelec, strings=[int(s, base=2) for s in strings]
-        )
-
-    n_alpha, n_beta = nelec
-    strings_a = [int(s[norb:], base=2) for s in strings]
-    strings_b = [int(s[:norb], base=2) for s in strings]
-    addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
-    addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
-    dim_b = math.comb(norb, n_beta)
-    return addrs_a * dim_b + addrs_b
 
 
 def addresses_to_strings(
