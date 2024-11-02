@@ -14,38 +14,9 @@ import itertools
 from collections import defaultdict
 
 import numpy as np
-from typing_extensions import deprecated
 
 from ffsim import hamiltonians, operators, variational
 from ffsim.variational.util import validate_interaction_pairs
-
-
-@deprecated(
-    "ffsim.random.random_statevector is deprecated. "
-    "Instead, use ffsim.random.random_state_vector."
-)
-def random_statevector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
-    """Return a random state vector sampled from the uniform distribution.
-
-    .. warning::
-        This function is deprecated. Use :func:`ffsim.random.random_state_vector`
-        instead.
-
-    Args:
-        dim: The dimension of the state vector.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-        dtype: The data type to use for the result.
-
-    Returns:
-        The sampled state vector.
-    """
-    rng = np.random.default_rng(seed)
-    vec = rng.standard_normal(dim).astype(dtype, copy=False)
-    if np.issubdtype(dtype, np.complexfloating):
-        vec += 1j * rng.standard_normal(dim).astype(dtype, copy=False)
-    vec /= np.linalg.norm(vec)
-    return vec
 
 
 def random_state_vector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:

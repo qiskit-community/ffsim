@@ -19,7 +19,6 @@ from typing import Optional, cast
 
 import numpy as np
 from pyscf.fci.spin_op import contract_ss
-from typing_extensions import deprecated
 
 from ffsim.states.bitstring import (
     BitstringType,
@@ -91,28 +90,6 @@ def dim(norb: int, nelec: int | tuple[int, int]) -> int:
         return math.comb(norb, nelec)
     n_alpha, n_beta = nelec
     return math.comb(norb, n_alpha) * math.comb(norb, n_beta)
-
-
-@deprecated(
-    "Using one_hot from the ffsim namespace is deprecated. "
-    "Instead, use ffsim.linalg.one_hot."
-)
-def one_hot(shape: int | tuple[int, ...], index, *, dtype=complex):
-    """Return an array of all zeros except for a one at a specified index.
-
-    .. warning::
-        This function is deprecated. Use :func:`ffsim.linalg.one_hot` instead.
-
-    Args:
-        shape: The desired shape of the array.
-        index: The index at which to place a one.
-
-    Returns:
-        The one-hot vector.
-    """
-    vec = np.zeros(shape, dtype=dtype)
-    vec[index] = 1
-    return vec
 
 
 # source: pyscf.fci.spin_op.spin_square0

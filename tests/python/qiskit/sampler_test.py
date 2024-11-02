@@ -302,8 +302,6 @@ def test_global_depolarizing(
     assert np.allclose(fidelity, expected_fidelity, rtol=1e-2, atol=1e-3)
 
 
-# TODO remove after removing UCJOperatorJW
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_reproducible_with_seed():
     """Test sampler with random gates."""
     rng = np.random.default_rng(14062)
