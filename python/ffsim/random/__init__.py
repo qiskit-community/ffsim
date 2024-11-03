@@ -12,6 +12,7 @@
 
 from ffsim.random.random import (
     random_antihermitian,
+    random_density_matrix,
     random_diagonal_coulomb_hamiltonian,
     random_double_factorized_hamiltonian,
     random_fermion_hamiltonian,
@@ -33,6 +34,7 @@ from ffsim.random.random import (
 
 __all__ = [
     "random_antihermitian",
+    "random_density_matrix",
     "random_diagonal_coulomb_hamiltonian",
     "random_double_factorized_hamiltonian",
     "random_fermion_hamiltonian",
