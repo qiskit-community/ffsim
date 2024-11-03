@@ -39,6 +39,34 @@ def random_state_vector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     return vec
 
 
+def random_density_matrix(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
+    """Returns a random density matrix distributed with Hilbert-Schmidt measure.
+
+    A density matrix is Hermitian and has eigenvalues between 0 and 1.
+
+    Args:
+        dim: The width and height of the matrix.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled density matrix.
+
+    References:
+        - `arXiv:0909.5094`_
+
+    .. _arXiv:0909.5094: https://arxiv.org/abs/0909.5094
+    """
+    rng = np.random.default_rng(seed)
+
+    mat = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
+    if np.issubdtype(dtype, np.complexfloating):
+        mat += 1j * rng.standard_normal((dim, dim))
+    mat @= mat.T.conj()
+    mat /= np.trace(mat)
+    return mat
+
+
 def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     """Return a random unitary matrix distributed with Haar measure.
 
