@@ -301,6 +301,32 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.random.random_density_matrix">
+<span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_density_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_density_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_density_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a random density matrix distributed with Hilbert-Schmidt measure.</p>
+<p>A density matrix is Hermitian and has eigenvalues between 0 and 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The width and height of the matrix.</p></li>
+<li><p><strong>seed</strong> – A seed to initialize the pseudorandom number generator.
+Should be a valid input to <code class="docutils literal notranslate"><span class="pre">np.random.default_rng</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sampled density matrix.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arxiv.org/abs/0909.5094">arXiv:0909.5094</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.random.random_diagonal_coulomb_hamiltonian">
 <span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_diagonal_coulomb_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_diagonal_coulomb_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_diagonal_coulomb_hamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Sample a random diagonal Coulomb Hamiltonian.</p>
@@ -798,6 +824,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
             <ul>
 <li><a class="reference internal" href="#">ffsim.random</a><ul>
 <li><a class="reference internal" href="#ffsim.random.random_antihermitian"><code class="docutils literal notranslate"><span class="pre">random_antihermitian()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.random.random_density_matrix"><code class="docutils literal notranslate"><span class="pre">random_density_matrix()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_diagonal_coulomb_hamiltonian"><code class="docutils literal notranslate"><span class="pre">random_diagonal_coulomb_hamiltonian()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_double_factorized_hamiltonian"><code class="docutils literal notranslate"><span class="pre">random_double_factorized_hamiltonian()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.random.random_fermion_hamiltonian"><code class="docutils literal notranslate"><span class="pre">random_fermion_hamiltonian()</span></code></a></li>
