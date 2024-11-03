@@ -298,7 +298,13 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled state vector.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Dimension must be at least one.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dimension must be at least one.&quot;</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
@@ -313,7 +319,7 @@
 <span class="k">def</span> <span class="nf">random_density_matrix</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a random density matrix distributed with Hilbert-Schmidt measure.</span>
 
-<span class="sd">    A density matrix is Hermitian and has eigenvalues between 0 and 1.</span>
+<span class="sd">    A density matrix is positive semi-definite and has trace equal to one.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dim: The width and height of the matrix.</span>
@@ -323,11 +329,17 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled density matrix.</span>
 
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Dimension must be at least one.</span>
+
 <span class="sd">    References:</span>
 <span class="sd">        - `arXiv:0909.5094`_</span>
 
 <span class="sd">    .. _arXiv:0909.5094: https://arxiv.org/abs/0909.5094</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dimension must be at least one.&quot;</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
     <span class="n">mat</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>

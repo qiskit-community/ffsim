@@ -304,7 +304,7 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 <dt class="sig sig-object py" id="ffsim.random.random_density_matrix">
 <span class="sig-prename descclassname"><span class="pre">ffsim.random.</span></span><span class="sig-name descname"><span class="pre">random_density_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'complex'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/random/random.html#random_density_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.random.random_density_matrix" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a random density matrix distributed with Hilbert-Schmidt measure.</p>
-<p>A density matrix is Hermitian and has eigenvalues between 0 and 1.</p>
+<p>A density matrix is positive semi-definite and has trace equal to one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -318,6 +318,9 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The sampled density matrix.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Dimension must be at least one.</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -557,6 +560,9 @@ Should be a valid input to <code class="docutils literal notranslate"><span clas
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The sampled state vector.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Dimension must be at least one.</p>
 </dd>
 </dl>
 </dd></dl>
