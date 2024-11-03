@@ -137,17 +137,40 @@ def test_random_antihermitian_matrix(dim: int):
     assert ffsim.linalg.is_antihermitian(mat)
 
 
-@pytest.mark.parametrize("dim", range(10))
+@pytest.mark.parametrize("dim", range(1, 10))
+def test_random_state_vector(dim: int):
+    """Test random state vector."""
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
+    assert vec.dtype == complex
+    np.testing.assert_allclose(np.linalg.norm(vec), 1)
+
+    vec = ffsim.random.random_state_vector(dim, seed=rng, dtype=float)
+    assert vec.dtype == float
+    np.testing.assert_allclose(np.linalg.norm(vec), 1)
+
+
+@pytest.mark.parametrize("dim", range(1, 10))
 def test_random_density_matrix(dim: int):
     """Test random density matrix."""
     mat = ffsim.random.random_density_matrix(dim, seed=rng)
     assert mat.dtype == complex
     assert ffsim.linalg.is_hermitian(mat)
     eigs, _ = np.linalg.eigh(mat)
-    assert all(0 <= e <= 1 for e in eigs)
+    assert all(eigs >= 0)
+    np.testing.assert_allclose(np.trace(mat), 1)
 
     mat = ffsim.random.random_density_matrix(dim, seed=rng, dtype=float)
     assert mat.dtype == float
     assert ffsim.linalg.is_hermitian(mat)
     eigs, _ = np.linalg.eigh(mat)
-    assert all(0 <= e <= 1 for e in eigs)
+    assert all(eigs >= 0)
+    np.testing.assert_allclose(np.trace(mat), 1)
+
+
+def test_raise_errors():
+    """Test errors are raised as expected."""
+    with pytest.raises(ValueError, match="Dimension"):
+        _ = ffsim.random.random_state_vector(0, seed=rng)
+
+    with pytest.raises(ValueError, match="Dimension"):
+        _ = ffsim.random.random_density_matrix(0, seed=rng)

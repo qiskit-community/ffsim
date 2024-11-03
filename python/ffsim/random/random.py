@@ -30,7 +30,13 @@ def random_state_vector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
     Returns:
         The sampled state vector.
+
+    Raises:
+        ValueError: Dimension must be at least one.
     """
+    if dim < 1:
+        raise ValueError("Dimension must be at least one.")
+
     rng = np.random.default_rng(seed)
     vec = rng.standard_normal(dim).astype(dtype, copy=False)
     if np.issubdtype(dtype, np.complexfloating):
@@ -42,7 +48,7 @@ def random_state_vector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 def random_density_matrix(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     """Returns a random density matrix distributed with Hilbert-Schmidt measure.
 
-    A density matrix is Hermitian and has eigenvalues between 0 and 1.
+    A density matrix is positive semi-definite and has trace equal to one.
 
     Args:
         dim: The width and height of the matrix.
@@ -52,11 +58,17 @@ def random_density_matrix(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     Returns:
         The sampled density matrix.
 
+    Raises:
+        ValueError: Dimension must be at least one.
+
     References:
         - `arXiv:0909.5094`_
 
     .. _arXiv:0909.5094: https://arxiv.org/abs/0909.5094
     """
+    if dim < 1:
+        raise ValueError("Dimension must be at least one.")
+
     rng = np.random.default_rng(seed)
 
     mat = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
