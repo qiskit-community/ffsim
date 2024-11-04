@@ -188,7 +188,6 @@ __all__ = [
     "slater_determinant_rdms",
     "spin_square",
     "strings_to_addresses",
-    "strings_to_indices",
     "tenpy",
     "testing",
     "trace",
