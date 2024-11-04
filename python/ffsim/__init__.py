@@ -83,7 +83,6 @@ from ffsim.states import (
     slater_determinant_rdms,
     spin_square,
     strings_to_addresses,
-    strings_to_indices,
 )
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
