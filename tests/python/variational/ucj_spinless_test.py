@@ -60,7 +60,7 @@ def test_n_params():
             )
 
 
-def test_parameters_roundtrip():
+def test_parameters_roundtrip_all_to_all():
     rng = np.random.default_rng()
     norb = 5
     n_reps = 2
@@ -78,16 +78,31 @@ def test_parameters_roundtrip():
             n_reps=n_reps,
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        np.testing.assert_allclose(
-            roundtripped.diag_coulomb_mats, operator.diag_coulomb_mats
+        assert ffsim.approx_eq(roundtripped, operator)
+
+
+def test_parameters_roundtrip_interaction_pairs():
+    rng = np.random.default_rng()
+    norb = 5
+    n_reps = 2
+    interaction_pairs = [(0, 1)]
+
+    for with_final_orbital_rotation in [False, True]:
+        operator = ffsim.random.random_ucj_op_spinless(
+            norb,
+            n_reps=n_reps,
+            interaction_pairs=interaction_pairs,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=rng,
         )
-        np.testing.assert_allclose(
-            roundtripped.orbital_rotations, operator.orbital_rotations
+        roundtripped = ffsim.UCJOpSpinless.from_parameters(
+            operator.to_parameters(interaction_pairs=interaction_pairs),
+            norb=norb,
+            n_reps=n_reps,
+            interaction_pairs=interaction_pairs,
+            with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        if with_final_orbital_rotation:
-            np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-            )
+        assert ffsim.approx_eq(roundtripped, operator)
 
 
 def test_t_amplitudes_energy():

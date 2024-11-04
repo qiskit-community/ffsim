@@ -65,12 +65,7 @@ def test_parameters_roundtrip():
             nocc=nocc,
             with_final_orbital_rotation=with_final_orbital_rotation,
         )
-        np.testing.assert_allclose(roundtripped.t1, operator.t1)
-        np.testing.assert_allclose(roundtripped.t2, operator.t2)
-        if with_final_orbital_rotation:
-            np.testing.assert_allclose(
-                roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-            )
+        assert ffsim.approx_eq(roundtripped, operator)
 
 
 def test_approx_eq():

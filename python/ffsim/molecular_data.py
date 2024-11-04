@@ -31,7 +31,6 @@ import pyscf.mcscf
 import pyscf.mp
 import pyscf.symm
 import pyscf.tools
-from typing_extensions import deprecated
 
 from ffsim.hamiltonians import MolecularHamiltonian
 
@@ -193,31 +192,6 @@ class MolecularData:
             active_space=active_space,
             hf_energy=hf_energy,
         )
-
-    @staticmethod
-    @deprecated(
-        "The from_mole method is deprecated. Instead, pass an SCF object directly to "
-        "from_scf."
-    )
-    def from_mole(
-        molecule: pyscf.gto.Mole,
-        active_space: Iterable[int] | None = None,
-        scf_func=pyscf.scf.RHF,
-    ) -> "MolecularData":
-        """Initialize a MolecularData object from a PySCF molecule.
-
-        .. warning::
-            This method is deprecated. Instead, pass an SCF object directly to
-            :func:`from_scf`.
-
-        Args:
-            molecule: The molecule.
-            active_space: An optional list of orbitals to use for the active space.
-            scf_func: The PySCF SCF function to use for the Hartree-Fock calculation.
-        """
-        hartree_fock = scf_func(molecule)
-        hartree_fock.run()
-        return MolecularData.from_scf(hartree_fock, active_space=active_space)
 
     def run_cisd(self, *, store_cisd_vec: bool = False) -> None:
         """Run CISD and store results."""

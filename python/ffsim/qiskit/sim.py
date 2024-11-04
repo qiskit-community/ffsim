@@ -21,8 +21,8 @@ from ffsim import gates, protocols, states, trotter
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
     DiagCoulombEvolutionSpinlessJW,
-    GivensAnsatzOperatorJW,
-    GivensAnsatzOperatorSpinlessJW,
+    GivensAnsatzOpJW,
+    GivensAnsatzOpSpinlessJW,
     OrbitalRotationJW,
     OrbitalRotationSpinlessJW,
     PrepareHartreeFockJW,
@@ -30,7 +30,6 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
     SimulateTrotterDoubleFactorizedJW,
-    UCJOperatorJW,
     UCJOpSpinBalancedJW,
     UCJOpSpinlessJW,
     UCJOpSpinUnbalancedJW,
@@ -136,14 +135,14 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, GivensAnsatzOperatorSpinlessJW):
+    if isinstance(op, GivensAnsatzOpSpinlessJW):
         if not consecutive_sorted:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
                 "consecutive qubits, in ascending order."
             )
         vec = protocols.apply_unitary(
-            vec, op.givens_ansatz_operator, norb=norb, nelec=nelec, copy=False
+            vec, op.givens_ansatz_op, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -206,14 +205,14 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, GivensAnsatzOperatorJW):
+    if isinstance(op, GivensAnsatzOpJW):
         if not consecutive_sorted:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
                 "consecutive qubits, in ascending order."
             )
         vec = protocols.apply_unitary(
-            vec, op.givens_ansatz_operator, norb=norb, nelec=nelec, copy=False
+            vec, op.givens_ansatz_op, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -260,17 +259,6 @@ def _evolve_state_vector_spinful(
             )
         vec = protocols.apply_unitary(
             vec, op.ucj_op, norb=norb, nelec=nelec, copy=False
-        )
-        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
-
-    if isinstance(op, UCJOperatorJW):
-        if not consecutive_sorted:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "consecutive qubits, in ascending order."
-            )
-        vec = protocols.apply_unitary(
-            vec, op.ucj_operator, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 

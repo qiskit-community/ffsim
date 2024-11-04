@@ -215,7 +215,7 @@ def test_pow():
     assert op**3 == op * op * op
     assert pow(op, 2) == op * op
     with pytest.raises(ValueError, match="mod argument"):
-        _ = pow(op, 2, 2)
+        _ = pow(op, 2, 2)  # type: ignore
 
 
 def test_normal_ordered():

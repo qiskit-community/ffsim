@@ -46,8 +46,4 @@ def test_parameters_roundtrip():
         interaction_pairs=interaction_pairs,
         with_final_orbital_rotation=True,
     )
-
-    np.testing.assert_allclose(roundtripped.thetas, operator.thetas)
-    np.testing.assert_allclose(
-        roundtripped.final_orbital_rotation, operator.final_orbital_rotation
-    )
+    assert ffsim.approx_eq(roundtripped, operator)

@@ -23,26 +23,8 @@ from ffsim import gates, linalg
 from ffsim.variational.util import (
     orbital_rotation_from_parameters,
     orbital_rotation_to_parameters,
+    validate_interaction_pairs,
 )
-
-
-def _validate_interaction_pairs(
-    interaction_pairs: list[tuple[int, int]] | None, ordered: bool
-) -> None:
-    if interaction_pairs is None:
-        return
-    if len(set(interaction_pairs)) != len(interaction_pairs):
-        raise ValueError(
-            f"Duplicate interaction pairs encountered: {interaction_pairs}."
-        )
-    if not ordered:
-        for i, j in interaction_pairs:
-            if i > j:
-                raise ValueError(
-                    "When specifying interaction pairs, "
-                    "you must provide only upper triangular pairs. "
-                    f"Got {(i, j)}, which is a lower triangular pair."
-                )
 
 
 @dataclass(frozen=True)
@@ -171,7 +153,7 @@ class UCJOpSpinless:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
-        _validate_interaction_pairs(interaction_pairs, ordered=False)
+        validate_interaction_pairs(interaction_pairs, ordered=False)
         # Each diagonal Coulomb matrix has one parameter per upper triangular
         # entry unless indices are passed explicitly
         n_triu_indices = norb * (norb + 1) // 2
@@ -381,7 +363,7 @@ class UCJOpSpinless:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
-        _validate_interaction_pairs(interaction_pairs, ordered=False)
+        validate_interaction_pairs(interaction_pairs, ordered=False)
 
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt

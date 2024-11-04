@@ -38,8 +38,6 @@ def _brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
-# TODO remove after removing UCJOperatorJW
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with random gates."""
@@ -49,9 +47,6 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    ucj_op = ffsim.random.random_ucj_operator(
-        norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
-    )
     ucj_op_balanced = ffsim.random.random_ucj_op_spin_balanced(
         norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
     )
@@ -66,7 +61,11 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     )
     interaction_pairs = list(_brickwork(norb, norb))
     thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
+    phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+    givens_ansatz_op = ffsim.GivensAnsatzOp(
+        norb, interaction_pairs, thetas, phis=phis, phase_angles=phase_angles
+    )
 
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
@@ -74,8 +73,7 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     circuit.append(
         ffsim.qiskit.DiagCoulombEvolutionJW(norb, diag_coulomb_mat, time=1.0), qubits
     )
-    circuit.append(ffsim.qiskit.GivensAnsatzOperatorJW(givens_ansatz_op), qubits)
-    circuit.append(ffsim.qiskit.UCJOperatorJW(ucj_op), qubits)
+    circuit.append(ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op_balanced), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced), qubits)
     circuit.append(
@@ -111,8 +109,6 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
-# TODO remove after removing UCJOperatorJW
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test sampler with random spinless gates."""
@@ -123,7 +119,11 @@ def test_random_gates_spinless(norb: int, nocc: int):
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     interaction_pairs = list(_brickwork(norb, norb))
     thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    givens_ansatz_op = ffsim.GivensAnsatzOperator(norb, interaction_pairs, thetas)
+    phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+    givens_ansatz_op = ffsim.GivensAnsatzOp(
+        norb, interaction_pairs, thetas, phis=phis, phase_angles=phase_angles
+    )
     ucj_op = ffsim.random.random_ucj_op_spinless(
         norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
     )
@@ -133,9 +133,7 @@ def test_random_gates_spinless(norb: int, nocc: int):
     circuit.append(
         ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation), qubits
     )
-    circuit.append(
-        ffsim.qiskit.GivensAnsatzOperatorSpinlessJW(givens_ansatz_op), qubits
-    )
+    circuit.append(ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op), qubits)
     circuit.measure_all()
 
@@ -160,8 +158,6 @@ def test_random_gates_spinless(norb: int, nocc: int):
     assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
-# TODO remove after removing UCJOperatorJW
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     """Test measuring a subset of qubits."""
@@ -207,8 +203,6 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-# TODO remove after removing UCJOperatorJW
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
 def test_measure_subset_spinless(norb: int, nocc: int):
     """Test measuring a subset of qubits, spinless."""
@@ -308,8 +302,6 @@ def test_global_depolarizing(
     assert np.allclose(fidelity, expected_fidelity, rtol=1e-2, atol=1e-3)
 
 
-# TODO remove after removing UCJOperatorJW
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_reproducible_with_seed():
     """Test sampler with random gates."""
     rng = np.random.default_rng(14062)

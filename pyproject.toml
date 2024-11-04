@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "ffsim"
 requires-python = ">=3.9"
-version = "0.0.48.dev"
+version = "0.0.49.dev"
 description = "Faster simulations of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -63,6 +63,7 @@ module-name = "ffsim._lib"
 testpaths = ["tests"]
 
 [tool.mypy]
+check_untyped_defs = true
 ignore_missing_imports = true
 files = ["python/**/*.py", "python/**/*.pyi", "tests/**/*.py", "docs/**/*.py"]
 
