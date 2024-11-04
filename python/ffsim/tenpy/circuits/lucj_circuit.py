@@ -6,13 +6,14 @@ from tenpy.algorithms.tebd import TEBDEngine
 from tenpy.networks.mps import MPS
 
 import ffsim
+from ffsim.spin import Spin
 from ffsim.tenpy.circuits.gates import (
-    cphase1,
     cphase2,
     gate1,
     gate2,
-    phase,
-    xy,
+    givens_rotation,
+    num_interaction,
+    on_site_interaction,
 )
 from ffsim.tenpy.util import product_state_as_mps
 from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
@@ -64,17 +65,17 @@ def lucj_circuit_as_mps(
         if ins.operation.name == "p":
             qubit = ins.qubits[0]
             idx = qubit._index
-            spin_flag = "up" if idx < norb else "down"
+            spin_flag = Spin.ALPHA if idx < norb else Spin.BETA
             lmbda = ins.operation.params[0]
-            gate1(phase(spin_flag, lmbda), idx % norb, psi)
+            gate1(num_interaction(lmbda, spin_flag), idx % norb, psi)
         elif ins.operation.name == "xx_plus_yy":
             qubit0 = ins.qubits[0]
             qubit1 = ins.qubits[1]
             idx0, idx1 = qubit0._index, qubit1._index
             if idx0 < norb and idx1 < norb:
-                spin_flag = "up"
+                spin_flag = Spin.ALPHA
             elif idx0 >= norb and idx1 >= norb:
-                spin_flag = "down"
+                spin_flag = Spin.BETA
             else:
                 raise ValueError("XXPlusYY gate not allowed across spin sectors")
             theta_val = ins.operation.params[0]
@@ -82,7 +83,9 @@ def lucj_circuit_as_mps(
             # directionality important when beta!=0
             conj_flag = True if idx0 > idx1 else False
             gate2(
-                xy(spin_flag, theta_val, beta_val, conj_flag),
+                givens_rotation(
+                    theta_val / 2, spin_flag, conj_flag, phi=beta_val - np.pi / 2
+                ),
                 max(idx0 % norb, idx1 % norb),
                 psi,
                 eng,
@@ -96,7 +99,7 @@ def lucj_circuit_as_mps(
             lmbda = ins.operation.params[0]
             # onsite (different spins)
             if np.abs(idx0 - idx1) == norb:
-                gate1(cphase1(lmbda), min(idx0, idx1), psi)
+                gate1(on_site_interaction(lmbda), min(idx0, idx1), psi)
             # NN (up spins)
             elif np.abs(idx0 - idx1) == 1 and idx0 < norb and idx1 < norb:
                 gate2(
