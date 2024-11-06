@@ -8,11 +8,11 @@ from tenpy.networks.mps import MPS
 import ffsim
 from ffsim.spin import Spin
 from ffsim.tenpy.circuits.gates import (
-    cphase2,
     gate1,
     gate2,
     givens_rotation,
     num_interaction,
+    num_num_interaction,
     on_site_interaction,
 )
 from ffsim.tenpy.util import product_state_as_mps
@@ -67,7 +67,9 @@ def lucj_circuit_as_mps(
             idx = qubit._index
             spin_flag = Spin.ALPHA if idx < norb else Spin.BETA
             lmbda = ins.operation.params[0]
-            gate1(num_interaction(lmbda, spin_flag), idx % norb, psi)
+            gate1(
+                np.exp(1j * lmbda) * num_interaction(-lmbda, spin_flag), idx % norb, psi
+            )
         elif ins.operation.name == "xx_plus_yy":
             qubit0 = ins.qubits[0]
             qubit1 = ins.qubits[1]
@@ -99,16 +101,21 @@ def lucj_circuit_as_mps(
             lmbda = ins.operation.params[0]
             # onsite (different spins)
             if np.abs(idx0 - idx1) == norb:
-                gate1(on_site_interaction(lmbda), min(idx0, idx1), psi)
+                gate1(on_site_interaction(-lmbda), min(idx0, idx1), psi)
             # NN (up spins)
             elif np.abs(idx0 - idx1) == 1 and idx0 < norb and idx1 < norb:
                 gate2(
-                    cphase2("up", lmbda), max(idx0, idx1), psi, eng, chi_list, norm_tol
+                    num_num_interaction(-lmbda, Spin.ALPHA),
+                    max(idx0, idx1),
+                    psi,
+                    eng,
+                    chi_list,
+                    norm_tol,
                 )
             # NN (down spins)
             elif np.abs(idx0 - idx1) == 1 and idx0 >= norb and idx1 >= norb:
                 gate2(
-                    cphase2("down", lmbda),
+                    num_num_interaction(-lmbda, Spin.BETA),
                     max(idx0 % norb, idx1 % norb),
                     psi,
                     eng,

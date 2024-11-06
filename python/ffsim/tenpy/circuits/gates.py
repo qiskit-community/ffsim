@@ -49,10 +49,10 @@ def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
 def givens_rotation(
     theta: float, spin: Spin, conj: bool = False, *, phi: float = 0.0
 ) -> np.ndarray:
-    r"""The Givens gate.
+    r"""The Givens rotation gate.
 
-    The Givens rotation gate as defined in the
-    `ffsim documentation <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_givens_rotation>`__,
+    The Givens rotation gate as defined in
+    `apply_givens_rotation <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_givens_rotation>`__,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -71,13 +71,11 @@ def givens_rotation(
         The Givens rotation gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
-    # translate angle parameters
-    theta = 2 * theta
-    phi = phi + np.pi / 2
-
-    # define conjugate operator
+    # define conjugate phase
     if conj:
-        phi = -phi
+        beta = phi + np.pi / 2
+        beta = -beta
+        phi = beta - np.pi / 2
 
     # define operators
     Id = shfs_nosym.get_op("Id").to_ndarray()
@@ -90,19 +88,12 @@ def givens_rotation(
         JWu = shfs_nosym.get_op("JWu").to_ndarray()
         Nu = shfs_nosym.get_op("Nu").to_ndarray()
         #
-        Xu1 = (Cdu + Cu) @ JW
-        Xu2 = (Cdu + Cu) @ JWu
-        Yu1 = -1j * (Cdu - Cu) @ JW
-        Yu2 = -1j * (Cdu - Cu) @ JWu
-        Zu = 2 * Nu - Id
-        RZu0 = np.kron(sp.linalg.expm(-1j * (phi / 2) * Zu), Id)
-        #
-        XYgate_a = (
-            np.conj(RZu0)
+        Ggate_a = (
+            np.kron(sp.linalg.expm(1j * phi * Nu), Id)
             @ sp.linalg.expm(
-                -1j * (theta / 4) * (np.kron(Xu1, Xu2) + np.kron(Yu1, Yu2))
+                theta * (np.kron(Cdu @ JW, Cu @ JWu) - np.kron(Cu @ JW, Cdu @ JWu))
             )
-            @ RZu0
+            @ np.kron(sp.linalg.expm(-1j * phi * Nu), Id)
         )
 
     # beta sector / down spins
@@ -112,119 +103,35 @@ def givens_rotation(
         JWd = shfs_nosym.get_op("JWd").to_ndarray()
         Nd = shfs_nosym.get_op("Nd").to_ndarray()
         #
-        Xd1 = (Cdd + Cd) @ JW
-        Xd2 = (Cdd + Cd) @ JWd
-        Yd1 = -1j * (Cdd - Cd) @ JW
-        Yd2 = -1j * (Cdd - Cd) @ JWd
-        Zd = 2 * Nd - Id
-        RZd0 = np.kron(sp.linalg.expm(-1j * (phi / 2) * Zd), Id)
-        #
-        XYgate_b = (
-            np.conj(RZd0)
+        Ggate_b = (
+            np.kron(sp.linalg.expm(1j * phi * Nd), Id)
             @ sp.linalg.expm(
-                -1j * (theta / 4) * (np.kron(Xd1, Xd2) + np.kron(Yd1, Yd2))
+                theta * (np.kron(Cdd @ JW, Cd @ JWd) - np.kron(Cd @ JW, Cdd @ JWd))
             )
-            @ RZd0
+            @ np.kron(sp.linalg.expm(-1j * phi * Nd), Id)
         )
 
     # define total gate
     if spin is Spin.ALPHA:
-        XYgate = XYgate_a
+        Ggate = Ggate_a
     elif spin is Spin.BETA:
-        XYgate = XYgate_b
+        Ggate = Ggate_b
     elif spin is Spin.ALPHA_AND_BETA:
-        XYgate = XYgate_a @ XYgate_b
+        Ggate = Ggate_a @ Ggate_b
     else:
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    XYgate_sym = sym_cons_basis(XYgate)
+    Ggate_sym = sym_cons_basis(Ggate)
 
-    return XYgate_sym
-
-
-def xy(spin: str, theta: float, beta: float, conj: bool = False) -> np.ndarray:
-    r"""The XXPlusYY gate.
-
-    The XXPlusYY gate as defined in the
-    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.XXPlusYYGate>`__,
-    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
-
-    Args:
-        spin: The spin sector ("up" or "down").
-        theta: The rotation angle.
-        beta: The phase angle.
-        conj: The direction of the gate. By default, we use the little endian
-            convention, as in Qiskit.
-
-    Returns:
-        The XXPlusYY gate in the TeNPy (N, Sz)-symmetry-conserved basis.
-    """
-
-    # define conjugate operator
-    if conj:
-        beta = -beta
-
-    # define operators
-    Id = shfs_nosym.get_op("Id").to_ndarray()
-    JW = shfs_nosym.get_op("JW").to_ndarray()
-
-    if spin == "up":
-        # alpha sector / up spins
-        Cdu = shfs_nosym.get_op("Cdu").to_ndarray()
-        Cu = shfs_nosym.get_op("Cu").to_ndarray()
-        JWu = shfs_nosym.get_op("JWu").to_ndarray()
-        Nu = shfs_nosym.get_op("Nu").to_ndarray()
-        #
-        Xu1 = (Cdu + Cu) @ JW
-        Xu2 = (Cdu + Cu) @ JWu
-        Yu1 = -1j * (Cdu - Cu) @ JW
-        Yu2 = -1j * (Cdu - Cu) @ JWu
-        Zu = 2 * Nu - Id
-        RZu0 = np.kron(sp.linalg.expm(-1j * (beta / 2) * Zu), Id)
-        #
-        XYgate = (
-            np.conj(RZu0)
-            @ sp.linalg.expm(
-                -1j * (theta / 4) * (np.kron(Xu1, Xu2) + np.kron(Yu1, Yu2))
-            )
-            @ RZu0
-        )
-    elif spin == "down":
-        # beta sector / down spins
-        Cdd = shfs_nosym.get_op("Cdd").to_ndarray()
-        Cd = shfs_nosym.get_op("Cd").to_ndarray()
-        JWd = shfs_nosym.get_op("JWd").to_ndarray()
-        Nd = shfs_nosym.get_op("Nd").to_ndarray()
-        #
-        Xd1 = (Cdd + Cd) @ JW
-        Xd2 = (Cdd + Cd) @ JWd
-        Yd1 = -1j * (Cdd - Cd) @ JW
-        Yd2 = -1j * (Cdd - Cd) @ JWd
-        Zd = 2 * Nd - Id
-        RZd0 = np.kron(sp.linalg.expm(-1j * (beta / 2) * Zd), Id)
-        #
-        XYgate = (
-            np.conj(RZd0)
-            @ sp.linalg.expm(
-                -1j * (theta / 4) * (np.kron(Xd1, Xd2) + np.kron(Yd1, Yd2))
-            )
-            @ RZd0
-        )
-    else:
-        raise ValueError("undefined spin")
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    XYgate_sym = sym_cons_basis(XYgate)
-
-    return XYgate_sym
+    return Ggate_sym
 
 
 def num_interaction(theta: float, spin: Spin) -> np.ndarray:
     r"""The number interaction gate.
 
-    The number interaction gate as defined in the
-    `ffsim documentation <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_num_interaction>`__,
+    The number interaction gate as defined in
+    `apply_num_interaction <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_num_interaction>`__,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -240,83 +147,37 @@ def num_interaction(theta: float, spin: Spin) -> np.ndarray:
         The number interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
-    # define operators
-    Id = shfs_nosym.get_op("Id").to_ndarray()
-
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
         Nu = shfs_nosym.get_op("Nu").to_ndarray()
-        Zu = 2 * Nu - Id
-        RZu = sp.linalg.expm(-1j * (theta / 2) * Zu)
-        Pgate_a = np.exp(1j * (theta / 2)) * RZu
+        Ngate_a = sp.linalg.expm(1j * theta * Nu)
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
         Nd = shfs_nosym.get_op("Nd").to_ndarray()
-        Zd = 2 * Nd - Id
-        RZd = sp.linalg.expm(-1j * (theta / 2) * Zd)
-        Pgate_b = np.exp(1j * (theta / 2)) * RZd
+        Ngate_b = sp.linalg.expm(1j * theta * Nd)
 
     # define total gate
     if spin is Spin.ALPHA:
-        Pgate = Pgate_a
+        Ngate = Ngate_a
     elif spin is Spin.BETA:
-        Pgate = Pgate_b
+        Ngate = Ngate_b
     elif spin is Spin.ALPHA_AND_BETA:
-        Pgate = Pgate_a @ Pgate_b
+        Ngate = Ngate_a @ Ngate_b
     else:
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    Pgate_sym = sym_cons_basis(Pgate)
+    Ngate_sym = sym_cons_basis(Ngate)
 
-    return Pgate_sym
-
-
-def phase(spin: str, theta: float) -> np.ndarray:
-    r"""The Phase gate.
-
-    The Phase gate as defined in the
-    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PhaseGate>`__,
-    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
-
-    Args:
-        spin: The spin sector ("up" or "down").
-        theta: The rotation angle.
-
-    Returns:
-        The Phase gate in the TeNPy (N, Sz)-symmetry-conserved basis.
-    """
-
-    # define operators
-    Id = shfs_nosym.get_op("Id").to_ndarray()
-
-    if spin == "up":
-        # alpha sector / up spins
-        Nu = shfs_nosym.get_op("Nu").to_ndarray()
-        Zu = 2 * Nu - Id
-        RZu = sp.linalg.expm(-1j * (theta / 2) * Zu)
-        Pgate = np.exp(1j * (theta / 2)) * RZu
-    elif spin == "down":
-        # beta sector / down spins
-        Nd = shfs_nosym.get_op("Nd").to_ndarray()
-        Zd = 2 * Nd - Id
-        RZd = sp.linalg.expm(-1j * (theta / 2) * Zd)
-        Pgate = np.exp(1j * (theta / 2)) * RZd
-    else:
-        raise ValueError("undefined spin")
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    Pgate_sym = sym_cons_basis(Pgate)
-
-    return Pgate_sym
+    return Ngate_sym
 
 
 def on_site_interaction(theta: float) -> np.ndarray:
     r"""The on-site interaction gate.
 
-    The on-site interaction gate as defined in the
-    `ffsim documentation <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_on_site_interaction>`__,
+    The on-site interaction gate as defined in
+    `apply_on_site_interaction <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_on_site_interaction>`__,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -326,105 +187,66 @@ def on_site_interaction(theta: float) -> np.ndarray:
         The on-site interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
-    CPgate = np.eye(4, dtype=complex)
-    CPgate[3, 3] = np.exp(-1j * theta)  # minus sign
+    # define operators
+    Nu = shfs_nosym.get_op("Nu").to_ndarray()
+    Nd = shfs_nosym.get_op("Nd").to_ndarray()
+
+    # define total gate
+    OSgate = sp.linalg.expm(1j * theta * Nu @ Nd)
 
     # convert to (N, Sz)-symmetry-conserved basis
-    CPgate_sym = sym_cons_basis(CPgate)
+    OSgate_sym = sym_cons_basis(OSgate)
 
-    return CPgate_sym
+    return OSgate_sym
 
 
-def cphase1(theta: float) -> np.ndarray:
-    r"""The single-site CPhase gate.
+def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
+    r"""The number-number interaction gate.
 
-    The single-site CPhase gate as defined in the
-    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CPhaseGate>`__,
+    The number-number interaction gate as defined in
+    `apply_num_num_interaction <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_num_num_interaction>`__,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
-
-    .. note::
-        A two-site CPhase gate in the qubit basis may translate to a single-site CPhase
-        gate in the fermion basis.
 
     Args:
         theta: The rotation angle.
+        spin: Choice of spin sector(s) to act on.
+
+            - To act on only spin alpha, pass :const:`ffsim.Spin.ALPHA`.
+            - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
+            - To act on both spin alpha and spin beta, pass
+              :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
 
     Returns:
-        The single-site CPhase gate in the TeNPy (N, Sz)-symmetry-conserved basis.
-    """
-
-    CPgate = np.eye(4, dtype=complex)
-    CPgate[3, 3] = np.exp(-1j * theta)  # minus sign
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    CPgate_sym = sym_cons_basis(CPgate)
-
-    return CPgate_sym
-
-
-def cphase2(spin: str, theta: float) -> np.ndarray:
-    r"""The two-site CPhase gate.
-
-    The two-site CPhase gate as defined in the
-    `Qiskit documentation <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.XXPlusYYGate>`__,
-    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
-
-    .. note::
-        A two-site CPhase gate in the qubit basis may translate to a single-site CPhase
-        gate in the fermion basis.
-
-    Args:
-        spin: The spin sector ("up" or "down").
-        theta: The rotation angle.
-
-    Returns:
-        The two-site CPhase gate in the TeNPy (N, Sz)-symmetry-conserved basis.
+        The number-number interaction gate in the TeNPy (N, Sz)-symmetry-conserved
+        basis.
     """
 
     # define operators
-    Id = shfs_nosym.get_op("Id").to_ndarray()
+    Nu = shfs_nosym.get_op("Nu").to_ndarray()
+    Nd = shfs_nosym.get_op("Nd").to_ndarray()
 
-    state_0 = np.array([1, 0, 0, 0])
-    state_1 = np.array([0, 1, 0, 0])
-    state_2 = np.array([0, 0, 1, 0])
-    state_3 = np.array([0, 0, 0, 1])
+    # alpha sector / up spins
+    if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
+        NNgate_a = sp.linalg.expm(1j * theta * np.kron(Nu, Nu))
 
-    outer_0 = np.outer(state_0, state_0)
-    outer_1 = np.outer(state_1, state_1)
-    outer_2 = np.outer(state_2, state_2)
-    outer_3 = np.outer(state_3, state_3)
+    # beta sector / down spins
+    if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
+        NNgate_b = sp.linalg.expm(1j * theta * np.kron(Nd, Nd))
 
-    if spin == "up":
-        # alpha sector / up spins
-        Nu = shfs_nosym.get_op("Nu").to_ndarray()
-        Zu = 2 * Nu - Id
-        RZu = sp.linalg.expm(-1j * (theta / 2) * Zu)
-        Pup = np.exp(-1j * (theta / 2)) * RZu  # minus sign
-        CPgate = (
-            np.kron(outer_0, Id)
-            + np.kron(outer_1, Pup)
-            + np.kron(outer_2, Id)
-            + np.kron(outer_3, Pup)
-        )
-    elif spin == "down":
-        # beta sector / down spins
-        Nd = shfs_nosym.get_op("Nd").to_ndarray()
-        Zd = 2 * Nd - Id
-        RZd = sp.linalg.expm(-1j * (theta / 2) * Zd)
-        Pdw = np.exp(-1j * (theta / 2)) * RZd  # minus sign
-        CPgate = (
-            np.kron(outer_0, Id)
-            + np.kron(outer_1, Id)
-            + np.kron(outer_2, Pdw)
-            + np.kron(outer_3, Pdw)
-        )
+    # define total gate
+    if spin is Spin.ALPHA:
+        NNgate = NNgate_a
+    elif spin is Spin.BETA:
+        NNgate = NNgate_b
+    elif spin is Spin.ALPHA_AND_BETA:
+        NNgate = NNgate_a @ NNgate_b
     else:
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    CPgate_sym = sym_cons_basis(CPgate)
+    NNgate_sym = sym_cons_basis(NNgate)
 
-    return CPgate_sym
+    return NNgate_sym
 
 
 def gate1(U1: np.ndarray, site: int, psi: MPS) -> None:
