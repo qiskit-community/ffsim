@@ -221,16 +221,14 @@ def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
         basis.
     """
 
-    # define operators
-    Nu = shfs_nosym.get_op("Nu").to_ndarray()
-    Nd = shfs_nosym.get_op("Nd").to_ndarray()
-
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
+        Nu = shfs_nosym.get_op("Nu").to_ndarray()
         NNgate_a = sp.linalg.expm(1j * theta * np.kron(Nu, Nu))
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
+        Nd = shfs_nosym.get_op("Nd").to_ndarray()
         NNgate_b = sp.linalg.expm(1j * theta * np.kron(Nd, Nd))
 
     # define total gate
