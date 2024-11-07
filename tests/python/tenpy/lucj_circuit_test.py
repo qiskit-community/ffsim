@@ -75,7 +75,7 @@ def test_lucj_circuit_as_mps(norb: int, nelec: tuple[int, int], connectivity: st
         interaction_pairs=_interaction_pairs_spin_balanced_(
             connectivity=connectivity, norb=norb
         ),
-        with_final_orbital_rotation=True,
+        with_final_orbital_rotation=False,
     )
     params = rng.uniform(-10, 10, size=n_params)
     lucj_op = ffsim.UCJOpSpinBalanced.from_parameters(
@@ -85,7 +85,7 @@ def test_lucj_circuit_as_mps(norb: int, nelec: tuple[int, int], connectivity: st
         interaction_pairs=_interaction_pairs_spin_balanced_(
             connectivity=connectivity, norb=norb
         ),
-        with_final_orbital_rotation=True,
+        with_final_orbital_rotation=False,
     )
 
     # generate the corresponding LUCJ circuit

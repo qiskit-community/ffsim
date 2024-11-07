@@ -11,8 +11,10 @@
 """Code that uses TeNPy, e.g. for emulating quantum circuits."""
 
 from ffsim.tenpy.circuits.gates import (
-    gate1,
-    gate2,
+    apply_diag_coulomb_evolution,
+    apply_gate1,
+    apply_gate2,
+    apply_orbital_rotation,
     givens_rotation,
     num_interaction,
     num_num_interaction,
@@ -25,8 +27,10 @@ from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianM
 from ffsim.tenpy.util import product_state_as_mps
 
 __all__ = [
-    "gate1",
-    "gate2",
+    "apply_diag_coulomb_evolution",
+    "apply_gate1",
+    "apply_gate2",
+    "apply_orbital_rotation",
     "givens_rotation",
     "lucj_circuit_as_mps",
     "MolecularChain",
