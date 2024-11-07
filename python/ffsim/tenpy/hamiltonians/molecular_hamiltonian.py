@@ -118,7 +118,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                     Rounding may reduce the MPO bond dimension.
 
         Returns:
-            The molecular Hamiltonian as a TeNPy MPOModel.
+            The molecular Hamiltonian as a `TeNPy MPOModel <https://tenpy.readthedocs.io/en/stable/reference/tenpy.models.model.MPOModel.html#tenpy.models.model.MPOModel>`__.
         """
 
         if decimal_places:
