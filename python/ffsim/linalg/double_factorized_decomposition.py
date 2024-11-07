@@ -532,11 +532,7 @@ def double_factorized_t2(
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
 
-    occ, vrt = np.meshgrid(range(nocc), range(nvrt), indexing="ij")
-    occ = occ.reshape(-1)
-    vrt = vrt.reshape(-1)
-    t2_mat = t2_amplitudes[occ[:, None], occ[None, :], vrt[:, None], vrt[None, :]]
-
+    t2_mat = t2_amplitudes.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt)
     outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=max_vecs)
     n_vecs = len(outer_eigs)
 
@@ -643,16 +639,9 @@ def double_factorized_t2_alpha_beta(
     nocc_a, nocc_b, nvrt_a, nvrt_b = t2_amplitudes.shape
     norb = nocc_a + nvrt_a
 
-    occ_a, vrt_a = np.meshgrid(range(nocc_a), range(nvrt_a), indexing="ij")
-    occ_b, vrt_b = np.meshgrid(range(nocc_b), range(nvrt_b), indexing="ij")
-    occ_a = occ_a.reshape(-1)
-    vrt_a = vrt_a.reshape(-1)
-    occ_b = occ_b.reshape(-1)
-    vrt_b = vrt_b.reshape(-1)
-    t2_mat = t2_amplitudes[
-        occ_a[:, None], occ_b[None, :], vrt_a[:, None], vrt_b[None, :]
-    ]
-
+    t2_mat = t2_amplitudes.transpose(0, 2, 1, 3).reshape(
+        nocc_a * nvrt_a, nocc_b * nvrt_b
+    )
     left_vecs, singular_vals, right_vecs = _truncated_svd(
         t2_mat, tol=tol, max_vecs=max_vecs
     )
