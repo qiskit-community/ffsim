@@ -1,3 +1,13 @@
+# (C) Copyright IBM 2024.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
 from __future__ import annotations
 
 import numpy as np
@@ -49,17 +59,10 @@ def lucj_circuit_as_mps(
     eng = TEBDEngine(psi, None, options)
 
     # construct the LUCJ MPS
-    n_reps = np.shape(ucj_op.orbital_rotations)[0]
-    for i in range(n_reps):
-        apply_orbital_rotation(
-            np.conj(ucj_op.orbital_rotations[i]).T, psi, eng, chi_list, norm_tol
-        )
-        apply_diag_coulomb_evolution(
-            ucj_op.diag_coulomb_mats[i], psi, eng, chi_list, norm_tol
-        )
-        apply_orbital_rotation(
-            ucj_op.orbital_rotations[i], psi, eng, chi_list, norm_tol
-        )
+    for orb_rot, diag_mats in zip(ucj_op.orbital_rotations, ucj_op.diag_coulomb_mats):
+        apply_orbital_rotation(np.conj(orb_rot).T, psi, eng, chi_list, norm_tol)
+        apply_diag_coulomb_evolution(diag_mats, psi, eng, chi_list, norm_tol)
+        apply_orbital_rotation(orb_rot, psi, eng, chi_list, norm_tol)
     if ucj_op.final_orbital_rotation is not None:
         apply_orbital_rotation(
             ucj_op.final_orbital_rotation, psi, eng, chi_list, norm_tol
