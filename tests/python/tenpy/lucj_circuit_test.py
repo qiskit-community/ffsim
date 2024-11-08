@@ -38,23 +38,37 @@ def _interaction_pairs_spin_balanced_(
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, connectivity",
+    "norb, nelec, n_reps, connectivity",
     [
-        (4, (2, 2), "square"),
-        (4, (1, 2), "square"),
-        (4, (0, 2), "square"),
-        (4, (0, 0), "square"),
-        (4, (2, 2), "hex"),
-        (4, (1, 2), "hex"),
-        (4, (0, 2), "hex"),
-        (4, (0, 0), "hex"),
-        (4, (2, 2), "heavy-hex"),
-        (4, (1, 2), "heavy-hex"),
-        (4, (0, 2), "heavy-hex"),
-        (4, (0, 0), "heavy-hex"),
+        (4, (2, 2), 1, "square"),
+        (4, (1, 2), 1, "square"),
+        (4, (0, 2), 1, "square"),
+        (4, (0, 0), 1, "square"),
+        (4, (2, 2), 1, "hex"),
+        (4, (1, 2), 1, "hex"),
+        (4, (0, 2), 1, "hex"),
+        (4, (0, 0), 1, "hex"),
+        (4, (2, 2), 1, "heavy-hex"),
+        (4, (1, 2), 1, "heavy-hex"),
+        (4, (0, 2), 1, "heavy-hex"),
+        (4, (0, 0), 1, "heavy-hex"),
+        (4, (2, 2), 2, "square"),
+        (4, (1, 2), 2, "square"),
+        (4, (0, 2), 2, "square"),
+        (4, (0, 0), 2, "square"),
+        (4, (2, 2), 2, "hex"),
+        (4, (1, 2), 2, "hex"),
+        (4, (0, 2), 2, "hex"),
+        (4, (0, 0), 2, "hex"),
+        (4, (2, 2), 2, "heavy-hex"),
+        (4, (1, 2), 2, "heavy-hex"),
+        (4, (0, 2), 2, "heavy-hex"),
+        (4, (0, 0), 2, "heavy-hex"),
     ],
 )
-def test_lucj_circuit_as_mps(norb: int, nelec: tuple[int, int], connectivity: str):
+def test_lucj_circuit_as_mps(
+    norb: int, nelec: tuple[int, int], n_reps: int, connectivity: str
+):
     """Test LUCJ circuit MPS construction."""
     rng = np.random.default_rng()
 
@@ -71,7 +85,7 @@ def test_lucj_circuit_as_mps(norb: int, nelec: tuple[int, int], connectivity: st
     # generate a random LUCJ ansatz
     n_params = ffsim.UCJOpSpinBalanced.n_params(
         norb=norb,
-        n_reps=1,
+        n_reps=n_reps,
         interaction_pairs=_interaction_pairs_spin_balanced_(
             connectivity=connectivity, norb=norb
         ),
@@ -81,7 +95,7 @@ def test_lucj_circuit_as_mps(norb: int, nelec: tuple[int, int], connectivity: st
     lucj_op = ffsim.UCJOpSpinBalanced.from_parameters(
         params,
         norb=norb,
-        n_reps=1,
+        n_reps=n_reps,
         interaction_pairs=_interaction_pairs_spin_balanced_(
             connectivity=connectivity, norb=norb
         ),

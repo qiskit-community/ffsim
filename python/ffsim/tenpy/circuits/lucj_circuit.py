@@ -60,9 +60,9 @@ def lucj_circuit_as_mps(
         apply_orbital_rotation(
             ucj_op.orbital_rotations[i], psi, eng, chi_list, norm_tol
         )
-        if ucj_op.final_orbital_rotation is not None:
-            apply_orbital_rotation(
-                ucj_op.final_orbital_rotation, psi, eng, chi_list, norm_tol
-            )
+    if ucj_op.final_orbital_rotation is not None:
+        apply_orbital_rotation(
+            ucj_op.final_orbital_rotation, psi, eng, chi_list, norm_tol
+        )
 
     return psi, chi_list
