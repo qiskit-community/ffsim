@@ -105,40 +105,24 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
     @staticmethod
     def from_molecular_hamiltonian(
-        molecular_hamiltonian: MolecularHamiltonian, decimal_places: int | None = None
+        molecular_hamiltonian: MolecularHamiltonian,
     ) -> MolecularHamiltonianMPOModel:
         r"""Convert MolecularHamiltonian to a MolecularHamiltonianMPOModel.
 
         Args:
             molecular_hamiltonian: The molecular Hamiltonian.
-            decimal_places: The number of decimal places to which to round the input
-                one-body and two-body tensors.
-
-                .. note::
-                    Rounding may reduce the MPO bond dimension.
 
         Returns:
             The molecular Hamiltonian as a `TeNPy MPOModel <https://tenpy.readthedocs.io/en/stable/reference/tenpy.models.model.MPOModel.html#tenpy.models.model.MPOModel>`__.
         """
-
-        if decimal_places:
-            one_body_tensor = np.round(
-                molecular_hamiltonian.one_body_tensor, decimals=decimal_places
-            )
-            two_body_tensor = np.round(
-                molecular_hamiltonian.two_body_tensor, decimals=decimal_places
-            )
-        else:
-            one_body_tensor = molecular_hamiltonian.one_body_tensor
-            two_body_tensor = molecular_hamiltonian.two_body_tensor
 
         model_params = dict(
             cons_N="N",
             cons_Sz="Sz",
             L=1,
             norb=molecular_hamiltonian.norb,
-            one_body_tensor=one_body_tensor,
-            two_body_tensor=two_body_tensor,
+            one_body_tensor=molecular_hamiltonian.one_body_tensor,
+            two_body_tensor=molecular_hamiltonian.two_body_tensor,
             constant=molecular_hamiltonian.constant,
         )
         mpo_model = MolecularHamiltonianMPOModel(model_params)
