@@ -27,6 +27,7 @@ def lucj_circuit_as_mps(
     nelec: int | tuple[int, int],
     ucj_op: UCJOpSpinBalanced,
     options: dict,
+    *,
     norm_tol: float = 1e-5,
 ) -> tuple[MPS, list[int]]:
     r"""Construct the LUCJ circuit as an MPS.
@@ -60,12 +61,22 @@ def lucj_circuit_as_mps(
 
     # construct the LUCJ MPS
     for orb_rot, diag_mats in zip(ucj_op.orbital_rotations, ucj_op.diag_coulomb_mats):
-        apply_orbital_rotation(np.conj(orb_rot).T, psi, eng, chi_list, norm_tol)
-        apply_diag_coulomb_evolution(diag_mats, psi, eng, chi_list, norm_tol)
-        apply_orbital_rotation(orb_rot, psi, eng, chi_list, norm_tol)
+        apply_orbital_rotation(
+            psi, np.conj(orb_rot).T, eng=eng, chi_list=chi_list, norm_tol=norm_tol
+        )
+        apply_diag_coulomb_evolution(
+            psi, diag_mats, eng=eng, chi_list=chi_list, norm_tol=norm_tol
+        )
+        apply_orbital_rotation(
+            psi, orb_rot, eng=eng, chi_list=chi_list, norm_tol=norm_tol
+        )
     if ucj_op.final_orbital_rotation is not None:
         apply_orbital_rotation(
-            ucj_op.final_orbital_rotation, psi, eng, chi_list, norm_tol
+            psi,
+            ucj_op.final_orbital_rotation,
+            eng=eng,
+            chi_list=chi_list,
+            norm_tol=norm_tol,
         )
 
     return psi, chi_list

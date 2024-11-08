@@ -58,7 +58,7 @@ def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
 
 
 def givens_rotation(
-    theta: float, spin: Spin, conj: bool = False, *, phi: float = 0.0
+    theta: float, spin: Spin, *, conj: bool = False, phi: float = 0.0
 ) -> np.ndarray:
     r"""The Givens rotation gate.
 
@@ -258,17 +258,17 @@ def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
     return NNgate_sym
 
 
-def apply_gate1(U1: np.ndarray, site: int, psi: MPS) -> None:
+def apply_gate1(psi: MPS, U1: np.ndarray, site: int) -> None:
     r"""Apply a single-site gate to a
     `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
     wavefunction.
 
     Args:
+        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+            wavefunction.
         U1: The single-site quantum gate.
         site: The gate will be applied to `site` on the
             `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
             wavefunction.
 
     Returns:
@@ -281,9 +281,10 @@ def apply_gate1(U1: np.ndarray, site: int, psi: MPS) -> None:
 
 
 def apply_gate2(
+    psi: MPS,
     U2: np.ndarray,
     site: int,
-    psi: MPS,
+    *,
     eng: TEBDEngine,
     chi_list: list,
     norm_tol: float = 1e-5,
@@ -292,10 +293,10 @@ def apply_gate2(
     wavefunction.
 
     Args:
+        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+            wavefunction.
         U2: The two-site quantum gate.
         site: The gate will be applied to `(site-1, site)` on the `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
             wavefunction.
         eng: The
             `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
@@ -323,8 +324,9 @@ def apply_gate2(
 
 
 def apply_orbital_rotation(
-    mat: np.ndarray,
     psi: MPS,
+    mat: np.ndarray,
+    *,
     eng: TEBDEngine,
     chi_list: list,
     norm_tol: float = 1e-5,
@@ -337,9 +339,9 @@ def apply_orbital_rotation(
     `apply_orbital_rotation <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_orbital_rotation>`__.
 
     Args:
-        mat: The orbital rotation matrix of dimension `(norb, norb)`.
         psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
             wavefunction.
+        mat: The orbital rotation matrix of dimension `(norb, norb)`.
         eng: The
             `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
         chi_list: The list to which to append the MPS bond dimensions as the circuit is
@@ -362,24 +364,29 @@ def apply_orbital_rotation(
         phi = np.real(1j * np.log(-s / np.sin(theta))) if theta else 0
         conj = True if gate.j < gate.i else False
         apply_gate2(
-            givens_rotation(theta, Spin.ALPHA_AND_BETA, conj, phi=phi),
-            max(gate.i, gate.j),
             psi,
-            eng,
-            chi_list,
-            norm_tol,
+            givens_rotation(theta, Spin.ALPHA_AND_BETA, conj=conj, phi=phi),
+            max(gate.i, gate.j),
+            eng=eng,
+            chi_list=chi_list,
+            norm_tol=norm_tol,
         )
 
     # apply the number interaction gates
     for i, z in enumerate(diag_mat):
         theta = float(np.angle(z))
         apply_gate1(
-            np.exp(1j * theta) * num_interaction(-theta, Spin.ALPHA_AND_BETA), i, psi
+            psi, np.exp(1j * theta) * num_interaction(-theta, Spin.ALPHA_AND_BETA), i
         )
 
 
 def apply_diag_coulomb_evolution(
-    mat: np.ndarray, psi: MPS, eng: TEBDEngine, chi_list: list, norm_tol: float = 1e-5
+    psi: MPS,
+    mat: np.ndarray,
+    *,
+    eng: TEBDEngine,
+    chi_list: list,
+    norm_tol: float = 1e-5,
 ) -> None:
     r"""Apply a diagonal Coulomb evolution gate to a
     `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
@@ -389,9 +396,9 @@ def apply_diag_coulomb_evolution(
     `apply_diag_coulomb_evolution <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_diag_coulomb_evolution>`__.
 
     Args:
-        mat: The diagonal Coulomb matrices of dimension `(2, norb, norb)`.
         psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
             wavefunction.
+        mat: The diagonal Coulomb matrices of dimension `(2, norb, norb)`.
         eng: The
             `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
         chi_list: The list to which to append the MPS bond dimensions as the circuit is
@@ -416,14 +423,14 @@ def apply_diag_coulomb_evolution(
         for j in range(norb):
             if j > i and mat_aa[i, j]:
                 apply_gate2(
+                    psi,
                     num_num_interaction(-mat_aa[i, j], Spin.ALPHA_AND_BETA),
                     j,
-                    psi,
-                    eng,
-                    chi_list,
-                    norm_tol,
+                    eng=eng,
+                    chi_list=chi_list,
+                    norm_tol=norm_tol,
                 )
 
     # apply alpha-beta gates
     for i in range(norb):
-        apply_gate1(on_site_interaction(-mat_ab[i, i]), i, psi)
+        apply_gate1(psi, on_site_interaction(-mat_ab[i, i]), i)
