@@ -8,6 +8,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import cmath
+import math
+
 import numpy as np
 import scipy as sp
 import tenpy.linalg.np_conserved as npc
@@ -359,9 +362,8 @@ def apply_orbital_rotation(
 
     # apply the Givens rotation gates
     for gate in givens_list:
-        theta = np.arccos(gate.c)
-        s = np.conj(gate.s)
-        phi = np.real(1j * np.log(-s / np.sin(theta))) if theta else 0
+        theta = math.acos(gate.c)
+        phi = cmath.phase(gate.s) - np.pi
         conj = True if gate.j < gate.i else False
         apply_gate2(
             psi,
