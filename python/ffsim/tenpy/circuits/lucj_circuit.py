@@ -60,20 +60,31 @@ def lucj_circuit_as_mps(
     eng = TEBDEngine(psi, None, options)
 
     # construct the LUCJ MPS
+    current_basis = np.eye(norb)
     for orb_rot, diag_mats in zip(ucj_op.orbital_rotations, ucj_op.diag_coulomb_mats):
         apply_orbital_rotation(
-            psi, np.conj(orb_rot).T, eng=eng, chi_list=chi_list, norm_tol=norm_tol
+            psi,
+            np.conj(orb_rot).T @ current_basis,
+            eng=eng,
+            chi_list=chi_list,
+            norm_tol=norm_tol,
         )
         apply_diag_coulomb_evolution(
             psi, diag_mats, eng=eng, chi_list=chi_list, norm_tol=norm_tol
         )
-        apply_orbital_rotation(
-            psi, orb_rot, eng=eng, chi_list=chi_list, norm_tol=norm_tol
-        )
-    if ucj_op.final_orbital_rotation is not None:
+        current_basis = orb_rot
+    if ucj_op.final_orbital_rotation is None:
         apply_orbital_rotation(
             psi,
-            ucj_op.final_orbital_rotation,
+            current_basis,
+            eng=eng,
+            chi_list=chi_list,
+            norm_tol=norm_tol,
+        )
+    else:
+        apply_orbital_rotation(
+            psi,
+            ucj_op.final_orbital_rotation @ current_basis,
             eng=eng,
             chi_list=chi_list,
             norm_tol=norm_tol,
