@@ -25,9 +25,6 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
     """Molecular Hamiltonian."""
 
     def __init__(self, params):
-        if hasattr(self, "flag"):  # only call __init__ once
-            return
-        self.flag = True
         CouplingMPOModel.__init__(self, params)
 
     def init_sites(self, params):
