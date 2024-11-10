@@ -54,9 +54,7 @@ def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
     return gate[perm][:, perm]
 
 
-def givens_rotation(
-    theta: float, spin: Spin, *, conj: bool = False, phi: float = 0.0
-) -> np.ndarray:
+def givens_rotation(theta: float, spin: Spin, *, phi: float = 0.0) -> np.ndarray:
     r"""The Givens rotation gate.
 
     The Givens rotation gate as defined in
@@ -71,23 +69,15 @@ def givens_rotation(
             - To act on only spin beta, pass :const:`ffsim.Spin.BETA`.
             - To act on both spin alpha and spin beta, pass
               :const:`ffsim.Spin.ALPHA_AND_BETA`.
-        conj: The direction of the gate. By default, we use the little endian
-            convention, as in Qiskit.
         phi: The phase angle.
 
     Returns:
         The Givens rotation gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
-    # define conjugate phase
-    if conj:
-        beta = phi + np.pi / 2
-        beta = -beta
-        phi = beta - np.pi / 2
-
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
-        # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
+        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # Ggate_a = (
         #     np.kron(sp.linalg.expm(1j * phi * Nu), Id)
         #     @ sp.linalg.expm(
@@ -111,7 +101,7 @@ def givens_rotation(
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
-        # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
+        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # Ggate_b = (
         #     np.kron(sp.linalg.expm(1j * phi * Nd), Id)
         #     @ sp.linalg.expm(
@@ -171,7 +161,7 @@ def num_interaction(theta: float, spin: Spin) -> np.ndarray:
 
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
-        # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
+        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # Ngate_a = sp.linalg.expm(1j * theta * Nu)
         Ngate_a = np.eye(4, dtype=complex)
         for i in [1, 3]:
@@ -179,7 +169,7 @@ def num_interaction(theta: float, spin: Spin) -> np.ndarray:
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
-        # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
+        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # Ngate_b = sp.linalg.expm(1j * theta * Nd)
         Ngate_b = np.eye(4, dtype=complex)
         for i in [2, 3]:
@@ -215,7 +205,7 @@ def on_site_interaction(theta: float) -> np.ndarray:
         The on-site interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
-    # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
+    # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
     # OSgate = sp.linalg.expm(1j * theta * Nu @ Nd)
     OSgate = np.eye(4, dtype=complex)
     OSgate[3, 3] = cmath.exp(1j * theta)
@@ -249,7 +239,7 @@ def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
 
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
-        # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
+        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # NNgate_a = sp.linalg.expm(1j * theta * np.kron(Nu, Nu))
         NNgate_a = np.eye(16, dtype=complex)
         for i in [5, 7, 13, 15]:
@@ -257,7 +247,7 @@ def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
-        # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
+        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # NNgate_b = sp.linalg.expm(1j * theta * np.kron(Nd, Nd))
         NNgate_b = np.eye(16, dtype=complex)
         for i in [10, 11, 14, 15]:
@@ -304,7 +294,7 @@ def apply_gate1(psi: MPS, U1: np.ndarray, site: int) -> None:
 def apply_gate2(
     psi: MPS,
     U2: np.ndarray,
-    site: int,
+    sites: tuple[int, int],
     *,
     eng: TEBDEngine,
     chi_list: list,
@@ -317,7 +307,8 @@ def apply_gate2(
         psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
             wavefunction.
         U2: The two-site quantum gate.
-        site: The gate will be applied to `(site-1, site)` on the `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
+        sites: The gate will be applied to adjacent sites `(site1, site2)` on the
+            `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
             wavefunction.
         eng: The
             `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
@@ -331,12 +322,20 @@ def apply_gate2(
         None
     """
 
-    # apply NN gate between (site-1, site)
+    # check that sites are adjacent
+    if abs(sites[0] - sites[1]) != 1:
+        raise ValueError("sites must be adjacent")
+
+    # check whether to transpose gate
+    if sites[0] > sites[1]:
+        U2 = U2.T
+
+    # apply NN gate between (site1, site2)
     U2_npc = npc.Array.from_ndarray(
         U2, [shfsc, shfsc.conj()], labels=["(p0.p1)", "(p0*.p1*)"]
     )
     U2_npc_split = U2_npc.split_legs()
-    eng.update_bond(site, U2_npc_split)
+    eng.update_bond(max(sites), U2_npc_split)
     chi_list.append(psi.chi)
 
     # recanonicalize psi if below error threshold
@@ -382,11 +381,10 @@ def apply_orbital_rotation(
     for gate in givens_list:
         theta = math.acos(gate.c)
         phi = cmath.phase(gate.s) - np.pi
-        conj = True if gate.j < gate.i else False
         apply_gate2(
             psi,
-            givens_rotation(theta, Spin.ALPHA_AND_BETA, conj=conj, phi=phi),
-            max(gate.i, gate.j),
+            givens_rotation(theta, Spin.ALPHA_AND_BETA, phi=phi),
+            (gate.i, gate.j),
             eng=eng,
             chi_list=chi_list,
             norm_tol=norm_tol,
@@ -394,7 +392,7 @@ def apply_orbital_rotation(
 
     # apply the number interaction gates
     for i, z in enumerate(diag_mat):
-        theta = float(cmath.phase(z))
+        theta = cmath.phase(z)
         apply_gate1(psi, num_interaction(-theta, Spin.ALPHA_AND_BETA), i)
 
 
@@ -443,7 +441,7 @@ def apply_diag_coulomb_evolution(
                 apply_gate2(
                     psi,
                     num_num_interaction(-mat_aa[i, j], Spin.ALPHA_AND_BETA),
-                    j,
+                    (i, j),
                     eng=eng,
                     chi_list=chi_list,
                     norm_tol=norm_tol,
