@@ -41,21 +41,17 @@ def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
 
     # convert to (N, Sz)-symmetry-conserved basis
     if gate.shape == (4, 4):  # 1-site gate
-        swap_list = [1, 3, 0, 2]
+        # swap = [1, 3, 0, 2]
+        perm = [2, 0, 3, 1]
     elif gate.shape == (16, 16):  # 2-site gate
-        swap_list = [5, 11, 2, 7, 12, 15, 9, 14, 1, 6, 0, 3, 8, 13, 4, 10]
+        # swap = [5, 11, 2, 7, 12, 15, 9, 14, 1, 6, 0, 3, 8, 13, 4, 10]
+        perm = [10, 8, 2, 11, 14, 0, 9, 3, 12, 6, 15, 1, 4, 13, 7, 5]
     else:
         raise ValueError(
             "only 1-site and 2-site gates implemented for symmetry basis conversion"
         )
 
-    P = np.zeros(gate.shape)
-    for i, s in enumerate(swap_list):
-        P[i, s] = 1
-
-    gate_sym = P.T @ gate @ P
-
-    return gate_sym
+    return gate[perm][:, perm]
 
 
 def givens_rotation(
