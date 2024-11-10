@@ -114,6 +114,6 @@ def test_lucj_circuit_as_mps(
     wavefunction_mps, _ = lucj_circuit_as_mps(norb, nelec, lucj_op, options)
 
     # test expectation is preserved
-    original_expectation = np.real(np.vdot(lucj_state, hamiltonian @ lucj_state))
+    original_expectation = np.vdot(lucj_state, hamiltonian @ lucj_state).real
     mpo_expectation = mol_hamiltonian_mpo.expectation_value_finite(wavefunction_mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)

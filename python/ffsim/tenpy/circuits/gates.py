@@ -40,16 +40,16 @@ def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
     """
 
     # convert to (N, Sz)-symmetry-conserved basis
-    if np.shape(gate) == (4, 4):  # 1-site gate
+    if gate.shape == (4, 4):  # 1-site gate
         swap_list = [1, 3, 0, 2]
-    elif np.shape(gate) == (16, 16):  # 2-site gate
+    elif gate.shape == (16, 16):  # 2-site gate
         swap_list = [5, 11, 2, 7, 12, 15, 9, 14, 1, 6, 0, 3, 8, 13, 4, 10]
     else:
         raise ValueError(
             "only 1-site and 2-site gates implemented for symmetry basis conversion"
         )
 
-    P = np.zeros(np.shape(gate))
+    P = np.zeros(gate.shape)
     for i, s in enumerate(swap_list):
         P[i, s] = 1
 
@@ -108,10 +108,10 @@ def givens_rotation(
         Ggate_a[3, 6] = -s
         Ggate_a[9, 12] = s
         Ggate_a[11, 14] = s
-        Ggate_a[4, 1] = np.conj(s)
-        Ggate_a[6, 3] = np.conj(s)
-        Ggate_a[12, 9] = -np.conj(s)
-        Ggate_a[14, 11] = -np.conj(s)
+        Ggate_a[4, 1] = s.conjugate()
+        Ggate_a[6, 3] = s.conjugate()
+        Ggate_a[12, 9] = -s.conjugate()
+        Ggate_a[14, 11] = -s.conjugate()
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
@@ -132,10 +132,10 @@ def givens_rotation(
         Ggate_b[3, 9] = s
         Ggate_b[6, 12] = -s
         Ggate_b[7, 13] = s
-        Ggate_b[8, 2] = np.conj(s)
-        Ggate_b[9, 3] = -np.conj(s)
-        Ggate_b[12, 6] = np.conj(s)
-        Ggate_b[13, 7] = -np.conj(s)
+        Ggate_b[8, 2] = s.conjugate()
+        Ggate_b[9, 3] = -s.conjugate()
+        Ggate_b[12, 6] = s.conjugate()
+        Ggate_b[13, 7] = -s.conjugate()
 
     # define total gate
     if spin is Spin.ALPHA:
@@ -179,7 +179,7 @@ def num_interaction(theta: float, spin: Spin) -> np.ndarray:
         # Ngate_a = sp.linalg.expm(1j * theta * Nu)
         Ngate_a = np.eye(4, dtype=complex)
         for i in [1, 3]:
-            Ngate_a[i, i] = np.exp(1j * theta)
+            Ngate_a[i, i] = cmath.exp(1j * theta)
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
@@ -187,7 +187,7 @@ def num_interaction(theta: float, spin: Spin) -> np.ndarray:
         # Ngate_b = sp.linalg.expm(1j * theta * Nd)
         Ngate_b = np.eye(4, dtype=complex)
         for i in [2, 3]:
-            Ngate_b[i, i] = np.exp(1j * theta)
+            Ngate_b[i, i] = cmath.exp(1j * theta)
 
     # define total gate
     if spin is Spin.ALPHA:
@@ -222,7 +222,7 @@ def on_site_interaction(theta: float) -> np.ndarray:
     # # Using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
     # OSgate = sp.linalg.expm(1j * theta * Nu @ Nd)
     OSgate = np.eye(4, dtype=complex)
-    OSgate[3, 3] = np.exp(1j * theta)
+    OSgate[3, 3] = cmath.exp(1j * theta)
 
     # convert to (N, Sz)-symmetry-conserved basis
     OSgate_sym = sym_cons_basis(OSgate)
@@ -257,7 +257,7 @@ def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
         # NNgate_a = sp.linalg.expm(1j * theta * np.kron(Nu, Nu))
         NNgate_a = np.eye(16, dtype=complex)
         for i in [5, 7, 13, 15]:
-            NNgate_a[i, i] = np.exp(1j * theta)
+            NNgate_a[i, i] = cmath.exp(1j * theta)
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
@@ -265,7 +265,7 @@ def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
         # NNgate_b = sp.linalg.expm(1j * theta * np.kron(Nd, Nd))
         NNgate_b = np.eye(16, dtype=complex)
         for i in [10, 11, 14, 15]:
-            NNgate_b[i, i] = np.exp(1j * theta)
+            NNgate_b[i, i] = cmath.exp(1j * theta)
 
     # define total gate
     if spin is Spin.ALPHA:
@@ -398,9 +398,9 @@ def apply_orbital_rotation(
 
     # apply the number interaction gates
     for i, z in enumerate(diag_mat):
-        theta = float(np.angle(z))
+        theta = float(cmath.phase(z))
         apply_gate1(
-            psi, np.exp(1j * theta) * num_interaction(-theta, Spin.ALPHA_AND_BETA), i
+            psi, cmath.exp(1j * theta) * num_interaction(-theta, Spin.ALPHA_AND_BETA), i
         )
 
 
@@ -436,8 +436,8 @@ def apply_diag_coulomb_evolution(
     """
 
     # extract norb
-    assert np.shape(mat)[1] == np.shape(mat)[2]
-    norb = np.shape(mat)[1]
+    assert mat.shape[1] == mat.shape[2]
+    norb = mat.shape[1]
 
     # unpack alpha-alpha and alpha-beta matrices
     mat_aa, mat_ab = mat

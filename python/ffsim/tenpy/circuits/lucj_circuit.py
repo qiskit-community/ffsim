@@ -64,7 +64,7 @@ def lucj_circuit_as_mps(
     for orb_rot, diag_mats in zip(ucj_op.orbital_rotations, ucj_op.diag_coulomb_mats):
         apply_orbital_rotation(
             psi,
-            np.conj(orb_rot).T @ current_basis,
+            orb_rot.conjugate().T @ current_basis,
             eng=eng,
             chi_list=chi_list,
             norm_tol=norm_tol,

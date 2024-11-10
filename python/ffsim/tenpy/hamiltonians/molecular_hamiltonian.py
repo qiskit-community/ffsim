@@ -129,6 +129,5 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
             two_body_tensor=molecular_hamiltonian.two_body_tensor,
             constant=molecular_hamiltonian.constant,
         )
-        mpo_model = MolecularHamiltonianMPOModel(model_params)
 
-        return mpo_model
+        return MolecularHamiltonianMPOModel(model_params)
