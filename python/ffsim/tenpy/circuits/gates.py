@@ -300,7 +300,7 @@ def apply_gate1(psi: MPS, U1: np.ndarray, site: int) -> None:
         None
     """
 
-    # on-site
+    # apply single-site gate
     U1_npc = npc.Array.from_ndarray(U1, [shfs.leg, shfs.leg.conj()], labels=["p", "p*"])
     psi.apply_local_op(site, U1_npc)
 
@@ -335,7 +335,7 @@ def apply_gate2(
         None
     """
 
-    # bond between (site-1, site)
+    # apply NN gate between (site-1, site)
     U2_npc = npc.Array.from_ndarray(
         U2, [shfsc, shfsc.conj()], labels=["(p0.p1)", "(p0*.p1*)"]
     )

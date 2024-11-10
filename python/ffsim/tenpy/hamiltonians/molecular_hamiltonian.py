@@ -24,9 +24,6 @@ from ffsim.tenpy.hamiltonians.lattices import MolecularChain
 class MolecularHamiltonianMPOModel(CouplingMPOModel):
     """Molecular Hamiltonian."""
 
-    def __init__(self, params):
-        CouplingMPOModel.__init__(self, params)
-
     def init_sites(self, params):
         cons_N = params.get("cons_N", "N")
         cons_Sz = params.get("cons_Sz", "Sz")
