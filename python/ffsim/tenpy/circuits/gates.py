@@ -395,9 +395,7 @@ def apply_orbital_rotation(
     # apply the number interaction gates
     for i, z in enumerate(diag_mat):
         theta = float(cmath.phase(z))
-        apply_gate1(
-            psi, cmath.exp(1j * theta) * num_interaction(-theta, Spin.ALPHA_AND_BETA), i
-        )
+        apply_gate1(psi, num_interaction(-theta, Spin.ALPHA_AND_BETA), i)
 
 
 def apply_diag_coulomb_evolution(
