@@ -10,13 +10,17 @@
 
 """Tests for LUCJ circuit TeNPy methods."""
 
+from copy import deepcopy
+
 import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
+from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
 from ffsim.tenpy.circuits.lucj_circuit import lucj_circuit_as_mps
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
+from ffsim.tenpy.util import product_state_as_mps
 
 
 def _interaction_pairs_spin_balanced_(
@@ -117,3 +121,58 @@ def test_lucj_circuit_as_mps(
     original_expectation = np.vdot(lucj_state, hamiltonian @ lucj_state).real
     mpo_expectation = mol_hamiltonian_mpo.expectation_value_finite(wavefunction_mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+def test_apply_orbital_rotation(
+    norb: int,
+    nelec: tuple[int, int],
+):
+    """Test applying orbital rotation to MPS."""
+    rng = np.random.default_rng()
+
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
+    # generate a random product state
+    dim = ffsim.dim(norb, nelec)
+    idx = rng.integers(0, high=dim)
+    original_vec = np.zeros(dim, dtype=complex)
+    original_vec[idx] = 1
+
+    # convert random product state to MPS
+    mps = product_state_as_mps(norb, nelec, idx)
+    original_mps = deepcopy(mps)
+
+    # generate a random orbital rotation
+    mat = ffsim.random.random_unitary(norb, seed=rng)
+
+    # apply random orbital rotation to state vector
+    vec = ffsim.apply_orbital_rotation(original_vec, mat, norb, nelec)
+
+    # apply random orbital rotation to MPS
+    chi_list: list[int] = []
+    options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
+    eng = TEBDEngine(mps, None, options)
+    ffsim.tenpy.apply_orbital_rotation(mps, mat, eng=eng, chi_list=chi_list)
+
+    # test matrix element is preserved
+    original_matrix_element = np.vdot(original_vec, hamiltonian @ vec)
+    mol_hamiltonian_mpo.apply_naively(mps)
+    mpo_matrix_element = mps.overlap(original_mps)
+    np.testing.assert_allclose(original_matrix_element, mpo_matrix_element)
