@@ -143,7 +143,14 @@ def test_apply_orbital_rotation(
     original_vec[idx] = 1
 
     # convert random product state to MPS
-    mps = product_state_as_mps(norb, nelec, idx)
+    strings_a, strings_b = ffsim.addresses_to_strings(
+        range(dim),
+        norb=norb,
+        nelec=nelec,
+        bitstring_type=ffsim.BitstringType.STRING,
+        concatenate=False,
+    )
+    mps = product_state_as_mps((strings_a[idx], strings_b[idx]))
     original_mps = deepcopy(mps)
 
     # generate a random orbital rotation

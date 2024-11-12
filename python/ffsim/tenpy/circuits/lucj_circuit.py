@@ -14,6 +14,7 @@ import numpy as np
 from tenpy.algorithms.tebd import TEBDEngine
 from tenpy.networks.mps import MPS
 
+import ffsim
 from ffsim.tenpy.circuits.gates import (
     apply_diag_coulomb_evolution,
     apply_orbital_rotation,
@@ -54,7 +55,15 @@ def lucj_circuit_as_mps(
     chi_list: list[int] = []
 
     # prepare initial Hartree-Fock state
-    psi = product_state_as_mps(norb, nelec, 0)
+    dim = ffsim.dim(norb, nelec)
+    strings_a, strings_b = ffsim.addresses_to_strings(
+        range(dim),
+        norb=norb,
+        nelec=nelec,
+        bitstring_type=ffsim.BitstringType.STRING,
+        concatenate=False,
+    )
+    psi = product_state_as_mps((strings_a[0], strings_b[0]))
 
     # define the TEBD engine
     eng = TEBDEngine(psi, None, options)

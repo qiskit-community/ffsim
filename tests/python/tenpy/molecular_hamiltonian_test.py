@@ -48,7 +48,14 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
     product_state[idx] = 1
 
     # convert product state to MPS
-    product_state_mps = product_state_as_mps(norb, nelec, idx)
+    strings_a, strings_b = ffsim.addresses_to_strings(
+        range(dim),
+        norb=norb,
+        nelec=nelec,
+        bitstring_type=ffsim.BitstringType.STRING,
+        concatenate=False,
+    )
+    product_state_mps = product_state_as_mps((strings_a[idx], strings_b[idx]))
 
     # test expectation is preserved
     original_expectation = np.vdot(product_state, hamiltonian @ product_state)

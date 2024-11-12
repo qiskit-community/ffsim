@@ -13,32 +13,27 @@ from __future__ import annotations
 from tenpy.networks.mps import MPS
 from tenpy.networks.site import SpinHalfFermionSite
 
-import ffsim
 
-
-def product_state_as_mps(norb: int, nelec: int | tuple[int, int], idx: int) -> MPS:
+def product_state_as_mps(bitstring: tuple[str, str]) -> MPS:
     r"""Return the product state as an MPS.
 
     Args:
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-        idx: The index of the product state in the ffsim basis.
+        bitstring: The bitstring in the form `(string_a, string_b)`.
 
     Returns:
         The product state as an MPS.
     """
 
-    dim = ffsim.dim(norb, nelec)
+    # extract norb
+    assert len(bitstring[0]) == len(bitstring[1])
+    norb = len(bitstring[0])
 
-    strings = ffsim.addresses_to_strings(
-        range(dim), norb=norb, nelec=nelec, bitstring_type=ffsim.BitstringType.STRING
-    )
-
-    string = strings[idx]
-    up_sector = list(string[0:norb].replace("1", "u"))
-    down_sector = list(string[norb : 2 * norb].replace("1", "d"))
+    # merge bitstrings
+    up_sector = list(bitstring[0].replace("1", "u"))
+    down_sector = list(bitstring[1].replace("1", "d"))
     product_state = list(map(lambda x, y: x + y, up_sector, down_sector))
 
+    # relabel using TeNPy SpinHalfFermionSite convention
     for i, site in enumerate(product_state):
         if site == "00":
             product_state[i] = "empty"
@@ -54,6 +49,7 @@ def product_state_as_mps(norb: int, nelec: int | tuple[int, int], idx: int) -> M
     # note that the bit positions increase from right to left
     product_state = product_state[::-1]
 
+    # construct product state MPS
     shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
     psi_mps = MPS.from_product_state([shfs] * norb, product_state)
 
