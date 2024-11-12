@@ -14,7 +14,6 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
-from qiskit.circuit import QuantumCircuit, QuantumRegister
 from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
@@ -87,31 +86,19 @@ def test_lucj_circuit_as_mps(
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random LUCJ ansatz
-    n_params = ffsim.UCJOpSpinBalanced.n_params(
+    lucj_op = ffsim.random.random_ucj_op_spin_balanced(
         norb=norb,
         n_reps=n_reps,
         interaction_pairs=_interaction_pairs_spin_balanced_(
             connectivity=connectivity, norb=norb
         ),
         with_final_orbital_rotation=True,
-    )
-    params = rng.uniform(-10, 10, size=n_params)
-    lucj_op = ffsim.UCJOpSpinBalanced.from_parameters(
-        params,
-        norb=norb,
-        n_reps=n_reps,
-        interaction_pairs=_interaction_pairs_spin_balanced_(
-            connectivity=connectivity, norb=norb
-        ),
-        with_final_orbital_rotation=True,
+        seed=rng,
     )
 
     # generate the corresponding LUCJ circuit
-    qubits = QuantumRegister(2 * norb)
-    circuit = QuantumCircuit(qubits)
-    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
-    circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(lucj_op), qubits)
-    lucj_state = ffsim.qiskit.final_state_vector(circuit).vec
+    lucj_state = ffsim.hartree_fock_state(norb, nelec)
+    lucj_state = ffsim.apply_unitary(lucj_state, lucj_op, norb, nelec)
 
     # convert LUCJ ansatz to MPS
     options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
