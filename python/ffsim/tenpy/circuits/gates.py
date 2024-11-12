@@ -428,7 +428,7 @@ def apply_diag_coulomb_evolution(
     """
 
     # extract norb
-    norb, _ = mat.shape
+    _, norb, _ = mat.shape
 
     # unpack alpha-alpha and alpha-beta matrices
     mat_aa, mat_ab = mat

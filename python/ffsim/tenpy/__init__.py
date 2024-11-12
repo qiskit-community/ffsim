@@ -22,7 +22,6 @@ from ffsim.tenpy.circuits.gates import (
     sym_cons_basis,
 )
 from ffsim.tenpy.circuits.lucj_circuit import lucj_circuit_as_mps
-from ffsim.tenpy.hamiltonians.lattices import MolecularChain
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import product_state_as_mps
 
@@ -33,7 +32,6 @@ __all__ = [
     "apply_orbital_rotation",
     "givens_rotation",
     "lucj_circuit_as_mps",
-    "MolecularChain",
     "MolecularHamiltonianMPOModel",
     "num_interaction",
     "num_num_interaction",

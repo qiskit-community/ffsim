@@ -11,11 +11,11 @@
 from __future__ import annotations
 
 import numpy as np
+from tenpy.models.lattice import Lattice
 from tenpy.models.model import CouplingMPOModel
 from tenpy.networks.site import SpinHalfFermionSite
 
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
-from ffsim.tenpy.hamiltonians.lattices import MolecularChain
 
 # ignore lowercase variable checks to maintain TeNPy naming conventions
 # ruff: noqa: N806
@@ -34,7 +34,17 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
         L = params.get("L", 1)
         norb = params.get("norb", 4)
         site = self.init_sites(params)
-        lat = MolecularChain(L, norb, site, basis=[[norb, 0], [0, 1]])
+        basis = np.array(([norb, 0.0], [0, 1]))
+        pos = np.array([[i, 0] for i in range(norb)])
+        lat = Lattice(
+            [L, 1],
+            [site] * norb,
+            order="default",
+            bc="open",
+            bc_MPS="finite",
+            basis=basis,
+            positions=pos,
+        )
         return lat
 
     def init_terms(self, params):

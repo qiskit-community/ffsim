@@ -10,10 +10,8 @@
 
 """Classes for converting Hamiltonians to TeNPy MPOModel objects."""
 
-from ffsim.tenpy.hamiltonians.lattices import MolecularChain
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 
 __all__ = [
-    "MolecularChain",
     "MolecularHamiltonianMPOModel",
 ]
