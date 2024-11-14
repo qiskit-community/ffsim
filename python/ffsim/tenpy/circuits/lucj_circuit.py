@@ -24,9 +24,9 @@ from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
 
 
 def apply_ucj_op_spin_balanced(
+    ucj_op: UCJOpSpinBalanced,
     norb: int,
     nelec: int | tuple[int, int],
-    ucj_op: UCJOpSpinBalanced,
     options: dict,
     *,
     norm_tol: float = 1e-5,

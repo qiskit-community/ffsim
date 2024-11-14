@@ -102,7 +102,7 @@ def test_apply_ucj_op_spin_balanced(
 
     # convert LUCJ ansatz to MPS
     options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    wavefunction_mps, _ = apply_ucj_op_spin_balanced(norb, nelec, lucj_op, options)
+    wavefunction_mps, _ = apply_ucj_op_spin_balanced(lucj_op, norb, nelec, options)
 
     # test expectation is preserved
     original_expectation = np.vdot(lucj_state, hamiltonian @ lucj_state).real
