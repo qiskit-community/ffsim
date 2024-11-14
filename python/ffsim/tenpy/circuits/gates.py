@@ -9,6 +9,7 @@
 # that they have been altered from the originals.
 
 import cmath
+import itertools
 import math
 
 import numpy as np
@@ -434,17 +435,16 @@ def apply_diag_coulomb_evolution(
     mat_aa, mat_ab = mat
 
     # apply alpha-alpha gates
-    for i in range(norb):
-        for j in range(norb):
-            if j > i and mat_aa[i, j]:
-                apply_gate2(
-                    psi,
-                    num_num_interaction(-mat_aa[i, j], Spin.ALPHA_AND_BETA),
-                    (i, j),
-                    eng=eng,
-                    chi_list=chi_list,
-                    norm_tol=norm_tol,
-                )
+    for i, j in itertools.product(range(norb), repeat=2):
+        if j > i and mat_aa[i, j]:
+            apply_gate2(
+                psi,
+                num_num_interaction(-mat_aa[i, j], Spin.ALPHA_AND_BETA),
+                (i, j),
+                eng=eng,
+                chi_list=chi_list,
+                norm_tol=norm_tol,
+            )
 
     # apply alpha-beta gates
     for i in range(norb):

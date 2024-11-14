@@ -68,55 +68,54 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                 self.add_coupling(h1, p, "Cdu", q, "Cu", dx0)
                 self.add_coupling(h1, p, "Cdd", q, "Cd", dx0)
 
-            for r in range(norb):
-                for s in range(norb):
-                    h2 = two_body_tensor[q, p, s, r]
-                    if p == q == r == s:
-                        self.add_onsite(0.5 * h2, p, "Nu")
-                        self.add_onsite(-0.5 * h2, p, "Nu Nu")
-                        self.add_onsite(0.5 * h2, p, "Nu")
-                        self.add_onsite(-0.5 * h2, p, "Cdu Cd Cdd Cu")
-                        self.add_onsite(0.5 * h2, p, "Nd")
-                        self.add_onsite(-0.5 * h2, p, "Cdd Cu Cdu Cd")
-                        self.add_onsite(0.5 * h2, p, "Nd")
-                        self.add_onsite(-0.5 * h2, p, "Nd Nd")
-                    else:
-                        self.add_multi_coupling(
-                            0.5 * h2,
-                            [
-                                ("Cdu", dx0, p),
-                                ("Cdu", dx0, r),
-                                ("Cu", dx0, s),
-                                ("Cu", dx0, q),
-                            ],
-                        )
-                        self.add_multi_coupling(
-                            0.5 * h2,
-                            [
-                                ("Cdu", dx0, p),
-                                ("Cdd", dx0, r),
-                                ("Cd", dx0, s),
-                                ("Cu", dx0, q),
-                            ],
-                        )
-                        self.add_multi_coupling(
-                            0.5 * h2,
-                            [
-                                ("Cdd", dx0, p),
-                                ("Cdu", dx0, r),
-                                ("Cu", dx0, s),
-                                ("Cd", dx0, q),
-                            ],
-                        )
-                        self.add_multi_coupling(
-                            0.5 * h2,
-                            [
-                                ("Cdd", dx0, p),
-                                ("Cdd", dx0, r),
-                                ("Cd", dx0, s),
-                                ("Cd", dx0, q),
-                            ],
-                        )
+            for r, s in itertools.product(range(norb), repeat=2):
+                h2 = two_body_tensor[q, p, s, r]
+                if p == q == r == s:
+                    self.add_onsite(0.5 * h2, p, "Nu")
+                    self.add_onsite(-0.5 * h2, p, "Nu Nu")
+                    self.add_onsite(0.5 * h2, p, "Nu")
+                    self.add_onsite(-0.5 * h2, p, "Cdu Cd Cdd Cu")
+                    self.add_onsite(0.5 * h2, p, "Nd")
+                    self.add_onsite(-0.5 * h2, p, "Cdd Cu Cdu Cd")
+                    self.add_onsite(0.5 * h2, p, "Nd")
+                    self.add_onsite(-0.5 * h2, p, "Nd Nd")
+                else:
+                    self.add_multi_coupling(
+                        0.5 * h2,
+                        [
+                            ("Cdu", dx0, p),
+                            ("Cdu", dx0, r),
+                            ("Cu", dx0, s),
+                            ("Cu", dx0, q),
+                        ],
+                    )
+                    self.add_multi_coupling(
+                        0.5 * h2,
+                        [
+                            ("Cdu", dx0, p),
+                            ("Cdd", dx0, r),
+                            ("Cd", dx0, s),
+                            ("Cu", dx0, q),
+                        ],
+                    )
+                    self.add_multi_coupling(
+                        0.5 * h2,
+                        [
+                            ("Cdd", dx0, p),
+                            ("Cdu", dx0, r),
+                            ("Cu", dx0, s),
+                            ("Cd", dx0, q),
+                        ],
+                    )
+                    self.add_multi_coupling(
+                        0.5 * h2,
+                        [
+                            ("Cdd", dx0, p),
+                            ("Cdd", dx0, r),
+                            ("Cd", dx0, s),
+                            ("Cd", dx0, q),
+                        ],
+                    )
 
     @staticmethod
     def from_molecular_hamiltonian(
