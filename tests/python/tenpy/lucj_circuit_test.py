@@ -17,7 +17,7 @@ import pytest
 from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
-from ffsim.tenpy.circuits.lucj_circuit import lucj_circuit_as_mps
+from ffsim.tenpy.circuits.lucj_circuit import apply_ucj_op_spin_balanced
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import product_state_as_mps
 
@@ -69,7 +69,7 @@ def _interaction_pairs_spin_balanced_(
         (4, (0, 0), 2, "heavy-hex"),
     ],
 )
-def test_lucj_circuit_as_mps(
+def test_apply_ucj_op_spin_balanced(
     norb: int, nelec: tuple[int, int], n_reps: int, connectivity: str
 ):
     """Test LUCJ circuit MPS construction."""
@@ -102,7 +102,7 @@ def test_lucj_circuit_as_mps(
 
     # convert LUCJ ansatz to MPS
     options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    wavefunction_mps, _ = lucj_circuit_as_mps(norb, nelec, lucj_op, options)
+    wavefunction_mps, _ = apply_ucj_op_spin_balanced(norb, nelec, lucj_op, options)
 
     # test expectation is preserved
     original_expectation = np.vdot(lucj_state, hamiltonian @ lucj_state).real

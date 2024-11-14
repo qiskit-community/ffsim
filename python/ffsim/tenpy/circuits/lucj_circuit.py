@@ -23,7 +23,7 @@ from ffsim.tenpy.util import product_state_as_mps
 from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
 
 
-def lucj_circuit_as_mps(
+def apply_ucj_op_spin_balanced(
     norb: int,
     nelec: int | tuple[int, int],
     ucj_op: UCJOpSpinBalanced,
