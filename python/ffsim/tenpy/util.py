@@ -24,14 +24,17 @@ def product_state_as_mps(bitstring: tuple[str, str]) -> MPS:
         The product state as an MPS.
     """
 
+    # unpack bitstrings
+    string_a, string_b = bitstring
+
     # extract norb
-    assert len(bitstring[0]) == len(bitstring[1])
-    norb = len(bitstring[0])
+    assert len(string_a) == len(string_b)
+    norb = len(string_a)
 
     # merge bitstrings
-    up_sector = list(bitstring[0].replace("1", "u"))
-    down_sector = list(bitstring[1].replace("1", "d"))
-    product_state = list(map(lambda x, y: x + y, up_sector, down_sector))
+    up_sector = string_a.replace("1", "u")
+    down_sector = string_b.replace("1", "d")
+    product_state = [a + b for a, b in zip(up_sector, down_sector)]
 
     # relabel using TeNPy SpinHalfFermionSite convention
     for i, site in enumerate(product_state):
