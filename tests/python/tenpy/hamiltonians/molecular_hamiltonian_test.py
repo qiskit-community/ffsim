@@ -15,7 +15,7 @@ import pytest
 
 import ffsim
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
-from ffsim.tenpy.util import product_state_as_mps
+from ffsim.tenpy.util import bitstring_to_mps
 
 
 @pytest.mark.parametrize(
@@ -55,7 +55,7 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
         bitstring_type=ffsim.BitstringType.STRING,
         concatenate=False,
     )
-    product_state_mps = product_state_as_mps((strings_a[idx], strings_b[idx]))
+    product_state_mps = bitstring_to_mps((strings_a[idx], strings_b[idx]))
 
     # test expectation is preserved
     original_expectation = np.vdot(product_state, hamiltonian @ product_state)

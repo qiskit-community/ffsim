@@ -16,6 +16,7 @@ from ffsim.testing.testing import (
     generate_norb_nelec_spin,
     generate_norb_nocc,
     generate_norb_spin,
+    interaction_pairs_spin_balanced,
     random_nelec,
     random_occupied_orbitals,
 )
@@ -26,6 +27,7 @@ __all__ = [
     "generate_norb_nelec_spin",
     "generate_norb_nocc",
     "generate_norb_spin",
+    "interaction_pairs_spin_balanced",
     "random_nelec",
     "random_occupied_orbitals",
 ]

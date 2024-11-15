@@ -14,14 +14,14 @@ from tenpy.networks.mps import MPS
 from tenpy.networks.site import SpinHalfFermionSite
 
 
-def product_state_as_mps(bitstring: tuple[str, str]) -> MPS:
-    r"""Return the product state as an MPS.
+def bitstring_to_mps(bitstring: tuple[str, str]) -> MPS:
+    r"""Return the bitstring as an MPS.
 
     Args:
         bitstring: The bitstring in the form `(string_a, string_b)`.
 
     Returns:
-        The product state as an MPS.
+        The bitstring as an MPS.
     """
 
     # unpack bitstrings
@@ -54,6 +54,6 @@ def product_state_as_mps(bitstring: tuple[str, str]) -> MPS:
 
     # construct product state MPS
     shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
-    psi_mps = MPS.from_product_state([shfs] * norb, product_state)
+    mps = MPS.from_product_state([shfs] * norb, product_state)
 
-    return psi_mps
+    return mps

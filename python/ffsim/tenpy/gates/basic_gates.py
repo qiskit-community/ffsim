@@ -9,28 +9,17 @@
 # that they have been altered from the originals.
 
 import cmath
-import itertools
 import math
 
 import numpy as np
-import tenpy.linalg.np_conserved as npc
-from tenpy.algorithms.tebd import TEBDEngine
-from tenpy.linalg.charges import LegPipe
-from tenpy.networks.mps import MPS
-from tenpy.networks.site import SpinHalfFermionSite
 
-from ffsim.linalg import givens_decomposition
 from ffsim.spin import Spin
 
-# ignore lowercase argument and variable checks to maintain TeNPy naming conventions
-# ruff: noqa: N803, N806
-
-# define sites
-shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
-shfsc = LegPipe([shfs.leg, shfs.leg])
+# ignore lowercase variable checks to maintain TeNPy naming conventions
+# ruff: noqa: N806
 
 
-def sym_cons_basis(gate: np.ndarray) -> np.ndarray:
+def _sym_cons_basic(gate: np.ndarray) -> np.ndarray:
     r"""Convert a gate to the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -135,7 +124,7 @@ def givens_rotation(theta: float, spin: Spin, *, phi: float = 0.0) -> np.ndarray
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    Ggate_sym = sym_cons_basis(Ggate)
+    Ggate_sym = _sym_cons_basic(Ggate)
 
     return Ggate_sym
 
@@ -187,7 +176,7 @@ def num_interaction(theta: float, spin: Spin) -> np.ndarray:
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    Ngate_sym = sym_cons_basis(Ngate)
+    Ngate_sym = _sym_cons_basic(Ngate)
 
     return Ngate_sym
 
@@ -212,7 +201,7 @@ def on_site_interaction(theta: float) -> np.ndarray:
     OSgate[3, 3] = cmath.exp(1j * theta)
 
     # convert to (N, Sz)-symmetry-conserved basis
-    OSgate_sym = sym_cons_basis(OSgate)
+    OSgate_sym = _sym_cons_basic(OSgate)
 
     return OSgate_sym
 
@@ -265,187 +254,6 @@ def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    NNgate_sym = sym_cons_basis(NNgate)
+    NNgate_sym = _sym_cons_basic(NNgate)
 
     return NNgate_sym
-
-
-def apply_gate1(psi: MPS, U1: np.ndarray, site: int) -> None:
-    r"""Apply a single-site gate to a
-    `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-    wavefunction.
-
-    Args:
-        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-        U1: The single-site quantum gate.
-        site: The gate will be applied to `site` on the
-            `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-
-    Returns:
-        None
-    """
-
-    # apply single-site gate
-    U1_npc = npc.Array.from_ndarray(U1, [shfs.leg, shfs.leg.conj()], labels=["p", "p*"])
-    psi.apply_local_op(site, U1_npc)
-
-
-def apply_gate2(
-    psi: MPS,
-    U2: np.ndarray,
-    sites: tuple[int, int],
-    *,
-    eng: TEBDEngine,
-    chi_list: list,
-    norm_tol: float = 1e-5,
-) -> None:
-    r"""Apply a two-site gate to a `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-    wavefunction.
-
-    Args:
-        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-        U2: The two-site quantum gate.
-        sites: The gate will be applied to adjacent sites `(site1, site2)` on the
-            `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-        eng: The
-            `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
-        chi_list: The list to which to append the MPS bond dimensions as the circuit is
-            evaluated.
-        norm_tol: The norm error above which we recanonicalize the wavefunction, as
-            defined in the
-            `TeNPy documentation <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.dmrg.DMRGEngine.html#cfg-option-DMRGEngine.norm_tol>`__.
-
-    Returns:
-        None
-    """
-
-    # check that sites are adjacent
-    if abs(sites[0] - sites[1]) != 1:
-        raise ValueError("sites must be adjacent")
-
-    # check whether to transpose gate
-    if sites[0] > sites[1]:
-        U2 = U2.T
-
-    # apply NN gate between (site1, site2)
-    U2_npc = npc.Array.from_ndarray(
-        U2, [shfsc, shfsc.conj()], labels=["(p0.p1)", "(p0*.p1*)"]
-    )
-    U2_npc_split = U2_npc.split_legs()
-    eng.update_bond(max(sites), U2_npc_split)
-    chi_list.append(psi.chi)
-
-    # recanonicalize psi if below error threshold
-    if np.linalg.norm(psi.norm_test()) > norm_tol:
-        psi.canonical_form_finite()
-
-
-def apply_orbital_rotation(
-    psi: MPS,
-    mat: np.ndarray,
-    *,
-    eng: TEBDEngine,
-    chi_list: list,
-    norm_tol: float = 1e-5,
-) -> None:
-    r"""Apply an orbital rotation gate to a
-    `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-    wavefunction.
-
-    The orbital rotation gate is defined in
-    `apply_orbital_rotation <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_orbital_rotation>`__.
-
-    Args:
-        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-        mat: The orbital rotation matrix of dimension `(norb, norb)`.
-        eng: The
-            `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
-        chi_list: The list to which to append the MPS bond dimensions as the circuit is
-            evaluated.
-        norm_tol: The norm error above which we recanonicalize the wavefunction, as
-            defined in the
-            `TeNPy documentation <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.dmrg.DMRGEngine.html#cfg-option-DMRGEngine.norm_tol>`__.
-
-    Returns:
-        None
-    """
-
-    # Givens decomposition
-    givens_list, diag_mat = givens_decomposition(mat)
-
-    # apply the Givens rotation gates
-    for gate in givens_list:
-        theta = math.acos(gate.c)
-        phi = cmath.phase(gate.s) - np.pi
-        apply_gate2(
-            psi,
-            givens_rotation(theta, Spin.ALPHA_AND_BETA, phi=phi),
-            (gate.i, gate.j),
-            eng=eng,
-            chi_list=chi_list,
-            norm_tol=norm_tol,
-        )
-
-    # apply the number interaction gates
-    for i, z in enumerate(diag_mat):
-        theta = cmath.phase(z)
-        apply_gate1(psi, num_interaction(-theta, Spin.ALPHA_AND_BETA), i)
-
-
-def apply_diag_coulomb_evolution(
-    psi: MPS,
-    mat: np.ndarray,
-    *,
-    eng: TEBDEngine,
-    chi_list: list,
-    norm_tol: float = 1e-5,
-) -> None:
-    r"""Apply a diagonal Coulomb evolution gate to a
-    `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-    wavefunction.
-
-    The diagonal Coulomb evolution gate is defined in
-    `apply_diag_coulomb_evolution <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_diag_coulomb_evolution>`__.
-
-    Args:
-        psi: The `TeNPy MPS <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS>`__
-            wavefunction.
-        mat: The diagonal Coulomb matrices of dimension `(2, norb, norb)`.
-        eng: The
-            `TeNPy TEBDEngine <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.tebd.TEBDEngine.html#tenpy.algorithms.tebd.TEBDEngine>`__.
-        chi_list: The list to which to append the MPS bond dimensions as the circuit is
-            evaluated.
-        norm_tol: The norm error above which we recanonicalize the wavefunction, as
-            defined in the
-            `TeNPy documentation <https://tenpy.readthedocs.io/en/latest/reference/tenpy.algorithms.dmrg.DMRGEngine.html#cfg-option-DMRGEngine.norm_tol>`__.
-
-    Returns:
-        None
-    """
-
-    # extract norb
-    _, norb, _ = mat.shape
-
-    # unpack alpha-alpha and alpha-beta matrices
-    mat_aa, mat_ab = mat
-
-    # apply alpha-alpha gates
-    for i, j in itertools.product(range(norb), repeat=2):
-        if j > i and mat_aa[i, j]:
-            apply_gate2(
-                psi,
-                num_num_interaction(-mat_aa[i, j], Spin.ALPHA_AND_BETA),
-                (i, j),
-                eng=eng,
-                chi_list=chi_list,
-                norm_tol=norm_tol,
-            )
-
-    # apply alpha-beta gates
-    for i in range(norb):
-        apply_gate1(psi, on_site_interaction(-mat_ab[i, i]), i)

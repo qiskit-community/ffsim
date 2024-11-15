@@ -153,3 +153,21 @@ def assert_allclose_up_to_global_phase(
         err_msg=err_msg,
         verbose=verbose,
     )
+
+
+def interaction_pairs_spin_balanced(
+    connectivity: str, norb: int
+) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
+    """Returns alpha-alpha and alpha-beta diagonal Coulomb interaction pairs."""
+    if connectivity == "square":
+        pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+        pairs_ab = [(p, p) for p in range(norb)]
+    elif connectivity == "hex":
+        pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+        pairs_ab = [(p, p) for p in range(norb) if p % 2 == 0]
+    elif connectivity == "heavy-hex":
+        pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+        pairs_ab = [(p, p) for p in range(norb) if p % 4 == 0]
+    else:
+        raise ValueError(f"Invalid connectivity: {connectivity}")
+    return pairs_aa, pairs_ab
