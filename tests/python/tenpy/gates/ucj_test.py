@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for TeNPy unitary cluster Jastrow gate."""
+"""Tests for the TeNPy unitary cluster Jastrow gate."""
 
 import numpy as np
 import pytest
@@ -53,7 +53,7 @@ from ffsim.testing import interaction_pairs_spin_balanced
 def test_apply_ucj_op_spin_balanced(
     norb: int, nelec: tuple[int, int], n_reps: int, connectivity: str
 ):
-    """Test LUCJ circuit MPS construction."""
+    """Test applying a spin-balanced unitary cluster Jastrow gate to an MPS."""
     rng = np.random.default_rng()
 
     # generate a random molecular Hamiltonian

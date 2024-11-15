@@ -127,7 +127,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
             molecular_hamiltonian: The molecular Hamiltonian.
 
         Returns:
-            The molecular Hamiltonian as a `TeNPy MPOModel <https://tenpy.readthedocs.io/en/stable/reference/tenpy.models.model.MPOModel.html#tenpy.models.model.MPOModel>`__.
+            The molecular Hamiltonian as an MPO model.
         """
 
         model_params = dict(

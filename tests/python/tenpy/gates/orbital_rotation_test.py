@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for TeNPy orbital rotation gate."""
+"""Tests for the TeNPy orbital rotation gate."""
 
 from copy import deepcopy
 
@@ -34,7 +34,7 @@ def test_apply_orbital_rotation(
     norb: int,
     nelec: tuple[int, int],
 ):
-    """Test applying orbital rotation to MPS."""
+    """Test applying an orbital rotation gate to an MPS."""
     rng = np.random.default_rng()
 
     # generate a random molecular Hamiltonian

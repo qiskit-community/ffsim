@@ -24,11 +24,11 @@ def apply_ucj_op_spin_balanced(
     *,
     norm_tol: float = 1e-5,
 ) -> None:
-    r"""Construct the LUCJ circuit as an MPS.
+    r"""Apply a spin-balanced unitary cluster Jastrow gate to an MPS.
 
     Args:
         eng: The TEBD engine.
-        ucj_op: The LUCJ operator.
+        ucj_op: The spin-balanced unitary cluster Jastrow operator.
         norm_tol: The norm error above which we recanonicalize the MPS.
 
     Returns:
