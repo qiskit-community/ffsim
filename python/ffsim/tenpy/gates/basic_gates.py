@@ -19,7 +19,7 @@ from ffsim.spin import Spin
 # ruff: noqa: N806
 
 
-def _sym_cons_basic(gate: np.ndarray) -> np.ndarray:
+def _sym_cons_basis(gate: np.ndarray) -> np.ndarray:
     r"""Convert a gate to the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -126,7 +126,7 @@ def givens_rotation(
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    Ggate_sym = _sym_cons_basic(Ggate)
+    Ggate_sym = _sym_cons_basis(Ggate)
 
     return Ggate_sym
 
@@ -178,7 +178,7 @@ def num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarra
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    Ngate_sym = _sym_cons_basic(Ngate)
+    Ngate_sym = _sym_cons_basis(Ngate)
 
     return Ngate_sym
 
@@ -203,7 +203,7 @@ def on_site_interaction(theta: float) -> np.ndarray:
     OSgate[3, 3] = cmath.exp(1j * theta)
 
     # convert to (N, Sz)-symmetry-conserved basis
-    OSgate_sym = _sym_cons_basic(OSgate)
+    OSgate_sym = _sym_cons_basis(OSgate)
 
     return OSgate_sym
 
@@ -256,6 +256,6 @@ def num_num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.nd
         raise ValueError("undefined spin")
 
     # convert to (N, Sz)-symmetry-conserved basis
-    NNgate_sym = _sym_cons_basic(NNgate)
+    NNgate_sym = _sym_cons_basis(NNgate)
 
     return NNgate_sym
