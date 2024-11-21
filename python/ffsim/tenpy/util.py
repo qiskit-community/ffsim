@@ -14,22 +14,21 @@ from tenpy.networks.mps import MPS
 from tenpy.networks.site import SpinHalfFermionSite
 
 
-def bitstring_to_mps(bitstring: tuple[str, str]) -> MPS:
+def bitstring_to_mps(bitstring: tuple[int, int], norb: int) -> MPS:
     r"""Return the bitstring as an MPS.
 
     Args:
-        bitstring: The bitstring in the form `(string_a, string_b)`.
+        bitstring: The bitstring in the form `(int_a, int_b)`.
+        norb: The number of spatial orbitals.
 
     Returns:
         The bitstring as an MPS.
     """
 
     # unpack bitstrings
-    string_a, string_b = bitstring
-
-    # extract norb
-    assert len(string_a) == len(string_b)
-    norb = len(string_a)
+    int_a, int_b = bitstring
+    string_a = f"{int_a:0{norb}b}"
+    string_b = f"{int_b:0{norb}b}"
 
     # merge bitstrings
     up_sector = string_a.replace("1", "u")

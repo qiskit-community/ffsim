@@ -27,14 +27,14 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
     """Molecular Hamiltonian."""
 
     def init_sites(self, params):
-        cons_N = params.get("cons_N", "N")
-        cons_Sz = params.get("cons_Sz", "Sz")
+        cons_N = params.get("cons_N", "N", expect_type=str)
+        cons_Sz = params.get("cons_Sz", "Sz", expect_type=str)
         site = SpinHalfFermionSite(cons_N=cons_N, cons_Sz=cons_Sz)
         return site
 
     def init_lattice(self, params):
-        L = params.get("L", 1)
-        norb = params.get("norb", 4)
+        L = params.get("L", 1, expect_type=int)
+        norb = params.get("norb", None, expect_type=int)
         site = self.init_sites(params)
         basis = np.array(([norb, 0.0], [0, 1]))
         pos = np.array([[i, 0] for i in range(norb)])
@@ -51,12 +51,14 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
     def init_terms(self, params):
         dx0 = np.array([0, 0])
-        norb = params.get("norb", 4)
-        one_body_tensor = params.get("one_body_tensor", np.zeros((norb, norb)))
-        two_body_tensor = params.get(
-            "two_body_tensor", np.zeros((norb, norb, norb, norb))
+        norb = params.get("norb", None, expect_type=int)
+        one_body_tensor = params.get(
+            "one_body_tensor", np.zeros((norb, norb)), expect_type="array"
         )
-        constant = params.get("constant", 0)
+        two_body_tensor = params.get(
+            "two_body_tensor", np.zeros((norb, norb, norb, norb)), expect_type="array"
+        )
+        constant = params.get("constant", 0, expect_type="real")
 
         for p, q in itertools.product(range(norb), repeat=2):
             h1 = one_body_tensor[q, p]
@@ -131,9 +133,6 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
         """
 
         model_params = dict(
-            cons_N="N",
-            cons_Sz="Sz",
-            L=1,
             norb=molecular_hamiltonian.norb,
             one_body_tensor=molecular_hamiltonian.one_body_tensor,
             two_body_tensor=molecular_hamiltonian.two_body_tensor,

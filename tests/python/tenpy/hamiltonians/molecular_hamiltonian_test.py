@@ -55,7 +55,9 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
         bitstring_type=ffsim.BitstringType.STRING,
         concatenate=False,
     )
-    product_state_mps = bitstring_to_mps((strings_a[idx], strings_b[idx]))
+    product_state_mps = bitstring_to_mps(
+        (int(strings_a[idx], 2), int(strings_b[idx], 2)), norb
+    )
 
     # test expectation is preserved
     original_expectation = np.vdot(product_state, hamiltonian @ product_state)

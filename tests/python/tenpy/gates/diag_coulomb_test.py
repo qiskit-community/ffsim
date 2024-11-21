@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests for the TeNPy orbital rotation gate."""
+"""Tests for the TeNPy diagonal Coulomb evolution gate."""
 
 from copy import deepcopy
 
@@ -29,11 +29,11 @@ from ffsim.tenpy.util import bitstring_to_mps
         (4, (0, 0)),
     ],
 )
-def test_apply_orbital_rotation(
+def test_apply_diag_coulomb_evolution(
     norb: int,
     nelec: tuple[int, int],
 ):
-    """Test applying an orbital rotation gate to an MPS."""
+    """Test applying a diagonal Coulomb evolution gate to an MPS."""
     rng = np.random.default_rng()
 
     # generate a random product state
@@ -53,18 +53,23 @@ def test_apply_orbital_rotation(
     mps = bitstring_to_mps((int(strings_a[idx], 2), int(strings_b[idx], 2)), norb)
     original_mps = deepcopy(mps)
 
-    # generate a random orbital rotation
-    mat = ffsim.random.random_unitary(norb, seed=rng)
+    # generate random diagonal Coulomb evolution parameters
+    mat_aa = np.diag(rng.standard_normal(norb - 1), k=-1)
+    mat_aa += mat_aa.T
+    mat_ab = np.diag(rng.standard_normal(norb))
+    diag_coulomb_mats = np.array([mat_aa, mat_ab, mat_aa])
 
-    # apply random orbital rotation to state vector
-    vec = ffsim.apply_orbital_rotation(original_vec, mat, norb, nelec)
+    # apply random diagonal Coulomb evolution to state vector
+    vec = ffsim.apply_diag_coulomb_evolution(
+        original_vec, diag_coulomb_mats, 1, norb, nelec
+    )
 
-    # apply random orbital rotation to MPS
+    # apply random diagonal Coulomb evolution to MPS
     options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
     eng = TEBDEngine(mps, None, options)
-    ffsim.tenpy.apply_orbital_rotation(eng, mat)
+    ffsim.tenpy.apply_diag_coulomb_evolution(eng, diag_coulomb_mats[:2])
 
     # test expectation is preserved
     original_expectation = np.vdot(original_vec, vec)
-    mpo_expectation = mps.overlap(original_mps)
+    mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)

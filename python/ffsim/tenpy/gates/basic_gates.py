@@ -44,7 +44,9 @@ def _sym_cons_basic(gate: np.ndarray) -> np.ndarray:
     return gate[perm][:, perm]
 
 
-def givens_rotation(theta: float, spin: Spin, *, phi: float = 0.0) -> np.ndarray:
+def givens_rotation(
+    theta: float, spin: Spin = Spin.ALPHA_AND_BETA, *, phi: float = 0.0
+) -> np.ndarray:
     r"""The Givens rotation gate.
 
     The Givens rotation gate as defined in
@@ -129,7 +131,7 @@ def givens_rotation(theta: float, spin: Spin, *, phi: float = 0.0) -> np.ndarray
     return Ggate_sym
 
 
-def num_interaction(theta: float, spin: Spin) -> np.ndarray:
+def num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarray:
     r"""The number interaction gate.
 
     The number interaction gate as defined in
@@ -206,7 +208,7 @@ def on_site_interaction(theta: float) -> np.ndarray:
     return OSgate_sym
 
 
-def num_num_interaction(theta: float, spin: Spin) -> np.ndarray:
+def num_num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarray:
     r"""The number-number interaction gate.
 
     The number-number interaction gate as defined in

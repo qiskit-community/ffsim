@@ -15,8 +15,7 @@ import numpy as np
 from tenpy.algorithms.tebd import TEBDEngine
 
 from ffsim.linalg import givens_decomposition
-from ffsim.spin import Spin
-from ffsim.tenpy.gates.abstract_gates import apply_gate1, apply_gate2
+from ffsim.tenpy.gates.abstract_gates import apply_single_site, apply_two_site
 from ffsim.tenpy.gates.basic_gates import givens_rotation, num_interaction
 
 
@@ -47,9 +46,9 @@ def apply_orbital_rotation(
     for gate in givens_list:
         theta = math.acos(gate.c)
         phi = cmath.phase(gate.s) - np.pi
-        apply_gate2(
+        apply_two_site(
             eng,
-            givens_rotation(theta, Spin.ALPHA_AND_BETA, phi=phi),
+            givens_rotation(theta, phi=phi),
             (gate.i, gate.j),
             norm_tol=norm_tol,
         )
@@ -57,4 +56,4 @@ def apply_orbital_rotation(
     # apply the number interaction gates
     for i, z in enumerate(diag_mat):
         theta = cmath.phase(z)
-        apply_gate1(eng, num_interaction(-theta, Spin.ALPHA_AND_BETA), i)
+        apply_single_site(eng, num_interaction(-theta), i)

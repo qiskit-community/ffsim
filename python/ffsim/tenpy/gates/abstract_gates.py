@@ -23,7 +23,7 @@ shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
 shfsc = LegPipe([shfs.leg, shfs.leg])
 
 
-def apply_gate1(eng: TEBDEngine, U1: np.ndarray, site: int) -> None:
+def apply_single_site(eng: TEBDEngine, U1: np.ndarray, site: int) -> None:
     r"""Apply a single-site gate to an MPS.
 
     Args:
@@ -41,7 +41,7 @@ def apply_gate1(eng: TEBDEngine, U1: np.ndarray, site: int) -> None:
     psi.apply_local_op(site, U1_npc)
 
 
-def apply_gate2(
+def apply_two_site(
     eng: TEBDEngine,
     U2: np.ndarray,
     sites: tuple[int, int],

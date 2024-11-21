@@ -82,15 +82,8 @@ def test_apply_ucj_op_spin_balanced(
     lucj_state = ffsim.apply_unitary(hf_state, lucj_op, norb, nelec)
 
     # generate the corresponding LUCJ circuit MPS
-    dim = ffsim.dim(norb, nelec)
-    strings_a, strings_b = ffsim.addresses_to_strings(
-        range(dim),
-        norb=norb,
-        nelec=nelec,
-        bitstring_type=ffsim.BitstringType.STRING,
-        concatenate=False,
-    )
-    wavefunction_mps = bitstring_to_mps((strings_a[0], strings_b[0]))
+    n_alpha, n_beta = nelec
+    wavefunction_mps = bitstring_to_mps(((1 << n_alpha) - 1, (1 << n_beta) - 1), norb)
     options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
     eng = TEBDEngine(wavefunction_mps, None, options)
     apply_ucj_op_spin_balanced(eng, lucj_op)

@@ -11,8 +11,8 @@
 """Code that uses TeNPy, e.g. for emulating quantum circuits."""
 
 from ffsim.tenpy.gates.abstract_gates import (
-    apply_gate1,
-    apply_gate2,
+    apply_single_site,
+    apply_two_site,
 )
 from ffsim.tenpy.gates.basic_gates import (
     givens_rotation,
@@ -29,9 +29,9 @@ from ffsim.tenpy.util import bitstring_to_mps
 __all__ = [
     "apply_ucj_op_spin_balanced",
     "apply_diag_coulomb_evolution",
-    "apply_gate1",
-    "apply_gate2",
     "apply_orbital_rotation",
+    "apply_single_site",
+    "apply_two_site",
     "bitstring_to_mps",
     "givens_rotation",
     "MolecularHamiltonianMPOModel",

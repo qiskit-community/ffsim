@@ -13,8 +13,7 @@ import itertools
 import numpy as np
 from tenpy.algorithms.tebd import TEBDEngine
 
-from ffsim.spin import Spin
-from ffsim.tenpy.gates.abstract_gates import apply_gate1, apply_gate2
+from ffsim.tenpy.gates.abstract_gates import apply_single_site, apply_two_site
 from ffsim.tenpy.gates.basic_gates import num_num_interaction, on_site_interaction
 
 
@@ -47,13 +46,13 @@ def apply_diag_coulomb_evolution(
     # apply alpha-alpha gates
     for i, j in itertools.product(range(norb), repeat=2):
         if j > i and mat_aa[i, j]:
-            apply_gate2(
+            apply_two_site(
                 eng,
-                num_num_interaction(-mat_aa[i, j], Spin.ALPHA_AND_BETA),
+                num_num_interaction(-mat_aa[i, j]),
                 (i, j),
                 norm_tol=norm_tol,
             )
 
     # apply alpha-beta gates
     for i in range(norb):
-        apply_gate1(eng, on_site_interaction(-mat_ab[i, i]), i)
+        apply_single_site(eng, on_site_interaction(-mat_ab[i, i]), i)
