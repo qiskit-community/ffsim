@@ -17,6 +17,7 @@ import pytest
 from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
+from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import bitstring_to_mps
 
 
@@ -49,6 +50,16 @@ def test_apply_diag_coulomb_evolution(norb: int, nelec: tuple[int, int]):
     mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
     # generate random diagonal Coulomb evolution parameters
     mat_aa = np.diag(rng.standard_normal(norb - 1), k=-1)
     mat_aa += mat_aa.T
@@ -66,6 +77,7 @@ def test_apply_diag_coulomb_evolution(norb: int, nelec: tuple[int, int]):
     ffsim.tenpy.apply_diag_coulomb_evolution(eng, diag_coulomb_mats[:2], time)
 
     # test expectation is preserved
-    original_expectation = np.vdot(original_vec, vec)
+    original_expectation = np.vdot(original_vec, hamiltonian @ vec)
+    mol_hamiltonian_mpo.apply_naively(mps)
     mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)

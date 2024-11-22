@@ -17,6 +17,7 @@ import pytest
 from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
+from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import bitstring_to_mps
 
 
@@ -52,6 +53,16 @@ def test_apply_orbital_rotation(
     mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
     # generate a random orbital rotation
     mat = ffsim.random.random_unitary(norb, seed=rng)
 
@@ -63,6 +74,7 @@ def test_apply_orbital_rotation(
     ffsim.tenpy.apply_orbital_rotation(eng, mat)
 
     # test expectation is preserved
-    original_expectation = np.vdot(original_vec, vec)
+    original_expectation = np.vdot(original_vec, hamiltonian @ vec)
+    mol_hamiltonian_mpo.apply_naively(mps)
     mpo_expectation = mps.overlap(original_mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)

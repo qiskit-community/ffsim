@@ -24,6 +24,7 @@ from ffsim.tenpy.gates.basic_gates import (
     num_num_interaction,
     on_site_interaction,
 )
+from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import bitstring_to_mps
 
 
@@ -64,6 +65,16 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
     mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
     # generate random Givens rotation parameters
     theta = 2 * np.pi * rng.random()
     phi = 2 * np.pi * rng.random()
@@ -76,11 +87,12 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
 
     # apply random orbital rotation to MPS
     eng = TEBDEngine(mps, None, {})
-    ffsim.tenpy.apply_two_site(eng, givens_rotation(theta, spin, phi=phi), (p, p + 1))
+    ffsim.tenpy.apply_two_site(eng, givens_rotation(theta, spin, phi=phi), (p + 1, p))
 
     # test expectation is preserved
-    original_expectation = np.vdot(original_vec, vec)
-    mpo_expectation = original_mps.overlap(mps)
+    original_expectation = np.vdot(original_vec, hamiltonian @ vec)
+    mol_hamiltonian_mpo.apply_naively(mps)
+    mpo_expectation = mps.overlap(original_mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)
 
 
@@ -121,6 +133,16 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
     # generate random number interaction parameters
     theta = 2 * np.pi * rng.random()
     p = rng.integers(0, norb)
@@ -133,7 +155,8 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     ffsim.tenpy.apply_single_site(eng, num_interaction(theta, spin), p)
 
     # test expectation is preserved
-    original_expectation = np.vdot(original_vec, vec)
+    original_expectation = np.vdot(original_vec, hamiltonian @ vec)
+    mol_hamiltonian_mpo.apply_naively(mps)
     mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)
 
@@ -170,6 +193,16 @@ def test_on_site_interaction(
     mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
     # generate random on-site interaction parameters
     theta = 2 * np.pi * rng.random()
     p = rng.integers(0, norb)
@@ -182,7 +215,8 @@ def test_on_site_interaction(
     ffsim.tenpy.apply_single_site(eng, on_site_interaction(theta), p)
 
     # test expectation is preserved
-    original_expectation = np.vdot(original_vec, vec)
+    original_expectation = np.vdot(original_vec, hamiltonian @ vec)
+    mol_hamiltonian_mpo.apply_naively(mps)
     mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)
 
@@ -224,6 +258,16 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    # convert molecular Hamiltonian to MPO
+    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
+        mol_hamiltonian
+    )
+    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
     # generate random number-number interaction parameters
     theta = 2 * np.pi * rng.random()
     p = rng.integers(0, norb - 1)
@@ -238,6 +282,7 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     ffsim.tenpy.apply_two_site(eng, num_num_interaction(theta, spin), (p, p + 1))
 
     # test expectation is preserved
-    original_expectation = np.vdot(original_vec, vec)
+    original_expectation = np.vdot(original_vec, hamiltonian @ vec)
+    mol_hamiltonian_mpo.apply_naively(mps)
     mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)
