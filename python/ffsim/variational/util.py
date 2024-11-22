@@ -112,6 +112,8 @@ def orbital_rotation_from_parameters(
 def orbital_rotation_from_t1_amplitudes(t1: np.ndarray) -> np.ndarray:
     """Construct an orbital rotation from t1 amplitudes.
 
+    The orbital rotation is constructed as exp(t1 - t1†).
+
     Args:
         t1: The t1 amplitudes.
 
@@ -122,5 +124,5 @@ def orbital_rotation_from_t1_amplitudes(t1: np.ndarray) -> np.ndarray:
     norb = nocc + nvrt
     generator = np.zeros((norb, norb), dtype=t1.dtype)
     generator[:nocc, nocc:] = t1
-    generator[nocc:, :nocc] = -t1.T
+    generator[nocc:, :nocc] = -t1.T.conj()
     return scipy.linalg.expm(generator)
