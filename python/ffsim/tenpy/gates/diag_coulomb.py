@@ -22,6 +22,7 @@ from ffsim.tenpy.gates.basic_gates import num_num_interaction, on_site_interacti
 def apply_diag_coulomb_evolution(
     eng: TEBDEngine,
     mat: np.ndarray,
+    time: float,
     *,
     norm_tol: float = 1e-5,
 ) -> None:
@@ -33,6 +34,7 @@ def apply_diag_coulomb_evolution(
     Args:
         eng: The TEBD engine.
         mat: The diagonal Coulomb matrices of dimension `(2, norb, norb)`.
+        time: The evolution time.
         norm_tol: The norm error above which we recanonicalize the MPS. In general, the
          application of a two-site gate to an MPS with truncation may degrade its
          canonical form. To mitigate this, we explicitly bring the MPS back into
@@ -54,11 +56,11 @@ def apply_diag_coulomb_evolution(
         if mat_aa[i, j]:
             apply_two_site(
                 eng,
-                num_num_interaction(-mat_aa[i, j]),
+                num_num_interaction(-time * mat_aa[i, j]),
                 (i, j),
                 norm_tol=norm_tol,
             )
 
     # apply alpha-beta gates
     for i in range(norb):
-        apply_single_site(eng, on_site_interaction(-mat_ab[i, i]), i)
+        apply_single_site(eng, on_site_interaction(-time * mat_ab[i, i]), i)

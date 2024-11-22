@@ -29,10 +29,7 @@ from ffsim.tenpy.util import bitstring_to_mps
         (4, (0, 0)),
     ],
 )
-def test_apply_diag_coulomb_evolution(
-    norb: int,
-    nelec: tuple[int, int],
-):
+def test_apply_diag_coulomb_evolution(norb: int, nelec: tuple[int, int]):
     """Test applying a diagonal Coulomb evolution gate to an MPS."""
     rng = np.random.default_rng()
 
@@ -57,16 +54,16 @@ def test_apply_diag_coulomb_evolution(
     mat_aa += mat_aa.T
     mat_ab = np.diag(rng.standard_normal(norb))
     diag_coulomb_mats = np.array([mat_aa, mat_ab, mat_aa])
+    time = rng.random()
 
     # apply random diagonal Coulomb evolution to state vector
     vec = ffsim.apply_diag_coulomb_evolution(
-        original_vec, diag_coulomb_mats, 1, norb, nelec
+        original_vec, diag_coulomb_mats, time, norb, nelec
     )
 
     # apply random diagonal Coulomb evolution to MPS
-    options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    eng = TEBDEngine(mps, None, options)
-    ffsim.tenpy.apply_diag_coulomb_evolution(eng, diag_coulomb_mats[:2])
+    eng = TEBDEngine(mps, None, {})
+    ffsim.tenpy.apply_diag_coulomb_evolution(eng, diag_coulomb_mats[:2], time)
 
     # test expectation is preserved
     original_expectation = np.vdot(original_vec, vec)

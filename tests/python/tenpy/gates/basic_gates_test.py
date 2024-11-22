@@ -75,8 +75,7 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
     )
 
     # apply random orbital rotation to MPS
-    options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    eng = TEBDEngine(mps, None, options)
+    eng = TEBDEngine(mps, None, {})
     ffsim.tenpy.apply_two_site(eng, givens_rotation(theta, spin, phi=phi), (p, p + 1))
 
     # test expectation is preserved
@@ -130,8 +129,7 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     vec = ffsim.apply_num_interaction(original_vec, theta, p, norb, nelec, spin)
 
     # apply random number interaction to MPS
-    options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    eng = TEBDEngine(mps, None, options)
+    eng = TEBDEngine(mps, None, {})
     ffsim.tenpy.apply_single_site(eng, num_interaction(theta, spin), p)
 
     # test expectation is preserved
@@ -180,8 +178,7 @@ def test_on_site_interaction(
     vec = ffsim.apply_on_site_interaction(original_vec, theta, p, norb, nelec)
 
     # apply random on-site interaction to MPS
-    options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    eng = TEBDEngine(mps, None, options)
+    eng = TEBDEngine(mps, None, {})
     ffsim.tenpy.apply_single_site(eng, on_site_interaction(theta), p)
 
     # test expectation is preserved
@@ -237,8 +234,7 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     )
 
     # apply random number-number interaction to MPS
-    options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    eng = TEBDEngine(mps, None, options)
+    eng = TEBDEngine(mps, None, {})
     ffsim.tenpy.apply_two_site(eng, num_num_interaction(theta, spin), (p, p + 1))
 
     # test expectation is preserved

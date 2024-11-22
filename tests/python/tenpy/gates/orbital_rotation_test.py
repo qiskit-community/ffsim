@@ -59,8 +59,7 @@ def test_apply_orbital_rotation(
     vec = ffsim.apply_orbital_rotation(original_vec, mat, norb, nelec)
 
     # apply random orbital rotation to MPS
-    options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
-    eng = TEBDEngine(mps, None, options)
+    eng = TEBDEngine(mps, None, {})
     ffsim.tenpy.apply_orbital_rotation(eng, mat)
 
     # test expectation is preserved
