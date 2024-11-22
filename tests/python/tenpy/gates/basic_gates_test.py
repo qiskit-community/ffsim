@@ -51,18 +51,17 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
     # generate a random product state
     dim = ffsim.dim(norb, nelec)
     idx = rng.integers(0, high=dim)
-    original_vec = np.zeros(dim, dtype=complex)
-    original_vec[idx] = 1
+    original_vec = ffsim.linalg.one_hot(dim, idx)
 
     # convert random product state to MPS
     strings_a, strings_b = ffsim.addresses_to_strings(
-        range(dim),
+        [idx],
         norb=norb,
         nelec=nelec,
         bitstring_type=ffsim.BitstringType.STRING,
         concatenate=False,
     )
-    mps = bitstring_to_mps((int(strings_a[idx], 2), int(strings_b[idx], 2)), norb)
+    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
     # generate random Givens rotation parameters
@@ -110,18 +109,17 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     # generate a random product state
     dim = ffsim.dim(norb, nelec)
     idx = rng.integers(0, high=dim)
-    original_vec = np.zeros(dim, dtype=complex)
-    original_vec[idx] = 1
+    original_vec = ffsim.linalg.one_hot(dim, idx)
 
     # convert random product state to MPS
     strings_a, strings_b = ffsim.addresses_to_strings(
-        range(dim),
+        [idx],
         norb=norb,
         nelec=nelec,
         bitstring_type=ffsim.BitstringType.STRING,
         concatenate=False,
     )
-    mps = bitstring_to_mps((int(strings_a[idx], 2), int(strings_b[idx], 2)), norb)
+    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
     # generate random number interaction parameters
@@ -161,18 +159,17 @@ def test_on_site_interaction(
     # generate a random product state
     dim = ffsim.dim(norb, nelec)
     idx = rng.integers(0, high=dim)
-    original_vec = np.zeros(dim, dtype=complex)
-    original_vec[idx] = 1
+    original_vec = ffsim.linalg.one_hot(dim, idx)
 
     # convert random product state to MPS
     strings_a, strings_b = ffsim.addresses_to_strings(
-        range(dim),
+        [idx],
         norb=norb,
         nelec=nelec,
         bitstring_type=ffsim.BitstringType.STRING,
         concatenate=False,
     )
-    mps = bitstring_to_mps((int(strings_a[idx], 2), int(strings_b[idx], 2)), norb)
+    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
     # generate random on-site interaction parameters
@@ -217,18 +214,17 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     # generate a random product state
     dim = ffsim.dim(norb, nelec)
     idx = rng.integers(0, high=dim)
-    original_vec = np.zeros(dim, dtype=complex)
-    original_vec[idx] = 1
+    original_vec = ffsim.linalg.one_hot(dim, idx)
 
     # convert random product state to MPS
     strings_a, strings_b = ffsim.addresses_to_strings(
-        range(dim),
+        [idx],
         norb=norb,
         nelec=nelec,
         bitstring_type=ffsim.BitstringType.STRING,
         concatenate=False,
     )
-    mps = bitstring_to_mps((int(strings_a[idx], 2), int(strings_b[idx], 2)), norb)
+    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
     original_mps = deepcopy(mps)
 
     # generate random number-number interaction parameters

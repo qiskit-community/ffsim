@@ -8,6 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""TeNPy abstract gates."""
 
 import numpy as np
 import tenpy.linalg.np_conserved as npc
@@ -27,15 +28,13 @@ def apply_single_site(eng: TEBDEngine, U1: np.ndarray, site: int) -> None:
     r"""Apply a single-site gate to an MPS.
 
     Args:
-        eng: The TEBD Engine.
+        eng: The TEBD engine.
         U1: The single-site quantum gate.
         site: The gate will be applied to `site` on the MPS.
 
     Returns:
         None
     """
-
-    # apply single-site gate
     U1_npc = npc.Array.from_ndarray(U1, [shfs.leg, shfs.leg.conj()], labels=["p", "p*"])
     psi = eng.get_resume_data()["psi"]
     psi.apply_local_op(site, U1_npc)
@@ -51,10 +50,14 @@ def apply_two_site(
     r"""Apply a two-site gate to an MPS.
 
     Args:
-        eng: The TEBD Engine.
+        eng: The TEBD engine.
         U2: The two-site quantum gate.
         sites: The gate will be applied to adjacent sites `(site1, site2)` on the MPS.
-        norm_tol: The norm error above which we recanonicalize the MPS.
+        norm_tol: The norm error above which we recanonicalize the MPS. In general, the
+         application of a two-site gate to an MPS with truncation may degrade its
+         canonical form. To mitigate this, we explicitly bring the MPS back into
+         canonical form, if the Frobenius norm of the `site-resolved norm errors array <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS.norm_test>`_
+         is greater than `norm_tol`.
 
     Returns:
         None

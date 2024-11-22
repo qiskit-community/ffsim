@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""TeNPy unitary cluster Jastrow gate."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -26,10 +28,17 @@ def apply_ucj_op_spin_balanced(
 ) -> None:
     r"""Apply a spin-balanced unitary cluster Jastrow gate to an MPS.
 
+    The spin-balanced unitary cluster Jastrow gate is defined in
+    :class:`~ffsim.variational.ucj_spin_balanced.UCJOpSpinBalanced`.
+
     Args:
         eng: The TEBD engine.
         ucj_op: The spin-balanced unitary cluster Jastrow operator.
-        norm_tol: The norm error above which we recanonicalize the MPS.
+        norm_tol: The norm error above which we recanonicalize the MPS. In general, the
+         application of a two-site gate to an MPS with truncation may degrade its
+         canonical form. To mitigate this, we explicitly bring the MPS back into
+         canonical form, if the Frobenius norm of the `site-resolved norm errors array <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS.norm_test>`_
+         is greater than `norm_tol`.
 
     Returns:
         None

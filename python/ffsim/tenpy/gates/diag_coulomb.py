@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""TeNPy diagonal Coulomb evolution gate."""
+
 import itertools
 
 import numpy as np
@@ -26,12 +28,16 @@ def apply_diag_coulomb_evolution(
     r"""Apply a diagonal Coulomb evolution gate to an MPS.
 
     The diagonal Coulomb evolution gate is defined in
-    `apply_diag_coulomb_evolution <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_diag_coulomb_evolution>`__.
+    :func:`~ffsim.apply_diag_coulomb_evolution`.
 
     Args:
-        eng: The TEBD Engine.
+        eng: The TEBD engine.
         mat: The diagonal Coulomb matrices of dimension `(2, norb, norb)`.
-        norm_tol: The norm error above which we recanonicalize the MPS.
+        norm_tol: The norm error above which we recanonicalize the MPS. In general, the
+         application of a two-site gate to an MPS with truncation may degrade its
+         canonical form. To mitigate this, we explicitly bring the MPS back into
+         canonical form, if the Frobenius norm of the `site-resolved norm errors array <https://tenpy.readthedocs.io/en/latest/reference/tenpy.networks.mps.MPS.html#tenpy.networks.mps.MPS.norm_test>`_
+         is greater than `norm_tol`.
 
     Returns:
         None
@@ -44,8 +50,8 @@ def apply_diag_coulomb_evolution(
     mat_aa, mat_ab = mat
 
     # apply alpha-alpha gates
-    for i, j in itertools.product(range(norb), repeat=2):
-        if j > i and mat_aa[i, j]:
+    for i, j in itertools.combinations(range(norb), 2):
+        if mat_aa[i, j]:
             apply_two_site(
                 eng,
                 num_num_interaction(-mat_aa[i, j]),

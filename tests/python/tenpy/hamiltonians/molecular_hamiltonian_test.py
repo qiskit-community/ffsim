@@ -44,19 +44,18 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
     # generate a random product state
     dim = ffsim.dim(norb, nelec)
     idx = rng.integers(0, high=dim)
-    product_state = np.zeros(dim)
-    product_state[idx] = 1
+    product_state = ffsim.linalg.one_hot(dim, idx)
 
     # convert product state to MPS
     strings_a, strings_b = ffsim.addresses_to_strings(
-        range(dim),
+        [idx],
         norb=norb,
         nelec=nelec,
         bitstring_type=ffsim.BitstringType.STRING,
         concatenate=False,
     )
     product_state_mps = bitstring_to_mps(
-        (int(strings_a[idx], 2), int(strings_b[idx], 2)), norb
+        (int(strings_a[0], 2), int(strings_b[0], 2)), norb
     )
 
     # test expectation is preserved

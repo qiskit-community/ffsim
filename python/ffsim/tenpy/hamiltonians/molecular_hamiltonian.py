@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""TeNPy molecular Hamiltonian."""
+
 from __future__ import annotations
 
 import itertools
@@ -26,39 +28,32 @@ from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 class MolecularHamiltonianMPOModel(CouplingMPOModel):
     """Molecular Hamiltonian."""
 
-    def init_sites(self, params):
-        cons_N = params.get("cons_N", "N", expect_type=str)
-        cons_Sz = params.get("cons_Sz", "Sz", expect_type=str)
-        site = SpinHalfFermionSite(cons_N=cons_N, cons_Sz=cons_Sz)
-        return site
+    def init_sites(self, params) -> SpinHalfFermionSite:
+        """Initialize sites."""
+        return SpinHalfFermionSite()
 
-    def init_lattice(self, params):
-        L = params.get("L", 1, expect_type=int)
-        norb = params.get("norb", None, expect_type=int)
+    def init_lattice(self, params) -> Lattice:
+        """Initialize lattice."""
+        one_body_tensor = params.get("one_body_tensor", None, expect_type="array")
+        norb = one_body_tensor.shape[0]
         site = self.init_sites(params)
-        basis = np.array(([norb, 0.0], [0, 1]))
+        basis = np.array(([norb, 0], [0, 1]))
         pos = np.array([[i, 0] for i in range(norb)])
         lat = Lattice(
-            [L, 1],
+            [1, 1],
             [site] * norb,
-            order="default",
-            bc="open",
-            bc_MPS="finite",
             basis=basis,
             positions=pos,
         )
         return lat
 
-    def init_terms(self, params):
+    def init_terms(self, params) -> None:
+        """Initialize terms."""
         dx0 = np.array([0, 0])
-        norb = params.get("norb", None, expect_type=int)
-        one_body_tensor = params.get(
-            "one_body_tensor", np.zeros((norb, norb)), expect_type="array"
-        )
-        two_body_tensor = params.get(
-            "two_body_tensor", np.zeros((norb, norb, norb, norb)), expect_type="array"
-        )
+        one_body_tensor = params.get("one_body_tensor", None, expect_type="array")
+        two_body_tensor = params.get("two_body_tensor", None, expect_type="array")
         constant = params.get("constant", 0, expect_type="real")
+        norb = one_body_tensor.shape[0]
 
         for p, q in itertools.product(range(norb), repeat=2):
             h1 = one_body_tensor[q, p]
@@ -133,7 +128,6 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
         """
 
         model_params = dict(
-            norb=molecular_hamiltonian.norb,
             one_body_tensor=molecular_hamiltonian.one_body_tensor,
             two_body_tensor=molecular_hamiltonian.two_body_tensor,
             constant=molecular_hamiltonian.constant,

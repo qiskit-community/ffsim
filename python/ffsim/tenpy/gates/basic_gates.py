@@ -8,6 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""TeNPy basic gates."""
+
 import cmath
 import math
 
@@ -30,15 +32,16 @@ def _sym_cons_basis(gate: np.ndarray) -> np.ndarray:
     """
 
     # convert to (N, Sz)-symmetry-conserved basis
-    if gate.shape == (4, 4):  # 1-site gate
+    if gate.shape == (4, 4):  # single-site gate
         # swap = [1, 3, 0, 2]
         perm = [2, 0, 3, 1]
-    elif gate.shape == (16, 16):  # 2-site gate
+    elif gate.shape == (16, 16):  # two-site gate
         # swap = [5, 11, 2, 7, 12, 15, 9, 14, 1, 6, 0, 3, 8, 13, 4, 10]
         perm = [10, 8, 2, 11, 14, 0, 9, 3, 12, 6, 15, 1, 4, 13, 7, 5]
     else:
         raise ValueError(
-            "only 1-site and 2-site gates implemented for symmetry basis conversion"
+            "only single-site and two-site gates implemented for symmetry basis "
+            "conversion"
         )
 
     return gate[perm][:, perm]
@@ -49,8 +52,7 @@ def givens_rotation(
 ) -> np.ndarray:
     r"""The Givens rotation gate.
 
-    The Givens rotation gate as defined in
-    `apply_givens_rotation <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_givens_rotation>`__,
+    The Givens rotation gate defined in :func:`~ffsim.apply_givens_rotation`,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -67,6 +69,10 @@ def givens_rotation(
         The Givens rotation gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
+    # define parameters
+    c = math.cos(theta)
+    s = -cmath.exp(-1j * phi) * math.sin(theta)
+
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
         # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
@@ -77,11 +83,9 @@ def givens_rotation(
         #     )
         #     @ np.kron(sp.linalg.expm(-1j * phi * Nu), Id)
         # )
-        Ggate_a = np.eye(16, dtype=complex)
-        c = math.cos(theta)
-        for i in [1, 3, 4, 6, 9, 11, 12, 14]:
-            Ggate_a[i, i] = c
-        s = -cmath.exp(-1j * phi) * math.sin(theta)
+        Ggate_a = np.diag(
+            np.array([1, c, 1, c, c, 1, c, 1, 1, c, 1, c, c, 1, c, 1], dtype=complex)
+        )
         Ggate_a[1, 4] = -s
         Ggate_a[3, 6] = -s
         Ggate_a[9, 12] = s
@@ -101,11 +105,9 @@ def givens_rotation(
         #     )
         #     @ np.kron(sp.linalg.expm(-1j * phi * Nd), Id)
         # )
-        Ggate_b = np.eye(16, dtype=complex)
-        c = math.cos(theta)
-        for i in [2, 3, 6, 7, 8, 9, 12, 13]:
-            Ggate_b[i, i] = c
-        s = -cmath.exp(-1j * phi) * math.sin(theta)
+        Ggate_b = np.diag(
+            np.array([1, 1, c, c, 1, 1, c, c, c, c, 1, 1, c, c, 1, 1], dtype=complex)
+        )
         Ggate_b[2, 8] = -s
         Ggate_b[3, 9] = s
         Ggate_b[6, 12] = -s
@@ -134,8 +136,7 @@ def givens_rotation(
 def num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarray:
     r"""The number interaction gate.
 
-    The number interaction gate as defined in
-    `apply_num_interaction <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_num_interaction>`__,
+    The number interaction gate defined in :func:`~ffsim.apply_num_interaction`,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -151,21 +152,20 @@ def num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarra
         The number interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
 
+    # define parameters
+    e = cmath.exp(1j * theta)
+
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
         # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # Ngate_a = sp.linalg.expm(1j * theta * Nu)
-        Ngate_a = np.eye(4, dtype=complex)
-        for i in [1, 3]:
-            Ngate_a[i, i] = cmath.exp(1j * theta)
+        Ngate_a = np.diag([1, e, 1, e])
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
         # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # Ngate_b = sp.linalg.expm(1j * theta * Nd)
-        Ngate_b = np.eye(4, dtype=complex)
-        for i in [2, 3]:
-            Ngate_b[i, i] = cmath.exp(1j * theta)
+        Ngate_b = np.diag([1, 1, e, e])
 
     # define total gate
     if spin is Spin.ALPHA:
@@ -186,8 +186,7 @@ def num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarra
 def on_site_interaction(theta: float) -> np.ndarray:
     r"""The on-site interaction gate.
 
-    The on-site interaction gate as defined in
-    `apply_on_site_interaction <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_on_site_interaction>`__,
+    The on-site interaction gate defined in :func:`~ffsim.apply_on_site_interaction`,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -199,8 +198,8 @@ def on_site_interaction(theta: float) -> np.ndarray:
 
     # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
     # OSgate = sp.linalg.expm(1j * theta * Nu @ Nd)
-    OSgate = np.eye(4, dtype=complex)
-    OSgate[3, 3] = cmath.exp(1j * theta)
+    e = cmath.exp(1j * theta)
+    OSgate = np.diag([1, 1, 1, e])
 
     # convert to (N, Sz)-symmetry-conserved basis
     OSgate_sym = _sym_cons_basis(OSgate)
@@ -211,9 +210,9 @@ def on_site_interaction(theta: float) -> np.ndarray:
 def num_num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarray:
     r"""The number-number interaction gate.
 
-    The number-number interaction gate as defined in
-    `apply_num_num_interaction <https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.apply_num_num_interaction>`__,
-    returned in the TeNPy (N, Sz)-symmetry-conserved basis.
+    The number-number interaction gate defined in
+    :func:`~ffsim.apply_num_num_interaction`, returned in the TeNPy
+    (N, Sz)-symmetry-conserved basis.
 
     Args:
         theta: The rotation angle.
@@ -229,21 +228,20 @@ def num_num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.nd
         basis.
     """
 
+    # define parameters
+    e = cmath.exp(1j * theta)
+
     # alpha sector / up spins
     if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
         # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # NNgate_a = sp.linalg.expm(1j * theta * np.kron(Nu, Nu))
-        NNgate_a = np.eye(16, dtype=complex)
-        for i in [5, 7, 13, 15]:
-            NNgate_a[i, i] = cmath.exp(1j * theta)
+        NNgate_a = np.diag([1, 1, 1, 1, 1, e, 1, e, 1, 1, 1, 1, 1, e, 1, e])
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
         # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
         # NNgate_b = sp.linalg.expm(1j * theta * np.kron(Nd, Nd))
-        NNgate_b = np.eye(16, dtype=complex)
-        for i in [10, 11, 14, 15]:
-            NNgate_b[i, i] = cmath.exp(1j * theta)
+        NNgate_b = np.diag([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, e, e, 1, 1, e, e])
 
     # define total gate
     if spin is Spin.ALPHA:
