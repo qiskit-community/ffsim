@@ -17,11 +17,11 @@ from dataclasses import InitVar, dataclass
 from typing import cast
 
 import numpy as np
-import scipy.linalg
 
 from ffsim import gates, linalg
 from ffsim.variational.util import (
     orbital_rotation_from_parameters,
+    orbital_rotation_from_t1_amplitudes,
     orbital_rotation_to_parameters,
     validate_interaction_pairs,
 )
@@ -579,20 +579,8 @@ class UCJOpSpinUnbalanced:
         final_orbital_rotation = None
         if t1 is not None:
             t1a, t1b = t1
-
-            final_orbital_rotation_generator_a = np.zeros((norb, norb), dtype=complex)
-            final_orbital_rotation_generator_a[:nocc_a, nocc_a:] = t1a
-            final_orbital_rotation_generator_a[nocc_a:, :nocc_a] = -t1a.T
-            final_orbital_rotation_a = scipy.linalg.expm(
-                final_orbital_rotation_generator_a
-            )
-
-            final_orbital_rotation_generator_b = np.zeros((norb, norb), dtype=complex)
-            final_orbital_rotation_generator_b[:nocc_b, nocc_b:] = t1b
-            final_orbital_rotation_generator_b[nocc_b:, :nocc_b] = -t1b.T
-            final_orbital_rotation_b = scipy.linalg.expm(
-                final_orbital_rotation_generator_b
-            )
+            final_orbital_rotation_a = orbital_rotation_from_t1_amplitudes(t1a)
+            final_orbital_rotation_b = orbital_rotation_from_t1_amplitudes(t1b)
             final_orbital_rotation = np.stack(
                 [final_orbital_rotation_a, final_orbital_rotation_b]
             )
