@@ -53,7 +53,8 @@ class UCJAnglesOpSpinBalanced:
         with_final_givens_ansatz_op: bool = False,
     ) -> int:
         """Return the number of parameters of an ansatz with given settings."""
-        n_params_num_num = sum(len(pairs) for pairs in num_num_interaction_pairs)
+        pairs_aa, pairs_ab = num_num_interaction_pairs
+        n_params_num_num = len(pairs_aa) + len(pairs_ab)
         n_params_givens = 2 * len(givens_interaction_pairs) + norb
         return (
             n_reps * (n_params_num_num + n_params_givens)

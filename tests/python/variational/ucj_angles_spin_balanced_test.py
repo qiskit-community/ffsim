@@ -42,7 +42,7 @@ def test_n_params():
         actual = ffsim.UCJAnglesOpSpinBalanced.n_params(
             norb,
             n_reps,
-            num_num_interaction_pairs=triu_indices,
+            num_num_interaction_pairs=(triu_indices, triu_indices),
             givens_interaction_pairs=brickwork_indices,
             with_final_givens_ansatz_op=with_final_orbital_rotation,
         )
@@ -109,7 +109,7 @@ def test_apply_unitary_consistent_with_ucj_op():
         norb, n_reps=n_reps, with_final_orbital_rotation=True
     )
     ucj_angles_op = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     actual = ffsim.apply_unitary(vec, ucj_angles_op, norb=norb, nelec=nelec)
     expected = ffsim.apply_unitary(vec, ucj_op, norb=norb, nelec=nelec)
@@ -151,7 +151,7 @@ def test_from_t_amplitudes_consistent_with_ucj_op():
         t1=ccsd.t1,
         n_reps=n_reps,
     )
-    vec = ffsim.random.random_statevector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
 
     actual = ffsim.apply_unitary(vec, ucj_angles_op, norb=norb, nelec=nelec)
     expected = ffsim.apply_unitary(vec, ucj_op, norb=norb, nelec=nelec)
