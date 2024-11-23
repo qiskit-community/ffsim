@@ -82,10 +82,9 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                         indices.append((s, q, r, p))
                     if q < r:
                         indices.append((p, r, q, s))
-                    if p < s and q < r:
-                        indices.append((s, r, q, p))
 
-                    for i, j, k, ell in indices:
+                    for idx, (i, j, k, ell) in enumerate(indices):
+                        flag_hc = True if not idx and i < ell and j < k else False
                         h2 = two_body_tensor[i, j, k, ell]
                         self.add_multi_coupling(
                             0.5 * h2,
@@ -95,6 +94,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                                 ("Cu", dx0, k),
                                 ("Cu", dx0, i),
                             ],
+                            plus_hc=flag_hc,
                         )
                         self.add_multi_coupling(
                             0.5 * h2,
@@ -104,6 +104,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                                 ("Cd", dx0, k),
                                 ("Cu", dx0, i),
                             ],
+                            plus_hc=flag_hc,
                         )
                         self.add_multi_coupling(
                             0.5 * h2,
@@ -113,6 +114,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                                 ("Cu", dx0, k),
                                 ("Cd", dx0, i),
                             ],
+                            plus_hc=flag_hc,
                         )
                         self.add_multi_coupling(
                             0.5 * h2,
@@ -122,6 +124,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                                 ("Cd", dx0, k),
                                 ("Cd", dx0, i),
                             ],
+                            plus_hc=flag_hc,
                         )
 
     @staticmethod
