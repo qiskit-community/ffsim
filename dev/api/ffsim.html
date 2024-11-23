@@ -1985,6 +1985,74 @@ in the operator.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.UCJAnglesOpSpinBalanced">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJAnglesOpSpinBalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_num_ansatz_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">givens_ansatz_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_givens_ansatz_op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_angles_spin_balanced.html#UCJAnglesOpSpinBalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJAnglesOpSpinBalanced" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A spin-balanced UCJ operator parameterized by gate rotation angles.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJAnglesOpSpinBalanced.from_parameters">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_num_interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">givens_interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_givens_ansatz_op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_angles_spin_balanced.html#UCJAnglesOpSpinBalanced.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJAnglesOpSpinBalanced.from_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced" title="ffsim.variational.ucj_angles_spin_balanced.UCJAnglesOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_angles_spin_balanced.html#UCJAnglesOpSpinBalanced.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced" title="ffsim.variational.ucj_angles_spin_balanced.UCJAnglesOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJAnglesOpSpinBalanced.from_ucj_op">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ucj_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucj_op</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_angles_spin_balanced.html#UCJAnglesOpSpinBalanced.from_ucj_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJAnglesOpSpinBalanced.from_ucj_op" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the angles-based UCJ operator from a matrix-based UCJ operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced" title="ffsim.variational.ucj_angles_spin_balanced.UCJAnglesOpSpinBalanced"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJAnglesOpSpinBalanced.n_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_num_interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">givens_interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_final_givens_ansatz_op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_angles_spin_balanced.html#UCJAnglesOpSpinBalanced.n_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJAnglesOpSpinBalanced.n_params" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of parameters of an ansatz with given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.UCJAnglesOpSpinBalanced.n_reps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_reps</span></span><a class="headerlink" href="#ffsim.UCJAnglesOpSpinBalanced.n_reps" title="Link to this definition">¶</a></dt>
+<dd><p>The number of ansatz repetitions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.UCJAnglesOpSpinBalanced.to_parameters">
+<span class="sig-name descname"><span class="pre">to_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_angles_spin_balanced.html#UCJAnglesOpSpinBalanced.to_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJAnglesOpSpinBalanced.to_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the UCJ operator to a real-valued parameter vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">UCJOpSpinBalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diag_coulomb_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -4689,6 +4757,15 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.UCCSDOpRestrictedReal.n_params"><code class="docutils literal notranslate"><span class="pre">UCCSDOpRestrictedReal.n_params()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCCSDOpRestrictedReal.norb"><code class="docutils literal notranslate"><span class="pre">UCCSDOpRestrictedReal.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.UCCSDOpRestrictedReal.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCCSDOpRestrictedReal.to_parameters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced"><code class="docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced.from_parameters"><code class="docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced.from_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes"><code class="docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced.from_t_amplitudes()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced.from_ucj_op"><code class="docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced.from_ucj_op()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced.n_params"><code class="docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced.n_params()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced.n_reps"><code class="docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced.n_reps</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.UCJAnglesOpSpinBalanced.to_parameters"><code class="docutils literal notranslate"><span class="pre">UCJAnglesOpSpinBalanced.to_parameters()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.UCJOpSpinBalanced"><code class="docutils literal notranslate"><span class="pre">UCJOpSpinBalanced</span></code></a><ul>
