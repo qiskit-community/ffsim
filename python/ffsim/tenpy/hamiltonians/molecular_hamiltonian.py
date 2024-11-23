@@ -68,10 +68,10 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
         for p, q in itertools.combinations(range(norb), 2):
             self.add_coupling(
-                one_body_tensor[p, q], p, "Cdu", q, "Cu", dx0, plus_hc=True
+                one_body_tensor[p, q], q, "Cdu", p, "Cu", dx0, plus_hc=True
             )
             self.add_coupling(
-                one_body_tensor[p, q], p, "Cdd", q, "Cd", dx0, plus_hc=True
+                one_body_tensor[p, q], q, "Cdd", p, "Cd", dx0, plus_hc=True
             )
 
         for p, s in itertools.combinations_with_replacement(range(norb), 2):
@@ -85,13 +85,13 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                     if p < s and q < r:
                         indices.append((s, r, q, p))
 
-                    for i, j, k, l in indices:
-                        h2 = two_body_tensor[i, j, k, l]
+                    for i, j, k, ell in indices:
+                        h2 = two_body_tensor[i, j, k, ell]
                         self.add_multi_coupling(
                             0.5 * h2,
                             [
                                 ("Cdu", dx0, j),
-                                ("Cdu", dx0, l),
+                                ("Cdu", dx0, ell),
                                 ("Cu", dx0, k),
                                 ("Cu", dx0, i),
                             ],
@@ -100,7 +100,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                             0.5 * h2,
                             [
                                 ("Cdu", dx0, j),
-                                ("Cdd", dx0, l),
+                                ("Cdd", dx0, ell),
                                 ("Cd", dx0, k),
                                 ("Cu", dx0, i),
                             ],
@@ -109,7 +109,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                             0.5 * h2,
                             [
                                 ("Cdd", dx0, j),
-                                ("Cdu", dx0, l),
+                                ("Cdu", dx0, ell),
                                 ("Cu", dx0, k),
                                 ("Cd", dx0, i),
                             ],
@@ -118,7 +118,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
                             0.5 * h2,
                             [
                                 ("Cdd", dx0, j),
-                                ("Cdd", dx0, l),
+                                ("Cdd", dx0, ell),
                                 ("Cd", dx0, k),
                                 ("Cd", dx0, i),
                             ],
