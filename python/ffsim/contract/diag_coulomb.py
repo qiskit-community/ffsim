@@ -233,8 +233,6 @@ def diag_coulomb_linop(
             If passing a pair, you can use ``None`` for one of the
             values in the pair to indicate that no operation should be applied to that
             spin sector.
-        mat_alpha_beta: A matrix of coefficients to use for interactions between
-            orbitals with differing spin.
         z_representation: Whether the input matrices are in the "Z" representation.
 
     Returns:

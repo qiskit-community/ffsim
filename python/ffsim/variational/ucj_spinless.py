@@ -17,11 +17,11 @@ from dataclasses import InitVar, dataclass
 from typing import cast
 
 import numpy as np
-import scipy.linalg
 
 from ffsim import gates, linalg
 from ffsim.variational.util import (
     orbital_rotation_from_parameters,
+    orbital_rotation_from_t1_amplitudes,
     orbital_rotation_to_parameters,
     validate_interaction_pairs,
 )
@@ -385,10 +385,7 @@ class UCJOpSpinless:
 
         final_orbital_rotation = None
         if t1 is not None:
-            final_orbital_rotation_generator = np.zeros((norb, norb), dtype=complex)
-            final_orbital_rotation_generator[:nocc, nocc:] = t1
-            final_orbital_rotation_generator[nocc:, :nocc] = -t1.T
-            final_orbital_rotation = scipy.linalg.expm(final_orbital_rotation_generator)
+            final_orbital_rotation = orbital_rotation_from_t1_amplitudes(t1)
 
         # Zero out diagonal coulomb matrix entries if requested
         if interaction_pairs is not None:
