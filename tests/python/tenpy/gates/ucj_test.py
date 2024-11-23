@@ -18,7 +18,7 @@ import ffsim
 from ffsim.tenpy.gates.ucj import apply_ucj_op_spin_balanced
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import bitstring_to_mps
-from ffsim.testing import interaction_pairs_spin_balanced
+from variational.util import interaction_pairs_spin_balanced
 
 
 @pytest.mark.parametrize(

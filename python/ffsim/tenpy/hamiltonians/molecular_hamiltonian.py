@@ -68,51 +68,61 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
         for p, q in itertools.combinations(range(norb), 2):
             self.add_coupling(
-                one_body_tensor[q, p], p, "Cdu", q, "Cu", dx0, plus_hc=True
+                one_body_tensor[p, q], p, "Cdu", q, "Cu", dx0, plus_hc=True
             )
             self.add_coupling(
-                one_body_tensor[q, p], p, "Cdd", q, "Cd", dx0, plus_hc=True
+                one_body_tensor[p, q], p, "Cdd", q, "Cd", dx0, plus_hc=True
             )
 
-        for p, q, r, s in itertools.product(range(norb), repeat=4):
-            h2 = two_body_tensor[q, p, s, r]
-            if not p == q == r == s:
-                self.add_multi_coupling(
-                    0.5 * h2,
-                    [
-                        ("Cdu", dx0, p),
-                        ("Cdu", dx0, r),
-                        ("Cu", dx0, s),
-                        ("Cu", dx0, q),
-                    ],
-                )
-                self.add_multi_coupling(
-                    0.5 * h2,
-                    [
-                        ("Cdu", dx0, p),
-                        ("Cdd", dx0, r),
-                        ("Cd", dx0, s),
-                        ("Cu", dx0, q),
-                    ],
-                )
-                self.add_multi_coupling(
-                    0.5 * h2,
-                    [
-                        ("Cdd", dx0, p),
-                        ("Cdu", dx0, r),
-                        ("Cu", dx0, s),
-                        ("Cd", dx0, q),
-                    ],
-                )
-                self.add_multi_coupling(
-                    0.5 * h2,
-                    [
-                        ("Cdd", dx0, p),
-                        ("Cdd", dx0, r),
-                        ("Cd", dx0, s),
-                        ("Cd", dx0, q),
-                    ],
-                )
+        for p, s in itertools.combinations_with_replacement(range(norb), 2):
+            for q, r in itertools.combinations_with_replacement(range(norb), 2):
+                if not p == q == r == s:
+                    indices = [(p, q, r, s)]
+                    if p < s:
+                        indices.append((s, q, r, p))
+                    if q < r:
+                        indices.append((p, r, q, s))
+                    if p < s and q < r:
+                        indices.append((s, r, q, p))
+
+                    for i, j, k, l in indices:
+                        h2 = two_body_tensor[i, j, k, l]
+                        self.add_multi_coupling(
+                            0.5 * h2,
+                            [
+                                ("Cdu", dx0, j),
+                                ("Cdu", dx0, l),
+                                ("Cu", dx0, k),
+                                ("Cu", dx0, i),
+                            ],
+                        )
+                        self.add_multi_coupling(
+                            0.5 * h2,
+                            [
+                                ("Cdu", dx0, j),
+                                ("Cdd", dx0, l),
+                                ("Cd", dx0, k),
+                                ("Cu", dx0, i),
+                            ],
+                        )
+                        self.add_multi_coupling(
+                            0.5 * h2,
+                            [
+                                ("Cdd", dx0, j),
+                                ("Cdu", dx0, l),
+                                ("Cu", dx0, k),
+                                ("Cd", dx0, i),
+                            ],
+                        )
+                        self.add_multi_coupling(
+                            0.5 * h2,
+                            [
+                                ("Cdd", dx0, j),
+                                ("Cdd", dx0, l),
+                                ("Cd", dx0, k),
+                                ("Cd", dx0, i),
+                            ],
+                        )
 
     @staticmethod
     def from_molecular_hamiltonian(
