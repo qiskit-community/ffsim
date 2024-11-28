@@ -56,35 +56,82 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
         norb = one_body_tensor.shape[0]
 
         for p in range(norb):
+            # one-body tensor
             h1 = one_body_tensor[p, p]
             self.add_onsite(h1, p, "Ntot")
+            # two-body tensor
             h2 = two_body_tensor[p, p, p, p]
             self.add_onsite(h2, p, "Ntot")
             self.add_onsite(-0.5 * h2, p, "Nu Nu")
             self.add_onsite(-0.5 * h2, p, "Cdu Cd Cdd Cu")
             self.add_onsite(-0.5 * h2, p, "Cdd Cu Cdu Cd")
             self.add_onsite(-0.5 * h2, p, "Nd Nd")
+            # constant
             self.add_onsite(constant / norb, p, "Id")
 
         for p, q in itertools.combinations(range(norb), 2):
-            self.add_coupling(
-                one_body_tensor[p, q], q, "Cdu", p, "Cu", dx0, plus_hc=True
-            )
-            self.add_coupling(
-                one_body_tensor[p, q], q, "Cdd", p, "Cd", dx0, plus_hc=True
-            )
+            # one-body tensor
+            h1 = one_body_tensor[p, q]
+            self.add_coupling(h1, q, "Cdu", p, "Cu", dx0, plus_hc=True)
+            self.add_coupling(h1, q, "Cdd", p, "Cd", dx0, plus_hc=True)
+            # two-body tensor
+            indices = [(p, p, q, q), (p, q, p, q), (p, q, q, p)]
+            for i, j, k, ell in indices:
+                h2 = two_body_tensor[i, j, k, ell]
+                self.add_multi_coupling(
+                    0.5 * h2,
+                    [
+                        ("Cdu", dx0, j),
+                        ("Cdu", dx0, ell),
+                        ("Cu", dx0, k),
+                        ("Cu", dx0, i),
+                    ],
+                    plus_hc=True,
+                )
+                self.add_multi_coupling(
+                    0.5 * h2,
+                    [
+                        ("Cdu", dx0, j),
+                        ("Cdd", dx0, ell),
+                        ("Cd", dx0, k),
+                        ("Cu", dx0, i),
+                    ],
+                    plus_hc=True,
+                )
+                self.add_multi_coupling(
+                    0.5 * h2,
+                    [
+                        ("Cdd", dx0, j),
+                        ("Cdu", dx0, ell),
+                        ("Cu", dx0, k),
+                        ("Cd", dx0, i),
+                    ],
+                    plus_hc=True,
+                )
+                self.add_multi_coupling(
+                    0.5 * h2,
+                    [
+                        ("Cdd", dx0, j),
+                        ("Cdd", dx0, ell),
+                        ("Cd", dx0, k),
+                        ("Cd", dx0, i),
+                    ],
+                    plus_hc=True,
+                )
 
         for p, s in itertools.combinations_with_replacement(range(norb), 2):
             for q, r in itertools.combinations_with_replacement(range(norb), 2):
-                if not p == q == r == s:
+                values, counts = np.unique([p, q, r, s], return_counts=True)
+                if not (len(values) in [1, 2] and len(set(counts)) == 1):
+                    # two-body tensor
                     indices = [(p, q, r, s)]
-                    if p < s:
-                        indices.append((s, q, r, p))
-                    if q < r:
-                        indices.append((p, r, q, s))
-
+                    if p != s:
+                        indices.append((s, q, r, p))  # swap p and s
+                    if q != r:
+                        indices.append((p, r, q, s))  # swap q and r
                     for idx, (i, j, k, ell) in enumerate(indices):
-                        flag_hc = True if not idx and i < ell and j < k else False
+                        # reverse p, q, r, s by adding hermitian conjugate
+                        flag_hc = True if not idx and i != ell and j != k else False
                         h2 = two_body_tensor[i, j, k, ell]
                         self.add_multi_coupling(
                             0.5 * h2,
