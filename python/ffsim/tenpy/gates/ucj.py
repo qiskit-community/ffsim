@@ -24,7 +24,7 @@ def apply_ucj_op_spin_balanced(
     eng: TEBDEngine,
     ucj_op: UCJOpSpinBalanced,
     *,
-    norm_tol: float = 1e-5,
+    norm_tol: float = 1e-8,
 ) -> None:
     r"""Apply a spin-balanced unitary cluster Jastrow gate to an MPS.
 

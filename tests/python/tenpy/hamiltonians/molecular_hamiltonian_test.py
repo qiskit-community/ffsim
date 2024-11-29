@@ -10,6 +10,8 @@
 
 """Tests for the TeNPy molecular Hamiltonian."""
 
+import itertools
+
 import numpy as np
 import pytest
 
@@ -21,10 +23,10 @@ from ffsim.tenpy.util import bitstring_to_mps
 @pytest.mark.parametrize(
     "norb, nelec",
     [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
+        (2, (2, 2)),
+        (2, (1, 2)),
+        (2, (0, 2)),
+        (2, (0, 0)),
     ],
 )
 def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
@@ -41,24 +43,47 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
     )
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
-    # generate a random product state
     dim = ffsim.dim(norb, nelec)
-    idx = rng.integers(0, high=dim)
-    product_state = ffsim.linalg.one_hot(dim, idx)
+    for idx1, idx2 in itertools.product(range(dim), repeat=2):
+        # generate product states
+        product_state_1 = ffsim.linalg.one_hot(dim, idx1)
+        product_state_2 = ffsim.linalg.one_hot(dim, idx2)
 
-    # convert product state to MPS
-    strings_a, strings_b = ffsim.addresses_to_strings(
-        [idx],
-        norb=norb,
-        nelec=nelec,
-        bitstring_type=ffsim.BitstringType.STRING,
-        concatenate=False,
-    )
-    product_state_mps = bitstring_to_mps(
-        (int(strings_a[0], 2), int(strings_b[0], 2)), norb
-    )
+        # convert product states to MPS
+        strings_a_1, strings_b_1 = ffsim.addresses_to_strings(
+            [idx1],
+            norb=norb,
+            nelec=nelec,
+            bitstring_type=ffsim.BitstringType.STRING,
+            concatenate=False,
+        )
+        product_state_mps_1 = bitstring_to_mps(
+            (int(strings_a_1[0], 2), int(strings_b_1[0], 2)), norb
+        )
+        strings_a_2, strings_b_2 = ffsim.addresses_to_strings(
+            [idx2],
+            norb=norb,
+            nelec=nelec,
+            bitstring_type=ffsim.BitstringType.STRING,
+            concatenate=False,
+        )
+        product_state_mps_2 = bitstring_to_mps(
+            (int(strings_a_2[0], 2), int(strings_b_2[0], 2)), norb
+        )
 
-    # test expectation is preserved
-    original_expectation = np.vdot(product_state, hamiltonian @ product_state)
-    mpo_expectation = mol_hamiltonian_mpo.expectation_value_finite(product_state_mps)
-    np.testing.assert_allclose(original_expectation, mpo_expectation)
+        # test expectation is preserved
+        original_expectation = np.vdot(product_state_1, hamiltonian @ product_state_2)
+        mol_hamiltonian_mpo.apply_naively(product_state_mps_2)
+        mpo_expectation = product_state_mps_1.overlap(product_state_mps_2)
+        np.testing.assert_allclose(
+            abs(original_expectation.real),
+            abs(mpo_expectation.real),
+            rtol=1e-05,
+            atol=1e-08,
+        )
+        np.testing.assert_allclose(
+            abs(original_expectation.imag),
+            abs(mpo_expectation.imag),
+            rtol=1e-05,
+            atol=1e-08,
+        )

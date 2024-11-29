@@ -24,7 +24,7 @@ def apply_diag_coulomb_evolution(
     mat: np.ndarray,
     time: float,
     *,
-    norm_tol: float = 1e-5,
+    norm_tol: float = 1e-8,
 ) -> None:
     r"""Apply a diagonal Coulomb evolution gate to an MPS.
 

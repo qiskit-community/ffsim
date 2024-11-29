@@ -25,7 +25,7 @@ def apply_orbital_rotation(
     eng: TEBDEngine,
     mat: np.ndarray,
     *,
-    norm_tol: float = 1e-5,
+    norm_tol: float = 1e-8,
 ) -> None:
     r"""Apply an orbital rotation gate to an MPS.
 

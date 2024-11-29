@@ -45,7 +45,7 @@ def apply_two_site(
     U2: np.ndarray,
     sites: tuple[int, int],
     *,
-    norm_tol: float = 1e-5,
+    norm_tol: float = 1e-8,
 ) -> None:
     r"""Apply a two-site gate to an MPS.
 
