@@ -30,8 +30,7 @@ impl KeysIterator {
 
     fn __next__(&mut self) -> Option<PyObject> {
         Python::with_gil(|py| {
-            self
-                .keys
+            self.keys
                 .next()
                 .map(|vec| PyTuple::new_bound(py, &vec).to_object(py))
         })
