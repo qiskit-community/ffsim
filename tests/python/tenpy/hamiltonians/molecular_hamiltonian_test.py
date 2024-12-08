@@ -75,15 +75,4 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
         original_expectation = np.vdot(product_state_1, hamiltonian @ product_state_2)
         mol_hamiltonian_mpo.apply_naively(product_state_mps_2)
         mpo_expectation = product_state_mps_1.overlap(product_state_mps_2)
-        np.testing.assert_allclose(
-            abs(original_expectation.real),
-            abs(mpo_expectation.real),
-            rtol=1e-05,
-            atol=1e-08,
-        )
-        np.testing.assert_allclose(
-            abs(original_expectation.imag),
-            abs(mpo_expectation.imag),
-            rtol=1e-05,
-            atol=1e-08,
-        )
+        np.testing.assert_allclose(original_expectation, mpo_expectation)
