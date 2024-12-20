@@ -29,29 +29,20 @@ def bitstring_to_mps(bitstring: tuple[int, int], norb: int) -> MPS:
 
     # unpack bitstrings
     int_a, int_b = bitstring
-    string_a = f"{int_a:0{norb}b}"
-    string_b = f"{int_b:0{norb}b}"
-
-    # merge bitstrings
-    up_sector = string_a.replace("1", "u")
-    down_sector = string_b.replace("1", "d")
-    product_state = [a + b for a, b in zip(up_sector, down_sector)]
+    string_a = format(int_a, f"0{norb}b")
+    string_b = format(int_b, f"0{norb}b")
 
     # relabel using TeNPy SpinHalfFermionSite convention
-    for i, site in enumerate(product_state):
-        if site == "00":
-            product_state[i] = "empty"
-        elif site == "u0":
-            product_state[i] = "up"
-        elif site == "0d":
-            product_state[i] = "down"
-        elif site == "ud":
-            product_state[i] = "full"
-        else:
-            raise ValueError("undefined site")
-
-    # note that the bit positions increase from right to left
-    product_state = product_state[::-1]
+    product_state = []
+    for site in zip(reversed(string_a), reversed(string_b)):
+        if site == ("0", "0"):
+            product_state.append("empty")
+        elif site == ("1", "0"):
+            product_state.append("up")
+        elif site == ("0", "1"):
+            product_state.append("down")
+        else:  # site == ("1", "1"):
+            product_state.append("full")
 
     # construct product state MPS
     shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
