@@ -26,6 +26,7 @@ from ffsim.tenpy.util import bitstring_to_mps
         (2, (2, 2)),
         (2, (2, 1)),
         (2, (1, 2)),
+        (2, (1, 1)),
         (2, (0, 2)),
         (2, (0, 0)),
     ],
