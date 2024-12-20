@@ -45,29 +45,23 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     dim = ffsim.dim(norb, nelec)
-    for idx1, idx2 in itertools.product(range(dim), repeat=2):
+    strings = ffsim.addresses_to_strings(
+        range(dim), norb=norb, nelec=nelec, concatenate=False
+    )
+
+    for (i, string_i), (j, string_j) in itertools.product(
+        enumerate(zip(*strings)), repeat=2
+    ):
         # generate product states
-        product_state_1 = ffsim.linalg.one_hot(dim, idx1)
-        product_state_2 = ffsim.linalg.one_hot(dim, idx2)
+        product_state_i = ffsim.linalg.one_hot(dim, i)
+        product_state_j = ffsim.linalg.one_hot(dim, j)
 
         # convert product states to MPS
-        strings_a_1, strings_b_1 = ffsim.addresses_to_strings(
-            [idx1],
-            norb=norb,
-            nelec=nelec,
-            concatenate=False,
-        )
-        product_state_mps_1 = bitstring_to_mps((strings_a_1[0], strings_b_1[0]), norb)
-        strings_a_2, strings_b_2 = ffsim.addresses_to_strings(
-            [idx2],
-            norb=norb,
-            nelec=nelec,
-            concatenate=False,
-        )
-        product_state_mps_2 = bitstring_to_mps((strings_a_2[0], strings_b_2[0]), norb)
+        product_state_mps_i = bitstring_to_mps(string_i, norb)
+        product_state_mps_j = bitstring_to_mps(string_j, norb)
 
         # test expectation is preserved
-        original_expectation = np.vdot(product_state_1, hamiltonian @ product_state_2)
-        mol_hamiltonian_mpo.apply_naively(product_state_mps_2)
-        mpo_expectation = product_state_mps_1.overlap(product_state_mps_2)
+        original_expectation = np.vdot(product_state_i, hamiltonian @ product_state_j)
+        mol_hamiltonian_mpo.apply_naively(product_state_mps_j)
+        mpo_expectation = product_state_mps_i.overlap(product_state_mps_j)
         np.testing.assert_allclose(original_expectation, mpo_expectation)
