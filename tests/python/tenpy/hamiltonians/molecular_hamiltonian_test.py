@@ -24,6 +24,7 @@ from ffsim.tenpy.util import bitstring_to_mps
     "norb, nelec",
     [
         (2, (2, 2)),
+        (2, (2, 1)),
         (2, (1, 2)),
         (2, (0, 2)),
         (2, (0, 0)),
@@ -54,22 +55,16 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
             [idx1],
             norb=norb,
             nelec=nelec,
-            bitstring_type=ffsim.BitstringType.STRING,
             concatenate=False,
         )
-        product_state_mps_1 = bitstring_to_mps(
-            (int(strings_a_1[0], 2), int(strings_b_1[0], 2)), norb
-        )
+        product_state_mps_1 = bitstring_to_mps((strings_a_1[0], strings_b_1[0]), norb)
         strings_a_2, strings_b_2 = ffsim.addresses_to_strings(
             [idx2],
             norb=norb,
             nelec=nelec,
-            bitstring_type=ffsim.BitstringType.STRING,
             concatenate=False,
         )
-        product_state_mps_2 = bitstring_to_mps(
-            (int(strings_a_2[0], 2), int(strings_b_2[0], 2)), norb
-        )
+        product_state_mps_2 = bitstring_to_mps((strings_a_2[0], strings_b_2[0]), norb)
 
         # test expectation is preserved
         original_expectation = np.vdot(product_state_1, hamiltonian @ product_state_2)
