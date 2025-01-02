@@ -253,7 +253,7 @@ class UCJOpSpinBalanced:
             pairs_aa = triu_indices
         if pairs_ab is None:
             pairs_ab = triu_indices
-        diag_coulomb_mats = np.zeros((n_reps, 2, norb, norb))
+        diag_coulomb_mats: np.ndarray = np.zeros((n_reps, 2, norb, norb))
         orbital_rotations = np.zeros((n_reps, norb, norb), dtype=complex)
         index = 0
         for orbital_rotation, diag_coulomb_mat in zip(
