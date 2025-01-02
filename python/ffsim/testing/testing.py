@@ -112,10 +112,10 @@ def random_occupied_orbitals(
     """
     rng = np.random.default_rng(seed)
     if isinstance(nelec, int):
-        return list(rng.choice(norb, nelec, replace=False))
+        return [int(x) for x in rng.choice(norb, nelec, replace=False)]
     n_alpha, n_beta = nelec
-    occ_a = list(rng.choice(norb, n_alpha, replace=False))
-    occ_b = list(rng.choice(norb, n_beta, replace=False))
+    occ_a = [int(x) for x in rng.choice(norb, n_alpha, replace=False)]
+    occ_b = [int(x) for x in rng.choice(norb, n_beta, replace=False)]
     return (occ_a, occ_b)
 
 
