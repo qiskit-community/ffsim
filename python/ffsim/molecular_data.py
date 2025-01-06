@@ -144,6 +144,7 @@ class MolecularData:
         fp = tempfile.NamedTemporaryFile()
         self.to_fcidump(fp.name)
         # HACK without the following line, PySCF computations fail with a KeyError
+        # See https://github.com/pyscf/pyscf/issues/2586
         _remove_sym_from_fcidump(fp.name)
         return pyscf.tools.fcidump.to_scf(fp.name)
 
