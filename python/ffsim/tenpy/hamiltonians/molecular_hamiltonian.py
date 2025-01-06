@@ -34,6 +34,9 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
     def init_lattice(self, params) -> Lattice:
         """Initialize lattice."""
+        assert params.has_nonzero(
+            "one_body_tensor"
+        ), "required parameter one_body_tensor is zero or None"
         one_body_tensor = params.get("one_body_tensor", None, expect_type="array")
         norb = one_body_tensor.shape[0]
         site = self.init_sites(params)
@@ -49,10 +52,15 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
     def init_terms(self, params) -> None:
         """Initialize terms."""
+        assert params.has_nonzero(
+            "one_body_tensor"
+        ), "required parameter one_body_tensor is zero or None"
         one_body_tensor = params.get("one_body_tensor", None, expect_type="array")
-        two_body_tensor = params.get("two_body_tensor", None, expect_type="array")
-        constant = params.get("constant", 0, expect_type="real")
         norb = one_body_tensor.shape[0]
+        two_body_tensor = params.get(
+            "two_body_tensor", np.zeros((norb, norb, norb, norb)), expect_type="array"
+        )
+        constant = params.get("constant", 0, expect_type="real")
 
         # constant
         for p in range(norb):
