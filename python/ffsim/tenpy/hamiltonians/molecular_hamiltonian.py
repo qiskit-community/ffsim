@@ -28,23 +28,30 @@ from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 class MolecularHamiltonianMPOModel(CouplingMPOModel):
     """Molecular Hamiltonian."""
 
+    def __init__(self, params):
+        if "one_body_tensor" in params and isinstance(
+            params["one_body_tensor"], np.ndarray
+        ):
+            self.one_body_tensor = params["one_body_tensor"]
+        else:
+            raise ValueError(
+                "required parameter one_body_tensor is undefined or not an array"
+            )
+        self.norb = self.one_body_tensor.shape[0]
+        CouplingMPOModel.__init__(self, params)
+
     def init_sites(self, params) -> SpinHalfFermionSite:
         """Initialize sites."""
         return SpinHalfFermionSite()
 
     def init_lattice(self, params) -> Lattice:
         """Initialize lattice."""
-        assert params.has_nonzero(
-            "one_body_tensor"
-        ), "required parameter one_body_tensor is zero or None"
-        one_body_tensor = params.get("one_body_tensor", None, expect_type="array")
-        norb = one_body_tensor.shape[0]
         site = self.init_sites(params)
-        basis = np.array(([norb, 0], [0, 1]))
-        pos = np.array([[i, 0] for i in range(norb)])
+        basis = np.array(([self.norb, 0], [0, 1]))
+        pos = np.array([[i, 0] for i in range(self.norb)])
         lat = Lattice(
             [1, 1],
-            [site] * norb,
+            [site] * self.norb,
             basis=basis,
             positions=pos,
         )
@@ -52,26 +59,23 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
     def init_terms(self, params) -> None:
         """Initialize terms."""
-        assert params.has_nonzero(
-            "one_body_tensor"
-        ), "required parameter one_body_tensor is zero or None"
-        one_body_tensor = params.get("one_body_tensor", None, expect_type="array")
-        norb = one_body_tensor.shape[0]
         two_body_tensor = params.get(
-            "two_body_tensor", np.zeros((norb, norb, norb, norb)), expect_type="array"
+            "two_body_tensor",
+            np.zeros((self.norb, self.norb, self.norb, self.norb)),
+            expect_type="array",
         )
         constant = params.get("constant", 0, expect_type="real")
 
         # constant
-        for p in range(norb):
-            self.add_onsite(constant / norb, p, "Id")
+        for p in range(self.norb):
+            self.add_onsite(constant / self.norb, p, "Id")
 
         # one-body terms
-        for p, q in itertools.product(range(norb), repeat=2):
-            self._add_one_body(one_body_tensor[p, q], p, q)
+        for p, q in itertools.product(range(self.norb), repeat=2):
+            self._add_one_body(self.one_body_tensor[p, q], p, q)
 
         # two-body terms
-        for p, q, r, s in itertools.product(range(norb), repeat=4):
+        for p, q, r, s in itertools.product(range(self.norb), repeat=4):
             self._add_two_body(0.5 * two_body_tensor[p, q, r, s], p, q, r, s)
 
     def _add_one_body(self, coeff: complex, p: int, q: int) -> None:
