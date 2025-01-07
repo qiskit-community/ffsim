@@ -59,6 +59,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
 
     def init_terms(self, params) -> None:
         """Initialize terms."""
+        params.touch("one_body_tensor")  # suppress unused key warning
         two_body_tensor = params.get(
             "two_body_tensor",
             np.zeros((self.norb, self.norb, self.norb, self.norb)),
