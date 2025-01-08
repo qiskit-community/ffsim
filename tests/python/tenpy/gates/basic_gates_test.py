@@ -87,12 +87,12 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
 
     # apply random orbital rotation to MPS
     eng = TEBDEngine(mps, None, {})
-    ffsim.tenpy.apply_two_site(eng, givens_rotation(theta, spin, phi=phi), (p + 1, p))
+    ffsim.tenpy.apply_two_site(eng, givens_rotation(theta, spin, phi=phi), (p, p + 1))
 
     # test expectation is preserved
     original_expectation = np.vdot(original_vec, hamiltonian @ vec)
     mol_hamiltonian_mpo.apply_naively(mps)
-    mpo_expectation = mps.overlap(original_mps)
+    mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)
 
 

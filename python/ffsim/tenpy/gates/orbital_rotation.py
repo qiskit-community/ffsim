@@ -50,7 +50,7 @@ def apply_orbital_rotation(
     # apply the Givens rotation gates
     for gate in givens_list:
         theta = math.acos(gate.c)
-        phi = cmath.phase(gate.s) - np.pi
+        phi = -cmath.phase(gate.s)
         apply_two_site(
             eng,
             givens_rotation(theta, phi=phi),
@@ -61,4 +61,4 @@ def apply_orbital_rotation(
     # apply the number interaction gates
     for i, z in enumerate(diag_mat):
         theta = cmath.phase(z)
-        apply_single_site(eng, num_interaction(-theta), i)
+        apply_single_site(eng, num_interaction(theta), i)

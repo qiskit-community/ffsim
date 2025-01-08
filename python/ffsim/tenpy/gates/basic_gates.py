@@ -79,21 +79,21 @@ def givens_rotation(
         # Ggate_a = (
         #     np.kron(sp.linalg.expm(1j * phi * Nu), Id)
         #     @ sp.linalg.expm(
-        #         theta * (np.kron(Cdu @ JW, Cu @ JWu) - np.kron(Cu @ JW, Cdu @ JWu))
+        #         theta * (np.kron(Cdu @ JWd, Cu @ Id) - np.kron(Cu @ JWd, Cdu @ Id))
         #     )
         #     @ np.kron(sp.linalg.expm(-1j * phi * Nu), Id)
         # )
         Ggate_a = np.diag(
             np.array([1, c, 1, c, c, 1, c, 1, 1, c, 1, c, c, 1, c, 1], dtype=complex)
         )
-        Ggate_a[1, 4] = -s
-        Ggate_a[3, 6] = -s
-        Ggate_a[9, 12] = s
-        Ggate_a[11, 14] = s
-        Ggate_a[4, 1] = s.conjugate()
-        Ggate_a[6, 3] = s.conjugate()
-        Ggate_a[12, 9] = -s.conjugate()
-        Ggate_a[14, 11] = -s.conjugate()
+        Ggate_a[1, 4] = s
+        Ggate_a[3, 6] = s
+        Ggate_a[9, 12] = -s
+        Ggate_a[11, 14] = -s
+        Ggate_a[4, 1] = -s.conjugate()
+        Ggate_a[6, 3] = -s.conjugate()
+        Ggate_a[12, 9] = s.conjugate()
+        Ggate_a[14, 11] = s.conjugate()
 
     # beta sector / down spins
     if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
@@ -101,21 +101,21 @@ def givens_rotation(
         # Ggate_b = (
         #     np.kron(sp.linalg.expm(1j * phi * Nd), Id)
         #     @ sp.linalg.expm(
-        #         theta * (np.kron(Cdd @ JW, Cd @ JWd) - np.kron(Cd @ JW, Cdd @ JWd))
+        #         theta * (np.kron(Cdd @ JWu, Cd @ Id) - np.kron(Cd @ JWu, Cdd @ Id))
         #     )
         #     @ np.kron(sp.linalg.expm(-1j * phi * Nd), Id)
         # )
         Ggate_b = np.diag(
             np.array([1, 1, c, c, 1, 1, c, c, c, c, 1, 1, c, c, 1, 1], dtype=complex)
         )
-        Ggate_b[2, 8] = -s
-        Ggate_b[3, 9] = s
-        Ggate_b[6, 12] = -s
-        Ggate_b[7, 13] = s
-        Ggate_b[8, 2] = s.conjugate()
-        Ggate_b[9, 3] = -s.conjugate()
-        Ggate_b[12, 6] = s.conjugate()
-        Ggate_b[13, 7] = -s.conjugate()
+        Ggate_b[2, 8] = s
+        Ggate_b[3, 9] = -s
+        Ggate_b[6, 12] = s
+        Ggate_b[7, 13] = -s
+        Ggate_b[8, 2] = -s.conjugate()
+        Ggate_b[9, 3] = s.conjugate()
+        Ggate_b[12, 6] = -s.conjugate()
+        Ggate_b[13, 7] = s.conjugate()
 
     # define total gate
     if spin is Spin.ALPHA:

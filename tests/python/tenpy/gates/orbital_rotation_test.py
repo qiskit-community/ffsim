@@ -76,5 +76,5 @@ def test_apply_orbital_rotation(
     # test expectation is preserved
     original_expectation = np.vdot(original_vec, hamiltonian @ vec)
     mol_hamiltonian_mpo.apply_naively(mps)
-    mpo_expectation = mps.overlap(original_mps)
+    mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)

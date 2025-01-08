@@ -55,7 +55,7 @@ def apply_ucj_op_spin_balanced(
             orb_rot.conjugate().T @ current_basis,
             norm_tol=norm_tol,
         )
-        apply_diag_coulomb_evolution(eng, diag_mats, 1, norm_tol=norm_tol)
+        apply_diag_coulomb_evolution(eng, diag_mats, -1, norm_tol=norm_tol)
         current_basis = orb_rot
     if ucj_op.final_orbital_rotation is None:
         apply_orbital_rotation(
