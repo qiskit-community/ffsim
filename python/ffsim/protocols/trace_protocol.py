@@ -14,7 +14,11 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
+from ffsim.operators import FermionOperator
+
 import numpy as np
+
+from math import comb
 
 
 class SupportsTrace(Protocol):
@@ -34,6 +38,9 @@ class SupportsTrace(Protocol):
 
 def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
     """Return the trace of the linear operator."""
+    if isinstance(obj, FermionOperator):
+        return _trace_fermion_operator(obj, norb, nelec)
+    
     method = getattr(obj, "_trace_", None)
     if method is not None:
         return method(norb=norb, nelec=nelec)
@@ -45,3 +52,84 @@ def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
         "The object did not have a _trace_ method that returned the trace "
         "or a _diag_ method that returned its diagonal entries."
     )
+
+def _trace_fermion_operator(
+    A: FermionOperator, norb: int, nelec: tuple[int, int]
+):
+    n_elec_alpha, n_elec_beta = nelec
+    if len(A)>1:
+        trace = 0
+        for op in A:
+            B = FermionOperator({op:A[op]})
+            trace+= _trace_fermion_operator(B, norb, nelec)
+    else:
+        trace = 0
+        op = list(A.keys())[0]
+        coeff = A[op]
+        alpha_indices = []
+        beta_indices = []
+        for a in op:
+            if not a[1]:
+                alpha_indices.append(a[2])
+            else:
+                beta_indices.append(a[2])
+        alpha_indices = list(set(alpha_indices))
+        beta_indices = list(set(beta_indices))
+        combined_indices = [(i,False) for i in alpha_indices]  +[(i,True) for i in beta_indices]
+        
+        alpha_mapping = dict([(j,i) for i, j in enumerate(alpha_indices)])
+        beta_mapping = dict([(j,i) for i, j in enumerate(beta_indices)])
+        
+        n_alpha = len(alpha_indices)
+        n_beta = len(beta_indices)
+
+        no_configuration = False
+        eta_alpha = 0
+        eta_beta = 0
+
+        # loop over the support of the operator
+        # assume that each site is either 0 or 1 at the beginning
+        # track the state of the site through the application of the operator
+        # if the state exceed 1 or goes below 0, the state is not physical and the trace must be 0
+        for i, spin in combined_indices:
+            initial_zero = 0
+            initial_one = 1
+            is_zero = True
+            is_one = True
+            for a in reversed(op):  
+                if a[1] == spin and a[2] == i:
+                    change = a[0]*2-1
+                    initial_zero += change
+                    initial_one += change
+                    if initial_zero < 0 or initial_zero > 1:
+                        is_zero = False
+                    if initial_one < 0 or initial_one > 1:
+                        is_one = False
+                if not is_zero and not is_one:
+                    print((is_zero,is_one))
+                    no_configuration = True
+                    break
+            if (is_zero and initial_zero != 0) or (is_one and initial_one != 1):
+                no_configuration = True
+            assert not is_zero or not is_one # only one case is possible if the operator has support on site i
+            # count the number of electrons
+            if is_one:
+                if spin == False:
+                    eta_alpha += 1
+                else:
+                    eta_beta += 1
+            # the number of electrons exceed the number of allowed electrons
+            if eta_alpha > n_elec_alpha or eta_beta > n_elec_beta: 
+                no_configuration = True
+            if no_configuration:
+                trace = 0
+                break
+                
+        if not no_configuration:
+            # the trace is nontrival and is a product of
+            # coeff, and
+            # binom(number of orbitals not in the support of A, number of electrons allowed on these orbitals) for both spin species
+            trace = coeff*comb(norb - len(alpha_indices),n_elec_alpha - eta_alpha)*comb(norb - len(beta_indices),n_elec_beta - eta_beta)
+
+            
+    return trace
