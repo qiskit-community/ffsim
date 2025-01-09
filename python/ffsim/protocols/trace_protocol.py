@@ -87,10 +87,11 @@ def _trace_term(
             if initial_one < 0 or initial_one > 1:
                 is_one = False
             # return 0 immediately if there is no possible initial state
-            if not is_zero and not is_one:  
+            if not is_zero and not is_one:
                 return 0j
-                
-        # if the operator has support on site i, either the initial state is 0 or 1, but not both
+
+        # if the operator has support on this_orb,
+        # either the initial state is 0 or 1, but not both
         assert not is_zero or not is_one
         # the state must return to the initial state, otherwise the trace is zero
         if (is_zero and initial_zero != 0) or (is_one and initial_one != 1):
