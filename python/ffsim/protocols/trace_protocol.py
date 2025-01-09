@@ -112,7 +112,7 @@ def _trace_fermion_operator_single(
         if eta_alpha > n_elec_alpha or eta_beta > n_elec_beta:
             no_configuration = True
         if no_configuration:
-            trace = 0
+            trace = 0j
             break
 
     if not no_configuration:
@@ -120,8 +120,8 @@ def _trace_fermion_operator_single(
         # coeff, and
         # binom(#orbs not in the support of A, #elec on these orbs)
         # for each spin species
-        trace = coeff
-        trace = trace * math.comb(norb - len(alpha_indices), n_elec_alpha - eta_alpha)
+
+        trace = coeff * math.comb(norb - len(alpha_indices), n_elec_alpha - eta_alpha)
         trace = trace * math.comb(norb - len(beta_indices), n_elec_beta - eta_beta)
 
     return trace
@@ -129,7 +129,7 @@ def _trace_fermion_operator_single(
 
 def _trace_fermion_operator(ferm: FermionOperator, norb: int, nelec: tuple[int, int]):
     n_elec_alpha, n_elec_beta = nelec
-    trace = 0
+    trace = 0j
     for op in ferm:
         single_term = FermionOperator({op: ferm[op]})
         trace += _trace_fermion_operator_single(single_term, norb, nelec)
