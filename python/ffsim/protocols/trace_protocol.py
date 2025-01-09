@@ -53,26 +53,15 @@ def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
     )
 
 
-def _trace_fermion_operator_single(
-    ferm: FermionOperator, norb: int, nelec: tuple[int, int]
+def _trace_term(
+    op: tuple[tuple[bool, bool, int], ...], norb: int, nelec: tuple[int, int]
 ):
     n_elec_alpha, n_elec_beta = nelec
-    op = list(ferm.keys())[0]
-    coeff = ferm[op]
-    alpha_indices = []
-    beta_indices = []
-    for _, spin, orb in op:
-        if not spin:
-            alpha_indices.append(orb)
-        else:
-            beta_indices.append(orb)
-    alpha_indices = list(set(alpha_indices))
-    beta_indices = list(set(beta_indices))
-    combined_indices = [(i, False) for i in alpha_indices] + [
-        (i, True) for i in beta_indices
-    ]
 
-    no_configuration = False
+    combined_indices = set([(orb, spin) for _, spin, orb in op])
+    norb_alpha = sum([not spin for _, spin in combined_indices])
+    norb_beta = sum([spin for _, spin in combined_indices])
+
     eta_alpha = 0
     eta_beta = 0
 
@@ -87,19 +76,21 @@ def _trace_fermion_operator_single(
         is_zero = True
         is_one = True
         for action, aspin, orb in reversed(op):
-            if aspin == spin and orb == i:
-                change = action * 2 - 1
-                initial_zero += change
-                initial_one += change
-                if initial_zero < 0 or initial_zero > 1:
-                    is_zero = False
-                if initial_one < 0 or initial_one > 1:
-                    is_one = False
-            if not is_zero and not is_one:
-                no_configuration = True
-                break
+            if (aspin, orb) != (spin, i):
+                continue
+
+            change = action * 2 - 1
+            initial_zero += change
+            initial_one += change
+            if initial_zero < 0 or initial_zero > 1:
+                is_zero = False
+            if initial_one < 0 or initial_one > 1:
+                is_one = False
+            if not is_zero and not is_one:  # no possible initial state
+                return 0j
+        # if neither the state 0 nor 1 returns to the initial state, the trace must be 0
         if (is_zero and initial_zero != 0) or (is_one and initial_one != 1):
-            no_configuration = True
+            return 0j
         # only one case is possible if the operator has support on site i
         assert not is_zero or not is_one
         # count the number of electrons
@@ -110,28 +101,22 @@ def _trace_fermion_operator_single(
                 eta_beta += 1
         # the number of electrons exceed the number of allowed electrons
         if eta_alpha > n_elec_alpha or eta_beta > n_elec_beta:
-            no_configuration = True
-        if no_configuration:
-            trace = 0j
-            break
+            return 0j
 
-    if not no_configuration:
-        # the trace is nontrival and is a product of
-        # coeff, and
-        # binom(#orbs not in the support of A, #elec on these orbs)
-        # for each spin species
+    # the trace is nontrival and is a product of
+    # coeff, and
+    # binom(#orbs not in the support of A, #elec on these orbs)
+    # for each spin species
 
-        trace = coeff * math.comb(norb - len(alpha_indices), n_elec_alpha - eta_alpha)
-        trace = trace * math.comb(norb - len(beta_indices), n_elec_beta - eta_beta)
+    trace = math.comb(norb - norb_alpha, n_elec_alpha - eta_alpha) * math.comb(
+        norb - norb_beta, n_elec_beta - eta_beta
+    )
 
     return trace
 
 
 def _trace_fermion_operator(ferm: FermionOperator, norb: int, nelec: tuple[int, int]):
     n_elec_alpha, n_elec_beta = nelec
-    trace = 0j
-    for op in ferm:
-        single_term = FermionOperator({op: ferm[op]})
-        trace += _trace_fermion_operator_single(single_term, norb, nelec)
+    trace = sum([coeff * _trace_term(op, norb, nelec) for op, coeff in ferm.items()])
 
     return trace
