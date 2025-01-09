@@ -1,4 +1,4 @@
-# (C) Copyright IBM 2024.
+# (C) Copyright IBM 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -34,7 +34,7 @@ def bitstring_to_mps(bitstring: tuple[int, int], norb: int) -> MPS:
     string_b = format(int_b, f"0{norb}b")
 
     # relabel using TeNPy SpinHalfFermionSite convention
-    product_state, swap_factors = [], []
+    product_state, swap_factor = [], 1
     for i, site in enumerate(zip(reversed(string_a), reversed(string_b))):
         if site == ("0", "0"):
             product_state.append("empty")
@@ -50,9 +50,7 @@ def bitstring_to_mps(bitstring: tuple[int, int], norb: int) -> MPS:
                 "down",
                 "full",
             ]:
-                swap_factors.append(-1)
-            else:
-                swap_factors.append(1)
+                swap_factor *= -1
 
     # construct product state MPS
     shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
@@ -62,8 +60,7 @@ def bitstring_to_mps(bitstring: tuple[int, int], norb: int) -> MPS:
     minus_identity_npc = npc.Array.from_ndarray(
         -shfs.get_op("Id").to_ndarray(), [shfs.leg, shfs.leg.conj()], labels=["p", "p*"]
     )
-    for i, swap_factor in enumerate(swap_factors):
-        if swap_factor == -1:
-            mps.apply_local_op(i, minus_identity_npc)
+    if swap_factor == -1:
+        mps.apply_local_op(0, minus_identity_npc)
 
     return mps

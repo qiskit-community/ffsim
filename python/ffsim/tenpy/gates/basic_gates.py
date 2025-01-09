@@ -1,4 +1,4 @@
-# (C) Copyright IBM 2024.
+# (C) Copyright IBM 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -79,7 +79,7 @@ def givens_rotation(
         # Ggate_a = (
         #     np.kron(sp.linalg.expm(1j * phi * Nu), Id)
         #     @ sp.linalg.expm(
-        #         theta * (np.kron(Cdu @ JWd, Cu @ Id) - np.kron(Cu @ JWd, Cdu @ Id))
+        #         theta * (np.kron(Cdu @ JWd, Cu) - np.kron(Cu @ JWd, Cdu))
         #     )
         #     @ np.kron(sp.linalg.expm(-1j * phi * Nu), Id)
         # )
@@ -101,7 +101,7 @@ def givens_rotation(
         # Ggate_b = (
         #     np.kron(sp.linalg.expm(1j * phi * Nd), Id)
         #     @ sp.linalg.expm(
-        #         theta * (np.kron(Cdd @ JWu, Cd @ Id) - np.kron(Cd @ JWu, Cdd @ Id))
+        #         theta * (np.kron(Cdd @ JWu, Cd) - np.kron(Cd @ JWu, Cdd))
         #     )
         #     @ np.kron(sp.linalg.expm(-1j * phi * Nd), Id)
         # )
