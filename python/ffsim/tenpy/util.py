@@ -34,33 +34,30 @@ def bitstring_to_mps(bitstring: tuple[int, int], norb: int) -> MPS:
     string_b = format(int_b, f"0{norb}b")
 
     # relabel using TeNPy SpinHalfFermionSite convention
-    product_state, swap_factor = [], 1
+    product_state = []
+    swap_factor = 1
+    occupation = {"00": 0, "10": 1, "01": 2, "11": 3}
+    previous_site_occupation = None
     for i, site in enumerate(zip(reversed(string_a), reversed(string_b))):
-        if site == ("0", "0"):
-            product_state.append("empty")
-        elif site == ("1", "0"):
-            product_state.append("up")
-        elif site == ("0", "1"):
-            product_state.append("down")
-        else:  # site == ("1", "1"):
-            product_state.append("full")
+        site_occupation = occupation["".join(site)]
+        product_state.append(site_occupation)
 
-        if i > 0:
-            if product_state[-1] in ["up", "full"] and product_state[-2] in [
-                "down",
-                "full",
-            ]:
-                swap_factor *= -1
+        if site_occupation in [1, 3] and previous_site_occupation in [2, 3]:
+            swap_factor *= -1
+
+        previous_site_occupation = site_occupation
 
     # construct product state MPS
     shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
     mps = MPS.from_product_state([shfs] * norb, product_state)
 
     # map from ffsim to TeNPy ordering
-    minus_identity_npc = npc.Array.from_ndarray(
-        -shfs.get_op("Id").to_ndarray(), [shfs.leg, shfs.leg.conj()], labels=["p", "p*"]
-    )
     if swap_factor == -1:
+        minus_identity_npc = npc.Array.from_ndarray(
+            -shfs.get_op("Id").to_ndarray(),
+            [shfs.leg, shfs.leg.conj()],
+            labels=["p", "p*"],
+        )
         mps.apply_local_op(0, minus_identity_npc)
 
     return mps
