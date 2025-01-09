@@ -17,12 +17,8 @@ import ffsim
 def test_trace():
     norb = 50
     nelec = (3, 3)
-
     rng = np.random.default_rng(12345)
     ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, real=True, seed=rng)
-
     t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
-
     t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
-
     np.testing.assert_allclose(t1, t2)

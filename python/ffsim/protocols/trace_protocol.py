@@ -56,27 +56,27 @@ def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
 def _trace_term(
     op: tuple[tuple[bool, bool, int], ...], norb: int, nelec: tuple[int, int]
 ):
-    n_elec_alpha, n_elec_beta = nelec
+    n_alpha, n_beta = nelec
 
-    combined_indices = set([(orb, spin) for _, spin, orb in op])
-    norb_alpha = sum([not spin for _, spin in combined_indices])
-    norb_beta = sum([spin for _, spin in combined_indices])
+    spin_orbs = set((spin, orb) for _, spin, orb in op)
+    norb_alpha = sum(not spin for spin, _ in spin_orbs)
+    norb_beta = len(spin_orbs) - norb_alpha
 
-    eta_alpha = 0
-    eta_beta = 0
+    nelec_alpha = 0
+    nelec_beta = 0
 
     # loop over the support of the operator
     # assume that each site is either 0 or 1 at the beginning
     # track the state of the site through the application of the operator
     # if the state exceed 1 or goes below 0,
     # the state is not physical and the trace must be 0
-    for i, spin in combined_indices:
+    for this_spin, this_orb in spin_orbs:
         initial_zero = 0
         initial_one = 1
         is_zero = True
         is_one = True
-        for action, aspin, orb in reversed(op):
-            if (aspin, orb) != (spin, i):
+        for action, spin, orb in reversed(op):
+            if (spin, orb) != (this_spin, this_orb):
                 continue
 
             change = action * 2 - 1
@@ -86,37 +86,33 @@ def _trace_term(
                 is_zero = False
             if initial_one < 0 or initial_one > 1:
                 is_one = False
-            if not is_zero and not is_one:  # no possible initial state
+            # return 0 immediately if there is no possible initial state
+            if not is_zero and not is_one:  
                 return 0j
-        # if neither the state 0 nor 1 returns to the initial state, the trace must be 0
+                
+        # if the operator has support on site i, either the initial state is 0 or 1, but not both
+        assert not is_zero or not is_one
+        # the state must return to the initial state, otherwise the trace is zero
         if (is_zero and initial_zero != 0) or (is_one and initial_one != 1):
             return 0j
-        # only one case is possible if the operator has support on site i
-        assert not is_zero or not is_one
         # count the number of electrons
         if is_one:
-            if not spin:
-                eta_alpha += 1
+            if not this_spin:
+                nelec_alpha += 1
             else:
-                eta_beta += 1
-        # the number of electrons exceed the number of allowed electrons
-        if eta_alpha > n_elec_alpha or eta_beta > n_elec_beta:
+                nelec_beta += 1
+        if nelec_alpha > n_alpha or nelec_beta > n_beta:
+            # the number of electrons exceeds the number of allowed electrons
             return 0j
 
     # the trace is nontrival and is a product of
-    # coeff, and
-    # binom(#orbs not in the support of A, #elec on these orbs)
+    # binom(#orbs not in the support of op, #elec on these orbs)
     # for each spin species
 
-    trace = math.comb(norb - norb_alpha, n_elec_alpha - eta_alpha) * math.comb(
-        norb - norb_beta, n_elec_beta - eta_beta
+    return math.comb(norb - norb_alpha, n_alpha - nelec_alpha) * math.comb(
+        norb - norb_beta, n_beta - nelec_beta
     )
-
-    return trace
 
 
 def _trace_fermion_operator(ferm: FermionOperator, norb: int, nelec: tuple[int, int]):
-    n_elec_alpha, n_elec_beta = nelec
-    trace = sum([coeff * _trace_term(op, norb, nelec) for op, coeff in ferm.items()])
-
-    return trace
+    return sum([coeff * _trace_term(op, norb, nelec) for op, coeff in ferm.items()])
