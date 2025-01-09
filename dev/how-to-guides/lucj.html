@@ -8,7 +8,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -283,10 +283,10 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyscf</span>
-<span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyscf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.mcscf</span>
 
-<span class="kn">import</span> <span class="nn">ffsim</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ffsim</span>
 
 <span class="c1"># Build an ethene molecule</span>
 <span class="n">bond_distance</span> <span class="o">=</span> <span class="mf">1.339</span>
@@ -331,7 +331,7 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.8266321248745
-Parsing /tmp/tmpol5jce3k
+Parsing /tmp/tmpkizbf46f
 converged SCF energy = -77.8266321248745
 CASCI E = -77.8742165643863  E(CI) = -4.02122442107773  S^2 = 0.0000000
 norb = 4
@@ -358,8 +358,8 @@ Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf.RHF&#
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyscf</span> <span class="kn">import</span> <span class="n">cc</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">cc</span>
 
 <span class="c1"># Get CCSD t2 amplitudes for initializing the ansatz</span>
 <span class="n">ccsd</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">CCSD</span><span class="p">(</span>
@@ -388,8 +388,8 @@ Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf.RHF&#
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374032  E_corr = -0.04758323886583271
-Energy at initialization: -77.87160024816282
+E(CCSD) = -77.8742153637403  E_corr = -0.04758323886584195
+Energy at initialization: -77.87160024816274
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -405,10 +405,10 @@ Energy at initialization: -77.87160024816282
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.optimize</span>
 
 
-<span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Initialize the ansatz operator from the parameter vector</span>
     <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
     <span class="c1"># Apply the ansatz operator to the reference state</span>
@@ -432,15 +432,15 @@ Energy at initialization: -77.87160024816282
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 72
-  message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
-  success: True
-   status: 0
-      fun: -77.87387356022361
-        x: [-6.767e-04 -4.414e-01 ...  4.116e-04  1.284e-01]
-      nit: 8
-      jac: [ 3.553e-05 -8.527e-06 ...  4.263e-06 -2.629e-04]
-     nfev: 803
-     njev: 11
+  message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+  success: False
+   status: 1
+      fun: -77.87387388654743
+        x: [-4.767e-01  4.960e-04 ...  4.198e-04  1.287e-01]
+      nit: 10
+      jac: [ 2.842e-06  2.132e-05 ... -4.263e-06 -4.263e-06]
+     nfev: 949
+     njev: 13
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -458,7 +458,7 @@ Number of parameters: 72
 <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span>
     <span class="p">)</span>
@@ -483,13 +483,13 @@ Number of parameters: 72
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 46
-  message: CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH
+  message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.8736342658043
-        x: [ 9.833e-05 -4.416e-01 ...  3.519e-02  2.561e-01]
+      fun: -77.8736342625579
+        x: [-4.775e-01  2.865e-05 ...  3.519e-02  2.561e-01]
       nit: 5
-      jac: [ 1.847e-05  8.527e-06 ...  5.684e-06 -4.263e-06]
+      jac: [ 9.948e-06 -1.990e-05 ...  0.000e+00 -5.684e-06]
      nfev: 329
      njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -504,13 +504,13 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.optimize</span> <span class="kn">import</span> <span class="n">minimize_linear_method</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize_linear_method</span>
 
 
 <span class="c1"># Define function that converts a list of parameters to the corresponding state vector</span>
-<span class="k">def</span> <span class="nf">params_to_vec</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">params_to_vec</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span>
     <span class="p">)</span>
@@ -521,7 +521,7 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 <span class="n">info</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">):</span>
     <span class="c1"># The callback function is called after each iteration. It accepts</span>
     <span class="c1"># an OptimizeResult object storing the parameters and function value at</span>
     <span class="c1"># the current iteration, and possibly other information</span>
@@ -567,29 +567,29 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Convergence: Relative reduction of objective function &lt;= ftol.
  success: True
-     fun: -77.87363440477317
-       x: [ 2.711e-03 -4.416e-01 ...  3.461e-02  2.556e-01]
+     fun: -77.87363434339031
+       x: [-4.792e-01 -6.521e-04 ...  3.453e-02  2.557e-01]
      nit: 3
-     jac: [-1.398e-06 -2.195e-06 ...  4.450e-08 -3.424e-07]
-    nfev: 520
+     jac: [ 2.219e-06  1.771e-06 ... -5.879e-07 -2.410e-06]
+    nfev: 511
     njev: 4
-  nlinop: 336
+  nlinop: 327
 
 Iteration 1
-    Energy: -77.87363019938154
-    Norm of gradient: 0.0011830968539950613
-    Regularization hyperparameter: 0.0009175442918580155
-    Variation hyperparameter: 0.9927311244578948
+    Energy: -77.87362443394797
+    Norm of gradient: 0.002598966866145239
+    Regularization hyperparameter: 0.0010364873027983617
+    Variation hyperparameter: 0.9724974022647219
 Iteration 2
-    Energy: -77.87363434458074
-    Norm of gradient: 7.433509942264519e-05
-    Regularization hyperparameter: 0.0026944506309703113
-    Variation hyperparameter: 0.9923501421993174
+    Energy: -77.8736342495513
+    Norm of gradient: 0.00013721738262398547
+    Regularization hyperparameter: 0.004686752138536195
+    Variation hyperparameter: 0.972418538594996
 Iteration 3
-    Energy: -77.87363440477317
-    Norm of gradient: 2.873175463104814e-05
-    Regularization hyperparameter: 0.002694452224662913
-    Variation hyperparameter: 0.9923501431316002
+    Energy: -77.87363434339031
+    Norm of gradient: 1.945638767676276e-05
+    Regularization hyperparameter: 0.0046867650433875824
+    Variation hyperparameter: 0.9724185450551446
 </pre></div></div>
 </div>
 </section>

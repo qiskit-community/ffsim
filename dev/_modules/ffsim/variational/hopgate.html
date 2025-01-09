@@ -7,7 +7,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>ffsim.variational.hopgate - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -276,16 +276,16 @@
 
 <span class="sd">&quot;&quot;&quot;Hop gate ansatz.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.gates</span> <span class="kn">import</span> <span class="n">apply_hop_gate</span><span class="p">,</span> <span class="n">apply_orbital_rotation</span>
-<span class="kn">from</span> <span class="nn">ffsim.variational.util</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.gates</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_hop_gate</span><span class="p">,</span> <span class="n">apply_orbital_rotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.variational.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">orbital_rotation_from_parameters</span><span class="p">,</span>
     <span class="n">orbital_rotation_to_parameters</span><span class="p">,</span>
 <span class="p">)</span>
@@ -294,7 +294,7 @@
 <div class="viewcode-block" id="HopGateAnsatzOperator">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.HopGateAnsatzOperator">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">HopGateAnsatzOperator</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HopGateAnsatzOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A hop gate ansatz operator.</span>
 
 <span class="sd">    The hop gate ansatz consists of a sequence of `hop gates`_.</span>
@@ -319,7 +319,7 @@
     <span class="n">thetas</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">final_orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_unitary_</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the operator to a vector.&quot;&quot;&quot;</span>
@@ -343,7 +343,7 @@
 
 <div class="viewcode-block" id="HopGateAnsatzOperator.to_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.HopGateAnsatzOperator.to_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the operator to a real-valued parameter vector.&quot;&quot;&quot;</span>
         <span class="n">num_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thetas</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -360,7 +360,7 @@
 <div class="viewcode-block" id="HopGateAnsatzOperator.from_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.HopGateAnsatzOperator.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_parameters</span><span class="p">(</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
@@ -389,7 +389,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">HopGateAnsatzOperator</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">norb</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>

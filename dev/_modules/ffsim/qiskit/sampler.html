@@ -7,7 +7,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>ffsim.qiskit.sampler - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -276,15 +276,15 @@
 
 <span class="sd">&quot;&quot;&quot;ffsim&#39;s implementation of the Qiskit Sampler primitive.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">ClassicalRegister</span><span class="p">,</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassicalRegister</span><span class="p">,</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BaseSamplerV2</span><span class="p">,</span>
     <span class="n">BitArray</span><span class="p">,</span>
     <span class="n">DataBin</span><span class="p">,</span>
@@ -293,20 +293,20 @@
     <span class="n">SamplerPubLike</span><span class="p">,</span>
     <span class="n">SamplerPubResult</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives.containers.sampler_pub</span> <span class="kn">import</span> <span class="n">SamplerPub</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives.containers.sampler_pub</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamplerPub</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">states</span>
-<span class="kn">from</span> <span class="nn">ffsim.qiskit.sim</span> <span class="kn">import</span> <span class="n">final_state_vector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">states</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.qiskit.sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">final_state_vector</span>
 
 
 <div class="viewcode-block" id="FfsimSampler">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.FfsimSampler">[docs]</a>
-<span class="k">class</span> <span class="nc">FfsimSampler</span><span class="p">(</span><span class="n">BaseSamplerV2</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FfsimSampler</span><span class="p">(</span><span class="n">BaseSamplerV2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation of the Qiskit Sampler primitive backed by ffsim.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="FfsimSampler.__init__">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.FfsimSampler.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
@@ -330,7 +330,7 @@
 
 <div class="viewcode-block" id="FfsimSampler.run">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.FfsimSampler.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">pubs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SamplerPubLike</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrimitiveJob</span><span class="p">[</span><span class="n">PrimitiveResult</span><span class="p">[</span><span class="n">SamplerPubResult</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="n">shots</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -341,11 +341,11 @@
         <span class="k">return</span> <span class="n">job</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pubs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SamplerPub</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">PrimitiveResult</span><span class="p">[</span><span class="n">SamplerPubResult</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pubs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SamplerPub</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">PrimitiveResult</span><span class="p">[</span><span class="n">SamplerPubResult</span><span class="p">]:</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_pub</span><span class="p">(</span><span class="n">pub</span><span class="p">)</span> <span class="k">for</span> <span class="n">pub</span> <span class="ow">in</span> <span class="n">pubs</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">PrimitiveResult</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_run_pub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pub</span><span class="p">:</span> <span class="n">SamplerPub</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SamplerPubResult</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_pub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pub</span><span class="p">:</span> <span class="n">SamplerPub</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SamplerPubResult</span><span class="p">:</span>
         <span class="n">circuit</span><span class="p">,</span> <span class="n">qargs</span><span class="p">,</span> <span class="n">meas_info</span> <span class="o">=</span> <span class="n">_preprocess_circuit</span><span class="p">(</span><span class="n">pub</span><span class="o">.</span><span class="n">circuit</span><span class="p">)</span>
         <span class="n">bound_circuits</span> <span class="o">=</span> <span class="n">pub</span><span class="o">.</span><span class="n">parameter_values</span><span class="o">.</span><span class="n">bind_all</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
         <span class="n">arrays</span> <span class="o">=</span> <span class="p">{</span>
@@ -401,19 +401,19 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">_MeasureInfo</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_MeasureInfo</span><span class="p">:</span>
     <span class="n">creg_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">num_bits</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">num_bytes</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">qreg_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_min_num_bytes</span><span class="p">(</span><span class="n">num_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_min_num_bytes</span><span class="p">(</span><span class="n">num_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the minimum number of bytes needed to store ``num_bits``.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">num_bits</span> <span class="o">//</span> <span class="mi">8</span> <span class="o">+</span> <span class="p">(</span><span class="n">num_bits</span> <span class="o">%</span> <span class="mi">8</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_preprocess_circuit</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_circuit</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
     <span class="n">num_bits_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">creg</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">creg</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">creg</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">}</span>
     <span class="n">mapping</span> <span class="o">=</span> <span class="n">_final_measurement_mapping</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
     <span class="n">qargs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
@@ -437,7 +437,7 @@
     <span class="k">return</span> <span class="n">circuit</span><span class="p">,</span> <span class="n">qargs</span><span class="p">,</span> <span class="n">meas_info</span>
 
 
-<span class="k">def</span> <span class="nf">_final_measurement_mapping</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_final_measurement_mapping</span><span class="p">(</span>
     <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">ClassicalRegister</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the final measurement mapping for the circuit.</span>
@@ -474,7 +474,7 @@
     <span class="k">return</span> <span class="n">mapping</span>
 
 
-<span class="k">def</span> <span class="nf">_samples_to_packed_array</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_samples_to_packed_array</span><span class="p">(</span>
     <span class="n">samples</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">],</span> <span class="n">num_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">]:</span>
     <span class="c1"># samples of `Statevector.sample_memory` will be in the order of</span>

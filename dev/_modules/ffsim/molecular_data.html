@@ -7,7 +7,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>ffsim.molecular_data - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -276,35 +276,35 @@
 
 <span class="sd">&quot;&quot;&quot;The MolecularData class.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">bz2</span>
-<span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="kn">import</span> <span class="nn">gzip</span>
-<span class="kn">import</span> <span class="nn">lzma</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">bz2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lzma</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">orjson</span>
-<span class="kn">import</span> <span class="nn">pyscf</span>
-<span class="kn">import</span> <span class="nn">pyscf.cc</span>
-<span class="kn">import</span> <span class="nn">pyscf.ci</span>
-<span class="kn">import</span> <span class="nn">pyscf.fci</span>
-<span class="kn">import</span> <span class="nn">pyscf.mcscf</span>
-<span class="kn">import</span> <span class="nn">pyscf.mp</span>
-<span class="kn">import</span> <span class="nn">pyscf.symm</span>
-<span class="kn">import</span> <span class="nn">pyscf.tools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">orjson</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.cc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.ci</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.fci</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.mcscf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.mp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.symm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.tools</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.hamiltonians</span> <span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.hamiltonians</span><span class="w"> </span><span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
 
 
 <div class="viewcode-block" id="MolecularData">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">MolecularData</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MolecularData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for storing molecular data.</span>
 
 <span class="sd">    Attributes:</span>
@@ -386,7 +386,7 @@
     <span class="n">orbital_symmetries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The Hamiltonian defined by the molecular data.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MolecularHamiltonian</span><span class="p">(</span>
             <span class="n">one_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_integrals</span><span class="p">,</span>
@@ -395,7 +395,7 @@
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">mole</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mole</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The PySCF Mole class for this molecular data.&quot;&quot;&quot;</span>
         <span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">mol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
@@ -406,7 +406,7 @@
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">scf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">hf</span><span class="o">.</span><span class="n">SCF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">hf</span><span class="o">.</span><span class="n">SCF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A PySCF SCF class for this molecular data.&quot;&quot;&quot;</span>
         <span class="c1"># HACK Not sure if there&#39;s a better way to do this...</span>
         <span class="n">fp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span>
@@ -419,7 +419,7 @@
 <div class="viewcode-block" id="MolecularData.from_scf">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_scf">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_scf</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_scf</span><span class="p">(</span>
         <span class="n">hartree_fock</span><span class="p">:</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">hf</span><span class="o">.</span><span class="n">SCF</span><span class="p">,</span> <span class="n">active_space</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MolecularData&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData object from a Hartree-Fock calculation.</span>
@@ -467,7 +467,7 @@
 
 <div class="viewcode-block" id="MolecularData.run_cisd">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_cisd">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_cisd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_cisd_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_cisd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_cisd_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run CISD and store results.&quot;&quot;&quot;</span>
         <span class="n">cisd</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">ci</span><span class="o">.</span><span class="n">CISD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">cisd_vec</span> <span class="o">=</span> <span class="n">cisd</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
@@ -478,7 +478,7 @@
 
 <div class="viewcode-block" id="MolecularData.run_sci">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_sci">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_sci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_sci_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_sci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_sci_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run SCI and store results.&quot;&quot;&quot;</span>
         <span class="n">sci</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">fci</span><span class="o">.</span><span class="n">SCI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
         <span class="n">sci_energy</span><span class="p">,</span> <span class="n">sci_vec</span> <span class="o">=</span> <span class="n">sci</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span>
@@ -494,7 +494,7 @@
 
 <div class="viewcode-block" id="MolecularData.run_fci">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_fci">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_fci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_fci_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_fci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_fci_vec</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run FCI and store results.&quot;&quot;&quot;</span>
         <span class="n">cas</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mcscf</span><span class="o">.</span><span class="n">CASCI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">run</span><span class="p">(),</span> <span class="n">ncas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelecas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nelec</span><span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">fci_vec</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cas</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
@@ -505,7 +505,7 @@
 
 <div class="viewcode-block" id="MolecularData.run_mp2">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_mp2">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_mp2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_t2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_mp2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_t2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run MP2 and store results.&quot;&quot;&quot;</span>
         <span class="n">mp2</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">mp</span><span class="o">.</span><span class="n">MP2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">mp2_t2</span> <span class="o">=</span> <span class="n">mp2</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
@@ -516,7 +516,7 @@
 
 <div class="viewcode-block" id="MolecularData.run_ccsd">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.run_ccsd">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_ccsd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_ccsd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -536,7 +536,7 @@
 
 <div class="viewcode-block" id="MolecularData.to_json">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.to_json">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">compression</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialize to JSON format, optionally compressed, and save to disk.</span>
@@ -547,7 +547,7 @@
 <span class="sd">                Options: ``&quot;gzip&quot;``, ``&quot;bz2&quot;``, ``&quot;lzma&quot;``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">TypeError</span>
@@ -567,7 +567,7 @@
 <div class="viewcode-block" id="MolecularData.from_json">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_json">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_json</span><span class="p">(</span>
         <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">compression</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularData</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a MolecularData from a (possibly compressed) JSON file.</span>
@@ -589,12 +589,12 @@
         <span class="k">with</span> <span class="n">open_func</span><span class="p">[</span><span class="n">compression</span><span class="p">](</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
-        <span class="k">def</span> <span class="nf">as_array_or_none</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">as_array_or_none</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">as_array_tuple_or_none</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">as_array_tuple_or_none</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">val</span><span class="p">)</span>
@@ -640,7 +640,7 @@
 
 <div class="viewcode-block" id="MolecularData.to_fcidump">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.to_fcidump">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_fcidump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_fcidump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save data to disk in FCIDUMP format.</span>
 
 <span class="sd">        .. note::</span>
@@ -664,7 +664,7 @@
 <div class="viewcode-block" id="MolecularData.from_fcidump">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_fcidump">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularData</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_fcidump</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularData</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MolecularData from an FCIDUMP file.</span>
 
 <span class="sd">        Args:</span>
@@ -687,7 +687,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_remove_sym_from_fcidump</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_sym_from_fcidump</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove ORBSYM and ISYM information from an FCIDUMP file.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>

@@ -7,7 +7,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>ffsim.states.rdm - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -276,10 +276,10 @@
 
 <span class="sd">&quot;&quot;&quot;Functions to compute reduced density matrices.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyscf.fci.direct_spin1</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.fci.direct_spin1</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">make_rdm1</span><span class="p">,</span>
     <span class="n">make_rdm1s</span><span class="p">,</span>
     <span class="n">make_rdm12</span><span class="p">,</span>
@@ -290,12 +290,12 @@
     <span class="n">trans_rdm12s</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">ffsim.cistring</span> <span class="kn">import</span> <span class="n">gen_linkstr_index</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.cistring</span><span class="w"> </span><span class="kn">import</span> <span class="n">gen_linkstr_index</span>
 
 
 <div class="viewcode-block" id="rdms">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.rdms">[docs]</a>
-<span class="k">def</span> <span class="nf">rdms</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rdms</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
@@ -375,7 +375,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_rdm1s</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rdm1s</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
@@ -389,7 +389,7 @@
     <span class="k">return</span> <span class="n">_assemble_rdm1s</span><span class="p">(</span><span class="n">rdm1s_real</span><span class="p">,</span> <span class="n">rdm1s_imag</span><span class="p">,</span> <span class="n">trans_rdm1s_real_imag</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_assemble_rdm1s</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_assemble_rdm1s</span><span class="p">(</span>
     <span class="n">rdm1s_real</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">rdm1s_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">trans_rdm1s_real_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
@@ -403,7 +403,7 @@
     <span class="k">return</span> <span class="n">rdm1s</span>
 
 
-<span class="k">def</span> <span class="nf">_rdm2s</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rdm2s</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
@@ -424,7 +424,7 @@
     <span class="k">return</span> <span class="n">rdm1</span><span class="p">,</span> <span class="n">rdm2</span>
 
 
-<span class="k">def</span> <span class="nf">_assemble_rdm2s</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_assemble_rdm2s</span><span class="p">(</span>
     <span class="n">rdm2s_real</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">rdm2s_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">trans_rdm2s_real_imag</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
@@ -443,7 +443,7 @@
     <span class="k">return</span> <span class="n">rdm2s</span>
 
 
-<span class="k">def</span> <span class="nf">_rdm1_spin_summed</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rdm1_spin_summed</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
@@ -457,7 +457,7 @@
     <span class="k">return</span> <span class="n">_assemble_rdm1_spin_summed</span><span class="p">(</span><span class="n">rdm1_real</span><span class="p">,</span> <span class="n">rdm1_imag</span><span class="p">,</span> <span class="n">trans_rdm1_real_imag</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_assemble_rdm1_spin_summed</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_assemble_rdm1_spin_summed</span><span class="p">(</span>
     <span class="n">rdm1_real</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">rdm1_imag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">trans_rdm1_real_imag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -466,7 +466,7 @@
     <span class="k">return</span> <span class="n">rdm1_real</span> <span class="o">+</span> <span class="n">rdm1_imag</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="n">trans_rdm1_real_imag</span> <span class="o">-</span> <span class="n">trans_rdm1_real_imag</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_rdm2_spin_summed</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rdm2_spin_summed</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
@@ -487,7 +487,7 @@
     <span class="k">return</span> <span class="n">rdm1</span><span class="p">,</span> <span class="n">rdm2</span>
 
 
-<span class="k">def</span> <span class="nf">_assemble_rdm2_spin_summed</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_assemble_rdm2_spin_summed</span><span class="p">(</span>
     <span class="n">rdm2_real</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">rdm2_imag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">trans_rdm2_real_imag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>

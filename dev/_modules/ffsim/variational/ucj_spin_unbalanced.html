@@ -7,7 +7,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>ffsim.variational.ucj_spin_unbalanced - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -276,16 +276,16 @@
 
 <span class="sd">&quot;&quot;&quot;Spin-unbalanced (local) unitary cluster Jastrow ansatz.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">InitVar</span><span class="p">,</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">InitVar</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">gates</span><span class="p">,</span> <span class="n">linalg</span>
-<span class="kn">from</span> <span class="nn">ffsim.variational.util</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">gates</span><span class="p">,</span> <span class="n">linalg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.variational.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">orbital_rotation_from_parameters</span><span class="p">,</span>
     <span class="n">orbital_rotation_from_t1_amplitudes</span><span class="p">,</span>
     <span class="n">orbital_rotation_to_parameters</span><span class="p">,</span>
@@ -296,7 +296,7 @@
 <div class="viewcode-block" id="UCJOpSpinUnbalanced">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOpSpinUnbalanced">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">UCJOpSpinUnbalanced</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UCJOpSpinUnbalanced</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A spin-unbalanced unitary cluster Jastrow operator.</span>
 
 <span class="sd">    A unitary cluster Jastrow (UCJ) operator has the form</span>
@@ -349,7 +349,7 @@
     <span class="n">rtol</span><span class="p">:</span> <span class="n">InitVar</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-5</span>
     <span class="n">atol</span><span class="p">:</span> <span class="n">InitVar</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-8</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">4</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -400,19 +400,19 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Final orbital rotation was not unitary.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">norb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">norb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of spatial orbitals.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">n_reps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_reps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of ansatz repetitions.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="UCJOpSpinUnbalanced.n_params">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOpSpinUnbalanced.n_params">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">n_params</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_params</span><span class="p">(</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -477,7 +477,7 @@
 <div class="viewcode-block" id="UCJOpSpinUnbalanced.from_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOpSpinUnbalanced.from_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_parameters</span><span class="p">(</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -605,7 +605,7 @@
 
 <div class="viewcode-block" id="UCJOpSpinUnbalanced.to_parameters">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOpSpinUnbalanced.to_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span>
             <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -707,7 +707,7 @@
 <div class="viewcode-block" id="UCJOpSpinUnbalanced.from_t_amplitudes">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOpSpinUnbalanced.from_t_amplitudes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_t_amplitudes</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_t_amplitudes</span><span class="p">(</span>
         <span class="n">t2</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">t1</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -890,7 +890,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_apply_unitary_</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_unitary_</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
@@ -932,7 +932,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">vec</span>
 
-    <span class="k">def</span> <span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">UCJOpSpinUnbalanced</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
@@ -958,7 +958,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_pad_diag_coulomb_mats</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pad_diag_coulomb_mats</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
     <span class="n">n_vecs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">if</span> <span class="n">n_reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_vecs</span> <span class="o">&lt;</span> <span class="n">n_reps</span><span class="p">:</span>
         <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
@@ -970,7 +970,7 @@
     <span class="k">return</span> <span class="n">diag_coulomb_mats</span>
 
 
-<span class="k">def</span> <span class="nf">_pad_orbital_rotations</span><span class="p">(</span><span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pad_orbital_rotations</span><span class="p">(</span><span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
     <span class="n">n_vecs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">if</span> <span class="n">n_reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_vecs</span> <span class="o">&lt;</span> <span class="n">n_reps</span><span class="p">:</span>
         <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>

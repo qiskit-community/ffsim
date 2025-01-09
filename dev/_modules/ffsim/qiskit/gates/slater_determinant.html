@@ -7,7 +7,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>ffsim.qiskit.gates.slater_determinant - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -276,26 +276,26 @@
 
 <span class="sd">&quot;&quot;&quot;Slater determinant and Hartree-Fock preparation gates.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">cmath</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cmath</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">Gate</span><span class="p">,</span> <span class="n">Qubit</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">XGate</span><span class="p">,</span> <span class="n">XXPlusYYGate</span>
-<span class="kn">from</span> <span class="nn">scipy.linalg.lapack</span> <span class="kn">import</span> <span class="n">zrot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">Gate</span><span class="p">,</span> <span class="n">Qubit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGate</span><span class="p">,</span> <span class="n">XXPlusYYGate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg.lapack</span><span class="w"> </span><span class="kn">import</span> <span class="n">zrot</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">linalg</span>
-<span class="kn">from</span> <span class="nn">ffsim.linalg.givens</span> <span class="kn">import</span> <span class="n">GivensRotation</span><span class="p">,</span> <span class="n">zrotg</span>
-<span class="kn">from</span> <span class="nn">ffsim.qiskit.gates.orbital_rotation</span> <span class="kn">import</span> <span class="n">_validate_orbital_rotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">linalg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.linalg.givens</span><span class="w"> </span><span class="kn">import</span> <span class="n">GivensRotation</span><span class="p">,</span> <span class="n">zrotg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.qiskit.gates.orbital_rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_orbital_rotation</span>
 
 
 <div class="viewcode-block" id="PrepareHartreeFockJW">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockJW">[docs]</a>
-<span class="k">class</span> <span class="nc">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PrepareHartreeFockJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Gate that prepares the Hartree-Fock state (under JWT) from the all zeros state.</span>
 
 <span class="sd">    This gate assumes the Jordan-Wigner transformation (JWT).</span>
@@ -310,7 +310,7 @@
 
 <div class="viewcode-block" id="PrepareHartreeFockJW.__init__">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockJW.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new Hartree-Fock state preparation gate.</span>
@@ -325,7 +325,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;hartree_fock_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -340,7 +340,7 @@
 
 <div class="viewcode-block" id="PrepareHartreeFockSpinlessJW">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockSpinlessJW">[docs]</a>
-<span class="k">class</span> <span class="nc">PrepareHartreeFockSpinlessJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PrepareHartreeFockSpinlessJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Prepare the Hartree-Fock state (under JWT) from the zero state, spinless.</span>
 
 <span class="sd">    Like :class:`PrepareHartreeFockJW` but only acts on a single spin species.</span>
@@ -348,7 +348,7 @@
 
 <div class="viewcode-block" id="PrepareHartreeFockSpinlessJW.__init__">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new Hartree-Fock state preparation gate.</span>
 
 <span class="sd">        Args:</span>
@@ -361,7 +361,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;hartree_fock_spinless_jw&quot;</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -375,7 +375,7 @@
 
 <div class="viewcode-block" id="PrepareSlaterDeterminantJW">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantJW">[docs]</a>
-<span class="k">class</span> <span class="nc">PrepareSlaterDeterminantJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PrepareSlaterDeterminantJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Gate that prepares a Slater determinant (under JWT) from the all zeros state.</span>
 
 <span class="sd">    This gate assumes the Jordan-Wigner transformation (JWT).</span>
@@ -408,7 +408,7 @@
 
 <div class="viewcode-block" id="PrepareSlaterDeterminantJW.__init__">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantJW.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
@@ -468,7 +468,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;slater_jw&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -499,7 +499,7 @@
 
 <div class="viewcode-block" id="PrepareSlaterDeterminantSpinlessJW">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW">[docs]</a>
-<span class="k">class</span> <span class="nc">PrepareSlaterDeterminantSpinlessJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PrepareSlaterDeterminantSpinlessJW</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Prepare a Slater determinant (under JWT) from the zero state, spinless version.</span>
 
 <span class="sd">    Like :class:`PrepareSlaterDeterminantJW` but only acts on a single spin species.</span>
@@ -507,7 +507,7 @@
 
 <div class="viewcode-block" id="PrepareSlaterDeterminantSpinlessJW.__init__">
 <a class="viewcode-back" href="../../../../api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
@@ -546,7 +546,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;slater_spinless_jw&quot;</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gate decomposition.&quot;&quot;&quot;</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -566,14 +566,14 @@
 
 
 
-<span class="k">def</span> <span class="nf">_prepare_configuration_jw</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_configuration_jw</span><span class="p">(</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">occupied_orbitals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
     <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">occupied_orbitals</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">XGate</span><span class="p">(),</span> <span class="p">(</span><span class="n">qubits</span><span class="p">[</span><span class="n">orb</span><span class="p">],))</span>
 
 
-<span class="k">def</span> <span class="nf">_prepare_slater_determinant_jw</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_slater_determinant_jw</span><span class="p">(</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span> <span class="n">orbital_coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
     <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">orbital_coeffs</span><span class="o">.</span><span class="n">shape</span>
@@ -594,7 +594,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_givens_decomposition_slater</span><span class="p">(</span><span class="n">orbital_coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GivensRotation</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_givens_decomposition_slater</span><span class="p">(</span><span class="n">orbital_coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GivensRotation</span><span class="p">]:</span>
     <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">orbital_coeffs</span><span class="o">.</span><span class="n">shape</span>
 
     <span class="n">current_matrix</span> <span class="o">=</span> <span class="n">orbital_coeffs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

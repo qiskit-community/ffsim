@@ -8,7 +8,7 @@
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>How to build and transpile Qiskit quantum circuits - ffsim 0.0.49.dev0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -283,10 +283,10 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
 
-<span class="kn">import</span> <span class="nn">ffsim</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ffsim</span>
 
 <span class="c1"># Let&#39;s use 4 spatial orbitals with 2 alpha electrons and 2 beta electrons.</span>
 <span class="n">norb</span> <span class="o">=</span> <span class="mi">4</span>
@@ -339,8 +339,8 @@ gate decompositions of fermionic gates</span></a> for a more detailed explanatio
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">GenericBackendV2</span>
-<span class="kn">from</span> <span class="nn">qiskit.transpiler.preset_passmanagers</span> <span class="kn">import</span> <span class="n">generate_preset_pass_manager</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericBackendV2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.preset_passmanagers</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_preset_pass_manager</span>
 
 <span class="c1"># Initialize quantum device backend</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">GenericBackendV2</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="n">basis_gates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cp&quot;</span><span class="p">,</span> <span class="s2">&quot;xx_plus_yy&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">])</span>
@@ -391,7 +391,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7e00bbb0&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4bfc610&gt;
 </pre></div></div>
 </div>
 </section>
@@ -420,7 +420,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7dd63340&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4949e40&gt;
 </pre></div></div>
 </div>
 </section>
@@ -447,7 +447,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7dfa3520&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4ade830&gt;
 </pre></div></div>
 </div>
 </section>
@@ -469,7 +469,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7ded90f0&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4bfd600&gt;
 </pre></div></div>
 </div>
 </section>
@@ -494,7 +494,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7ddccee0&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4bfd420&gt;
 </pre></div></div>
 </div>
 </section>
@@ -517,7 +517,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7dfa0e80&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4a81e10&gt;
 </pre></div></div>
 </div>
 </section>
@@ -540,7 +540,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7ddcd4e0&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4b1cfa0&gt;
 </pre></div></div>
 </div>
 </section>
@@ -567,7 +567,7 @@ OrderedDict([(&#39;cp&#39;, 56), (&#39;xx_plus_yy&#39;, 32), (&#39;p&#39;, 24), 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit.circuit.instructionset.InstructionSet at 0x7f4c7dfa1840&gt;
+&lt;qiskit.circuit.instructionset.InstructionSet at 0x7fece4bfcca0&gt;
 </pre></div></div>
 </div>
 </section>
