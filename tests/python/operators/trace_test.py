@@ -17,10 +17,7 @@ def test_trace():
     nelec = (3,3)
 
     rng = np.random.default_rng(12345)
-    h = np.matrix(rng.random((norb,norb)))
-    h = h + h.H
-    V = np.array([np.matrix(rng.random((norb,norb))),np.matrix(rng.random((norb,norb)))])
-    H = ffsim.DiagonalCoulombHamiltonian(h,V)
+    H = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, real=True, seed=rng)
     
     t1 = ffsim.trace(ffsim.fermion_operator(H),norb=norb, nelec=nelec)
     

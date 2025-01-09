@@ -89,7 +89,7 @@ def _trace_fermion_operator_single(
         is_one = True
         for action, aspin, orb in reversed(op):  
             if aspin == spin and orb == i:
-                change = a[0]*2-1
+                change = action*2-1
                 initial_zero += change
                 initial_one += change
                 if initial_zero < 0 or initial_zero > 1:
@@ -127,6 +127,7 @@ def _trace_fermion_operator(
     A: FermionOperator, norb: int, nelec: tuple[int, int]
 ):
     n_elec_alpha, n_elec_beta = nelec
+    trace = 0
     for op in A:
         B = FermionOperator({op:A[op]})
         trace+= _trace_fermion_operator_single(B, norb, nelec)
