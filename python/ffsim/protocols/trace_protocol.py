@@ -12,13 +12,12 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any, Protocol
-
-from ffsim.operators import FermionOperator
 
 import numpy as np
 
-import math
+from ffsim.operators import FermionOperator
 
 
 class SupportsTrace(Protocol):
@@ -40,7 +39,7 @@ def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
     """Return the trace of the linear operator."""
     if isinstance(obj, FermionOperator):
         return _trace_fermion_operator(obj, norb, nelec)
-    
+
     method = getattr(obj, "_trace_", None)
     if method is not None:
         return method(norb=norb, nelec=nelec)
@@ -53,12 +52,13 @@ def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
         "or a _diag_ method that returned its diagonal entries."
     )
 
+
 def _trace_fermion_operator_single(
-    A: FermionOperator, norb: int, nelec: tuple[int, int]
+    ferm: FermionOperator, norb: int, nelec: tuple[int, int]
 ):
     n_elec_alpha, n_elec_beta = nelec
-    op = list(A.keys())[0]
-    coeff = A[op]
+    op = list(ferm.keys())[0]
+    coeff = ferm[op]
     alpha_indices = []
     beta_indices = []
     for _, spin, orb in op:
@@ -68,11 +68,9 @@ def _trace_fermion_operator_single(
             beta_indices.append(orb)
     alpha_indices = list(set(alpha_indices))
     beta_indices = list(set(beta_indices))
-    combined_indices = [(i,False) for i in alpha_indices]  +[(i,True) for i in beta_indices]
-    
-    
-    n_alpha = len(alpha_indices)
-    n_beta = len(beta_indices)
+    combined_indices = [(i, False) for i in alpha_indices] + [
+        (i, True) for i in beta_indices
+    ]
 
     no_configuration = False
     eta_alpha = 0
@@ -81,15 +79,16 @@ def _trace_fermion_operator_single(
     # loop over the support of the operator
     # assume that each site is either 0 or 1 at the beginning
     # track the state of the site through the application of the operator
-    # if the state exceed 1 or goes below 0, the state is not physical and the trace must be 0
+    # if the state exceed 1 or goes below 0,
+    # the state is not physical and the trace must be 0
     for i, spin in combined_indices:
         initial_zero = 0
         initial_one = 1
         is_zero = True
         is_one = True
-        for action, aspin, orb in reversed(op):  
+        for action, aspin, orb in reversed(op):
             if aspin == spin and orb == i:
-                change = action*2-1
+                change = action * 2 - 1
                 initial_zero += change
                 initial_one += change
                 if initial_zero < 0 or initial_zero > 1:
@@ -101,36 +100,38 @@ def _trace_fermion_operator_single(
                 break
         if (is_zero and initial_zero != 0) or (is_one and initial_one != 1):
             no_configuration = True
-        assert not is_zero or not is_one # only one case is possible if the operator has support on site i
+        # only one case is possible if the operator has support on site i
+        assert not is_zero or not is_one
         # count the number of electrons
         if is_one:
-            if spin == False:
+            if not spin:
                 eta_alpha += 1
             else:
                 eta_beta += 1
         # the number of electrons exceed the number of allowed electrons
-        if eta_alpha > n_elec_alpha or eta_beta > n_elec_beta: 
+        if eta_alpha > n_elec_alpha or eta_beta > n_elec_beta:
             no_configuration = True
         if no_configuration:
             trace = 0
             break
-            
+
     if not no_configuration:
         # the trace is nontrival and is a product of
         # coeff, and
-        # binom(number of orbitals not in the support of A, number of electrons allowed on these orbitals) for both spin species
-        trace = coeff*math.comb(norb - len(alpha_indices),n_elec_alpha - eta_alpha)*math.comb(norb - len(beta_indices),n_elec_beta - eta_beta)
-        
+        # binom(#orbs not in the support of A, #elec on these orbs)
+        # for each spin species
+        trace = coeff
+        trace = trace * math.comb(norb - len(alpha_indices), n_elec_alpha - eta_alpha)
+        trace = trace * math.comb(norb - len(beta_indices), n_elec_beta - eta_beta)
+
     return trace
 
-def _trace_fermion_operator(
-    A: FermionOperator, norb: int, nelec: tuple[int, int]
-):
+
+def _trace_fermion_operator(ferm: FermionOperator, norb: int, nelec: tuple[int, int]):
     n_elec_alpha, n_elec_beta = nelec
     trace = 0
-    for op in A:
-        B = FermionOperator({op:A[op]})
-        trace+= _trace_fermion_operator_single(B, norb, nelec)
-    
-            
+    for op in ferm:
+        single_term = FermionOperator({op: ferm[op]})
+        trace += _trace_fermion_operator_single(single_term, norb, nelec)
+
     return trace
