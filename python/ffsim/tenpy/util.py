@@ -36,13 +36,12 @@ def bitstring_to_mps(bitstring: tuple[int, int], norb: int) -> MPS:
     # relabel using TeNPy SpinHalfFermionSite convention
     product_state = []
     swap_factor = 1
-    occupation = {"00": 0, "10": 1, "01": 2, "11": 3}
     previous_site_occupation = None
-    for i, site in enumerate(zip(reversed(string_a), reversed(string_b))):
-        site_occupation = occupation["".join(site)]
+    for i, site in enumerate(zip(reversed(string_b), reversed(string_a))):
+        site_occupation = int("".join(site), base=2)
         product_state.append(site_occupation)
 
-        if site_occupation in [1, 3] and previous_site_occupation in [2, 3]:
+        if site_occupation in [0b01, 0b11] and previous_site_occupation in [0b10, 0b11]:
             swap_factor *= -1
 
         previous_site_occupation = site_occupation
