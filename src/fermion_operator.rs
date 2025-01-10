@@ -423,6 +423,100 @@ impl FermionOperator {
         }
         true
     }
+
+    fn _trace_(&self, norb: usize, nelec: (usize, usize)) -> Complex64 {
+        self.coeffs
+            .iter()
+            .map(|(op, &coeff)| coeff * term_trace(op, norb, nelec) as f64)
+            .sum()
+    }
+}
+
+fn term_phase(op: &[(bool, bool, i32)]) -> i32 {
+    let mut phase = 0;
+    let mut op = op.to_vec(); // Work with a mutable copy
+    while !op.is_empty() {
+        let (action, spin, orb) = op[0];
+        let conj_idx = op
+            .iter()
+            .position(|&(a, s, o)| (a, s, o) == (!action, spin, orb))
+            .unwrap();
+        phase += conj_idx - 1;
+        op = [&op[1..conj_idx], &op[conj_idx + 1..]].concat();
+    }
+    (-1i32).pow(phase as u32)
+}
+
+fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i32 {
+    let (n_alpha, n_beta) = nelec;
+
+    let spin_orbs = op
+        .iter()
+        .map(|&(_, spin, orb)| (spin, orb))
+        .collect::<std::collections::HashSet<_>>();
+    let norb_alpha = spin_orbs.iter().filter(|&&(spin, _)| !spin).count();
+    let norb_beta = spin_orbs.len() - norb_alpha;
+
+    let mut nelec_alpha = 0;
+    let mut nelec_beta = 0;
+
+    for &(this_spin, this_orb) in &spin_orbs {
+        let mut initial_zero = 0;
+        let mut initial_one = 1;
+        let mut is_zero = true;
+        let mut is_one = true;
+
+        for &(action, spin, orb) in op.iter().rev() {
+            if (spin, orb) != (this_spin, this_orb) {
+                continue;
+            }
+
+            let change = if action { 1 } else { -1 };
+            initial_zero += change;
+            initial_one += change;
+
+            if !(0..=1).contains(&initial_zero) {
+                is_zero = false;
+            }
+            if !(0..=1).contains(&initial_one) {
+                is_one = false;
+            }
+        }
+
+        assert!(!is_zero || !is_one);
+
+        if !is_zero && !is_one {
+            return 0;
+        }
+
+        if (is_zero && initial_zero != 0) || (is_one && initial_one != 1) {
+            return 0;
+        }
+
+        if is_one {
+            if !this_spin {
+                nelec_alpha += 1;
+            } else {
+                nelec_beta += 1;
+            }
+        }
+
+        if nelec_alpha > n_alpha || nelec_beta > n_beta {
+            return 0;
+        }
+    }
+
+    let binomial = |n, k| {
+        if k > n {
+            0
+        } else {
+            (1..=n).rev().take(k).product::<usize>() / (1..=k).product::<usize>()
+        }
+    };
+
+    term_phase(op)
+        * binomial(norb - norb_alpha, n_alpha - nelec_alpha) as i32
+        * binomial(norb - norb_beta, n_beta - nelec_beta) as i32
 }
 
 fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> FermionOperator {
