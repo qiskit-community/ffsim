@@ -53,6 +53,16 @@ def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> complex:
     )
 
 
+def _term_phase(op: tuple[tuple[bool, bool, int], ...]) -> int:
+    phase = 0
+    while len(op) > 0:
+        action, spin, orb = op[0]
+        conj_idx = op.index((not action, spin, orb))
+        phase += conj_idx - 1
+        op = op[1:conj_idx] + op[conj_idx + 1 :]
+    return (-1) ** phase
+
+
 def _trace_term(
     op: tuple[tuple[bool, bool, int], ...], norb: int, nelec: tuple[int, int]
 ) -> complex:
@@ -110,9 +120,12 @@ def _trace_term(
     # the trace is nontrival and is a product of
     # binom(#orbs not in the support of op, #elec on these orbs)
     # for each spin species
+    # and a phase that depends on the ordering between the actions
 
-    return math.comb(norb - norb_alpha, n_alpha - nelec_alpha) * math.comb(
-        norb - norb_beta, n_beta - nelec_beta
+    return (
+        _term_phase(op)
+        * math.comb(norb - norb_alpha, n_alpha - nelec_alpha)
+        * math.comb(norb - norb_beta, n_beta - nelec_beta)
     )
 
 

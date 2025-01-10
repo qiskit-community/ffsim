@@ -645,10 +645,20 @@ def test_mapping_methods():
     }
 
 def test_trace():
+    rng = np.random.default_rng(12345)
+    # compare for random_diagonal_coulomb_hamiltonian
     norb = 50
     nelec = (3, 3)
-    rng = np.random.default_rng(12345)
     ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, real=True, seed=rng)
     t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
     t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
     np.testing.assert_allclose(t1, t2)
+
+    # compare for random_molecular_hamiltonian
+    norb = 20
+    nelec = (3, 3)
+    ham = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
+    t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
+
+    
