@@ -8,6 +8,7 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.
 
+use num_integer::binomial;
 use numpy::Complex64;
 use pyo3::class::basic::CompareOp;
 use pyo3::exceptions::PyKeyError;
@@ -515,14 +516,6 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
             return 0;
         }
     }
-
-    let binomial = |n, k| {
-        if k > n {
-            0
-        } else {
-            (1..=n).rev().take(k).product::<usize>() / (1..=k).product::<usize>()
-        }
-    };
 
     term_phase(op)
         * binomial(norb - norb_alpha, n_alpha - nelec_alpha) as i32
