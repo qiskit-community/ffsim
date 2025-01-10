@@ -1,4 +1,4 @@
-# (C) Copyright IBM 2023.
+# (C) Copyright IBM 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -35,7 +35,7 @@ class SupportsTrace(Protocol):
         """
 
 
-def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
+def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> complex:
     """Return the trace of the linear operator."""
     if isinstance(obj, FermionOperator):
         return _trace_fermion_operator(obj, norb, nelec)
@@ -55,7 +55,7 @@ def trace(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
 
 def _trace_term(
     op: tuple[tuple[bool, bool, int], ...], norb: int, nelec: tuple[int, int]
-):
+) -> complex:
     n_alpha, n_beta = nelec
 
     spin_orbs = set((spin, orb) for _, spin, orb in op)
@@ -86,13 +86,14 @@ def _trace_term(
                 is_zero = False
             if initial_one < 0 or initial_one > 1:
                 is_one = False
-            # return 0 immediately if there is no possible initial state
-            if not is_zero and not is_one:
-                return 0j
 
         # if the operator has support on this_orb,
         # either the initial state is 0 or 1, but not both
         assert not is_zero or not is_one
+
+        # return 0 if there is no possible initial state
+        if not is_zero and not is_one:
+            return 0j
         # the state must return to the initial state, otherwise the trace is zero
         if (is_zero and initial_zero != 0) or (is_one and initial_one != 1):
             return 0j
@@ -115,5 +116,7 @@ def _trace_term(
     )
 
 
-def _trace_fermion_operator(ferm: FermionOperator, norb: int, nelec: tuple[int, int]):
-    return sum([coeff * _trace_term(op, norb, nelec) for op, coeff in ferm.items()])
+def _trace_fermion_operator(
+    ferm: FermionOperator, norb: int, nelec: tuple[int, int]
+) -> complex:
+    return sum(coeff * _trace_term(op, norb, nelec) for op, coeff in ferm.items())
