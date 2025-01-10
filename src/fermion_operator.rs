@@ -460,6 +460,11 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
     let mut nelec_alpha = 0;
     let mut nelec_beta = 0;
 
+    // loop over the support of the operator
+    // assume that each site is either 0 or 1 at the beginning
+    // track the state of the site through the application of the operator
+    // if the state exceed 1 or goes below 0,
+    // the state is not physical and the trace must be 0
     for &(this_spin, this_orb) in &spin_orbs {
         let mut initial_zero = 0;
         let mut initial_one = 1;
@@ -482,17 +487,21 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
                 is_one = false;
             }
         }
-
+        // if the operator has support on this_orb,
+        // either the initial state is 0 or 1, but not both
         assert!(!is_zero || !is_one);
 
+        // return 0 if there is no possible initial state
         if !is_zero && !is_one {
             return 0;
         }
 
+        // the state must return to the initial state, otherwise the trace is zero
         if (is_zero && initial_zero != 0) || (is_one && initial_one != 1) {
             return 0;
         }
 
+        // count the number of electrons in the support of op
         if is_one {
             if !this_spin {
                 nelec_alpha += 1;
@@ -502,6 +511,7 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
         }
 
         if nelec_alpha > n_alpha || nelec_beta > n_beta {
+            // the number of electrons exceeds the number of allowed electrons
             return 0;
         }
     }
