@@ -644,6 +644,7 @@ def test_mapping_methods():
         ((ffsim.cre_b(2), ffsim.des_b(1)), 1 - 0.5j),
     }
 
+
 def test_trace():
     rng = np.random.default_rng(12345)
     # compare for random_diagonal_coulomb_hamiltonian
@@ -660,5 +661,3 @@ def test_trace():
     ham = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
     t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
     t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
-
-    
