@@ -18,7 +18,7 @@ from tenpy.algorithms.tebd import TEBDEngine
 
 import ffsim
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
-from ffsim.tenpy.util import bitstring_to_mps
+from ffsim.tenpy.util import statevector_to_mps
 
 
 @pytest.mark.parametrize(
@@ -34,22 +34,6 @@ def test_apply_diag_coulomb_evolution(norb: int, nelec: tuple[int, int]):
     """Test applying a diagonal Coulomb evolution gate to an MPS."""
     rng = np.random.default_rng()
 
-    # generate a random product state
-    dim = ffsim.dim(norb, nelec)
-    idx = rng.integers(0, high=dim)
-    original_vec = ffsim.linalg.one_hot(dim, idx)
-
-    # convert random product state to MPS
-    strings_a, strings_b = ffsim.addresses_to_strings(
-        [idx],
-        norb=norb,
-        nelec=nelec,
-        bitstring_type=ffsim.BitstringType.STRING,
-        concatenate=False,
-    )
-    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
-    original_mps = deepcopy(mps)
-
     # generate a random molecular Hamiltonian
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
@@ -59,6 +43,14 @@ def test_apply_diag_coulomb_evolution(norb: int, nelec: tuple[int, int]):
         mol_hamiltonian
     )
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
+    # generate a random state vector
+    dim = ffsim.dim(norb, nelec)
+    original_vec = ffsim.random.random_state_vector(dim, seed=rng)
+
+    # convert random state vector to MPS
+    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    original_mps = deepcopy(mps)
 
     # generate random diagonal Coulomb evolution parameters
     mat_aa = np.diag(rng.standard_normal(norb - 1), k=-1)

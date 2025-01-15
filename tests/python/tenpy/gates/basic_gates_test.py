@@ -25,7 +25,7 @@ from ffsim.tenpy.gates.basic_gates import (
     on_site_interaction,
 )
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
-from ffsim.tenpy.util import bitstring_to_mps
+from ffsim.tenpy.util import statevector_to_mps
 
 
 @pytest.mark.parametrize(
@@ -49,22 +49,6 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
     """Test applying a Givens rotation gate to an MPS."""
     rng = np.random.default_rng()
 
-    # generate a random product state
-    dim = ffsim.dim(norb, nelec)
-    idx = rng.integers(0, high=dim)
-    original_vec = ffsim.linalg.one_hot(dim, idx)
-
-    # convert random product state to MPS
-    strings_a, strings_b = ffsim.addresses_to_strings(
-        [idx],
-        norb=norb,
-        nelec=nelec,
-        bitstring_type=ffsim.BitstringType.STRING,
-        concatenate=False,
-    )
-    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
-    original_mps = deepcopy(mps)
-
     # generate a random molecular Hamiltonian
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
@@ -74,6 +58,14 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
         mol_hamiltonian
     )
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
+    # generate a random state vector
+    dim = ffsim.dim(norb, nelec)
+    original_vec = ffsim.random.random_state_vector(dim, seed=rng)
+
+    # convert random state vector to MPS
+    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    original_mps = deepcopy(mps)
 
     # generate random Givens rotation parameters
     theta = 2 * np.pi * rng.random()
@@ -117,22 +109,6 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     """Test applying a number interaction gate to an MPS."""
     rng = np.random.default_rng()
 
-    # generate a random product state
-    dim = ffsim.dim(norb, nelec)
-    idx = rng.integers(0, high=dim)
-    original_vec = ffsim.linalg.one_hot(dim, idx)
-
-    # convert random product state to MPS
-    strings_a, strings_b = ffsim.addresses_to_strings(
-        [idx],
-        norb=norb,
-        nelec=nelec,
-        bitstring_type=ffsim.BitstringType.STRING,
-        concatenate=False,
-    )
-    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
-    original_mps = deepcopy(mps)
-
     # generate a random molecular Hamiltonian
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
@@ -142,6 +118,14 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
         mol_hamiltonian
     )
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
+    # generate a random state vector
+    dim = ffsim.dim(norb, nelec)
+    original_vec = ffsim.random.random_state_vector(dim, seed=rng)
+
+    # convert random state vector to MPS
+    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    original_mps = deepcopy(mps)
 
     # generate random number interaction parameters
     theta = 2 * np.pi * rng.random()
@@ -177,22 +161,6 @@ def test_on_site_interaction(
     """Test applying an on-site interaction gate to an MPS."""
     rng = np.random.default_rng()
 
-    # generate a random product state
-    dim = ffsim.dim(norb, nelec)
-    idx = rng.integers(0, high=dim)
-    original_vec = ffsim.linalg.one_hot(dim, idx)
-
-    # convert random product state to MPS
-    strings_a, strings_b = ffsim.addresses_to_strings(
-        [idx],
-        norb=norb,
-        nelec=nelec,
-        bitstring_type=ffsim.BitstringType.STRING,
-        concatenate=False,
-    )
-    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
-    original_mps = deepcopy(mps)
-
     # generate a random molecular Hamiltonian
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
@@ -202,6 +170,14 @@ def test_on_site_interaction(
         mol_hamiltonian
     )
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
+    # generate a random state vector
+    dim = ffsim.dim(norb, nelec)
+    original_vec = ffsim.random.random_state_vector(dim, seed=rng)
+
+    # convert random state vector to MPS
+    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    original_mps = deepcopy(mps)
 
     # generate random on-site interaction parameters
     theta = 2 * np.pi * rng.random()
@@ -242,22 +218,6 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     """Test applying a number-number interaction gate to an MPS."""
     rng = np.random.default_rng()
 
-    # generate a random product state
-    dim = ffsim.dim(norb, nelec)
-    idx = rng.integers(0, high=dim)
-    original_vec = ffsim.linalg.one_hot(dim, idx)
-
-    # convert random product state to MPS
-    strings_a, strings_b = ffsim.addresses_to_strings(
-        [idx],
-        norb=norb,
-        nelec=nelec,
-        bitstring_type=ffsim.BitstringType.STRING,
-        concatenate=False,
-    )
-    mps = bitstring_to_mps((int(strings_a[0], 2), int(strings_b[0], 2)), norb)
-    original_mps = deepcopy(mps)
-
     # generate a random molecular Hamiltonian
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
@@ -267,6 +227,14 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
         mol_hamiltonian
     )
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+
+    # generate a random state vector
+    dim = ffsim.dim(norb, nelec)
+    original_vec = ffsim.random.random_state_vector(dim, seed=rng)
+
+    # convert random state vector to MPS
+    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    original_mps = deepcopy(mps)
 
     # generate random number-number interaction parameters
     theta = 2 * np.pi * rng.random()
