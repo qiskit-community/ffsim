@@ -167,6 +167,17 @@ def test_random_density_matrix(dim: int):
     np.testing.assert_allclose(np.trace(mat), 1)
 
 
+def test_random_diagonal_coulomb_hamiltonian():
+    """Test random diagonal Coulomb Hamiltonian."""
+    norb = 5
+
+    dc_ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)
+    assert dc_ham.one_body_tensor.dtype == complex
+
+    dc_ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng, real=True)
+    assert dc_ham.one_body_tensor.dtype == float
+
+
 def test_raise_errors():
     """Test errors are raised as expected."""
     with pytest.raises(ValueError, match="Dimension"):
