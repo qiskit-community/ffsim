@@ -66,7 +66,7 @@ def statevector_to_mps(
         statevector: The state vector.
         mpo_model: The MPO model.
         norb: The number of spatial orbitals.
-        nelec: The number of electrons.
+        nelec: The number of alpha and beta electrons.
 
     Returns:
         The MPS.
@@ -161,7 +161,7 @@ def _generate_product_states(norb: int, nelec: tuple[int, int]) -> list:
 
     Args:
         norb: The number of spatial orbitals.
-        nelec: The number of electrons.
+        nelec: The number of alpha and beta electrons.
 
     Returns:
         The ffsim-ordered list of product states in TeNPy SpinHalfFermionSite notation.

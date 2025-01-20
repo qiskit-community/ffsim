@@ -24,7 +24,7 @@ def random_mps(
 
     Args:
         norb: The number of spatial orbitals.
-        nelec: The number of electrons.
+        nelec: The number of alpha and beta electrons.
         n_steps: The number of steps in the random unitary evolution.
         chi_max: The maximum bond dimension in the random unitary evolution.
 
@@ -54,12 +54,12 @@ def random_mps_product_state(norb: int, nelec: tuple[int, int]) -> MPS:
 
     Args:
         norb: The number of spatial orbitals.
-        nelec: The number of electrons.
+        nelec: The number of alpha and beta electrons.
 
     Returns:
         The random MPS product state.
     """
-    (n_alpha, n_beta) = nelec
+    n_alpha, n_beta = nelec
 
     n_alpha_list = [1] * n_alpha + [0] * (norb - n_alpha)
     random.shuffle(n_alpha_list)
