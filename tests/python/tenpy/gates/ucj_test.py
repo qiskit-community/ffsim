@@ -17,7 +17,7 @@ from tenpy.algorithms.tebd import TEBDEngine
 import ffsim
 from ffsim.tenpy.gates.ucj import apply_ucj_op_spin_balanced
 from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
-from ffsim.tenpy.util import bitstring_to_mps
+from ffsim.tenpy.util import statevector_to_mps
 from ffsim.variational.util import interaction_pairs_spin_balanced
 
 
@@ -82,8 +82,10 @@ def test_apply_ucj_op_spin_balanced(
     lucj_state = ffsim.apply_unitary(hf_state, lucj_op, norb, nelec)
 
     # generate the corresponding LUCJ circuit MPS
-    n_alpha, n_beta = nelec
-    wavefunction_mps = bitstring_to_mps(((1 << n_alpha) - 1, (1 << n_beta) - 1), norb)
+    dim = ffsim.dim(norb, nelec)
+    wavefunction_mps = statevector_to_mps(
+        np.array([1] + [0] * (dim - 1)), mol_hamiltonian_mpo_model, norb, nelec
+    )
     options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
     eng = TEBDEngine(wavefunction_mps, None, options)
     apply_ucj_op_spin_balanced(eng, lucj_op)
