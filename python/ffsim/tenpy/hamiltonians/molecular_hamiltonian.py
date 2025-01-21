@@ -27,7 +27,7 @@ from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 # ruff: noqa: N806
 
 
-class MolecularHamiltonianMPOModel(CouplingMPOModel):
+class MolecularHamiltonianMPOModel(CouplingMPOModel):  # type: ignore
     """Molecular Hamiltonian."""
 
     def __init__(self, params: dict[str, Any]) -> None:
