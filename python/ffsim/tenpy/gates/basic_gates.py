@@ -14,7 +14,6 @@ import cmath
 import math
 
 import numpy as np
-from numpy.typing import NDArray
 
 from ffsim.spin import Spin
 
@@ -22,7 +21,7 @@ from ffsim.spin import Spin
 # ruff: noqa: N806
 
 
-def _sym_cons_basis(gate: NDArray[np.complex128]) -> NDArray[np.complex128]:
+def _sym_cons_basis(gate: np.ndarray) -> np.ndarray:
     r"""Convert a gate to the TeNPy (N, Sz)-symmetry-conserved basis.
 
     Args:
@@ -50,7 +49,7 @@ def _sym_cons_basis(gate: NDArray[np.complex128]) -> NDArray[np.complex128]:
 
 def givens_rotation(
     theta: float, spin: Spin = Spin.ALPHA_AND_BETA, *, phi: float = 0.0
-) -> NDArray[np.complex128]:
+) -> np.ndarray:
     r"""The Givens rotation gate.
 
     The Givens rotation gate defined in :func:`~ffsim.apply_givens_rotation`,
@@ -134,9 +133,7 @@ def givens_rotation(
     return Ggate_sym
 
 
-def num_interaction(
-    theta: float, spin: Spin = Spin.ALPHA_AND_BETA
-) -> NDArray[np.complex128]:
+def num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarray:
     r"""The number interaction gate.
 
     The number interaction gate defined in :func:`~ffsim.apply_num_interaction`,
@@ -186,7 +183,7 @@ def num_interaction(
     return Ngate_sym
 
 
-def on_site_interaction(theta: float) -> NDArray[np.complex128]:
+def on_site_interaction(theta: float) -> np.ndarray:
     r"""The on-site interaction gate.
 
     The on-site interaction gate defined in :func:`~ffsim.apply_on_site_interaction`,
@@ -210,9 +207,7 @@ def on_site_interaction(theta: float) -> NDArray[np.complex128]:
     return OSgate_sym
 
 
-def num_num_interaction(
-    theta: float, spin: Spin = Spin.ALPHA_AND_BETA
-) -> NDArray[np.complex128]:
+def num_num_interaction(theta: float, spin: Spin = Spin.ALPHA_AND_BETA) -> np.ndarray:
     r"""The number-number interaction gate.
 
     The number-number interaction gate defined in

@@ -13,7 +13,6 @@
 import itertools
 
 import numpy as np
-from numpy.typing import NDArray
 from tenpy.algorithms.tebd import TEBDEngine
 
 from ffsim.tenpy.gates.abstract_gates import apply_single_site, apply_two_site
@@ -22,7 +21,7 @@ from ffsim.tenpy.gates.basic_gates import num_num_interaction, on_site_interacti
 
 def apply_diag_coulomb_evolution(
     eng: TEBDEngine,
-    mat: NDArray[np.complex128],
+    mat: np.ndarray,
     time: float,
     *,
     norm_tol: float = 1e-8,
