@@ -10,8 +10,6 @@
 
 """Tests for the TeNPy diagonal Coulomb evolution gate."""
 
-from __future__ import annotations
-
 from copy import deepcopy
 
 import numpy as np
