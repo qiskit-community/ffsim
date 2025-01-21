@@ -48,7 +48,7 @@ def apply_ucj_op_spin_balanced(
     norb = eng.get_resume_data()["psi"].L
 
     # construct the LUCJ MPS
-    current_basis = np.eye(norb)
+    current_basis = np.eye(norb, dtype=complex)
     for orb_rot, diag_mats in zip(ucj_op.orbital_rotations, ucj_op.diag_coulomb_mats):
         apply_orbital_rotation(
             eng,

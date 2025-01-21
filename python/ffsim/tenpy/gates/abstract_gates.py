@@ -12,6 +12,7 @@
 
 import numpy as np
 import tenpy.linalg.np_conserved as npc
+from numpy.typing import NDArray
 from tenpy.algorithms.tebd import TEBDEngine
 from tenpy.linalg.charges import LegPipe
 from tenpy.networks.site import SpinHalfFermionSite
@@ -24,7 +25,7 @@ shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
 shfsc = LegPipe([shfs.leg, shfs.leg])
 
 
-def apply_single_site(eng: TEBDEngine, U1: np.ndarray, site: int) -> None:
+def apply_single_site(eng: TEBDEngine, U1: NDArray[np.complex128], site: int) -> None:
     r"""Apply a single-site gate to an MPS.
 
     Args:
@@ -42,7 +43,7 @@ def apply_single_site(eng: TEBDEngine, U1: np.ndarray, site: int) -> None:
 
 def apply_two_site(
     eng: TEBDEngine,
-    U2: np.ndarray,
+    U2: NDArray[np.complex128],
     sites: tuple[int, int],
     *,
     norm_tol: float = 1e-8,

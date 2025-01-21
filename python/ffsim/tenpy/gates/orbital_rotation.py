@@ -14,6 +14,7 @@ import cmath
 import math
 
 import numpy as np
+from numpy.typing import NDArray
 from tenpy.algorithms.tebd import TEBDEngine
 
 from ffsim.linalg import givens_decomposition
@@ -23,7 +24,7 @@ from ffsim.tenpy.gates.basic_gates import givens_rotation, num_interaction
 
 def apply_orbital_rotation(
     eng: TEBDEngine,
-    mat: np.ndarray,
+    mat: NDArray[np.complex128],
     *,
     norm_tol: float = 1e-8,
 ) -> None:
