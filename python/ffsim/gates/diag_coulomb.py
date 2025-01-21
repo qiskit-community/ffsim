@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any, overload
+from typing import overload
 
 import numpy as np
 
@@ -248,9 +248,7 @@ def _get_mat_exp(
                 mat_aa *= 0.25
             mat_exp_aa = np.exp(-1j * time * mat_aa)
         if mat_bb is None:
-            mat_exp_bb: np.ndarray[tuple[int, int], np.dtype[Any]] = np.ones(
-                (norb, norb), dtype=complex
-            )
+            mat_exp_bb = np.ones((norb, norb), dtype=complex)
         else:
             mat_bb = mat_bb.copy()
             mat_bb[np.diag_indices(norb)] *= 0.5

@@ -13,11 +13,13 @@
 from __future__ import annotations
 
 import itertools
+from typing import Any
 
 import numpy as np
 from tenpy.models.lattice import Lattice
 from tenpy.models.model import CouplingMPOModel
 from tenpy.networks.site import SpinHalfFermionSite
+from tenpy.tools.params import Config
 
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 
@@ -28,7 +30,7 @@ from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 class MolecularHamiltonianMPOModel(CouplingMPOModel):
     """Molecular Hamiltonian."""
 
-    def __init__(self, params):
+    def __init__(self, params: dict[str, Any]) -> None:
         if "one_body_tensor" in params and isinstance(
             params["one_body_tensor"], np.ndarray
         ):
@@ -40,11 +42,11 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
         self.norb = self.one_body_tensor.shape[0]
         CouplingMPOModel.__init__(self, params)
 
-    def init_sites(self, params) -> SpinHalfFermionSite:
+    def init_sites(self, params: Config) -> SpinHalfFermionSite:
         """Initialize sites."""
         return SpinHalfFermionSite()
 
-    def init_lattice(self, params) -> Lattice:
+    def init_lattice(self, params: Config) -> Lattice:
         """Initialize lattice."""
         site = self.init_sites(params)
         basis = np.array(([self.norb, 0], [0, 1]))
@@ -57,7 +59,7 @@ class MolecularHamiltonianMPOModel(CouplingMPOModel):
         )
         return lat
 
-    def init_terms(self, params) -> None:
+    def init_terms(self, params: Config) -> None:
         """Initialize terms."""
         params.touch("one_body_tensor")  # suppress unused key warning
         two_body_tensor = params.get(

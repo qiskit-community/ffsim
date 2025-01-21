@@ -13,9 +13,11 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from typing import cast
 
 import numpy as np
 import tenpy.linalg.np_conserved as npc
+from numpy.typing import NDArray
 from tenpy.algorithms.exact_diag import ExactDiag
 from tenpy.models.model import MPOModel
 from tenpy.networks.mps import MPS
@@ -24,7 +26,7 @@ from tenpy.networks.site import FermionSite, SpinHalfFermionSite
 import ffsim
 
 
-def mps_to_statevector(mps: MPS, mpo_model: MPOModel) -> np.ndarray:
+def mps_to_statevector(mps: MPS, mpo_model: MPOModel) -> NDArray[np.complex128]:
     r"""Return the MPS as a state vector.
 
     Args:
@@ -51,14 +53,17 @@ def mps_to_statevector(mps: MPS, mpo_model: MPOModel) -> np.ndarray:
     )
 
     # convert TeNPy MPS to ffsim statevector
-    statevector = exact_diag.mps_to_full(mps).to_ndarray()
+    statevector = cast(NDArray[np.complex128], exact_diag.mps_to_full(mps).to_ndarray())
     statevector = np.multiply(swap_factors_ffsim, statevector[basis_ordering_ffsim])
 
     return statevector
 
 
 def statevector_to_mps(
-    statevector: np.ndarray, mpo_model: MPOModel, norb: int, nelec: tuple[int, int]
+    statevector: NDArray[np.complex128],
+    mpo_model: MPOModel,
+    norb: int,
+    nelec: tuple[int, int],
 ) -> MPS:
     r"""Return the state vector as an MPS.
 
@@ -130,7 +135,7 @@ def statevector_to_mps(
     return mps
 
 
-def _bitstring_to_product_state(bitstring: tuple[int, int], norb: int) -> list:
+def _bitstring_to_product_state(bitstring: tuple[int, int], norb: int) -> list[int]:
     r"""Return the product state in TeNPy SpinHalfFermionSite notation.
 
     Args:
@@ -155,7 +160,7 @@ def _bitstring_to_product_state(bitstring: tuple[int, int], norb: int) -> list:
     return product_state
 
 
-def _generate_product_states(norb: int, nelec: tuple[int, int]) -> list:
+def _generate_product_states(norb: int, nelec: tuple[int, int]) -> list[list[int]]:
     r"""Return the ffsim-ordered list of product states in TeNPy SpinHalfFermionSite
     notation.
 
@@ -216,14 +221,14 @@ def _compute_swap_factor(mps: MPS) -> int:
     mps_ref = deepcopy(mps_fs)
     mps_ref.permute_sites(ffsim_ordering, swap_op=None)
     mps_fs.permute_sites(ffsim_ordering, swap_op="auto")
-    swap_factor = mps_fs.overlap(mps_ref)
+    swap_factor = cast(int, round(mps_fs.overlap(mps_ref)))
 
     return swap_factor
 
 
 def _map_tenpy_to_ffsim_basis(
-    product_states: list, exact_diag: ExactDiag
-) -> tuple[np.ndarray, np.ndarray]:
+    product_states: list[list[int]], exact_diag: ExactDiag
+) -> tuple[NDArray[np.int_], NDArray[np.int_]]:
     r"""Return the mapping from the TeNPy basis to the ffsim basis.
 
     Args:
