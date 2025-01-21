@@ -8,13 +8,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import random
-
 from tenpy.algorithms.tebd import RandomUnitaryEvolution
 from tenpy.networks.mps import MPS
-from tenpy.networks.site import SpinHalfFermionSite
 
-from ffsim.tenpy.util import _bitstring_to_product_state
+import ffsim
+from ffsim.tenpy.util import bitstring_to_mps
 
 
 def random_mps(
@@ -23,8 +21,8 @@ def random_mps(
     """Return a random MPS generated from a random unitary evolution.
 
     Args:
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
+        norb: The number of orbitals.
+        nelec: The number of electrons.
         n_steps: The number of steps in the random unitary evolution.
         chi_max: The maximum bond dimension in the random unitary evolution.
 
@@ -33,44 +31,27 @@ def random_mps(
     """
 
     # initialize Hartree-Fock state
-    n_alpha, n_beta = nelec
-    product_state = _bitstring_to_product_state(
-        ((1 << n_alpha) - 1, (1 << n_beta) - 1), norb
+    dim = ffsim.dim(norb, nelec)
+    strings = ffsim.addresses_to_strings(
+        range(dim), norb=norb, nelec=nelec, bitstring_type=ffsim.BitstringType.STRING
     )
-    shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
-    mps = MPS.from_product_state([shfs] * norb, product_state)
+    string_tuples = [
+        (
+            int(string[len(string) // 2 :], base=2),
+            int(string[: len(string) // 2], base=2),
+        )
+        for string in strings
+    ]
+    mps = bitstring_to_mps(string_tuples[0], norb)
 
     # apply random unitary evolution
-    options = {"N_steps": n_steps, "trunc_params": {"chi_max": chi_max}}
-    eng = RandomUnitaryEvolution(mps, options)
+    tebd_params = {
+        "N_steps": n_steps,
+        "trunc_params": {"chi_max": chi_max},
+        "verbose": 0,
+    }
+    eng = RandomUnitaryEvolution(mps, tebd_params)
     eng.run()
     mps.canonical_form()
-
-    return mps
-
-
-def random_mps_product_state(norb: int, nelec: tuple[int, int]) -> MPS:
-    """Return a random MPS product state.
-
-    Args:
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-
-    Returns:
-        The random MPS product state.
-    """
-    n_alpha, n_beta = nelec
-
-    n_alpha_list = [1] * n_alpha + [0] * (norb - n_alpha)
-    random.shuffle(n_alpha_list)
-    n_beta_list = [1] * n_beta + [0] * (norb - n_beta)
-    random.shuffle(n_beta_list)
-
-    s_alpha = sum(j << i for i, j in enumerate(n_alpha_list))
-    s_beta = sum(j << i for i, j in enumerate(n_beta_list))
-    product_state = _bitstring_to_product_state((s_alpha, s_beta), norb)
-
-    shfs = SpinHalfFermionSite(cons_N="N", cons_Sz="Sz")
-    mps = MPS.from_product_state([shfs] * norb, product_state)
 
     return mps
