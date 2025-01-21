@@ -647,6 +647,8 @@ def test_mapping_methods():
 
 def test_trace():
     rng = np.random.default_rng(12345)
+    ham: ffsim.DiagonalCoulombHamiltonian | ffsim.MolecularHamiltonian
+
     # compare for random_diagonal_coulomb_hamiltonian
     norb = 50
     nelec = (3, 3)
