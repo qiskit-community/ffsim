@@ -330,10 +330,10 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+converged SCF energy = -77.8266321248745
+Parsing /tmp/tmp4oj2plrw
 converged SCF energy = -77.8266321248744
-Parsing /tmp/tmpzze64wxa
-converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643863  E(CI) = -4.02122442107772  S^2 = 0.0000000
+CASCI E = -77.8742165643862  E(CI) = -4.02122442107772  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -344,9 +344,9 @@ nelec = (2, 2)
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf.RHF&#39;&gt;
-/home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.12/site-packages/pyscf/gto/mole.py:1294: UserWarning: Function mol.dumps drops attribute energy_nuc because it is not JSON-serializable
+/home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.12/site-packages/pyscf/gto/mole.py:1293: UserWarning: Function mol.dumps drops attribute energy_nuc because it is not JSON-serializable
   warnings.warn(msg)
-/home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.12/site-packages/pyscf/gto/mole.py:1294: UserWarning: Function mol.dumps drops attribute intor_symmetric because it is not JSON-serializable
+/home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.12/site-packages/pyscf/gto/mole.py:1293: UserWarning: Function mol.dumps drops attribute intor_symmetric because it is not JSON-serializable
   warnings.warn(msg)
 </pre></div></div>
 </div>
@@ -383,21 +383,13 @@ Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf.RHF&#
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374028  E_corr = -0.04758323886584111
-Energy at initialization: -77.87160024816286
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-&lt;class &#39;pyscf.cc.ccsd.CCSD&#39;&gt; does not have attributes  converged
+E(CCSD) = -77.87421536374035  E_corr = -0.04758323886585598
+Energy at initialization: -77.87160024816279
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -435,10 +427,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.87387392005171
-        x: [-7.439e-04 -1.277e+00 ...  3.213e-04  1.287e-01]
+      fun: -77.87387392983428
+        x: [-1.153e+00 -1.378e-04 ...  2.229e-04  1.286e-01]
       nit: 10
-      jac: [ 3.837e-05 -5.684e-06 ...  9.948e-06  1.990e-05]
+      jac: [-2.274e-05 -1.563e-05 ...  9.948e-06  1.421e-05]
      nfev: 949
      njev: 13
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -486,10 +478,10 @@ Number of parameters: 46
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.8736342660497
-        x: [-3.787e-05 -1.276e+00 ...  3.521e-02  2.560e-01]
+      fun: -77.87363426248443
+        x: [-1.152e+00  3.855e-05 ...  3.521e-02  2.561e-01]
       nit: 5
-      jac: [ 2.132e-05 -3.837e-05 ... -8.527e-06 -5.684e-06]
+      jac: [ 3.553e-05  2.132e-05 ...  1.421e-06  9.948e-06]
      nfev: 329
      njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -567,29 +559,29 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Convergence: Relative reduction of objective function &lt;= ftol.
  success: True
-     fun: -77.87363448536252
-       x: [ 1.690e-03 -1.276e+00 ...  3.464e-02  2.560e-01]
+     fun: -77.8736343453672
+       x: [-1.151e+00 -6.949e-04 ...  3.449e-02  2.562e-01]
      nit: 3
-     jac: [-4.684e-06 -1.120e-06 ...  4.986e-07 -3.408e-06]
-    nfev: 574
+     jac: [ 2.027e-06 -9.203e-07 ...  6.895e-09  3.075e-09]
+    nfev: 559
     njev: 4
-  nlinop: 390
+  nlinop: 375
 
 Iteration 1
-    Energy: -77.87363022132313
-    Norm of gradient: 0.001408565521779389
-    Regularization hyperparameter: 0.0011159732745011687
-    Variation hyperparameter: 0.9901955575321422
+    Energy: -77.87362998441571
+    Norm of gradient: 0.0013709681966444002
+    Regularization hyperparameter: 0.0009810384253853134
+    Variation hyperparameter: 0.9909008473880252
 Iteration 2
-    Energy: -77.87363429830825
-    Norm of gradient: 8.556175859471946e-05
-    Regularization hyperparameter: 0.004710382195135998
-    Variation hyperparameter: 0.9901232983059249
+    Energy: -77.87363428074337
+    Norm of gradient: 8.429272748543921e-05
+    Regularization hyperparameter: 0.004242905170992522
+    Variation hyperparameter: 0.9908766652972505
 Iteration 3
-    Energy: -77.87363448536252
-    Norm of gradient: 5.11545542671442e-05
-    Regularization hyperparameter: 0.0029022171914740314
-    Variation hyperparameter: 0.9861074285276548
+    Energy: -77.8736343453672
+    Norm of gradient: 1.4924097061068096e-05
+    Regularization hyperparameter: 0.0020267189574053467
+    Variation hyperparameter: 0.9903786749692833
 </pre></div></div>
 </div>
 </section>
