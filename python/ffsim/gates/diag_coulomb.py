@@ -16,6 +16,7 @@ import math
 from typing import overload
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
@@ -220,14 +221,23 @@ def _apply_diag_coulomb_evolution_spinful(
 
 
 def _get_mat_exp(
-    mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
+    mat: NDArray[np.floating]
+    | tuple[
+        NDArray[np.floating] | None,
+        NDArray[np.floating] | None,
+        NDArray[np.floating] | None,
+    ],
     time: float,
     norb: int,
     z_representation: bool,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    mat_aa: np.ndarray | None
-    mat_ab: np.ndarray | None
-    mat_bb: np.ndarray | None
+) -> tuple[
+    NDArray[np.complexfloating],
+    NDArray[np.complexfloating],
+    NDArray[np.complexfloating],
+]:
+    mat_aa: NDArray[np.floating] | None
+    mat_ab: NDArray[np.floating] | None
+    mat_bb: NDArray[np.floating] | None
     if isinstance(mat, np.ndarray) and mat.ndim == 2:
         mat_aa, mat_ab = mat.copy(), mat.copy()
         mat_aa[np.diag_indices(norb)] *= 0.5
