@@ -17,6 +17,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[pyclass]
 struct KeysIterator {
@@ -454,7 +455,7 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
     let spin_orbs = op
         .iter()
         .map(|&(_, spin, orb)| (spin, orb))
-        .collect::<std::collections::HashSet<_>>();
+        .collect::<HashSet<_>>();
     let norb_alpha = spin_orbs.iter().filter(|&&(spin, _)| !spin).count();
     let norb_beta = spin_orbs.len() - norb_alpha;
 
