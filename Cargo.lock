@@ -194,6 +194,7 @@ dependencies = [
  "blas",
  "blas-src",
  "ndarray",
+ "num-integer",
  "numpy",
  "openblas-src",
  "pyo3",
