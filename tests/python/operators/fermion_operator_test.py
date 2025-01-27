@@ -596,8 +596,8 @@ def test_str_equivalent():
             (ffsim.cre_b(2), ffsim.des_b(1)): 1 - 0.5j,
         }
     )
-    exec("from ffsim import cre_a, cre_b, des_a, des_b")
-    assert eval(str(op)) == op
+    exec("from ffsim import cre_a, cre_b, des_a, des_b", globals())
+    assert eval(str(op), globals()) == op
 
 
 def test_copy():
