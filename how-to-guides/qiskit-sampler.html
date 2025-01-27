@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="API reference" href="../api/index.html" /><link rel="prev" title="How to build and transpile Qiskit quantum circuits" href="qiskit-circuits.html" />
 
-    <!-- Generated with Sphinx 8.1.0 and Furo 2024.08.06 -->
-        <title>How to use ffsim’s Qiskit Sampler primitive - ffsim 0.0.47</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>How to use ffsim’s Qiskit Sampler primitive - ffsim 0.0.49</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.47</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.49</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.47</span>
+  <span class="sidebar-brand-text">ffsim 0.0.49</span>
   
 </a>
 
@@ -285,10 +285,10 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
 
-<span class="kn">import</span> <span class="nn">ffsim</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ffsim</span>
 
 <span class="c1"># Let&#39;s use 8 spatial orbitals with 4 alpha electrons and 4 beta electrons.</span>
 <span class="n">norb</span> <span class="o">=</span> <span class="mi">8</span>
@@ -393,9 +393,9 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyscf</span>
-<span class="kn">import</span> <span class="nn">pyscf.cc</span>
-<span class="kn">import</span> <span class="nn">pyscf.data.elements</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyscf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.cc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.data.elements</span>
 
 <span class="c1"># Build N2 molecule</span>
 <span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
@@ -459,15 +459,7 @@
 converged SCF energy = -108.835236570774
 norb = 14
 nelec = (3, 3)
-E(CCSD) = -108.9630419334854  E_corr = -0.1278053627110059
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-&lt;class &#39;pyscf.cc.ccsd.CCSD&#39;&gt; does not have attributes  converged
+E(CCSD) = -108.9630419334855  E_corr = -0.127805362711006
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -477,15 +469,15 @@ E(CCSD) = -108.9630419334854  E_corr = -0.1278053627110059
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 {&#39;0000000000011100000000000111&#39;: 9924,
- &#39;0000000000110100000000001101&#39;: 15,
- &#39;0000000001110000000000000111&#39;: 10,
+ &#39;0000000001110000000000000111&#39;: 11,
  &#39;0000000000011100000000011100&#39;: 10,
- &#39;0000000001011000000000010110&#39;: 9,
- &#39;0001000001010000000000000111&#39;: 5,
- &#39;0000000001011000100000000110&#39;: 4,
- &#39;0100000000100100000000000111&#39;: 3,
+ &#39;0000000001011000000000001101&#39;: 7,
+ &#39;0000000001011000000000010110&#39;: 5,
+ &#39;0001000001010000000000000111&#39;: 4,
+ &#39;0000000000111000000000001110&#39;: 3,
+ &#39;0000000000110100000000010110&#39;: 3,
  &#39;0000000000011100100000001100&#39;: 3,
- &#39;0010000000011000000000010110&#39;: 3}
+ &#39;0000000001010100000000010101&#39;: 3}
 </pre></div></div>
 </div>
 </section>
@@ -496,8 +488,8 @@ E(CCSD) = -108.9630419334854  E_corr = -0.1278053627110059
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyscf.data.elements</span>
-<span class="kn">from</span> <span class="nn">pyscf</span> <span class="kn">import</span> <span class="n">cc</span><span class="p">,</span> <span class="n">gto</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.data.elements</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">cc</span><span class="p">,</span> <span class="n">gto</span>
 
 <span class="c1"># Build HO molecule</span>
 <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
@@ -555,21 +547,13 @@ E(CCSD) = -108.9630419334854  E_corr = -0.1278053627110059
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 SCF not converged.
-SCF energy = -75.3484557064305
+SCF energy = -75.3484557070579
 norb = 11
 nelec = (5, 4)
 
 WARN: RCCSD method does not support ROHF method. ROHF object is converted to UHF object and UCCSD method is called.
 
-E(UCCSD) = -75.45619739137106  E_corr = -0.1077416849405244
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-&lt;class &#39;pyscf.cc.uccsd.UCCSD&#39;&gt; does not have attributes  converged
+E(UCCSD) = -75.45619739126207  E_corr = -0.107741684204181
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -667,7 +651,7 @@ E(UCCSD) = -75.45619739137106  E_corr = -0.1077416849405244
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=4f34e5f2"></script>
+</div><script src="../_static/documentation_options.js?v=0356c229"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

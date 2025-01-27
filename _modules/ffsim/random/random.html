@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 8.1.0 and Furo 2024.08.06 -->
-        <title>ffsim.random.random - ffsim 0.0.47</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>ffsim.random.random - ffsim 0.0.49</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -158,7 +158,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.47</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.49</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.47</span>
+  <span class="sidebar-brand-text">ffsim 0.0.49</span>
   
 </a>
 
@@ -274,51 +274,20 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">ffsim</span> <span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">operators</span><span class="p">,</span> <span class="n">variational</span>
-
-
-<div class="viewcode-block" id="random_statevector">
-<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_statevector">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="s2">&quot;ffsim.random.random_statevector is deprecated. &quot;</span>
-    <span class="s2">&quot;Instead, use ffsim.random.random_state_vector.&quot;</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">random_statevector</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random state vector sampled from the uniform distribution.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This function is deprecated. Use :func:`ffsim.random.random_state_vector`</span>
-<span class="sd">        instead.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        dim: The dimension of the state vector.</span>
-<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
-<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
-<span class="sd">        dtype: The data type to use for the result.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The sampled state vector.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
-        <span class="n">vec</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">vec</span></div>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">operators</span><span class="p">,</span> <span class="n">variational</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.variational.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_interaction_pairs</span>
 
 
 <div class="viewcode-block" id="random_state_vector">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_state_vector">[docs]</a>
-<span class="k">def</span> <span class="nf">random_state_vector</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_state_vector</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random state vector sampled from the uniform distribution.</span>
 
 <span class="sd">    Args:</span>
@@ -329,19 +298,62 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled state vector.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Dimension must be at least one.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dimension must be at least one.&quot;</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
         <span class="n">vec</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span></div>
+
+
+
+<div class="viewcode-block" id="random_density_matrix">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_density_matrix">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_density_matrix</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a random density matrix distributed with Hilbert-Schmidt measure.</span>
+
+<span class="sd">    A density matrix is positive semi-definite and has trace equal to one.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dim: The width and height of the matrix.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled density matrix.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Dimension must be at least one.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - `arXiv:0909.5094`_</span>
+
+<span class="sd">    .. _arXiv:0909.5094: https://arxiv.org/abs/0909.5094</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dimension must be at least one.&quot;</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
+        <span class="n">mat</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
+    <span class="n">mat</span> <span class="o">@=</span> <span class="n">mat</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="n">mat</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mat</span></div>
 
 
 
 <div class="viewcode-block" id="random_unitary">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_unitary">[docs]</a>
-<span class="k">def</span> <span class="nf">random_unitary</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_unitary</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random unitary matrix distributed with Haar measure.</span>
 
 <span class="sd">    Args:</span>
@@ -369,7 +381,7 @@
 
 <div class="viewcode-block" id="random_orthogonal">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_orthogonal">[docs]</a>
-<span class="k">def</span> <span class="nf">random_orthogonal</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_orthogonal</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random orthogonal matrix distributed with Haar measure.</span>
 
 <span class="sd">    Args:</span>
@@ -396,7 +408,7 @@
 
 <div class="viewcode-block" id="random_special_orthogonal">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_special_orthogonal">[docs]</a>
-<span class="k">def</span> <span class="nf">random_special_orthogonal</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_special_orthogonal</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random special orthogonal matrix distributed with Haar measure.</span>
 
 <span class="sd">    Args:</span>
@@ -417,7 +429,7 @@
 
 <div class="viewcode-block" id="random_hermitian">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_hermitian">[docs]</a>
-<span class="k">def</span> <span class="nf">random_hermitian</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_hermitian</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random Hermitian matrix.</span>
 
 <span class="sd">    Args:</span>
@@ -439,7 +451,7 @@
 
 <div class="viewcode-block" id="random_real_symmetric_matrix">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_real_symmetric_matrix">[docs]</a>
-<span class="k">def</span> <span class="nf">random_real_symmetric_matrix</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_real_symmetric_matrix</span><span class="p">(</span>
     <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random real symmetric matrix.</span>
@@ -464,7 +476,7 @@
 
 <div class="viewcode-block" id="random_antihermitian">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_antihermitian">[docs]</a>
-<span class="k">def</span> <span class="nf">random_antihermitian</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_antihermitian</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a random anti-Hermitian matrix.</span>
 
 <span class="sd">    Args:</span>
@@ -486,7 +498,7 @@
 
 <div class="viewcode-block" id="random_two_body_tensor">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_two_body_tensor">[docs]</a>
-<span class="k">def</span> <span class="nf">random_two_body_tensor</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_two_body_tensor</span><span class="p">(</span>
     <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random two-body tensor.</span>
@@ -526,7 +538,7 @@
 
 <div class="viewcode-block" id="random_t2_amplitudes">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_t2_amplitudes">[docs]</a>
-<span class="k">def</span> <span class="nf">random_t2_amplitudes</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_t2_amplitudes</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random t2 amplitudes tensor.</span>
@@ -568,7 +580,7 @@
 
 <div class="viewcode-block" id="random_molecular_hamiltonian">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_molecular_hamiltonian">[docs]</a>
-<span class="k">def</span> <span class="nf">random_molecular_hamiltonian</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_molecular_hamiltonian</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hamiltonians</span><span class="o">.</span><span class="n">MolecularHamiltonian</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random molecular Hamiltonian.</span>
@@ -598,76 +610,89 @@
 
 
 
-<div class="viewcode-block" id="random_ucj_operator">
-<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_operator">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="s2">&quot;The random_ucj_operator function is deprecated. Use &quot;</span>
-    <span class="s2">&quot;random_ucj_operator_closed_shell or random_ucj_operator_open_shell instead.&quot;</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">random_ucj_operator</span><span class="p">(</span>
+<div class="viewcode-block" id="random_uccsd_restricted">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_uccsd_restricted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_uccsd_restricted</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">real</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOperator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random unitary cluster Jastrow (UCJ) operator.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCCSDOpRestrictedReal</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random UCCSD operator.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        norb: The number of orbitals.</span>
-<span class="sd">        n_reps: The number of ansatz repetitions.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nocc: The number of spatial orbitals that are occupied by electrons.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        real: Whether to sample a real-valued object rather than a complex-valued one.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The sampled UCJ operator.</span>
+<span class="sd">        The sampled UCCSD operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">diag_coulomb_mats_alpha_alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
-    <span class="p">)</span>
-    <span class="n">diag_coulomb_mats_alpha_beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
-    <span class="p">)</span>
-    <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
-    <span class="p">)</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span> <span class="k">if</span> <span class="n">real</span> <span class="k">else</span> <span class="nb">complex</span>
+    <span class="n">nvrt</span> <span class="o">=</span> <span class="n">norb</span> <span class="o">-</span> <span class="n">nocc</span>
+    <span class="n">t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">real</span><span class="p">:</span>
+        <span class="n">t1</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">))</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">random_t2_amplitudes</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
-        <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOperator</span><span class="p">(</span>
-        <span class="n">diag_coulomb_mats_alpha_alpha</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_alpha</span><span class="p">,</span>
-        <span class="n">diag_coulomb_mats_alpha_beta</span><span class="o">=</span><span class="n">diag_coulomb_mats_alpha_beta</span><span class="p">,</span>
-        <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
-        <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span><span class="p">,</span>
+        <span class="n">unitary_func</span> <span class="o">=</span> <span class="n">random_orthogonal</span> <span class="k">if</span> <span class="n">real</span> <span class="k">else</span> <span class="n">random_unitary</span>
+        <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">unitary_func</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCCSDOpRestrictedReal</span><span class="p">(</span>
+        <span class="n">t1</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="n">t2</span><span class="p">,</span> <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span>
     <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="random_ucj_op_spin_balanced">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_op_spin_balanced">[docs]</a>
-<span class="k">def</span> <span class="nf">random_ucj_op_spin_balanced</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_ucj_op_spin_balanced</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
+<span class="sd">            for the diagonal Coulomb operators.</span>
+<span class="sd">            If specified, `interaction_pairs` should be a pair of lists,</span>
+<span class="sd">            for alpha-alpha and alpha-beta interactions, in that order.</span>
+<span class="sd">            Either list can be substituted with ``None`` to indicate no restrictions</span>
+<span class="sd">            on interactions.</span>
+<span class="sd">            Each list should contain pairs of integers representing the orbitals</span>
+<span class="sd">            that are allowed to interact. These pairs can also be interpreted as</span>
+<span class="sd">            indices of diagonal Coulomb matrix entries that are allowed to be</span>
+<span class="sd">            nonzero.</span>
+<span class="sd">            Each integer pair must be upper triangular, that is, of the form</span>
+<span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled UCJ operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span> <span class="o">=</span> <span class="n">interaction_pairs</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span>
@@ -686,6 +711,21 @@
     <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Zero out diagonal coulomb matrix entries if requested</span>
+    <span class="k">if</span> <span class="n">pairs_aa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+    <span class="k">if</span> <span class="n">pairs_ab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+
     <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="p">(</span>
         <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
@@ -696,18 +736,37 @@
 
 <div class="viewcode-block" id="random_ucj_op_spin_unbalanced">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_op_spin_unbalanced">[docs]</a>
-<span class="k">def</span> <span class="nf">random_ucj_op_spin_unbalanced</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_ucj_op_spin_unbalanced</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinUnbalanced</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
+<span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
+<span class="sd">            for the diagonal Coulomb operators.</span>
+<span class="sd">            If specified, `interaction_pairs` should be a tuple of 3 lists,</span>
+<span class="sd">            for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.</span>
+<span class="sd">            Any list can be substituted with ``None`` to indicate no restrictions</span>
+<span class="sd">            on interactions.</span>
+<span class="sd">            Each list should contain pairs of integers representing the orbitals</span>
+<span class="sd">            that are allowed to interact. These pairs can also be interpreted as</span>
+<span class="sd">            indices of diagonal Coulomb matrix entries that are allowed to be</span>
+<span class="sd">            nonzero.</span>
+<span class="sd">            For the alpha-alpha and beta-beta interactions, each integer</span>
+<span class="sd">            pair must be upper triangular, that is, of the form :math:`(i, j)` where</span>
+<span class="sd">            :math:`i \leq j`.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
@@ -716,6 +775,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled UCJ operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span><span class="p">,</span> <span class="n">pairs_bb</span> <span class="o">=</span> <span class="n">interaction_pairs</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_bb</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_bb</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span>
@@ -740,6 +806,26 @@
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
             <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)]</span>
         <span class="p">)</span>
+
+    <span class="c1"># Zero out diagonal coulomb matrix entries if requested</span>
+    <span class="k">if</span> <span class="n">pairs_aa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+    <span class="k">if</span> <span class="n">pairs_ab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+    <span class="k">if</span> <span class="n">pairs_bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_bb</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
+
     <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinUnbalanced</span><span class="p">(</span>
         <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
@@ -750,26 +836,37 @@
 
 <div class="viewcode-block" id="random_ucj_op_spinless">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_op_spinless">[docs]</a>
-<span class="k">def</span> <span class="nf">random_ucj_op_spinless</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_ucj_op_spinless</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinless</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spinless unitary cluster Jastrow (UCJ) operator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spinless unitary cluster Jastrow (UCJ) operator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
+<span class="sd">            for the diagonal Coulomb operators.</span>
+<span class="sd">            If specified, `interaction_pairs` should be a list of integer pairs</span>
+<span class="sd">            representing the orbitals that are allowed to interact. These pairs</span>
+<span class="sd">            can also be interpreted as indices of diagonal Coulomb matrix entries</span>
+<span class="sd">            that are allowed to be nonzero.</span>
+<span class="sd">            Each integer pair must be upper triangular, that is, of the form</span>
+<span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The sampled UCJ operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
@@ -780,6 +877,15 @@
     <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Zero out diagonal coulomb matrix entries if requested</span>
+    <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">interaction_pairs</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mats</span> <span class="o">*=</span> <span class="n">mask</span>
+
     <span class="k">return</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinless</span><span class="p">(</span>
         <span class="n">diag_coulomb_mats</span><span class="o">=</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
         <span class="n">orbital_rotations</span><span class="o">=</span><span class="n">orbital_rotations</span><span class="p">,</span>
@@ -790,15 +896,14 @@
 
 <div class="viewcode-block" id="random_diagonal_coulomb_hamiltonian">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_diagonal_coulomb_hamiltonian">[docs]</a>
-<span class="k">def</span> <span class="nf">random_diagonal_coulomb_hamiltonian</span><span class="p">(</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_diagonal_coulomb_hamiltonian</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">real</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hamiltonians</span><span class="o">.</span><span class="n">DiagonalCoulombHamiltonian</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random diagonal Coulomb Hamiltonian.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        rank: The desired number of terms in the two-body part of the Hamiltonian.</span>
-<span class="sd">            If not specified, it will be set to ``norb * (norb + 1) // 2``.</span>
+<span class="sd">        real: Whether to sample a real-valued object rather than a complex-valued one.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -806,7 +911,10 @@
 <span class="sd">        The sampled diagonal Coulomb Hamiltonian.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">random_hermitian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">real</span><span class="p">:</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">random_hermitian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
     <span class="n">diag_coulomb_mat_a</span> <span class="o">=</span> <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
     <span class="n">diag_coulomb_mat_b</span> <span class="o">=</span> <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">diag_coulomb_mat_a</span><span class="p">,</span> <span class="n">diag_coulomb_mat_b</span><span class="p">])</span>
@@ -819,7 +927,7 @@
 
 <div class="viewcode-block" id="random_double_factorized_hamiltonian">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_double_factorized_hamiltonian">[docs]</a>
-<span class="k">def</span> <span class="nf">random_double_factorized_hamiltonian</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_double_factorized_hamiltonian</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -870,7 +978,7 @@
 
 <div class="viewcode-block" id="random_fermion_operator">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_fermion_operator">[docs]</a>
-<span class="k">def</span> <span class="nf">random_fermion_operator</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_fermion_operator</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_term_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">operators</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random fermion operator.</span>
@@ -908,7 +1016,7 @@
 
 <div class="viewcode-block" id="random_fermion_hamiltonian">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_fermion_hamiltonian">[docs]</a>
-<span class="k">def</span> <span class="nf">random_fermion_hamiltonian</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_fermion_hamiltonian</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">operators</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random fermion Hamiltonian.</span>
@@ -942,7 +1050,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_random_num_and_spin_z_conserving_term</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_random_num_and_spin_z_conserving_term</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_excitations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -958,7 +1066,7 @@
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_adjoint_term</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_adjoint_term</span><span class="p">(</span>
     <span class="n">term</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
@@ -997,7 +1105,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=4f34e5f2"></script>
+</div><script src="../../../_static/documentation_options.js?v=0356c229"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
