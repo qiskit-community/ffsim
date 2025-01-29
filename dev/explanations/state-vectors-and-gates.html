@@ -491,6 +491,35 @@ array([-0.4390672 -0.1561685j , -0.18007105-0.38435478j,
 </pre></div></div>
 </div>
 </section>
+<section id="How-much-memory-does-a-state-vector-occupy?">
+<h2>How much memory does a state vector occupy?<a class="headerlink" href="#How-much-memory-does-a-state-vector-occupy?" title="Link to this heading">¶</a></h2>
+<p>The following code cell shows how to compute the number of gibibytes of memory occupied by the state vector for a system with a specified number of spatial orbitals, <span class="math notranslate nohighlight">\(\alpha\)</span> electrons, and <span class="math notranslate nohighlight">\(\beta\)</span> electrons (in this example: 26, 5, and 5).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 128 bits per complex number, 8 bits per byte, 1024**3 bytes per GiB</span>
+<span class="n">GIB_PER_AMPLITUDE</span> <span class="o">=</span> <span class="mi">128</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">/</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">3</span>
+
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">26</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="n">dim</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+<span class="n">gib</span> <span class="o">=</span> <span class="n">GIB_PER_AMPLITUDE</span> <span class="o">*</span> <span class="n">dim</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Storage required for state vector: </span><span class="si">{</span><span class="n">gib</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> GiB&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Storage required for state vector: 64.48 GiB
+</pre></div></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -552,6 +581,7 @@ array([-0.4390672 -0.1561685j , -0.18007105-0.38435478j,
 <li><a class="reference internal" href="#State-vectors">State vectors</a></li>
 <li><a class="reference internal" href="#Gates">Gates</a></li>
 <li><a class="reference internal" href="#Treating-spinless-fermions">Treating spinless fermions</a></li>
+<li><a class="reference internal" href="#How-much-memory-does-a-state-vector-occupy?">How much memory does a state vector occupy?</a></li>
 </ul>
 </li>
 </ul>
