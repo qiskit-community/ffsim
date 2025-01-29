@@ -573,6 +573,86 @@ def test_approx_eq():
     assert not ffsim.approx_eq(op1, op2, rtol=0)
 
 
+def test_simplify():
+    """Test simplify."""
+    op = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+        }
+    )
+
+    # Test with default tolerance
+    op_copy = op.copy()
+    op_copy.simplify()
+    expected = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+        }
+    )
+    assert op_copy == expected
+
+    # Test with custom tolerance
+    op_copy = op.copy()
+    op_copy.simplify(1e-6)
+    expected = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+        }
+    )
+    assert op_copy == expected
+
+    # Test with small tolerance
+    op_copy = op.copy()
+    op_copy.simplify(tol=1e-12)
+    expected = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+        }
+    )
+    assert op_copy == expected
+
+    # Test that original operator is unchanged
+    original = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+        }
+    )
+    assert op == original
+
+    # Test with empty operator
+    empty_op = FermionOperator({})
+    empty_op.simplify()
+    assert empty_op == FermionOperator({})
+
+    # Test with all small terms
+    small_op = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1e-9,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-10,
+        }
+    )
+    small_op.simplify()
+    assert small_op == FermionOperator({})
+
+    # Check that it returns None
+    assert op.simplify() is None  # type: ignore
+
+
 def test_repr_equivalent():
     """Test that repr evaluates to an equivalent object."""
     op = FermionOperator(
