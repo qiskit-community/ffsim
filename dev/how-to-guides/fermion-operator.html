@@ -318,9 +318,9 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(3), des_a(0)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(0), des_a(3)): 0.5
+    (cre_a(0), des_a(3)): 0.5,
+    (cre_a(3), des_a(0)): -0.25
 })
 </pre></div></div>
 </div>
@@ -339,7 +339,7 @@ FermionOperator({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;FermionOperator({((True, False, 3), (False, False, 0)): -0.25+0j, ((True, True, 1), (False, True, 5), (True, False, 4)): 1+1j, ((True, False, 0), (False, False, 3)): 0.5+0j})&#39;
+&#39;FermionOperator({((True, True, 1), (False, True, 5), (True, False, 4)): 1+1j, ((True, False, 0), (False, False, 3)): 0.5+0j, ((True, False, 3), (False, False, 0)): -0.25+0j})&#39;
 </pre></div></div>
 </div>
 </section>
@@ -365,6 +365,8 @@ FermionOperator({
 <span class="c1"># Convert MolecularHamiltonian to FermionOperator</span>
 <span class="n">ferm_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">fermion_operator</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">)</span>
 
+<span class="c1"># Remove small coefficients before printing</span>
+<span class="n">ferm_op</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ferm_op</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -376,79 +378,43 @@ FermionOperator({
 <div class="highlight"><pre>
 converged SCF energy = -1.07358293078636
 FermionOperator({
-    (cre_a(1), cre_a(0), des_a(0), des_a(0)): 0.00000000000000011102230246251565,
-    (cre_b(1), cre_a(0), des_a(1), des_b(0)): 0.09856172493457883,
-    (cre_a(0), cre_a(0), des_a(0), des_a(1)): 0.00000000000000011102230246251565,
-    (cre_b(1), cre_a(1), des_a(1), des_b(1)): 0.3267544183944909,
-    (cre_a(0), cre_b(1), des_b(0), des_a(0)): 0.0000000000000000971445146547012,
-    (cre_b(0), cre_b(1), des_b(0), des_b(1)): 0.09856172493457883,
-    (cre_b(0), cre_a(1), des_a(0), des_b(1)): 0.09856172493457883,
-    (cre_b(0), cre_a(1), des_a(0), des_b(0)): 0.0000000000000000971445146547012,
-    (cre_b(0), cre_b(1), des_b(0), des_b(0)): 0.0000000000000000971445146547012,
-    (cre_a(1), cre_b(1), des_b(0), des_a(1)): -0.0000000000000002914335439641036,
+    (cre_a(1), cre_b(1), des_b(0), des_a(0)): 0.09856172493457883,
+    (cre_a(1), cre_a(1), des_a(1), des_a(1)): 0.3267544183944909,
+    (cre_a(0), cre_b(1), des_b(1), des_a(0)): 0.3110432387826118,
+    (cre_b(1), cre_b(0), des_b(0), des_b(1)): 0.31104323878261186,
+    (cre_b(0), cre_b(1), des_b(1), des_b(0)): 0.3110432387826118,
+    (cre_b(1), cre_b(1), des_b(0), des_b(0)): 0.09856172493457883,
+    (cre_b(1), cre_b(0), des_b(1), des_b(0)): 0.09856172493457883,
+    (cre_a(1), cre_b(1), des_b(1), des_a(1)): 0.3267544183944909,
     (cre_a(0), des_a(0)): -1.114600166529875,
-    (cre_a(0), cre_a(0), des_a(0), des_a(0)): 0.3132200956766947,
-    (cre_b(0), des_b(1)): -0.0000000000000000038874896604712055,
-    (cre_b(1), cre_a(1), des_a(0), des_b(1)): -0.0000000000000002914335439641036,
-    (cre_b(1), cre_b(1), des_b(1), des_b(0)): -0.00000000000000033306690738754696,
+    (cre_b(1), des_b(1)): -0.5952339032326008,
+    (cre_b(1), cre_a(0), des_a(1), des_b(0)): 0.09856172493457883,
+    (cre_a(0), cre_b(0), des_b(0), des_a(0)): 0.3132200956766947,
+    (cre_a(0), cre_b(0), des_b(1), des_a(1)): 0.09856172493457883,
+    (cre_a(0), cre_a(1), des_a(0), des_a(1)): 0.09856172493457883,
+    (cre_b(1), cre_a(1), des_a(1), des_b(1)): 0.3267544183944909,
+    (cre_b(0), cre_b(0), des_b(1), des_b(1)): 0.09856172493457883,
+    (cre_b(1), cre_b(1), des_b(1), des_b(1)): 0.3267544183944909,
+    (cre_b(1), cre_a(1), des_a(0), des_b(0)): 0.09856172493457883,
+    (): 0.52917721092,
+    (cre_b(0), cre_b(0), des_b(0), des_b(0)): 0.3132200956766947,
+    (cre_a(0), cre_a(0), des_a(1), des_a(1)): 0.09856172493457883,
+    (cre_a(1), cre_b(0), des_b(0), des_a(1)): 0.31104323878261186,
+    (cre_b(1), cre_a(0), des_a(0), des_b(1)): 0.31104323878261186,
+    (cre_b(0), cre_a(1), des_a(1), des_b(0)): 0.3110432387826118,
+    (cre_b(0), des_b(0)): -1.114600166529875,
+    (cre_a(0), cre_b(1), des_b(0), des_a(1)): 0.09856172493457883,
+    (cre_b(0), cre_a(0), des_a(0), des_b(0)): 0.3132200956766947,
+    (cre_a(0), cre_a(1), des_a(1), des_a(0)): 0.3110432387826118,
+    (cre_a(1), cre_a(0), des_a(1), des_a(0)): 0.09856172493457883,
+    (cre_a(1), des_a(1)): -0.5952339032326008,
+    (cre_b(0), cre_a(1), des_a(0), des_b(1)): 0.09856172493457883,
     (cre_a(1), cre_a(0), des_a(0), des_a(1)): 0.31104323878261186,
     (cre_a(1), cre_a(1), des_a(0), des_a(0)): 0.09856172493457883,
-    (cre_a(0), cre_b(0), des_b(0), des_a(0)): 0.3132200956766947,
-    (cre_b(1), cre_b(0), des_b(1), des_b(1)): -0.0000000000000002914335439641036,
-    (cre_a(0), cre_a(1), des_a(1), des_a(0)): 0.3110432387826118,
-    (cre_a(0), cre_a(0), des_a(1), des_a(1)): 0.09856172493457883,
-    (cre_a(1), cre_a(1), des_a(0), des_a(1)): -0.0000000000000002914335439641036,
-    (cre_b(1), cre_a(1), des_a(0), des_b(0)): 0.09856172493457883,
-    (cre_a(0), cre_b(0), des_b(0), des_a(1)): 0.00000000000000011102230246251565,
-    (cre_a(0), des_a(1)): -0.0000000000000000038874896604712055,
-    (cre_a(1), cre_a(0), des_a(1), des_a(1)): -0.0000000000000002914335439641036,
-    (cre_b(1), des_b(1)): -0.5952339032326008,
-    (cre_b(1), cre_a(0), des_a(1), des_b(1)): -0.0000000000000002914335439641036,
-    (cre_a(0), cre_b(1), des_b(0), des_a(1)): 0.09856172493457883,
-    (cre_a(0), cre_a(1), des_a(1), des_a(1)): -0.00000000000000033306690738754696,
-    (cre_a(0), cre_a(1), des_a(0), des_a(0)): 0.0000000000000000971445146547012,
-    (cre_b(1), cre_a(1), des_a(1), des_b(0)): -0.00000000000000033306690738754696,
-    (cre_a(0), cre_a(0), des_a(1), des_a(0)): 0.0000000000000000971445146547012,
     (cre_b(0), cre_a(0), des_a(1), des_b(1)): 0.09856172493457883,
-    (cre_b(1), cre_b(0), des_b(1), des_b(0)): 0.09856172493457883,
-    (cre_a(1), des_a(1)): -0.5952339032326008,
-    (cre_b(0), cre_b(1), des_b(1), des_b(0)): 0.3110432387826118,
-    (cre_b(0), cre_a(0), des_a(0), des_b(0)): 0.3132200956766947,
-    (cre_b(0), cre_b(0), des_b(1), des_b(0)): 0.0000000000000000971445146547012,
-    (cre_b(0), cre_b(0), des_b(0), des_b(1)): 0.00000000000000011102230246251565,
-    (cre_a(0), cre_b(1), des_b(1), des_a(0)): 0.3110432387826118,
-    (cre_a(1), des_a(0)): 0.0000000000000000405213163257498,
-    (cre_b(0), cre_a(1), des_a(1), des_b(0)): 0.3110432387826118,
-    (cre_a(1), cre_b(0), des_b(0), des_a(0)): 0.00000000000000011102230246251565,
-    (cre_a(1), cre_b(1), des_b(1), des_a(1)): 0.3267544183944909,
-    (cre_b(1), cre_b(1), des_b(1), des_b(1)): 0.3267544183944909,
-    (cre_b(0), cre_b(0), des_b(0), des_b(0)): 0.3132200956766947,
-    (cre_a(0), cre_b(1), des_b(1), des_a(1)): -0.00000000000000033306690738754696,
-    (cre_b(0), cre_a(0), des_a(1), des_b(0)): 0.0000000000000000971445146547012,
-    (cre_b(0), cre_b(0), des_b(1), des_b(1)): 0.09856172493457883,
-    (cre_a(0), cre_a(1), des_a(0), des_a(1)): 0.09856172493457883,
-    (cre_b(1), cre_a(0), des_a(0), des_b(0)): 0.00000000000000011102230246251565,
-    (cre_a(1), cre_a(1), des_a(1), des_a(0)): -0.00000000000000033306690738754696,
-    (cre_b(0), cre_a(0), des_a(0), des_b(1)): 0.00000000000000011102230246251565,
-    (cre_b(0), des_b(0)): -1.114600166529875,
-    (cre_b(1), cre_b(1), des_b(0), des_b(0)): 0.09856172493457883,
-    (): 0.52917721092,
+    (cre_b(0), cre_b(1), des_b(0), des_b(1)): 0.09856172493457883,
     (cre_a(1), cre_b(0), des_b(1), des_a(0)): 0.09856172493457883,
-    (cre_a(1), cre_a(0), des_a(1), des_a(0)): 0.09856172493457883,
-    (cre_a(1), cre_b(0), des_b(0), des_a(1)): 0.31104323878261186,
-    (cre_a(1), cre_b(0), des_b(1), des_a(1)): -0.0000000000000002914335439641036,
-    (cre_b(1), cre_b(0), des_b(0), des_b(0)): 0.00000000000000011102230246251565,
-    (cre_a(1), cre_a(1), des_a(1), des_a(1)): 0.3267544183944909,
-    (cre_b(0), cre_a(1), des_a(1), des_b(1)): -0.00000000000000033306690738754696,
-    (cre_a(1), cre_b(1), des_b(1), des_a(0)): -0.00000000000000033306690738754696,
-    (cre_a(1), cre_b(1), des_b(0), des_a(0)): 0.09856172493457883,
-    (cre_b(1), des_b(0)): 0.0000000000000000405213163257498,
-    (cre_a(0), cre_b(0), des_b(1), des_a(0)): 0.0000000000000000971445146547012,
-    (cre_b(0), cre_b(1), des_b(1), des_b(1)): -0.00000000000000033306690738754696,
-    (cre_b(1), cre_b(0), des_b(0), des_b(1)): 0.31104323878261186,
-    (cre_b(1), cre_a(0), des_a(0), des_b(1)): 0.31104323878261186,
-    (cre_b(1), cre_b(1), des_b(0), des_b(1)): -0.0000000000000002914335439641036,
-    (cre_a(0), cre_b(0), des_b(1), des_a(1)): 0.09856172493457883
+    (cre_a(0), cre_a(0), des_a(0), des_a(0)): 0.3132200956766947
 })
 </pre></div></div>
 </div>
@@ -480,17 +446,17 @@ FermionOperator({
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(0), des_a(3)): 1,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
-    (des_a(3), des_b(3)): 0.0625,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_a(3), des_a(0)): -0.5,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_a(0), des_a(3)): 1,
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
-    (cre_b(2)): 0-0.25j
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(3), des_a(0)): -0.5,
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_b(2)): 0-0.25j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (des_a(3), des_b(3)): 0.0625
 })
 </pre></div></div>
 </div>
@@ -519,17 +485,17 @@ FermionOperator({
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(0), des_a(3)): 0-6j,
-    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
-    (des_a(3), des_b(3)): 0-1.25j,
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
-    (cre_b(1), des_b(5), cre_a(4)): 12-12j,
-    (cre_a(0), des_a(3), cre_b(2)): 2,
-    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,
-    (cre_a(3), des_a(0)): 0+3j,
+    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,
+    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
+    (cre_a(0), des_a(3)): 0-6j,
     (cre_a(3), des_a(0), cre_b(2)): -1,
-    (cre_b(2)): -5
+    (cre_b(1), des_b(5), cre_a(4)): 12-12j,
+    (cre_a(3), des_a(0)): 0+3j,
+    (cre_a(0), des_a(3), cre_b(2)): 2,
+    (cre_b(2)): -5,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
+    (des_a(3), des_b(3)): 0-1.25j
 })
 </pre></div></div>
 </div>
@@ -553,16 +519,16 @@ smaller orbital indices.</p>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(3), des_a(0)): 0+3j,
-    (cre_b(2), cre_a(3), des_a(0)): -1,
-    (cre_b(2)): -5,
-    (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,
-    (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
+    (des_b(3), des_a(3)): 0+1.25j,
     (cre_b(1), cre_a(4), des_b(5)): -12+12j,
     (cre_a(0), des_a(3)): 0-6j,
-    (des_b(3), des_a(3)): 0+1.25j,
+    (cre_b(2)): -5,
+    (cre_a(3), des_a(0)): 0+3j,
+    (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
+    (cre_b(2), cre_a(3), des_a(0)): -1,
     (cre_b(2), cre_a(0), des_a(3)): 2,
-    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j
+    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j,
+    (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j
 })
 </pre></div></div>
 </div>
@@ -623,7 +589,7 @@ True
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_state_vector</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_state_vector</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">linop</span> <span class="o">@</span> <span class="n">vec</span>
 </pre></div>
 </div>
@@ -634,11 +600,11 @@ True
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([ 0.        +0.j        ,  0.        +0.j        ,
-        0.        +0.j        ,  0.        +0.j        ,
-       -0.25736588+0.00369705j,  0.        +0.j        ,
-        0.        +0.j        ,  0.        +0.j        ,
-        0.        +0.j        ])
+array([ 0.       +0.j        ,  0.       +0.j        ,
+        0.       +0.j        ,  0.       +0.j        ,
+       -0.0777719-0.04677541j,  0.       +0.j        ,
+        0.       +0.j        ,  0.       +0.j        ,
+        0.       +0.j        ])
 </pre></div></div>
 </div>
 <p>It can also be passed into most linear algebra routines in <code class="docutils literal notranslate"><span class="pre">scipy.sparse.linalg</span></code>.</p>

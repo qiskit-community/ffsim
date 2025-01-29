@@ -735,6 +735,32 @@ appear before smaller orbital indices.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.FermionOperator.simplify">
+<span class="sig-name descname"><span class="pre">simplify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator.simplify" title="Link to this definition">¶</a></dt>
+<dd><p>Remove terms with small coefficients in place.</p>
+<p>Removes terms with coefficients whose absolute value is below the specified tolerance.
+Modifies the operator in place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tol</strong> (<em>float</em>) – The tolerance threshold. Terms with coefficients whose
+absolute value is less than this will be removed. Defaults to 1e-8.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">op</span> <span class="o">=</span> <span class="n">FermionOperator</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">cre_a</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="mi">1</span><span class="p">)):</span> <span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">cre_b</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="mi">3</span><span class="p">)):</span> <span class="mf">1e-10</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">op</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+<span class="go">FermionOperator({</span>
+<span class="go">    (cre_a(0), des_a(1)): 1</span>
+<span class="go">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -4632,6 +4658,7 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.conserves_spin_z"><code class="docutils literal notranslate"><span class="pre">FermionOperator.conserves_spin_z()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.many_body_order"><code class="docutils literal notranslate"><span class="pre">FermionOperator.many_body_order()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.normal_ordered"><code class="docutils literal notranslate"><span class="pre">FermionOperator.normal_ordered()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.FermionOperator.simplify"><code class="docutils literal notranslate"><span class="pre">FermionOperator.simplify()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.GivensAnsatzOp"><code class="docutils literal notranslate"><span class="pre">GivensAnsatzOp</span></code></a><ul>
