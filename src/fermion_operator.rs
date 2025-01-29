@@ -415,6 +415,31 @@ impl FermionOperator {
         self.coeffs.keys().map(|term| term.len()).max().unwrap_or(0)
     }
 
+    /// Remove terms with small coefficients in place.
+    ///
+    /// Removes terms with coefficients whose absolute value is below the specified tolerance.
+    /// Modifies the operator in place.
+    ///
+    /// Args:
+    ///     tol (float): The tolerance threshold. Terms with coefficients whose
+    ///         absolute value is less than this will be removed. Defaults to 1e-8.
+    ///
+    /// Example:
+    ///     >>> op = FermionOperator({
+    ///     ...     (cre_a(0), des_a(1)): 1.0,
+    ///     ...     (cre_b(2), des_b(3)): 1e-10
+    ///     ... })
+    ///     >>> op.simplify()
+    ///     >>> print(op)
+    ///     FermionOperator({
+    ///         (cre_a(0), des_a(1)): 1
+    ///     })
+    #[pyo3(signature = (tol=1e-8))]
+    fn simplify(&mut self, tol: f64) -> PyResult<()> {
+        self.coeffs.retain(|_, coeff| coeff.norm() >= tol);
+        Ok(())
+    }
+
     fn _approx_eq_(&self, other: &Self, rtol: f64, atol: f64) -> bool {
         for key in self.coeffs.keys().chain(other.coeffs.keys()) {
             let val_self = *self.coeffs.get(key).unwrap_or(&Complex64::default());
