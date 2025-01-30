@@ -573,6 +573,86 @@ def test_approx_eq():
     assert not ffsim.approx_eq(op1, op2, rtol=0)
 
 
+def test_simplify():
+    """Test simplify."""
+    op = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+        }
+    )
+
+    # Test with default tolerance
+    op_copy = op.copy()
+    op_copy.simplify()
+    expected = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+        }
+    )
+    assert op_copy == expected
+
+    # Test with custom tolerance
+    op_copy = op.copy()
+    op_copy.simplify(1e-6)
+    expected = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+        }
+    )
+    assert op_copy == expected
+
+    # Test with small tolerance
+    op_copy = op.copy()
+    op_copy.simplify(tol=1e-12)
+    expected = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+        }
+    )
+    assert op_copy == expected
+
+    # Test that original operator is unchanged
+    original = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
+            (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+        }
+    )
+    assert op == original
+
+    # Test with empty operator
+    empty_op = FermionOperator({})
+    empty_op.simplify()
+    assert empty_op == FermionOperator({})
+
+    # Test with all small terms
+    small_op = FermionOperator(
+        {
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1e-9,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-10,
+        }
+    )
+    small_op.simplify()
+    assert small_op == FermionOperator({})
+
+    # Check that it returns None
+    assert op.simplify() is None  # type: ignore
+
+
 def test_repr_equivalent():
     """Test that repr evaluates to an equivalent object."""
     op = FermionOperator(
@@ -596,8 +676,8 @@ def test_str_equivalent():
             (ffsim.cre_b(2), ffsim.des_b(1)): 1 - 0.5j,
         }
     )
-    exec("from ffsim import cre_a, cre_b, des_a, des_b")
-    assert eval(str(op)) == op
+    exec("from ffsim import cre_a, cre_b, des_a, des_b", globals())
+    assert eval(str(op), globals()) == op
 
 
 def test_copy():
@@ -643,3 +723,22 @@ def test_mapping_methods():
         ((ffsim.cre_b(1), ffsim.des_b(2)), -0.5j),
         ((ffsim.cre_b(2), ffsim.des_b(1)), 1 - 0.5j),
     }
+
+
+def test_trace():
+    rng = np.random.default_rng(12345)
+    norb = 10
+    nelec = (3, 3)
+    ham: ffsim.DiagonalCoulombHamiltonian | ffsim.MolecularHamiltonian
+
+    # compare for random_diagonal_coulomb_hamiltonian
+    ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, real=True, seed=rng)
+    t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
+    t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(t1, t2)
+
+    # compare for random_molecular_hamiltonian
+    ham = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
+    t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(t1, t2)

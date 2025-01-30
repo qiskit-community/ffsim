@@ -8,6 +8,7 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.
 
+use num_integer::binomial;
 use numpy::Complex64;
 use pyo3::class::basic::CompareOp;
 use pyo3::exceptions::PyKeyError;
@@ -16,6 +17,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[pyclass]
 struct KeysIterator {
@@ -413,6 +415,31 @@ impl FermionOperator {
         self.coeffs.keys().map(|term| term.len()).max().unwrap_or(0)
     }
 
+    /// Remove terms with small coefficients in place.
+    ///
+    /// Removes terms with coefficients whose absolute value is below the specified tolerance.
+    /// Modifies the operator in place.
+    ///
+    /// Args:
+    ///     tol (float): The tolerance threshold. Terms with coefficients whose
+    ///         absolute value is less than this will be removed. Defaults to 1e-8.
+    ///
+    /// Example:
+    ///     >>> op = FermionOperator({
+    ///     ...     (cre_a(0), des_a(1)): 1.0,
+    ///     ...     (cre_b(2), des_b(3)): 1e-10
+    ///     ... })
+    ///     >>> op.simplify()
+    ///     >>> print(op)
+    ///     FermionOperator({
+    ///         (cre_a(0), des_a(1)): 1
+    ///     })
+    #[pyo3(signature = (tol=1e-8))]
+    fn simplify(&mut self, tol: f64) -> PyResult<()> {
+        self.coeffs.retain(|_, coeff| coeff.norm() >= tol);
+        Ok(())
+    }
+
     fn _approx_eq_(&self, other: &Self, rtol: f64, atol: f64) -> bool {
         for key in self.coeffs.keys().chain(other.coeffs.keys()) {
             let val_self = *self.coeffs.get(key).unwrap_or(&Complex64::default());
@@ -423,6 +450,102 @@ impl FermionOperator {
         }
         true
     }
+
+    fn _trace_(&self, norb: usize, nelec: (usize, usize)) -> Complex64 {
+        self.coeffs
+            .iter()
+            .map(|(op, &coeff)| coeff * term_trace(op, norb, nelec) as f64)
+            .sum()
+    }
+}
+
+fn term_phase(op: &[(bool, bool, i32)]) -> i32 {
+    let mut phase = 0;
+    let mut op = op.to_vec(); // Work with a mutable copy
+    while !op.is_empty() {
+        let (action, spin, orb) = op[0];
+        let conj_idx = op
+            .iter()
+            .position(|&(a, s, o)| (a, s, o) == (!action, spin, orb))
+            .unwrap();
+        phase += conj_idx - 1;
+        op = [&op[1..conj_idx], &op[conj_idx + 1..]].concat();
+    }
+    (-1i32).pow(phase as u32)
+}
+
+fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i32 {
+    let (n_alpha, n_beta) = nelec;
+
+    let spin_orbs = op
+        .iter()
+        .map(|&(_, spin, orb)| (spin, orb))
+        .collect::<HashSet<_>>();
+    let norb_alpha = spin_orbs.iter().filter(|&&(spin, _)| !spin).count();
+    let norb_beta = spin_orbs.len() - norb_alpha;
+
+    let mut nelec_alpha = 0;
+    let mut nelec_beta = 0;
+
+    // loop over the support of the operator
+    // assume that each site is either 0 or 1 at the beginning
+    // track the state of the site through the application of the operator
+    // if the state exceed 1 or goes below 0,
+    // the state is not physical and the trace must be 0
+    for &(this_spin, this_orb) in &spin_orbs {
+        let mut initial_zero = 0;
+        let mut initial_one = 1;
+        let mut is_zero = true;
+        let mut is_one = true;
+
+        for &(action, spin, orb) in op.iter().rev() {
+            if (spin, orb) != (this_spin, this_orb) {
+                continue;
+            }
+
+            let change = if action { 1 } else { -1 };
+            initial_zero += change;
+            initial_one += change;
+
+            if !(0..=1).contains(&initial_zero) {
+                is_zero = false;
+            }
+            if !(0..=1).contains(&initial_one) {
+                is_one = false;
+            }
+        }
+        // if the operator has support on this_orb,
+        // either the initial state is 0 or 1, but not both
+        assert!(!is_zero || !is_one);
+
+        // return 0 if there is no possible initial state
+        if !is_zero && !is_one {
+            return 0;
+        }
+
+        // the state must return to the initial state, otherwise the trace is zero
+        if (is_zero && initial_zero != 0) || (is_one && initial_one != 1) {
+            return 0;
+        }
+
+        // count the number of electrons in the support of op
+        if is_one {
+            if !this_spin {
+                nelec_alpha += 1;
+            } else {
+                nelec_beta += 1;
+            }
+        }
+
+        if nelec_alpha > n_alpha || nelec_beta > n_beta {
+            // the number of electrons exceeds the number of allowed electrons
+            return 0;
+        }
+    }
+
+    term_phase(op)
+        * binomial(norb - norb_alpha, n_alpha - nelec_alpha) as i32
+        * binomial(norb - norb_beta, n_beta - nelec_beta) as i32
 }
 
 fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> FermionOperator {
