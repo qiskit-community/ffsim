@@ -78,7 +78,7 @@ def statevector_to_mps(
     """
 
     # check if state vector is basis state
-    basis_state = True if np.count_nonzero(statevector) == 1 else False
+    basis_state = np.count_nonzero(statevector) == 1
 
     # generate the ffsim-ordered list of product states
     if basis_state:
