@@ -34,11 +34,31 @@ def _sym_cons_basis(gate: NDArray[np.complex128]) -> NDArray[np.complex128]:
 
     # convert to (N, Sz)-symmetry-conserved basis
     if gate.shape == (4, 4):  # single-site gate
-        # swap = [1, 3, 0, 2]
-        perm = [2, 0, 3, 1]
+        perm = [
+            0b10,  # (1, -1)
+            0b00,  # (0, 0)
+            0b11,  # (2, 0)
+            0b01,  # (1, 1)
+        ]
     elif gate.shape == (16, 16):  # two-site gate
-        # swap = [5, 11, 2, 7, 12, 15, 9, 14, 1, 6, 0, 3, 8, 13, 4, 10]
-        perm = [10, 8, 2, 11, 14, 0, 9, 3, 12, 6, 15, 1, 4, 13, 7, 5]
+        perm = [
+            0b1010,  # (2, -2)
+            0b1000,  # (1, -1)
+            0b0010,  # (1, -1)
+            0b1011,  # (3, -1)
+            0b1110,  # (3, -1)
+            0b0000,  # (0, 0)
+            0b1001,  # (2, 0)
+            0b0011,  # (2, 0)
+            0b1100,  # (2, 0)
+            0b0110,  # (2, 0)
+            0b1111,  # (4, 0)
+            0b0001,  # (1, 1)
+            0b0100,  # (1, 1)
+            0b1101,  # (3, 1)
+            0b0111,  # (3, 1)
+            0b0101,  # (2, 2)
+        ]
     else:
         raise ValueError(
             "only single-site and two-site gates implemented for symmetry basis "
