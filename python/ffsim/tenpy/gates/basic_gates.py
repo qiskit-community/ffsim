@@ -174,36 +174,10 @@ def num_interaction(
     Returns:
         The number interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
-
-    # define parameters
-    e = cmath.exp(1j * theta)
-
-    # alpha sector / up spins
-    if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
-        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
-        # Ngate_a = sp.linalg.expm(1j * theta * Nu)
-        Ngate_a = np.diag([1, e, 1, e])
-
-    # beta sector / down spins
-    if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
-        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
-        # Ngate_b = sp.linalg.expm(1j * theta * Nd)
-        Ngate_b = np.diag([1, 1, e, e])
-
-    # define total gate
-    if spin is Spin.ALPHA:
-        Ngate = Ngate_a
-    elif spin is Spin.BETA:
-        Ngate = Ngate_b
-    elif spin is Spin.ALPHA_AND_BETA:
-        Ngate = Ngate_a @ Ngate_b
-    else:
-        raise ValueError("undefined spin")
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    Ngate_sym = _sym_cons_basis(Ngate)
-
-    return Ngate_sym
+    phase = cmath.exp(1j * theta)
+    alpha_phase = phase if spin & Spin.ALPHA else 1
+    beta_phase = phase if spin & Spin.BETA else 1
+    return np.diag([beta_phase, 1, alpha_phase * beta_phase, alpha_phase])
 
 
 def on_site_interaction(theta: float) -> NDArray[np.complex128]:
@@ -218,16 +192,7 @@ def on_site_interaction(theta: float) -> NDArray[np.complex128]:
     Returns:
         The on-site interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
-
-    # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
-    # OSgate = sp.linalg.expm(1j * theta * Nu @ Nd)
-    e = cmath.exp(1j * theta)
-    OSgate = np.diag([1, 1, 1, e])
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    OSgate_sym = _sym_cons_basis(OSgate)
-
-    return OSgate_sym
+    return np.diag([1, 1, cmath.exp(1j * theta), 1])
 
 
 def num_num_interaction(
@@ -252,33 +217,26 @@ def num_num_interaction(
         The number-number interaction gate in the TeNPy (N, Sz)-symmetry-conserved
         basis.
     """
-
-    # define parameters
-    e = cmath.exp(1j * theta)
-
-    # alpha sector / up spins
-    if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
-        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
-        # NNgate_a = sp.linalg.expm(1j * theta * np.kron(Nu, Nu))
-        NNgate_a = np.diag([1, 1, 1, 1, 1, e, 1, e, 1, 1, 1, 1, 1, e, 1, e])
-
-    # beta sector / down spins
-    if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
-        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
-        # NNgate_b = sp.linalg.expm(1j * theta * np.kron(Nd, Nd))
-        NNgate_b = np.diag([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, e, e, 1, 1, e, e])
-
-    # define total gate
-    if spin is Spin.ALPHA:
-        NNgate = NNgate_a
-    elif spin is Spin.BETA:
-        NNgate = NNgate_b
-    elif spin is Spin.ALPHA_AND_BETA:
-        NNgate = NNgate_a @ NNgate_b
-    else:
-        raise ValueError("undefined spin")
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    NNgate_sym = _sym_cons_basis(NNgate)
-
-    return NNgate_sym
+    phase = cmath.exp(1j * theta)
+    alpha_phase = phase if spin & Spin.ALPHA else 1
+    beta_phase = phase if spin & Spin.BETA else 1
+    return np.diag(
+        [
+            beta_phase,
+            1,
+            1,
+            beta_phase,
+            beta_phase,
+            1,
+            1,
+            1,
+            1,
+            1,
+            alpha_phase * beta_phase,
+            1,
+            1,
+            alpha_phase,
+            alpha_phase,
+            alpha_phase,
+        ]
+    )
