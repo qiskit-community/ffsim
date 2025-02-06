@@ -31,18 +31,18 @@ from ffsim.tenpy.util import statevector_to_mps
 @pytest.mark.parametrize(
     "norb, nelec, spin",
     [
-        (4, (2, 2), Spin.ALPHA),
-        (4, (1, 2), Spin.ALPHA),
-        (4, (0, 2), Spin.ALPHA),
         (4, (0, 0), Spin.ALPHA),
-        (4, (2, 2), Spin.BETA),
-        (4, (1, 2), Spin.BETA),
-        (4, (0, 2), Spin.BETA),
+        (4, (0, 1), Spin.ALPHA),
+        (4, (1, 2), Spin.ALPHA),
+        (4, (2, 2), Spin.ALPHA),
         (4, (0, 0), Spin.BETA),
-        (4, (2, 2), Spin.ALPHA_AND_BETA),
-        (4, (1, 2), Spin.ALPHA_AND_BETA),
-        (4, (0, 2), Spin.ALPHA_AND_BETA),
+        (4, (0, 1), Spin.BETA),
+        (4, (1, 2), Spin.BETA),
+        (4, (2, 2), Spin.BETA),
         (4, (0, 0), Spin.ALPHA_AND_BETA),
+        (4, (0, 1), Spin.ALPHA_AND_BETA),
+        (4, (1, 2), Spin.ALPHA_AND_BETA),
+        (4, (2, 2), Spin.ALPHA_AND_BETA),
     ],
 )
 def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
@@ -51,26 +51,24 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
 
     # generate a random molecular Hamiltonian
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
-    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+    linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
-    )
-    mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
+    mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(mol_hamiltonian)
+    mpo = mpo_model.H_MPO
 
     # generate a random state vector
     dim = ffsim.dim(norb, nelec)
     original_vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # convert random state vector to MPS
-    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    mps = statevector_to_mps(original_vec, mpo_model, norb, nelec)
     original_mps = deepcopy(mps)
 
     # generate random Givens rotation parameters
-    theta = 2 * np.pi * rng.random()
-    phi = 2 * np.pi * rng.random()
-    p = rng.integers(0, norb - 1)
+    theta = rng.uniform(0, 2 * np.pi)
+    phi = rng.uniform(0, 2 * np.pi)
+    p = rng.integers(norb - 1)
 
     # apply random Givens rotation to state vector
     vec = ffsim.apply_givens_rotation(
@@ -82,8 +80,8 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
     ffsim.tenpy.apply_two_site(eng, givens_rotation(theta, spin, phi=phi), (p, p + 1))
 
     # test expectation is preserved
-    original_expectation = np.vdot(original_vec, hamiltonian @ vec)
-    mol_hamiltonian_mpo.apply_naively(mps)
+    original_expectation = np.vdot(original_vec, linop @ vec)
+    mpo.apply_naively(mps)
     mpo_expectation = original_mps.overlap(mps)
     np.testing.assert_allclose(original_expectation, mpo_expectation)
 
