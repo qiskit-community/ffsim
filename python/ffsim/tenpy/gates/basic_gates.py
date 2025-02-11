@@ -14,58 +14,10 @@ import cmath
 import math
 
 import numpy as np
+import scipy.linalg
 from numpy.typing import NDArray
 
 from ffsim.spin import Spin
-
-# ignore lowercase variable checks to maintain TeNPy naming conventions
-# ruff: noqa: N806
-
-
-def _sym_cons_basis(gate: NDArray[np.complex128]) -> NDArray[np.complex128]:
-    r"""Convert a gate to the TeNPy (N, Sz)-symmetry-conserved basis.
-
-    Args:
-        gate: The quantum gate.
-
-    Returns:
-        The quantum gate in the TeNPy (N, Sz)-symmetry-conserved basis.
-    """
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    if gate.shape == (4, 4):  # single-site gate
-        perm = [
-            0b10,  # (1, -1)
-            0b00,  # (0, 0)
-            0b11,  # (2, 0)
-            0b01,  # (1, 1)
-        ]
-    elif gate.shape == (16, 16):  # two-site gate
-        perm = [
-            0b1010,  # (2, -2)
-            0b1000,  # (1, -1)
-            0b0010,  # (1, -1)
-            0b1011,  # (3, -1)
-            0b1110,  # (3, -1)
-            0b0000,  # (0, 0)
-            0b1001,  # (2, 0)
-            0b0011,  # (2, 0)
-            0b1100,  # (2, 0)
-            0b0110,  # (2, 0)
-            0b1111,  # (4, 0)
-            0b0001,  # (1, 1)
-            0b0100,  # (1, 1)
-            0b1101,  # (3, 1)
-            0b0111,  # (3, 1)
-            0b0101,  # (2, 2)
-        ]
-    else:
-        raise ValueError(
-            "only single-site and two-site gates implemented for symmetry basis "
-            "conversion"
-        )
-
-    return gate[perm][:, perm]
 
 
 def givens_rotation(
@@ -75,6 +27,27 @@ def givens_rotation(
 
     The Givens rotation gate defined in :func:`~ffsim.apply_givens_rotation`,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
+
+    The bitstring ordering of the TeNPy (N, Sz)-symmetry-conserved basis is:
+
+    .. code::
+
+        1010  # (2, -2)
+        1000  # (1, -1)
+        0010  # (1, -1)
+        1011  # (3, -1)
+        1110  # (3, -1)
+        0000  # (0, 0)
+        1001  # (2, 0)
+        0011  # (2, 0)
+        1100  # (2, 0)
+        0110  # (2, 0)
+        1111  # (4, 0)
+        0001  # (1, 1)
+        0100  # (1, 1)
+        1101  # (3, 1)
+        0111  # (3, 1)
+        0101  # (2, 2)
 
     Args:
         theta: The rotation angle.
@@ -89,69 +62,23 @@ def givens_rotation(
     Returns:
         The Givens rotation gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
-
-    # define parameters
     c = math.cos(theta)
-    s = -cmath.exp(-1j * phi) * math.sin(theta)
-
-    # alpha sector / up spins
-    if spin in [Spin.ALPHA, Spin.ALPHA_AND_BETA]:
-        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
-        # Ggate_a = (
-        #     np.kron(sp.linalg.expm(1j * phi * Nu), Id)
-        #     @ sp.linalg.expm(
-        #         theta * (np.kron(Cdu @ JWd, Cu) - np.kron(Cu @ JWd, Cdu))
-        #     )
-        #     @ np.kron(sp.linalg.expm(-1j * phi * Nu), Id)
-        # )
-        Ggate_a = np.diag(
-            np.array([1, c, 1, c, c, 1, c, 1, 1, c, 1, c, c, 1, c, 1], dtype=complex)
-        )
-        Ggate_a[1, 4] = s
-        Ggate_a[3, 6] = s
-        Ggate_a[9, 12] = -s
-        Ggate_a[11, 14] = -s
-        Ggate_a[4, 1] = -s.conjugate()
-        Ggate_a[6, 3] = -s.conjugate()
-        Ggate_a[12, 9] = s.conjugate()
-        Ggate_a[14, 11] = s.conjugate()
-
-    # beta sector / down spins
-    if spin in [Spin.BETA, Spin.ALPHA_AND_BETA]:
-        # # using TeNPy SpinHalfFermionSite(cons_N=None, cons_Sz=None) operators
-        # Ggate_b = (
-        #     np.kron(sp.linalg.expm(1j * phi * Nd), Id)
-        #     @ sp.linalg.expm(
-        #         theta * (np.kron(Cdd @ JWu, Cd) - np.kron(Cd @ JWu, Cdd))
-        #     )
-        #     @ np.kron(sp.linalg.expm(-1j * phi * Nd), Id)
-        # )
-        Ggate_b = np.diag(
-            np.array([1, 1, c, c, 1, 1, c, c, c, c, 1, 1, c, c, 1, 1], dtype=complex)
-        )
-        Ggate_b[2, 8] = s
-        Ggate_b[3, 9] = -s
-        Ggate_b[6, 12] = s
-        Ggate_b[7, 13] = -s
-        Ggate_b[8, 2] = -s.conjugate()
-        Ggate_b[9, 3] = s.conjugate()
-        Ggate_b[12, 6] = -s.conjugate()
-        Ggate_b[13, 7] = s.conjugate()
-
-    # define total gate
-    if spin is Spin.ALPHA:
-        Ggate = Ggate_a
-    elif spin is Spin.BETA:
-        Ggate = Ggate_b
-    elif spin is Spin.ALPHA_AND_BETA:
-        Ggate = Ggate_a @ Ggate_b
-    else:
-        raise ValueError("undefined spin")
-
-    # convert to (N, Sz)-symmetry-conserved basis
-    Ggate_sym = _sym_cons_basis(Ggate)
-
-    return Ggate_sym
+    s = cmath.rect(1, phi) * math.sin(theta)
+    mat = np.array([[c, s], [-s.conjugate(), c]])
+    mat_a = mat if spin & Spin.ALPHA else np.eye(2)
+    mat_b = mat if spin & Spin.BETA else np.eye(2)
+    return scipy.linalg.block_diag(
+        1,
+        mat_b,
+        mat_a.conj(),
+        1,
+        scipy.linalg.block_diag(mat_a.conj(), mat_a.T)[[0, 2, 1, 3]][:, [0, 2, 1, 3]]
+        @ scipy.linalg.block_diag(mat_b.T.conj(), mat_b),
+        1,
+        mat_a.T,
+        mat_b.T.conj(),
+        1,
+    )
 
 
 def num_interaction(
@@ -161,6 +88,15 @@ def num_interaction(
 
     The number interaction gate defined in :func:`~ffsim.apply_num_interaction`,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
+
+    The bitstring ordering of the TeNPy (N, Sz)-symmetry-conserved basis is:
+
+    .. code::
+
+        10  # (1, -1)
+        00  # (0, 0)
+        11  # (2, 0)
+        01  # (1, 1)
 
     Args:
         theta: The rotation angle.
@@ -186,6 +122,15 @@ def on_site_interaction(theta: float) -> NDArray[np.complex128]:
     The on-site interaction gate defined in :func:`~ffsim.apply_on_site_interaction`,
     returned in the TeNPy (N, Sz)-symmetry-conserved basis.
 
+    The bitstring ordering of the TeNPy (N, Sz)-symmetry-conserved basis is:
+
+    .. code::
+
+        10  # (1, -1)
+        00  # (0, 0)
+        11  # (2, 0)
+        01  # (1, 1)
+
     Args:
         theta: The rotation angle.
 
@@ -203,6 +148,27 @@ def num_num_interaction(
     The number-number interaction gate defined in
     :func:`~ffsim.apply_num_num_interaction`, returned in the TeNPy
     (N, Sz)-symmetry-conserved basis.
+
+    The bitstring ordering of the TeNPy (N, Sz)-symmetry-conserved basis is:
+
+    .. code::
+
+        1010  # (2, -2)
+        1000  # (1, -1)
+        0010  # (1, -1)
+        1011  # (3, -1)
+        1110  # (3, -1)
+        0000  # (0, 0)
+        1001  # (2, 0)
+        0011  # (2, 0)
+        1100  # (2, 0)
+        0110  # (2, 0)
+        1111  # (4, 0)
+        0001  # (1, 1)
+        0100  # (1, 1)
+        1101  # (3, 1)
+        0111  # (3, 1)
+        0101  # (2, 2)
 
     Args:
         theta: The rotation angle.
