@@ -110,7 +110,7 @@ def num_interaction(
     Returns:
         The number interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
-    phase = cmath.exp(1j * theta)
+    phase = cmath.rect(1, theta)
     alpha_phase = phase if spin & Spin.ALPHA else 1
     beta_phase = phase if spin & Spin.BETA else 1
     return np.diag([beta_phase, 1, alpha_phase * beta_phase, alpha_phase])
@@ -137,7 +137,7 @@ def on_site_interaction(theta: float) -> NDArray[np.complex128]:
     Returns:
         The on-site interaction gate in the TeNPy (N, Sz)-symmetry-conserved basis.
     """
-    return np.diag([1, 1, cmath.exp(1j * theta), 1])
+    return np.diag([1, 1, cmath.rect(1, theta), 1])
 
 
 def num_num_interaction(
@@ -183,7 +183,7 @@ def num_num_interaction(
         The number-number interaction gate in the TeNPy (N, Sz)-symmetry-conserved
         basis.
     """
-    phase = cmath.exp(1j * theta)
+    phase = cmath.rect(1, theta)
     alpha_phase = phase if spin & Spin.ALPHA else 1
     beta_phase = phase if spin & Spin.BETA else 1
     return np.diag(
