@@ -19,19 +19,18 @@ import numpy as np
 import tenpy.linalg.np_conserved as npc
 from numpy.typing import NDArray
 from tenpy.algorithms.exact_diag import ExactDiag
-from tenpy.models.model import MPOModel
+from tenpy.models.hubbard import FermiHubbardChain
 from tenpy.networks.mps import MPS
 from tenpy.networks.site import FermionSite, SpinHalfFermionSite
 
 import ffsim
 
 
-def mps_to_statevector(mps: MPS, mpo_model: MPOModel) -> NDArray[np.complex128]:
+def mps_to_statevector(mps: MPS) -> NDArray[np.complex128]:
     r"""Return the MPS as a state vector.
 
     Args:
         mps: The MPS.
-        mpo_model: The MPO model.
 
     Returns:
         The state vector.
@@ -45,7 +44,7 @@ def mps_to_statevector(mps: MPS, mpo_model: MPOModel) -> NDArray[np.complex128]:
 
     # initialize the TeNPy ExactDiag class instance
     charge_sector = mps.get_total_charge(True)
-    exact_diag = ExactDiag(mpo_model, charge_sector=charge_sector)
+    exact_diag = ExactDiag(FermiHubbardChain({"L": norb}), charge_sector=charge_sector)
 
     # determine the mapping from TeNPy basis to ffsim basis
     basis_ordering_ffsim, swap_factors_ffsim = _map_tenpy_to_ffsim_basis(
@@ -61,7 +60,6 @@ def mps_to_statevector(mps: MPS, mpo_model: MPOModel) -> NDArray[np.complex128]:
 
 def statevector_to_mps(
     statevector: NDArray[np.complex128],
-    mpo_model: MPOModel,
     norb: int,
     nelec: tuple[int, int],
 ) -> MPS:
@@ -69,7 +67,6 @@ def statevector_to_mps(
 
     Args:
         statevector: The state vector.
-        mpo_model: The MPO model.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
 
@@ -116,7 +113,9 @@ def statevector_to_mps(
     else:
         # initialize the TeNPy ExactDiag class instance
         charge_sector = mps_reference.get_total_charge(True)
-        exact_diag = ExactDiag(mpo_model, charge_sector=charge_sector)
+        exact_diag = ExactDiag(
+            FermiHubbardChain({"L": norb}), charge_sector=charge_sector
+        )
         statevector_reference = exact_diag.mps_to_full(mps_reference)
         leg_charge = statevector_reference.legs[0]
 

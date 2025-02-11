@@ -62,7 +62,7 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
     original_vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # convert random state vector to MPS
-    mps = statevector_to_mps(original_vec, mpo_model, norb, nelec)
+    mps = statevector_to_mps(original_vec, norb, nelec)
     original_mps = deepcopy(mps)
 
     # generate random Givens rotation parameters
@@ -122,7 +122,7 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     original_vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # convert random state vector to MPS
-    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    mps = statevector_to_mps(original_vec, norb, nelec)
     original_mps = deepcopy(mps)
 
     # generate random number interaction parameters
@@ -174,7 +174,7 @@ def test_on_site_interaction(
     original_vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # convert random state vector to MPS
-    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    mps = statevector_to_mps(original_vec, norb, nelec)
     original_mps = deepcopy(mps)
 
     # generate random on-site interaction parameters
@@ -231,7 +231,7 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     original_vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # convert random state vector to MPS
-    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    mps = statevector_to_mps(original_vec, norb, nelec)
     original_mps = deepcopy(mps)
 
     # generate random number-number interaction parameters

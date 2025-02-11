@@ -83,9 +83,7 @@ def test_apply_ucj_op_spin_balanced(
 
     # generate the corresponding LUCJ circuit MPS
     dim = ffsim.dim(norb, nelec)
-    wavefunction_mps = statevector_to_mps(
-        np.array([1] + [0] * (dim - 1)), mol_hamiltonian_mpo_model, norb, nelec
-    )
+    wavefunction_mps = statevector_to_mps(np.array([1] + [0] * (dim - 1)), norb, nelec)
     options = {"trunc_params": {"chi_max": 16, "svd_min": 1e-6}}
     eng = TEBDEngine(wavefunction_mps, None, options)
     apply_ucj_op_spin_balanced(eng, lucj_op)

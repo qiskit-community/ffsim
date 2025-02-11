@@ -49,7 +49,7 @@ def test_mps_to_statevector_product_state(norb: int, nelec: tuple[int, int]):
     mps = random_mps_product_state(norb, nelec)
 
     # convert MPS to state vector (product state)
-    statevector = mps_to_statevector(mps, mol_hamiltonian_mpo_model)
+    statevector = mps_to_statevector(mps)
 
     # test expectation is preserved
     original_expectation = np.vdot(statevector, hamiltonian @ statevector)
@@ -89,7 +89,7 @@ def test_mps_to_statevector(norb: int, nelec: tuple[int, int]):
     mps = random_mps(norb, nelec)
 
     # convert MPS to state vector
-    statevector = mps_to_statevector(mps, mol_hamiltonian_mpo_model)
+    statevector = mps_to_statevector(mps)
 
     # test expectation is preserved
     original_expectation = np.vdot(statevector, hamiltonian @ statevector)
@@ -131,7 +131,7 @@ def test_statevector_to_mps_product_state(norb: int, nelec: tuple[int, int]):
     statevector = ffsim.linalg.one_hot(dim, idx)
 
     # convert state vector to MPS (product state)
-    mps = statevector_to_mps(statevector, mol_hamiltonian_mpo_model, norb, nelec)
+    mps = statevector_to_mps(statevector, norb, nelec)
 
     # test expectation is preserved
     original_expectation = np.vdot(statevector, hamiltonian @ statevector)
@@ -172,7 +172,7 @@ def test_statevector_to_mps(norb: int, nelec: tuple[int, int]):
     statevector = ffsim.random.random_state_vector(dim, seed=rng)
 
     # convert state vector to MPS
-    mps = statevector_to_mps(statevector, mol_hamiltonian_mpo_model, norb, nelec)
+    mps = statevector_to_mps(statevector, norb, nelec)
 
     # test expectation is preserved
     original_expectation = np.vdot(statevector, hamiltonian @ statevector)

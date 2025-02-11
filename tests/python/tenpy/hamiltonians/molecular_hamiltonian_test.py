@@ -53,12 +53,8 @@ def test_from_molecular_hamiltonian(norb: int, nelec: tuple[int, int]):
         product_state_j = ffsim.linalg.one_hot(dim, j)
 
         # convert product states to MPS
-        product_state_mps_i = statevector_to_mps(
-            product_state_i, mol_hamiltonian_mpo_model, norb, nelec
-        )
-        product_state_mps_j = statevector_to_mps(
-            product_state_j, mol_hamiltonian_mpo_model, norb, nelec
-        )
+        product_state_mps_i = statevector_to_mps(product_state_i, norb, nelec)
+        product_state_mps_j = statevector_to_mps(product_state_j, norb, nelec)
 
         # test expectation is preserved
         original_expectation = np.vdot(product_state_i, hamiltonian @ product_state_j)

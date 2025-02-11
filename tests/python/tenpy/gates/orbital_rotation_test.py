@@ -52,7 +52,7 @@ def test_apply_orbital_rotation(
     original_vec = ffsim.random.random_state_vector(dim, seed=rng)
 
     # convert random state vector to MPS
-    mps = statevector_to_mps(original_vec, mol_hamiltonian_mpo_model, norb, nelec)
+    mps = statevector_to_mps(original_vec, norb, nelec)
     original_mps = deepcopy(mps)
 
     # generate a random orbital rotation
