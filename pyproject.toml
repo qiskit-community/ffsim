@@ -28,6 +28,7 @@ dependencies = [
     "opt_einsum",
     "orjson",
     "physics-tenpy >= 1.0.4",
+    "joblib",
     "pyscf >= 2.7",
     "qiskit >= 1.1",
     "scipy",
