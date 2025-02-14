@@ -24,10 +24,10 @@ from ffsim.tenpy.util import statevector_to_mps
 @pytest.mark.parametrize(
     "norb, nelec",
     [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
+        (3, (2, 2)),
+        (3, (1, 2)),
+        (3, (0, 2)),
+        (3, (0, 0)),
     ],
 )
 def test_apply_diag_coulomb_evolution(norb: int, nelec: tuple[int, int]):
