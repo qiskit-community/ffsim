@@ -16,7 +16,6 @@ from typing import cast
 
 import numpy as np
 import tenpy.linalg.np_conserved as npc
-from joblib import Parallel, delayed
 from numpy.typing import NDArray
 from tenpy.algorithms.exact_diag import ExactDiag
 from tenpy.models.hubbard import FermiHubbardChain
@@ -236,20 +235,19 @@ def _map_tenpy_to_ffsim_basis(
         exact_diag: The exact diagonalization class instance.
 
     Returns:
-        The permutation to map from the TeNPy to ffsim basis.
-        The minus signs that are introduced due to this mapping.
+        basis_ordering_ffsim: The permutation to map from the TeNPy to ffsim basis.
+        swap_factors: The minus signs that are introduced due to this mapping.
     """
 
-    def _basis_mapping(state):
-        """Computes basis mapping and swap factor."""
-        prod_mps = MPS.from_product_state(mps_sites, state)
-        prod_statevector = exact_diag.mps_to_full(prod_mps).to_ndarray()
-        return np.argmax(prod_statevector), _compute_swap_factor(prod_mps)
+    basis_ordering_ffsim, swap_factors = [], []
+    for i, state in enumerate(product_states):
+        # basis_ordering_ffsim
+        prod_mps = MPS.from_product_state(exact_diag.model.lat.mps_sites(), state)
+        prod_statevector = list(exact_diag.mps_to_full(prod_mps).to_ndarray())
+        idx = prod_statevector.index(1)
+        basis_ordering_ffsim.append(idx)
 
-    mps_sites = exact_diag.model.lat.mps_sites()
-    mapping = np.array(
-        Parallel(n_jobs=-1)(delayed(_basis_mapping)(state) for state in product_states),
-        dtype=int,
-    )
+        # swap_factors
+        swap_factors.append(_compute_swap_factor(prod_mps))
 
-    return mapping[:, 0], mapping[:, 1]
+    return np.array(basis_ordering_ffsim), np.array(swap_factors)
