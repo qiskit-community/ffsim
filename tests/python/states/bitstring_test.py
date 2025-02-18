@@ -448,3 +448,25 @@ def test_convert_bitstring_type_bit_array():
         "010110",
         "100110",
     ]
+
+
+def test_convert_bitstring_type_bad_input():
+    """Test converting bit array to other bitstring type."""
+    strings = [
+        "001011",
+        "010011",
+    ]
+    with pytest.raises(TypeError, match="input_type"):
+        _ = convert_bitstring_type(
+            strings,
+            input_type=ffsim.BitstringType,  # type: ignore
+            output_type=ffsim.BitstringType,  # type: ignore
+            length=6,
+        )
+    with pytest.raises(TypeError, match="output_type"):
+        _ = convert_bitstring_type(
+            strings,
+            input_type=ffsim.BitstringType.STRING,
+            output_type=ffsim.BitstringType,  # type: ignore
+            length=6,
+        )

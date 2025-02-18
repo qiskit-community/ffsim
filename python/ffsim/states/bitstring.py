@@ -62,6 +62,17 @@ def convert_bitstring_type(
     Returns:
         The converted bitstrings.
     """
+    if not isinstance(input_type, BitstringType):
+        raise TypeError(
+            "input_type must be ffsim.BitstringType.STRING, ffsim.BitstringType.INT, "
+            f"or ffsim.BitstringType.BIT_ARRAY. Got {input_type}."
+        )
+    if not isinstance(output_type, BitstringType):
+        raise TypeError(
+            "output_type must be ffsim.BitstringType.STRING, ffsim.BitstringType.INT, "
+            f"or ffsim.BitstringType.BIT_ARRAY. Got {output_type}."
+        )
+
     if input_type is output_type:
         return strings
 
