@@ -15,6 +15,7 @@ from copy import deepcopy
 import numpy as np
 import pytest
 from tenpy.algorithms.tebd import TEBDEngine
+from tenpy.models.molecular import MolecularModel
 
 import ffsim
 from ffsim.spin import Spin
@@ -24,7 +25,6 @@ from ffsim.tenpy.gates.basic_gates import (
     num_num_interaction,
     on_site_interaction,
 )
-from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import statevector_to_mps
 
 
@@ -54,7 +54,12 @@ def test_givens_rotation(norb: int, nelec: tuple[int, int], spin: Spin):
     linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(mol_hamiltonian)
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
+    )
+    mpo_model = MolecularModel(model_params)
     mpo = mpo_model.H_MPO
 
     # generate a random state vector
@@ -112,9 +117,12 @@ def test_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random state vector
@@ -164,9 +172,12 @@ def test_on_site_interaction(
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random state vector
@@ -221,9 +232,12 @@ def test_num_num_interaction(norb: int, nelec: tuple[int, int], spin: Spin):
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random state vector

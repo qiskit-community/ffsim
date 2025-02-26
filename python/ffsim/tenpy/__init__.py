@@ -23,7 +23,6 @@ from ffsim.tenpy.gates.basic_gates import (
 from ffsim.tenpy.gates.diag_coulomb import apply_diag_coulomb_evolution
 from ffsim.tenpy.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.tenpy.gates.ucj import apply_ucj_op_spin_balanced
-from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.random.random import random_mps, random_mps_product_state
 from ffsim.tenpy.util import mps_to_statevector, statevector_to_mps
 
@@ -34,7 +33,6 @@ __all__ = [
     "apply_single_site",
     "apply_two_site",
     "givens_rotation",
-    "MolecularHamiltonianMPOModel",
     "mps_to_statevector",
     "num_interaction",
     "num_num_interaction",

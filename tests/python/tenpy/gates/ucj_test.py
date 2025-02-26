@@ -13,10 +13,10 @@
 import numpy as np
 import pytest
 from tenpy.algorithms.tebd import TEBDEngine
+from tenpy.models.molecular import MolecularModel
 
 import ffsim
 from ffsim.tenpy.gates.ucj import apply_ucj_op_spin_balanced
-from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.util import statevector_to_mps
 from ffsim.variational.util import interaction_pairs_spin_balanced
 
@@ -61,9 +61,12 @@ def test_apply_ucj_op_spin_balanced(
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random LUCJ ansatz

@@ -12,9 +12,9 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+from tenpy.models.molecular import MolecularModel
 
 import ffsim
-from ffsim.tenpy.hamiltonians.molecular_hamiltonian import MolecularHamiltonianMPOModel
 from ffsim.tenpy.random.random import random_mps, random_mps_product_state
 from ffsim.tenpy.util import mps_to_statevector, statevector_to_mps
 
@@ -40,9 +40,12 @@ def test_mps_to_statevector_product_state(norb: int, nelec: tuple[int, int]):
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random MPS (product state)
@@ -80,9 +83,12 @@ def test_mps_to_statevector(norb: int, nelec: tuple[int, int]):
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random MPS
@@ -120,9 +126,12 @@ def test_statevector_to_mps_product_state(norb: int, nelec: tuple[int, int]):
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random state vector (product state)
@@ -162,9 +171,12 @@ def test_statevector_to_mps(norb: int, nelec: tuple[int, int]):
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     # convert molecular Hamiltonian to MPO
-    mol_hamiltonian_mpo_model = MolecularHamiltonianMPOModel.from_molecular_hamiltonian(
-        mol_hamiltonian
+    model_params = dict(
+        one_body_tensor=mol_hamiltonian.one_body_tensor,
+        two_body_tensor=mol_hamiltonian.two_body_tensor,
+        constant=mol_hamiltonian.constant,
     )
+    mol_hamiltonian_mpo_model = MolecularModel(model_params)
     mol_hamiltonian_mpo = mol_hamiltonian_mpo_model.H_MPO
 
     # generate a random state vector
