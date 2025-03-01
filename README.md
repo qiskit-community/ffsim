@@ -14,7 +14,7 @@ Documentation is located at the [project website](https://qiskit-community.githu
 
 <!-- start installation -->
 
-We recommend installing ffsim using pip, when possible:
+We recommend installing ffsim using pip when possible:
 
 ```bash
 pip install ffsim
