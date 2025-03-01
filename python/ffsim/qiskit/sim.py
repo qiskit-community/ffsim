@@ -15,7 +15,7 @@ from __future__ import annotations
 from typing import cast
 
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
-from qiskit.circuit.library import Barrier, Measure
+from qiskit.circuit.library import Barrier, Measure, XGate
 
 from ffsim import gates, protocols, states, trotter
 from ffsim.qiskit.gates import (
@@ -36,7 +36,11 @@ from ffsim.qiskit.gates import (
 )
 
 
-def final_state_vector(circuit: QuantumCircuit) -> states.StateVector:
+def final_state_vector(
+    circuit: QuantumCircuit,
+    norb: int | None = None,
+    nelec: tuple[int, int] | None = None,
+) -> states.StateVector:
     """Return the final state vector of a fermionic quantum circuit.
 
     Args:
@@ -48,65 +52,100 @@ def final_state_vector(circuit: QuantumCircuit) -> states.StateVector:
     """
     if not circuit.data:
         raise ValueError("Circuit must contain at least one instruction.")
-    state_vector = _prepare_state_vector(circuit.data[0], circuit)
+    state_vector, index = _prepare_state_vector(circuit, norb, nelec)
+    if norb is not None and norb != state_vector.norb:
+        raise ValueError(
+            "norb did not match the circuit's state preparation. "
+            f"Got {norb}, but the circuit's state preparation gave "
+            f"{state_vector.norb}. Try omitting the norb argument."
+        )
+    if nelec is not None and nelec != state_vector.nelec:
+        raise ValueError(
+            "nelec did not match the circuit's state preparation. "
+            f"Got {nelec}, but the circuit's state preparation gave "
+            f"{state_vector.nelec}. Try omitting the nelec argument."
+        )
     evolve_func = (
         _evolve_state_vector_spinless
         if isinstance(state_vector.nelec, int)
         else _evolve_state_vector_spinful
     )
-    for instruction in circuit.data[1:]:
+    for instruction in circuit.data[index:]:
         state_vector = evolve_func(state_vector, instruction, circuit)
     return state_vector
 
 
 def _prepare_state_vector(
-    instruction: CircuitInstruction, circuit: QuantumCircuit
-) -> states.StateVector:
+    circuit: QuantumCircuit, norb: int | None, nelec: tuple[int, int] | None
+) -> tuple[states.StateVector, int]:
+    instruction = circuit.data[0]
     op = instruction.operation
-    qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
-    consecutive_sorted = qubit_indices == list(
-        range(min(qubit_indices), max(qubit_indices) + 1)
-    )
-
-    if isinstance(op, (PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW)):
-        if not consecutive_sorted:
+    if isinstance(
+        op,
+        (
+            PrepareHartreeFockJW,
+            PrepareHartreeFockSpinlessJW,
+            PrepareSlaterDeterminantJW,
+            PrepareSlaterDeterminantSpinlessJW,
+        ),
+    ):
+        # First instruction is an ffsim gate
+        qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
+        if not qubit_indices == list(range(min(qubit_indices), max(qubit_indices) + 1)):
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
                 "consecutive qubits, in ascending order."
             )
-        norb = op.norb
-        nelec = op.nelec
-        vec = states.hartree_fock_state(norb, nelec)
-        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, PrepareSlaterDeterminantJW):
-        if not consecutive_sorted:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "consecutive qubits, in ascending order."
-            )
-        norb = op.norb
-        occ_a, occ_b = op.occupied_orbitals
-        nelec = (len(occ_a), len(occ_b))
-        vec = states.slater_determinant(
-            norb,
-            occupied_orbitals=op.occupied_orbitals,
-            orbital_rotation=(op.orbital_rotation_a, op.orbital_rotation_b),
-        )
-        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+        if isinstance(op, (PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW)):
+            norb = op.norb
+            nelec = op.nelec
+            vec = states.hartree_fock_state(norb, nelec)
+            return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
 
-    if isinstance(op, PrepareSlaterDeterminantSpinlessJW):
-        if not consecutive_sorted:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "consecutive qubits, in ascending order."
+        if isinstance(op, PrepareSlaterDeterminantJW):
+            norb = op.norb
+            occ_a, occ_b = op.occupied_orbitals
+            nelec = (len(occ_a), len(occ_b))
+            vec = states.slater_determinant(
+                norb,
+                occupied_orbitals=op.occupied_orbitals,
+                orbital_rotation=(op.orbital_rotation_a, op.orbital_rotation_b),
             )
-        norb = op.norb
-        nelec = len(op.occupied_orbitals)
-        vec = states.slater_determinant(
-            op.norb, op.occupied_orbitals, orbital_rotation=op.orbital_rotation
-        )
-        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+            return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
+
+        if isinstance(op, PrepareSlaterDeterminantSpinlessJW):
+            norb = op.norb
+            nelec = len(op.occupied_orbitals)
+            vec = states.slater_determinant(
+                op.norb, op.occupied_orbitals, orbital_rotation=op.orbital_rotation
+            )
+            return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
+
+    elif isinstance(op, XGate):
+        qubit_indices = []
+        for index, instruction in enumerate(circuit.data):
+            op = instruction.operation
+            if not isinstance(op, XGate):
+                break
+            (qubit,) = instruction.qubits
+            qubit_indices.append(circuit.find_bit(qubit).index)
+        # TODO handle norb and nelec being None
+        if nelec is None or isinstance(nelec, int):
+            # Spinless case
+            norb = circuit.num_qubits
+            nelec = len(qubit_indices)
+            vec = states.slater_determinant(norb, qubit_indices)
+            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index + 1
+        else:
+            # Spinful case
+            assert circuit.num_qubits % 2 == 0
+            norb = circuit.num_qubits // 2
+            occ_a = [i for i in qubit_indices if i < norb]
+            occ_b = [i - norb for i in qubit_indices if i >= norb]
+            nelec = (len(occ_a), len(occ_b))
+            vec = states.slater_determinant(norb, (occ_a, occ_b))
+            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index + 1
 
     raise ValueError(
         "The first instruction of the circuit must be one of the following gates: "
