@@ -163,8 +163,8 @@ def test_qiskit_gates_spinful():
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    # for i, j in _brickwork(2 * norb, norb):
-    #     circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in _brickwork(2 * norb, norb):
+        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     # for q in qubits:
     #     circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     # for i, j in _brickwork(2 * norb, norb):
@@ -224,8 +224,8 @@ def test_qiskit_gates_spinless():
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    # for i, j in _brickwork(2 * norb, norb):
-    #     circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     # for q in qubits:
     #     circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     # for i, j in _brickwork(2 * norb, norb):
