@@ -12,10 +12,11 @@
 
 from __future__ import annotations
 
+import math
 from typing import cast
 
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
-from qiskit.circuit.library import Barrier, Measure, XGate
+from qiskit.circuit.library import Barrier, Measure, XGate, XXPlusYYGate
 
 from ffsim import gates, protocols, states, trotter
 from ffsim.qiskit.gates import (
@@ -34,6 +35,7 @@ from ffsim.qiskit.gates import (
     UCJOpSpinlessJW,
     UCJOpSpinUnbalancedJW,
 )
+from ffsim.spin import Spin
 
 
 def final_state_vector(
@@ -215,6 +217,25 @@ def _evolve_state_vector_spinless(
             "Encountered a measurement gate, but only unitary operations are allowed."
         )
 
+    if isinstance(op, XXPlusYYGate):
+        i, j = qubit_indices
+        if not abs(i - j) == 1:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits."
+            )
+        theta, beta = op.params
+        vec = gates.apply_givens_rotation(
+            vec,
+            0.5 * theta,
+            (i, j),
+            phi=-beta - 0.5 * math.pi,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     raise ValueError(f"Unsupported gate for spinless circuit: {op}.")
 
 
@@ -308,5 +329,31 @@ def _evolve_state_vector_spinful(
         raise ValueError(
             "Encountered a measurement gate, but only unitary operations are allowed."
         )
+
+    if isinstance(op, XXPlusYYGate):
+        i, j = qubit_indices
+        if not abs(i - j) == 1:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits."
+            )
+        if (i < norb) != (j < norb):
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied on orbitals "
+                "of the same spin."
+            )
+        spin = Spin.ALPHA if i < norb else Spin.BETA
+        theta, beta = op.params
+        vec = gates.apply_givens_rotation(
+            vec,
+            0.5 * theta,
+            (i % norb, j % norb),
+            phi=-beta - 0.5 * math.pi,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     raise ValueError(f"Unsupported gate for spinful circuit: {op}.")
