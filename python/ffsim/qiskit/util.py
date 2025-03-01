@@ -49,8 +49,9 @@ def ffsim_vec_to_qiskit_vec(
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
     """
+    n_qubits = norb if isinstance(nelec, int) else 2 * norb
     assert vec.shape == (states.dim(norb, nelec),)
-    qiskit_vec = np.zeros(1 << (2 * norb), dtype=vec.dtype)
+    qiskit_vec = np.zeros(1 << n_qubits, dtype=vec.dtype)
     qiskit_vec[_ffsim_indices(norb, nelec)] = vec
     return qiskit_vec
 
