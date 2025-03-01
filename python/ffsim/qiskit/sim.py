@@ -23,6 +23,7 @@ from qiskit.circuit.library import (
     Measure,
     PhaseGate,
     RZGate,
+    RZZGate,
     XGate,
     XXPlusYYGate,
 )
@@ -424,6 +425,41 @@ def _evolve_state_vector_spinful(
             copy=False,
         )
         vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, RZZGate):
+        i, j = qubit_indices
+        target_orbs = ([], [])
+        target_orbs[i >= norb].append(i % norb)
+        target_orbs[j >= norb].append(j % norb)
+        (theta,) = op.params
+        vec = gates.apply_num_op_prod_interaction(
+            vec,
+            -2 * theta,
+            target_orbs=target_orbs,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            i % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=Spin.ALPHA if i < norb else Spin.BETA,
+            copy=False,
+        )
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            j % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=Spin.ALPHA if j < norb else Spin.BETA,
+            copy=False,
+        )
+        vec *= cmath.rect(1, -theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
