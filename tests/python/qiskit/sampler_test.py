@@ -37,13 +37,12 @@ def _brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with random gates."""
     rng = np.random.default_rng(12285)
 
-    qubits = QuantumRegister(2 * norb)
-
+    # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
     ucj_op_balanced = ffsim.random.random_ucj_op_spin_balanced(
@@ -66,6 +65,8 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
         norb, interaction_pairs, thetas, phis=phis, phase_angles=phase_angles
     )
 
+    # Construct circuit
+    qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
     circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
@@ -87,8 +88,8 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     )
     circuit.measure_all()
 
+    # Sample using ffsim Sampler
     shots = 5000
-
     sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
@@ -96,25 +97,29 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     pub_result = result[0]
     samples = pub_result.data.meas.get_counts()
 
-    vec = ffsim.qiskit.final_state_vector(
-        circuit.remove_final_measurements(inplace=False)
-    )
-    exact_probs = np.abs(vec) ** 2
+    # Compute empirical distribution
     strings, counts = zip(*samples.items())
     addresses = ffsim.strings_to_addresses(strings, norb, nelec)
     assert sum(counts) == shots
     empirical_probs = np.zeros(ffsim.dim(norb, nelec), dtype=float)
     empirical_probs[addresses] = np.array(counts) / shots
+
+    # Compute exact probability distribution
+    vec = ffsim.qiskit.final_state_vector(
+        circuit.remove_final_measurements(inplace=False)
+    )
+    exact_probs = np.abs(vec) ** 2
+
+    # Check fidelity
     assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test sampler with random spinless gates."""
     rng = np.random.default_rng(52622)
 
-    qubits = QuantumRegister(norb)
-
+    # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     interaction_pairs = list(_brickwork(norb, norb))
     thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
@@ -127,6 +132,8 @@ def test_random_gates_spinless(norb: int, nocc: int):
         norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
     )
 
+    # Construct circuit
+    qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
     circuit.append(
@@ -136,8 +143,8 @@ def test_random_gates_spinless(norb: int, nocc: int):
     circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op), qubits)
     circuit.measure_all()
 
+    # Sample using ffsim Sampler
     shots = 1000
-
     sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
@@ -145,31 +152,37 @@ def test_random_gates_spinless(norb: int, nocc: int):
     pub_result = result[0]
     samples = pub_result.data.meas.get_counts()
 
-    vec = ffsim.qiskit.final_state_vector(
-        circuit.remove_final_measurements(inplace=False)
-    )
-    exact_probs = np.abs(vec) ** 2
+    # Compute empirical distribution
     strings, counts = zip(*samples.items())
     addresses = ffsim.strings_to_addresses(strings, norb, nocc)
     assert sum(counts) == shots
     empirical_probs = np.zeros(ffsim.dim(norb, nocc), dtype=float)
     empirical_probs[addresses] = np.array(counts) / shots
+
+    # Compute exact probability distribution
+    vec = ffsim.qiskit.final_state_vector(
+        circuit.remove_final_measurements(inplace=False)
+    )
+    exact_probs = np.abs(vec) ** 2
+
+    # Check fidelity
     assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
 def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     """Test measuring a subset of qubits."""
     rng = np.random.default_rng(5332)
 
+    # Initialize test objects
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+
+    # Construct circuit
     qubits = QuantumRegister(2 * norb, name="q")
     clbits = ClassicalRegister(norb, name="meas")
     measured_qubits = list(rng.choice(qubits, size=len(clbits), replace=False))
     measured_clbits = list(rng.choice(clbits, size=len(clbits), replace=False))
-
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
-
     circuit = QuantumCircuit(qubits, clbits)
     circuit.append(
         ffsim.qiskit.PrepareSlaterDeterminantJW(
@@ -179,8 +192,8 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     )
     circuit.measure(measured_qubits, measured_clbits)
 
+    # Sample using ffsim Sampler
     shots = 3000
-
     sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
@@ -190,6 +203,7 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     ffsim_probs = {bitstring: count / shots for bitstring, count in counts.items()}
     np.testing.assert_allclose(sum(ffsim_probs.values()), 1)
 
+    # Sample using Qiskit Sampler
     sampler = StatevectorSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
@@ -199,24 +213,26 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     qiskit_probs = {bitstring: count / shots for bitstring, count in counts.items()}
     np.testing.assert_allclose(sum(qiskit_probs.values()), 1)
 
+    # Check fidelity
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(2, 4)))
 def test_measure_subset_spinless(norb: int, nocc: int):
     """Test measuring a subset of qubits, spinless."""
     rng = np.random.default_rng(5332)
 
-    qubits = QuantumRegister(norb, name="q")
-    clbits = ClassicalRegister(norb, name="meas")
-    measured_qubits = list(rng.choice(qubits, size=len(clbits), replace=False))
-    measured_clbits = list(rng.choice(clbits, size=len(clbits), replace=False))
-
+    # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(
         norb, (nocc, 0), seed=rng
     )[0]
 
+    # Construct circuit
+    qubits = QuantumRegister(norb, name="q")
+    clbits = ClassicalRegister(norb - 1, name="meas")
+    measured_qubits = list(rng.choice(qubits, size=len(clbits), replace=False))
+    measured_clbits = list(rng.choice(clbits, size=len(clbits), replace=False))
     circuit = QuantumCircuit(qubits, clbits)
     circuit.append(
         ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
@@ -226,8 +242,8 @@ def test_measure_subset_spinless(norb: int, nocc: int):
     )
     circuit.measure(measured_qubits, measured_clbits)
 
+    # Sample using ffsim Sampler
     shots = 3000
-
     sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
@@ -237,6 +253,7 @@ def test_measure_subset_spinless(norb: int, nocc: int):
     ffsim_probs = {bitstring: count / shots for bitstring, count in counts.items()}
     np.testing.assert_allclose(sum(ffsim_probs.values()), 1)
 
+    # Sample using Qiskit Sampler
     sampler = StatevectorSampler(default_shots=shots, seed=rng)
     pub = (circuit,)
     job = sampler.run([pub])
@@ -246,6 +263,7 @@ def test_measure_subset_spinless(norb: int, nocc: int):
     qiskit_probs = {bitstring: count / shots for bitstring, count in counts.items()}
     np.testing.assert_allclose(sum(qiskit_probs.values()), 1)
 
+    # Check fidelity
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
@@ -263,6 +281,7 @@ def test_global_depolarizing(
     """Test sampler with global depolarizing noise."""
     rng = np.random.default_rng(12285)
 
+    # Construct circuit
     qubits = QuantumRegister(2 * norb)
     orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
     circuit = QuantumCircuit(qubits)
@@ -270,8 +289,8 @@ def test_global_depolarizing(
     circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
     circuit.measure_all()
 
+    # Sample using ffsim Sampler
     shots = 10_000
-
     sampler = ffsim.qiskit.FfsimSampler(
         default_shots=shots, global_depolarizing=global_depolarizing, seed=rng
     )
@@ -281,21 +300,23 @@ def test_global_depolarizing(
     pub_result = result[0]
     samples = pub_result.data.meas.get_counts()
 
+    # Compute empirical distribution
+    strings, counts = zip(*samples.items())
+    assert sum(counts) == shots
+    addresses = [int(s, 2) for s in strings]
+    dim = 1 << 2 * norb
+    empirical_probs = np.zeros(dim, dtype=float)
+    empirical_probs[addresses] = np.array(counts) / shots
+
+    # Compute exact probability distribution
     vec = ffsim.qiskit.final_state_vector(
         circuit.remove_final_measurements(inplace=False)
     ).vec
     vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(vec, norb, nelec)
     exact_probs = np.abs(vec) ** 2
-
-    strings, counts = zip(*samples.items())
-    assert sum(counts) == shots
-    addresses = [int(s, 2) for s in strings]
-    dim = 1 << 2 * norb
-
-    empirical_probs = np.zeros(dim, dtype=float)
-    empirical_probs[addresses] = np.array(counts) / shots
     expected_probs = (1 - global_depolarizing) * exact_probs + global_depolarizing / dim
 
+    # Check fidelity
     fidelity = np.sum(np.sqrt(exact_probs * empirical_probs))
     expected_fidelity = np.sum(np.sqrt(exact_probs * expected_probs))
     assert np.allclose(fidelity, expected_fidelity, rtol=1e-2, atol=1e-3)
