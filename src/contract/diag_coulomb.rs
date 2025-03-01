@@ -128,9 +128,9 @@ pub fn contract_diag_coulomb_into_buffer_z_rep(
         .par_for_each(|val, str0| {
             let mut coeff = Complex64::new(0.0, 0.0);
             for j in 0..norb {
-                let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
+                let sign_j = if (str0 >> j) & 1 == 1 { -1 } else { 1 } as f64;
                 for k in j + 1..norb {
-                    let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 } as f64;
+                    let sign_k = if (str0 >> k) & 1 == 1 { -1 } else { 1 } as f64;
                     coeff += sign_j * sign_k * mat_bb[(j, k)];
                 }
             }
@@ -143,10 +143,10 @@ pub fn contract_diag_coulomb_into_buffer_z_rep(
         .par_for_each(|val, str0, mut row| {
             let mut coeff = Complex64::new(0.0, 0.0);
             for j in 0..norb {
-                let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
+                let sign_j = if (str0 >> j) & 1 == 1 { -1 } else { 1 } as f64;
                 row += &(sign_j * &mat_ab.row(j));
                 for k in j + 1..norb {
-                    let sign_k = if str0 >> k & 1 == 1 { -1 } else { 1 } as f64;
+                    let sign_k = if (str0 >> k) & 1 == 1 { -1 } else { 1 } as f64;
                     coeff += sign_j * sign_k * mat_aa[(j, k)];
                 }
             }
@@ -165,7 +165,7 @@ pub fn contract_diag_coulomb_into_buffer_z_rep(
                 .for_each(|source, target, beta_coeff, str0| {
                     let mut coeff = *alpha_coeff + *beta_coeff;
                     for j in 0..norb {
-                        let sign_j = if str0 >> j & 1 == 1 { -1 } else { 1 } as f64;
+                        let sign_j = if (str0 >> j) & 1 == 1 { -1 } else { 1 } as f64;
                         coeff += sign_j * coeff_map[j];
                     }
                     *target += 0.25 * coeff * source;
