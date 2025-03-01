@@ -86,7 +86,7 @@ def expectation_one_body_product(
                 one_rdm if indices.index(c_i) < indices.index(a_i) else anti_one_rdm
             )
         result += sign * contract(
-            f'{",".join(subscripts)}->',
+            f"{','.join(subscripts)}->",
             *one_body_tensors,
             *tensors[:n_tensors],
             optimize="greedy",
