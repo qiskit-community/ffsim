@@ -14,6 +14,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
+from qiskit.circuit.library import (
+    XGate,
+)
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -121,6 +124,78 @@ def test_random_gates_spinless(norb: int, nocc: int):
     # Compute state vector using Qiskit
     qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
         Statevector(circuit).data, norb=norb, nelec=nocc
+    )
+
+    # Check that the state vectors match
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+# @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+# def test_qiskit_gates(norb: int, nelec: tuple[int, int]):
+# TODO replace with above commented-out lines
+def test_qiskit_gates():
+    norb = 4
+    nelec = (2, 2)
+    """Test sampler with Qiskit gates."""
+    rng = np.random.default_rng(12285)
+
+    # Construct circuit
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    for i in range(norb // 2):
+        circuit.append(XGate(), [qubits[i]])
+        circuit.append(XGate(), [qubits[norb + i]])
+    # for i, j in _brickwork(norb, norb):
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[i], qubits[j]],
+    #     )
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[norb + i], qubits[norb + j]],
+    #     )
+    # for i, j in _brickwork(norb, norb):
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[i], qubits[j]],
+    #     )
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[norb + i], qubits[norb + j]],
+    #     )
+    # for q in qubits:
+    #     circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+    # for i, j in _brickwork(2 * norb, norb):
+    #     circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    # for q in qubits:
+    #     circuit.append(RZGate(rng.uniform(-10, 10)), [q])
+    # for i, j in _brickwork(2 * norb, norb):
+    #     circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    # for i, j in _brickwork(norb, norb):
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[i], qubits[j]],
+    #     )
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[norb + i], qubits[norb + j]],
+    #     )
+    # for i, j in _brickwork(norb, norb):
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[i], qubits[j]],
+    #     )
+    #     circuit.append(
+    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+    #         [qubits[norb + i], qubits[norb + j]],
+    #     )
+
+    # Compute state vector using ffsim
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit)
+
+    # Compute state vector using Qiskit
+    qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        Statevector(circuit).data, norb=norb, nelec=nelec
     )
 
     # Check that the state vectors match

@@ -17,6 +17,14 @@ import math
 import numpy as np
 import pytest
 from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
+from qiskit.circuit.library import (
+    CPhaseGate,
+    PhaseGate,
+    RZGate,
+    RZZGate,
+    XGate,
+    XXPlusYYGate,
+)
 from qiskit.primitives import StatevectorSampler
 
 import ffsim
@@ -374,3 +382,86 @@ def test_edge_cases():
         pub = (circuit,)
         job = sampler.run([pub])
         _ = job.result()
+
+
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
+def test_qiskit_gates(norb: int, nelec: tuple[int, int]):
+    """Test sampler with Qiskit gates."""
+    rng = np.random.default_rng(12285)
+
+    # Construct circuit
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    for i in range(norb // 2):
+        circuit.append(XGate(), [qubits[i]])
+        circuit.append(XGate(), [qubits[norb + i]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
+    for q in qubits:
+        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(2 * norb, norb):
+        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for q in qubits:
+        circuit.append(RZGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(2 * norb, norb):
+        circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
+    circuit.measure_all()
+
+    # Sample using ffsim Sampler
+    shots = 5000
+    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
+    pub = (circuit,)
+    job = sampler.run([pub])
+    result = job.result()
+    pub_result = result[0]
+    samples = pub_result.data.meas.get_counts()
+
+    # Compute empirical distribution
+    strings, counts = zip(*samples.items())
+    addresses = ffsim.strings_to_addresses(strings, norb, nelec)
+    assert sum(counts) == shots
+    empirical_probs = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+    empirical_probs[addresses] = np.array(counts) / shots
+
+    # Compute exact probability distribution
+    vec = ffsim.qiskit.final_state_vector(
+        circuit.remove_final_measurements(inplace=False)
+    )
+    exact_probs = np.abs(vec) ** 2
+
+    # Check fidelity
+    assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
