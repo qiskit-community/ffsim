@@ -20,7 +20,6 @@ from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit.primitives import StatevectorSampler
 
 import ffsim
-import ffsim.random.random
 
 
 def _fidelity(probs1: dict, probs2: dict) -> float:
