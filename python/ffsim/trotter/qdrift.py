@@ -304,7 +304,7 @@ def qdrift_probabilities(
     elif sampling_method == "optimal":
         if one_rdm is None:
             raise ValueError(
-                "The 'optimal' sampling method requires one_rdm to be " "specified."
+                "The 'optimal' sampling method requires one_rdm to be specified."
             )
         variances = np.zeros(n_terms)
         one_body_tensor = scipy.linalg.block_diag(
