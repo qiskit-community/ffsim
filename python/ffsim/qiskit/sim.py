@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import cmath
 import math
 from typing import cast
 
@@ -21,6 +22,7 @@ from qiskit.circuit.library import (
     CPhaseGate,
     Measure,
     PhaseGate,
+    RZGate,
     XGate,
     XXPlusYYGate,
 )
@@ -250,6 +252,20 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, RZGate):
+        (orb,) = qubit_indices
+        (theta,) = op.params
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            orb,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if not abs(i - j) == 1:
@@ -392,6 +408,22 @@ def _evolve_state_vector_spinful(
             spin=spin,
             copy=False,
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, RZGate):
+        (orb,) = qubit_indices
+        spin = Spin.ALPHA if orb < norb else Spin.BETA
+        (theta,) = op.params
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            orb % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
