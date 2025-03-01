@@ -162,7 +162,7 @@ def _prepare_state_vector(
     raise ValueError(
         "The first instruction of the circuit must be one of the following gates: "
         "PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW, "
-        "PrepareSlaterDeterminantJW, PrepareSlaterDeterminantSpinlessJW."
+        "PrepareSlaterDeterminantJW, PrepareSlaterDeterminantSpinlessJW, XGate."
     )
 
 
