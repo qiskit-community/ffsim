@@ -573,7 +573,7 @@
     <span class="k">elif</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;optimal&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">one_rdm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The &#39;optimal&#39; sampling method requires one_rdm to be &quot;</span> <span class="s2">&quot;specified.&quot;</span>
+                <span class="s2">&quot;The &#39;optimal&#39; sampling method requires one_rdm to be specified.&quot;</span>
             <span class="p">)</span>
         <span class="n">variances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_terms</span><span class="p">)</span>
         <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
