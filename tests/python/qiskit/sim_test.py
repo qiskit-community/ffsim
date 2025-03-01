@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
-from qiskit.circuit.library import XGate, XXPlusYYGate
+from qiskit.circuit.library import CPhaseGate, PhaseGate, XGate, XXPlusYYGate
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -161,8 +161,8 @@ def test_qiskit_gates_spinful():
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[norb + j], qubits[norb + i]],
         )
-    # for q in qubits:
-    #     circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+    for q in qubits:
+        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     # for i, j in _brickwork(2 * norb, norb):
     #     circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     # for q in qubits:
@@ -222,8 +222,8 @@ def test_qiskit_gates_spinless():
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
-    # for q in qubits:
-    #     circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+    for q in qubits:
+        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     # for i, j in _brickwork(2 * norb, norb):
     #     circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     # for q in qubits:

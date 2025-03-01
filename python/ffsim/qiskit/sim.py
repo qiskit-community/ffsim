@@ -16,7 +16,14 @@ import math
 from typing import cast
 
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
-from qiskit.circuit.library import Barrier, Measure, XGate, XXPlusYYGate
+from qiskit.circuit.library import (
+    Barrier,
+    CPhaseGate,
+    Measure,
+    PhaseGate,
+    XGate,
+    XXPlusYYGate,
+)
 
 from ffsim import gates, protocols, states, trotter
 from ffsim.qiskit.gates import (
@@ -217,6 +224,19 @@ def _evolve_state_vector_spinless(
             "Encountered a measurement gate, but only unitary operations are allowed."
         )
 
+    if isinstance(op, PhaseGate):
+        (orb,) = qubit_indices
+        (theta,) = op.params
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            orb,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if not abs(i - j) == 1:
@@ -329,6 +349,21 @@ def _evolve_state_vector_spinful(
         raise ValueError(
             "Encountered a measurement gate, but only unitary operations are allowed."
         )
+
+    if isinstance(op, PhaseGate):
+        (orb,) = qubit_indices
+        spin = Spin.ALPHA if orb < norb else Spin.BETA
+        (theta,) = op.params
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            orb % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
