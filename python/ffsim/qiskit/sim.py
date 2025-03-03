@@ -69,13 +69,13 @@ def final_state_vector(
         raise ValueError(
             "norb did not match the circuit's state preparation. "
             f"Got {norb}, but the circuit's state preparation gave "
-            f"{state_vector.norb}. Try omitting the norb argument."
+            f"{state_vector.norb}."
         )
     if nelec is not None and nelec != state_vector.nelec:
         raise ValueError(
             "nelec did not match the circuit's state preparation. "
             f"Got {nelec}, but the circuit's state preparation gave "
-            f"{state_vector.nelec}. Try omitting the nelec argument."
+            f"{state_vector.nelec}."
         )
     evolve_func = (
         _evolve_state_vector_spinless
@@ -142,7 +142,6 @@ def _prepare_state_vector(
                 break
             (qubit,) = instruction.qubits
             qubit_indices.append(circuit.find_bit(qubit).index)
-        # TODO handle norb and nelec being None
         if nelec is None or isinstance(nelec, int):
             # Spinless case
             norb = circuit.num_qubits
