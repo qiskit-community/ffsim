@@ -176,24 +176,24 @@ def test_qiskit_gates_spinful():
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     for i, j in _brickwork(2 * norb, norb):
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    # for i, j in _brickwork(norb, norb):
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[i], qubits[j]],
-    #     )
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[norb + i], qubits[norb + j]],
-    #     )
-    # for i, j in _brickwork(norb, norb):
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[i], qubits[j]],
-    #     )
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[norb + i], qubits[norb + j]],
-    #     )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
@@ -235,26 +235,18 @@ def test_qiskit_gates_spinless():
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
-    # for i, j in _brickwork(2 * norb, norb):
-    #     circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    # for i, j in _brickwork(norb, norb):
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[i], qubits[j]],
-    #     )
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[norb + i], qubits[norb + j]],
-    #     )
-    # for i, j in _brickwork(norb, norb):
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[i], qubits[j]],
-    #     )
-    #     circuit.append(
-    #         XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-    #         [qubits[norb + i], qubits[norb + j]],
-    #     )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)

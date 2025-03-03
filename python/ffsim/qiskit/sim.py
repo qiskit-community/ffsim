@@ -267,6 +267,36 @@ def _evolve_state_vector_spinless(
         vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, RZZGate):
+        i, j = qubit_indices
+        (theta,) = op.params
+        vec = gates.apply_num_num_interaction(
+            vec,
+            -2 * theta,
+            target_orbs=(i, j),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            i,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec = gates.apply_num_interaction(
+            vec,
+            theta,
+            j,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if not abs(i - j) == 1:
@@ -459,7 +489,7 @@ def _evolve_state_vector_spinful(
             spin=Spin.ALPHA if j < norb else Spin.BETA,
             copy=False,
         )
-        vec *= cmath.rect(1, -theta)
+        vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
