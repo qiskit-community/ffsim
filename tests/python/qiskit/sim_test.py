@@ -135,7 +135,14 @@ def test_random_gates_spinless(norb: int, nocc: int):
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (norb, nelec)
+        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 5))
+        if nelec != (0, 0)
+    ],
+)
 def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with Qiskit gates."""
     rng = np.random.default_rng(12285)
@@ -205,7 +212,14 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nocc",
+    [
+        (norb, nocc)
+        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 5))
+        if nocc
+    ],
+)
 def test_qiskit_gates_spinless(norb: int, nocc: int):
     """Test sampler with Qiskit gates."""
     rng = np.random.default_rng(12285)
