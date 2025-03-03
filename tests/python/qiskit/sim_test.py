@@ -135,20 +135,18 @@ def test_random_gates_spinless(norb: int, nocc: int):
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
 
 
-# @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
-# def test_qiskit_gates(norb: int, nelec: tuple[int, int]):
-# TODO replace with above commented-out lines
-def test_qiskit_gates_spinful():
-    norb = 4
-    nelec = (2, 2)
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with Qiskit gates."""
     rng = np.random.default_rng(12285)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
-    for i in range(norb // 2):
+    n_alpha, n_beta = nelec
+    for i in range(n_alpha):
         circuit.append(XGate(), [qubits[i]])
+    for i in range(n_beta):
         circuit.append(XGate(), [qubits[norb + i]])
     for i, j in _brickwork(norb, norb):
         circuit.append(
@@ -207,17 +205,15 @@ def test_qiskit_gates_spinful():
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
 
 
-# TODO parameterize
-def test_qiskit_gates_spinless():
-    norb = 4
-    nelec = 2
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
+def test_qiskit_gates_spinless(norb: int, nocc: int):
     """Test sampler with Qiskit gates."""
     rng = np.random.default_rng(12285)
 
     # Construct circuit
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
-    for i in range(norb // 2):
+    for i in range(nocc):
         circuit.append(XGate(), [qubits[i]])
     for i, j in _brickwork(norb, norb):
         circuit.append(
@@ -249,11 +245,11 @@ def test_qiskit_gates_spinless():
         )
 
     # Compute state vector using ffsim
-    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
 
     # Compute state vector using Qiskit
     qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
-        Statevector(circuit).data, norb=norb, nelec=nelec
+        Statevector(circuit).data, norb=norb, nelec=nocc
     )
 
     # Check that the state vectors match
