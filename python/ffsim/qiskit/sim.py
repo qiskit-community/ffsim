@@ -148,7 +148,7 @@ def _prepare_state_vector(
             norb = circuit.num_qubits
             nelec = len(qubit_indices)
             vec = states.slater_determinant(norb, qubit_indices)
-            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index + 1
+            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index
         else:
             # Spinful case
             assert circuit.num_qubits % 2 == 0
@@ -157,7 +157,7 @@ def _prepare_state_vector(
             occ_b = [i - norb for i in qubit_indices if i >= norb]
             nelec = (len(occ_a), len(occ_b))
             vec = states.slater_determinant(norb, (occ_a, occ_b))
-            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index + 1
+            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index
 
     raise ValueError(
         "The first instruction of the circuit must be one of the following gates: "
