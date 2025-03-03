@@ -40,13 +40,19 @@ class FfsimSampler(BaseSamplerV2):
         self,
         *,
         default_shots: int = 1024,
+        norb: int | None = None,
+        nelec: tuple[int, int] | None = None,
         global_depolarizing: float = 0.0,
         seed: np.random.Generator | int | None = None,
     ):
-        """Initialize the ffsim sampler.
+        """Initialize the ffsim Sampler.
 
         Args:
             default_shots: The default shots to use if not specified during run.
+            norb: The number of spatial orbitals.
+            nelec: Either a single integer representing the number of fermions for a
+                spinless system, or a pair of integers storing the numbers of spin alpha
+                and spin beta fermions.
             global_depolarizing: Depolarizing probability for a noisy simulation.
                 Specifies the probability of sampling from the uniform distribution
                 instead of the state vector.
@@ -54,6 +60,8 @@ class FfsimSampler(BaseSamplerV2):
                 Should be a valid input to ``np.random.default_rng``.
         """
         self._default_shots = default_shots
+        self._norb = norb
+        self._nelec = nelec
         self._global_depolarizing = global_depolarizing
         self._rng = np.random.default_rng(seed)
 
@@ -82,7 +90,9 @@ class FfsimSampler(BaseSamplerV2):
         }
         for index, bound_circuit in np.ndenumerate(bound_circuits):
             if qargs:
-                final_state = final_state_vector(bound_circuit)
+                final_state = final_state_vector(
+                    bound_circuit, norb=self._norb, nelec=self._nelec
+                )
                 norb, nelec = final_state.norb, final_state.nelec
                 if isinstance(nelec, int):
                     orbs = qargs

@@ -56,6 +56,10 @@ def final_state_vector(
     """Return the final state vector of a fermionic quantum circuit.
 
     Args:
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
         circuit: The circuit composed of fermionic gates.
 
     Returns:
@@ -135,6 +139,8 @@ def _prepare_state_vector(
             return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
 
     elif isinstance(op, XGate):
+        # TODO need to extract X gate locations in a smarter way, since they might not
+        # appear first in circuit.data
         qubit_indices = []
         for index, instruction in enumerate(circuit.data):
             op = instruction.operation
@@ -159,7 +165,7 @@ def _prepare_state_vector(
             return states.StateVector(vec=vec, norb=norb, nelec=nelec), index
 
     raise ValueError(
-        "The first instruction of the circuit must be one of the following gates: "
+        "The circuit must begin with one of the following gates: "
         "PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW, "
         "PrepareSlaterDeterminantJW, PrepareSlaterDeterminantSpinlessJW, XGate."
     )

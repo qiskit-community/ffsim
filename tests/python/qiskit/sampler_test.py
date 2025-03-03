@@ -384,16 +384,25 @@ def test_edge_cases():
         _ = job.result()
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
-def test_qiskit_gates(norb: int, nelec: tuple[int, int]):
-    """Test sampler with Qiskit gates."""
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (norb, nelec)
+        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 4))
+        if nelec != (0, 0)
+    ],
+)
+def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
+    """Test sampler with Qiskit gates, spinful."""
     rng = np.random.default_rng(12285)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
-    for i in range(norb // 2):
+    n_alpha, n_beta = nelec
+    for i in range(n_alpha):
         circuit.append(XGate(), [qubits[i]])
+    for i in range(n_beta):
         circuit.append(XGate(), [qubits[norb + i]])
     for i, j in _brickwork(norb, norb):
         circuit.append(
@@ -402,7 +411,7 @@ def test_qiskit_gates(norb: int, nelec: tuple[int, int]):
         )
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-            [qubits[norb + i], qubits[norb + j]],
+            [qubits[norb + j], qubits[norb + i]],
         )
     for i, j in _brickwork(norb, norb):
         circuit.append(
@@ -411,7 +420,7 @@ def test_qiskit_gates(norb: int, nelec: tuple[int, int]):
         )
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
-            [qubits[norb + i], qubits[norb + j]],
+            [qubits[norb + j], qubits[norb + i]],
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
@@ -443,7 +452,9 @@ def test_qiskit_gates(norb: int, nelec: tuple[int, int]):
 
     # Sample using ffsim Sampler
     shots = 5000
-    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
+    sampler = ffsim.qiskit.FfsimSampler(
+        default_shots=shots, norb=norb, nelec=nelec, seed=rng
+    )
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
