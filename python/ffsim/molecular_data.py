@@ -45,8 +45,8 @@ class MolecularData:
         two_body_integrals (np.ndarray): The two-body integrals in compressed format.
         norb (int): The number of spatial orbitals.
         nelec (tuple[int, int]): The number of alpha and beta electrons.
-        atom (list[tuple[str, tuple[float, float, float]]] | None): The coordinates of
-            the atoms in the molecule.
+        atom (list[tuple[str, list[float]]] | None): The coordinates of the atoms in
+            the molecule.
         basis (str | None): The basis set, e.g. "sto-6g".
         spin (int | None): The spin of the molecule.
         symmetry (str | None): The symmetry of the molecule.
@@ -85,7 +85,7 @@ class MolecularData:
     norb: int
     nelec: tuple[int, int]
     # Molecule information corresponding to attributes of pyscf.gto.Mole
-    atom: list[tuple[str, tuple[float, float, float]]] | None = None
+    atom: list[tuple[str, list[float]]] | None = None
     basis: str | None = None
     spin: int | None = None
     symmetry: str | None = None
@@ -184,7 +184,7 @@ class MolecularData:
             two_body_integrals=two_body_integrals,
             norb=norb,
             nelec=(n_alpha, n_beta),
-            atom=mol.atom,
+            atom=mol._atom,
             basis=mol.basis,
             spin=mol.spin,
             symmetry=mol.symmetry or None,
@@ -313,7 +313,7 @@ class MolecularData:
         arrays_func = as_array_or_none if n_alpha == n_beta else as_array_tuple_or_none
         atom = data.get("atom")
         if atom is not None:
-            atom = [(element, tuple(coordinates)) for element, coordinates in atom]
+            atom = [(element, list(coordinates)) for element, coordinates in atom]
 
         return MolecularData(
             core_energy=data["core_energy"],
