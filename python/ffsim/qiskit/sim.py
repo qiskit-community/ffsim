@@ -94,6 +94,8 @@ def final_state_vector(
 def _prepare_state_vector(
     circuit: QuantumCircuit, norb: int | None, nelec: tuple[int, int] | None
 ) -> tuple[states.StateVector, int]:
+    # TODO need to extract state preparation gates in a smarter way, since they might
+    # not appear first in circuit.data
     instruction = circuit.data[0]
     op = instruction.operation
     if isinstance(
@@ -139,8 +141,6 @@ def _prepare_state_vector(
             return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
 
     elif isinstance(op, XGate):
-        # TODO need to extract X gate locations in a smarter way, since they might not
-        # appear first in circuit.data
         qubit_indices = []
         for index, instruction in enumerate(circuit.data):
             op = instruction.operation
