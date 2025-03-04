@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to build and transpile Qiskit quantum circuits" href="qiskit-circuits.html" /><link rel="prev" title="How to simulate entanglement forging" href="entanglement-forging.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>How to use the FermionOperator class - ffsim 0.0.49</title>
+        <title>How to use the FermionOperator class - ffsim 0.0.50</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.49</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.50</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -172,7 +172,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -184,7 +184,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.49</span>
+  <span class="sidebar-brand-text">ffsim 0.0.50</span>
   
 </a>
 
@@ -269,7 +269,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -277,11 +277,14 @@
         <article role="main" id="furo-main-content">
           <section id="How-to-use-the-FermionOperator-class">
 <h1>How to use the FermionOperator class<a class="headerlink" href="#How-to-use-the-FermionOperator-class" title="Link to this heading">¶</a></h1>
+<p>This guide shows how to use the <a class="reference external" href="https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.FermionOperator">FermionOperator</a> class to represent arbitrary fermionic operators.</p>
+<section id="Data-representation">
+<h2>Data representation<a class="headerlink" href="#Data-representation" title="Link to this heading">¶</a></h2>
 <p>The FermionOperator class is used to represent a linear combination of products of fermionic creation and annihilation operators. For example:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[0.5 a_{0, \alpha}^\dagger a_{3, \alpha} - 0.25 a_{3, \alpha}^\dagger a_{0, \alpha}
-+ (1 + i) a_{1, \beta}^\dagger a_{5, \beta} a_{4, \alpha}^\dagger.\]</div>
+\[0.5 a_{\alpha, 0}^\dagger a_{\alpha, 3} - 0.25 a_{\alpha, 3}^\dagger a_{\alpha, 0}
++ (1 + i) a_{\beta, 1}^\dagger a_{\beta, 5} a_{\alpha, 4}^\dagger.\]</div>
 </div>
 <p>Such operators are represented programmatically as a dictionary (hash table) that maps each term to its associated coefficient. An individual term is represented as a tuple of fermionic actions. Each action is described by three pieces of information:</p>
 <ol class="arabic simple">
@@ -315,9 +318,9 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(0), des_a(3)): 0.5,
+    (cre_a(3), des_a(0)): -0.25,
     (cre_b(1), des_b(5), cre_a(4)): 1+1j,
-    (cre_a(3), des_a(0)): -0.25
+    (cre_a(0), des_a(3)): 0.5
 })
 </pre></div></div>
 </div>
@@ -336,12 +339,91 @@ FermionOperator({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;FermionOperator({((True, False, 0), (False, False, 3)): 0.5+0j, ((True, True, 1), (False, True, 5), (True, False, 4)): 1+1j, ((True, False, 3), (False, False, 0)): -0.25+0j})&#39;
+&#39;FermionOperator({((True, False, 3), (False, False, 0)): -0.25+0j, ((True, True, 1), (False, True, 5), (True, False, 4)): 1+1j, ((True, False, 0), (False, False, 3)): 0.5+0j})&#39;
 </pre></div></div>
 </div>
-<p>FermionOperators support arithmetic operations. Note that when multiplying a FermionOperator by a scalar, the scalar must go on the left, i.e. <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">op</span></code> and not <code class="docutils literal notranslate"><span class="pre">op</span> <span class="pre">*</span> <span class="pre">2</span></code>.</p>
+</section>
+<section id="Converting-other-objects-to-FermionOperators">
+<h2>Converting other objects to FermionOperators<a class="headerlink" href="#Converting-other-objects-to-FermionOperators" title="Link to this heading">¶</a></h2>
+<p>Some objects, such as instances of <a class="reference external" href="https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.MolecularHamiltonian">MolecularHamiltonian</a>, can be converted to FermionOperators using the <code class="docutils literal notranslate"><span class="pre">ffsim.fermion_operator</span></code> function. This function works on any object that has a <code class="docutils literal notranslate"><span class="pre">_fermion_operator_</span></code> method, so if you make your own class, you can implement this method to tell <code class="docutils literal notranslate"><span class="pre">ffsim.fermion_operator</span></code> how to convert your class to a FermionOperator.</p>
+<p>The following code cell demonstrates converting a MolecularHamiltonian to a FermionOperator.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyscf</span>
+
+<span class="c1"># Build H2 molecule</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">atom</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]],</span> <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;sto-6g&quot;</span><span class="p">,</span> <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;Dooh&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get molecular data and Hamiltonian</span>
+<span class="n">scf</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">RHF</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">mol_data</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">MolecularData</span><span class="o">.</span><span class="n">from_scf</span><span class="p">(</span><span class="n">scf</span><span class="p">)</span>
+<span class="n">mol_hamiltonian</span> <span class="o">=</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">hamiltonian</span>
+
+<span class="c1"># Convert MolecularHamiltonian to FermionOperator</span>
+<span class="n">ferm_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">fermion_operator</span><span class="p">(</span><span class="n">mol_hamiltonian</span><span class="p">)</span>
+
+<span class="c1"># Remove small coefficients before printing</span>
+<span class="n">ferm_op</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ferm_op</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+converged SCF energy = -1.07358293078636
+FermionOperator({
+    (cre_b(0), cre_a(0), des_a(1), des_b(1)): 0.09856172493457883,
+    (cre_b(0), cre_b(1), des_b(1), des_b(0)): 0.3110432387826118,
+    (cre_a(0), cre_a(0), des_a(0), des_a(0)): 0.3132200956766947,
+    (cre_b(0), cre_b(1), des_b(0), des_b(1)): 0.09856172493457883,
+    (): 0.52917721092,
+    (cre_a(0), cre_b(1), des_b(1), des_a(0)): 0.3110432387826118,
+    (cre_a(1), cre_a(0), des_a(1), des_a(0)): 0.09856172493457883,
+    (cre_b(0), cre_a(0), des_a(0), des_b(0)): 0.3132200956766947,
+    (cre_a(0), cre_a(1), des_a(0), des_a(1)): 0.09856172493457883,
+    (cre_b(1), cre_a(0), des_a(0), des_b(1)): 0.31104323878261186,
+    (cre_a(1), cre_a(0), des_a(0), des_a(1)): 0.31104323878261186,
+    (cre_a(1), cre_b(1), des_b(1), des_a(1)): 0.3267544183944909,
+    (cre_b(1), cre_a(1), des_a(0), des_b(0)): 0.09856172493457883,
+    (cre_a(1), cre_a(1), des_a(0), des_a(0)): 0.09856172493457883,
+    (cre_a(0), cre_a(1), des_a(1), des_a(0)): 0.3110432387826118,
+    (cre_b(0), cre_a(1), des_a(1), des_b(0)): 0.3110432387826118,
+    (cre_b(1), cre_a(0), des_a(1), des_b(0)): 0.09856172493457883,
+    (cre_b(0), cre_a(1), des_a(0), des_b(1)): 0.09856172493457883,
+    (cre_a(0), des_a(0)): -1.114600166529875,
+    (cre_b(1), cre_b(1), des_b(1), des_b(1)): 0.3267544183944909,
+    (cre_a(1), cre_b(0), des_b(1), des_a(0)): 0.09856172493457883,
+    (cre_b(1), cre_b(0), des_b(1), des_b(0)): 0.09856172493457883,
+    (cre_b(0), cre_b(0), des_b(0), des_b(0)): 0.3132200956766947,
+    (cre_a(0), cre_b(0), des_b(0), des_a(0)): 0.3132200956766947,
+    (cre_a(0), cre_b(1), des_b(0), des_a(1)): 0.09856172493457883,
+    (cre_b(0), des_b(0)): -1.114600166529875,
+    (cre_a(0), cre_a(0), des_a(1), des_a(1)): 0.09856172493457883,
+    (cre_a(1), cre_b(1), des_b(0), des_a(0)): 0.09856172493457883,
+    (cre_a(1), cre_b(0), des_b(0), des_a(1)): 0.31104323878261186,
+    (cre_a(0), cre_b(0), des_b(1), des_a(1)): 0.09856172493457883,
+    (cre_b(1), cre_b(1), des_b(0), des_b(0)): 0.09856172493457883,
+    (cre_a(1), des_a(1)): -0.5952339032326008,
+    (cre_b(1), des_b(1)): -0.5952339032326008,
+    (cre_b(0), cre_b(0), des_b(1), des_b(1)): 0.09856172493457883,
+    (cre_b(1), cre_b(0), des_b(0), des_b(1)): 0.31104323878261186,
+    (cre_b(1), cre_a(1), des_a(1), des_b(1)): 0.3267544183944909,
+    (cre_a(1), cre_a(1), des_a(1), des_a(1)): 0.3267544183944909
+})
+</pre></div></div>
+</div>
+</section>
+<section id="Arithmetic">
+<h2>Arithmetic<a class="headerlink" href="#Arithmetic" title="Link to this heading">¶</a></h2>
+<p>FermionOperators support arithmetic operations. Note that when multiplying a FermionOperator by a scalar, the scalar must go on the left, i.e. <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">op</span></code> and not <code class="docutils literal notranslate"><span class="pre">op</span> <span class="pre">*</span> <span class="pre">2</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">op2</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span>
@@ -358,23 +440,23 @@ FermionOperator({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
-    (des_a(3), des_b(3)): 0.0625,
-    (cre_a(0), des_a(3)): 1,
-    (cre_a(3), des_a(0)): -0.5,
-    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
     (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,
+    (cre_a(0), des_a(3)): 1,
+    (cre_b(2)): 0-0.25j,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,
+    (des_a(3), des_b(3)): 0.0625,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,
-    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,
+    (cre_a(3), des_a(0)): -0.5,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,
-    (cre_b(2)): 0-0.25j
+    (cre_b(1), des_b(5), cre_a(4)): 2+2j,
+    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j
 })
 </pre></div></div>
 </div>
@@ -385,7 +467,7 @@ FermionOperator({
 </ul>
 <p>Some examples of usage:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">op3</span> <span class="o">+=</span> <span class="n">op1</span>
@@ -397,30 +479,33 @@ FermionOperator({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
-    (des_a(3), des_b(3)): 0-1.25j,
-    (cre_a(0), des_a(3)): 0-6j,
-    (cre_a(3), des_a(0)): 0+3j,
-    (cre_b(1), des_b(5), cre_a(4)): 12-12j,
     (cre_a(3), des_a(0), cre_b(2)): -1,
     (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,
+    (cre_a(0), des_a(3)): 0-6j,
+    (cre_b(2)): -5,
+    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,
+    (des_a(3), des_b(3)): 0-1.25j,
     (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,
-    (cre_a(0), des_a(3), cre_b(2)): 2,
+    (cre_a(3), des_a(0)): 0+3j,
     (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,
-    (cre_b(2)): -5
+    (cre_b(1), des_b(5), cre_a(4)): 12-12j,
+    (cre_a(0), des_a(3), cre_b(2)): 2
 })
 </pre></div></div>
 </div>
+</section>
+<section id="Normal-ordering">
+<h2>Normal-ordering<a class="headerlink" href="#Normal-ordering" title="Link to this heading">¶</a></h2>
 <p>Operators can be normal-ordered by calling the <code class="docutils literal notranslate"><span class="pre">normal_ordered</span></code> method, which returns a new FermionOperator. In the normal-ordered form of a FermionOperator, the operators comprising each term appear from left to right in descending lexicographic order by <code class="docutils literal notranslate"><span class="pre">(action,</span> <span class="pre">spin,</span> <span class="pre">orb)</span></code>. That is, all creation operators appear before all annihilation operators; within creation/annihilation operators, spin beta operators appear before spin alpha operators, and larger orbital indices appear before
 smaller orbital indices.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">op3</span><span class="o">.</span><span class="n">normal_ordered</span><span class="p">()</span>
@@ -428,29 +513,32 @@ smaller orbital indices.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 FermionOperator({
-    (cre_a(0), des_a(3)): 0-6j,
-    (cre_b(2), cre_a(3), des_a(0)): -1,
-    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j,
-    (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,
+    (cre_b(2)): -5,
     (cre_b(1), cre_a(4), des_b(5)): -12+12j,
-    (cre_b(2), cre_a(0), des_a(3)): 2,
-    (cre_a(3), des_a(0)): 0+3j,
-    (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
     (des_b(3), des_a(3)): 0+1.25j,
-    (cre_b(2)): -5
+    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j,
+    (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j,
+    (cre_a(3), des_a(0)): 0+3j,
+    (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,
+    (cre_a(0), des_a(3)): 0-6j,
+    (cre_b(2), cre_a(0), des_a(3)): 2,
+    (cre_b(2), cre_a(3), des_a(0)): -1
 })
 </pre></div></div>
 </div>
+</section>
+<section id="Operator-action">
+<h2>Operator action<a class="headerlink" href="#Operator-action" title="Link to this heading">¶</a></h2>
 <p>If a FermionOperator conserves particle number and the Z component of spin, then it can be converted to a <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html">LinearOperator</a> using the <code class="docutils literal notranslate"><span class="pre">ffsim.linear_operator</span></code> function. In order for a FermionOperator to conserve particle number and the Z component of spin, it must preserve the number of spin-alpha fermions and the number of spin-beta fermions. So far, the operators we have created do not satisfy
 these criteria:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">op3</span><span class="o">.</span><span class="n">conserves_particle_number</span><span class="p">())</span>
@@ -469,7 +557,7 @@ False
 </div>
 <p>Let’s construct a FermionOperator that does conserve particle number and spin, and then convert it to a LinearOperator within the subspace of 3 spatial orbitals with 1 alpha and 1 beta fermion.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">op4</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">FermionOperator</span><span class="p">(</span>
@@ -498,30 +586,30 @@ True
 </div>
 <p>A LinearOperator can be matrix-multiplied onto a vector:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_state_vector</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vec</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_state_vector</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">linop</span> <span class="o">@</span> <span class="n">vec</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 array([ 0.       +0.j        ,  0.       +0.j        ,
         0.       +0.j        ,  0.       +0.j        ,
-       -0.0270385+0.22204949j,  0.       +0.j        ,
+       -0.0777719-0.04677541j,  0.       +0.j        ,
         0.       +0.j        ,  0.       +0.j        ,
         0.       +0.j        ])
 </pre></div></div>
 </div>
 <p>It can also be passed into most linear algebra routines in <code class="docutils literal notranslate"><span class="pre">scipy.sparse.linalg</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span>
@@ -532,7 +620,7 @@ array([ 0.       +0.j        ,  0.       +0.j        ,
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -540,6 +628,7 @@ array([ 0.       +0.j        ,  0.       +0.j        ,
 array([-0.5+5.28582186e-18j])
 </pre></div></div>
 </div>
+</section>
 </section>
 
         </article>
@@ -585,13 +674,36 @@ array([-0.5+5.28582186e-18j])
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">How to use the FermionOperator class</a><ul>
+<li><a class="reference internal" href="#Data-representation">Data representation</a></li>
+<li><a class="reference internal" href="#Converting-other-objects-to-FermionOperators">Converting other objects to FermionOperators</a></li>
+<li><a class="reference internal" href="#Arithmetic">Arithmetic</a></li>
+<li><a class="reference internal" href="#Normal-ordering">Normal-ordering</a></li>
+<li><a class="reference internal" href="#Operator-action">Operator action</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=0356c229"></script>
+</div><script src="../_static/documentation_options.js?v=e072a57b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
