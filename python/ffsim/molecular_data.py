@@ -313,7 +313,7 @@ class MolecularData:
         arrays_func = as_array_or_none if n_alpha == n_beta else as_array_tuple_or_none
         atom = data.get("atom")
         if atom is not None:
-            atom = [(element, coordinates) for element, coordinates in atom]
+            atom = [tuple(a) for a in atom]
 
         return MolecularData(
             core_energy=data["core_energy"],
