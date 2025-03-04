@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 8.2.1 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>ffsim.molecular_data - ffsim 0.0.50.dev0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
@@ -313,8 +313,8 @@
 <span class="sd">        two_body_integrals (np.ndarray): The two-body integrals in compressed format.</span>
 <span class="sd">        norb (int): The number of spatial orbitals.</span>
 <span class="sd">        nelec (tuple[int, int]): The number of alpha and beta electrons.</span>
-<span class="sd">        atom (list[tuple[str, tuple[float, float, float]]] | None): The coordinates of</span>
-<span class="sd">            the atoms in the molecule.</span>
+<span class="sd">        atom (list[tuple[str, list[float]]] | None): The coordinates of the atoms in</span>
+<span class="sd">            the molecule.</span>
 <span class="sd">        basis (str | None): The basis set, e.g. &quot;sto-6g&quot;.</span>
 <span class="sd">        spin (int | None): The spin of the molecule.</span>
 <span class="sd">        symmetry (str | None): The symmetry of the molecule.</span>
@@ -353,7 +353,7 @@
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
     <span class="c1"># Molecule information corresponding to attributes of pyscf.gto.Mole</span>
-    <span class="n">atom</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">basis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">symmetry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -454,7 +454,7 @@
             <span class="n">two_body_integrals</span><span class="o">=</span><span class="n">two_body_integrals</span><span class="p">,</span>
             <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
             <span class="n">nelec</span><span class="o">=</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">),</span>
-            <span class="n">atom</span><span class="o">=</span><span class="n">mol</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">mol</span><span class="o">.</span><span class="n">_atom</span><span class="p">,</span>
             <span class="n">basis</span><span class="o">=</span><span class="n">mol</span><span class="o">.</span><span class="n">basis</span><span class="p">,</span>
             <span class="n">spin</span><span class="o">=</span><span class="n">mol</span><span class="o">.</span><span class="n">spin</span><span class="p">,</span>
             <span class="n">symmetry</span><span class="o">=</span><span class="n">mol</span><span class="o">.</span><span class="n">symmetry</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
@@ -604,7 +604,7 @@
         <span class="n">arrays_func</span> <span class="o">=</span> <span class="n">as_array_or_none</span> <span class="k">if</span> <span class="n">n_alpha</span> <span class="o">==</span> <span class="n">n_beta</span> <span class="k">else</span> <span class="n">as_array_tuple_or_none</span>
         <span class="n">atom</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;atom&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">atom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">atom</span> <span class="o">=</span> <span class="p">[(</span><span class="n">element</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coordinates</span><span class="p">))</span> <span class="k">for</span> <span class="n">element</span><span class="p">,</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">]</span>
+            <span class="n">atom</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">MolecularData</span><span class="p">(</span>
             <span class="n">core_energy</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;core_energy&quot;</span><span class="p">],</span>
