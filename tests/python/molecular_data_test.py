@@ -152,6 +152,26 @@ def test_json_open_shell(tmp_path: pathlib.Path):
         _assert_mol_data_equal(loaded_mol_data, mol_data)
 
 
+def test_json_atom(tmp_path: pathlib.Path):
+    """Test saving to and loading from JSON with different atom format."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom="""O 0 0 0; H  0 1 0; H 0 0 1""",
+        basis="sto-6g",
+    )
+    n_frozen = pyscf.data.elements.chemcore(mol)
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+
+    for compression in [None, "gzip", "bz2", "lzma"]:
+        mol_data.to_json(tmp_path / "test.json", compression=compression)
+        loaded_mol_data = ffsim.MolecularData.from_json(
+            tmp_path / "test.json", compression=compression
+        )
+        _assert_mol_data_equal(loaded_mol_data, mol_data)
+
+
 def test_fcidump(tmp_path: pathlib.Path):
     """Test saving to and loading from FCIDUMP."""
     mol = pyscf.gto.Mole()
