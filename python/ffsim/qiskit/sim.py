@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import cast
+from typing import Union, cast
 
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import (
@@ -138,7 +138,9 @@ def _prepare_state_vector(
 
         remaining_circuit = QuantumCircuit.from_instructions(circuit.data[1:])
         return states.StateVector(
-            vec=vec, norb=cast(int, norb), nelec=cast(int | tuple[int, int], nelec)
+            vec=vec,
+            norb=cast(int, norb),
+            nelec=cast(Union[int, tuple[int, int]], nelec),
         ), remaining_circuit
 
     else:

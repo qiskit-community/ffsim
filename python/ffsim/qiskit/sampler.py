@@ -41,13 +41,15 @@ class FfsimSampler(BaseSamplerV2):
         *,
         default_shots: int = 1024,
         norb: int | None = None,
-        nelec: tuple[int, int] | None = None,
+        nelec: int | tuple[int, int] | None = None,
         global_depolarizing: float = 0.0,
         seed: np.random.Generator | int | None = None,
     ):
         """Initialize the ffsim Sampler.
 
-        TODO document norb and nelec
+        TODO write longer docstring
+        - type of gates supported
+        - state preparation and specifying norb and nelec
 
         Args:
             default_shots: The default shots to use if not specified during run.
