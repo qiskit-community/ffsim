@@ -137,7 +137,9 @@ def _prepare_state_vector(
             )
 
         remaining_circuit = QuantumCircuit.from_instructions(circuit.data[1:])
-        return states.StateVector(vec=vec, norb=norb, nelec=nelec), remaining_circuit
+        return states.StateVector(
+            vec=vec, norb=cast(int, norb), nelec=cast(int | tuple[int, int], nelec)
+        ), remaining_circuit
 
     else:
         qubit_indices, remaining_circuit = _extract_x_gates(circuit)
@@ -149,13 +151,13 @@ def _prepare_state_vector(
             )
         if nelec is None or isinstance(nelec, int):
             # Spinless case
-            norb = circuit.num_qubits
+            norb = cast(int, circuit.num_qubits)
             nelec = len(qubit_indices)
             vec = states.slater_determinant(norb, qubit_indices)
         else:
             # Spinful case
             assert circuit.num_qubits % 2 == 0
-            norb = circuit.num_qubits // 2
+            norb = cast(int, circuit.num_qubits // 2)
             occ_a = [i for i in qubit_indices if i < norb]
             occ_b = [i - norb for i in qubit_indices if i >= norb]
             nelec = (len(occ_a), len(occ_b))
@@ -409,7 +411,7 @@ def _evolve_state_vector_spinful(
 
     if isinstance(op, CPhaseGate):
         i, j = qubit_indices
-        target_orbs = ([], [])
+        target_orbs: tuple[list[int], list[int]] = ([], [])
         target_orbs[i >= norb].append(i % norb)
         target_orbs[j >= norb].append(j % norb)
         (theta,) = op.params
