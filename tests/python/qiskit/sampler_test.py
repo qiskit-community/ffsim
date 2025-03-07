@@ -470,7 +470,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     # Compute exact probability distribution
     vec = ffsim.qiskit.final_state_vector(
-        circuit.remove_final_measurements(inplace=False)
+        circuit.remove_final_measurements(inplace=False), norb=norb, nelec=nelec
     )
     exact_probs = np.abs(vec) ** 2
 

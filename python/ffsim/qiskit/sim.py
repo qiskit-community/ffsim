@@ -27,6 +27,7 @@ from qiskit.circuit.library import (
     XGate,
     XXPlusYYGate,
 )
+from qiskit.converters import circuit_to_dag, dag_to_circuit
 
 from ffsim import gates, protocols, states, trotter
 from ffsim.qiskit.gates import (
@@ -51,7 +52,7 @@ from ffsim.spin import Spin
 def final_state_vector(
     circuit: QuantumCircuit,
     norb: int | None = None,
-    nelec: tuple[int, int] | None = None,
+    nelec: int | tuple[int, int] | None = None,
 ) -> states.StateVector:
     """Return the final state vector of a fermionic quantum circuit.
 
@@ -68,7 +69,7 @@ def final_state_vector(
     """
     if not circuit.data:
         raise ValueError("Circuit must contain at least one instruction.")
-    state_vector, index = _prepare_state_vector(circuit, norb, nelec)
+    state_vector, remaining_circuit = _prepare_state_vector(circuit, norb, nelec)
     if norb is not None and norb != state_vector.norb:
         raise ValueError(
             "norb did not match the circuit's state preparation. "
@@ -86,16 +87,14 @@ def final_state_vector(
         if isinstance(state_vector.nelec, int)
         else _evolve_state_vector_spinful
     )
-    for instruction in circuit.data[index:]:
+    for instruction in remaining_circuit:
         state_vector = evolve_func(state_vector, instruction, circuit)
     return state_vector
 
 
 def _prepare_state_vector(
-    circuit: QuantumCircuit, norb: int | None, nelec: tuple[int, int] | None
-) -> tuple[states.StateVector, int]:
-    # TODO need to extract state preparation gates in a smarter way, since they might
-    # not appear first in circuit.data
+    circuit: QuantumCircuit, norb: int | None, nelec: int | tuple[int, int] | None
+) -> tuple[states.StateVector, QuantumCircuit]:
     instruction = circuit.data[0]
     op = instruction.operation
     if isinstance(
@@ -108,6 +107,7 @@ def _prepare_state_vector(
         ),
     ):
         # First instruction is an ffsim gate
+        # TODO gate should be applied to ALL qubits
         qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
         if not qubit_indices == list(range(min(qubit_indices), max(qubit_indices) + 1)):
             raise ValueError(
@@ -119,7 +119,6 @@ def _prepare_state_vector(
             norb = op.norb
             nelec = op.nelec
             vec = states.hartree_fock_state(norb, nelec)
-            return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
 
         if isinstance(op, PrepareSlaterDeterminantJW):
             norb = op.norb
@@ -130,7 +129,6 @@ def _prepare_state_vector(
                 occupied_orbitals=op.occupied_orbitals,
                 orbital_rotation=(op.orbital_rotation_a, op.orbital_rotation_b),
             )
-            return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
 
         if isinstance(op, PrepareSlaterDeterminantSpinlessJW):
             norb = op.norb
@@ -138,22 +136,23 @@ def _prepare_state_vector(
             vec = states.slater_determinant(
                 op.norb, op.occupied_orbitals, orbital_rotation=op.orbital_rotation
             )
-            return states.StateVector(vec=vec, norb=norb, nelec=nelec), 1
 
-    elif isinstance(op, XGate):
-        qubit_indices = []
-        for index, instruction in enumerate(circuit.data):
-            op = instruction.operation
-            if not isinstance(op, XGate):
-                break
-            (qubit,) = instruction.qubits
-            qubit_indices.append(circuit.find_bit(qubit).index)
+        remaining_circuit = QuantumCircuit.from_instructions(circuit.data[1:])
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec), remaining_circuit
+
+    else:
+        qubit_indices, remaining_circuit = _extract_x_gates(circuit)
+        if not qubit_indices:
+            raise ValueError(
+                "The circuit must begin with one of the following gates: "
+                "PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW, "
+                "PrepareSlaterDeterminantJW, PrepareSlaterDeterminantSpinlessJW, XGate."
+            )
         if nelec is None or isinstance(nelec, int):
             # Spinless case
             norb = circuit.num_qubits
             nelec = len(qubit_indices)
             vec = states.slater_determinant(norb, qubit_indices)
-            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index
         else:
             # Spinful case
             assert circuit.num_qubits % 2 == 0
@@ -162,13 +161,7 @@ def _prepare_state_vector(
             occ_b = [i - norb for i in qubit_indices if i >= norb]
             nelec = (len(occ_a), len(occ_b))
             vec = states.slater_determinant(norb, (occ_a, occ_b))
-            return states.StateVector(vec=vec, norb=norb, nelec=nelec), index
-
-    raise ValueError(
-        "The circuit must begin with one of the following gates: "
-        "PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW, "
-        "PrepareSlaterDeterminantJW, PrepareSlaterDeterminantSpinlessJW, XGate."
-    )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec), remaining_circuit
 
 
 def _evolve_state_vector_spinless(
@@ -524,3 +517,20 @@ def _evolve_state_vector_spinful(
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     raise ValueError(f"Unsupported gate for spinful circuit: {op}.")
+
+
+def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit]:
+    """Extract X gates from the beginning of a circuit.
+
+    Returns the qubit indices of X gates at the beginning of the circuit, and a new
+    circuit constructed by removing those X gates from the old circuit.
+    """
+    indices = []
+    dag = circuit_to_dag(circuit)
+    for node in dag.front_layer():
+        if isinstance(node.op, XGate):
+            (qubit,) = node.qargs
+            indices.append(dag.find_bit(qubit).index)
+            dag.remove_op_node(node)
+    remaining_circuit = dag_to_circuit(dag)
+    return indices, remaining_circuit
