@@ -47,9 +47,25 @@ class FfsimSampler(BaseSamplerV2):
     ):
         """Initialize the ffsim Sampler.
 
-        TODO write longer docstring
-        - type of gates supported
-        - state preparation and specifying norb and nelec
+        FfsimSampler is an implementation of the Qiskit Sampler Primitive specialized
+        for fermionic quantum circuits. It does not support arbitrary circuits, but only
+        those with a certain structure. Generally speaking, there are two ways to
+        construct a circuit that FfsimSampler can simulate:
+
+        1. Use gates from the ``ffsim.qiskit`` module. The circuit should begin with a
+        state preparation gate (one whose name begins with the prefix ``Prepare``,
+        such as ``PrepareHartreeFockJW``) that acts on all of the qubits. Next, a number
+        of unitary gates from the ``ffsim.qiskit`` module are applied. Finally,
+        measurement gates must only occur at the end of the circuit.
+
+        2. Use Qiskit gates. The circuit should begin with some ``X`` gates. Next, a
+        number of unitary gates are applied. The following unitary gates are supported:
+        [``CPhaseGate``, ``PhaseGate``, ``RZGate``, ``RZZGate``, ``XXPlusYYGate``].
+        Finally, measurement gates must only occur at the end of the circuit.
+
+        When simulating spinful circuits constructed from Qiskit gates, you should
+        pass the `norb` and `nelec` arguments to the FfsimSampler initialization.
+        Otherwise, a spinless simulation will be performed, which is less efficient.
 
         Args:
             default_shots: The default shots to use if not specified during run.
