@@ -47,6 +47,8 @@ class FfsimSampler(BaseSamplerV2):
     ):
         """Initialize the ffsim Sampler.
 
+        TODO document norb and nelec
+
         Args:
             default_shots: The default shots to use if not specified during run.
             norb: The number of spatial orbitals.

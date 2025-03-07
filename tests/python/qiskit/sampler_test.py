@@ -476,3 +476,78 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     # Check fidelity
     assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
+
+
+@pytest.mark.parametrize(
+    "norb, nocc",
+    [
+        (norb, nocc)
+        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 4))
+        if nocc
+    ],
+)
+def test_qiskit_gates_spinless(norb: int, nocc: int):
+    """Test sampler with Qiskit gates, spinless."""
+    rng = np.random.default_rng(12285)
+
+    # Construct circuit
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    for i in range(nocc):
+        circuit.append(XGate(), [qubits[i]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    for q in qubits:
+        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for q in qubits:
+        circuit.append(RZGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    circuit.measure_all()
+
+    # Sample using ffsim Sampler
+    shots = 5000
+    sampler = ffsim.qiskit.FfsimSampler(
+        default_shots=shots, norb=norb, nelec=nocc, seed=rng
+    )
+    pub = (circuit,)
+    job = sampler.run([pub])
+    result = job.result()
+    pub_result = result[0]
+    samples = pub_result.data.meas.get_counts()
+
+    # Compute empirical distribution
+    strings, counts = zip(*samples.items())
+    addresses = ffsim.strings_to_addresses(strings, norb, nocc)
+    assert sum(counts) == shots
+    empirical_probs = np.zeros(ffsim.dim(norb, nocc), dtype=float)
+    empirical_probs[addresses] = np.array(counts) / shots
+
+    # Compute exact probability distribution
+    vec = ffsim.qiskit.final_state_vector(
+        circuit.remove_final_measurements(inplace=False), norb=norb, nelec=nocc
+    )
+    exact_probs = np.abs(vec) ** 2
+
+    # Check fidelity
+    assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
