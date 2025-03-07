@@ -107,12 +107,11 @@ def _prepare_state_vector(
         ),
     ):
         # First instruction is an ffsim gate
-        # TODO gate should be applied to ALL qubits
         qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
-        if not qubit_indices == list(range(min(qubit_indices), max(qubit_indices) + 1)):
+        if not qubit_indices == list(range(circuit.num_qubits)):
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "consecutive qubits, in ascending order."
+                "all qubits of the circuit, in ascending order."
             )
 
         if isinstance(op, (PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW)):
