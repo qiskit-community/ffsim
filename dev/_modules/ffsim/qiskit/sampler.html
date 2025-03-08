@@ -310,13 +310,40 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+        <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">global_depolarizing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ffsim sampler.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ffsim Sampler.</span>
+
+<span class="sd">        FfsimSampler is an implementation of the Qiskit Sampler Primitive specialized</span>
+<span class="sd">        for fermionic quantum circuits. It does not support arbitrary circuits, but only</span>
+<span class="sd">        those with a certain structure. Generally speaking, there are two ways to</span>
+<span class="sd">        construct a circuit that FfsimSampler can simulate:</span>
+
+<span class="sd">        1. Use gates from the ``ffsim.qiskit`` module. The circuit should begin with a</span>
+<span class="sd">        state preparation gate (one whose name begins with the prefix ``Prepare``,</span>
+<span class="sd">        such as :class:`~.PrepareHartreeFockJW`) that acts on all of the qubits. Next,</span>
+<span class="sd">        a number of unitary gates from the ``ffsim.qiskit`` module are applied. Finally,</span>
+<span class="sd">        measurement gates must only occur at the end of the circuit.</span>
+
+<span class="sd">        2. Use Qiskit gates. The circuit should begin with some ``X`` gates. Next, a</span>
+<span class="sd">        number of unitary gates are applied. The following unitary gates are supported:</span>
+<span class="sd">        [``CPhaseGate``, ``PhaseGate``, ``RZGate``, ``RZZGate``, ``XXPlusYYGate``].</span>
+<span class="sd">        ``XXPlusYYGate``\s must be applied to adjacent qubits. Finally, measurement</span>
+<span class="sd">        gates must only occur at the end of the circuit.</span>
+
+<span class="sd">        When simulating spinful circuits constructed from Qiskit gates, you should</span>
+<span class="sd">        pass the `norb` and `nelec` arguments to the FfsimSampler initialization.</span>
+<span class="sd">        Otherwise, a spinless simulation will be performed, which is less efficient.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            default_shots: The default shots to use if not specified during run.</span>
+<span class="sd">            norb: The number of spatial orbitals.</span>
+<span class="sd">            nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">                spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">                and spin beta fermions.</span>
 <span class="sd">            global_depolarizing: Depolarizing probability for a noisy simulation.</span>
 <span class="sd">                Specifies the probability of sampling from the uniform distribution</span>
 <span class="sd">                instead of the state vector.</span>
@@ -324,6 +351,8 @@
 <span class="sd">                Should be a valid input to ``np.random.default_rng``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_shots</span> <span class="o">=</span> <span class="n">default_shots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_norb</span> <span class="o">=</span> <span class="n">norb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nelec</span> <span class="o">=</span> <span class="n">nelec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_global_depolarizing</span> <span class="o">=</span> <span class="n">global_depolarizing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
@@ -356,7 +385,9 @@
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">bound_circuit</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">bound_circuits</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">qargs</span><span class="p">:</span>
-                <span class="n">final_state</span> <span class="o">=</span> <span class="n">final_state_vector</span><span class="p">(</span><span class="n">bound_circuit</span><span class="p">)</span>
+                <span class="n">final_state</span> <span class="o">=</span> <span class="n">final_state_vector</span><span class="p">(</span>
+                    <span class="n">bound_circuit</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nelec</span>
+                <span class="p">)</span>
                 <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span> <span class="o">=</span> <span class="n">final_state</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">final_state</span><span class="o">.</span><span class="n">nelec</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                     <span class="n">orbs</span> <span class="o">=</span> <span class="n">qargs</span>

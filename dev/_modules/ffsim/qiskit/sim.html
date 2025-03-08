@@ -278,10 +278,22 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cmath</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">Barrier</span><span class="p">,</span> <span class="n">Measure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Barrier</span><span class="p">,</span>
+    <span class="n">CPhaseGate</span><span class="p">,</span>
+    <span class="n">Measure</span><span class="p">,</span>
+    <span class="n">PhaseGate</span><span class="p">,</span>
+    <span class="n">RZGate</span><span class="p">,</span>
+    <span class="n">RZZGate</span><span class="p">,</span>
+    <span class="n">XGate</span><span class="p">,</span>
+    <span class="n">XXPlusYYGate</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.converters</span><span class="w"> </span><span class="kn">import</span> <span class="n">circuit_to_dag</span><span class="p">,</span> <span class="n">dag_to_circuit</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">gates</span><span class="p">,</span> <span class="n">protocols</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">trotter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.qiskit.gates</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -300,14 +312,23 @@
     <span class="n">UCJOpSpinlessJW</span><span class="p">,</span>
     <span class="n">UCJOpSpinUnbalancedJW</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.spin</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spin</span>
 
 
 <div class="viewcode-block" id="final_state_vector">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.final_state_vector">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">final_state_vector</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">final_state_vector</span><span class="p">(</span>
+    <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the final state vector of a fermionic quantum circuit.</span>
 
 <span class="sd">    Args:</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
+<span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
+<span class="sd">            and spin beta fermions.</span>
 <span class="sd">        circuit: The circuit composed of fermionic gates.</span>
 
 <span class="sd">    Returns:</span>
@@ -316,72 +337,103 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Circuit must contain at least one instruction.&quot;</span><span class="p">)</span>
-    <span class="n">state_vector</span> <span class="o">=</span> <span class="n">_prepare_state_vector</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">circuit</span><span class="p">)</span>
+    <span class="n">state_vector</span><span class="p">,</span> <span class="n">remaining_circuit</span> <span class="o">=</span> <span class="n">_prepare_state_vector</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">norb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">norb</span> <span class="o">!=</span> <span class="n">state_vector</span><span class="o">.</span><span class="n">norb</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;norb did not match the circuit&#39;s state preparation. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">, but the circuit&#39;s state preparation gave &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state_vector</span><span class="o">.</span><span class="n">norb</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">nelec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nelec</span> <span class="o">!=</span> <span class="n">state_vector</span><span class="o">.</span><span class="n">nelec</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;nelec did not match the circuit&#39;s state preparation. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">nelec</span><span class="si">}</span><span class="s2">, but the circuit&#39;s state preparation gave &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state_vector</span><span class="o">.</span><span class="n">nelec</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
     <span class="n">evolve_func</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">_evolve_state_vector_spinless</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state_vector</span><span class="o">.</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
         <span class="k">else</span> <span class="n">_evolve_state_vector_spinful</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+    <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">remaining_circuit</span><span class="p">:</span>
         <span class="n">state_vector</span> <span class="o">=</span> <span class="n">evolve_func</span><span class="p">(</span><span class="n">state_vector</span><span class="p">,</span> <span class="n">instruction</span><span class="p">,</span> <span class="n">circuit</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">state_vector</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_state_vector</span><span class="p">(</span>
-    <span class="n">instruction</span><span class="p">:</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">:</span>
+    <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">]:</span>
+    <span class="n">instruction</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">op</span> <span class="o">=</span> <span class="n">instruction</span><span class="o">.</span><span class="n">operation</span>
-    <span class="n">qubit_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">circuit</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">instruction</span><span class="o">.</span><span class="n">qubits</span><span class="p">]</span>
-    <span class="n">consecutive_sorted</span> <span class="o">=</span> <span class="n">qubit_indices</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">qubit_indices</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">qubit_indices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="p">(</span><span class="n">PrepareHartreeFockJW</span><span class="p">,</span> <span class="n">PrepareHartreeFockSpinlessJW</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">consecutive_sorted</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+        <span class="n">op</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="n">PrepareHartreeFockJW</span><span class="p">,</span>
+            <span class="n">PrepareHartreeFockSpinlessJW</span><span class="p">,</span>
+            <span class="n">PrepareSlaterDeterminantJW</span><span class="p">,</span>
+            <span class="n">PrepareSlaterDeterminantSpinlessJW</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">):</span>
+        <span class="c1"># First instruction is an ffsim gate</span>
+        <span class="n">qubit_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">circuit</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">instruction</span><span class="o">.</span><span class="n">qubits</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">qubit_indices</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
-                <span class="s2">&quot;consecutive qubits, in ascending order.&quot;</span>
+                <span class="s2">&quot;all qubits of the circuit, in ascending order.&quot;</span>
             <span class="p">)</span>
-        <span class="n">norb</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">norb</span>
-        <span class="n">nelec</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">nelec</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PrepareSlaterDeterminantJW</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">consecutive_sorted</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="p">(</span><span class="n">PrepareHartreeFockJW</span><span class="p">,</span> <span class="n">PrepareHartreeFockSpinlessJW</span><span class="p">)):</span>
+            <span class="n">norb</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">norb</span>
+            <span class="n">nelec</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">nelec</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PrepareSlaterDeterminantJW</span><span class="p">):</span>
+            <span class="n">norb</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">norb</span>
+            <span class="n">occ_a</span><span class="p">,</span> <span class="n">occ_b</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span>
+            <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">occ_a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">occ_b</span><span class="p">))</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span>
+                <span class="n">norb</span><span class="p">,</span>
+                <span class="n">occupied_orbitals</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span><span class="p">,</span>
+                <span class="n">orbital_rotation</span><span class="o">=</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_b</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PrepareSlaterDeterminantSpinlessJW</span><span class="p">):</span>
+            <span class="n">norb</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">norb</span>
+            <span class="n">nelec</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span><span class="p">)</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span>
+                <span class="n">op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation</span>
+            <span class="p">)</span>
+
+        <span class="n">remaining_circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="o">.</span><span class="n">from_instructions</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span>
+            <span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">nelec</span><span class="p">),</span>
+        <span class="p">),</span> <span class="n">remaining_circuit</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">qubit_indices</span><span class="p">,</span> <span class="n">remaining_circuit</span> <span class="o">=</span> <span class="n">_extract_x_gates</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">qubit_indices</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
-                <span class="s2">&quot;consecutive qubits, in ascending order.&quot;</span>
+                <span class="s2">&quot;The circuit must begin with one of the following gates: &quot;</span>
+                <span class="s2">&quot;PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW, &quot;</span>
+                <span class="s2">&quot;PrepareSlaterDeterminantJW, PrepareSlaterDeterminantSpinlessJW, XGate.&quot;</span>
             <span class="p">)</span>
-        <span class="n">norb</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">norb</span>
-        <span class="n">occ_a</span><span class="p">,</span> <span class="n">occ_b</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span>
-        <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">occ_a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">occ_b</span><span class="p">))</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span>
-            <span class="n">norb</span><span class="p">,</span>
-            <span class="n">occupied_orbitals</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span><span class="p">,</span>
-            <span class="n">orbital_rotation</span><span class="o">=</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_b</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PrepareSlaterDeterminantSpinlessJW</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">consecutive_sorted</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
-                <span class="s2">&quot;consecutive qubits, in ascending order.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">norb</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">norb</span>
-        <span class="n">nelec</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span><span class="p">)</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span>
-            <span class="n">op</span><span class="o">.</span><span class="n">norb</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">occupied_orbitals</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
-
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-        <span class="s2">&quot;The first instruction of the circuit must be one of the following gates: &quot;</span>
-        <span class="s2">&quot;PrepareHartreeFockJW, PrepareHartreeFockSpinlessJW, &quot;</span>
-        <span class="s2">&quot;PrepareSlaterDeterminantJW, PrepareSlaterDeterminantSpinlessJW.&quot;</span>
-    <span class="p">)</span>
+        <span class="k">if</span> <span class="n">nelec</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="c1"># Spinless case</span>
+            <span class="n">norb</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+            <span class="n">nelec</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubit_indices</span><span class="p">)</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">qubit_indices</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Spinful case</span>
+            <span class="k">assert</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">norb</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">occ_a</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">qubit_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">]</span>
+            <span class="n">occ_b</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">norb</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">qubit_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span>
+            <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">occ_a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">occ_b</span><span class="p">))</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">slater_determinant</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="n">occ_a</span><span class="p">,</span> <span class="n">occ_b</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">),</span> <span class="n">remaining_circuit</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_evolve_state_vector_spinless</span><span class="p">(</span>
@@ -444,6 +496,95 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Encountered a measurement gate, but only unitary operations are allowed.&quot;</span>
         <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">CPhaseGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PhaseGate</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">orb</span><span class="p">,)</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">orb</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">RZGate</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">orb</span><span class="p">,)</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">orb</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">RZZGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span>
+            <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">i</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">j</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">XXPlusYYGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
+                <span class="s2">&quot;adjacent qubits.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_givens_rotation</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
+            <span class="n">phi</span><span class="o">=-</span><span class="n">beta</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported gate for spinless circuit: </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
@@ -539,7 +680,132 @@
             <span class="s2">&quot;Encountered a measurement gate, but only unitary operations are allowed.&quot;</span>
         <span class="p">)</span>
 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">CPhaseGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">([],</span> <span class="p">[])</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PhaseGate</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">orb</span><span class="p">,)</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">orb</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">orb</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">RZGate</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">orb</span><span class="p">,)</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">orb</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">orb</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">RZZGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">target_orbs</span> <span class="o">=</span> <span class="p">([],</span> <span class="p">[])</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span>
+            <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">XXPlusYYGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied to &quot;</span>
+                <span class="s2">&quot;adjacent qubits.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Gate of type &#39;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must be applied on orbitals &quot;</span>
+                <span class="s2">&quot;of the same spin.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_givens_rotation</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">),</span>
+            <span class="n">phi</span><span class="o">=-</span><span class="n">beta</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported gate for spinful circuit: </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_x_gates</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract X gates from the beginning of a circuit.</span>
+
+<span class="sd">    Returns the qubit indices of X gates at the beginning of the circuit, and a new</span>
+<span class="sd">    circuit constructed by removing those X gates from the old circuit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">dag</span> <span class="o">=</span> <span class="n">circuit_to_dag</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">dag</span><span class="o">.</span><span class="n">front_layer</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">XGate</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">qubit</span><span class="p">,)</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">qargs</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dag</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">dag</span><span class="o">.</span><span class="n">remove_op_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="n">remaining_circuit</span> <span class="o">=</span> <span class="n">dag_to_circuit</span><span class="p">(</span><span class="n">dag</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">remaining_circuit</span>
 </pre></div>
         </article>
       </div>
