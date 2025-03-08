@@ -8,12 +8,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Tests for state vector simulation of Qiskit circuits."""
 
 from __future__ import annotations
 
 import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
+from qiskit.circuit.library import (
+    CPhaseGate,
+    PhaseGate,
+    RZGate,
+    RZZGate,
+    XGate,
+    XXPlusYYGate,
+)
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -27,7 +36,7 @@ def _brickwork(norb: int, n_layers: int):
 
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
-    """Test sampler with random gates."""
+    """Test with random gates."""
     rng = np.random.default_rng(12285)
 
     # Initialize test objects
@@ -89,7 +98,7 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
 def test_random_gates_spinless(norb: int, nocc: int):
-    """Test sampler with random spinless gates."""
+    """Test with random spinless gates."""
     rng = np.random.default_rng(52622)
 
     # Initialize test objects
@@ -125,3 +134,198 @@ def test_random_gates_spinless(norb: int, nocc: int):
 
     # Check that the state vectors match
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (norb, nelec)
+        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 5))
+        if nelec != (0, 0)
+    ],
+)
+def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
+    """Test with Qiskit gates, spinful."""
+    rng = np.random.default_rng(12285)
+
+    # Construct circuit
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    n_alpha, n_beta = nelec
+    for i in range(n_alpha):
+        circuit.append(XGate(), [qubits[i]])
+    for i in range(n_beta):
+        circuit.append(XGate(), [qubits[norb + i]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + j], qubits[norb + i]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + j], qubits[norb + i]],
+        )
+    for q in qubits:
+        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(2 * norb, norb):
+        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for q in qubits:
+        circuit.append(RZGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(2 * norb, norb):
+        circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + i], qubits[norb + j]],
+        )
+
+    # Compute state vector using ffsim
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
+
+    # Compute state vector using Qiskit
+    qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        Statevector(circuit).data, norb=norb, nelec=nelec
+    )
+
+    # Check that the state vectors match
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize(
+    "norb, nocc",
+    [
+        (norb, nocc)
+        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 5))
+        if nocc
+    ],
+)
+def test_qiskit_gates_spinless(norb: int, nocc: int):
+    """Test with Qiskit gates, spinless."""
+    rng = np.random.default_rng(12285)
+
+    # Construct circuit
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    for i in range(nocc):
+        circuit.append(XGate(), [qubits[i]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    for q in qubits:
+        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for q in qubits:
+        circuit.append(RZGate(rng.uniform(-10, 10)), [q])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+
+    # Compute state vector using ffsim
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
+
+    # Compute state vector using Qiskit
+    qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        Statevector(circuit).data, norb=norb, nelec=nocc
+    )
+
+    # Check that the state vectors match
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+def test_qiskit_gates_norb_nelec():
+    """Test Qiskit gates passing different values for norb and nelec."""
+    norb = 4
+    nelec = (2, 2)
+
+    rng = np.random.default_rng(12285)
+
+    # Construct circuit
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    n_alpha, n_beta = nelec
+    for i in range(n_alpha):
+        circuit.append(XGate(), [qubits[i]])
+    for i in range(n_beta):
+        circuit.append(XGate(), [qubits[norb + i]])
+    for i, j in _brickwork(norb, norb):
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[i], qubits[j]],
+        )
+        circuit.append(
+            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            [qubits[norb + j], qubits[norb + i]],
+        )
+
+    # Compute state vector using Qiskit
+    qiskit_vec_spinful = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        Statevector(circuit).data, norb=norb, nelec=nelec
+    )
+    qiskit_vec_spinless = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        Statevector(circuit).data, norb=2 * norb, nelec=sum(nelec)
+    )
+
+    # Not passing norb and nelec should give spinless result
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec_spinless)
+
+    # Passing norb and nelec should give spinful result
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec_spinful)
+
+    # Pass only norb
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=2 * norb)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec_spinless)
+
+    # Pass only nelec
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, nelec=nelec)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec_spinful)
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, nelec=sum(nelec))
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec_spinless)
+
+    # Pass wrong norb
+    with pytest.raises(ValueError, match="norb"):
+        ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=2 * norb, nelec=nelec)
+
+    # Pass wrong nelec
+    with pytest.raises(ValueError, match="nelec"):
+        ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=(2, 1))
