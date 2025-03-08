@@ -1,0 +1,405 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# How to build and transpile Qiskit quantum circuits\n",
+    "\n",
+    "In this guide, we show how to use the [ffsim.qiskit](../api/ffsim.qiskit.rst) module to build and transpile fermionic quantum circuits.\n",
+    "\n",
+    "The following code cell imports modules and sets values that will be used in later code cells. Note that the number of qubits is twice the number of spatial orbitals."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "from qiskit.circuit import QuantumCircuit, QuantumRegister\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Let's use 4 spatial orbitals with 2 alpha electrons and 2 beta electrons.\n",
+    "norb = 4\n",
+    "nelec = (2, 2)\n",
+    "\n",
+    "# Initialize qubits\n",
+    "qubits = QuantumRegister(2 * norb, name=\"q\")\n",
+    "\n",
+    "# Initialize random number generator\n",
+    "rng = np.random.default_rng(1234)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Circuit transpilation\n",
+    "\n",
+    "In this section, we show how to use transpiler passes included in ffsim to optimize quantum circuits built from fermionic gates. As a representative example circuit, we construct a circuit that prepares the Hartree-Fock state and then applies a [unitary cluster Jastrow (UCJ)](../explanations/lucj.ipynb) ansatz operator to it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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",
+      "text/plain": [
+       "<Figure size 435.359x491.633 with 1 Axes>"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Construct a random UCJ operator\n",
+    "ucj_op = ffsim.random.random_ucj_op_spin_balanced(norb=norb, n_reps=2, seed=rng)\n",
+    "\n",
+    "# Construct circuit\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)\n",
+    "circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op), qubits)\n",
+    "\n",
+    "circuit.draw(\"mpl\", scale=0.7)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We recommend taking the following steps to transpile your quantum circuit:\n",
+    "\n",
+    "- Generate a staged pass manager using the [generate_preset_pass_manager](https://docs.quantum.ibm.com/api/qiskit/transpiler_preset#generate_preset_pass_manager) function.\n",
+    "- Set the `pre_init` stage of your staged pass manager to `ffsim.qiskit.PRE_INIT`.\n",
+    "- Run the transpiler pass on your circuit.\n",
+    "\n",
+    "The [ffsim.qiskit.PRE_INIT](../api/ffsim.qiskit.rst#ffsim.qiskit.PRE_INIT) constant stores a pass manager with the transpiler passes generated by the [pre_init_passes](../api/ffsim.qiskit.rst#ffsim.qiskit.pre_init_passes) function. These passes decompose gates into orbital rotations and then merges the orbital rotations, resulting in fewer [XXPlusYYGates](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.XXPlusYYGate#xxplusyygate) in the final transpiled circuit. See [Qubit gate decompositions of fermionic gates](../explanations/qiskit-gate-decompositions.ipynb#Unitary-cluster-Jastrow-(UCJ)-operator) for a more detailed explanation of how this works."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "OrderedDict([('cp', 56), ('xx_plus_yy', 32), ('p', 24), ('x', 4)])"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from qiskit.providers.fake_provider import GenericBackendV2\n",
+    "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n",
+    "\n",
+    "# Initialize quantum device backend\n",
+    "backend = GenericBackendV2(2 * norb, basis_gates=[\"cp\", \"xx_plus_yy\", \"p\", \"x\"])\n",
+    "\n",
+    "# Create a pass manager for circuit transpilation\n",
+    "pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n",
+    "\n",
+    "# Set the pre-initialization stage of the pass manager with passes suggested by ffsim\n",
+    "pass_manager.pre_init = ffsim.qiskit.PRE_INIT\n",
+    "\n",
+    "# Transpile the circuit\n",
+    "transpiled = pass_manager.run(circuit)\n",
+    "\n",
+    "transpiled.count_ops()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Overview of gates\n",
+    "\n",
+    "In this section, we give an overview of the quantum gates available in ffsim and provide usage examples.\n",
+    "\n",
+    "### State preparation gates\n",
+    "\n",
+    "The state preparation gates are meant to be applied to the zero state. Their behavior when applied to other states is not guaranteed.\n",
+    "\n",
+    "#### Prepare Hartree-Fock state"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c5115000>"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Prepare Slater determinant"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c5115780>"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "occupied_orbitals = ([0, 2], [0, 1])\n",
+    "orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)\n",
+    "\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(\n",
+    "    ffsim.qiskit.PrepareSlaterDeterminantJW(\n",
+    "        norb, occupied_orbitals, orbital_rotation=orbital_rotation\n",
+    "    ),\n",
+    "    qubits,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Unitary transformation gates\n",
+    "\n",
+    "These gates can be applied to any state.\n",
+    "\n",
+    "#### Orbital rotation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c5280f10>"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)\n",
+    "\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Number operator sum evolution"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c520db70>"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "coeffs = rng.standard_normal(norb)\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.NumOpSumEvolutionJW(norb, coeffs, time=1.0), qubits)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Diagonal Coulomb evolution"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c51b98a0>"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)\n",
+    "\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(\n",
+    "    ffsim.qiskit.DiagCoulombEvolutionJW(norb, diag_coulomb_mat, time=1.0), qubits\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Spin-balanced unitary cluster Jastrow (UCJ) operator"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c5246bf0>"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ucj_op = ffsim.random.random_ucj_op_spin_balanced(norb=norb, n_reps=2)\n",
+    "\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op), qubits)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Spin-unbalanced unitary cluster Jastrow (UCJ) operator"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c51b81f0>"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(norb=norb, n_reps=2)\n",
+    "\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op), qubits)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Trotter simulation of double-factorized Hamiltonian"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit.circuit.instructionset.InstructionSet at 0x7ff9c509d540>"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(norb, seed=rng)\n",
+    "circuit = QuantumCircuit(qubits)\n",
+    "circuit.append(\n",
+    "    ffsim.qiskit.SimulateTrotterDoubleFactorizedJW(\n",
+    "        df_hamiltonian, time=1.0, n_steps=1, order=0\n",
+    "    ),\n",
+    "    qubits,\n",
+    ")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
