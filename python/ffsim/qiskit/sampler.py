@@ -54,8 +54,8 @@ class FfsimSampler(BaseSamplerV2):
 
         1. Use gates from the ``ffsim.qiskit`` module. The circuit should begin with a
         state preparation gate (one whose name begins with the prefix ``Prepare``,
-        such as ``PrepareHartreeFockJW``) that acts on all of the qubits. Next, a number
-        of unitary gates from the ``ffsim.qiskit`` module are applied. Finally,
+        such as :class:`~.PrepareHartreeFockJW`) that acts on all of the qubits. Next,
+        a number of unitary gates from the ``ffsim.qiskit`` module are applied. Finally,
         measurement gates must only occur at the end of the circuit.
 
         2. Use Qiskit gates. The circuit should begin with some ``X`` gates. Next, a
