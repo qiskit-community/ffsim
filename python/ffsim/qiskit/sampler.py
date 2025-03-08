@@ -40,13 +40,40 @@ class FfsimSampler(BaseSamplerV2):
         self,
         *,
         default_shots: int = 1024,
+        norb: int | None = None,
+        nelec: int | tuple[int, int] | None = None,
         global_depolarizing: float = 0.0,
         seed: np.random.Generator | int | None = None,
     ):
-        """Initialize the ffsim sampler.
+        """Initialize the ffsim Sampler.
+
+        FfsimSampler is an implementation of the Qiskit Sampler Primitive specialized
+        for fermionic quantum circuits. It does not support arbitrary circuits, but only
+        those with a certain structure. Generally speaking, there are two ways to
+        construct a circuit that FfsimSampler can simulate:
+
+        1. Use gates from the ``ffsim.qiskit`` module. The circuit should begin with a
+        state preparation gate (one whose name begins with the prefix ``Prepare``,
+        such as :class:`~.PrepareHartreeFockJW`) that acts on all of the qubits. Next,
+        a number of unitary gates from the ``ffsim.qiskit`` module are applied. Finally,
+        measurement gates must only occur at the end of the circuit.
+
+        2. Use Qiskit gates. The circuit should begin with some ``X`` gates. Next, a
+        number of unitary gates are applied. The following unitary gates are supported:
+        [``CPhaseGate``, ``PhaseGate``, ``RZGate``, ``RZZGate``, ``XXPlusYYGate``].
+        ``XXPlusYYGate``\s must be applied to adjacent qubits. Finally, measurement
+        gates must only occur at the end of the circuit.
+
+        When simulating spinful circuits constructed from Qiskit gates, you should
+        pass the `norb` and `nelec` arguments to the FfsimSampler initialization.
+        Otherwise, a spinless simulation will be performed, which is less efficient.
 
         Args:
             default_shots: The default shots to use if not specified during run.
+            norb: The number of spatial orbitals.
+            nelec: Either a single integer representing the number of fermions for a
+                spinless system, or a pair of integers storing the numbers of spin alpha
+                and spin beta fermions.
             global_depolarizing: Depolarizing probability for a noisy simulation.
                 Specifies the probability of sampling from the uniform distribution
                 instead of the state vector.
@@ -54,6 +81,8 @@ class FfsimSampler(BaseSamplerV2):
                 Should be a valid input to ``np.random.default_rng``.
         """
         self._default_shots = default_shots
+        self._norb = norb
+        self._nelec = nelec
         self._global_depolarizing = global_depolarizing
         self._rng = np.random.default_rng(seed)
 
@@ -82,7 +111,9 @@ class FfsimSampler(BaseSamplerV2):
         }
         for index, bound_circuit in np.ndenumerate(bound_circuits):
             if qargs:
-                final_state = final_state_vector(bound_circuit)
+                final_state = final_state_vector(
+                    bound_circuit, norb=self._norb, nelec=self._nelec
+                )
                 norb, nelec = final_state.norb, final_state.nelec
                 if isinstance(nelec, int):
                     orbs = qargs
