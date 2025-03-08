@@ -303,7 +303,7 @@ def _evolve_state_vector_spinless(
         if not abs(i - j) == 1:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "consecutive qubits."
+                "adjacent qubits."
             )
         theta, beta = op.params
         vec = gates.apply_givens_rotation(
@@ -498,7 +498,7 @@ def _evolve_state_vector_spinful(
         if not abs(i - j) == 1:
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "consecutive qubits."
+                "adjacent qubits."
             )
         if (i < norb) != (j < norb):
             raise ValueError(
