@@ -104,8 +104,15 @@ class MolecularHamiltonian:
         )
 
         def matvec(vec: np.ndarray):
-            result = self.constant * vec.astype(complex, copy=False)
-            result += contract_2e(two_body, vec, norb, nelec, link_index=link_index)
+            result = contract_2e(
+                two_body,
+                vec.astype(complex, copy=False),
+                norb,
+                nelec,
+                link_index=link_index,
+            )
+            if self.constant:
+                result += self.constant * vec
             return result
 
         dim_ = dim(norb, nelec)
