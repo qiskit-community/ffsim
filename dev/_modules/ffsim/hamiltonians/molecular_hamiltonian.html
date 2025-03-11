@@ -375,8 +375,15 @@
         <span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">result</span> <span class="o">+=</span> <span class="n">contract_2e</span><span class="p">(</span><span class="n">two_body</span><span class="p">,</span> <span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">contract_2e</span><span class="p">(</span>
+                <span class="n">two_body</span><span class="p">,</span>
+                <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="p">,</span>
+                <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span>
             <span class="k">return</span> <span class="n">result</span>
 
         <span class="n">dim_</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
