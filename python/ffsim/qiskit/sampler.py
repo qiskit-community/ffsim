@@ -45,7 +45,7 @@ class FfsimSampler(BaseSamplerV2):
         global_depolarizing: float = 0.0,
         seed: np.random.Generator | int | None = None,
     ):
-        """Initialize the ffsim Sampler.
+        r"""Initialize the ffsim Sampler.
 
         FfsimSampler is an implementation of the Qiskit Sampler Primitive specialized
         for fermionic quantum circuits. It does not support arbitrary circuits, but only
