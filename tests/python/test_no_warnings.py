@@ -28,4 +28,4 @@ def test_no_warnings():
             f"{w.filename}:{w.lineno}: {w.category.__name__}: {w.message}"
             for w in all_warnings
         ]
-        pytest.fail(f"Encountered warnings:\n{'\n'.join(error_messages)}")
+        pytest.fail("Encountered warnings:\n" + "\n".join(error_messages))
