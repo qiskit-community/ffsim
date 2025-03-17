@@ -1058,17 +1058,27 @@ state.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.jordan_wigner">
-<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/jordan_wigner.html#jordan_wigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.jordan_wigner" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/jordan_wigner.html#jordan_wigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.jordan_wigner" title="Link to this definition">¶</a></dt>
 <dd><p>Jordan-Wigner transformation.</p>
 <p>Transform a fermion operator to a qubit operator using the Jordan-Wigner
-transformation.</p>
+transformation. The Jordan-Wigner transformation maps fermionic annihilation
+operators to qubits as follows:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[a_p \mapsto \frac12 (X_p + iY_p)Z_1 \cdots Z_{p-1}\]</div>
+</div>
+<p>In the transformed operator, the first <code class="docutils literal notranslate"><span class="pre">norb</span></code> qubits represent spin-up (alpha)
+orbitals, and the latter <code class="docutils literal notranslate"><span class="pre">norb</span></code> qubits represent spin-down (beta) orbitals. As a
+result of this convention, the qubit index that an orbital is mapped to depends on
+the total number of spatial orbitals. By default, the total number of spatial
+orbitals is automatically determined by the largest-index orbital present in the
+operator, but you can manually specify the number using the <cite>norb</cite> argument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span>) – The fermion operator to transform.</p></li>
-<li><p><strong>n_qubits</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of qubits to include in the output qubit operator. If not
-specified, the minimum number of qubits needed to accommodate the fermion
-operator will be used. Must be non-negative.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The total number of spatial orbitals. If not specified, it is determined
+by the largest-index orbital present in the operator.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1079,8 +1089,9 @@ operator will be used. Must be non-negative.</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – Number of qubits was negative.</p></li>
-<li><p><strong>ValueError</strong> – Number of qubits was not enough to accommodate the fermion operator.</p></li>
+<li><p><strong>ValueError</strong> – Number of spatial orbitals was negative.</p></li>
+<li><p><strong>ValueError</strong> – Number of spatial orbitals was fewer than the number detected in the
+    operator.</p></li>
 </ul>
 </dd>
 </dl>
