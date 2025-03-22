@@ -154,6 +154,8 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     prng = random.Random(11832)
     pairs = list(itertools.combinations(range(norb), 2))
     prng.shuffle(pairs)
+    big_pairs = list(itertools.combinations(range(2 * norb), 2))
+    prng.shuffle(big_pairs)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
@@ -163,7 +165,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(XGate(), [qubits[i]])
     for i in range(n_beta):
         circuit.append(XGate(), [qubits[norb + i]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
@@ -174,13 +176,13 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(2 * norb, norb):
+    for i, j in big_pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(2 * norb, norb):
+    for i, j in big_pairs:
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
@@ -225,20 +227,20 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     circuit = QuantumCircuit(qubits)
     for i in range(nocc):
         circuit.append(XGate(), [qubits[i]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],

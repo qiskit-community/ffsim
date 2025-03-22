@@ -327,17 +327,26 @@ def _evolve_state_vector_spinless(
 
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
-        if not abs(i - j) == 1:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "adjacent qubits."
-            )
         theta, beta = op.params
+        vec = _apply_qubit_swap_defect(
+            vec,
+            (i, j),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
         vec = gates.apply_givens_rotation(
             vec,
             0.5 * theta,
             (i, j),
             phi=-beta - 0.5 * math.pi,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec = _apply_qubit_swap_defect(
+            vec,
+            (i, j),
             norb=norb,
             nelec=nelec,
             copy=False,
@@ -556,11 +565,6 @@ def _evolve_state_vector_spinful(
 
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
-        if not abs(i - j) == 1:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "adjacent qubits."
-            )
         if (i < norb) != (j < norb):
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied on orbitals "
@@ -568,11 +572,27 @@ def _evolve_state_vector_spinful(
             )
         spin = Spin.ALPHA if i < norb else Spin.BETA
         theta, beta = op.params
+        vec = _apply_qubit_swap_defect(
+            vec,
+            (i % norb, j % norb),
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
         vec = gates.apply_givens_rotation(
             vec,
             0.5 * theta,
             (i % norb, j % norb),
             phi=-beta - 0.5 * math.pi,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        vec = _apply_qubit_swap_defect(
+            vec,
+            (i % norb, j % norb),
             norb=norb,
             nelec=nelec,
             spin=spin,
