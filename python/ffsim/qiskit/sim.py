@@ -580,12 +580,7 @@ def _apply_qubit_swap_defect(
     if spin & Spin.BETA:
         mat_bb[i, i + 1 : j] = 1
     vec = gates.apply_diag_coulomb_evolution(
-        vec,
-        (mat_aa, mat_ab, mat_bb),
-        math.pi,
-        norb=norb,
-        nelec=nelec,
-        copy=False,
+        vec, (mat_aa, mat_ab, mat_bb), math.pi, norb=norb, nelec=nelec, copy=False
     )
     return vec
 
@@ -603,37 +598,16 @@ def _apply_qubit_swap(
         vec = vec.copy()
     i, j = target_orbs
     vec = _apply_qubit_swap_defect(
-        vec,
-        (i, j),
-        norb=norb,
-        nelec=nelec,
-        spin=spin,
-        copy=False,
+        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = gates.apply_fswap_gate(
-        vec,
-        (i, j),
-        norb=norb,
-        nelec=nelec,
-        spin=spin,
-        copy=False,
+        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = gates.apply_num_num_interaction(
-        vec,
-        math.pi,
-        (i, j),
-        norb=norb,
-        nelec=nelec,
-        spin=spin,
-        copy=False,
+        vec, math.pi, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = _apply_qubit_swap_defect(
-        vec,
-        (i, j),
-        norb=norb,
-        nelec=nelec,
-        spin=spin,
-        copy=False,
+        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
     return vec
 
@@ -653,12 +627,7 @@ def _apply_xx_plus_yy(
         vec = vec.copy()
     i, j = target_orbs
     vec = _apply_qubit_swap_defect(
-        vec,
-        (i, j),
-        norb=norb,
-        nelec=nelec,
-        spin=spin,
-        copy=False,
+        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = gates.apply_givens_rotation(
         vec,
@@ -671,11 +640,6 @@ def _apply_xx_plus_yy(
         copy=False,
     )
     vec = _apply_qubit_swap_defect(
-        vec,
-        (i, j),
-        norb=norb,
-        nelec=nelec,
-        spin=spin,
-        copy=False,
+        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
     return vec
