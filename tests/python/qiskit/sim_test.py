@@ -20,6 +20,7 @@ from qiskit.circuit.library import (
     PhaseGate,
     RZGate,
     RZZGate,
+    SwapGate,
     XGate,
     XXPlusYYGate,
 )
@@ -182,6 +183,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[norb + i], qubits[norb + j]],
         )
+    for i in range(0, norb - 1, 2):
+        circuit.append(SwapGate(), qubits[i : i + 2])
+        circuit.append(SwapGate(), qubits[norb + i : norb + i + 2])
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
@@ -230,6 +234,8 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
+    for i in range(0, norb - 1, 2):
+        circuit.append(SwapGate(), qubits[i : i + 2])
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)

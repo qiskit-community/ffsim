@@ -24,6 +24,7 @@ from qiskit.circuit.library import (
     PhaseGate,
     RZGate,
     RZZGate,
+    SwapGate,
     XGate,
     XXPlusYYGate,
 )
@@ -298,6 +299,30 @@ def _evolve_state_vector_spinless(
         vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, SwapGate):
+        i, j = qubit_indices
+        if not abs(i - j) == 1:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "adjacent qubits."
+            )
+        vec = gates.apply_fswap_gate(
+            vec,
+            (i % norb, j % norb),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec = gates.apply_num_num_interaction(
+            vec,
+            math.pi,
+            (i % norb, j % norb),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if not abs(i - j) == 1:
@@ -491,6 +516,38 @@ def _evolve_state_vector_spinful(
             copy=False,
         )
         vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, SwapGate):
+        i, j = qubit_indices
+        if not abs(i - j) == 1:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "adjacent qubits."
+            )
+        if (i < norb) != (j < norb):
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied on orbitals "
+                "of the same spin."
+            )
+        spin = Spin.ALPHA if i < norb else Spin.BETA
+        vec = gates.apply_fswap_gate(
+            vec,
+            (i % norb, j % norb),
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        vec = gates.apply_num_num_interaction(
+            vec,
+            math.pi,
+            (i % norb, j % norb),
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
