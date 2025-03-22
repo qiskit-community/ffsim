@@ -314,24 +314,10 @@ def _evolve_state_vector_spinless(
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         theta, beta = op.params
-        vec = _apply_qubit_swap_defect(
+        vec = _apply_xx_plus_yy(
             vec,
-            (i, j),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-        vec = gates.apply_givens_rotation(
-            vec,
-            0.5 * theta,
-            (i, j),
-            phi=-beta - 0.5 * math.pi,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-        vec = _apply_qubit_swap_defect(
-            vec,
+            theta,
+            beta,
             (i, j),
             norb=norb,
             nelec=nelec,
@@ -542,26 +528,10 @@ def _evolve_state_vector_spinful(
             )
         spin = Spin.ALPHA if i < norb else Spin.BETA
         theta, beta = op.params
-        vec = _apply_qubit_swap_defect(
+        vec = _apply_xx_plus_yy(
             vec,
-            (i % norb, j % norb),
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
-        )
-        vec = gates.apply_givens_rotation(
-            vec,
-            0.5 * theta,
-            (i % norb, j % norb),
-            phi=-beta - 0.5 * math.pi,
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
-        )
-        vec = _apply_qubit_swap_defect(
-            vec,
+            theta,
+            beta,
             (i % norb, j % norb),
             norb=norb,
             nelec=nelec,
@@ -650,6 +620,49 @@ def _apply_qubit_swap(
         vec,
         math.pi,
         (i, j),
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
+    )
+    vec = _apply_qubit_swap_defect(
+        vec,
+        (i, j),
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
+    )
+    return vec
+
+
+def _apply_xx_plus_yy(
+    vec: np.ndarray,
+    theta: float,
+    beta: float,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
+    i, j = target_orbs
+    vec = _apply_qubit_swap_defect(
+        vec,
+        (i, j),
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
+    )
+    vec = gates.apply_givens_rotation(
+        vec,
+        0.5 * theta,
+        (i % norb, j % norb),
+        phi=-beta - 0.5 * math.pi,
         norb=norb,
         nelec=nelec,
         spin=spin,
