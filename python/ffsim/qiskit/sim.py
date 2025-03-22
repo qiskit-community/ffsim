@@ -302,21 +302,7 @@ def _evolve_state_vector_spinless(
 
     if isinstance(op, SwapGate):
         i, j = qubit_indices
-        vec = _apply_qubit_swap_defect(
-            vec,
-            (i, j),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-        vec = _apply_qubit_swap_adjacent(
-            vec,
-            (i, j),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-        vec = _apply_qubit_swap_defect(
+        vec = _apply_qubit_swap(
             vec,
             (i, j),
             norb=norb,
@@ -537,23 +523,7 @@ def _evolve_state_vector_spinful(
                 "of the same spin."
             )
         spin = Spin.ALPHA if i < norb else Spin.BETA
-        vec = _apply_qubit_swap_defect(
-            vec,
-            (i % norb, j % norb),
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
-        )
-        vec = _apply_qubit_swap_adjacent(
-            vec,
-            (i % norb, j % norb),
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
-        )
-        vec = _apply_qubit_swap_defect(
+        vec = _apply_qubit_swap(
             vec,
             (i % norb, j % norb),
             norb=norb,
@@ -648,7 +618,7 @@ def _apply_qubit_swap_defect(
     return vec
 
 
-def _apply_qubit_swap_adjacent(
+def _apply_qubit_swap(
     vec: np.ndarray,
     target_orbs: tuple[int, int],
     norb: int,
@@ -660,6 +630,14 @@ def _apply_qubit_swap_adjacent(
     if copy:
         vec = vec.copy()
     i, j = target_orbs
+    vec = _apply_qubit_swap_defect(
+        vec,
+        (i, j),
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
+    )
     vec = gates.apply_fswap_gate(
         vec,
         (i, j),
@@ -671,6 +649,14 @@ def _apply_qubit_swap_adjacent(
     vec = gates.apply_num_num_interaction(
         vec,
         math.pi,
+        (i, j),
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
+    )
+    vec = _apply_qubit_swap_defect(
+        vec,
         (i, j),
         norb=norb,
         nelec=nelec,
