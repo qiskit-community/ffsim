@@ -16,6 +16,7 @@ import cmath
 import math
 from typing import Union, cast
 
+import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import (
     Barrier,
@@ -301,22 +302,23 @@ def _evolve_state_vector_spinless(
 
     if isinstance(op, SwapGate):
         i, j = qubit_indices
-        if not abs(i - j) == 1:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "adjacent qubits."
-            )
-        vec = gates.apply_fswap_gate(
+        vec = _apply_qubit_swap_defect(
             vec,
-            (i % norb, j % norb),
+            (i, j),
             norb=norb,
             nelec=nelec,
             copy=False,
         )
-        vec = gates.apply_num_num_interaction(
+        vec = _apply_qubit_swap_adjacent(
             vec,
-            math.pi,
-            (i % norb, j % norb),
+            (i, j),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        vec = _apply_qubit_swap_defect(
+            vec,
+            (i, j),
             norb=norb,
             nelec=nelec,
             copy=False,
@@ -520,18 +522,13 @@ def _evolve_state_vector_spinful(
 
     if isinstance(op, SwapGate):
         i, j = qubit_indices
-        if not abs(i - j) == 1:
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied to "
-                "adjacent qubits."
-            )
         if (i < norb) != (j < norb):
             raise ValueError(
                 f"Gate of type '{op.__class__.__name__}' must be applied on orbitals "
                 "of the same spin."
             )
         spin = Spin.ALPHA if i < norb else Spin.BETA
-        vec = gates.apply_fswap_gate(
+        vec = _apply_qubit_swap_defect(
             vec,
             (i % norb, j % norb),
             norb=norb,
@@ -539,9 +536,16 @@ def _evolve_state_vector_spinful(
             spin=spin,
             copy=False,
         )
-        vec = gates.apply_num_num_interaction(
+        vec = _apply_qubit_swap_adjacent(
             vec,
-            math.pi,
+            (i % norb, j % norb),
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        vec = _apply_qubit_swap_defect(
+            vec,
             (i % norb, j % norb),
             norb=norb,
             nelec=nelec,
@@ -594,3 +598,63 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
             dag.remove_op_node(node)
     remaining_circuit = dag_to_circuit(dag)
     return indices, remaining_circuit
+
+
+def _apply_qubit_swap_defect(
+    vec: np.ndarray,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
+    i, j = target_orbs
+    if j < i:
+        i, j = j, i
+    # TODO apply as diagonal coulomb evolution
+    for k in range(i + 1, j):
+        vec = gates.apply_num_num_interaction(
+            vec,
+            math.pi,
+            (i, k),
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+    return vec
+
+
+def _apply_qubit_swap_adjacent(
+    vec: np.ndarray,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
+    i, j = target_orbs
+    vec = gates.apply_fswap_gate(
+        vec,
+        (i, j),
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
+    )
+    vec = gates.apply_num_num_interaction(
+        vec,
+        math.pi,
+        (i, j),
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
+    )
+    return vec

@@ -12,6 +12,9 @@
 
 from __future__ import annotations
 
+import itertools
+import random
+
 import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
@@ -148,6 +151,9 @@ def test_random_gates_spinless(norb: int, nocc: int):
 def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test with Qiskit gates, spinful."""
     rng = np.random.default_rng(12285)
+    prng = random.Random(11832)
+    pairs = list(itertools.combinations(range(norb), 2))
+    prng.shuffle(pairs)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
@@ -183,9 +189,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[norb + i], qubits[norb + j]],
         )
-    for i in range(0, norb - 1, 2):
-        circuit.append(SwapGate(), qubits[i : i + 2])
-        circuit.append(SwapGate(), qubits[norb + i : norb + i + 2])
+    for i, j in pairs:
+        circuit.append(SwapGate(), [qubits[i], qubits[j]])
+        circuit.append(SwapGate(), [qubits[norb + i], qubits[norb + j]])
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
@@ -210,6 +216,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 def test_qiskit_gates_spinless(norb: int, nocc: int):
     """Test with Qiskit gates, spinless."""
     rng = np.random.default_rng(12285)
+    prng = random.Random(11832)
+    pairs = list(itertools.combinations(range(norb), 2))
+    prng.shuffle(pairs)
 
     # Construct circuit
     qubits = QuantumRegister(norb)
@@ -234,8 +243,8 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
-    for i in range(0, norb - 1, 2):
-        circuit.append(SwapGate(), qubits[i : i + 2])
+    for i, j in pairs:
+        circuit.append(SwapGate(), [qubits[i], qubits[j]])
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
