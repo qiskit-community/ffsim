@@ -574,17 +574,19 @@ def _apply_qubit_swap_defect(
     i, j = target_orbs
     if j < i:
         i, j = j, i
-    # TODO apply as diagonal coulomb evolution
-    for k in range(i + 1, j):
-        vec = gates.apply_num_num_interaction(
-            vec,
-            math.pi,
-            (i, k),
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
-        )
+    mat_aa, mat_ab, mat_bb = np.zeros((3, norb, norb))
+    if spin & Spin.ALPHA:
+        mat_aa[i, i + 1 : j] = 1
+    if spin & Spin.BETA:
+        mat_bb[i, i + 1 : j] = 1
+    vec = gates.apply_diag_coulomb_evolution(
+        vec,
+        (mat_aa, mat_ab, mat_bb),
+        math.pi,
+        norb=norb,
+        nelec=nelec,
+        copy=False,
+    )
     return vec
 
 
