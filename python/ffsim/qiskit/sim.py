@@ -28,6 +28,7 @@ from qiskit.circuit.library import (
     SwapGate,
     XGate,
     XXPlusYYGate,
+    iSwapGate,
 )
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 
@@ -275,6 +276,11 @@ def _evolve_state_vector_spinless(
         vec = _apply_swap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, iSwapGate):
+        i, j = qubit_indices
+        vec = _apply_iswap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         theta, beta = op.params
@@ -442,6 +448,19 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, iSwapGate):
+        i, j = qubit_indices
+        if (i < norb) != (j < norb):
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied on orbitals "
+                "of the same spin."
+            )
+        spin = Spin.ALPHA if i < norb else Spin.BETA
+        vec = _apply_iswap(
+            vec, (i % norb, j % norb), norb=norb, nelec=nelec, spin=spin, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if (i < norb) != (j < norb):
@@ -537,6 +556,33 @@ def _apply_swap(
     )
     vec = gates.apply_num_num_interaction(
         vec, math.pi, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
+    )
+    vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
+    return vec
+
+
+def _apply_iswap(
+    vec: np.ndarray,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    spin: Spin = Spin.ALPHA_AND_BETA,
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
+    i, j = target_orbs
+    vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
+    vec = gates.apply_givens_rotation(
+        vec,
+        0.5 * math.pi,
+        (i % norb, j % norb),
+        phi=0.5 * math.pi,
+        norb=norb,
+        nelec=nelec,
+        spin=spin,
+        copy=False,
     )
     vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
     return vec
