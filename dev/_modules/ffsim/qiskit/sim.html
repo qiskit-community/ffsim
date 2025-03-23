@@ -503,12 +503,7 @@
         <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -516,12 +511,7 @@
         <span class="p">(</span><span class="n">orb</span><span class="p">,)</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">orb</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -529,12 +519,7 @@
         <span class="p">(</span><span class="n">orb</span><span class="p">,)</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">orb</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">orb</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
@@ -543,54 +528,27 @@
         <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span>
-            <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">i</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">j</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">SwapGate</span><span class="p">):</span>
         <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_qubit_swap</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_swap</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">XXPlusYYGate</span><span class="p">):</span>
         <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_xx_plus_yy</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">beta</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -641,18 +599,10 @@
                 <span class="s2">&quot;consecutive qubits, in ascending order.&quot;</span>
             <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_orbital_rotation</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_b</span><span class="p">),</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">orbital_rotation_b</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -695,12 +645,7 @@
         <span class="n">target_orbs</span><span class="p">[</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -709,13 +654,7 @@
         <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">orb</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">orb</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">orb</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -724,13 +663,7 @@
         <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">orb</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">theta</span><span class="p">,</span>
-            <span class="n">orb</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">orb</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
@@ -742,12 +675,7 @@
         <span class="n">target_orbs</span><span class="p">[</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span>
-            <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_interaction</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span>
@@ -778,13 +706,8 @@
                 <span class="s2">&quot;of the same spin.&quot;</span>
             <span class="p">)</span>
         <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">ALPHA</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">norb</span> <span class="k">else</span> <span class="n">Spin</span><span class="o">.</span><span class="n">BETA</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_qubit_swap</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">),</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_swap</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">,</span> <span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -829,7 +752,7 @@
     <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">remaining_circuit</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_apply_qubit_swap_defect</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_swap_defect</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -865,7 +788,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_apply_qubit_swap</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_swap</span><span class="p">(</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">target_orbs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -877,18 +800,14 @@
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">target_orbs</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_qubit_swap_defect</span><span class="p">(</span>
-        <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_swap_defect</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_fswap_gate</span><span class="p">(</span>
         <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_num_interaction</span><span class="p">(</span>
         <span class="n">vec</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_qubit_swap_defect</span><span class="p">(</span>
-        <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_swap_defect</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span>
 
 
@@ -906,9 +825,7 @@
     <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">target_orbs</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_qubit_swap_defect</span><span class="p">(</span>
-        <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_swap_defect</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_givens_rotation</span><span class="p">(</span>
         <span class="n">vec</span><span class="p">,</span>
         <span class="mf">0.5</span> <span class="o">*</span> <span class="n">theta</span><span class="p">,</span>
@@ -919,9 +836,7 @@
         <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_qubit_swap_defect</span><span class="p">(</span>
-        <span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_swap_defect</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">vec</span>
 </pre></div>
         </article>
