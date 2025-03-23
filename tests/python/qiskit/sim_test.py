@@ -26,6 +26,7 @@ from qiskit.circuit.library import (
     SwapGate,
     XGate,
     XXPlusYYGate,
+    iSwapGate,
 )
 from qiskit.quantum_info import Statevector
 
@@ -178,6 +179,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in big_pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in pairs:
+        circuit.append(iSwapGate(), [qubits[i], qubits[j]])
+        circuit.append(iSwapGate(), [qubits[norb + i], qubits[norb + j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     for i, j in big_pairs:
@@ -236,6 +240,8 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in pairs:
+        circuit.append(iSwapGate(), [qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     for i, j in pairs:
