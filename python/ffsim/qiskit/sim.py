@@ -572,6 +572,8 @@ def _apply_qubit_swap_defect(
     if copy:
         vec = vec.copy()
     i, j = target_orbs
+    if abs(i - j) == 1:
+        return vec
     if j < i:
         i, j = j, i
 
