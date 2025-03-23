@@ -234,12 +234,7 @@ def _evolve_state_vector_spinless(
         i, j = qubit_indices
         (theta,) = op.params
         vec = gates.apply_num_num_interaction(
-            vec,
-            theta,
-            target_orbs=(i, j),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, target_orbs=(i, j), norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -247,12 +242,7 @@ def _evolve_state_vector_spinless(
         (orb,) = qubit_indices
         (theta,) = op.params
         vec = gates.apply_num_interaction(
-            vec,
-            theta,
-            orb,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, orb, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -260,12 +250,7 @@ def _evolve_state_vector_spinless(
         (orb,) = qubit_indices
         (theta,) = op.params
         vec = gates.apply_num_interaction(
-            vec,
-            theta,
-            orb,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, orb, norb=norb, nelec=nelec, copy=False
         )
         vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
@@ -274,54 +259,27 @@ def _evolve_state_vector_spinless(
         i, j = qubit_indices
         (theta,) = op.params
         vec = gates.apply_num_num_interaction(
-            vec,
-            -2 * theta,
-            target_orbs=(i, j),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, -2 * theta, target_orbs=(i, j), norb=norb, nelec=nelec, copy=False
         )
         vec = gates.apply_num_interaction(
-            vec,
-            theta,
-            i,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, i, norb=norb, nelec=nelec, copy=False
         )
         vec = gates.apply_num_interaction(
-            vec,
-            theta,
-            j,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, j, norb=norb, nelec=nelec, copy=False
         )
         vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, SwapGate):
         i, j = qubit_indices
-        vec = _apply_qubit_swap(
-            vec,
-            (i, j),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
+        vec = _apply_swap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         theta, beta = op.params
         vec = _apply_xx_plus_yy(
-            vec,
-            theta,
-            beta,
-            (i, j),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, beta, (i, j), norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -372,18 +330,10 @@ def _evolve_state_vector_spinful(
                 "consecutive qubits, in ascending order."
             )
         vec = gates.apply_orbital_rotation(
-            vec,
-            (op.orbital_rotation_a, None),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, (op.orbital_rotation_a, None), norb=norb, nelec=nelec, copy=False
         )
         vec = gates.apply_orbital_rotation(
-            vec,
-            (None, op.orbital_rotation_b),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, (None, op.orbital_rotation_b), norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -426,12 +376,7 @@ def _evolve_state_vector_spinful(
         target_orbs[j >= norb].append(j % norb)
         (theta,) = op.params
         vec = gates.apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=target_orbs,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -440,13 +385,7 @@ def _evolve_state_vector_spinful(
         spin = Spin.ALPHA if orb < norb else Spin.BETA
         (theta,) = op.params
         vec = gates.apply_num_interaction(
-            vec,
-            theta,
-            orb % norb,
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
+            vec, theta, orb % norb, norb=norb, nelec=nelec, spin=spin, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -455,13 +394,7 @@ def _evolve_state_vector_spinful(
         spin = Spin.ALPHA if orb < norb else Spin.BETA
         (theta,) = op.params
         vec = gates.apply_num_interaction(
-            vec,
-            theta,
-            orb % norb,
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
+            vec, theta, orb % norb, norb=norb, nelec=nelec, spin=spin, copy=False
         )
         vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
@@ -473,12 +406,7 @@ def _evolve_state_vector_spinful(
         target_orbs[j >= norb].append(j % norb)
         (theta,) = op.params
         vec = gates.apply_num_op_prod_interaction(
-            vec,
-            -2 * theta,
-            target_orbs=target_orbs,
-            norb=norb,
-            nelec=nelec,
-            copy=False,
+            vec, -2 * theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
         vec = gates.apply_num_interaction(
             vec,
@@ -509,13 +437,8 @@ def _evolve_state_vector_spinful(
                 "of the same spin."
             )
         spin = Spin.ALPHA if i < norb else Spin.BETA
-        vec = _apply_qubit_swap(
-            vec,
-            (i % norb, j % norb),
-            norb=norb,
-            nelec=nelec,
-            spin=spin,
-            copy=False,
+        vec = _apply_swap(
+            vec, (i % norb, j % norb), norb=norb, nelec=nelec, spin=spin, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -560,7 +483,7 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
     return indices, remaining_circuit
 
 
-def _apply_qubit_swap_defect(
+def _apply_swap_defect(
     vec: np.ndarray,
     target_orbs: tuple[int, int],
     norb: int,
@@ -596,7 +519,7 @@ def _apply_qubit_swap_defect(
     )
 
 
-def _apply_qubit_swap(
+def _apply_swap(
     vec: np.ndarray,
     target_orbs: tuple[int, int],
     norb: int,
@@ -608,18 +531,14 @@ def _apply_qubit_swap(
     if copy:
         vec = vec.copy()
     i, j = target_orbs
-    vec = _apply_qubit_swap_defect(
-        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
-    )
+    vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
     vec = gates.apply_fswap_gate(
         vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
     vec = gates.apply_num_num_interaction(
         vec, math.pi, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
     )
-    vec = _apply_qubit_swap_defect(
-        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
-    )
+    vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
     return vec
 
 
@@ -637,9 +556,7 @@ def _apply_xx_plus_yy(
     if copy:
         vec = vec.copy()
     i, j = target_orbs
-    vec = _apply_qubit_swap_defect(
-        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
-    )
+    vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
     vec = gates.apply_givens_rotation(
         vec,
         0.5 * theta,
@@ -650,7 +567,5 @@ def _apply_xx_plus_yy(
         spin=spin,
         copy=False,
     )
-    vec = _apply_qubit_swap_defect(
-        vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False
-    )
+    vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
     return vec
