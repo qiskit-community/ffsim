@@ -23,9 +23,14 @@ from qiskit.circuit.library import (
     PhaseGate,
     RZGate,
     RZZGate,
+    SdgGate,
+    SGate,
     SwapGate,
+    TdgGate,
+    TGate,
     XGate,
     XXPlusYYGate,
+    ZGate,
     iSwapGate,
 )
 from qiskit.quantum_info import Statevector
@@ -264,6 +269,73 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
 
     # Check that the state vectors match
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (norb, nelec)
+        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 4))
+        if nelec != (0, 0)
+    ],
+)
+def test_z_s_t_gates_spinful(norb: int, nelec: tuple[int, int]):
+    """Test Z, S, and T gates, spinful."""
+    rng = np.random.default_rng(12285)
+    qubits = QuantumRegister(2 * norb)
+    n_alpha, n_beta = nelec
+    for gate in [ZGate, SGate, SdgGate, TGate, TdgGate]:
+        circuit = QuantumCircuit(qubits)
+        for i in range(n_alpha):
+            circuit.append(XGate(), [qubits[i]])
+        for i in range(n_beta):
+            circuit.append(XGate(), [qubits[norb + i]])
+        for i, j in _brickwork(norb, 2):
+            circuit.append(
+                XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+                [qubits[i], qubits[j]],
+            )
+            circuit.append(
+                XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+                [qubits[norb + i], qubits[norb + j]],
+            )
+        for q in qubits:
+            circuit.append(gate(), [q])
+        ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
+        qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            Statevector(circuit).data, norb=norb, nelec=nelec
+        )
+        np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize(
+    "norb, nocc",
+    [
+        (norb, nocc)
+        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 4))
+        if nocc
+    ],
+)
+def test_z_s_t_gates_spinless(norb: int, nocc: int):
+    """Test Z, S, and T gates, spinless."""
+    rng = np.random.default_rng(12285)
+    qubits = QuantumRegister(norb)
+    for gate in [ZGate, SGate, SdgGate, TGate, TdgGate]:
+        circuit = QuantumCircuit(qubits)
+        for i in range(nocc):
+            circuit.append(XGate(), [qubits[i]])
+        for i, j in _brickwork(norb, 2):
+            circuit.append(
+                XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+                [qubits[i], qubits[j]],
+            )
+        for q in qubits:
+            circuit.append(gate(), [q])
+        ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
+        qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            Statevector(circuit).data, norb=norb, nelec=nocc
+        )
+        np.testing.assert_allclose(ffsim_vec, qiskit_vec)
 
 
 def test_qiskit_gates_norb_nelec():
