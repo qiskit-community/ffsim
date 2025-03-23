@@ -330,9 +330,9 @@
 
 <span class="sd">        2. Use Qiskit gates. The circuit should begin with some ``X`` gates. Next, a</span>
 <span class="sd">        number of unitary gates are applied. The following unitary gates are supported:</span>
-<span class="sd">        [``CPhaseGate``, ``PhaseGate``, ``RZGate``, ``RZZGate``, ``XXPlusYYGate``].</span>
-<span class="sd">        ``XXPlusYYGate``\s must be applied to adjacent qubits. Finally, measurement</span>
-<span class="sd">        gates must only occur at the end of the circuit.</span>
+<span class="sd">        [``CPhaseGate``, ``PhaseGate``, ``RZGate``, ``RZZGate``, ``SwapGate``,</span>
+<span class="sd">        ``XXPlusYYGate``].</span>
+<span class="sd">        Finally, measurement gates must only occur at the end of the circuit.</span>
 
 <span class="sd">        When simulating spinful circuits constructed from Qiskit gates, you should</span>
 <span class="sd">        pass the `norb` and `nelec` arguments to the FfsimSampler initialization.</span>
