@@ -12,6 +12,9 @@
 
 from __future__ import annotations
 
+import itertools
+import random
+
 import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
@@ -20,6 +23,7 @@ from qiskit.circuit.library import (
     PhaseGate,
     RZGate,
     RZZGate,
+    SwapGate,
     XGate,
     XXPlusYYGate,
 )
@@ -147,6 +151,11 @@ def test_random_gates_spinless(norb: int, nocc: int):
 def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test with Qiskit gates, spinful."""
     rng = np.random.default_rng(12285)
+    prng = random.Random(11832)
+    pairs = list(itertools.combinations(range(norb), 2))
+    prng.shuffle(pairs)
+    big_pairs = list(itertools.combinations(range(2 * norb), 2))
+    prng.shuffle(big_pairs)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
@@ -156,7 +165,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(XGate(), [qubits[i]])
     for i in range(n_beta):
         circuit.append(XGate(), [qubits[norb + i]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
@@ -167,13 +176,13 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(2 * norb, norb):
+    for i, j in big_pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(2 * norb, norb):
+    for i, j in big_pairs:
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
@@ -182,6 +191,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[norb + i], qubits[norb + j]],
         )
+    for i, j in pairs:
+        circuit.append(SwapGate(), [qubits[i], qubits[j]])
+        circuit.append(SwapGate(), [qubits[norb + i], qubits[norb + j]])
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
@@ -206,30 +218,35 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 def test_qiskit_gates_spinless(norb: int, nocc: int):
     """Test with Qiskit gates, spinless."""
     rng = np.random.default_rng(12285)
+    prng = random.Random(11832)
+    pairs = list(itertools.combinations(range(norb), 2))
+    prng.shuffle(pairs)
 
     # Construct circuit
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
     for i in range(nocc):
         circuit.append(XGate(), [qubits[i]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    for i, j in _brickwork(norb, norb):
+    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
+    for i, j in pairs:
+        circuit.append(SwapGate(), [qubits[i], qubits[j]])
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
