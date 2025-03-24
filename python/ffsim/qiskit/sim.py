@@ -21,6 +21,7 @@ from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import (
     Barrier,
     CPhaseGate,
+    CZGate,
     Measure,
     PhaseGate,
     RZGate,
@@ -244,6 +245,13 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, CZGate):
+        i, j = qubit_indices
+        vec = gates.apply_num_num_interaction(
+            vec, math.pi, target_orbs=(i, j), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, PhaseGate):
         (orb,) = qubit_indices
         (theta,) = op.params
@@ -423,6 +431,16 @@ def _evolve_state_vector_spinful(
         (theta,) = op.params
         vec = gates.apply_num_op_prod_interaction(
             vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CZGate):
+        i, j = qubit_indices
+        target_orbs: tuple[list[int], list[int]] = ([], [])
+        target_orbs[i >= norb].append(i % norb)
+        target_orbs[j >= norb].append(j % norb)
+        vec = gates.apply_num_op_prod_interaction(
+            vec, math.pi, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
