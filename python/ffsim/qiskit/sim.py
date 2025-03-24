@@ -25,9 +25,14 @@ from qiskit.circuit.library import (
     PhaseGate,
     RZGate,
     RZZGate,
+    SdgGate,
+    SGate,
     SwapGate,
+    TdgGate,
+    TGate,
     XGate,
     XXPlusYYGate,
+    ZGate,
     iSwapGate,
 )
 from qiskit.converters import circuit_to_dag, dag_to_circuit
@@ -271,6 +276,41 @@ def _evolve_state_vector_spinless(
         vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, ZGate):
+        (orb,) = qubit_indices
+        vec = gates.apply_num_interaction(
+            vec, math.pi, orb, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, SGate):
+        (orb,) = qubit_indices
+        vec = gates.apply_num_interaction(
+            vec, 0.5 * math.pi, orb, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, SdgGate):
+        (orb,) = qubit_indices
+        vec = gates.apply_num_interaction(
+            vec, -0.5 * math.pi, orb, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, TGate):
+        (orb,) = qubit_indices
+        vec = gates.apply_num_interaction(
+            vec, 0.25 * math.pi, orb, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, TdgGate):
+        (orb,) = qubit_indices
+        vec = gates.apply_num_interaction(
+            vec, -0.25 * math.pi, orb, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, SwapGate):
         i, j = qubit_indices
         vec = _apply_swap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
@@ -433,6 +473,70 @@ def _evolve_state_vector_spinful(
             copy=False,
         )
         vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, ZGate):
+        (orb,) = qubit_indices
+        spin = Spin.ALPHA if orb < norb else Spin.BETA
+        vec = gates.apply_num_interaction(
+            vec, math.pi, orb % norb, norb=norb, nelec=nelec, spin=spin, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, SGate):
+        (orb,) = qubit_indices
+        spin = Spin.ALPHA if orb < norb else Spin.BETA
+        vec = gates.apply_num_interaction(
+            vec,
+            0.5 * math.pi,
+            orb % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, SdgGate):
+        (orb,) = qubit_indices
+        spin = Spin.ALPHA if orb < norb else Spin.BETA
+        vec = gates.apply_num_interaction(
+            vec,
+            -0.5 * math.pi,
+            orb % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, TGate):
+        (orb,) = qubit_indices
+        spin = Spin.ALPHA if orb < norb else Spin.BETA
+        vec = gates.apply_num_interaction(
+            vec,
+            0.25 * math.pi,
+            orb % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, TdgGate):
+        (orb,) = qubit_indices
+        spin = Spin.ALPHA if orb < norb else Spin.BETA
+        vec = gates.apply_num_interaction(
+            vec,
+            -0.25 * math.pi,
+            orb % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=spin,
+            copy=False,
+        )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, SwapGate):
