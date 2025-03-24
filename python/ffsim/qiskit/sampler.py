@@ -60,13 +60,17 @@ class FfsimSampler(BaseSamplerV2):
 
         2. Use Qiskit gates. The circuit should begin with some ``X`` gates. Next, a
         number of unitary gates are applied. The following unitary gates are supported:
-        [``CPhaseGate``, ``PhaseGate``, ``RZGate``, ``RZZGate``, ``SwapGate``,
-        ``XXPlusYYGate``].
+        [``CPhaseGate``, ``CZGate``, ``GlobalPhaseGate``, ``iSwapGate``, ``PhaseGate``,
+        ``RZGate``, ``RZZGate``, ``SGate``, ``SdgGate``, ``SwapGate``, ``TGate``,
+        ``TdgGate``, ``XXPlusYYGate``, ``ZGate``].
         Finally, measurement gates must only occur at the end of the circuit.
 
         When simulating spinful circuits constructed from Qiskit gates, you should
         pass the `norb` and `nelec` arguments to the FfsimSampler initialization.
         Otherwise, a spinless simulation will be performed, which is less efficient.
+
+        Currently, spinless circuits are limited to 64 qubits, and spinful circuits are
+        limited to 128 qubits.
 
         Args:
             default_shots: The default shots to use if not specified during run.
