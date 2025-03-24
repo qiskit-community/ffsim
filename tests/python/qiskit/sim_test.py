@@ -20,6 +20,7 @@ import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import (
     CPhaseGate,
+    CZGate,
     PhaseGate,
     RZGate,
     RZZGate,
@@ -184,6 +185,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in big_pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+        circuit.append(CZGate(), [qubits[i], qubits[j]])
     for i, j in pairs:
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
         circuit.append(iSwapGate(), [qubits[norb + i], qubits[norb + j]])
@@ -200,7 +202,6 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[norb + i], qubits[norb + j]],
         )
-    for i, j in pairs:
         circuit.append(SwapGate(), [qubits[i], qubits[j]])
         circuit.append(SwapGate(), [qubits[norb + i], qubits[norb + j]])
 
@@ -245,13 +246,12 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    for i, j in pairs:
+        circuit.append(CZGate(), [qubits[i], qubits[j]])
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     for i, j in pairs:
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    for i, j in pairs:
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
