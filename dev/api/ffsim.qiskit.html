@@ -420,12 +420,15 @@ a number of unitary gates from the <code class="docutils literal notranslate"><s
 measurement gates must only occur at the end of the circuit.</p>
 <p>2. Use Qiskit gates. The circuit should begin with some <code class="docutils literal notranslate"><span class="pre">X</span></code> gates. Next, a
 number of unitary gates are applied. The following unitary gates are supported:
-[<code class="docutils literal notranslate"><span class="pre">CPhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">PhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">RZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">RZZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">SwapGate</span></code>,
-<code class="docutils literal notranslate"><span class="pre">XXPlusYYGate</span></code>].
+[<code class="docutils literal notranslate"><span class="pre">CPhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">CZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">GlobalPhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">iSwapGate</span></code>, <code class="docutils literal notranslate"><span class="pre">PhaseGate</span></code>,
+<code class="docutils literal notranslate"><span class="pre">RZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">RZZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">SGate</span></code>, <code class="docutils literal notranslate"><span class="pre">SdgGate</span></code>, <code class="docutils literal notranslate"><span class="pre">SwapGate</span></code>, <code class="docutils literal notranslate"><span class="pre">TGate</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TdgGate</span></code>, <code class="docutils literal notranslate"><span class="pre">XXPlusYYGate</span></code>, <code class="docutils literal notranslate"><span class="pre">ZGate</span></code>].
 Finally, measurement gates must only occur at the end of the circuit.</p>
 <p>When simulating spinful circuits constructed from Qiskit gates, you should
 pass the <cite>norb</cite> and <cite>nelec</cite> arguments to the FfsimSampler initialization.
 Otherwise, a spinless simulation will be performed, which is less efficient.</p>
+<p>Currently, spinless circuits are limited to 64 qubits, and spinful circuits are
+limited to 128 qubits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
