@@ -436,7 +436,7 @@ def _evolve_state_vector_spinful(
 
     if isinstance(op, CZGate):
         i, j = qubit_indices
-        target_orbs: tuple[list[int], list[int]] = ([], [])
+        target_orbs = ([], [])
         target_orbs[i >= norb].append(i % norb)
         target_orbs[j >= norb].append(j % norb)
         vec = gates.apply_num_op_prod_interaction(
