@@ -22,6 +22,7 @@ from qiskit.circuit.library import (
     Barrier,
     CPhaseGate,
     CZGate,
+    GlobalPhaseGate,
     Measure,
     PhaseGate,
     RZGate,
@@ -183,7 +184,7 @@ def _evolve_state_vector_spinless(
 ) -> states.StateVector:
     op = instruction.operation
     qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
-    consecutive_sorted = qubit_indices == list(
+    consecutive_sorted = not qubit_indices or qubit_indices == list(
         range(min(qubit_indices), max(qubit_indices) + 1)
     )
     vec = state_vector.vec
@@ -337,6 +338,11 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, GlobalPhaseGate):
+        (phase,) = op.params
+        vec *= cmath.rect(1, phase)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     raise ValueError(f"Unsupported gate for spinless circuit: {op}.")
 
 
@@ -347,7 +353,7 @@ def _evolve_state_vector_spinful(
 ) -> states.StateVector:
     op = instruction.operation
     qubit_indices = [circuit.find_bit(qubit).index for qubit in instruction.qubits]
-    consecutive_sorted = qubit_indices == list(
+    consecutive_sorted = not qubit_indices or qubit_indices == list(
         range(min(qubit_indices), max(qubit_indices) + 1)
     )
     vec = state_vector.vec
@@ -602,6 +608,11 @@ def _evolve_state_vector_spinful(
             spin=spin,
             copy=False,
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, GlobalPhaseGate):
+        (phase,) = op.params
+        vec *= cmath.rect(1, phase)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     raise ValueError(f"Unsupported gate for spinful circuit: {op}.")
