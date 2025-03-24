@@ -21,6 +21,7 @@ from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import (
     CPhaseGate,
     CZGate,
+    GlobalPhaseGate,
     PhaseGate,
     RZGate,
     RZZGate,
@@ -204,6 +205,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         )
         circuit.append(SwapGate(), [qubits[i], qubits[j]])
         circuit.append(SwapGate(), [qubits[norb + i], qubits[norb + j]])
+    circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
@@ -258,6 +260,7 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         )
     for i, j in pairs:
         circuit.append(SwapGate(), [qubits[i], qubits[j]])
+    circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
