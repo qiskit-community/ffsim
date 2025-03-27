@@ -293,7 +293,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: A state vector in Qiskit format. It should be a one-dimensional vector</span>
-<span class="sd">            of length ``2 ** (2 * norb)``.</span>
+<span class="sd">            of length ``2 ** (2 * norb)`` in the spinful case, and ``2 ** norb`` in the</span>
+<span class="sd">            spinless case.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
 <span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>
@@ -314,7 +315,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        vec: A state vector in ffsim/PySCF format. It should be a one-dimensional vector</span>
-<span class="sd">            of length ``comb(norb, n_alpha) * comb(norb, n_beta)``.</span>
+<span class="sd">            of length ``comb(norb, n_alpha) * comb(norb, n_beta)`` in the spinful case,</span>
+<span class="sd">            and ``comb(norb, nelec)`` in the spinless case.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: Either a single integer representing the number of fermions for a</span>
 <span class="sd">            spinless system, or a pair of integers storing the numbers of spin alpha</span>

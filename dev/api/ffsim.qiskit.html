@@ -1022,7 +1022,8 @@ beta orbitals.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in ffsim/PySCF format. It should be a one-dimensional vector
-of length <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">n_alpha)</span> <span class="pre">*</span> <span class="pre">comb(norb,</span> <span class="pre">n_beta)</span></code>.</p></li>
+of length <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">n_alpha)</span> <span class="pre">*</span> <span class="pre">comb(norb,</span> <span class="pre">n_beta)</span></code> in the spinful case,
+and <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">nelec)</span></code> in the spinless case.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
@@ -1123,7 +1124,8 @@ and orbital rotation gates.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in Qiskit format. It should be a one-dimensional vector
-of length <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">norb)</span></code>.</p></li>
+of length <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">norb)</span></code> in the spinful case, and <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">norb</span></code> in the
+spinless case.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
