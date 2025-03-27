@@ -25,7 +25,8 @@ def qiskit_vec_to_ffsim_vec(
 
     Args:
         vec: A state vector in Qiskit format. It should be a one-dimensional vector
-            of length ``2 ** (2 * norb)``.
+            of length ``2 ** (2 * norb)`` in the spinful case, and ``2 ** norb`` in the
+            spinless case.
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
@@ -43,7 +44,8 @@ def ffsim_vec_to_qiskit_vec(
 
     Args:
         vec: A state vector in ffsim/PySCF format. It should be a one-dimensional vector
-            of length ``comb(norb, n_alpha) * comb(norb, n_beta)``.
+            of length ``comb(norb, n_alpha) * comb(norb, n_beta)`` in the spinful case,
+            and ``comb(norb, nelec)`` in the spinless case.
         norb: The number of spatial orbitals.
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
