@@ -9,5 +9,6 @@ ffsim.linalg
 ffsim.optimize
 ffsim.qiskit
 ffsim.random
+ffsim.tenpy
 ffsim.testing
 ```
