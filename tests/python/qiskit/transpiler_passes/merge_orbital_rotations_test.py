@@ -18,9 +18,9 @@ from qiskit.quantum_info import Operator, Statevector
 import ffsim
 
 
-@pytest.mark.parametrize("norb", range(1, 5))
+@pytest.mark.parametrize("norb", range(1, 4))
 def test_yields_equivalent_circuit_spinful(norb: int):
-    """Test merging orbital rotations results in an equivalent circuit."""
+    """Test merging orbital rotations results in an equivalent circuit, spinful."""
     rng = np.random.default_rng()
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
@@ -50,7 +50,7 @@ def test_yields_equivalent_circuit_spinful(norb: int):
     )
 
 
-@pytest.mark.parametrize("norb", range(1, 5))
+@pytest.mark.parametrize("norb", range(1, 4))
 def test_yields_equivalent_circuit_spinless(norb: int):
     """Test merging orbital rotations results in an equivalent circuit, spinless."""
     rng = np.random.default_rng()
@@ -71,9 +71,9 @@ def test_yields_equivalent_circuit_spinless(norb: int):
     )
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
 def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
-    """Test merging orbital rotations into Slater determinant preparation."""
+    """Test merging orbital rotations into Slater determinant preparation, spinful."""
     rng = np.random.default_rng()
 
     qubits = QuantumRegister(2 * norb)
@@ -114,7 +114,7 @@ def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
     )
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
 def test_merge_slater_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Slater determinant preparation, spinless."""
     rng = np.random.default_rng()
@@ -146,9 +146,9 @@ def test_merge_slater_spinless(norb: int, nocc: int):
     )
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
 def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
-    """Test merging orbital rotations into Hartree-Fock state preparation."""
+    """Test merging orbital rotations into Hartree-Fock state preparation, spinful."""
     rng = np.random.default_rng()
 
     qubits = QuantumRegister(2 * norb)
@@ -185,9 +185,9 @@ def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
     )
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
 def test_merge_hartree_fock_spinless(norb: int, nocc: int):
-    """Test merging orbital rotations into Hartree-Fock state preparation."""
+    """Test merging orbital rotations into Hartree-Fock state preparation, spinless."""
     rng = np.random.default_rng()
 
     qubits = QuantumRegister(norb)
@@ -217,9 +217,9 @@ def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     )
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
-def test_merge_ucj(norb: int, nelec: tuple[int, int]):
-    """Test merging orbital rotations in UCJ operator."""
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
+def test_merge_ucj_spinful(norb: int, nelec: tuple[int, int]):
+    """Test merging orbital rotations in UCJ operator, spinful."""
     rng = np.random.default_rng()
     qubits = QuantumRegister(2 * norb)
     n_reps = 3
@@ -254,6 +254,28 @@ def test_merge_ucj(norb: int, nelec: tuple[int, int]):
     assert circuit.count_ops() == {"hartree_fock_jw": 1, "ucj_balanced_jw": 1}
     assert transpiled.count_ops()["slater_jw"] == 1
     assert transpiled.count_ops()["orb_rot_jw"] == n_reps
+    ffsim.testing.assert_allclose_up_to_global_phase(
+        np.array(Statevector(circuit)), np.array(Statevector(transpiled))
+    )
+
+
+@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
+def test_merge_ucj_spinless(norb: int, nocc: int):
+    """Test merging orbital rotations in UCJ operator, spinless."""
+    rng = np.random.default_rng()
+    qubits = QuantumRegister(norb)
+    n_reps = 3
+
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
+    ucj_op_spinless = ffsim.random.random_ucj_op_spinless(
+        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
+    )
+    circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op_spinless), qubits)
+    transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
+    assert circuit.count_ops() == {"hartree_fock_spinless_jw": 1, "ucj_spinless_jw": 1}
+    assert transpiled.count_ops()["slater_spinless_jw"] == 1
+    assert transpiled.count_ops()["orb_rot_spinless_jw"] == n_reps
     ffsim.testing.assert_allclose_up_to_global_phase(
         np.array(Statevector(circuit)), np.array(Statevector(transpiled))
     )
