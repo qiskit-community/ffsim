@@ -27,6 +27,7 @@ dependencies = [
     "numpy",
     "opt_einsum",
     "orjson",
+    "physics-tenpy >= 1.0.5",
     "pyscf >= 2.7",
     "qiskit >= 1.1",
     "scipy",
