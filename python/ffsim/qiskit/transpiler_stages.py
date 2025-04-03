@@ -39,6 +39,7 @@ def pre_init_passes() -> Iterator[BasePass]:
             "hartree_fock_spinless_jw",
             "ucj_jw",
             "ucj_balanced_jw",
+            "ucj_spinless_jw",
             "ucj_unbalanced_jw",
         ]
     )
