@@ -564,11 +564,6 @@
                 <span class="p">)</span>
                 <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
             <span class="c1"># Diag Coulomb matrices</span>
-            <span class="c1"># for indices, this_diag_coulomb_mat in zip(</span>
-            <span class="c1">#     (pairs_aa, pairs_ab, pairs_bb),</span>
-            <span class="c1">#     diag_coulomb_mat,</span>
-            <span class="c1"># ):</span>
-            <span class="c1">#     if indices:</span>
             <span class="n">n_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">)</span>
             <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n_params</span><span class="p">]</span>
