@@ -291,11 +291,6 @@ class UCJOpSpinUnbalanced:
                 )
                 index += n_params
             # Diag Coulomb matrices
-            # for indices, this_diag_coulomb_mat in zip(
-            #     (pairs_aa, pairs_ab, pairs_bb),
-            #     diag_coulomb_mat,
-            # ):
-            #     if indices:
             n_params = len(pairs_aa)
             rows, cols = zip(*pairs_aa)
             vals = params[index : index + n_params]
