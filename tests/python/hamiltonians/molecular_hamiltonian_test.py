@@ -162,3 +162,27 @@ def test_rotated():
     original_expectation = np.vdot(vec, linop @ vec)
     rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
     np.testing.assert_allclose(original_expectation, rotated_expectation)
+
+
+def test_from_fermion_operator():
+    norb = 5
+
+    rng = np.random.default_rng() 
+
+    # generate a random molecular hamiltonian 
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=rng)
+
+    # convert to fermion op
+    mol_hamiltonian_fops = ffsim.fermion_operator(mol_hamiltonian)
+    mol_hamiltonian_fops.normal_ordered()
+    mol_hamiltonian_fops.simplify()
+
+    # convert back from fermion op to ham
+    mol_hamiltonian_from_ferm = ffsim.MolecularHamiltonian.from_fermion_operator(mol_hamiltonian_fops)
+
+
+    # check they are matching
+    np.testing.assert_allclose(mol_hamiltonian.constant, mol_hamiltonian_from_ferm.constant)
+    np.testing.assert_allclose(mol_hamiltonian.one_body_tensor, mol_hamiltonian_from_ferm.one_body_tensor)
+    np.testing.assert_allclose(mol_hamiltonian.two_body_tensor, mol_hamiltonian_from_ferm.two_body_tensor)
+

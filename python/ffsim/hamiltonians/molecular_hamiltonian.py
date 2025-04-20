@@ -185,8 +185,6 @@ class MolecularHamiltonian:
                 (_, _, p), (_, _, q) = term
                 valid_1b = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
                 if term in valid_1b:
-                    # ffsim emits two spin terms each with coeff = h_{pq},
-                    # so sum ½·coeff + ½·coeff = h_{pq}
                     one_body_tensor[p, q] += 0.5 * coeff.real
                 else:
                     raise ValueError(f"Invalid one-body term {term}")
@@ -212,7 +210,7 @@ class MolecularHamiltonian:
                 key = (p, q, r, s)
                 if key not in seen_2b:
                     seen_2b[key] = None
-                    # ffsim emits coeff = ½·h_{pqrs}, so multiply by 2
+
                     h_pqrs = 2.0 * coeff.real
                     # fill (p,q,r,s) and its 7 symmetric equivalents
                     for a, b, c, d in [
