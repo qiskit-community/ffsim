@@ -174,8 +174,6 @@ def test_from_fermion_operator():
 
     # convert to fermion op
     mol_hamiltonian_fops = ffsim.fermion_operator(mol_hamiltonian)
-    mol_hamiltonian_fops.normal_ordered()
-    mol_hamiltonian_fops.simplify()
 
     # convert back from fermion op to ham
     mol_hamiltonian_from_ferm = ffsim.MolecularHamiltonian.from_fermion_operator(mol_hamiltonian_fops)
