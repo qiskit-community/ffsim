@@ -3,9 +3,10 @@
 ```{toctree}
 :maxdepth: 1
 
-lucj
+simulate-lucj
 entanglement-forging
 fermion-operator
-qiskit-circuits
-qiskit-sampler
+qiskit-lucj
+qiskit-circuits-sim
+qiskit-merge-orbital-rotations
 ```
