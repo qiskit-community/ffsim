@@ -249,8 +249,8 @@ def test_diag_coulomb_to_linop():
     """Test converting a diagonal Coulomb matrix to a linear operator."""
     norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
+    n_alpha = int(rng.integers(1, norb + 1))
+    n_beta = int(rng.integers(1, norb + 1))
     nelec = (n_alpha, n_beta)
     dim = ffsim.dim(norb, nelec)
 
