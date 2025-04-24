@@ -26,8 +26,8 @@ def test_contract_num_op_sum(norb: int):
     """Test contracting sum of number operators."""
     rng = np.random.default_rng()
     for _ in range(50):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
+        n_alpha = int(rng.integers(1, norb + 1))
+        n_beta = int(rng.integers(1, norb + 1))
         nelec = (n_alpha, n_beta)
         alpha_orbitals = cast(Sequence[int], rng.choice(norb, n_alpha, replace=False))
         beta_orbitals = cast(Sequence[int], rng.choice(norb, n_beta, replace=False))
@@ -53,8 +53,8 @@ def test_num_op_sum_to_linop():
     """Test converting a num op sum to a linear operator."""
     norb = 5
     rng = np.random.default_rng()
-    n_alpha = rng.integers(1, norb + 1)
-    n_beta = rng.integers(1, norb + 1)
+    n_alpha = int(rng.integers(1, norb + 1))
+    n_beta = int(rng.integers(1, norb + 1))
     nelec = (n_alpha, n_beta)
     dim = ffsim.dim(norb, nelec)
 
