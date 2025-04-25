@@ -205,7 +205,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
@@ -215,8 +215,9 @@
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-lucj.html">How to build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-circuits-sim.html">How to simulate excitation-preserving Qiskit circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-merge-orbital-rotations.html">How to merge orbital rotations in Qiskit circuits</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -251,12 +252,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/blob/main/docs/how-to-guides/lucj.ipynb?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/blob/main/docs/how-to-guides/simulate-lucj.ipynb?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/edit/main/docs/how-to-guides/lucj.ipynb" title="Edit this page">
+  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/edit/main/docs/how-to-guides/simulate-lucj.ipynb" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -331,9 +332,9 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.8266321248744
-Parsing /tmp/tmpn12n8am6
+Parsing /tmp/tmp8igez5sh
 converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643862  E(CI) = -4.02122442107773  S^2 = 0.0000000
+CASCI E = -77.8742165643863  E(CI) = -4.02122442107772  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -388,8 +389,8 @@ Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf.RHF&#
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374029  E_corr = -0.04758323886585027
-Energy at initialization: -77.87160024816303
+E(CCSD) = -77.87421536374026  E_corr = -0.04758323886585607
+Energy at initialization: -77.87160024816268
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -424,15 +425,15 @@ Energy at initialization: -77.87160024816303
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 72
-  message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
-  success: False
-   status: 1
-      fun: -77.87387390889857
-        x: [-6.560e-05 -1.356e+00 ...  4.497e-04  1.287e-01]
-      nit: 10
-      jac: [-2.132e-05  4.263e-06 ...  4.263e-06 -1.137e-05]
-     nfev: 876
-     njev: 12
+  message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
+  success: True
+   status: 0
+      fun: -77.87387355080654
+        x: [ 4.123e-04 -4.417e-01 ...  5.995e-04  1.285e-01]
+      nit: 8
+      jac: [-2.842e-05 -2.700e-05 ... -4.405e-05 -2.103e-04]
+     nfev: 803
+     njev: 11
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -478,10 +479,10 @@ Number of parameters: 46
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.8736342619676
-        x: [ 1.102e-04 -1.355e+00 ...  3.518e-02  2.561e-01]
+      fun: -77.87363426493953
+        x: [-4.290e-05 -4.414e-01 ...  3.519e-02  2.561e-01]
       nit: 5
-      jac: [-7.105e-06 -2.274e-05 ...  4.263e-06 -1.279e-05]
+      jac: [ 3.695e-05  1.847e-05 ... -1.421e-06  2.842e-06]
      nfev: 329
      njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -559,29 +560,29 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Convergence: Relative reduction of objective function &lt;= ftol.
  success: True
-     fun: -77.87363439606558
-       x: [-1.499e-03 -1.355e+00 ...  3.421e-02  2.560e-01]
+     fun: -77.87363467800999
+       x: [ 2.276e-03 -4.413e-01 ...  3.476e-02  2.557e-01]
      nit: 3
-     jac: [-2.253e-06  8.040e-06 ... -6.725e-07 -1.180e-06]
-    nfev: 511
+     jac: [ 3.718e-06 -6.887e-06 ... -1.200e-06 -4.177e-06]
+    nfev: 472
     njev: 4
-  nlinop: 327
+  nlinop: 288
 
 Iteration 1
-    Energy: -77.87362542377775
-    Norm of gradient: 0.002584231098831718
-    Regularization hyperparameter: 0.0015768063987930125
-    Variation hyperparameter: 0.976059847839899
+    Energy: -77.8736285697328
+    Norm of gradient: 0.0018853652081684577
+    Regularization hyperparameter: 0.0012682582860595237
+    Variation hyperparameter: 0.9839785187684322
 Iteration 2
-    Energy: -77.87363430334793
-    Norm of gradient: 0.0001056260376998214
-    Regularization hyperparameter: 0.003202426629547035
-    Variation hyperparameter: 0.9728418967042893
+    Energy: -77.87363432105596
+    Norm of gradient: 8.665991399059374e-05
+    Regularization hyperparameter: 0.0020051665100207544
+    Variation hyperparameter: 0.9802952092786488
 Iteration 3
-    Energy: -77.87363439606558
-    Norm of gradient: 3.7972712962551554e-05
-    Regularization hyperparameter: 0.0003349432696658272
-    Variation hyperparameter: 0.9763375541536747
+    Energy: -77.87363467800999
+    Norm of gradient: 7.355367582066043e-05
+    Regularization hyperparameter: 0.0005745938650566168
+    Variation hyperparameter: 0.9762293274701184
 </pre></div></div>
 </div>
 </section>
