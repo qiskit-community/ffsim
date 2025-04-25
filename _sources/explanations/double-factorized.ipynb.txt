@@ -91,7 +91,7 @@
     "\n",
     "We have that\n",
     "\n",
-    "- $H_0$ is a quadratic Hamiltonian and can be simulated as described in [Orbital rotations and quadratic Hamiltonians](orbital-rotation.ipynb#Time-evolution-by-a-quadratic-Hamiltonian), and\n",
+    "- $H_0$ is a quadratic Hamiltonian and can be simulated as described on [this page](orbital-rotation.ipynb#Application-to-time-evolution-by-a-quadratic-Hamiltonian), and\n",
     "- $H_k$ is a diagonal Coulomb operator (up to an orbital rotation) for $k = 1, \\ldots, L$, and ffsim includes the function [apply_diag_coulomb_evolution](../api/ffsim.rst#ffsim.apply_diag_coulomb_evolution) for simulating time evolution by such an operator.\n",
     "\n",
     "Given the ability to simulate each of the individual terms, we can implement Trotter-Suzuki formulas for time evolution by the entire Hamiltonian. This is implemented in ffsim by the function [simulate_trotter_double_factorized](../api/ffsim.rst#ffsim.simulate_trotter_double_factorized), which implements higher-order Trotter-Suzuki formulas in addition to the first-order asymmetric formula mentioned previously. The first-order asymmetric formula corresponds to setting the argument `order=0`, which is the default. `order=1` corresponds to the first-order symmetric (commonly known as the second-order) formula, `order=2` corresponds to the second-order symmetric (fourth-order) formula, and so on."

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.random" href="ffsim.random.html" /><link rel="prev" title="ffsim.optimize" href="ffsim.optimize.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ffsim.qiskit - ffsim 0.0.52</title>
+        <title>ffsim.qiskit - ffsim 0.0.53</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.52</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.53</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.52</span>
+  <span class="sidebar-brand-text">ffsim 0.0.53</span>
   
 </a>
 
@@ -204,18 +204,19 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations and quadratic Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/simulate-lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits.html">How to build and transpile Qiskit quantum circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-sampler.html">How to use ffsim’s Qiskit Sampler primitive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-lucj.html">How to build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits-sim.html">How to simulate excitation-preserving Qiskit circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-merge-orbital-rotations.html">How to merge orbital rotations in Qiskit circuits</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -420,12 +421,15 @@ a number of unitary gates from the <code class="docutils literal notranslate"><s
 measurement gates must only occur at the end of the circuit.</p>
 <p>2. Use Qiskit gates. The circuit should begin with some <code class="docutils literal notranslate"><span class="pre">X</span></code> gates. Next, a
 number of unitary gates are applied. The following unitary gates are supported:
-[<code class="docutils literal notranslate"><span class="pre">CPhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">PhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">RZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">RZZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">XXPlusYYGate</span></code>].
-<code class="docutils literal notranslate"><span class="pre">XXPlusYYGate</span></code>s must be applied to adjacent qubits. Finally, measurement
-gates must only occur at the end of the circuit.</p>
+[<code class="docutils literal notranslate"><span class="pre">CPhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">CZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">GlobalPhaseGate</span></code>, <code class="docutils literal notranslate"><span class="pre">iSwapGate</span></code>, <code class="docutils literal notranslate"><span class="pre">PhaseGate</span></code>,
+<code class="docutils literal notranslate"><span class="pre">RZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">RZZGate</span></code>, <code class="docutils literal notranslate"><span class="pre">SGate</span></code>, <code class="docutils literal notranslate"><span class="pre">SdgGate</span></code>, <code class="docutils literal notranslate"><span class="pre">SwapGate</span></code>, <code class="docutils literal notranslate"><span class="pre">TGate</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TdgGate</span></code>, <code class="docutils literal notranslate"><span class="pre">XXPlusYYGate</span></code>, <code class="docutils literal notranslate"><span class="pre">ZGate</span></code>].
+Finally, measurement gates must only occur at the end of the circuit.</p>
 <p>When simulating spinful circuits constructed from Qiskit gates, you should
 pass the <cite>norb</cite> and <cite>nelec</cite> arguments to the FfsimSampler initialization.
 Otherwise, a spinless simulation will be performed, which is less efficient.</p>
+<p>Currently, spinless circuits are limited to 64 qubits, and spinful circuits are
+limited to 128 qubits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1019,7 +1023,8 @@ beta orbitals.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in ffsim/PySCF format. It should be a one-dimensional vector
-of length <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">n_alpha)</span> <span class="pre">*</span> <span class="pre">comb(norb,</span> <span class="pre">n_beta)</span></code>.</p></li>
+of length <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">n_alpha)</span> <span class="pre">*</span> <span class="pre">comb(norb,</span> <span class="pre">n_beta)</span></code> in the spinful case,
+and <code class="docutils literal notranslate"><span class="pre">comb(norb,</span> <span class="pre">nelec)</span></code> in the spinless case.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
@@ -1120,7 +1125,8 @@ and orbital rotation gates.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – A state vector in Qiskit format. It should be a one-dimensional vector
-of length <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">norb)</span></code>.</p></li>
+of length <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">norb)</span></code> in the spinful case, and <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">**</span> <span class="pre">norb</span></code> in the
+spinless case.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Either a single integer representing the number of fermions for a
 spinless system, or a pair of integers storing the numbers of spin alpha
@@ -1300,7 +1306,7 @@ and spin beta fermions.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=73f2ab08"></script>
+</div><script src="../_static/documentation_options.js?v=d78a2f11"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
