@@ -172,31 +172,31 @@ class MolecularHamiltonian:
         two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
 
         # track which (p,q,r,s) we've already processed
-        seen_2b: Dict[Tuple[int,int,int,int], None] = {}
+        seen_2b = set()
 
         for term, coeff in op.items():
             # constant term: empty tuple
-            if not term:
+            if len(term) == 0:
+                assert np.isclose(coeff.image, 0, atol=1e-8), f"coeff {coeff} should be real"
                 constant = coeff.real
-                continue
+
 
             # one‑body term: a†_σ,p a_σ,q  (σ = α or β)
-            if len(term) == 2:
+            elif len(term) == 2:
                 (_, _, p), (_, _, q) = term
                 valid_1b = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
                 if term in valid_1b:
-                    one_body_tensor[p, q] += 0.5 * coeff.real
+                    one_body_tensor[p, q] += 0.5 * coeff
                 else:
-                    raise ValueError(f"Invalid one-body term {term}")
-                continue
+                    raise ValueError(
+                        "FermionOperator cannot be converted to "
+                        f"MolecularHamiltonian. The one-body term {term} is not "
+                        "of the form a^\\dagger_{\\sigma, p} a_{\\sigma, q}."
+                    )
 
             # two‑body term: a†_σ,p a†_τ,r a_τ,s a_σ,q
-            if len(term) == 4:
-                (i1, i2, i3, i4) = term
-                _, _, p = i1
-                _, _, r = i2
-                _, _, s = i3
-                _, _, q = i4
+            elif len(term) == 4:
+                (_, _, p), (_, _, r), (_, _, s), (_, _, q) = term
 
                 valid_2b = [
                     (cre_a(p), cre_a(r), des_a(s), des_a(q)),
@@ -205,13 +205,17 @@ class MolecularHamiltonian:
                     (cre_b(p), cre_b(r), des_b(s), des_b(q)),
                 ]
                 if term not in valid_2b:
-                    raise ValueError(f"Invalid two-body term {term}")
+                    raise ValueError(
+                        "FermionOperator cannot be converted to "
+                        f"MolecularHamiltonian. The two-body term {term} is not "
+                        "of the form a^{\\dagger}_{\\sigma, p} a^{\\dagger}_{\\sigma, r} a_{\\sigma, s} a_{\\sigma, q}, or "
+                        "a^{\\dagger}_{\\sigma, p} a^{\\dagger}_{\\tau, r} a_{\\tau, s} a_{\\sigma, q}."
+                    )
 
                 key = (p, q, r, s)
                 if key not in seen_2b:
-                    seen_2b[key] = None
 
-                    h_pqrs = 2.0 * coeff.real
+                    h_pqrs = 2.0 * coeff
                     # fill (p,q,r,s) and its 7 symmetric equivalents
                     for a, b, c, d in [
                         (p, q, r, s), (q, p, r, s),
@@ -220,13 +224,15 @@ class MolecularHamiltonian:
                         (r, s, q, p), (s, r, q, p),
                     ]:
                         two_body_tensor[a, b, c, d] = h_pqrs
-                continue
 
-            # anything else
-            raise ValueError(f"Term of length {len(term)} not supported: {term}")
+            # more terms
+            else:
+                raise ValueError(
+                    "FermionOperator cannot be converted to MolecularHamiltonian."
+                    f" The term {term} is neither a constant, one-body, or two-body "
+                    "term."
+                )
 
-        # enforce Hermiticity on the one‑body tensor
-        one_body_tensor = (one_body_tensor + one_body_tensor.T.conj()) * 0.5
 
         return MolecularHamiltonian(
             one_body_tensor=one_body_tensor,
