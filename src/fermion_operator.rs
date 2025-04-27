@@ -576,7 +576,7 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
                     }
                 } else if action_right && !action_left {
                     // create on right and destroy on left
-                    if index_right == index_left {
+                    if (spin_right, index_right) == (spin_left, index_left) {
                         // add new term
                         let mut new_term: Vec<(bool, bool, i32)> = Vec::new();
                         new_term.extend(&term[..j - 1]);
