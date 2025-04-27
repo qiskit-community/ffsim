@@ -125,9 +125,15 @@ class DiagonalCoulombHamiltonian:
 
         # populate the tensors
         for term, coeff in op.items():
-            if not term:  # constant term
+            if not term:
+                # constant term
+                if coeff.imag:
+                    raise ValueError(
+                        f"Constant term must be real. Instead, got {coeff}."
+                    )
                 constant = coeff.real
-            elif len(term) == 2:  # one-body term candidate
+            elif len(term) == 2:
+                # one-body term
                 (_, _, p), (_, _, q) = term
                 valid_terms = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
                 if term in valid_terms:
@@ -138,7 +144,8 @@ class DiagonalCoulombHamiltonian:
                         f"DiagonalCoulombHamiltonian. The one-body term {term} is not "
                         "of the form a^\\dagger_{\\sigma, p} a_{\\sigma, q}."
                     )
-            elif len(term) == 4:  # two-body term candidate
+            elif len(term) == 4:
+                # two-body term
                 (_, _, p), _, (_, _, q), _ = term
                 valid_terms_same_spin = [
                     (cre_a(p), des_a(p), cre_a(q), des_a(q)),
@@ -194,3 +201,18 @@ class DiagonalCoulombHamiltonian:
         h1e = (one_body_tensor, one_body_tensor)
         h2e = (two_body_tensor_aa, two_body_tensor_ab, two_body_tensor_aa)
         return make_hdiag(h1e, h2e, norb=norb, nelec=nelec) + self.constant
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, DiagonalCoulombHamiltonian):
+            if not np.allclose(self.constant, other.constant, rtol=rtol, atol=atol):
+                return False
+            if not np.allclose(
+                self.one_body_tensor, other.one_body_tensor, rtol=rtol, atol=atol
+            ):
+                return False
+            if not np.allclose(
+                self.diag_coulomb_mats, other.diag_coulomb_mats, rtol=rtol, atol=atol
+            ):
+                return False
+            return True
+        return NotImplemented
