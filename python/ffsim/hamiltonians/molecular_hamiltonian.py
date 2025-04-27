@@ -177,7 +177,8 @@ class MolecularHamiltonian:
         for term, coeff in op.items():
             # constant term: empty tuple
             if len(term) == 0:
-                assert np.isclose(coeff.image, 0, atol=1e-8), f"coeff {coeff} should be real"
+                if coeff.imag:
+                    raise ValueError(f"Constant term must be real. Instead, got {coeff}.")
                 constant = coeff.real
 
 
