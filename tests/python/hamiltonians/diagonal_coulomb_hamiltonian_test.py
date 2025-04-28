@@ -16,8 +16,6 @@ import numpy as np
 import pytest
 
 import ffsim
-from ffsim import fermi_hubbard_1d, fermi_hubbard_2d
-from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamiltonian
 
 
 @pytest.mark.parametrize(
@@ -103,176 +101,76 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
-    ],
-)
-def test_from_fermion_operator(norb: int, nelec: tuple[int, int]):
-    """Test from_fermion_operator method."""
-    dim = ffsim.dim(norb, nelec)
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_from_fermion_operator_random(norb: int):
+    """Test initialization from FermionOperator with random Hamiltonian."""
     rng = np.random.default_rng()
-
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    diag_coulomb_mats = np.empty((2, norb, norb), dtype=float)
-    for i in range(2):
-        diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
-            norb, seed=rng, dtype=float
-        )
-        diag_coulomb_mats[i] = diag_coulomb_mat
-    constant = rng.standard_normal()
-
-    dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
-        one_body_tensor, diag_coulomb_mats, constant=constant
-    )
-
+    dc_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)
     op = ffsim.fermion_operator(dc_hamiltonian)
-    dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
-    actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
-    expected_linop = ffsim.linear_operator(op, norb, nelec)
-
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
-    actual = actual_linop @ vec
-    expected = expected_linop @ vec
-    np.testing.assert_allclose(actual, expected)
+    roundtripped = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
+    assert ffsim.approx_eq(roundtripped, dc_hamiltonian)
 
 
-def test_from_fermion_operator_failure():
-    """Test from_fermion_operator method failure."""
+def test_from_fermion_operator_errors():
+    """Test from_fermion_operator raises errors correctly."""
     norb = 4
     rng = np.random.default_rng()
 
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
-    constant = rng.standard_normal()
-
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant=constant
-    )
-
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
     op = ffsim.fermion_operator(mol_hamiltonian)
+    with pytest.raises(ValueError, match="two-body"):
+        _ = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
-    with pytest.raises(
-        ValueError,
-        match="FermionOperator cannot be converted to DiagonalCoulombHamiltonian",
-    ):
-        DiagonalCoulombHamiltonian.from_fermion_operator(op)
+    dc_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)
+    op = ffsim.fermion_operator(dc_hamiltonian)
+    op[()] += 1j
+    with pytest.raises(ValueError, match="Constant"):
+        _ = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
-    ],
-)
-def test_from_fermion_operator_fermi_hubbard_1d(norb: int, nelec: tuple[int, int]):
+@pytest.mark.parametrize("periodic", [False, True])
+def test_from_fermion_operator_fermi_hubbard_1d(periodic: bool):
     """Test from_fermion_operator method with the fermi_hubbard_1d model."""
-    dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
-
-    # open boundary conditions
-    op = fermi_hubbard_1d(
+    tunneling, interaction, chemical_potential, nearest_neighbor_interaction = (
+        rng.standard_normal(4)
+    )
+    op = ffsim.fermi_hubbard_1d(
         norb=4,
-        tunneling=1,
-        interaction=2,
-        chemical_potential=3,
-        nearest_neighbor_interaction=4,
+        tunneling=tunneling,
+        interaction=interaction,
+        chemical_potential=chemical_potential,
+        nearest_neighbor_interaction=nearest_neighbor_interaction,
+        periodic=periodic,
     )
-
-    dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
-    actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
-    expected_linop = ffsim.linear_operator(op, norb, nelec)
-
-    actual = actual_linop @ vec
-    expected = expected_linop @ vec
-    np.testing.assert_allclose(actual, expected)
-
-    # periodic boundary conditions
-    op_periodic = fermi_hubbard_1d(
-        norb=4,
-        tunneling=1,
-        interaction=2,
-        chemical_potential=3,
-        nearest_neighbor_interaction=4,
-        periodic=True,
-    )
-
-    dc_hamiltonian_from_op_periodic = DiagonalCoulombHamiltonian.from_fermion_operator(
-        op_periodic
-    )
-    actual_linop_periodic = ffsim.linear_operator(
-        dc_hamiltonian_from_op_periodic, norb, nelec
-    )
-    expected_linop_periodic = ffsim.linear_operator(op_periodic, norb, nelec)
-
-    actual_periodic = actual_linop_periodic @ vec
-    expected_periodic = expected_linop_periodic @ vec
-    np.testing.assert_allclose(actual_periodic, expected_periodic)
+    op.simplify()
+    dc_ham = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
+    roundtripped = ffsim.fermion_operator(dc_ham)
+    roundtripped.simplify()
+    assert roundtripped.normal_ordered() == op.normal_ordered()
 
 
-@pytest.mark.parametrize(
-    "norb, nelec",
-    [
-        (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
-    ],
-)
-def test_from_fermion_operator_fermi_hubbard_2d(norb: int, nelec: tuple[int, int]):
+@pytest.mark.parametrize("periodic", [False, True])
+def test_from_fermion_operator_fermi_hubbard_2d(periodic: bool):
     """Test from_fermion_operator method with the fermi_hubbard_2d model."""
-    dim = ffsim.dim(norb, nelec)
     rng = np.random.default_rng()
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
-
-    # open boundary conditions
-    op = fermi_hubbard_2d(
+    tunneling, interaction, chemical_potential, nearest_neighbor_interaction = (
+        rng.standard_normal(4)
+    )
+    op = ffsim.fermi_hubbard_2d(
         norb_x=2,
         norb_y=2,
-        tunneling=1,
-        interaction=2,
-        chemical_potential=3,
-        nearest_neighbor_interaction=4,
+        tunneling=tunneling,
+        interaction=interaction,
+        chemical_potential=chemical_potential,
+        nearest_neighbor_interaction=nearest_neighbor_interaction,
+        periodic=periodic,
     )
-
-    dc_hamiltonian_from_op = DiagonalCoulombHamiltonian.from_fermion_operator(op)
-    actual_linop = ffsim.linear_operator(dc_hamiltonian_from_op, norb, nelec)
-    expected_linop = ffsim.linear_operator(op, norb, nelec)
-
-    actual = actual_linop @ vec
-    expected = expected_linop @ vec
-    np.testing.assert_allclose(actual, expected)
-
-    # periodic boundary conditions
-    op_periodic = fermi_hubbard_2d(
-        norb_x=2,
-        norb_y=2,
-        tunneling=1,
-        interaction=2,
-        chemical_potential=3,
-        nearest_neighbor_interaction=4,
-        periodic=True,
-    )
-
-    dc_hamiltonian_from_op_periodic = DiagonalCoulombHamiltonian.from_fermion_operator(
-        op_periodic
-    )
-    actual_linop_periodic = ffsim.linear_operator(
-        dc_hamiltonian_from_op_periodic, norb, nelec
-    )
-    expected_linop_periodic = ffsim.linear_operator(op_periodic, norb, nelec)
-
-    actual_periodic = actual_linop_periodic @ vec
-    expected_periodic = expected_linop_periodic @ vec
-    np.testing.assert_allclose(actual_periodic, expected_periodic)
+    op.simplify()
+    dc_ham = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
+    roundtripped = ffsim.fermion_operator(dc_ham)
+    roundtripped.simplify()
+    assert roundtripped.normal_ordered() == op.normal_ordered()
 
 
 def test_diag():
