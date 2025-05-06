@@ -279,8 +279,10 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">opt_einsum</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.fci.direct_nosym</span><span class="w"> </span><span class="kn">import</span> <span class="n">absorb_h1e</span><span class="p">,</span> <span class="n">contract_2e</span><span class="p">,</span> <span class="n">make_hdiag</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearOperator</span>
@@ -322,6 +324,30 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">norb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of spatial orbitals.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MolecularHamiltonian.one_body_tensor_spinless">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonian.one_body_tensor_spinless">[docs]</a>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">one_body_tensor_spinless</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The one-body tensor in spinless format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MolecularHamiltonian.two_body_tensor_spinless">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonian.two_body_tensor_spinless">[docs]</a>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">two_body_tensor_spinless</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The two-body tensor in spinless format.&quot;&quot;&quot;</span>
+        <span class="n">norb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span>
+        <span class="n">tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="p">)</span>
+        <span class="n">tensor</span><span class="p">[:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span>
+        <span class="n">tensor</span><span class="p">[:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span>
+        <span class="n">tensor</span><span class="p">[</span><span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span>
+        <span class="n">tensor</span><span class="p">[</span><span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span>
+        <span class="k">return</span> <span class="n">tensor</span></div>
+
 
 <div class="viewcode-block" id="MolecularHamiltonian.rotated">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonian.rotated">[docs]</a>

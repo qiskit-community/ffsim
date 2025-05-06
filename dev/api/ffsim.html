@@ -1527,6 +1527,12 @@ the two-body tensor.</p>
 <dd><p>The number of spatial orbitals.</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.one_body_tensor_spinless">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">one_body_tensor_spinless</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian.one_body_tensor_spinless"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonian.one_body_tensor_spinless" title="Link to this definition">¶</a></dt>
+<dd><p>The one-body tensor in spinless format.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.rotated">
 <span class="sig-name descname"><span class="pre">rotated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian.rotated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonian.rotated" title="Link to this definition">¶</a></dt>
@@ -1548,6 +1554,12 @@ the two-body tensor.</p>
 <dd class="field-odd"><p>The rotated Hamiltonian.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.two_body_tensor_spinless">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">two_body_tensor_spinless</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian.two_body_tensor_spinless"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonian.two_body_tensor_spinless" title="Link to this definition">¶</a></dt>
+<dd><p>The two-body tensor in spinless format.</p>
 </dd></dl>
 
 </dd></dl>
@@ -4478,6 +4490,68 @@ the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.spinful_to_spinless_rdm1">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">spinful_to_spinless_rdm1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#spinful_to_spinless_rdm1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.spinful_to_spinless_rdm1" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a spinful 1-RDM to a spinless 1-RDM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat_a</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The spin alpha part of the 1-RDM.</p></li>
+<li><p><strong>mat_b</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The spin beta part of the 1-RDM.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The 1-RDM as a single matrix in spinless format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.spinful_to_spinless_rdm2">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">spinful_to_spinless_rdm2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat_aa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_ab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_bb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#spinful_to_spinless_rdm2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.spinful_to_spinless_rdm2" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a spinful 2-RDM to a spinless 2-RDM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat_aa</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The alpha-alpha part of the 2-RDM.</p></li>
+<li><p><strong>mat_ab</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The alpha-beta part of the 2-RDM.</p></li>
+<li><p><strong>mat_bb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The beta-beta part of the 2-RDM.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The 2-RDM as a single tensor in spinless format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.spinful_to_spinless_vec">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">spinful_to_spinless_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/states.html#spinful_to_spinless_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.spinful_to_spinless_vec" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a spinful state vector to a spinless state vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The state vector in spinful format.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The numbers of spin alpha and spin beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The state vector in spinless format, with norb = norb and nocc = sum(nelec).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.strings_to_addresses">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">strings_to_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/bitstring.html#strings_to_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.strings_to_addresses" title="Link to this definition">¶</a></dt>
 <dd><p>Convert bitstrings to state vector addresses.</p>
@@ -4733,7 +4807,9 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.two_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.two_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.constant</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonian.one_body_tensor_spinless"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.one_body_tensor_spinless</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.rotated"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.rotated()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonian.two_body_tensor_spinless"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.two_body_tensor_spinless</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced</span></code></a><ul>
@@ -4877,6 +4953,9 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_amplitudes"><code class="docutils literal notranslate"><span class="pre">slater_determinant_amplitudes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_rdms"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdms()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.spin_square"><code class="docutils literal notranslate"><span class="pre">spin_square()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.spinful_to_spinless_rdm1"><code class="docutils literal notranslate"><span class="pre">spinful_to_spinless_rdm1()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.spinful_to_spinless_rdm2"><code class="docutils literal notranslate"><span class="pre">spinful_to_spinless_rdm2()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.spinful_to_spinless_vec"><code class="docutils literal notranslate"><span class="pre">spinful_to_spinless_vec()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.strings_to_addresses"><code class="docutils literal notranslate"><span class="pre">strings_to_addresses()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
 </ul>

@@ -285,6 +285,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.fci.spin_op</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract_ss</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.states.bitstring</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -292,6 +293,7 @@
     <span class="n">addresses_to_strings</span><span class="p">,</span>
     <span class="n">concatenate_bitstrings</span><span class="p">,</span>
     <span class="n">restrict_bitstrings</span><span class="p">,</span>
+    <span class="n">strings_to_addresses</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -545,6 +547,75 @@
         <span class="n">nelec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">nelec</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">vec</span>
     <span class="k">return</span> <span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span>
+
+
+<div class="viewcode-block" id="spinful_to_spinless_vec">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.spinful_to_spinless_vec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spinful_to_spinless_vec</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a spinful state vector to a spinless state vector.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec: The state vector in spinful format.</span>
+<span class="sd">        norb: The number of spatial orbitals.</span>
+<span class="sd">        nelec: The numbers of spin alpha and spin beta electrons.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The state vector in spinless format, with norb = norb and nocc = sum(nelec).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nocc</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nelec</span><span class="p">)</span>
+    <span class="n">old_dim</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+    <span class="n">new_dim</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nocc</span><span class="p">)</span>
+    <span class="n">new_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">new_dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">vec</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">strings</span> <span class="o">=</span> <span class="n">addresses_to_strings</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">old_dim</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+    <span class="n">addresses</span> <span class="o">=</span> <span class="n">strings_to_addresses</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nocc</span><span class="p">)</span>
+    <span class="n">new_vec</span><span class="p">[</span><span class="n">addresses</span><span class="p">]</span> <span class="o">=</span> <span class="n">vec</span>
+    <span class="k">return</span> <span class="n">new_vec</span></div>
+
+
+
+<div class="viewcode-block" id="spinful_to_spinless_rdm1">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.spinful_to_spinless_rdm1">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spinful_to_spinless_rdm1</span><span class="p">(</span><span class="n">mat_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mat_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a spinful 1-RDM to a spinless 1-RDM.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mat_a: The spin alpha part of the 1-RDM.</span>
+<span class="sd">        mat_b: The spin beta part of the 1-RDM.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The 1-RDM as a single matrix in spinless format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">mat_a</span><span class="p">,</span> <span class="n">mat_b</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="spinful_to_spinless_rdm2">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.spinful_to_spinless_rdm2">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spinful_to_spinless_rdm2</span><span class="p">(</span>
+    <span class="n">mat_aa</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a spinful 2-RDM to a spinless 2-RDM.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mat_aa: The alpha-alpha part of the 2-RDM.</span>
+<span class="sd">        mat_ab: The alpha-beta part of the 2-RDM.</span>
+<span class="sd">        mat_bb: The beta-beta part of the 2-RDM.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The 2-RDM as a single tensor in spinless format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">norb</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mat_aa</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">new_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">mat_aa</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">new_mat</span><span class="p">[:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat_aa</span>
+    <span class="n">new_mat</span><span class="p">[:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:]</span> <span class="o">=</span> <span class="n">mat_ab</span>
+    <span class="n">new_mat</span><span class="p">[:</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="p">:</span><span class="n">norb</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">mat_ab</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">new_mat</span><span class="p">[</span><span class="n">norb</span><span class="p">:,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">mat_ab</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">new_mat</span><span class="p">[</span><span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="p">:</span><span class="n">norb</span><span class="p">,</span> <span class="p">:</span><span class="n">norb</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat_ab</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">new_mat</span><span class="p">[</span><span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:,</span> <span class="n">norb</span><span class="p">:]</span> <span class="o">=</span> <span class="n">mat_bb</span>
+    <span class="k">return</span> <span class="n">new_mat</span></div>
+
 </pre></div>
         </article>
       </div>
