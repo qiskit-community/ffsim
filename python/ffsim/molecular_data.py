@@ -19,6 +19,7 @@ import lzma
 import os
 import tempfile
 from collections.abc import Iterable
+from functools import cached_property
 from typing import Callable
 
 import numpy as np
@@ -29,7 +30,6 @@ import pyscf.ci
 import pyscf.fci
 import pyscf.mcscf
 import pyscf.mp
-import pyscf.symm
 import pyscf.tools
 
 from ffsim.hamiltonians import MolecularHamiltonian
@@ -117,7 +117,7 @@ class MolecularData:
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[str] | None = None
 
-    @property
+    @cached_property
     def hamiltonian(self) -> MolecularHamiltonian:
         """The Hamiltonian defined by the molecular data."""
         return MolecularHamiltonian(
@@ -126,7 +126,7 @@ class MolecularData:
             constant=self.core_energy,
         )
 
-    @property
+    @cached_property
     def mole(self) -> pyscf.gto.Mole:
         """The PySCF Mole class for this molecular data."""
         mol = pyscf.gto.Mole()
@@ -137,7 +137,7 @@ class MolecularData:
             symmetry=self.symmetry,
         )
 
-    @property
+    @cached_property
     def scf(self) -> pyscf.scf.hf.SCF:
         """A PySCF SCF class for this molecular data."""
         # HACK Not sure if there's a better way to do this...
@@ -270,6 +270,12 @@ class MolecularData:
             "bz2": bz2.open,
             "lzma": lzma.open,
         }
+
+        for attribute in ["hamiltonian", "mole", "scf"]:
+            try:
+                delattr(self, attribute)
+            except AttributeError:
+                pass
         with open_func[compression](file, "wb") as f:
             f.write(
                 orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY, default=default)
