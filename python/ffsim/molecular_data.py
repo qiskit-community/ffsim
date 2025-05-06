@@ -270,6 +270,12 @@ class MolecularData:
             "bz2": bz2.open,
             "lzma": lzma.open,
         }
+
+        for attribute in ["hamiltonian", "mole", "scf"]:
+            try:
+                delattr(self, attribute)
+            except AttributeError:
+                pass
         with open_func[compression](file, "wb") as f:
             f.write(
                 orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY, default=default)
