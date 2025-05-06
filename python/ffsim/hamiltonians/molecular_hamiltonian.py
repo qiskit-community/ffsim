@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+from functools import cached_property
 
 import numpy as np
+import scipy.linalg
 from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
@@ -53,6 +55,24 @@ class MolecularHamiltonian:
     def norb(self) -> int:
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
+
+    @cached_property
+    def one_body_tensor_spinless(self) -> np.ndarray:
+        """The one-body tensor in spinless format."""
+        return scipy.linalg.block_diag(self.one_body_tensor, self.one_body_tensor)
+
+    @cached_property
+    def two_body_tensor_spinless(self) -> np.ndarray:
+        """The two-body tensor in spinless format."""
+        norb = self.norb
+        tensor = np.zeros(
+            (2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=self.two_body_tensor.dtype
+        )
+        tensor[:norb, :norb, :norb, :norb] = self.two_body_tensor
+        tensor[:norb, :norb, norb:, norb:] = self.two_body_tensor
+        tensor[norb:, norb:, :norb, :norb] = self.two_body_tensor
+        tensor[norb:, norb:, norb:, norb:] = self.two_body_tensor
+        return tensor
 
     def rotated(self, orbital_rotation: np.ndarray) -> MolecularHamiltonian:
         r"""Return the Hamiltonian in a rotated orbital basis.
