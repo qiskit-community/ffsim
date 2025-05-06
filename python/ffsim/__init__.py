@@ -78,6 +78,9 @@ from ffsim.states import (
     slater_determinant_amplitudes,
     slater_determinant_rdms,
     spin_square,
+    spinful_to_spinless_rdm1,
+    spinful_to_spinless_rdm2,
+    spinful_to_spinless_vec,
     strings_to_addresses,
 )
 from ffsim.trotter import (
@@ -174,6 +177,9 @@ __all__ = [
     "slater_determinant_amplitudes",
     "slater_determinant_rdms",
     "spin_square",
+    "spinful_to_spinless_rdm1",
+    "spinful_to_spinless_rdm2",
+    "spinful_to_spinless_vec",
     "strings_to_addresses",
     "testing",
     "trace",

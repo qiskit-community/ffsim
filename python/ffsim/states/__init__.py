@@ -30,6 +30,9 @@ from ffsim.states.states import (
     dims,
     sample_state_vector,
     spin_square,
+    spinful_to_spinless_rdm1,
+    spinful_to_spinless_rdm2,
+    spinful_to_spinless_vec,
 )
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
@@ -50,5 +53,8 @@ __all__ = [
     "slater_determinant_amplitudes",
     "slater_determinant_rdms",
     "spin_square",
+    "spinful_to_spinless_rdm1",
+    "spinful_to_spinless_rdm2",
+    "spinful_to_spinless_vec",
     "strings_to_addresses",
 ]

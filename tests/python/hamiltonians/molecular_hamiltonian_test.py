@@ -21,6 +21,8 @@ import scipy.sparse.linalg
 
 import ffsim
 
+RNG = np.random.default_rng(99421951268571780225542766582304428700)
+
 
 def test_linear_operator():
     """Test linear operator."""
@@ -76,13 +78,20 @@ def test_linear_operator():
     np.testing.assert_allclose(eig, energy_fci)
 
 
-def test_diag():
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_diag(norb: int, nelec: tuple[int, int]):
     """Test computing diagonal."""
-    rng = np.random.default_rng(2222)
-    norb = 5
-    nelec = (3, 2)
     # TODO remove dtype=float once complex is supported
-    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=float)
     linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
     hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
     np.testing.assert_allclose(
@@ -93,23 +102,17 @@ def test_diag():
 @pytest.mark.parametrize(
     "norb, nelec",
     [
+        (1, (0, 0)),
+        (1, (0, 1)),
         (4, (2, 2)),
-        (4, (1, 2)),
-        (4, (0, 2)),
-        (4, (0, 0)),
+        (4, (2, 4)),
+        (5, (3, 2)),
     ],
 )
 def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test FermionOperator."""
-    rng = np.random.default_rng()
-
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng)
-    constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant=constant
-    )
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
     op = ffsim.fermion_operator(mol_hamiltonian)
     linop = ffsim.linear_operator(op, norb, nelec)
@@ -120,23 +123,23 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-def test_rotated():
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_rotated(norb: int, nelec: tuple[int, int]):
     """Test rotating orbitals."""
-    norb = 5
-    nelec = (3, 2)
-
-    rng = np.random.default_rng()
-
     # generate a random molecular Hamiltonian
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng)
-    constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant=constant
-    )
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
 
     # generate a random orbital rotation
-    orbital_rotation = ffsim.random.random_orthogonal(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_orthogonal(norb, seed=RNG)
 
     # rotate the Hamiltonian
     mol_hamiltonian_rotated = mol_hamiltonian.rotated(orbital_rotation)
@@ -146,7 +149,7 @@ def test_rotated():
     linop_rotated = ffsim.linear_operator(mol_hamiltonian_rotated, norb, nelec)
 
     # generate a random statevector
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
     # rotate the statevector
     rotated_vec = ffsim.apply_orbital_rotation(vec, orbital_rotation, norb, nelec)
@@ -162,3 +165,34 @@ def test_rotated():
     original_expectation = np.vdot(vec, linop @ vec)
     rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
     np.testing.assert_allclose(original_expectation, rotated_expectation)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_spinless_tensors(norb: int, nelec: tuple[int, int]):
+    """Test constructing spinless tensors."""
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+    expectation = np.vdot(vec, linop @ vec)
+
+    mol_hamiltonian_spinless = ffsim.MolecularHamiltonian(
+        one_body_tensor=mol_hamiltonian.one_body_tensor_spinless,
+        two_body_tensor=mol_hamiltonian.two_body_tensor_spinless,
+        constant=mol_hamiltonian.constant,
+    )
+    vec_spinless = ffsim.spinful_to_spinless_vec(vec, norb, nelec)
+    linop_spinless = ffsim.linear_operator(
+        mol_hamiltonian_spinless, 2 * norb, (sum(nelec), 0)
+    )
+    expectation_spinless = np.vdot(vec_spinless, linop_spinless @ vec_spinless)
+
+    np.testing.assert_allclose(expectation_spinless, expectation)
