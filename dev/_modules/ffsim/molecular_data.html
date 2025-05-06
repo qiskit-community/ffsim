@@ -286,6 +286,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -296,7 +297,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.fci</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.mcscf</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.mp</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.symm</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.tools</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.hamiltonians</span><span class="w"> </span><span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
@@ -386,16 +386,21 @@
     <span class="n">dipole_integrals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">orbital_symmetries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="MolecularData.hamiltonian">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.hamiltonian">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The Hamiltonian defined by the molecular data.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MolecularHamiltonian</span><span class="p">(</span>
             <span class="n">one_body_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_integrals</span><span class="p">,</span>
             <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">pyscf</span><span class="o">.</span><span class="n">ao2mo</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_integrals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">),</span>
             <span class="n">constant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">core_energy</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
-    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="MolecularData.mole">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.mole">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">mole</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The PySCF Mole class for this molecular data.&quot;&quot;&quot;</span>
         <span class="n">mol</span> <span class="o">=</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">gto</span><span class="o">.</span><span class="n">Mole</span><span class="p">()</span>
@@ -404,9 +409,12 @@
             <span class="n">basis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis</span><span class="p">,</span>
             <span class="n">spin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">,</span>
             <span class="n">symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
-    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="MolecularData.scf">
+<a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.scf">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">scf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">hf</span><span class="o">.</span><span class="n">SCF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A PySCF SCF class for this molecular data.&quot;&quot;&quot;</span>
         <span class="c1"># HACK Not sure if there&#39;s a better way to do this...</span>
@@ -415,7 +423,8 @@
         <span class="c1"># HACK without the following line, PySCF computations fail with a KeyError</span>
         <span class="c1"># See https://github.com/pyscf/pyscf/issues/2586</span>
         <span class="n">_remove_sym_from_fcidump</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">to_scf</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">to_scf</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="MolecularData.from_scf">
 <a class="viewcode-back" href="../../api/ffsim.html#ffsim.MolecularData.from_scf">[docs]</a>
@@ -559,6 +568,12 @@
             <span class="s2">&quot;bz2&quot;</span><span class="p">:</span> <span class="n">bz2</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
             <span class="s2">&quot;lzma&quot;</span><span class="p">:</span> <span class="n">lzma</span><span class="o">.</span><span class="n">open</span><span class="p">,</span>
         <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;hamiltonian&quot;</span><span class="p">,</span> <span class="s2">&quot;mole&quot;</span><span class="p">,</span> <span class="s2">&quot;scf&quot;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">delattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
         <span class="k">with</span> <span class="n">open_func</span><span class="p">[</span><span class="n">compression</span><span class="p">](</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="n">orjson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">orjson</span><span class="o">.</span><span class="n">OPT_SERIALIZE_NUMPY</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
