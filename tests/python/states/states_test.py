@@ -424,3 +424,40 @@ def test_spinful_to_spinless_vec_rdm(norb: int, nelec: tuple[int, int]):
 
     np.testing.assert_allclose(actual_rdm1, expected_rdm1, atol=1e-8)
     np.testing.assert_allclose(actual_rdm2, expected_rdm2, atol=1e-8)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_spinful_to_spinless_rdm_energy(norb: int, nelec: tuple[int, int]):
+    """Test converting RDMs to spinless format preserves energy."""
+    mol_ham = ffsim.random.random_molecular_hamiltonian(norb, nelec)
+    linop = ffsim.linear_operator(mol_ham, norb=norb, nelec=nelec)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    energy = np.vdot(vec, linop @ vec)
+
+    rdm1, rdm2 = ffsim.rdms(vec, norb=norb, nelec=nelec, rank=2, spin_summed=True)
+    energy_spinful = (
+        np.einsum("pq,pq->", rdm1, mol_ham.one_body_tensor)
+        + 0.5 * np.einsum("pqrs,pqrs->", rdm2, mol_ham.two_body_tensor)
+        + mol_ham.constant
+    )
+    np.testing.assert_allclose(energy_spinful, energy, atol=1e-8)
+
+    rdm1, rdm2 = ffsim.rdms(vec, norb=norb, nelec=nelec, rank=2, spin_summed=False)
+    rdm1_spinless = ffsim.spinful_to_spinless_rdm1(*rdm1)
+    rdm2_spinless = ffsim.spinful_to_spinless_rdm2(*rdm2)
+    energy_spinless = (
+        np.einsum("pq,pq->", rdm1_spinless, mol_ham.one_body_tensor_spinless)
+        + 0.5
+        * np.einsum("pqrs,pqrs->", rdm2_spinless, mol_ham.two_body_tensor_spinless)
+        + mol_ham.constant
+    )
+    np.testing.assert_allclose(energy_spinless, energy, atol=1e-8)
