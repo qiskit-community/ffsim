@@ -143,9 +143,6 @@ class MolecularData:
         # HACK Not sure if there's a better way to do this...
         fp = tempfile.NamedTemporaryFile()
         self.to_fcidump(fp.name)
-        # HACK without the following line, PySCF computations fail with a KeyError
-        # See https://github.com/pyscf/pyscf/issues/2586
-        _remove_sym_from_fcidump(fp.name)
         return pyscf.tools.fcidump.to_scf(fp.name)
 
     @staticmethod
@@ -392,12 +389,3 @@ class MolecularData:
             nelec=(n_alpha, n_beta),
             spin=spin,
         )
-
-
-def _remove_sym_from_fcidump(filepath):
-    """Remove ORBSYM and ISYM information from an FCIDUMP file."""
-    with open(filepath, "r") as f:
-        lines = f.readlines()
-    lines = [line for line in lines if not line.strip().startswith(("ORBSYM", "ISYM"))]
-    with open(filepath, "w") as f:
-        f.writelines(lines)
