@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.55.dev0</title>
+        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.55</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.55.dev0</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.55</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.55.dev0</span>
+  <span class="sidebar-brand-text">ffsim 0.0.55</span>
   
 </a>
 
@@ -331,10 +331,10 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.8266321248745
-Parsing /tmp/tmplm03qwql
 converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643863  E(CI) = -4.02122442107772  S^2 = 0.0000000
+Parsing /tmp/tmpizw9k_b_
+converged SCF energy = -77.8266321248744
+CASCI E = -77.8742165643863  E(CI) = -4.02122442107773  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -389,8 +389,8 @@ Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374036  E_corr = -0.04758323886584311
-Energy at initialization: -77.87160024816271
+E(CCSD) = -77.87421536374028  E_corr = -0.04758323886583989
+Energy at initialization: -77.8716002481628
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -428,10 +428,10 @@ Number of parameters: 72
   message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.87387393057405
-        x: [-1.153e+00  4.326e-04 ...  3.243e-04  1.286e-01]
+      fun: -77.87387392083906
+        x: [-1.152e+00 -1.002e-04 ...  1.532e-04  1.286e-01]
       nit: 10
-      jac: [-1.421e-06 -1.421e-05 ...  2.842e-05  1.705e-05]
+      jac: [-4.263e-06  8.527e-06 ... -8.527e-06  1.705e-05]
      nfev: 949
      njev: 13
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
@@ -479,10 +479,10 @@ Number of parameters: 46
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363426452895
-        x: [-1.152e+00  1.118e-05 ...  3.520e-02  2.561e-01]
+      fun: -77.87363426626884
+        x: [-1.152e+00  1.611e-04 ...  3.518e-02  2.561e-01]
       nit: 5
-      jac: [-8.527e-06  2.842e-06 ...  4.263e-06 -1.421e-06]
+      jac: [-1.705e-05 -2.842e-06 ...  0.000e+00  5.684e-06]
      nfev: 329
      njev: 7
  hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
@@ -560,29 +560,29 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 46
  message: Convergence: Relative reduction of objective function &lt;= ftol.
  success: True
-     fun: -77.87363431921032
-       x: [-1.152e+00 -2.610e-04 ...  3.491e-02  2.559e-01]
+     fun: -77.8736341595808
+       x: [-1.153e+00  1.554e-03 ...  3.490e-02  2.556e-01]
      nit: 3
-     jac: [-2.501e-08 -1.893e-06 ... -1.110e-07 -2.731e-07]
-    nfev: 640
+     jac: [ 2.403e-06  2.052e-05 ... -2.734e-06 -1.847e-05]
+    nfev: 562
     njev: 4
-  nlinop: 456
+  nlinop: 378
 
 Iteration 1
-    Energy: -77.87363010129549
-    Norm of gradient: 0.0017393153259493736
-    Regularization hyperparameter: 0.002541559016675059
-    Variation hyperparameter: 0.9939174829817934
+    Energy: -77.87363010884366
+    Norm of gradient: 0.0015195929127695348
+    Regularization hyperparameter: 0.0012863273650683409
+    Variation hyperparameter: 0.989765698216097
 Iteration 2
-    Energy: -77.87363431374297
-    Norm of gradient: 4.955235627514561e-05
-    Regularization hyperparameter: 0.002541559016675059
-    Variation hyperparameter: 0.9939174829817934
+    Energy: -77.87363415456436
+    Norm of gradient: 0.0001178484636400178
+    Regularization hyperparameter: 0.0012863273650683409
+    Variation hyperparameter: 0.989765698216097
 Iteration 3
-    Energy: -77.87363431921032
-    Norm of gradient: 1.001928191686889e-05
-    Regularization hyperparameter: 0.002541558841497148
-    Variation hyperparameter: 0.993917482970335
+    Energy: -77.8736341595808
+    Norm of gradient: 0.00010000333194458292
+    Regularization hyperparameter: 1.0724160253178214
+    Variation hyperparameter: 0.9902423878398228
 </pre></div></div>
 </div>
 </section>
@@ -658,7 +658,7 @@ Iteration 3
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=085d8850"></script>
+</div><script src="../_static/documentation_options.js?v=b87b3bc5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
