@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ffsim.states.slater - ffsim 0.0.55</title>
+        <title>ffsim.states.slater - ffsim 0.0.56</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -158,7 +158,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ffsim 0.0.55</div></a>
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.56</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.55</span>
+  <span class="sidebar-brand-text">ffsim 0.0.56</span>
   
 </a>
 
@@ -374,8 +374,27 @@
         <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">vec</span></div>
+    <span class="n">sign</span> <span class="o">=</span> <span class="n">_permutation_sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">alpha_orbitals</span><span class="p">))</span> <span class="o">*</span> <span class="n">_permutation_sign</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">beta_orbitals</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">vec</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_permutation_sign</span><span class="p">(</span><span class="n">perm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the sign of a permutation.</span>
+
+<span class="sd">    Reference: https://stackoverflow.com/a/73511014</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">)))</span>
+    <span class="n">parity</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">perm</span> <span class="o">=</span> <span class="n">perm</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">)):</span>
+        <span class="k">while</span> <span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">parity</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">perm</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">parity</span> <span class="k">else</span> <span class="mi">1</span>
 
 
 <div class="viewcode-block" id="hartree_fock_state">
@@ -600,7 +619,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=b87b3bc5"></script>
+</div><script src="../../../_static/documentation_options.js?v=8f83b1af"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
