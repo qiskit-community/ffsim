@@ -105,7 +105,26 @@ def slater_determinant(
         vec = apply_orbital_rotation(
             vec, orbital_rotation, norb=norb, nelec=nelec, copy=False
         )
-    return vec
+    sign = _permutation_sign(np.argsort(alpha_orbitals)) * _permutation_sign(
+        np.argsort(beta_orbitals)
+    )
+    return sign * vec
+
+
+def _permutation_sign(perm: np.ndarray) -> int:
+    """Compute the sign of a permutation.
+
+    Reference: https://stackoverflow.com/a/73511014
+    """
+    assert set(perm) == set(range(len(perm)))
+    parity = False
+    perm = perm.copy()
+    for i in range(len(perm)):
+        while perm[i] != i:
+            parity = not parity
+            j = perm[i]
+            perm[i], perm[j] = perm[j], perm[i]
+    return -1 if parity else 1
 
 
 def hartree_fock_state(norb: int, nelec: int | tuple[int, int]) -> np.ndarray:

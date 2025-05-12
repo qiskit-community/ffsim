@@ -19,12 +19,13 @@ from collections.abc import Iterator, Sequence
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import CircuitInstruction, Gate, Qubit
-from qiskit.circuit.library import XGate, XXPlusYYGate
+from qiskit.circuit.library import GlobalPhaseGate, XGate, XXPlusYYGate
 from scipy.linalg.lapack import zrot
 
 from ffsim import linalg
 from ffsim.linalg.givens import GivensRotation, zrotg
 from ffsim.qiskit.gates.orbital_rotation import _validate_orbital_rotation
+from ffsim.states.slater import _permutation_sign
 
 
 class PrepareHartreeFockJW(Gate):
@@ -210,6 +211,13 @@ class PrepareSlaterDeterminantJW(Gate):
                 beta_qubits, self.orbital_rotation_b.T[list(occ_b)]
             ):
                 circuit.append(instruction)
+
+        sign = _permutation_sign(np.argsort(occ_a)) * _permutation_sign(
+            np.argsort(occ_b)
+        )
+        phase = 0 if sign == 1 else math.pi
+        circuit.append(GlobalPhaseGate(phase))
+
         self.definition = circuit
 
 
@@ -272,6 +280,10 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
                 qubits, self.orbital_rotation.T[list(self.occupied_orbitals)]
             ):
                 circuit.append(instruction)
+
+        sign = _permutation_sign(np.argsort(self.occupied_orbitals))
+        phase = 0 if sign == 1 else math.pi
+        circuit.append(GlobalPhaseGate(phase))
 
         self.definition = circuit
 
