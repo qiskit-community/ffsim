@@ -41,6 +41,27 @@ def test_hartree_fock_state_spinless(norb: int, nelec: int):
     assert all(vec[1:] == 0)
 
 
+def test_slater_determinant_sign_spinful():
+    """Test Slater determinant sign, spinful."""
+    vec = ffsim.slater_determinant(4, ([0, 1], [0, 1]))
+    assert vec[0] == 1
+
+    vec = ffsim.slater_determinant(4, ([0, 1], [1, 0]))
+    assert vec[0] == -1
+
+    vec = ffsim.slater_determinant(4, ([1, 0], [1, 0]))
+    assert vec[0] == 1
+
+
+def test_slater_determinant_sign_spinless():
+    """Test Slater determinant sign, spinless."""
+    vec = ffsim.slater_determinant(8, [0, 1, 2, 3])
+    assert vec[0] == 1
+
+    vec = ffsim.slater_determinant(8, [0, 1, 3, 2])
+    assert vec[0] == -1
+
+
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
 def test_slater_determinant_spinless(norb: int, nocc: int):
     """Test Slater determinant with same rotation for both spins."""
