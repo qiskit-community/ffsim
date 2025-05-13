@@ -251,3 +251,30 @@ def test_slater_determinant_amplitudes_spinful(norb: int, nelec: tuple[int, int]
                 orbital_rotation=(orb_rot_a, orb_rot_b),
             )
             ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
+
+
+def test_slater_determinant_amplitudes_sign_spinful():
+    """Test Slater determinant amplitudes sign, spinful."""
+    amps = ffsim.slater_determinant_amplitudes(
+        ([0b0011], [0b0011]), 4, ([0, 1], [0, 1]), np.eye(4)
+    )
+    assert amps[0] == 1
+
+    amps = ffsim.slater_determinant_amplitudes(
+        ([0b0011], [0b0011]), 4, ([0, 1], [1, 0]), np.eye(4)
+    )
+    assert amps[0] == -1
+
+    amps = ffsim.slater_determinant_amplitudes(
+        ([0b0011], [0b0011]), 4, ([1, 0], [1, 0]), np.eye(4)
+    )
+    assert amps[0] == 1
+
+
+def test_slater_determinant_amplitudes_sign_spinless():
+    """Test Slater determinant amplitudes sign, spinless."""
+    amps = ffsim.slater_determinant_amplitudes([0b00001111], 8, [0, 1, 2, 3], np.eye(8))
+    assert amps[0] == 1
+
+    amps = ffsim.slater_determinant_amplitudes([0b00001111], 8, [0, 1, 3, 2], np.eye(8))
+    assert amps[0] == -1
