@@ -141,9 +141,9 @@ class MolecularData:
     def scf(self) -> pyscf.scf.hf.SCF:
         """A PySCF SCF class for this molecular data."""
         # HACK Not sure if there's a better way to do this...
-        fp = tempfile.NamedTemporaryFile()
-        self.to_fcidump(fp.name)
-        return pyscf.tools.fcidump.to_scf(fp.name)
+        with tempfile.NamedTemporaryFile() as fp:
+            self.to_fcidump(fp.name)
+            return pyscf.tools.fcidump.to_scf(fp.name)
 
     @staticmethod
     def from_scf(
