@@ -418,9 +418,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">scf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">hf</span><span class="o">.</span><span class="n">SCF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A PySCF SCF class for this molecular data.&quot;&quot;&quot;</span>
         <span class="c1"># HACK Not sure if there&#39;s a better way to do this...</span>
-        <span class="n">fp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">to_fcidump</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">to_scf</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_fcidump</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">fcidump</span><span class="o">.</span><span class="n">to_scf</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MolecularData.from_scf">
