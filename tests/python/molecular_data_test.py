@@ -131,8 +131,14 @@ def test_json_open_shell(tmp_path: pathlib.Path):
     """Test saving to and loading from JSON for an open-shell molecule."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[("H", (0, 0, 0)), ("O", (0, 0, 1.1))],
-        basis="6-31g",
+        atom=[
+            ("H", (0, 0, 0)),
+            ("H", (0, 0, 1)),
+            ("H", (0, 0, 2)),
+            ("H", (0, 0, 3)),
+            ("H", (0, 0, 4)),
+        ],
+        basis="sto-6g",
         spin=1,
         symmetry="Coov",
     )
