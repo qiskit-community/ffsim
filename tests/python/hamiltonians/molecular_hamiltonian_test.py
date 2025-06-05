@@ -182,7 +182,7 @@ def test_spinless_tensors(norb: int, nelec: tuple[int, int]):
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
-    expectation = np.vdot(vec, linop @ vec)
+    result = linop @ vec
 
     mol_hamiltonian_spinless = ffsim.MolecularHamiltonian(
         one_body_tensor=mol_hamiltonian.one_body_tensor_spinless,
@@ -193,6 +193,8 @@ def test_spinless_tensors(norb: int, nelec: tuple[int, int]):
     linop_spinless = ffsim.linear_operator(
         mol_hamiltonian_spinless, 2 * norb, (sum(nelec), 0)
     )
-    expectation_spinless = np.vdot(vec_spinless, linop_spinless @ vec_spinless)
+    result_spinless = linop_spinless @ vec_spinless
 
-    np.testing.assert_allclose(expectation_spinless, expectation)
+    np.testing.assert_allclose(
+        result_spinless, ffsim.spinful_to_spinless_vec(result, norb, nelec)
+    )
