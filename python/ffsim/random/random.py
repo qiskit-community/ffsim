@@ -311,6 +311,35 @@ def random_molecular_hamiltonian(
     )
 
 
+def random_molecular_hamiltonian_spinless(
+    norb: int, seed=None, dtype=complex
+) -> hamiltonians.MolecularHamiltonianSpinless:
+    """Sample a random spinless molecular Hamiltonian.
+
+    Args:
+        norb: The number of orbitals.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the one- and two-body tensors. The constant
+            term will always be of type ``float``.
+
+    Returns:
+        The sampled spinless molecular Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    if np.issubdtype(dtype, np.complexfloating):
+        one_body_tensor = random_hermitian(norb, seed=rng, dtype=dtype)
+    else:
+        one_body_tensor = random_real_symmetric_matrix(norb, seed=rng, dtype=dtype)
+    two_body_tensor = random_two_body_tensor(norb, seed=rng, dtype=dtype)
+    constant = rng.standard_normal()
+    return hamiltonians.MolecularHamiltonianSpinless(
+        one_body_tensor=one_body_tensor,
+        two_body_tensor=two_body_tensor,
+        constant=constant,
+    )
+
+
 def random_uccsd_restricted(
     norb: int,
     nocc: int,
