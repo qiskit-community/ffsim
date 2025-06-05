@@ -20,7 +20,7 @@ import numpy as np
 class SupportsDiagonal(Protocol):
     """A linear operator whose diagonal entries can be returned."""
 
-    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the linear operator.
 
         Args:
@@ -32,7 +32,7 @@ class SupportsDiagonal(Protocol):
         """
 
 
-def diag(obj: Any, norb: int, nelec: tuple[int, int]) -> float:
+def diag(obj: Any, norb: int, nelec: int | tuple[int, int]) -> float:
     """Return the diagonal entries of the linear operator."""
     method = getattr(obj, "_diag_", None)
     if method is not None:

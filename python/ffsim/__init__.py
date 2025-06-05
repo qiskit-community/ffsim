@@ -30,6 +30,7 @@ from ffsim.hamiltonians import (
     DiagonalCoulombHamiltonian,
     DoubleFactorizedHamiltonian,
     MolecularHamiltonian,
+    MolecularHamiltonianSpinless,
     SingleFactorizedHamiltonian,
 )
 from ffsim.molecular_data import MolecularData
@@ -111,6 +112,7 @@ __all__ = [
     "HopGateAnsatzOperator",
     "MolecularData",
     "MolecularHamiltonian",
+    "MolecularHamiltonianSpinless",
     "NumNumAnsatzOpSpinBalanced",
     "ProductStateSum",
     "SingleFactorizedHamiltonian",

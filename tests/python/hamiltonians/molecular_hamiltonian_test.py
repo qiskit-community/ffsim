@@ -198,3 +198,135 @@ def test_spinless_tensors(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(
         result_spinless, ffsim.spinful_to_spinless_vec(result, norb, nelec)
     )
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_molecular_hamiltonian_spinless_linear_operator(
+    norb: int, nelec: tuple[int, int]
+):
+    """Test spinless molecular Hamiltonian."""
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+    result = linop @ vec
+
+    mol_hamiltonian_spinless = ffsim.MolecularHamiltonianSpinless(
+        one_body_tensor=mol_hamiltonian.one_body_tensor_spinless,
+        two_body_tensor=mol_hamiltonian.two_body_tensor_spinless,
+        constant=mol_hamiltonian.constant,
+    )
+    vec_spinless = ffsim.spinful_to_spinless_vec(vec, norb, nelec)
+    linop_spinless = ffsim.linear_operator(
+        mol_hamiltonian_spinless, 2 * norb, sum(nelec)
+    )
+    result_spinless = linop_spinless @ vec_spinless
+
+    np.testing.assert_allclose(
+        result_spinless, ffsim.spinful_to_spinless_vec(result, norb, nelec)
+    )
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, 0),
+        (1, 1),
+        (4, 2),
+        (4, 4),
+        (5, 3),
+    ],
+)
+def test_molecular_hamiltonian_spinless_diag(norb: int, nelec: int):
+    """Test computing diagonal for MolecularHamiltonianSpinless."""
+    # TODO remove dtype=float once complex is supported
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_spinless(
+        norb, seed=RNG, dtype=float
+    )
+    linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
+    hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
+    np.testing.assert_allclose(
+        ffsim.diag(hamiltonian, norb=norb, nelec=nelec), np.diag(hamiltonian_dense)
+    )
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, 0),
+        (1, 1),
+        (4, 2),
+        (4, 4),
+        (5, 3),
+    ],
+)
+def test_molecular_hamiltonian_spinless_fermion_operator(
+    norb: int, nelec: tuple[int, int]
+):
+    """Test FermionOperator for MolecularHamiltonianSpinless."""
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian_spinless(
+        norb=norb, seed=RNG
+    )
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    op = ffsim.fermion_operator(mol_hamiltonian)
+    linop = ffsim.linear_operator(op, norb, nelec)
+    expected_linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+
+    actual = linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, 0),
+        (1, 1),
+        (4, 2),
+        (4, 4),
+        (5, 3),
+    ],
+)
+def test_molecular_hamiltonian_spinless_rotated(norb: int, nelec: int):
+    """Test rotating orbitals."""
+    # generate a random molecular Hamiltonian
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian_spinless(
+        norb=norb, seed=RNG
+    )
+
+    # generate a random orbital rotation
+    orbital_rotation = ffsim.random.random_orthogonal(norb, seed=RNG)
+
+    # rotate the Hamiltonian
+    mol_hamiltonian_rotated = mol_hamiltonian.rotated(orbital_rotation)
+
+    # convert the original and rotated Hamiltonians to linear operators
+    linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
+    linop_rotated = ffsim.linear_operator(mol_hamiltonian_rotated, norb, nelec)
+
+    # generate a random statevector
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    # rotate the statevector
+    rotated_vec = ffsim.apply_orbital_rotation(vec, orbital_rotation, norb, nelec)
+
+    # test definition
+    actual = linop_rotated @ vec
+    expected = ffsim.apply_orbital_rotation(vec, orbital_rotation.T.conj(), norb, nelec)
+    expected = linop @ expected
+    expected = ffsim.apply_orbital_rotation(expected, orbital_rotation, norb, nelec)
+    np.testing.assert_allclose(actual, expected)
+
+    # test expectation is preserved
+    original_expectation = np.vdot(vec, linop @ vec)
+    rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
+    np.testing.assert_allclose(original_expectation, rotated_expectation)
