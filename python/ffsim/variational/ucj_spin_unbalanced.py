@@ -18,7 +18,7 @@ from typing import cast
 
 import numpy as np
 
-from ffsim import gates, linalg
+from ffsim import gates, linalg, protocols
 from ffsim.variational.util import (
     orbital_rotation_from_parameters,
     orbital_rotation_from_t1_amplitudes,
@@ -28,7 +28,9 @@ from ffsim.variational.util import (
 
 
 @dataclass(frozen=True)
-class UCJOpSpinUnbalanced:
+class UCJOpSpinUnbalanced(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     r"""A spin-unbalanced unitary cluster Jastrow operator.
 
     A unitary cluster Jastrow (UCJ) operator has the form

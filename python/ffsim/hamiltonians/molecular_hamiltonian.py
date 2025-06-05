@@ -20,13 +20,19 @@ from opt_einsum import contract
 from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim import protocols
 from ffsim.cistring import gen_linkstr_index
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)
-class MolecularHamiltonian:
+class MolecularHamiltonian(
+    protocols.SupportsApproximateEquality,
+    protocols.SupportsDiagonal,
+    protocols.SupportsFermionOperator,
+    protocols.SupportsLinearOperator,
+):
     r"""A molecular Hamiltonian.
 
     A Hamiltonian of the form
@@ -113,8 +119,11 @@ class MolecularHamiltonian:
             constant=self.constant,
         )
 
-    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+    def _linear_operator_(
+        self, norb: int, nelec: int | tuple[int, int]
+    ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
+        assert isinstance(nelec, tuple)
         n_alpha, n_beta = nelec
         linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
         linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
@@ -140,8 +149,9 @@ class MolecularHamiltonian:
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
 
-    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the Hamiltonian."""
+        assert isinstance(nelec, tuple)
         if np.iscomplexobj(self.two_body_tensor) or np.iscomplexobj(
             self.one_body_tensor
         ):
@@ -194,7 +204,12 @@ class MolecularHamiltonian:
 
 
 @dataclasses.dataclass(frozen=True)
-class MolecularHamiltonianSpinless:
+class MolecularHamiltonianSpinless(
+    protocols.SupportsApproximateEquality,
+    protocols.SupportsDiagonal,
+    protocols.SupportsFermionOperator,
+    protocols.SupportsLinearOperator,
+):
     r"""A spinless molecular Hamiltonian.
 
     A Hamiltonian of the form

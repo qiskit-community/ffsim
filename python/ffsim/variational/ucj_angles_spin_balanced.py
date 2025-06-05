@@ -23,7 +23,9 @@ from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
 
 
 @dataclass(frozen=True)
-class UCJAnglesOpSpinBalanced:
+class UCJAnglesOpSpinBalanced(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     r"""A spin-balanced UCJ operator parameterized by gate rotation angles."""
 
     norb: int
