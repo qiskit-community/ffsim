@@ -1565,6 +1565,85 @@ the two-body tensor.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonianSpinless">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">MolecularHamiltonianSpinless</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonianSpinless"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonianSpinless" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A spinless molecular Hamiltonian.</p>
+<p>A Hamiltonian of the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = \sum_{pq} h_{pq} a^\dagger_{\sigma, p} a_{q}
+    + \frac12 \sum_{pqrs} h_{pqrs}
+    a^\dagger_{p} a^\dagger_{r} a_{s} a_{q}
+    + \text{constant}.\]</div>
+</div>
+<p>Here <span class="math notranslate nohighlight">\(h_{pq}\)</span> is called the one-body tensor and <span class="math notranslate nohighlight">\(h_{pqrs}\)</span> is called
+the two-body tensor.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonianSpinless.one_body_tensor">
+<span class="sig-name descname"><span class="pre">one_body_tensor</span></span><a class="headerlink" href="#ffsim.MolecularHamiltonianSpinless.one_body_tensor" title="Link to this definition">¶</a></dt>
+<dd><p>The one-body tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonianSpinless.two_body_tensor">
+<span class="sig-name descname"><span class="pre">two_body_tensor</span></span><a class="headerlink" href="#ffsim.MolecularHamiltonianSpinless.two_body_tensor" title="Link to this definition">¶</a></dt>
+<dd><p>The two-body tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonianSpinless.constant">
+<span class="sig-name descname"><span class="pre">constant</span></span><a class="headerlink" href="#ffsim.MolecularHamiltonianSpinless.constant" title="Link to this definition">¶</a></dt>
+<dd><p>The constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonianSpinless.norb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ffsim.MolecularHamiltonianSpinless.norb" title="Link to this definition">¶</a></dt>
+<dd><p>The number of orbitals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonianSpinless.rotated">
+<span class="sig-name descname"><span class="pre">rotated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonianSpinless.rotated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonianSpinless.rotated" title="Link to this definition">¶</a></dt>
+<dd><p>Return the Hamiltonian in a rotated orbital basis.</p>
+<p>Given an orbital rotation <span class="math notranslate nohighlight">\(\mathcal{U}\)</span>, returns the operator</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\mathcal{U} H \mathcal{U}^\dagger\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(H\)</span> is the original Hamiltonian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The orbital rotation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularHamiltonianSpinless" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonianSpinless"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonianSpinless</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The rotated Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.NumNumAnsatzOpSpinBalanced">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">NumNumAnsatzOpSpinBalanced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thetas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/num_num.html#NumNumAnsatzOpSpinBalanced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.NumNumAnsatzOpSpinBalanced" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -4021,7 +4100,7 @@ cached lookup tables.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – The object to convert to a LinearOperator.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
-<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -4810,6 +4889,14 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.one_body_tensor_spinless"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.one_body_tensor_spinless</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.rotated"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.rotated()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.two_body_tensor_spinless"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.two_body_tensor_spinless</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonianSpinless"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonianSpinless</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonianSpinless.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonianSpinless.one_body_tensor</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonianSpinless.two_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonianSpinless.two_body_tensor</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonianSpinless.constant"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonianSpinless.constant</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonianSpinless.norb"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonianSpinless.norb</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonianSpinless.rotated"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonianSpinless.rotated()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.NumNumAnsatzOpSpinBalanced"><code class="docutils literal notranslate"><span class="pre">NumNumAnsatzOpSpinBalanced</span></code></a><ul>

@@ -470,6 +470,156 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span></div>
 
+
+
+<div class="viewcode-block" id="MolecularHamiltonianSpinless">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonianSpinless">[docs]</a>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MolecularHamiltonianSpinless</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A spinless molecular Hamiltonian.</span>
+
+<span class="sd">    A Hamiltonian of the form</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        H = \sum_{pq} h_{pq} a^\dagger_{\sigma, p} a_{q}</span>
+<span class="sd">            + \frac12 \sum_{pqrs} h_{pqrs}</span>
+<span class="sd">            a^\dagger_{p} a^\dagger_{r} a_{s} a_{q}</span>
+<span class="sd">            + \text{constant}.</span>
+
+<span class="sd">    Here :math:`h_{pq}` is called the one-body tensor and :math:`h_{pqrs}` is called</span>
+<span class="sd">    the two-body tensor.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        one_body_tensor (np.ndarray): The one-body tensor.</span>
+<span class="sd">        two_body_tensor (np.ndarray): The two-body tensor.</span>
+<span class="sd">        constant (float): The constant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">norb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of orbitals.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MolecularHamiltonianSpinless.rotated">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonianSpinless.rotated">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonianSpinless</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the Hamiltonian in a rotated orbital basis.</span>
+
+<span class="sd">        Given an orbital rotation :math:`\mathcal{U}`, returns the operator</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \mathcal{U} H \mathcal{U}^\dagger</span>
+
+<span class="sd">        where :math:`H` is the original Hamiltonian.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            orbital_rotation: The orbital rotation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The rotated Hamiltonian.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">one_body_tensor_rotated</span> <span class="o">=</span> <span class="n">contract</span><span class="p">(</span>
+            <span class="s2">&quot;ab,Aa,Bb-&gt;AB&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span>
+            <span class="n">orbital_rotation</span><span class="p">,</span>
+            <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">two_body_tensor_rotated</span> <span class="o">=</span> <span class="n">contract</span><span class="p">(</span>
+            <span class="s2">&quot;abcd,Aa,Bb,Cc,Dd-&gt;ABCD&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span>
+            <span class="n">orbital_rotation</span><span class="p">,</span>
+            <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="n">orbital_rotation</span><span class="p">,</span>
+            <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">MolecularHamiltonianSpinless</span><span class="p">(</span>
+            <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor_rotated</span><span class="p">,</span>
+            <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">two_body_tensor_rotated</span><span class="p">,</span>
+            <span class="n">constant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_linear_operator_</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearOperator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a SciPy LinearOperator representing the object.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+        <span class="n">linkstr_index_a</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
+        <span class="n">linkstr_index_b</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
+        <span class="n">link_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">linkstr_index_a</span><span class="p">,</span> <span class="n">linkstr_index_b</span><span class="p">)</span>
+        <span class="n">two_body</span> <span class="o">=</span> <span class="n">absorb_h1e</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="mf">0.5</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">contract_2e</span><span class="p">(</span>
+                <span class="n">two_body</span><span class="p">,</span>
+                <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="p">,</span>
+                <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="n">dim_</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LinearOperator</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dim_</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_diag_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the diagonal entries of the Hamiltonian.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Computing diagonal of complex molecular Hamiltonian is not yet &quot;</span>
+                <span class="s2">&quot;supported.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">make_hdiag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fermion_operator_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a FermionOperator representing the object.&quot;&quot;&quot;</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">FermionOperator</span><span class="p">({():</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">),</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span>
+            <span class="n">op</span> <span class="o">+=</span> <span class="n">FermionOperator</span><span class="p">({(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">q</span><span class="p">)):</span> <span class="n">coeff</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norb</span><span class="p">),</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span>
+            <span class="n">op</span> <span class="o">+=</span> <span class="n">FermionOperator</span><span class="p">({(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">q</span><span class="p">)):</span> <span class="n">coeff</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">op</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">MolecularHamiltonian</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span></div>
+
 </pre></div>
         </article>
       </div>

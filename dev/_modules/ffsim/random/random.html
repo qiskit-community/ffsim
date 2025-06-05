@@ -611,6 +611,38 @@
 
 
 
+<div class="viewcode-block" id="random_molecular_hamiltonian_spinless">
+<a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_molecular_hamiltonian_spinless">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_molecular_hamiltonian_spinless</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hamiltonians</span><span class="o">.</span><span class="n">MolecularHamiltonianSpinless</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a random spinless molecular Hamiltonian.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: The number of orbitals.</span>
+<span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
+<span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
+<span class="sd">        dtype: The data type to use for the one- and two-body tensors. The constant</span>
+<span class="sd">            term will always be of type ``float``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled spinless molecular Hamiltonian.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">random_hermitian</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">random_two_body_tensor</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">constant</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">hamiltonians</span><span class="o">.</span><span class="n">MolecularHamiltonianSpinless</span><span class="p">(</span>
+        <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
+        <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">two_body_tensor</span><span class="p">,</span>
+        <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="random_uccsd_restricted">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_uccsd_restricted">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">random_uccsd_restricted</span><span class="p">(</span>
