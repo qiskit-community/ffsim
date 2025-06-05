@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ffsim import gates
+from ffsim import gates, protocols
 
 
 def _validate_interaction_pairs(
@@ -39,7 +39,9 @@ def _validate_interaction_pairs(
 
 
 @dataclass(frozen=True)
-class NumNumAnsatzOpSpinBalanced:
+class NumNumAnsatzOpSpinBalanced(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     """A number-number interaction ansatz operator.
 
     The number-number interaction ansatz consists of a sequence of

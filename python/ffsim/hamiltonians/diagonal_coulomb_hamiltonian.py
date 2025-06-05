@@ -18,6 +18,7 @@ import scipy.linalg
 from pyscf.fci.direct_uhf import make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim import protocols
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
@@ -25,7 +26,12 @@ from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)
-class DiagonalCoulombHamiltonian:
+class DiagonalCoulombHamiltonian(
+    protocols.SupportsApproximateEquality,
+    protocols.SupportsDiagonal,
+    protocols.SupportsFermionOperator,
+    protocols.SupportsLinearOperator,
+):
     r"""A diagonal Coulomb Hamiltonian.
 
     A Hamiltonian of the form
@@ -62,8 +68,11 @@ class DiagonalCoulombHamiltonian:
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
 
-    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+    def _linear_operator_(
+        self, norb: int, nelec: int | tuple[int, int]
+    ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
+        assert isinstance(nelec, tuple)
         dim_ = dim(norb, nelec)
         eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
         num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
@@ -182,8 +191,9 @@ class DiagonalCoulombHamiltonian:
             constant=constant,
         )
 
-    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the Hamiltonian."""
+        assert isinstance(nelec, tuple)
         if np.iscomplexobj(self.one_body_tensor):
             raise NotImplementedError(
                 "Computing diagonal of complex diagonal Coulomb Hamiltonian is not yet "
