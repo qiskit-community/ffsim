@@ -285,7 +285,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">gates</span><span class="p">,</span> <span class="n">linalg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">gates</span><span class="p">,</span> <span class="n">linalg</span><span class="p">,</span> <span class="n">protocols</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.variational.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">orbital_rotation_from_parameters</span><span class="p">,</span>
     <span class="n">orbital_rotation_from_t1_amplitudes</span><span class="p">,</span>
@@ -297,7 +297,9 @@
 <div class="viewcode-block" id="UCJOpSpinBalanced">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJOpSpinBalanced">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">UCJOpSpinBalanced</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UCJOpSpinBalanced</span><span class="p">(</span>
+    <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApplyUnitary</span><span class="p">,</span> <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApproximateEquality</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A spin-balanced unitary cluster Jastrow operator.</span>
 
 <span class="sd">    A unitary cluster Jastrow (UCJ) operator has the form</span>

@@ -284,7 +284,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">gates</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">gates</span><span class="p">,</span> <span class="n">protocols</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_interaction_pairs</span><span class="p">(</span>
@@ -308,7 +308,9 @@
 <div class="viewcode-block" id="NumNumAnsatzOpSpinBalanced">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">NumNumAnsatzOpSpinBalanced</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NumNumAnsatzOpSpinBalanced</span><span class="p">(</span>
+    <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApplyUnitary</span><span class="p">,</span> <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApproximateEquality</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A number-number interaction ansatz operator.</span>
 
 <span class="sd">    The number-number interaction ansatz consists of a sequence of</span>

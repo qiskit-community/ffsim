@@ -292,7 +292,9 @@
 <div class="viewcode-block" id="UCJAnglesOpSpinBalanced">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">UCJAnglesOpSpinBalanced</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UCJAnglesOpSpinBalanced</span><span class="p">(</span>
+    <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApplyUnitary</span><span class="p">,</span> <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApproximateEquality</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A spin-balanced UCJ operator parameterized by gate rotation angles.&quot;&quot;&quot;</span>
 
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span>

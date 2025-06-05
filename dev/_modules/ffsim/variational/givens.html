@@ -288,14 +288,16 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg.lapack</span><span class="w"> </span><span class="kn">import</span> <span class="n">zrot</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">linalg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">linalg</span><span class="p">,</span> <span class="n">protocols</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.gates</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_orbital_rotation</span>
 
 
 <div class="viewcode-block" id="GivensAnsatzOp">
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.GivensAnsatzOp">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">GivensAnsatzOp</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GivensAnsatzOp</span><span class="p">(</span>
+    <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApplyUnitary</span><span class="p">,</span> <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApproximateEquality</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A Givens rotation ansatz operator.</span>
 
 <span class="sd">    The Givens rotation ansatz consists of a sequence of `Givens rotations`_ followed</span>
