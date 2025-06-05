@@ -279,11 +279,10 @@
           <section id="Orbital-rotations">
 <h1>Orbital rotations<a class="headerlink" href="#Orbital-rotations" title="Link to this heading">¶</a></h1>
 <p>The orbital rotation is a fundamental operation in the simulation of fermions. This page discusses orbital rotations and their properties.</p>
-<section id="Definitions-of-orbital-rotation">
-<h2>Definitions of orbital rotation<a class="headerlink" href="#Definitions-of-orbital-rotation" title="Link to this heading">¶</a></h2>
-<p>There are two related ways to specify an orbital rotation, by providing either a unitary matrix or an antihermitian matrix. Generally, ffsim represents orbital rotations using unitary matrices.</p>
-<section id="Unitary-matrix-definition">
-<h3>Unitary matrix definition<a class="headerlink" href="#Unitary-matrix-definition" title="Link to this heading">¶</a></h3>
+<section id="Definition-of-orbital-rotation">
+<h2>Definition of orbital rotation<a class="headerlink" href="#Definition-of-orbital-rotation" title="Link to this heading">¶</a></h2>
+<section id="Description-via-a-unitary-matrix">
+<h3>Description via a unitary matrix<a class="headerlink" href="#Description-via-a-unitary-matrix" title="Link to this heading">¶</a></h3>
 <p>An orbital rotation is described by an <span class="math notranslate nohighlight">\(N \times N\)</span> unitary matrix <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> (here <span class="math notranslate nohighlight">\(N\)</span> is the number spatial orbitals), and we denote the corresponding operator as <span class="math notranslate nohighlight">\(\mathcal{U}\)</span>. This operator has the following action on the fermionic creation operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span>:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -293,6 +292,21 @@
 </div>
 <p>That is, <span class="math notranslate nohighlight">\(a^\dagger_{\sigma, i}\)</span> is mapped to a new operator <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> where <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> is a linear combination of the operators <span class="math notranslate nohighlight">\(\set{a^\dagger_{\sigma, i}}\)</span> with coefficients given by the <span class="math notranslate nohighlight">\(i\)</span>-th column of <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>. The fact that <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> is unitary can be used, together with the fermionic anticommutation relations, to show that the <span class="math notranslate nohighlight">\(\set{b^\dagger_{\sigma, i}}\)</span> also satisfy the fermionic anticommutation
 relations. Thus, the <span class="math notranslate nohighlight">\(b^\dagger_{\sigma, i}\)</span> are creation operators in a rotated basis of orbitals.</p>
+</section>
+<section id="Explicit-expression">
+<h3>Explicit expression<a class="headerlink" href="#Explicit-expression" title="Link to this heading">¶</a></h3>
+<p>It is a theorem that <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> can be written explicitly as</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{align*}
+    \mathcal{U} = \prod_{\sigma}
+    \exp\left[\sum_{ij} \log\left(\mathbf{U}\right)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right]
+\end{align*}.\]</div>
+</div>
+<p>Sometimes, it is useful to specify the orbital rotation via the antihermitian matrix <span class="math notranslate nohighlight">\(\mathbf{K} = \log(\mathbf{U})\)</span> rather than <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> itself. However, ffsim generally represents orbital rotations using the unitary matrix <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>.</p>
+</section>
+<section id="Homomorphism-property">
+<h3>Homomorphism property<a class="headerlink" href="#Homomorphism-property" title="Link to this heading">¶</a></h3>
 <p>The mapping <span class="math notranslate nohighlight">\(\mathbf{U} \mapsto \mathcal{U}\)</span> satisfies the important homomorphism property:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -303,18 +317,6 @@ relations. Thus, the <span class="math notranslate nohighlight">\(b^\dagger_{\si
 </div>
 <p>for any unitary matrices <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{U}_1\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{U}_2\)</span>.</p>
 </section>
-<section id="Antihermitian-matrix-definition">
-<h3>Antihermitian matrix definition<a class="headerlink" href="#Antihermitian-matrix-definition" title="Link to this heading">¶</a></h3>
-<p>Instead of the unitary matrix <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>, an alternative description of an orbital rotation can be given by providing an antihermitian matrix <span class="math notranslate nohighlight">\(\mathbf{K}\)</span>. In this case, the orbital rotation is defined as the unitary</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\begin{align*}
-    \mathcal{U} = \prod_{\sigma}
-    \exp\left(\sum_{ij} \mathbf{K}_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right).
-\end{align*}\]</div>
-</div>
-<p>It is a theorem that if <span class="math notranslate nohighlight">\(\mathbf{K} = \log(\mathbf{U})\)</span>, then the two definitions coincide.</p>
-</section>
 <section id="Independent-orbital-rotations-for-spin-up-and-spin-down">
 <h3>Independent orbital rotations for spin-up and spin-down<a class="headerlink" href="#Independent-orbital-rotations-for-spin-up-and-spin-down" title="Link to this heading">¶</a></h3>
 <p>The definitions given above assume that the same orbital rotation applies to both the spin-up and spin-down orbitals. However, it is possible for each spin sector to have an independent orbital rotation, in which case a pair of unitary matrices <span class="math notranslate nohighlight">\((\mathbf{U}^\alpha, \mathbf{U}^\beta)\)</span> needs to be specified. Letting <span class="math notranslate nohighlight">\(\mathbf{K}^\sigma = \log(\mathbf{U}^\sigma)\)</span>, the definitions above then become</p>
@@ -323,7 +325,7 @@ relations. Thus, the <span class="math notranslate nohighlight">\(b^\dagger_{\si
 \[\begin{split}\begin{align*}
     \mathcal{U} a^\dagger_{\sigma, i} \mathcal{U}^\dagger &amp;= \sum_j \mathbf{U}^{\sigma}_{ji} a^\dagger_{\sigma, j}, \\
     \mathcal{U} &amp;= \prod_{\sigma}
-    \exp\left(\sum_{ij} \mathbf{K}^{\sigma}_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right).
+    \exp\left[\sum_{ij} \log\left(\mathbf{U}^{\sigma}\right)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right].
 \end{align*}\end{split}\]</div>
 </div>
 </section>
@@ -358,7 +360,7 @@ relations. Thus, the <span class="math notranslate nohighlight">\(b^\dagger_{\si
 </section>
 <section id="Method-2:-Implement-directly-as-an-orbital-rotation">
 <h3>Method 2: Implement directly as an orbital rotation<a class="headerlink" href="#Method-2:-Implement-directly-as-an-orbital-rotation" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="#Antihermitian-matrix-definition"><span class="std std-ref">antihermitian matrix definition</span></a> of an orbital rotation shows that the time evolution operator <span class="math notranslate nohighlight">\(e^{-i \mathcal{M} t}\)</span> is itself an orbital rotation defined by <span class="math notranslate nohighlight">\(\mathbf{K} = -i \mathbf{M} t\)</span>, or <span class="math notranslate nohighlight">\(\mathbf{U} = e^{-i \mathbf{M} t}\)</span>. Thus, the time evolution operator can be implemented directly as an orbital rotation.</p>
+<p>Reviewing the <a class="reference internal" href="#Definition-of-orbital-rotation"><span class="std std-ref">definition</span></a> of an orbital rotation, we can see that the time evolution operator <span class="math notranslate nohighlight">\(e^{-i \mathcal{M} t}\)</span> is itself an orbital rotation defined by <span class="math notranslate nohighlight">\(\mathbf{K} = -i \mathbf{M} t\)</span>, or <span class="math notranslate nohighlight">\(\mathbf{U} = e^{-i \mathbf{M} t}\)</span>. Thus, the time evolution operator can be implemented directly as an orbital rotation.</p>
 <p>The following code cell demonstrates the equivalence of the two methods by applying them to a randomly generated state vector and checking that the result is the same in both cases.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -517,9 +519,10 @@ rotation. Notice that the circuit consists of two independent sub-circuits actin
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Orbital rotations</a><ul>
-<li><a class="reference internal" href="#Definitions-of-orbital-rotation">Definitions of orbital rotation</a><ul>
-<li><a class="reference internal" href="#Unitary-matrix-definition">Unitary matrix definition</a></li>
-<li><a class="reference internal" href="#Antihermitian-matrix-definition">Antihermitian matrix definition</a></li>
+<li><a class="reference internal" href="#Definition-of-orbital-rotation">Definition of orbital rotation</a><ul>
+<li><a class="reference internal" href="#Description-via-a-unitary-matrix">Description via a unitary matrix</a></li>
+<li><a class="reference internal" href="#Explicit-expression">Explicit expression</a></li>
+<li><a class="reference internal" href="#Homomorphism-property">Homomorphism property</a></li>
 <li><a class="reference internal" href="#Independent-orbital-rotations-for-spin-up-and-spin-down">Independent orbital rotations for spin-up and spin-down</a></li>
 </ul>
 </li>
