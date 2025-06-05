@@ -17,7 +17,6 @@ from dataclasses import InitVar, dataclass
 from typing import cast
 
 import numpy as np
-import scipy.linalg
 import scipy.sparse.linalg
 
 from ffsim import gates, hamiltonians, linalg, protocols
@@ -28,7 +27,9 @@ from ffsim.variational.util import (
 
 
 @dataclass(frozen=True)
-class UCCSDOpRestrictedReal:
+class UCCSDOpRestrictedReal(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     """Real-valued restricted unitary coupled cluster, singles and doubles operator."""
 
     t1: np.ndarray  # shape: (nocc, nvrt)

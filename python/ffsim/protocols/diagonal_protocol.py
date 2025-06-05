@@ -16,8 +16,10 @@ from typing import Any, Protocol
 
 import numpy as np
 
+from ffsim.protocols.trace_protocol import SupportsTrace
 
-class SupportsDiagonal(Protocol):
+
+class SupportsDiagonal(SupportsTrace, Protocol):
     """A linear operator whose diagonal entries can be returned."""
 
     def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
@@ -30,6 +32,9 @@ class SupportsDiagonal(Protocol):
         Returns:
             The diagonal entries of the linear operator.
         """
+
+    def _trace_(self, norb: int, nelec: int | tuple[int, int]) -> float:
+        return np.sum(self._diag_(norb=norb, nelec=nelec))
 
 
 def diag(obj: Any, norb: int, nelec: int | tuple[int, int]) -> float:

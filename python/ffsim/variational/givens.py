@@ -21,12 +21,14 @@ from typing import cast
 import numpy as np
 from scipy.linalg.lapack import zrot
 
-from ffsim import linalg
+from ffsim import linalg, protocols
 from ffsim.gates import apply_orbital_rotation
 
 
 @dataclass(frozen=True)
-class GivensAnsatzOp:
+class GivensAnsatzOp(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     """A Givens rotation ansatz operator.
 
     The Givens rotation ansatz consists of a sequence of `Givens rotations`_ followed

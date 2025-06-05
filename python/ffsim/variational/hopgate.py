@@ -18,6 +18,7 @@ from typing import cast
 
 import numpy as np
 
+from ffsim import protocols
 from ffsim.gates import apply_hop_gate, apply_orbital_rotation
 from ffsim.variational.util import (
     orbital_rotation_from_parameters,
@@ -26,7 +27,9 @@ from ffsim.variational.util import (
 
 
 @dataclass(frozen=True)
-class HopGateAnsatzOperator:
+class HopGateAnsatzOperator(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     """A hop gate ansatz operator.
 
     The hop gate ansatz consists of a sequence of `hop gates`_.

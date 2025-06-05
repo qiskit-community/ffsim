@@ -16,17 +16,21 @@ import numpy as np
 import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim import protocols
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
 from ffsim.operators import FermionOperator
-from ffsim.protocols import fermion_operator
 from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)
-class DoubleFactorizedHamiltonian:
+class DoubleFactorizedHamiltonian(
+    protocols.SupportsDiagonal,
+    protocols.SupportsFermionOperator,
+    protocols.SupportsLinearOperator,
+):
     r"""A Hamiltonian in the double-factorized representation.
 
     The double-factorized form of the molecular Hamiltonian is
@@ -238,8 +242,11 @@ class DoubleFactorizedHamiltonian:
             constant=df_hamiltonian.constant,
         )
 
-    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+    def _linear_operator_(
+        self, norb: int, nelec: int | tuple[int, int]
+    ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
+        assert isinstance(nelec, tuple)
         dim_ = dim(norb, nelec)
         eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
         num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
@@ -268,13 +275,14 @@ class DoubleFactorizedHamiltonian:
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
 
-    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the Hamiltonian."""
+        assert isinstance(nelec, tuple)
         return self.to_molecular_hamiltonian()._diag_(norb, nelec)
 
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
-        return fermion_operator(self.to_molecular_hamiltonian())
+        return protocols.fermion_operator(self.to_molecular_hamiltonian())
 
 
 def _df_z_representation(

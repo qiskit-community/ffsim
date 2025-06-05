@@ -16,6 +16,7 @@ from collections.abc import Sequence
 import numpy as np
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim import protocols
 from ffsim.contract.one_body import one_body_linop
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg.double_factorized_decomposition import (
@@ -26,7 +27,7 @@ from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)
-class SingleFactorizedHamiltonian:
+class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
     r"""A Hamiltonian in the single-factorized representation.
 
     The single-factorized form of the molecular Hamiltonian is
@@ -126,8 +127,11 @@ class SingleFactorizedHamiltonian:
             constant=hamiltonian.constant,
         )
 
-    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+    def _linear_operator_(
+        self, norb: int, nelec: int | tuple[int, int]
+    ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
+        assert isinstance(nelec, tuple)
         dim_ = dim(norb, nelec)
         one_body_tensor_linop = one_body_linop(self.one_body_tensor, norb, nelec)
         one_body_square_linops = [
