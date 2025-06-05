@@ -25,7 +25,9 @@ from ffsim.operators import FermionOperator
 class SupportsLinearOperator(Protocol):
     """An object that can be converted to a SciPy LinearOperator."""
 
-    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+    def _linear_operator_(
+        self, norb: int, nelec: int | tuple[int, int]
+    ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object.
 
         Args:
@@ -37,7 +39,9 @@ class SupportsLinearOperator(Protocol):
         """
 
 
-def linear_operator(obj: Any, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+def linear_operator(
+    obj: Any, norb: int, nelec: int | tuple[int, int]
+) -> LinearOperator:
     """Return a SciPy LinearOperator representing the object.
 
     Args:
@@ -59,7 +63,7 @@ def linear_operator(obj: Any, norb: int, nelec: tuple[int, int]) -> LinearOperat
 
 
 def _fermion_operator_to_linear_operator(
-    operator: FermionOperator, norb: int, nelec: tuple[int, int]
+    operator: FermionOperator, norb: int, nelec: int | tuple[int, int]
 ):
     if not (operator.conserves_particle_number() and operator.conserves_spin_z()):
         raise ValueError(
@@ -68,6 +72,9 @@ def _fermion_operator_to_linear_operator(
             f"Conserves particle number: {operator.conserves_particle_number()} "
             f"Conserves spin Z: {operator.conserves_spin_z()}"
         )
+
+    if isinstance(nelec, int):
+        nelec = (nelec, 0)
 
     dim = states.dim(norb, nelec)
 
