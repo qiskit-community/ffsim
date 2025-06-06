@@ -19,20 +19,18 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(73020557092643299885827653110468818597)
+
 
 @pytest.mark.parametrize("z_representation", [False, True])
 def test_linear_operator(z_representation: bool):
     """Test linear operator."""
     norb = 4
     nelec = (2, 2)
-    rng = np.random.default_rng(2474)
 
     dim = ffsim.dim(norb, nelec)
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=rng, dtype=float)
-    constant = rng.standard_normal()
-    mol_hamiltonian = ffsim.MolecularHamiltonian(
-        one_body_tensor, two_body_tensor, constant
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
+        norb, seed=RNG, dtype=float
     )
 
     df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
@@ -45,69 +43,49 @@ def test_linear_operator(z_representation: bool):
 
     dim = ffsim.dim(norb, nelec)
 
-    state = ffsim.random.random_state_vector(dim, seed=rng)
+    state = ffsim.random.random_state_vector(dim, seed=RNG)
     actual = actual_linop @ state
     expected = expected_linop @ state
     np.testing.assert_allclose(actual, expected)
 
-    state = ffsim.random.random_state_vector(dim, seed=rng, dtype=float)
+    state = ffsim.random.random_state_vector(dim, seed=RNG, dtype=float)
     actual = actual_linop @ state
     expected = expected_linop @ state
     np.testing.assert_allclose(actual, expected)
 
 
-def test_z_representation_round_trip():
+@pytest.mark.parametrize("norb", range(5))
+def test_z_representation_round_trip(norb: int):
     """Test converting to and from Z-representation"""
-    norb = 4
-
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=2474)
-    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=7054, dtype=float)
-
+    mol_ham = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=float)
     df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
-        ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
+        mol_ham
     )
-    df_hamiltonian_num = df_hamiltonian.to_z_representation().to_number_representation()
-
-    np.testing.assert_allclose(
-        df_hamiltonian.one_body_tensor, df_hamiltonian_num.one_body_tensor
+    df_hamiltonian_roundtrip = (
+        df_hamiltonian.to_z_representation().to_number_representation()
     )
-    np.testing.assert_allclose(
-        df_hamiltonian.diag_coulomb_mats, df_hamiltonian_num.diag_coulomb_mats
-    )
-    np.testing.assert_allclose(
-        df_hamiltonian.orbital_rotations, df_hamiltonian_num.orbital_rotations
-    )
-    np.testing.assert_allclose(df_hamiltonian.constant, df_hamiltonian_num.constant)
-    assert df_hamiltonian.z_representation == df_hamiltonian_num.z_representation
+    assert ffsim.approx_eq(df_hamiltonian_roundtrip, df_hamiltonian)
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
 def test_to_molecular_hamiltonian_roundtrip(z_representation: bool):
     """Test converting to molecular Hamiltonian."""
-    rng = np.random.default_rng(2787)
     norb = 5
-    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=float)
     hamiltonian_roundtrip = (
         ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
             hamiltonian, z_representation=z_representation
         ).to_molecular_hamiltonian()
     )
-    np.testing.assert_allclose(
-        hamiltonian_roundtrip.one_body_tensor, hamiltonian.one_body_tensor
-    )
-    np.testing.assert_allclose(
-        hamiltonian_roundtrip.two_body_tensor, hamiltonian.two_body_tensor
-    )
-    np.testing.assert_allclose(hamiltonian_roundtrip.constant, hamiltonian.constant)
+    assert ffsim.approx_eq(hamiltonian_roundtrip, hamiltonian)
 
 
 @pytest.mark.parametrize("z_representation", [False, True])
 def test_to_molecular_hamiltonian_symmetry(z_representation: bool):
     """Test molecular Hamiltonian symmetry."""
-    rng = np.random.default_rng(2787)
     norb = 5
     df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(
-        norb, z_representation=z_representation, seed=rng
+        norb, z_representation=z_representation, seed=RNG
     )
     mol_hamiltonian = df_hamiltonian.to_molecular_hamiltonian()
     two_body_tensor = mol_hamiltonian.two_body_tensor
@@ -120,12 +98,11 @@ def test_to_molecular_hamiltonian_symmetry(z_representation: bool):
 
 def test_diag():
     """Test computing diagonal."""
-    rng = np.random.default_rng(2222)
     norb = 5
     nelec = (3, 2)
     # TODO remove dtype=float once complex is supported
     hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
-        ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+        ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=float)
     )
     linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
     hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
@@ -145,12 +122,10 @@ def test_diag():
 )
 def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test FermionOperator."""
-    rng = np.random.default_rng()
-
     df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(
-        norb, real=True, seed=rng
+        norb, real=True, seed=RNG
     )
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
     op = ffsim.fermion_operator(df_hamiltonian)
     linop = ffsim.linear_operator(op, norb, nelec)
