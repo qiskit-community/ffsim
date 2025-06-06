@@ -27,6 +27,7 @@ from ffsim.states import dim
 
 @dataclasses.dataclass(frozen=True)
 class DoubleFactorizedHamiltonian(
+    protocols.SupportsApproximateEquality,
     protocols.SupportsDiagonal,
     protocols.SupportsFermionOperator,
     protocols.SupportsLinearOperator,
@@ -283,6 +284,27 @@ class DoubleFactorizedHamiltonian(
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
         return protocols.fermion_operator(self.to_molecular_hamiltonian())
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, DoubleFactorizedHamiltonian):
+            if self.z_representation != other.z_representation:
+                return False
+            if not np.allclose(self.constant, other.constant, rtol=rtol, atol=atol):
+                return False
+            if not np.allclose(
+                self.one_body_tensor, other.one_body_tensor, rtol=rtol, atol=atol
+            ):
+                return False
+            if not np.allclose(
+                self.diag_coulomb_mats, other.diag_coulomb_mats, rtol=rtol, atol=atol
+            ):
+                return False
+            if not np.allclose(
+                self.orbital_rotations, other.orbital_rotations, rtol=rtol, atol=atol
+            ):
+                return False
+            return True
+        return NotImplemented
 
 
 def _df_z_representation(
