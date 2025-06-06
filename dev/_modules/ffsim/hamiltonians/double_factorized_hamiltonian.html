@@ -296,6 +296,7 @@
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.DoubleFactorizedHamiltonian">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DoubleFactorizedHamiltonian</span><span class="p">(</span>
+    <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsApproximateEquality</span><span class="p">,</span>
     <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsDiagonal</span><span class="p">,</span>
     <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsFermionOperator</span><span class="p">,</span>
     <span class="n">protocols</span><span class="o">.</span><span class="n">SupportsLinearOperator</span><span class="p">,</span>
@@ -563,7 +564,28 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_fermion_operator_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a FermionOperator representing the object.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">protocols</span><span class="o">.</span><span class="n">fermion_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_molecular_hamiltonian</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">protocols</span><span class="o">.</span><span class="n">fermion_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_molecular_hamiltonian</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_representation</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">z_representation</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span></div>
 
 
 
