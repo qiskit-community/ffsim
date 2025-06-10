@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.56</title>
+        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.57</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.56</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.57</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.56</span>
+  <span class="sidebar-brand-text">ffsim 0.0.57</span>
   
 </a>
 
@@ -331,10 +331,10 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+converged SCF energy = -77.8266321248745
+Parsing /tmp/tmpioxr53d3
 converged SCF energy = -77.8266321248744
-Parsing /tmp/tmp5pqyzywn
-converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643862  E(CI) = -4.02122442107772  S^2 = 0.0000000
+CASCI E = -77.8742165643863  E(CI) = -4.02122442107773  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -369,7 +369,7 @@ Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.
 
 <span class="c1"># Construct UCJ operator</span>
 <span class="n">n_reps</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">ccsd</span><span class="o">.</span><span class="n">t2</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
+<span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span><span class="n">ccsd</span><span class="o">.</span><span class="n">t2</span><span class="p">,</span> <span class="n">t1</span><span class="o">=</span><span class="n">ccsd</span><span class="o">.</span><span class="n">t1</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
 
 <span class="c1"># Construct the Hartree-Fock state to use as the reference state</span>
 <span class="n">reference_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">hartree_fock_state</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
@@ -389,8 +389,8 @@ Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374029  E_corr = -0.04758323886585901
-Energy at initialization: -77.87160024816274
+E(CCSD) = -77.87421536374032  E_corr = -0.04758323886584907
+Energy at initialization: -77.87160024816292
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -403,7 +403,9 @@ Energy at initialization: -77.87160024816274
 
 <span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Initialize the ansatz operator from the parameter vector</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">)</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">with_final_orbital_rotation</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
     <span class="c1"># Apply the ansatz operator to the reference state</span>
     <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span><span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
     <span class="c1"># Return the energy ⟨ψ|H|ψ⟩ of the ansatz state</span>
@@ -424,24 +426,24 @@ Energy at initialization: -77.87160024816274
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Number of parameters: 72
+Number of parameters: 88
   message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.8738739189829
-        x: [-1.153e+00 -3.713e-04 ...  1.951e-04  1.287e-01]
+      fun: -77.87387386915114
+        x: [-1.153e+00 -4.503e-04 ...  9.364e-05  1.690e-05]
       nit: 10
-      jac: [-1.563e-05  3.126e-05 ...  8.527e-06  2.558e-05]
-     nfev: 949
+      jac: [-1.705e-05  4.263e-06 ...  7.105e-06 -3.126e-05]
+     nfev: 1157
      njev: 13
- hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
+ hess_inv: &lt;88x88 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
 </section>
 <section id="LUCJ-ansatz">
 <h2>LUCJ ansatz<a class="headerlink" href="#LUCJ-ansatz" title="Link to this heading">¶</a></h2>
 <p>Now, let’s add locality constraints to simulate the LUCJ ansatz. We’ll restrict same-spin interactions to a line topology, and opposite-spin interactions to those within the same spatial orbital. As explained in <a class="reference internal" href="../explanations/lucj.html#The-local-UCJ-(LUCJ)-ansatz"><span class="std std-ref">The local unitary cluster Jastrow (LUCJ) ansatz</span></a>, these constraints allow the ansatz to be simulated directly on a square lattice.</p>
-<p>In the following code cell, we demonstrate the optimization of the ansatz with these constraints imposed. Notice that with the same number of ansatz repetitions, the number of parameters of the ansatz has decreased from 72 to 46.</p>
+<p>In the following code cell, we demonstrate the optimization of the ansatz with these constraints imposed. Notice that with the same number of ansatz repetitions, the number of parameters of the ansatz has decreased from 88 to 62.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -453,7 +455,11 @@ Number of parameters: 72
 
 <span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
+        <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">,</span>
+        <span class="n">with_final_orbital_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span><span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">final_state</span><span class="p">,</span> <span class="n">hamiltonian</span> <span class="o">@</span> <span class="n">final_state</span><span class="p">))</span>
@@ -475,17 +481,17 @@ Number of parameters: 72
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Number of parameters: 46
+Number of parameters: 62
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363426299719
-        x: [-1.152e+00  5.222e-05 ...  3.521e-02  2.561e-01]
-      nit: 5
-      jac: [-2.842e-06 -1.847e-05 ...  1.421e-06 -2.842e-06]
-     nfev: 329
-     njev: 7
- hess_inv: &lt;46x46 LbfgsInvHessProduct with dtype=float64&gt;
+      fun: -77.87363424922374
+        x: [-1.152e+00  5.290e-05 ... -3.514e-05 -7.925e-05]
+      nit: 6
+      jac: [ 7.105e-06 -3.411e-05 ... -1.421e-05 -1.990e-05]
+     nfev: 504
+     njev: 8
+ hess_inv: &lt;62x62 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
 </section>
@@ -505,7 +511,11 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 <span class="c1"># Define function that converts a list of parameters to the corresponding state vector</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">params_to_vec</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">operator</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
+        <span class="n">interaction_pairs</span><span class="o">=</span><span class="n">interaction_pairs</span><span class="p">,</span>
+        <span class="n">with_final_orbital_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">apply_unitary</span><span class="p">(</span><span class="n">reference_state</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
@@ -557,32 +567,32 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Number of parameters: 46
+Number of parameters: 62
  message: Convergence: Relative reduction of objective function &lt;= ftol.
  success: True
-     fun: -77.87363426389005
-       x: [-1.152e+00  9.513e-04 ...  3.485e-02  2.557e-01]
+     fun: -77.873634579413
+       x: [-1.152e+00  2.228e-04 ... -4.675e-04  1.655e-04]
      nit: 3
-     jac: [ 1.860e-06  1.295e-05 ... -1.099e-06 -9.110e-06]
-    nfev: 571
+     jac: [ 6.967e-07 -3.865e-06 ...  2.015e-06 -2.288e-06]
+    nfev: 624
     njev: 4
-  nlinop: 387
+  nlinop: 376
 
 Iteration 1
-    Energy: -77.87363174170079
-    Norm of gradient: 0.0011004519785407538
-    Regularization hyperparameter: 0.0016172873971760978
-    Variation hyperparameter: 0.9976834194799924
+    Energy: -77.87363037829056
+    Norm of gradient: 0.0013011213187188741
+    Regularization hyperparameter: 0.0019155172150062882
+    Variation hyperparameter: 0.9984405830147715
 Iteration 2
-    Energy: -77.87363426109457
-    Norm of gradient: 7.790358514886236e-05
-    Regularization hyperparameter: 0.0016172872936552189
-    Variation hyperparameter: 0.9976834194799924
+    Energy: -77.87363435673261
+    Norm of gradient: 8.632279457832812e-05
+    Regularization hyperparameter: 0.0034089712789581194
+    Variation hyperparameter: 0.9984640432952159
 Iteration 3
-    Energy: -77.87363426389005
-    Norm of gradient: 6.067864644534355e-05
-    Regularization hyperparameter: 0.7437470420384195
-    Variation hyperparameter: 0.99925677170068
+    Energy: -77.873634579413
+    Norm of gradient: 7.337211178767986e-05
+    Regularization hyperparameter: 0.0033431352777337025
+    Variation hyperparameter: 0.9984639853707167
 </pre></div></div>
 </div>
 </section>
@@ -658,7 +668,7 @@ Iteration 3
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=8f83b1af"></script>
+</div><script src="../_static/documentation_options.js?v=2bfb35b6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
