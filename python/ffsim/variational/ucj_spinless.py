@@ -47,7 +47,7 @@ class UCJOpSpinless(
         \mathcal{J} = \frac12\sum_{ij}
         \mathbf{J}_{ij} n_{i} n_{j}.
 
-    where \mathbf{J} is a real symmetric matrix.
+    where :math:`\mathbf{J}` is a real symmetric matrix.
     The number of terms :math:`L` is referred to as the
     number of ansatz repetitions and is accessible via the `n_reps` attribute.
 
