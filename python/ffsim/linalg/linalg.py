@@ -83,7 +83,7 @@ def match_global_phase(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.nda
     if a.shape != b.shape:
         return a, b
     # use the largest entry of one of the matrices to maximize precision
-    index = max(np.ndindex(*a.shape), key=lambda i: abs(b[i]))
+    index = np.unravel_index(np.argmax(np.abs(b)), b.shape)
     phase_a = cmath.phase(a[index])
     phase_b = cmath.phase(b[index])
     return a * cmath.rect(1, -phase_a), b * cmath.rect(1, -phase_b)
