@@ -248,7 +248,7 @@ def _get_mat_exp(
         mat_exp_ab = np.exp(-1j * time * mat_ab)
         return mat_exp_aa, mat_exp_ab, mat_exp_aa
     else:
-        mat_aa, mat_ab, mat_bb = mat
+        mat_aa, mat_ab, mat_bb = mat  # type: ignore
         if mat_aa is None:
             mat_exp_aa = np.ones((norb, norb), dtype=complex)
         else:
