@@ -41,7 +41,7 @@ Documentation = "https://qiskit-community.github.io/ffsim/"
 dev = [
     "coverage",
     "maturin",
-    "mypy",
+    "mypy == 1.15.0",
     "myst-parser",
     "nbmake",
     "nbsphinx",
