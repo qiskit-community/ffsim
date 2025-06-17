@@ -140,3 +140,5 @@ wheelhouse/
 
 # direnv
 .envrc
+
+uv.lock

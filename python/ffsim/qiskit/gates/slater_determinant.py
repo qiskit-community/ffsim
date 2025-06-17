@@ -96,6 +96,7 @@ class PrepareHartreeFockSpinlessJW(Gate):
         self.definition = circuit
 
 
+# todo: HartreeFockJW
 class PrepareSlaterDeterminantJW(Gate):
     r"""Gate that prepares a Slater determinant (under JWT) from the all zeros state.
 
