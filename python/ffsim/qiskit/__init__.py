@@ -38,6 +38,10 @@ from ffsim.qiskit.sim import final_state_vector
 from ffsim.qiskit.transpiler_passes import DropNegligible, MergeOrbitalRotations
 from ffsim.qiskit.transpiler_stages import pre_init_passes
 from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
+from ffsim.qiskit.variational import (
+    ucj_spin_balanced_ansatz,
+    ucj_spin_balanced_parameters_from_t_amplitudes,
+)
 
 PRE_INIT = PassManager(list(pre_init_passes()))
 """Pass manager recommended for the Qiskit transpiler ``pre_init`` stage.
@@ -75,4 +79,6 @@ __all__ = [
     "jordan_wigner",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",
+    "ucj_spin_balanced_ansatz",
+    "ucj_spin_balanced_parameters_from_t_amplitudes",
 ]
