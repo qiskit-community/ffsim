@@ -228,8 +228,6 @@ def double_factorized(
             "Double-factorization of complex two-body tensors is not supported."
         )
 
-    _validate_diag_coulomb_indices(diag_coulomb_indices)
-
     norb, _, _, _ = two_body_tensor.shape
 
     if not norb:
@@ -238,13 +236,6 @@ def double_factorized(
     if max_vecs is None:
         max_vecs = norb * (norb + 1) // 2
     if optimize:
-        if diag_coulomb_indices is None:
-            diag_coulomb_mask = None
-        else:
-            diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*diag_coulomb_indices)
-            diag_coulomb_mask[rows, cols] = True
-            diag_coulomb_mask[cols, rows] = True
         return _double_factorized_compressed(
             two_body_tensor,
             tol=tol,
@@ -252,7 +243,7 @@ def double_factorized(
             method=method,
             callback=callback,
             options=options,
-            diag_coulomb_mask=diag_coulomb_mask,
+            diag_coulomb_indices=diag_coulomb_indices,
         )
     if cholesky:
         return _double_factorized_explicit_cholesky(
@@ -337,14 +328,21 @@ def _double_factorized_compressed(
     method: str,
     callback,
     options: dict | None,
-    diag_coulomb_mask: np.ndarray | None,
+    diag_coulomb_indices: list[tuple[int, int]] | None,
 ) -> tuple[np.ndarray, np.ndarray]:
     diag_coulomb_mats, orbital_rotations = _double_factorized_explicit_cholesky(
         two_body_tensor, tol=tol, max_vecs=max_vecs
     )
     n_tensors, norb, _ = orbital_rotations.shape
-    if diag_coulomb_mask is None:
+
+    _validate_diag_coulomb_indices(diag_coulomb_indices)
+    if diag_coulomb_indices is None:
         diag_coulomb_mask = np.ones((norb, norb), dtype=bool)
+    else:
+        diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
+        rows, cols = zip(*diag_coulomb_indices)
+        diag_coulomb_mask[rows, cols] = True
+        diag_coulomb_mask[cols, rows] = True
     diag_coulomb_mask = np.triu(diag_coulomb_mask)
 
     def fun(x):
