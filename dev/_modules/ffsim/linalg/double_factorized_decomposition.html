@@ -500,8 +500,6 @@
             <span class="s2">&quot;Double-factorization of complex two-body tensors is not supported.&quot;</span>
         <span class="p">)</span>
 
-    <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">diag_coulomb_indices</span><span class="p">)</span>
-
     <span class="n">norb</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">shape</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">norb</span><span class="p">:</span>
@@ -510,13 +508,6 @@
     <span class="k">if</span> <span class="n">max_vecs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">max_vecs</span> <span class="o">=</span> <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
     <span class="k">if</span> <span class="n">optimize</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">diag_coulomb_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">diag_coulomb_indices</span><span class="p">)</span>
-            <span class="n">diag_coulomb_mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">diag_coulomb_mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">_double_factorized_compressed</span><span class="p">(</span>
             <span class="n">two_body_tensor</span><span class="p">,</span>
             <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
@@ -524,7 +515,7 @@
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
             <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
             <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-            <span class="n">diag_coulomb_mask</span><span class="o">=</span><span class="n">diag_coulomb_mask</span><span class="p">,</span>
+            <span class="n">diag_coulomb_indices</span><span class="o">=</span><span class="n">diag_coulomb_indices</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">cholesky</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_double_factorized_explicit_cholesky</span><span class="p">(</span>
@@ -610,14 +601,21 @@
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">callback</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">diag_coulomb_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
     <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_double_factorized_explicit_cholesky</span><span class="p">(</span>
         <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span>
     <span class="p">)</span>
     <span class="n">n_tensors</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span>
-    <span class="k">if</span> <span class="n">diag_coulomb_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="n">_validate_diag_coulomb_indices</span><span class="p">(</span><span class="n">diag_coulomb_indices</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">diag_coulomb_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">diag_coulomb_indices</span><span class="p">)</span>
+        <span class="n">diag_coulomb_mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diag_coulomb_mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">diag_coulomb_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">diag_coulomb_mask</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
