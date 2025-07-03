@@ -90,14 +90,8 @@ def slater_determinant(
     n_beta = len(beta_orbitals)
     nelec = (n_alpha, n_beta)
     dim1, dim2 = dims(norb, nelec)
-    alpha_bits = np.zeros(norb, dtype=bool)
-    alpha_bits[list(alpha_orbitals)] = 1
-    alpha_string = int("".join("1" if b else "0" for b in alpha_bits[::-1]), base=2)
-    alpha_index = cistring.str2addr(norb, n_alpha, alpha_string)
-    beta_bits = np.zeros(norb, dtype=bool)
-    beta_bits[list(beta_orbitals)] = 1
-    beta_string = int("".join("1" if b else "0" for b in beta_bits[::-1]), base=2)
-    beta_index = cistring.str2addr(norb, n_beta, beta_string)
+    alpha_index = cistring.str2addr(norb, n_alpha, sum(1 << i for i in alpha_orbitals))
+    beta_index = cistring.str2addr(norb, n_beta, sum(1 << i for i in beta_orbitals))
     vec = linalg.one_hot(
         (dim1, dim2), (alpha_index, beta_index), dtype=complex
     ).reshape(-1)
