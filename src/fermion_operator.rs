@@ -144,7 +144,7 @@ impl FermionOperator {
             } else {
                 format!("{}+{}j", val.re, val.im)
             };
-            items_str.push(format!("{}: {}", key_str, val_str));
+            items_str.push(format!("{key_str}: {val_str}"));
         }
         Ok(format!("FermionOperator({{{}}})", items_str.join(", ")))
     }
@@ -165,7 +165,7 @@ impl FermionOperator {
                     } else {
                         action_str = "cre_b"
                     }
-                    format!("{}({})", action_str, orb)
+                    format!("{action_str}({orb})")
                 })
                 .collect();
             let key_str = format!("({})", key_parts.join(", "));
@@ -176,7 +176,7 @@ impl FermionOperator {
             } else {
                 format!("{}+{}j", val.re, val.im)
             };
-            items_str.push(format!("    {}: {}", key_str, val_str));
+            items_str.push(format!("    {key_str}: {val_str}"));
         }
         format!("FermionOperator({{\n{}\n}})", items_str.join(",\n"))
     }
