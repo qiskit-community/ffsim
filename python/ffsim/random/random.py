@@ -463,6 +463,7 @@ def random_ucj_op_spin_balanced(
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
+            Defaults to ``2 * pi``.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
@@ -565,6 +566,7 @@ def random_ucj_op_spin_unbalanced(
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
+            Defaults to ``2 * pi``.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
@@ -675,6 +677,7 @@ def random_ucj_op_spinless(
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
+            Defaults to ``2 * pi``.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
