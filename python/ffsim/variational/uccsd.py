@@ -315,11 +315,11 @@ class UCCSDOpRestricted(
         # Number of occupied-virtual pairs
         n_pairs = nocc * nvrt
         # t1 has 2* n_pairs parameters
-        # t2 has 2 * n_pairs * (n_pairs + 1) parameters
+        # t2 has n_pairs * (n_pairs + 1) parameters
         # Final orbital rotation has norb**2 parameters
         return (
             2 * n_pairs
-            + 2 * n_pairs * (n_pairs + 1)
+            + n_pairs * (n_pairs + 1)
             + with_final_orbital_rotation * norb**2
         )
 
@@ -368,8 +368,8 @@ class UCCSDOpRestricted(
         # t2
         for (i, a), (j, b) in itertools.combinations_with_replacement(occ_vrt_pairs, 2):
             t2[i, j, a - nocc, b - nocc] = params[index] + 1j * params[index + 1]
-            t2[j, i, b - nocc, a - nocc] = params[index + 2] + 1j * params[index + 3]
-            index += 4
+            t2[j, i, b - nocc, a - nocc] = params[index] + 1j * params[index + 1]
+            index += 2
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -405,9 +405,7 @@ class UCCSDOpRestricted(
         for (i, a), (j, b) in itertools.combinations_with_replacement(occ_vrt_pairs, 2):
             params[index] = self.t2[i, j, a - nocc, b - nocc].real
             params[index + 1] = self.t2[i, j, a - nocc, b - nocc].imag
-            params[index + 2] = self.t2[j, i, b - nocc, a - nocc].real
-            params[index + 3] = self.t2[j, i, b - nocc, a - nocc].imag
-            index += 4
+            index += 2
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
             params[index:] = orbital_rotation_to_parameters(self.final_orbital_rotation)
