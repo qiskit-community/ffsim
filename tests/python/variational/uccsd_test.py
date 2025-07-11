@@ -17,26 +17,25 @@ import numpy as np
 import ffsim
 
 
-def test_norb():
+def test_uccsd_real_norb():
     """Test norb property."""
     rng = np.random.default_rng(4878)
     norb = 5
     nocc = 3
-    operator = ffsim.random.random_uccsd_restricted(norb, nocc, real=True, seed=rng)
+    operator = ffsim.random.random_uccsd_op_restricted_real(norb, nocc, seed=rng)
     assert operator.norb == norb
 
 
-def test_n_params():
+def test_uccsd_real_n_params():
     """Test computing number of parameters."""
     rng = np.random.default_rng(4878)
     norb = 5
     nocc = 3
     for with_final_orbital_rotation in [False, True]:
-        operator = ffsim.random.random_uccsd_restricted(
+        operator = ffsim.random.random_uccsd_op_restricted_real(
             norb,
             nocc,
             with_final_orbital_rotation=with_final_orbital_rotation,
-            real=True,
             seed=rng,
         )
         actual = ffsim.UCCSDOpRestrictedReal.n_params(
@@ -46,17 +45,16 @@ def test_n_params():
         assert actual == expected
 
 
-def test_parameters_roundtrip():
+def test_uccsd_real_parameters_roundtrip():
     """Test parameters roundtrip."""
     rng = np.random.default_rng(4623)
     norb = 5
     nocc = 3
     for with_final_orbital_rotation in [False, True]:
-        operator = ffsim.random.random_uccsd_restricted(
+        operator = ffsim.random.random_uccsd_op_restricted_real(
             norb,
             nocc,
             with_final_orbital_rotation=with_final_orbital_rotation,
-            real=True,
             seed=rng,
         )
         roundtripped = ffsim.UCCSDOpRestrictedReal.from_parameters(
@@ -68,17 +66,16 @@ def test_parameters_roundtrip():
         assert ffsim.approx_eq(roundtripped, operator)
 
 
-def test_approx_eq():
+def test_uccsd_real_approx_eq():
     """Test approximate equality."""
     rng = np.random.default_rng(4623)
     norb = 5
     nocc = 3
     for with_final_orbital_rotation in [False, True]:
-        operator = ffsim.random.random_uccsd_restricted(
+        operator = ffsim.random.random_uccsd_op_restricted_real(
             norb,
             nocc,
             with_final_orbital_rotation=with_final_orbital_rotation,
-            real=True,
             seed=rng,
         )
         roundtripped = ffsim.UCCSDOpRestrictedReal.from_parameters(
@@ -96,18 +93,110 @@ def test_approx_eq():
         )
 
 
-def test_apply_unitary():
+def test_uccsd_real_apply_unitary():
     """Test unitary."""
     rng = np.random.default_rng(4623)
     norb = 5
     nocc = 3
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, (nocc, nocc)), seed=rng)
     for with_final_orbital_rotation in [False, True]:
-        operator = ffsim.random.random_uccsd_restricted(
+        operator = ffsim.random.random_uccsd_op_restricted_real(
             norb,
             nocc,
             with_final_orbital_rotation=with_final_orbital_rotation,
-            real=True,
+            seed=rng,
+        )
+        result = ffsim.apply_unitary(vec, operator, norb=norb, nelec=(nocc, nocc))
+        np.testing.assert_allclose(np.linalg.norm(result), 1.0)
+
+
+def test_uccsd_complex_norb():
+    """Test norb property."""
+    rng = np.random.default_rng(4878)
+    norb = 5
+    nocc = 3
+    operator = ffsim.random.random_uccsd_op_restricted(norb, nocc, seed=rng)
+    assert operator.norb == norb
+
+
+def test_uccsd_complex_n_params():
+    """Test computing number of parameters."""
+    rng = np.random.default_rng(4878)
+    norb = 5
+    nocc = 3
+    for with_final_orbital_rotation in [False, True]:
+        operator = ffsim.random.random_uccsd_op_restricted(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=rng,
+        )
+        actual = ffsim.UCCSDOpRestricted.n_params(
+            norb, nocc, with_final_orbital_rotation=with_final_orbital_rotation
+        )
+        expected = len(operator.to_parameters())
+        assert actual == expected
+
+
+def test_uccsd_complex_parameters_roundtrip():
+    """Test parameters roundtrip."""
+    rng = np.random.default_rng(4623)
+    norb = 5
+    nocc = 3
+    for with_final_orbital_rotation in [False, True]:
+        operator = ffsim.random.random_uccsd_op_restricted(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=rng,
+        )
+        roundtripped = ffsim.UCCSDOpRestricted.from_parameters(
+            operator.to_parameters(),
+            norb=norb,
+            nocc=nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        assert ffsim.approx_eq(roundtripped, operator)
+
+
+def test_uccsd_complex_approx_eq():
+    """Test approximate equality."""
+    rng = np.random.default_rng(4623)
+    norb = 5
+    nocc = 3
+    for with_final_orbital_rotation in [False, True]:
+        operator = ffsim.random.random_uccsd_op_restricted(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=rng,
+        )
+        roundtripped = ffsim.UCCSDOpRestricted.from_parameters(
+            operator.to_parameters(),
+            norb=norb,
+            nocc=nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        assert ffsim.approx_eq(operator, roundtripped)
+        assert not ffsim.approx_eq(
+            operator, dataclasses.replace(operator, t1=2 * operator.t1)
+        )
+        assert not ffsim.approx_eq(
+            operator, dataclasses.replace(operator, t2=2 * operator.t2)
+        )
+
+
+def test_uccsd_complex_apply_unitary():
+    """Test unitary."""
+    rng = np.random.default_rng(4623)
+    norb = 5
+    nocc = 3
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, (nocc, nocc)), seed=rng)
+    for with_final_orbital_rotation in [False, True]:
+        operator = ffsim.random.random_uccsd_op_restricted(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
             seed=rng,
         )
         result = ffsim.apply_unitary(vec, operator, norb=norb, nelec=(nocc, nocc))
