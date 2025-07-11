@@ -278,6 +278,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -714,15 +715,43 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_random_symmetric_matrix_uniform</span><span class="p">(</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Random real symmetric matrix with entries drawn from a uniform distribution.&quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">n_vals</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">*</span> <span class="p">(</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_vals</span><span class="p">)</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+    <span class="n">mat</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+    <span class="n">mat</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+    <span class="k">return</span> <span class="n">mat</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_random_symmetric_matrix_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Random real symmetric matrix with entries drawn from a normal distribution.&quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">n_vals</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">*</span> <span class="p">(</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_vals</span><span class="p">)</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+    <span class="n">mat</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+    <span class="n">mat</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+    <span class="k">return</span> <span class="n">mat</span>
+
+
 <div class="viewcode-block" id="random_ucj_op_spin_balanced">
 <a class="viewcode-back" href="../../../api/ffsim.random.html#ffsim.random.random_ucj_op_spin_balanced">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">random_ucj_op_spin_balanced</span><span class="p">(</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">diag_coulomb_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+    <span class="n">diag_coulomb_normal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.</span>
@@ -730,8 +759,6 @@
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
-<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
-<span class="sd">            in the operator.</span>
 <span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
 <span class="sd">            for the diagonal Coulomb operators.</span>
 <span class="sd">            If specified, `interaction_pairs` should be a pair of lists,</span>
@@ -744,6 +771,14 @@
 <span class="sd">            nonzero.</span>
 <span class="sd">            Each integer pair must be upper triangular, that is, of the form</span>
 <span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
+<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">            in the operator.</span>
+<span class="sd">        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.</span>
+<span class="sd">        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb</span>
+<span class="sd">            matrices from a normal distribution, rather than a uniform distribution.</span>
+<span class="sd">            If True, then the entries are drawn by calling</span>
+<span class="sd">            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling</span>
+<span class="sd">            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -757,12 +792,21 @@
     <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">_symmetric_matrix_generator</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_random_symmetric_matrix_normal</span>
+        <span class="k">if</span> <span class="n">diag_coulomb_normal</span>
+        <span class="k">else</span> <span class="n">_random_symmetric_matrix_uniform</span>
+    <span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span>
-                    <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span>
+                    <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                    <span class="p">),</span>
+                    <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                    <span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)</span>
@@ -810,6 +854,8 @@
     <span class="p">]</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">diag_coulomb_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+    <span class="n">diag_coulomb_normal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinUnbalanced</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.</span>
@@ -832,6 +878,12 @@
 <span class="sd">            :math:`i \leq j`.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.</span>
+<span class="sd">        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb</span>
+<span class="sd">            matrices from a normal distribution, rather than a uniform distribution.</span>
+<span class="sd">            If True, then the entries are drawn by calling</span>
+<span class="sd">            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling</span>
+<span class="sd">            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -846,13 +898,28 @@
     <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">pairs_bb</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">_symmetric_matrix_generator</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_random_symmetric_matrix_normal</span>
+        <span class="k">if</span> <span class="n">diag_coulomb_normal</span>
+        <span class="k">else</span> <span class="n">_random_symmetric_matrix_uniform</span>
+    <span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span>
-                    <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)),</span>
-                    <span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">),</span>
+                    <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                    <span class="p">),</span>
+                    <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">diag_coulomb_normal</span>
+                    <span class="k">else</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                        <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">diag_coulomb_scale</span><span class="p">,</span>
+                        <span class="mf">0.5</span> <span class="o">*</span> <span class="n">diag_coulomb_scale</span><span class="p">,</span>
+                        <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span>
+                    <span class="p">),</span>
+                    <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                    <span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)</span>
@@ -905,6 +972,8 @@
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">diag_coulomb_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+    <span class="n">diag_coulomb_normal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">variational</span><span class="o">.</span><span class="n">UCJOpSpinless</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sample a random spinless unitary cluster Jastrow (UCJ) operator.</span>
@@ -912,8 +981,6 @@
 <span class="sd">    Args:</span>
 <span class="sd">        norb: The number of orbitals.</span>
 <span class="sd">        n_reps: The number of ansatz repetitions.</span>
-<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
-<span class="sd">            in the operator.</span>
 <span class="sd">        interaction_pairs: Optional restrictions on allowed orbital interactions</span>
 <span class="sd">            for the diagonal Coulomb operators.</span>
 <span class="sd">            If specified, `interaction_pairs` should be a list of integer pairs</span>
@@ -922,6 +989,14 @@
 <span class="sd">            that are allowed to be nonzero.</span>
 <span class="sd">            Each integer pair must be upper triangular, that is, of the form</span>
 <span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
+<span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
+<span class="sd">            in the operator.</span>
+<span class="sd">        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.</span>
+<span class="sd">        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb</span>
+<span class="sd">            matrices from a normal distribution, rather than a uniform distribution.</span>
+<span class="sd">            If True, then the entries are drawn by calling</span>
+<span class="sd">            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling</span>
+<span class="sd">            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -931,8 +1006,16 @@
     <span class="n">validate_interaction_pairs</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">_symmetric_matrix_generator</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_random_symmetric_matrix_normal</span>
+        <span class="k">if</span> <span class="n">diag_coulomb_normal</span>
+        <span class="k">else</span> <span class="n">_random_symmetric_matrix_uniform</span>
+    <span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">random_real_symmetric_matrix</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
+        <span class="p">[</span>
+            <span class="n">_symmetric_matrix_generator</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)</span>
+        <span class="p">]</span>
     <span class="p">)</span>
     <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)]</span>
