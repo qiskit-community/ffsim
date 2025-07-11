@@ -340,22 +340,20 @@ def random_molecular_hamiltonian_spinless(
     )
 
 
-def random_uccsd_restricted(
+def random_uccsd_op_restricted_real(
     norb: int,
     nocc: int,
     *,
     with_final_orbital_rotation: bool = False,
-    real: bool = False,
     seed=None,
 ) -> variational.UCCSDOpRestrictedReal:
-    """Sample a random UCCSD operator.
+    """Sample a random real-valued UCCSD operator.
 
     Args:
         norb: The number of spatial orbitals.
         nocc: The number of spatial orbitals that are occupied by electrons.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
-        real: Whether to sample a real-valued object rather than a complex-valued one.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -363,17 +361,46 @@ def random_uccsd_restricted(
         The sampled UCCSD operator.
     """
     rng = np.random.default_rng(seed)
-    dtype = float if real else complex
     nvrt = norb - nocc
-    t1: np.ndarray = rng.standard_normal((nocc, nvrt)).astype(dtype, copy=False)
-    if not real:
-        t1 += 1j * rng.standard_normal((nocc, nvrt))
-    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=dtype)
+    t1 = rng.standard_normal((nocc, nvrt))
+    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
-        unitary_func = random_orthogonal if real else random_unitary
-        final_orbital_rotation = unitary_func(norb, seed=rng)
+        final_orbital_rotation = random_orthogonal(norb, seed=rng)
     return variational.UCCSDOpRestrictedReal(
+        t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
+    )
+
+
+def random_uccsd_op_restricted(
+    norb: int,
+    nocc: int,
+    *,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCCSDOpRestricted:
+    """Sample a random UCCSD operator.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nocc: The number of spatial orbitals that are occupied by electrons.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCCSD operator.
+    """
+    rng = np.random.default_rng(seed)
+    nvrt = norb - nocc
+    t1 = rng.standard_normal((nocc, nvrt)).astype(complex)
+    t1 += 1j * rng.standard_normal((nocc, nvrt))
+    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=complex)
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = random_unitary(norb, seed=rng)
+    return variational.UCCSDOpRestricted(
         t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
     )
 
