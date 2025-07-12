@@ -716,12 +716,12 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_random_symmetric_matrix_uniform</span><span class="p">(</span>
-    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Random real symmetric matrix with entries drawn from a uniform distribution.&quot;&quot;&quot;</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">n_vals</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">*</span> <span class="p">(</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-    <span class="n">vals</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_vals</span><span class="p">)</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_vals</span><span class="p">)</span>
     <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
     <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
     <span class="n">mat</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
@@ -729,11 +729,13 @@
     <span class="k">return</span> <span class="n">mat</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_random_symmetric_matrix_normal</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_random_symmetric_matrix_normal</span><span class="p">(</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Random real symmetric matrix with entries drawn from a normal distribution.&quot;&quot;&quot;</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">n_vals</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">*</span> <span class="p">(</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-    <span class="n">vals</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_vals</span><span class="p">)</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_vals</span><span class="p">)</span>
     <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
     <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
     <span class="n">mat</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
@@ -750,6 +752,7 @@
     <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">diag_coulomb_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
     <span class="n">diag_coulomb_normal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -773,13 +776,17 @@
 <span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.</span>
+<span class="sd">            Defaults to ``0``.</span>
 <span class="sd">        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.</span>
 <span class="sd">            Defaults to ``2 * pi``.</span>
 <span class="sd">        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb</span>
 <span class="sd">            matrices from a normal distribution, rather than a uniform distribution.</span>
 <span class="sd">            If True, then the entries are drawn by calling</span>
-<span class="sd">            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling</span>
-<span class="sd">            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.</span>
+<span class="sd">            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,</span>
+<span class="sd">            then the entries are drawn by calling</span>
+<span class="sd">            ``diag_coulomb_mean +</span>
+<span class="sd">            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -803,10 +810,10 @@
             <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
-                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">diag_coulomb_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
                     <span class="p">),</span>
                     <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
-                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">diag_coulomb_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
                     <span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
@@ -855,6 +862,7 @@
     <span class="p">]</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">diag_coulomb_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
     <span class="n">diag_coulomb_normal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -879,13 +887,17 @@
 <span class="sd">            :math:`i \leq j`.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.</span>
+<span class="sd">            Defaults to ``0``.</span>
 <span class="sd">        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.</span>
 <span class="sd">            Defaults to ``2 * pi``.</span>
 <span class="sd">        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb</span>
 <span class="sd">            matrices from a normal distribution, rather than a uniform distribution.</span>
 <span class="sd">            If True, then the entries are drawn by calling</span>
-<span class="sd">            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling</span>
-<span class="sd">            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.</span>
+<span class="sd">            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,</span>
+<span class="sd">            then the entries are drawn by calling</span>
+<span class="sd">            ``diag_coulomb_mean +</span>
+<span class="sd">            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -910,17 +922,22 @@
             <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
-                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">diag_coulomb_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
                     <span class="p">),</span>
-                    <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+                    <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                        <span class="n">loc</span><span class="o">=</span><span class="n">diag_coulomb_mean</span><span class="p">,</span>
+                        <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span>
+                        <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span>
+                    <span class="p">)</span>
                     <span class="k">if</span> <span class="n">diag_coulomb_normal</span>
-                    <span class="k">else</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                    <span class="k">else</span> <span class="n">diag_coulomb_mean</span>
+                    <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
                         <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">diag_coulomb_scale</span><span class="p">,</span>
                         <span class="mf">0.5</span> <span class="o">*</span> <span class="n">diag_coulomb_scale</span><span class="p">,</span>
                         <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span>
                     <span class="p">),</span>
                     <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
-                        <span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+                        <span class="n">norb</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">diag_coulomb_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
                     <span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
@@ -974,6 +991,7 @@
     <span class="n">n_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">with_final_orbital_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">diag_coulomb_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">diag_coulomb_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
     <span class="n">diag_coulomb_normal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -993,13 +1011,17 @@
 <span class="sd">            :math:`(i, j)` where :math:`i \leq j`.</span>
 <span class="sd">        with_final_orbital_rotation: Whether to include a final orbital rotation</span>
 <span class="sd">            in the operator.</span>
+<span class="sd">        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.</span>
+<span class="sd">            Defaults to ``0``.</span>
 <span class="sd">        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.</span>
 <span class="sd">            Defaults to ``2 * pi``.</span>
 <span class="sd">        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb</span>
 <span class="sd">            matrices from a normal distribution, rather than a uniform distribution.</span>
 <span class="sd">            If True, then the entries are drawn by calling</span>
-<span class="sd">            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling</span>
-<span class="sd">            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.</span>
+<span class="sd">            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,</span>
+<span class="sd">            then the entries are drawn by calling</span>
+<span class="sd">            ``diag_coulomb_mean +</span>
+<span class="sd">            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.</span>
 <span class="sd">        seed: A seed to initialize the pseudorandom number generator.</span>
 <span class="sd">            Should be a valid input to ``np.random.default_rng``.</span>
 
@@ -1016,7 +1038,9 @@
     <span class="p">)</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="n">_symmetric_matrix_generator</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+            <span class="n">_symmetric_matrix_generator</span><span class="p">(</span>
+                <span class="n">norb</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">diag_coulomb_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">diag_coulomb_scale</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_reps</span><span class="p">)</span>
         <span class="p">]</span>
     <span class="p">)</span>
