@@ -219,21 +219,22 @@ def double_factorized_t2_compress(
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
     n_reps_full, norb, _ = orbital_rotations.shape
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
-    if n_reps is None:
+    if n_reps is None: 
         return diag_coulomb_mats, orbital_rotations
-
+    
     if not multi_stage_optimization:
         n_reps_full = n_reps
     if begin_reps is None:
         begin_reps = n_reps_full
-
-    pairs_aa, pairs_ab = interaction_pairs
-    # Zero out diagonal coulomb matrix entries
+    
     pairs: list[tuple[int, int]] = []
-    if pairs_aa is not None:
-        pairs += pairs_aa
-    if pairs_ab is not None:
-        pairs += pairs_ab
+    if interaction_pairs is not None:
+        pairs_aa, pairs_ab = interaction_pairs
+        # Zero out diagonal coulomb matrix entries
+        if pairs_aa is not None:
+            pairs += pairs_aa
+        if pairs_ab is not None:
+            pairs += pairs_ab
     if not pairs:
         diag_coulomb_mask = np.ones((norb, norb), dtype=bool)
     else:
