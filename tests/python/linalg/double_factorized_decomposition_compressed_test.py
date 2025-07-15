@@ -12,28 +12,18 @@
 
 from __future__ import annotations
 
-import itertools
-
 import numpy as np
-import pytest
-import scipy.linalg
+import pyscf
 from opt_einsum import contract
-import pyscf 
 
 import ffsim
-from ffsim.linalg import (
-    double_factorized,
-    modified_cholesky,
-)
 from ffsim.linalg.double_factorized_decomposition_compressed import (
     double_factorized_t2_compress,
 )
-from ffsim.random import random_t2_amplitudes, random_unitary
 
 
 def test_double_factorized_compressed():
     """Test compressed double factorization"""
-    # TODO test on simple molecule like ethylene
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
@@ -66,7 +56,7 @@ def test_double_factorized_compressed():
                                                 n_reps=n_reps,
                                                 interaction_pairs=(pairs_aa, pairs_ab),
                                                 method="L-BFGS-B",
-                                                options={"max_iter": 100},
+                                                options={"maxiter": 100},
                                                 multi_stage_optimization= True,
                                                 begin_reps=10,
                                                 step=2,)
@@ -87,5 +77,4 @@ def test_double_factorized_compressed():
     error = np.sum((reconstructed - ccsd.t2) ** 2)
     assert diag_coulomb_mats.shape == (n_reps, norb, norb)
     assert orbital_rotations.shape == (n_reps, norb, norb)
-
-    assert error < 1e-1
+    assert error < 0.001
