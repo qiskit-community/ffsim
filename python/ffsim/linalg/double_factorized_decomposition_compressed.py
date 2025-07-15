@@ -112,7 +112,7 @@ def _expm_antihermitian(mats: np.ndarray) -> np.ndarray:
 
 def _params_to_df_tensors(
     params: np.ndarray, n_tensors: int, norb: int, diag_coulomb_mat_mask: np.ndarray
-):
+) -> tuple[np.ndarray, np.ndarray]:
     leaf_logs = _params_to_leaf_logs(params, n_tensors, norb)
     orbital_rotations = _expm_antihermitian(leaf_logs)
     n_leaf_params = n_tensors * (norb * (norb - 1) // 2 + norb * (norb + 1) // 2)
@@ -219,6 +219,9 @@ def double_factorized_t2_compress(
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
     n_reps_full, norb, _ = orbital_rotations.shape
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
+    if n_reps is None:
+        return diag_coulomb_mats, orbital_rotations
+
     if not multi_stage_optimization:
         n_reps_full = n_reps
     if begin_reps is None:
@@ -226,7 +229,7 @@ def double_factorized_t2_compress(
 
     pairs_aa, pairs_ab = interaction_pairs
     # Zero out diagonal coulomb matrix entries
-    pairs = []
+    pairs: list[tuple[int, int]] = []
     if pairs_aa is not None:
         pairs += pairs_aa
     if pairs_ab is not None:

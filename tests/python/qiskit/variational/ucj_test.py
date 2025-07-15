@@ -10,8 +10,9 @@
 
 """Tests for UCJ ansatzes in Qiskit."""
 
-import ffsim
 import numpy as np
+
+import ffsim
 
 RNG = np.random.default_rng(473284857536346)
 

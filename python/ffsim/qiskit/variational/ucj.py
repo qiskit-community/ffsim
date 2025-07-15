@@ -1,24 +1,18 @@
-import math
-from collections.abc import Iterator, Sequence
-
 import numpy as np
-from ffsim import variational
-from ffsim.qiskit import UCJOpSpinBalancedJW, PrepareHartreeFockJW
 from qiskit.circuit import (
-    CircuitInstruction,
-    Gate,
     ParameterVector,
     QuantumCircuit,
     QuantumRegister,
-    Qubit,
 )
 from qiskit.circuit.library import (
     CPhaseGate,
-    GlobalPhaseGate,
     PhaseGate,
     XGate,
     XXPlusYYGate,
 )
+
+from ffsim import variational
+from ffsim.qiskit import PrepareHartreeFockJW, UCJOpSpinBalancedJW
 
 
 def ucj_spin_balanced_ansatz(
@@ -185,7 +179,7 @@ def ucj_spin_balanced_parameters_from_t_amplitudes(
     ucj_op = variational.UCJOpSpinBalanced.from_t_amplitudes(
         t2, t1=t1, n_reps=n_reps, interaction_pairs=interaction_pairs, tol=tol
     )
-    qubits = QuantumRegister(2*norb)
+    qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
     circuit.append(PrepareHartreeFockJW(norb, nelec))
     circuit.append(UCJOpSpinBalancedJW(ucj_op))
