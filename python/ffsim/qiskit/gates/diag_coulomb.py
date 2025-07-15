@@ -162,7 +162,6 @@ def _diag_coulomb_evo_num_rep_spinless_jw(
             )
 
 
-# todo: for random param
 def _diag_coulomb_evo_num_rep_jw(
     qubits: Sequence[Qubit],
     mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None],
