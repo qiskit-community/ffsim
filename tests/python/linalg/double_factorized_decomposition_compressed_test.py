@@ -17,8 +17,9 @@ import pyscf
 from opt_einsum import contract
 
 import ffsim
+from ffsim.linalg import double_factorized_t2
 from ffsim.linalg.double_factorized_decomposition_compressed import (
-    double_factorized_t2_compress,
+    double_factorized_t2_compressed,
 )
 
 
@@ -50,11 +51,12 @@ def test_double_factorized_compressed():
     nocc, _, _, _ = ccsd.t2.shape
     pairs_aa = [(p, p + 1) for p in range(norb - 1)]
     pairs_ab = [(p, p) for p in range(norb)]
+    diag_coulomb_indices = pairs_aa + pairs_ab
     n_reps = 2
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2_compress(
+    diag_coulomb_mats, orbital_rotations = double_factorized_t2_compressed(
         ccsd.t2,
         n_reps=n_reps,
-        interaction_pairs=(pairs_aa, pairs_ab),
+        diag_coulomb_indices=diag_coulomb_indices,
         method="L-BFGS-B",
         options={"maxiter": 100},
         multi_stage_optimization=True,
@@ -78,3 +80,69 @@ def test_double_factorized_compressed():
     assert diag_coulomb_mats.shape == (n_reps, norb, norb)
     assert orbital_rotations.shape == (n_reps, norb, norb)
     assert error < 0.001
+
+
+def test_double_factorized_compressed_random():
+    """Test compressed double factorization with random t2"""
+    norb = 8
+    nocc = 3
+    t2 = ffsim.random.random_t2_amplitudes(norb=norb, nocc=nocc, seed=8856, dtype=float)
+
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    diag_coulomb_indices = pairs_aa + pairs_ab
+
+    n_reps = 2
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+        double_factorized_t2_compressed(
+            t2,
+            n_reps=n_reps,
+            diag_coulomb_indices=diag_coulomb_indices,
+            method="L-BFGS-B",
+            options={"maxiter": 100},
+            multi_stage_optimization=True,
+            begin_reps=10,
+            step=2,
+        )
+    )
+
+    reconstructed_optimized = (
+        1j
+        * contract(
+            "mpq,map,mip,mbq,mjq->ijab",
+            diag_coulomb_mats_optimized,
+            orbital_rotations_optimized,
+            orbital_rotations_optimized.conj(),
+            orbital_rotations_optimized,
+            orbital_rotations_optimized.conj(),
+            # optimize="greedy"
+        )[:nocc, :nocc, nocc:, nocc:]
+    )
+
+    error_optimized = np.sum((reconstructed_optimized - t2) ** 2)
+
+    diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=1e-8)
+    _, _, norb, _ = orbital_rotations.shape
+    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
+    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
+
+    reconstructed = (
+        1j
+        * contract(
+            "mpq,map,mip,mbq,mjq->ijab",
+            diag_coulomb_mats,
+            orbital_rotations,
+            orbital_rotations.conj(),
+            orbital_rotations,
+            orbital_rotations.conj(),
+            # optimize="greedy"
+        )[:nocc, :nocc, nocc:, nocc:]
+    )
+
+    error = np.sum((reconstructed - t2) ** 2)
+
+    # print(error_optimized)
+    # print(error)
+    assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
+    assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
+    assert error_optimized < error
