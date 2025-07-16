@@ -407,12 +407,12 @@ def random_uccsd_op_restricted(
 
 
 def _random_symmetric_matrix_uniform(
-    dim: int, *, scale: float, seed=None
+    dim: int, *, mean: float, scale: float, seed=None
 ) -> np.ndarray:
     """Random real symmetric matrix with entries drawn from a uniform distribution."""
     rng = np.random.default_rng(seed)
     n_vals = dim * (dim + 1) // 2
-    vals = rng.uniform(-0.5 * scale, 0.5 * scale, size=n_vals)
+    vals = mean + rng.uniform(-0.5 * scale, 0.5 * scale, size=n_vals)
     mat = np.zeros((dim, dim))
     rows, cols = np.triu_indices(dim)
     mat[rows, cols] = vals
@@ -420,11 +420,13 @@ def _random_symmetric_matrix_uniform(
     return mat
 
 
-def _random_symmetric_matrix_normal(dim: int, *, scale: float, seed=None) -> np.ndarray:
+def _random_symmetric_matrix_normal(
+    dim: int, *, mean: float, scale: float, seed=None
+) -> np.ndarray:
     """Random real symmetric matrix with entries drawn from a normal distribution."""
     rng = np.random.default_rng(seed)
     n_vals = dim * (dim + 1) // 2
-    vals = rng.normal(scale=scale, size=n_vals)
+    vals = rng.normal(loc=mean, scale=scale, size=n_vals)
     mat = np.zeros((dim, dim))
     rows, cols = np.triu_indices(dim)
     mat[rows, cols] = vals
@@ -439,6 +441,7 @@ def random_ucj_op_spin_balanced(
     interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
     | None = None,
     with_final_orbital_rotation: bool = False,
+    diag_coulomb_mean: float = 0.0,
     diag_coulomb_scale: float = 2 * math.pi,
     diag_coulomb_normal: bool = False,
     seed=None,
@@ -462,13 +465,17 @@ def random_ucj_op_spin_balanced(
             :math:`(i, j)` where :math:`i \leq j`.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
+        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
+            Defaults to ``0``.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
             Defaults to ``2 * pi``.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
-            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling
-            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.
+            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,
+            then the entries are drawn by calling
+            ``diag_coulomb_mean +
+            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -492,10 +499,10 @@ def random_ucj_op_spin_balanced(
             np.stack(
                 [
                     _symmetric_matrix_generator(
-                        norb, scale=diag_coulomb_scale, seed=rng
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
                     ),
                     _symmetric_matrix_generator(
-                        norb, scale=diag_coulomb_scale, seed=rng
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
                     ),
                 ]
             )
@@ -541,6 +548,7 @@ def random_ucj_op_spin_unbalanced(
     ]
     | None = None,
     with_final_orbital_rotation: bool = False,
+    diag_coulomb_mean: float = 0.0,
     diag_coulomb_scale: float = 2 * math.pi,
     diag_coulomb_normal: bool = False,
     seed=None,
@@ -565,13 +573,17 @@ def random_ucj_op_spin_unbalanced(
             :math:`i \leq j`.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
+        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
+            Defaults to ``0``.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
             Defaults to ``2 * pi``.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
-            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling
-            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.
+            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,
+            then the entries are drawn by calling
+            ``diag_coulomb_mean +
+            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -596,17 +608,22 @@ def random_ucj_op_spin_unbalanced(
             np.stack(
                 [
                     _symmetric_matrix_generator(
-                        norb, scale=diag_coulomb_scale, seed=rng
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
                     ),
-                    rng.normal(scale=diag_coulomb_scale, size=(norb, norb))
+                    rng.normal(
+                        loc=diag_coulomb_mean,
+                        scale=diag_coulomb_scale,
+                        size=(norb, norb),
+                    )
                     if diag_coulomb_normal
-                    else rng.uniform(
+                    else diag_coulomb_mean
+                    + rng.uniform(
                         -0.5 * diag_coulomb_scale,
                         0.5 * diag_coulomb_scale,
                         size=(norb, norb),
                     ),
                     _symmetric_matrix_generator(
-                        norb, scale=diag_coulomb_scale, seed=rng
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
                     ),
                 ]
             )
@@ -657,6 +674,7 @@ def random_ucj_op_spinless(
     n_reps: int = 1,
     interaction_pairs: list[tuple[int, int]] | None = None,
     with_final_orbital_rotation: bool = False,
+    diag_coulomb_mean: float = 0.0,
     diag_coulomb_scale: float = 2 * math.pi,
     diag_coulomb_normal: bool = False,
     seed=None,
@@ -676,13 +694,17 @@ def random_ucj_op_spinless(
             :math:`(i, j)` where :math:`i \leq j`.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
+        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
+            Defaults to ``0``.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
             Defaults to ``2 * pi``.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
-            ``rng.normal(scale=scale)``. If False, then the entries are drawn by calling
-            ``rng.uniform(-0.5 * scale, 0.5 * scale)``.
+            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,
+            then the entries are drawn by calling
+            ``diag_coulomb_mean +
+            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -699,7 +721,9 @@ def random_ucj_op_spinless(
     )
     diag_coulomb_mats = np.stack(
         [
-            _symmetric_matrix_generator(norb, scale=diag_coulomb_scale, seed=rng)
+            _symmetric_matrix_generator(
+                norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
+            )
             for _ in range(n_reps)
         ]
     )
