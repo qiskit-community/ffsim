@@ -235,7 +235,7 @@ def double_factorized_t2_compressed(
         diag_coulomb_mask[cols, rows] = True
 
     # diag_coulomb_mask
-    diag_coulomb_mask = np.triu(diag_coulomb_mask)
+    diag_coulomb_mask_indices = np.triu(diag_coulomb_mask)
 
     list_reps = list(range(begin_reps, n_reps, -step))
     list_reps.append(n_reps)
@@ -266,7 +266,7 @@ def double_factorized_t2_compressed(
             )
             eigs, vecs = jnp.linalg.eigh(-1j * orbital_rotations_log)
 
-            param_indices = np.nonzero(diag_coulomb_mask)
+            param_indices = np.nonzero(diag_coulomb_mask_indices)
             param_length = len(param_indices[0])
             list_diag_coulomb_mats = []
             for i in range(n_tensors):
@@ -329,7 +329,7 @@ def double_factorized_t2_compressed(
             return val, reshaped_grad
 
         x0 = _df_tensors_to_params(
-            diag_coulomb_mats, orbital_rotations, diag_coulomb_mask
+            diag_coulomb_mats, orbital_rotations, diag_coulomb_mask_indices
         )
 
         result = scipy.optimize.minimize(
@@ -342,7 +342,7 @@ def double_factorized_t2_compressed(
         )
 
         diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
-            result.x, n_tensors, norb, diag_coulomb_mask
+            result.x, n_tensors, norb, diag_coulomb_mask_indices
         )
 
     return diag_coulomb_mats, orbital_rotations

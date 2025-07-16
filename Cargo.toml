@@ -19,6 +19,7 @@ pyo3 = { version = "0.21", features = [
     "abi3-py39",
 ] }
 num-integer = "0.1"
+jax = "0.6.2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 blas-src = { version = "0.10", features = ["openblas"] }
