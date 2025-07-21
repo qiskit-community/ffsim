@@ -53,15 +53,17 @@ def test_double_factorized_compressed():
     pairs_ab = [(p, p) for p in range(norb)]
     diag_coulomb_indices = pairs_aa + pairs_ab
     n_reps = 2
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized_t2_compressed(
-        ccsd.t2,
-        n_reps=n_reps,
-        diag_coulomb_indices=diag_coulomb_indices,
-        method="L-BFGS-B",
-        options={"maxiter": 25},
-        multi_stage_optimization=True,
-        begin_reps=5,
-        step=4,
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+        double_factorized_t2_compressed(
+            ccsd.t2,
+            n_reps=n_reps,
+            diag_coulomb_indices=diag_coulomb_indices,
+            method="L-BFGS-B",
+            options={"maxiter": 25},
+            multi_stage_optimization=True,
+            begin_reps=5,
+            step=4,
+        )
     )
 
     reconstructed_optimized = (
