@@ -234,7 +234,7 @@ def double_factorized_t2_compressed(
         diag_coulomb_mask[rows, cols] = True
         diag_coulomb_mask[cols, rows] = True
 
-    # diag_coulomb_mask
+    # construct diag_coulomb_mask indices
     diag_coulomb_mask_indices = np.triu(diag_coulomb_mask)
 
     list_reps = list(range(begin_reps, n_reps, -step))
