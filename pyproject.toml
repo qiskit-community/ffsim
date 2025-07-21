@@ -24,6 +24,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
+    "jax",
     "numpy",
     "opt_einsum",
     "orjson",
@@ -31,7 +32,6 @@ dependencies = [
     "qiskit >= 1.3",
     "scipy",
     "typing-extensions",
-    "jax",
 ]
 
 [project.urls]
