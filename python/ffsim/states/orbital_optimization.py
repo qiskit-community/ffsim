@@ -25,38 +25,25 @@ def V2M(V, n):
     return M
 
 
-def dag(X):
-    return np.conj(X.T)
-
-
-def e(n, idx):
-    v = np.zeros(n)
-    v[idx] = 1.0
-    return v
-
-
 def optimize_orbitals(
-    h0: float,
     h1: np.ndarray,
     h2: np.ndarray,
     rho1: np.ndarray,
     rho2: np.ndarray,
-    k0,
+    k0: np.ndarray | None = None,
     opt={"maxiter": 10},
 ):
-    norb = h1.shape[0]
+    norb, _ = h1.shape
 
-    def E(k):
-        U = scipy.linalg.expm(V2M(k, norb))
+    def fun(x: np.ndarray):
+        U = scipy.linalg.expm(V2M(x, norb))
         h1tilde = np.einsum("pr,pA,rB->AB", h1, U, U, optimize=True)
         h2tilde = np.einsum("prqs,pA,rB,qC,sD->ABCD", h2, U, U, U, U, optimize=True)
-        return (
-            h0
-            + np.einsum("pr,pr->", h1tilde, rho1)
-            + 0.5 * np.einsum("prqs,prqs->", h2tilde, rho2)
+        return np.einsum("pr,pr->", h1tilde, rho1) + 0.5 * np.einsum(
+            "prqs,prqs->", h2tilde, rho2
         )
 
-    def grad_U(k):
+    def grad_U(k: np.ndarray):
         i = np.tril_indices(norb, k=-1)
         kmat = V2M(k, norb)
         l, V = scipy.linalg.eigh(kmat / 1j)
@@ -73,14 +60,16 @@ def optimize_orbitals(
         for m in range(len(k)):
             p, r = i[0][m], i[1][m]
             J[:, :, m] = np.einsum(
-                "Am,m,mn,n,nB->AB", V, dag(V)[:, p], T, V[r, :], dag(V)
-            ) - np.einsum("Am,m,mn,n,nB->AB", V, dag(V)[:, r], T, V[p, :], dag(V))
+                "Am,m,mn,n,nB->AB", V, V.T.conj()[:, p], T, V[r, :], V.T.conj()
+            ) - np.einsum(
+                "Am,m,mn,n,nB->AB", V, V.T.conj()[:, r], T, V[p, :], V.T.conj()
+            )
         return J.real
 
-    def grad_AN(k):
-        Ek = E(k)
-        J = grad_U(k)
-        U = scipy.linalg.expm(V2M(k, norb))
+    def grad(x: np.ndarray):
+        Ek = fun(x)
+        J = grad_U(x)
+        U = scipy.linalg.expm(V2M(x, norb))
         h1tilde = np.einsum("pr,pAX,rB->ABX", h1, J, U, optimize=True)
         h1tilde += np.einsum("pr,pA,rBX->ABX", h1, U, J, optimize=True)
         h2tilde = np.einsum("prqs,pAX,rB,qC,sD->ABCDX", h2, J, U, U, U, optimize=True)
@@ -93,9 +82,13 @@ def optimize_orbitals(
         print("E(k), G(k) = ", Ek, np.abs(G).max())
         return G
 
-    print("Initial energy ", E(M2V(k0)))
-    res = scipy.optimize.minimize(
-        E, M2V(k0), method="L-BFGS-B", jac=grad_AN, options=opt
+    if k0 is None:
+        k0 = np.zeros((norb, norb))
+
+    print("Initial energy ", fun(M2V(k0)))
+    result = scipy.optimize.minimize(
+        fun, M2V(k0), method="L-BFGS-B", jac=grad, options=opt
     )
-    print("Final energy   ", E(res.x))
-    return E(res.x), V2M(res.x, norb)
+    print("Final energy   ", fun(result.x))
+
+    return result.fun, V2M(result.x, norb)
