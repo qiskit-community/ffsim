@@ -13,6 +13,7 @@
 import numpy as np
 import pyscf
 import pyscf.ci
+from opt_einsum import contract
 
 import ffsim
 
@@ -45,8 +46,29 @@ def test_optimize_orbitals():
     rdm2 = cisd.make_rdm2()[n_frozen:, n_frozen:, n_frozen:, n_frozen:]
 
     # Optimize orbitals
-    energy, generator = ffsim.optimize_orbitals(
+    orbital_rotation = ffsim.optimize_orbitals(
         rdm1, rdm2, mol_hamiltonian.one_body_tensor, mol_hamiltonian.two_body_tensor
+    )
+
+    # Compute energy
+    one_body_tensor_rotated = contract(
+        "ab,Aa,Bb->AB",
+        mol_hamiltonian.one_body_tensor,
+        orbital_rotation,
+        orbital_rotation.conj(),
+        optimize="greedy",
+    )
+    two_body_tensor_rotated = contract(
+        "abcd,Aa,Bb,Cc,Dd->ABCD",
+        mol_hamiltonian.two_body_tensor,
+        orbital_rotation,
+        orbital_rotation.conj(),
+        orbital_rotation,
+        orbital_rotation.conj(),
+        optimize="greedy",
+    )
+    energy = np.einsum("ab,ab->", one_body_tensor_rotated, rdm1) + 0.5 * np.einsum(
+        "abcd,abcd->", two_body_tensor_rotated, rdm2
     )
 
     # Check results
