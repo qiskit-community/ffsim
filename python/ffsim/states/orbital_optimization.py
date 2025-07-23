@@ -26,10 +26,10 @@ def V2M(V, n):
 
 
 def optimize_orbitals(
-    h1: np.ndarray,
-    h2: np.ndarray,
     rho1: np.ndarray,
     rho2: np.ndarray,
+    h1: np.ndarray,
+    h2: np.ndarray,
     k0: np.ndarray | None = None,
     method: str = "L-BFGS-B",
     callback=None,

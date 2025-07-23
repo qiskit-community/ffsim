@@ -46,7 +46,7 @@ def test_optimize_orbitals():
 
     # Optimize orbitals
     energy, generator = ffsim.optimize_orbitals(
-        mol_hamiltonian.one_body_tensor, mol_hamiltonian.two_body_tensor, rdm1, rdm2
+        rdm1, rdm2, mol_hamiltonian.one_body_tensor, mol_hamiltonian.two_body_tensor
     )
 
     # Check results
