@@ -1,4 +1,4 @@
-# (C) Copyright IBM 2024.
+# (C) Copyright IBM 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -9,8 +9,8 @@
 # that they have been altered from the originals.
 
 import numpy as np
-from pyscf import ao2mo, cc, fci, gto, mcscf, mp, scf
-from scipy import linalg as LA
+import scipy.linalg
+import scipy.optimize
 
 
 def M2V(M):
@@ -35,11 +35,19 @@ def e(n, idx):
     return v
 
 
-def orb_opt_cf(h0, h1, h2, rho1, rho2, k0, opt={"maxiter": 10}):
+def optimize_orbitals(
+    h0: float,
+    h1: np.ndarray,
+    h2: np.ndarray,
+    rho1: np.ndarray,
+    rho2: np.ndarray,
+    k0,
+    opt={"maxiter": 10},
+):
     norb = h1.shape[0]
 
     def E(k):
-        U = LA.expm(V2M(k, norb))
+        U = scipy.linalg.expm(V2M(k, norb))
         h1tilde = np.einsum("pr,pA,rB->AB", h1, U, U, optimize=True)
         h2tilde = np.einsum("prqs,pA,rB,qC,sD->ABCD", h2, U, U, U, U, optimize=True)
         return (
@@ -51,7 +59,7 @@ def orb_opt_cf(h0, h1, h2, rho1, rho2, k0, opt={"maxiter": 10}):
     def grad_U(k):
         i = np.tril_indices(norb, k=-1)
         kmat = V2M(k, norb)
-        l, V = LA.eigh(kmat / 1j)
+        l, V = scipy.linalg.eigh(kmat / 1j)
         T = np.zeros((norb, norb), dtype=complex)
         for m in range(norb):
             for n in range(norb):
@@ -72,7 +80,7 @@ def orb_opt_cf(h0, h1, h2, rho1, rho2, k0, opt={"maxiter": 10}):
     def grad_AN(k):
         Ek = E(k)
         J = grad_U(k)
-        U = LA.expm(V2M(k, norb))
+        U = scipy.linalg.expm(V2M(k, norb))
         h1tilde = np.einsum("pr,pAX,rB->ABX", h1, J, U, optimize=True)
         h1tilde += np.einsum("pr,pA,rBX->ABX", h1, U, J, optimize=True)
         h2tilde = np.einsum("prqs,pAX,rB,qC,sD->ABCDX", h2, J, U, U, U, optimize=True)
@@ -85,9 +93,9 @@ def orb_opt_cf(h0, h1, h2, rho1, rho2, k0, opt={"maxiter": 10}):
         print("E(k), G(k) = ", Ek, np.abs(G).max())
         return G
 
-    from scipy.optimize import minimize
-
     print("Initial energy ", E(M2V(k0)))
-    res = minimize(E, M2V(k0), method="L-BFGS-B", jac=grad_AN, options=opt)
+    res = scipy.optimize.minimize(
+        E, M2V(k0), method="L-BFGS-B", jac=grad_AN, options=opt
+    )
     print("Final energy   ", E(res.x))
     return E(res.x), V2M(res.x, norb)
