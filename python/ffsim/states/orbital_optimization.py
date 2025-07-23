@@ -31,8 +31,11 @@ def optimize_orbitals(
     rho1: np.ndarray,
     rho2: np.ndarray,
     k0: np.ndarray | None = None,
-    opt={"maxiter": 10},
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
 ):
+    """Find orbitals that minimize the energy of a pair of one- and two-RDMs."""
     norb, _ = h1.shape
 
     def fun(x: np.ndarray):
@@ -66,7 +69,7 @@ def optimize_orbitals(
             )
         return J.real
 
-    def grad(x: np.ndarray):
+    def jac(x: np.ndarray):
         Ek = fun(x)
         J = grad_U(x)
         U = scipy.linalg.expm(V2M(x, norb))
@@ -87,7 +90,7 @@ def optimize_orbitals(
 
     print("Initial energy ", fun(M2V(k0)))
     result = scipy.optimize.minimize(
-        fun, M2V(k0), method="L-BFGS-B", jac=grad, options=opt
+        fun, M2V(k0), method=method, jac=jac, callback=callback, options=options
     )
     print("Final energy   ", fun(result.x))
 

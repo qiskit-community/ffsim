@@ -49,5 +49,5 @@ def test_optimize_orbitals():
         mol_hamiltonian.one_body_tensor, mol_hamiltonian.two_body_tensor, rdm1, rdm2
     )
 
-    # Check energy
+    # Check results
     np.testing.assert_allclose(energy + mol_data.core_energy, -109.02783860818124)
