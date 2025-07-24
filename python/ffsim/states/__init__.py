@@ -16,7 +16,7 @@ from ffsim.states.bitstring import (
     strings_to_addresses,
 )
 from ffsim.states.product_state_sum import ProductStateSum
-from ffsim.states.rdm import rdms
+from ffsim.states.rdm import ReducedDensityMatrix, rdms
 from ffsim.states.sample_slater import sample_slater_determinant
 from ffsim.states.slater import (
     hartree_fock_state,
@@ -37,6 +37,7 @@ from ffsim.states.wick import expectation_one_body_power, expectation_one_body_p
 __all__ = [
     "BitstringType",
     "ProductStateSum",
+    "ReducedDensityMatrix",
     "StateVector",
     "addresses_to_strings",
     "dim",
