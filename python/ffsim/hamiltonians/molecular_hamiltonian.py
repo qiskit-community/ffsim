@@ -22,8 +22,8 @@ from scipy.sparse.linalg import LinearOperator
 
 from ffsim import protocols
 from ffsim.cistring import gen_linkstr_index
+from ffsim.dimensions import dim
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
-from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)

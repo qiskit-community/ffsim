@@ -26,8 +26,6 @@ from ffsim.states.slater import (
 )
 from ffsim.states.states import (
     StateVector,
-    dim,
-    dims,
     sample_state_vector,
     spin_square,
     spinful_to_spinless_rdm1,

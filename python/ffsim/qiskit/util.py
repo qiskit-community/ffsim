@@ -14,8 +14,8 @@ from functools import cache
 
 import numpy as np
 
-from ffsim import states
 from ffsim.cistring import make_strings
+from ffsim.dimensions import dim
 
 
 def qiskit_vec_to_ffsim_vec(
@@ -52,7 +52,7 @@ def ffsim_vec_to_qiskit_vec(
             and spin beta fermions.
     """
     n_qubits = norb if isinstance(nelec, int) else 2 * norb
-    assert vec.shape == (states.dim(norb, nelec),)
+    assert vec.shape == (dim(norb, nelec),)
     qiskit_vec = np.zeros(1 << n_qubits, dtype=vec.dtype)
     qiskit_vec[_ffsim_indices(norb, nelec)] = vec
     return qiskit_vec
