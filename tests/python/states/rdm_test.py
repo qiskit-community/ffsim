@@ -19,6 +19,46 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(250368525468016360570772321326665989865)
+
+
+def test_reduced_density_matrices_expectation():
+    """Test ReducedDensityMatrix expectation method."""
+    norb = 5
+    nelec = (3, 2)
+
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    rdms = ffsim.ReducedDensityMatrix(
+        *ffsim.rdms(vec, norb=norb, nelec=nelec, rank=2, spin_summed=True)
+    )
+    mol_ham = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    linop = ffsim.linear_operator(mol_ham, norb=norb, nelec=nelec)
+
+    expected = np.vdot(vec, linop @ vec)
+    actual = rdms.expectation(mol_ham)
+
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_reduced_density_matrices_rotated():
+    """Test ReducedDensityMatrix rotated method."""
+    norb = 5
+    nelec = (3, 2)
+
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec))
+    rdms = ffsim.ReducedDensityMatrix(
+        *ffsim.rdms(vec, norb=norb, nelec=nelec, rank=2, spin_summed=True)
+    )
+    mol_ham = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    energy = rdms.expectation(mol_ham)
+
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    energy_rotated = rdms.rotated(orbital_rotation).expectation(
+        mol_ham.rotated(orbital_rotation)
+    )
+
+    np.testing.assert_allclose(energy_rotated, energy)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, spin_summed",
@@ -35,8 +75,7 @@ import ffsim
 )
 def test_rdm1s(norb: int, nelec: tuple[int, int], spin_summed: bool):
     """Test computing spin-summed 1-RDM."""
-    rng = np.random.default_rng()
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     rdm1_func = _rdm1_spin_summed if spin_summed else _rdm1s
     rdm = ffsim.rdms(vec, norb, nelec, spin_summed=spin_summed)
     expected = rdm1_func(vec, norb, nelec)
@@ -66,8 +105,7 @@ def test_rdm1s(norb: int, nelec: tuple[int, int], spin_summed: bool):
 )
 def test_rdm2s(norb: int, nelec: tuple[int, int], spin_summed: bool, reorder: bool):
     """Test computing 1- and 2-RDMs."""
-    rng = np.random.default_rng()
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
     rdm1, rdm2 = ffsim.rdms(
         vec,

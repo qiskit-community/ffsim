@@ -66,6 +66,7 @@ from ffsim.spin import Spin
 from ffsim.states import (
     BitstringType,
     ProductStateSum,
+    ReducedDensityMatrix,
     StateVector,
     addresses_to_strings,
     expectation_one_body_power,
@@ -115,6 +116,7 @@ __all__ = [
     "MolecularHamiltonianSpinless",
     "NumNumAnsatzOpSpinBalanced",
     "ProductStateSum",
+    "ReducedDensityMatrix",
     "SingleFactorizedHamiltonian",
     "Spin",
     "StateVector",
