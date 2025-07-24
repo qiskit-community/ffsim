@@ -18,7 +18,7 @@ import numpy as np
 import pyscf.fci
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim import states
+from ffsim.dimensions import dim, dims
 from ffsim.operators import FermionOperator
 
 
@@ -76,16 +76,16 @@ def _fermion_operator_to_linear_operator(
     if isinstance(nelec, int):
         nelec = (nelec, 0)
 
-    dim = states.dim(norb, nelec)
+    dim_ = dim(norb, nelec)
 
     def matvec(vec: np.ndarray):
-        result = np.zeros(dim, dtype=complex)
+        result = np.zeros(dim_, dtype=complex)
         for term, coeff in operator.items():
             result += coeff * _apply_fermion_term(vec, term, norb, nelec)
         return result
 
     return LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
+        shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
     )
 
 
@@ -138,7 +138,7 @@ def _apply_fermion_term_real(
         (True, False): pyscf.fci.addons.cre_a,
         (True, True): pyscf.fci.addons.cre_b,
     }
-    (dim_a, dim_b) = states.dims(norb, nelec)
+    (dim_a, dim_b) = dims(norb, nelec)
     transformed = vec.reshape((dim_a, dim_b))
     this_nelec = list(nelec)
     for action, spin, orb in reversed(term):

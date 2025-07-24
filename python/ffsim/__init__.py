@@ -12,6 +12,7 @@
 
 from ffsim import contract, linalg, optimize, qiskit, random, testing
 from ffsim.cistring import init_cache
+from ffsim.dimensions import dim, dims
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -67,8 +68,6 @@ from ffsim.states import (
     ProductStateSum,
     StateVector,
     addresses_to_strings,
-    dim,
-    dims,
     expectation_one_body_power,
     expectation_one_body_product,
     hartree_fock_state,

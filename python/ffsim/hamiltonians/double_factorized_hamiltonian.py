@@ -19,10 +19,10 @@ from scipy.sparse.linalg import LinearOperator
 from ffsim import protocols
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
+from ffsim.dimensions import dim
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
 from ffsim.operators import FermionOperator
-from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)

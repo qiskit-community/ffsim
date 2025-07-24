@@ -18,12 +18,12 @@ from scipy.sparse.linalg import LinearOperator
 
 from ffsim import protocols
 from ffsim.contract.one_body import one_body_linop
+from ffsim.dimensions import dim
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg.double_factorized_decomposition import (
     _truncated_eigh,
     modified_cholesky,
 )
-from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)
