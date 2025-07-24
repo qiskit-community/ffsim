@@ -1793,6 +1793,63 @@ reconstructed as</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ffsim.ReducedDensityMatrix">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">ReducedDensityMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_rdm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/rdm.html#ReducedDensityMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.ReducedDensityMatrix" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to store one- and two-body reduced density matrices.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.ReducedDensityMatrix.one_rdm">
+<span class="sig-name descname"><span class="pre">one_rdm</span></span><a class="headerlink" href="#ffsim.ReducedDensityMatrix.one_rdm" title="Link to this definition">¶</a></dt>
+<dd><p>The one-body reduced density matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ffsim.ReducedDensityMatrix.two_rdm">
+<span class="sig-name descname"><span class="pre">two_rdm</span></span><a class="headerlink" href="#ffsim.ReducedDensityMatrix.two_rdm" title="Link to this definition">¶</a></dt>
+<dd><p>The two-body reduced density matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.ReducedDensityMatrix.expectation">
+<span class="sig-name descname"><span class="pre">expectation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_ham</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/rdm.html#ReducedDensityMatrix.expectation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.ReducedDensityMatrix.expectation" title="Link to this definition">¶</a></dt>
+<dd><p>Return the expectation value of the RDMs with a molecular Hamiltonian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.ReducedDensityMatrix.rotated">
+<span class="sig-name descname"><span class="pre">rotated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/rdm.html#ReducedDensityMatrix.rotated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.ReducedDensityMatrix.rotated" title="Link to this definition">¶</a></dt>
+<dd><p>Apply an orbital rotation to the reduced density matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>orbital_rotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The orbital rotation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.ReducedDensityMatrix" title="ffsim.states.rdm.ReducedDensityMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReducedDensityMatrix</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The rotated reduced density matrices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ffsim.SingleFactorizedHamiltonian">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">SingleFactorizedHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_squares</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/single_factorized_hamiltonian.html#SingleFactorizedHamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.SingleFactorizedHamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ffsim.SupportsLinearOperator" title="ffsim.protocols.linear_operator_protocol.SupportsLinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupportsLinearOperator</span></code></a></p>
@@ -4989,6 +5046,13 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.ProductStateSum"><code class="docutils literal notranslate"><span class="pre">ProductStateSum</span></code></a><ul>
 <li><a class="reference internal" href="#ffsim.ProductStateSum.coeffs"><code class="docutils literal notranslate"><span class="pre">ProductStateSum.coeffs</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.ProductStateSum.states"><code class="docutils literal notranslate"><span class="pre">ProductStateSum.states</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ffsim.ReducedDensityMatrix"><code class="docutils literal notranslate"><span class="pre">ReducedDensityMatrix</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.ReducedDensityMatrix.one_rdm"><code class="docutils literal notranslate"><span class="pre">ReducedDensityMatrix.one_rdm</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.ReducedDensityMatrix.two_rdm"><code class="docutils literal notranslate"><span class="pre">ReducedDensityMatrix.two_rdm</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.ReducedDensityMatrix.expectation"><code class="docutils literal notranslate"><span class="pre">ReducedDensityMatrix.expectation()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.ReducedDensityMatrix.rotated"><code class="docutils literal notranslate"><span class="pre">ReducedDensityMatrix.rotated()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.SingleFactorizedHamiltonian"><code class="docutils literal notranslate"><span class="pre">SingleFactorizedHamiltonian</span></code></a><ul>
