@@ -285,7 +285,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.fci</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearOperator</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">states</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.dimensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">dim</span><span class="p">,</span> <span class="n">dims</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">FermionOperator</span>
 
 
@@ -349,16 +349,16 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="n">dim</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+    <span class="n">dim_</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">term</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">operator</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">result</span> <span class="o">+=</span> <span class="n">coeff</span> <span class="o">*</span> <span class="n">_apply_fermion_term</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">return</span> <span class="n">LinearOperator</span><span class="p">(</span>
-        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dim_</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
     <span class="p">)</span>
 
 
@@ -411,7 +411,7 @@
         <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">fci</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">cre_a</span><span class="p">,</span>
         <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="n">pyscf</span><span class="o">.</span><span class="n">fci</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">cre_b</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="p">(</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">)</span> <span class="o">=</span> <span class="n">dims</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
     <span class="n">transformed</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">dim_a</span><span class="p">,</span> <span class="n">dim_b</span><span class="p">))</span>
     <span class="n">this_nelec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nelec</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">action</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">term</span><span class="p">):</span>
