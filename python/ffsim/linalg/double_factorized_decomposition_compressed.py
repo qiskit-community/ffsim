@@ -22,7 +22,7 @@ from ffsim.linalg import double_factorized_t2
 
 
 def _reshape_grad(
-    core_coulomb_params: jnp.ndarray,
+    diag_coulomb_params: jnp.ndarray,
     orbital_rotations_log_jax_tri: jnp.ndarray,
 ):
     _, norb, _ = orbital_rotations_log_jax_tri.shape
@@ -47,9 +47,9 @@ def _reshape_grad(
             ]
         )
     )
-    core_coulomb_params = np.real(core_coulomb_params)
+    diag_coulomb_params = np.real(diag_coulomb_params)
     return np.concatenate(
-        [orb_rot_params_real, orb_rot_params_imag, core_coulomb_params]
+        [orb_rot_params_real, orb_rot_params_imag, diag_coulomb_params]
     )
 
 
@@ -74,11 +74,16 @@ def _df_tensors_to_params(
             [orb_rot_log[orb_rot_param_imag_indices] for orb_rot_log in orb_rot_logs]
         )
     )
-    core_param_indices = np.nonzero(diag_coulomb_mat_mask)
-    core_params = np.ravel(
-        [diag_coulomb_mat[core_param_indices] for diag_coulomb_mat in diag_coulomb_mats]
+    diag_coulomb_param_indices = np.nonzero(diag_coulomb_mat_mask)
+    diag_coulomb_params = np.ravel(
+        [
+            diag_coulomb_mat[diag_coulomb_param_indices]
+            for diag_coulomb_mat in diag_coulomb_mats
+        ]
     )
-    return np.concatenate([orb_rot_params_real, orb_rot_params_imag, core_params])
+    return np.concatenate(
+        [orb_rot_params_real, orb_rot_params_imag, diag_coulomb_params]
+    )
 
 
 def _params_to_orb_rot_logs(params: np.ndarray, n_tensors: int, norb: int):
@@ -124,12 +129,12 @@ def _params_to_df_tensors(
     orb_rot_logs = _params_to_orb_rot_logs(params, n_tensors, norb)
     orbital_rotations = _expm_antihermitian(orb_rot_logs)
     n_orb_rot_params = n_tensors * (norb * (norb - 1) // 2 + norb * (norb + 1) // 2)
-    core_params = np.real(params[n_orb_rot_params:])
+    diag_coulomb_params = np.real(params[n_orb_rot_params:])
     param_indices = np.nonzero(diag_coulomb_mat_mask)
     param_length = len(param_indices[0])
     diag_coulomb_mats = np.zeros((n_tensors, norb, norb))
     for i in range(n_tensors):
-        diag_coulomb_mats[i][param_indices] = core_params[
+        diag_coulomb_mats[i][param_indices] = diag_coulomb_params[
             i * param_length : (i + 1) * param_length
         ]
         diag_coulomb_mats[i] += diag_coulomb_mats[i].T
@@ -318,10 +323,10 @@ def double_factorized_t2_compressed(
             n_orb_rot_params = n_tensors * (
                 norb * (norb - 1) // 2 + norb * (norb + 1) // 2
             )
-            core_coulomb_params = jnp.array(x[n_orb_rot_params:] + 0j)
+            diag_coulomb_params = jnp.array(x[n_orb_rot_params:] + 0j)
 
             val, (grad_diag_coulomb_params, grad_orbital_rotations_log_jax_tri) = (
-                value_and_grad_func(core_coulomb_params, orbital_rotations_log_jax_tri)
+                value_and_grad_func(diag_coulomb_params, orbital_rotations_log_jax_tri)
             )
             reshaped_grad = _reshape_grad(
                 grad_diag_coulomb_params, grad_orbital_rotations_log_jax_tri
