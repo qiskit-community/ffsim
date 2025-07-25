@@ -223,15 +223,15 @@ def double_factorized_t2_compressed(
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
     n_reps_full, norb, _ = orbital_rotations.shape
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
-    if n_reps is None:
+    if n_reps is None or n_reps_full < n_reps:
         return diag_coulomb_mats, orbital_rotations
-
     if not multi_stage_optimization:
         n_reps_full = n_reps
     if begin_reps is None:
         begin_reps = n_reps_full
+    begin_reps = min(n_reps_full, begin_reps)
 
-    if diag_coulomb_indices is None:
+    if diag_coulomb_indices is None or len(diag_coulomb_indices) == 0:
         diag_coulomb_mask = np.ones((norb, norb), dtype=bool)
     else:
         diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
