@@ -56,7 +56,7 @@ def test_optimize_orbitals():
     assert result.njev <= 7
 
     # Compute energy
-    energy = rdm.expectation(mol_hamiltonian.rotated(orbital_rotation))
+    energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
 
     # Check results
     np.testing.assert_allclose(energy, -108.23156835068842)

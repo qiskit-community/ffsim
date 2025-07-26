@@ -98,8 +98,7 @@ def optimize_orbitals(
     )
     print("Final energy   ", fun(result.x))
 
-    # Conjugate the orbital rotation to match ffsim.MolecularHamiltonian's convention
-    orbital_rotation = scipy.linalg.expm(V2M(result.x, norb)).T.conj()
+    orbital_rotation = scipy.linalg.expm(V2M(result.x, norb))
 
     if return_optimize_result:
         return orbital_rotation, result
