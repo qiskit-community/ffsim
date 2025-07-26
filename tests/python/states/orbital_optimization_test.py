@@ -59,4 +59,5 @@ def test_optimize_orbitals():
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
 
     # Check results
+    np.testing.assert_allclose(energy, result.fun)
     np.testing.assert_allclose(energy, -108.23156835068842)

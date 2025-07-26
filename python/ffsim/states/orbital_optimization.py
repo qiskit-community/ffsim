@@ -8,9 +8,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import cmath
-import itertools
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 import scipy.linalg
 import scipy.optimize
@@ -19,18 +19,64 @@ from opt_einsum import contract
 from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.states.rdm import ReducedDensityMatrix
 
-
-def generator_to_params(mat: np.ndarray):
-    norb, _ = mat.shape
-    return mat[np.tril_indices(norb, k=-1)]
+jax.config.update("jax_enable_x64", True)
 
 
-def params_to_generator(params: np.ndarray, norb: int):
-    mat = np.zeros((norb, norb))
-    i = np.tril_indices(norb, k=-1)
-    mat[i] = params
-    mat -= mat.T
-    return mat
+def _orbital_rotation_from_parameters(
+    params: np.ndarray, norb: int, real: bool = False
+) -> np.ndarray:
+    """Construct an orbital rotation from parameters.
+
+    Converts a real-valued parameter vector to an orbital rotation. The parameter vector
+    contains non-redundant real and imaginary parts of the elements of the matrix
+    logarithm of the orbital rotation matrix.
+
+    Args:
+        params: The real-valued parameters.
+        norb: The number of spatial orbitals, which gives the width and height of the
+            orbital rotation matrix.
+        real: Whether the parameter vector describes a real-valued orbital rotation.
+
+    Returns:
+        The orbital rotation.
+    """
+    generator = jnp.zeros((norb, norb), dtype=float if real else complex)
+    n_triu = norb * (norb - 1) // 2
+    if not real:
+        # imaginary part
+        rows, cols = jnp.triu_indices(norb)
+        vals = 1j * params[n_triu:]
+        generator = generator.at[rows, cols].set(vals)
+        generator = generator.at[cols, rows].set(vals)
+    # real part
+    vals = params[:n_triu]
+    rows, cols = jnp.triu_indices(norb, k=1)
+    generator = generator.at[rows, cols].add(vals)
+    generator = generator.at[cols, rows].subtract(vals)
+    return jax.scipy.linalg.expm(generator)
+
+
+def _orbital_rotation_to_parameters(
+    orbital_rotation: np.ndarray, real: bool = False
+) -> np.ndarray:
+    if real and np.iscomplexobj(orbital_rotation):
+        raise TypeError(
+            "real was set to True, but the orbital rotation has a complex data type. "
+            "Try passing an orbital rotation with a real-valued data type, or else "
+            "set real=False."
+        )
+    norb, _ = orbital_rotation.shape
+    triu_indices = np.triu_indices(norb, k=1)
+    n_triu = norb * (norb - 1) // 2
+    mat = scipy.linalg.logm(orbital_rotation)
+    params = np.zeros(n_triu if real else norb**2)
+    # real part
+    params[:n_triu] = mat[triu_indices].real
+    # imaginary part
+    if not real:
+        triu_indices = np.triu_indices(norb)
+        params[n_triu:] = mat[triu_indices].imag
+    return params
 
 
 def optimize_orbitals(
@@ -45,115 +91,53 @@ def optimize_orbitals(
 ) -> np.ndarray | tuple[np.ndarray, scipy.optimize.OptimizeResult]:
     """Find orbitals that minimize the energy of a pair of one- and two-RDMs."""
     norb = hamiltonian.norb
-    rho1 = rdm.one_rdm
-    rho2 = rdm.two_rdm
-    h1 = hamiltonian.one_body_tensor
-    h2 = hamiltonian.two_body_tensor
+    one_rdm = jnp.array(rdm.one_rdm)
+    two_rdm = jnp.array(rdm.two_rdm)
+    one_body_tensor = jnp.array(hamiltonian.one_body_tensor)
+    two_body_tensor = jnp.array(hamiltonian.two_body_tensor)
 
     def fun(x: np.ndarray):
         # Conjugate orbital rotation to match ffsim.MolecularHamiltonian's convention
-        orbital_rotation = scipy.linalg.expm(params_to_generator(x, norb)).T.conj()
-        return rdm.expectation(hamiltonian.rotated(orbital_rotation))
+        orbital_rotation = _orbital_rotation_from_parameters(x, norb=norb, real=True)
+        one_rdm_rotated = contract(
+            "ab,Aa,Bb->AB",
+            one_rdm,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            optimize="greedy",
+        )
+        two_rdm_rotated = contract(
+            "abcd,Aa,Bb,Cc,Dd->ABCD",
+            two_rdm,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            optimize="greedy",
+        )
+        return (
+            hamiltonian.constant
+            + contract("ab,ab->", one_body_tensor, one_rdm_rotated)
+            + 0.5 * contract("abcd,abcd->", two_body_tensor, two_rdm_rotated)
+        )
 
-    def jac_u(x: np.ndarray):
-        generator = params_to_generator(x, norb)
-        eigs, vecs = scipy.linalg.eigh(-1j * generator)
-        vecs_conj = vecs.T.conj()
-        t_mat = np.zeros((norb, norb), dtype=complex)
-        for (m, eig_m), (n, eig_n) in itertools.product(enumerate(eigs), repeat=2):
-            if cmath.isclose(eig_m, eig_n, abs_tol=1e-6):
-                t_mat[m, n] = cmath.exp(1j * eig_m)
-            else:
-                t_mat[m, n] = (
-                    -1j
-                    * (cmath.exp(1j * eig_m) - cmath.exp(1j * eig_n))
-                    / (eig_m - eig_n)
-                )
-        grad = np.zeros((norb, norb, len(x)), dtype=complex)
-        for m, (p, r) in enumerate(zip(*np.tril_indices(norb, k=-1))):
-            grad[:, :, m] = contract(
-                "Am,m,mn,n,nB->AB",
-                vecs,
-                vecs_conj[:, p],
-                t_mat,
-                vecs[r, :],
-                vecs_conj,
-                optimize="greedy",
-            )
-            grad[:, :, m] -= contract(
-                "Am,m,mn,n,nB->AB",
-                vecs,
-                vecs_conj[:, r],
-                t_mat,
-                vecs[p, :],
-                vecs_conj,
-                optimize="greedy",
-            )
-        return grad.real
-
-    def jac(x: np.ndarray):
-        orbital_rotation = scipy.linalg.expm(params_to_generator(x, norb))
-        grad_u = jac_u(x)
-        h1tilde = contract(
-            "pr,pAX,rB->ABX", h1, grad_u, orbital_rotation, optimize="greedy"
-        )
-        h1tilde += contract(
-            "pr,pA,rBX->ABX", h1, orbital_rotation, grad_u, optimize="greedy"
-        )
-        h2tilde = contract(
-            "prqs,pAX,rB,qC,sD->ABCDX",
-            h2,
-            grad_u,
-            orbital_rotation,
-            orbital_rotation,
-            orbital_rotation,
-            optimize="greedy",
-        )
-        h2tilde += contract(
-            "prqs,pA,rBX,qC,sD->ABCDX",
-            h2,
-            orbital_rotation,
-            grad_u,
-            orbital_rotation,
-            orbital_rotation,
-            optimize="greedy",
-        )
-        h2tilde += contract(
-            "prqs,pA,rB,qCX,sD->ABCDX",
-            h2,
-            orbital_rotation,
-            orbital_rotation,
-            grad_u,
-            orbital_rotation,
-            optimize="greedy",
-        )
-        h2tilde += contract(
-            "prqs,pA,rB,qC,sDX->ABCDX",
-            h2,
-            orbital_rotation,
-            orbital_rotation,
-            orbital_rotation,
-            grad_u,
-            optimize="greedy",
-        )
-        grad = contract("prX,pr->X", h1tilde, rho1, optimize=False) + 0.5 * contract(
-            "prqsX,prqs->X", h2tilde, rho2, optimize=False
-        )
-        return grad
+    value_and_grad = jax.value_and_grad(fun)
 
     if initial_orbital_rotation is None:
         initial_orbital_rotation = np.eye(norb)
 
     result = scipy.optimize.minimize(
-        fun,
-        generator_to_params(scipy.linalg.logm(initial_orbital_rotation)),
+        value_and_grad,
+        _orbital_rotation_to_parameters(initial_orbital_rotation, real=True),
         method=method,
-        jac=jac,
+        jac=True,
         callback=callback,
         options=options,
     )
 
-    orbital_rotation = scipy.linalg.expm(params_to_generator(result.x, norb))
+    orbital_rotation = np.array(
+        _orbital_rotation_from_parameters(result.x, norb=norb, real=True)
+    )
 
     if return_optimize_result:
         return orbital_rotation, result
