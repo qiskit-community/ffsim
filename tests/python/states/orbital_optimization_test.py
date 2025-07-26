@@ -22,8 +22,8 @@ def test_optimize_orbitals():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
-        basis="6-31g",
+        atom=[["N", (0, 0, 0)], ["N", (2.4, 0, 0)]],
+        basis="sto-6g",
         symmetry="Dooh",
     )
 
@@ -39,16 +39,19 @@ def test_optimize_orbitals():
     # Run CISD
     cisd = pyscf.ci.CISD(scf, frozen=n_frozen).run()
     cisd_energy = cisd.e_tot
-    np.testing.assert_allclose(cisd_energy, -109.0277962741491)
+    np.testing.assert_allclose(cisd_energy, -108.231502807842)
 
     # Get RDMs
     rdm1 = cisd.make_rdm1()[n_frozen:, n_frozen:]
     rdm2 = cisd.make_rdm2()[n_frozen:, n_frozen:, n_frozen:, n_frozen:]
 
     # Optimize orbitals
-    orbital_rotation = ffsim.optimize_orbitals(
-        ffsim.ReducedDensityMatrix(rdm1, rdm2), mol_hamiltonian
+    orbital_rotation, result = ffsim.optimize_orbitals(
+        ffsim.ReducedDensityMatrix(rdm1, rdm2),
+        mol_hamiltonian,
+        return_optimize_result=True,
     )
+    assert result.nit <= 5
 
     # Compute energy
     one_body_tensor_rotated = contract(
@@ -72,4 +75,4 @@ def test_optimize_orbitals():
     )
 
     # Check results
-    np.testing.assert_allclose(energy + mol_data.core_energy, -109.02783860818124)
+    np.testing.assert_allclose(energy + mol_data.core_energy, -108.23156835068842)

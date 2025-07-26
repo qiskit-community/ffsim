@@ -31,10 +31,12 @@ def V2M(V, n):
 def optimize_orbitals(
     rdm: ReducedDensityMatrix,
     hamiltonian: MolecularHamiltonian,
+    *,
     k0: np.ndarray | None = None,
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
+    return_optimize_result: bool = False,
 ):
     """Find orbitals that minimize the energy of a pair of one- and two-RDMs."""
     norb = hamiltonian.norb
@@ -96,4 +98,8 @@ def optimize_orbitals(
     print("Final energy   ", fun(result.x))
 
     # Conjugate the orbital rotation to match ffsim.MolecularHamiltonian's convention
-    return scipy.linalg.expm(V2M(result.x, norb)).T.conj()
+    orbital_rotation = scipy.linalg.expm(V2M(result.x, norb)).T.conj()
+
+    if return_optimize_result:
+        return orbital_rotation, result
+    return orbital_rotation
