@@ -8,6 +8,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import cmath
+import itertools
+
 import numpy as np
 import scipy.linalg
 import scipy.optimize
@@ -16,16 +19,16 @@ from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.states.rdm import ReducedDensityMatrix
 
 
-def M2V(M):
-    return M[np.tril_indices(M.shape[0], k=-1)]
+def generator_to_params(mat: np.ndarray):
+    return mat[np.tril_indices(mat.shape[0], k=-1)]
 
 
-def V2M(V, n):
-    M = np.zeros((n, n))
-    i = np.tril_indices(n, k=-1)
-    M[i] = V
-    M -= M.T
-    return M
+def params_to_generator(params: np.ndarray, norb: int):
+    mat = np.zeros((norb, norb))
+    i = np.tril_indices(norb, k=-1)
+    mat[i] = params
+    mat -= mat.T
+    return mat
 
 
 def optimize_orbitals(
@@ -37,7 +40,7 @@ def optimize_orbitals(
     callback=None,
     options: dict | None = None,
     return_optimize_result: bool = False,
-):
+) -> np.ndarray | tuple[np.ndarray, scipy.optimize.OptimizeResult]:
     """Find orbitals that minimize the energy of a pair of one- and two-RDMs."""
     norb = hamiltonian.norb
     rho1 = rdm.one_rdm
@@ -46,59 +49,106 @@ def optimize_orbitals(
     h2 = hamiltonian.two_body_tensor
 
     def fun(x: np.ndarray):
-        # Conjugate the orbital rotation to match ffsim.MolecularHamiltonian's convention
-        U = scipy.linalg.expm(V2M(x, norb)).T.conj()
-        return rdm.expectation(hamiltonian.rotated(U))
+        # Conjugate orbital rotation to match ffsim.MolecularHamiltonian's convention
+        orbital_rotation = scipy.linalg.expm(params_to_generator(x, norb)).T.conj()
+        return rdm.expectation(hamiltonian.rotated(orbital_rotation))
 
-    def grad_U(k: np.ndarray):
-        i = np.tril_indices(norb, k=-1)
-        kmat = V2M(k, norb)
-        l, V = scipy.linalg.eigh(kmat / 1j)
-        T = np.zeros((norb, norb), dtype=complex)
-        for m in range(norb):
-            for n in range(norb):
-                if np.abs(l[m] - l[n]) < 1e-6:
-                    T[m, n] = np.exp(1j * l[m])
-                else:
-                    T[m, n] = (
-                        -1j * (np.exp(1j * l[m]) - np.exp(1j * l[n])) / (l[m] - l[n])
-                    )
-        J = np.zeros((norb, norb, len(k)), dtype=complex)
-        for m in range(len(k)):
-            p, r = i[0][m], i[1][m]
-            J[:, :, m] = np.einsum(
-                "Am,m,mn,n,nB->AB", V, V.T.conj()[:, p], T, V[r, :], V.T.conj()
+    def jac_u(x: np.ndarray):
+        generator = params_to_generator(x, norb)
+        eigs, vecs = scipy.linalg.eigh(-1j * generator)
+        vecs_conj = vecs.T.conj()
+        t_mat = np.zeros((norb, norb), dtype=complex)
+        for (m, eig_m), (n, eig_n) in itertools.product(enumerate(eigs), repeat=2):
+            if cmath.isclose(eig_m, eig_n, abs_tol=1e-6):
+                t_mat[m, n] = cmath.exp(1j * eig_m)
+            else:
+                t_mat[m, n] = (
+                    -1j
+                    * (cmath.exp(1j * eig_m) - cmath.exp(1j * eig_n))
+                    / (eig_m - eig_n)
+                )
+        grad = np.zeros((norb, norb, len(x)), dtype=complex)
+        for m, (p, r) in enumerate(zip(*np.tril_indices(norb, k=-1))):
+            grad[:, :, m] = np.einsum(
+                "Am,m,mn,n,nB->AB",
+                vecs,
+                vecs_conj[:, p],
+                t_mat,
+                vecs[r, :],
+                vecs_conj,
             ) - np.einsum(
-                "Am,m,mn,n,nB->AB", V, V.T.conj()[:, r], T, V[p, :], V.T.conj()
+                "Am,m,mn,n,nB->AB",
+                vecs,
+                vecs_conj[:, r],
+                t_mat,
+                vecs[p, :],
+                vecs_conj,
             )
-        return J.real
+        return grad.real
 
     def jac(x: np.ndarray):
-        Ek = fun(x)
-        J = grad_U(x)
-        U = scipy.linalg.expm(V2M(x, norb))
-        h1tilde = np.einsum("pr,pAX,rB->ABX", h1, J, U, optimize=True)
-        h1tilde += np.einsum("pr,pA,rBX->ABX", h1, U, J, optimize=True)
-        h2tilde = np.einsum("prqs,pAX,rB,qC,sD->ABCDX", h2, J, U, U, U, optimize=True)
-        h2tilde += np.einsum("prqs,pA,rBX,qC,sD->ABCDX", h2, U, J, U, U, optimize=True)
-        h2tilde += np.einsum("prqs,pA,rB,qCX,sD->ABCDX", h2, U, U, J, U, optimize=True)
-        h2tilde += np.einsum("prqs,pA,rB,qC,sDX->ABCDX", h2, U, U, U, J, optimize=True)
-        G = np.einsum("prX,pr->X", h1tilde, rho1) + 0.5 * np.einsum(
+        orbital_rotation = scipy.linalg.expm(params_to_generator(x, norb))
+        grad_u = jac_u(x)
+        h1tilde = np.einsum(
+            "pr,pAX,rB->ABX", h1, grad_u, orbital_rotation, optimize=True
+        )
+        h1tilde += np.einsum(
+            "pr,pA,rBX->ABX", h1, orbital_rotation, grad_u, optimize=True
+        )
+        h2tilde = np.einsum(
+            "prqs,pAX,rB,qC,sD->ABCDX",
+            h2,
+            grad_u,
+            orbital_rotation,
+            orbital_rotation,
+            orbital_rotation,
+            optimize=True,
+        )
+        h2tilde += np.einsum(
+            "prqs,pA,rBX,qC,sD->ABCDX",
+            h2,
+            orbital_rotation,
+            grad_u,
+            orbital_rotation,
+            orbital_rotation,
+            optimize=True,
+        )
+        h2tilde += np.einsum(
+            "prqs,pA,rB,qCX,sD->ABCDX",
+            h2,
+            orbital_rotation,
+            orbital_rotation,
+            grad_u,
+            orbital_rotation,
+            optimize=True,
+        )
+        h2tilde += np.einsum(
+            "prqs,pA,rB,qC,sDX->ABCDX",
+            h2,
+            orbital_rotation,
+            orbital_rotation,
+            orbital_rotation,
+            grad_u,
+            optimize=True,
+        )
+        grad = np.einsum("prX,pr->X", h1tilde, rho1) + 0.5 * np.einsum(
             "prqsX,prqs->X", h2tilde, rho2, optimize=True
         )
-        print("E(k), G(k) = ", Ek, np.abs(G).max())
-        return G
+        return grad
 
     if k0 is None:
         k0 = np.zeros((norb, norb))
 
-    print("Initial energy ", fun(M2V(k0)))
     result = scipy.optimize.minimize(
-        fun, M2V(k0), method=method, jac=jac, callback=callback, options=options
+        fun,
+        generator_to_params(k0),
+        method=method,
+        jac=jac,
+        callback=callback,
+        options=options,
     )
-    print("Final energy   ", fun(result.x))
 
-    orbital_rotation = scipy.linalg.expm(V2M(result.x, norb))
+    orbital_rotation = scipy.linalg.expm(params_to_generator(result.x, norb))
 
     if return_optimize_result:
         return orbital_rotation, result
