@@ -12,6 +12,9 @@ import numpy as np
 import scipy.linalg
 import scipy.optimize
 
+from ffsim.hamiltonians import MolecularHamiltonian
+from ffsim.states.rdm import ReducedDensityMatrix
+
 
 def M2V(M):
     return M[np.tril_indices(M.shape[0], k=-1)]
@@ -26,25 +29,23 @@ def V2M(V, n):
 
 
 def optimize_orbitals(
-    rho1: np.ndarray,
-    rho2: np.ndarray,
-    h1: np.ndarray,
-    h2: np.ndarray,
+    rdm: ReducedDensityMatrix,
+    hamiltonian: MolecularHamiltonian,
     k0: np.ndarray | None = None,
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
 ):
     """Find orbitals that minimize the energy of a pair of one- and two-RDMs."""
-    norb, _ = h1.shape
+    norb = hamiltonian.norb
+    rho1 = rdm.one_rdm
+    rho2 = rdm.two_rdm
+    h1 = hamiltonian.one_body_tensor
+    h2 = hamiltonian.two_body_tensor
 
     def fun(x: np.ndarray):
         U = scipy.linalg.expm(V2M(x, norb))
-        h1tilde = np.einsum("pr,pA,rB->AB", h1, U, U, optimize=True)
-        h2tilde = np.einsum("prqs,pA,rB,qC,sD->ABCD", h2, U, U, U, U, optimize=True)
-        return np.einsum("pr,pr->", h1tilde, rho1) + 0.5 * np.einsum(
-            "prqs,prqs->", h2tilde, rho2
-        )
+        return rdm.rotated(U).expectation(hamiltonian)
 
     def grad_U(k: np.ndarray):
         i = np.tril_indices(norb, k=-1)
