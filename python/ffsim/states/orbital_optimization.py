@@ -14,6 +14,7 @@ import itertools
 import numpy as np
 import scipy.linalg
 import scipy.optimize
+from opt_einsum import contract
 
 from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.states.rdm import ReducedDensityMatrix
@@ -70,70 +71,73 @@ def optimize_orbitals(
                 )
         grad = np.zeros((norb, norb, len(x)), dtype=complex)
         for m, (p, r) in enumerate(zip(*np.tril_indices(norb, k=-1))):
-            grad[:, :, m] = np.einsum(
+            grad[:, :, m] = contract(
                 "Am,m,mn,n,nB->AB",
                 vecs,
                 vecs_conj[:, p],
                 t_mat,
                 vecs[r, :],
                 vecs_conj,
-            ) - np.einsum(
+                optimize="greedy",
+            )
+            grad[:, :, m] -= contract(
                 "Am,m,mn,n,nB->AB",
                 vecs,
                 vecs_conj[:, r],
                 t_mat,
                 vecs[p, :],
                 vecs_conj,
+                optimize="greedy",
             )
         return grad.real
 
     def jac(x: np.ndarray):
         orbital_rotation = scipy.linalg.expm(params_to_generator(x, norb))
         grad_u = jac_u(x)
-        h1tilde = np.einsum(
-            "pr,pAX,rB->ABX", h1, grad_u, orbital_rotation, optimize=True
+        h1tilde = contract(
+            "pr,pAX,rB->ABX", h1, grad_u, orbital_rotation, optimize="greedy"
         )
-        h1tilde += np.einsum(
-            "pr,pA,rBX->ABX", h1, orbital_rotation, grad_u, optimize=True
+        h1tilde += contract(
+            "pr,pA,rBX->ABX", h1, orbital_rotation, grad_u, optimize="greedy"
         )
-        h2tilde = np.einsum(
+        h2tilde = contract(
             "prqs,pAX,rB,qC,sD->ABCDX",
             h2,
             grad_u,
             orbital_rotation,
             orbital_rotation,
             orbital_rotation,
-            optimize=True,
+            optimize="greedy",
         )
-        h2tilde += np.einsum(
+        h2tilde += contract(
             "prqs,pA,rBX,qC,sD->ABCDX",
             h2,
             orbital_rotation,
             grad_u,
             orbital_rotation,
             orbital_rotation,
-            optimize=True,
+            optimize="greedy",
         )
-        h2tilde += np.einsum(
+        h2tilde += contract(
             "prqs,pA,rB,qCX,sD->ABCDX",
             h2,
             orbital_rotation,
             orbital_rotation,
             grad_u,
             orbital_rotation,
-            optimize=True,
+            optimize="greedy",
         )
-        h2tilde += np.einsum(
+        h2tilde += contract(
             "prqs,pA,rB,qC,sDX->ABCDX",
             h2,
             orbital_rotation,
             orbital_rotation,
             orbital_rotation,
             grad_u,
-            optimize=True,
+            optimize="greedy",
         )
-        grad = np.einsum("prX,pr->X", h1tilde, rho1) + 0.5 * np.einsum(
-            "prqsX,prqs->X", h2tilde, rho2, optimize=True
+        grad = contract("prX,pr->X", h1tilde, rho1, optimize=False) + 0.5 * contract(
+            "prqsX,prqs->X", h2tilde, rho2, optimize=False
         )
         return grad
 
