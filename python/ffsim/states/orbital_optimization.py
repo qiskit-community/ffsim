@@ -46,8 +46,9 @@ def optimize_orbitals(
     h2 = hamiltonian.two_body_tensor
 
     def fun(x: np.ndarray):
-        U = scipy.linalg.expm(V2M(x, norb))
-        return rdm.rotated(U).expectation(hamiltonian)
+        # Conjugate the orbital rotation to match ffsim.MolecularHamiltonian's convention
+        U = scipy.linalg.expm(V2M(x, norb)).T.conj()
+        return rdm.expectation(hamiltonian.rotated(U))
 
     def grad_U(k: np.ndarray):
         i = np.tril_indices(norb, k=-1)

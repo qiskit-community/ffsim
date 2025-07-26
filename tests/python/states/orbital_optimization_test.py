@@ -13,7 +13,6 @@
 import numpy as np
 import pyscf
 import pyscf.ci
-from opt_einsum import contract
 
 import ffsim
 
@@ -44,35 +43,20 @@ def test_optimize_orbitals():
     # Get RDMs
     rdm1 = cisd.make_rdm1()[n_frozen:, n_frozen:]
     rdm2 = cisd.make_rdm2()[n_frozen:, n_frozen:, n_frozen:, n_frozen:]
+    rdm = ffsim.ReducedDensityMatrix(rdm1, rdm2)
 
     # Optimize orbitals
     orbital_rotation, result = ffsim.optimize_orbitals(
-        ffsim.ReducedDensityMatrix(rdm1, rdm2),
+        rdm,
         mol_hamiltonian,
         return_optimize_result=True,
     )
     assert result.nit <= 5
+    assert result.nfev <= 7
+    assert result.njev <= 7
 
     # Compute energy
-    one_body_tensor_rotated = contract(
-        "ab,Aa,Bb->AB",
-        mol_hamiltonian.one_body_tensor,
-        orbital_rotation,
-        orbital_rotation.conj(),
-        optimize="greedy",
-    )
-    two_body_tensor_rotated = contract(
-        "abcd,Aa,Bb,Cc,Dd->ABCD",
-        mol_hamiltonian.two_body_tensor,
-        orbital_rotation,
-        orbital_rotation.conj(),
-        orbital_rotation,
-        orbital_rotation.conj(),
-        optimize="greedy",
-    )
-    energy = np.einsum("ab,ab->", one_body_tensor_rotated, rdm1) + 0.5 * np.einsum(
-        "abcd,abcd->", two_body_tensor_rotated, rdm2
-    )
+    energy = rdm.expectation(mol_hamiltonian.rotated(orbital_rotation))
 
     # Check results
-    np.testing.assert_allclose(energy + mol_data.core_energy, -108.23156835068842)
+    np.testing.assert_allclose(energy, -108.23156835068842)
