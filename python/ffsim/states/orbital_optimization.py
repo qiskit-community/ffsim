@@ -20,7 +20,8 @@ from ffsim.states.rdm import ReducedDensityMatrix
 
 
 def generator_to_params(mat: np.ndarray):
-    return mat[np.tril_indices(mat.shape[0], k=-1)]
+    norb, _ = mat.shape
+    return mat[np.tril_indices(norb, k=-1)]
 
 
 def params_to_generator(params: np.ndarray, norb: int):
@@ -35,7 +36,7 @@ def optimize_orbitals(
     rdm: ReducedDensityMatrix,
     hamiltonian: MolecularHamiltonian,
     *,
-    k0: np.ndarray | None = None,
+    initial_orbital_rotation: np.ndarray | None = None,
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
@@ -136,12 +137,12 @@ def optimize_orbitals(
         )
         return grad
 
-    if k0 is None:
-        k0 = np.zeros((norb, norb))
+    if initial_orbital_rotation is None:
+        initial_orbital_rotation = np.eye(norb)
 
     result = scipy.optimize.minimize(
         fun,
-        generator_to_params(k0),
+        generator_to_params(scipy.linalg.logm(initial_orbital_rotation)),
         method=method,
         jac=jac,
         callback=callback,
