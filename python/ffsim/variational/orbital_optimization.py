@@ -56,7 +56,8 @@ def _orbital_rotation_from_parameters_jax(
     vals = params[:n_triu]
     rows, cols = jnp.triu_indices(norb, k=1)
     generator = generator.at[rows, cols].add(vals)
-    generator = generator.at[cols, rows].subtract(vals)
+    # the subtract method is only available in JAX starting with Python 3.10
+    generator = generator.at[cols, rows].add(-vals)
     return jax.scipy.linalg.expm(generator)
 
 
