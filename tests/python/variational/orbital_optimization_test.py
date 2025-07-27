@@ -37,6 +37,7 @@ def test_optimize_orbitals():
     scf = pyscf.scf.RHF(mol).run()
     mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
     mol_hamiltonian = mol_data.hamiltonian
+    norb = mol_data.norb
 
     # Run CISD
     cisd = pyscf.ci.CISD(scf, frozen=n_frozen).run()
@@ -52,9 +53,10 @@ def test_optimize_orbitals():
     orbital_rotation, result = ffsim.optimize_orbitals(
         rdm,
         mol_hamiltonian,
-        real=True,
         return_optimize_result=True,
     )
+    assert np.isrealobj(orbital_rotation)
+    assert len(result.x) == norb * (norb - 1) // 2
     assert result.nit <= 7
     assert result.nfev <= 9
     assert result.njev <= 9
@@ -69,10 +71,12 @@ def test_optimize_orbitals():
         rdm,
         mol_hamiltonian,
         initial_orbital_rotation=scipy.linalg.expm(
-            1e-4 * ffsim.random.random_antihermitian(mol_data.norb, seed=RNG)
+            1e-4 * ffsim.random.random_antihermitian(norb, seed=RNG)
         ),
         return_optimize_result=True,
     )
+    assert np.iscomplexobj(orbital_rotation)
+    assert len(result.x) == norb**2
     assert result.nit <= 8
     assert result.nfev <= 11
     assert result.njev <= 11

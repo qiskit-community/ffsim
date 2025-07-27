@@ -65,7 +65,7 @@ def optimize_orbitals(
     hamiltonian: MolecularHamiltonian,
     *,
     initial_orbital_rotation: np.ndarray | None = None,
-    real: bool = False,
+    real: bool | None = None,
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
@@ -94,6 +94,10 @@ def optimize_orbitals(
         initial_orbital_rotation: An initial guess for the orbital rotation. If not
             provided, the identity matrix will be used.
         real: Whether to restrict the optimization to real-valued orbital rotations.
+            The default behavior is to restrict to real-valued orbital rotations
+            if the reduced density matrices, Hamiltonian, and initial orbital rotation
+            (if one was given) are all real-valued, and to allow complex orbital
+            rotations if any of these are complex-valued.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
         callback: Callback function for the optimization. See the documentation of
@@ -112,6 +116,18 @@ def optimize_orbitals(
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
+    if real is None:
+        real = not any(
+            np.iscomplexobj(x)
+            for x in [
+                rdm.one_rdm,
+                rdm.two_rdm,
+                hamiltonian.one_body_tensor,
+                hamiltonian.two_body_tensor,
+                initial_orbital_rotation,
+            ]
+        )
+
     norb = hamiltonian.norb
     one_rdm = jnp.array(rdm.one_rdm)
     two_rdm = jnp.array(rdm.two_rdm)
