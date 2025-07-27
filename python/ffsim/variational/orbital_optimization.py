@@ -18,11 +18,12 @@ from opt_einsum import contract
 
 from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.states.rdm import ReducedDensityMatrix
+from ffsim.variational.util import orbital_rotation_to_parameters
 
 jax.config.update("jax_enable_x64", True)
 
 
-def _orbital_rotation_from_parameters(
+def _orbital_rotation_from_parameters_jax(
     params: np.ndarray, norb: int, real: bool = False
 ) -> jax.Array:
     """Construct an orbital rotation from parameters.
@@ -54,44 +55,6 @@ def _orbital_rotation_from_parameters(
     generator = generator.at[rows, cols].add(vals)
     generator = generator.at[cols, rows].subtract(vals)
     return jax.scipy.linalg.expm(generator)
-
-
-def _orbital_rotation_to_parameters(
-    orbital_rotation: np.ndarray, real: bool = False
-) -> np.ndarray:
-    """Convert an orbital rotation to parameters.
-
-    Converts an orbital rotation to a real-valued parameter vector. The parameter vector
-    contains non-redundant real and imaginary parts of the elements of the matrix
-    logarithm of the orbital rotation matrix.
-
-    Args:
-        orbital_rotation: The orbital rotation.
-        real: Whether to construct a parameter vector for a real-valued
-            orbital rotation. If True, the orbital rotation must have a real-valued
-            data type.
-
-    Returns:
-        The list of real numbers parameterizing the orbital rotation.
-    """
-    if real and np.iscomplexobj(orbital_rotation):
-        raise TypeError(
-            "real was set to True, but the orbital rotation has a complex data type. "
-            "Try passing an orbital rotation with a real-valued data type, or else "
-            "set real=False."
-        )
-    norb, _ = orbital_rotation.shape
-    triu_indices = np.triu_indices(norb, k=1)
-    n_triu = norb * (norb - 1) // 2
-    mat = scipy.linalg.logm(orbital_rotation)
-    params = np.zeros(n_triu if real else norb**2)
-    # real part
-    params[:n_triu] = mat[triu_indices].real
-    # imaginary part
-    if not real:
-        triu_indices = np.triu_indices(norb)
-        params[n_triu:] = mat[triu_indices].imag
-    return params
 
 
 def optimize_orbitals(
@@ -154,7 +117,9 @@ def optimize_orbitals(
 
     def fun(x: np.ndarray):
         # Conjugate orbital rotation to match ffsim.MolecularHamiltonian's convention
-        orbital_rotation = _orbital_rotation_from_parameters(x, norb=norb, real=real)
+        orbital_rotation = _orbital_rotation_from_parameters_jax(
+            x, norb=norb, real=real
+        )
         one_rdm_rotated = contract(
             "ab,Aa,Bb->AB",
             one_rdm,
@@ -184,7 +149,7 @@ def optimize_orbitals(
 
     result = scipy.optimize.minimize(
         value_and_grad,
-        _orbital_rotation_to_parameters(initial_orbital_rotation, real=real),
+        orbital_rotation_to_parameters(initial_orbital_rotation, real=real),
         method=method,
         jac=True,
         callback=callback,
@@ -192,7 +157,7 @@ def optimize_orbitals(
     )
 
     orbital_rotation = np.array(
-        _orbital_rotation_from_parameters(result.x, norb=norb, real=real)
+        _orbital_rotation_from_parameters_jax(result.x, norb=norb, real=real)
     )
 
     if return_optimize_result:
