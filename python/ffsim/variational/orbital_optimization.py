@@ -124,7 +124,8 @@ def optimize_orbitals(
                 rdm.two_rdm,
                 hamiltonian.one_body_tensor,
                 hamiltonian.two_body_tensor,
-                initial_orbital_rotation,
+                # complicate the next line to satisfy mypy
+                initial_orbital_rotation if initial_orbital_rotation is not None else 0,
             ]
         )
 
