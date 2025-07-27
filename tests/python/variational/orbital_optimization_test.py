@@ -62,8 +62,10 @@ def test_optimize_orbitals():
     assert result.njev <= 9
     # Compute energy
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
+    energy_alt = rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))
     # Check results
     np.testing.assert_allclose(energy, result.fun)
+    np.testing.assert_allclose(energy, energy_alt)
     np.testing.assert_allclose(energy, -108.58613393502857)
 
     # Optimize orbitals with complex rotations
@@ -82,6 +84,8 @@ def test_optimize_orbitals():
     assert result.njev <= 11
     # Compute energy
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
+    energy_alt = rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))
     # Check results
     np.testing.assert_allclose(energy, result.fun)
+    np.testing.assert_allclose(energy, energy_alt)
     np.testing.assert_allclose(energy, -108.58613393502857)
