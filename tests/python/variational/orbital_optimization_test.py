@@ -25,7 +25,7 @@ def test_optimize_orbitals():
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["N", (0, 0, 0)], ["N", (2.4, 0, 0)]],
-        basis="sto-6g",
+        basis="6-31g",
         symmetry="Dooh",
     )
 
@@ -41,7 +41,7 @@ def test_optimize_orbitals():
     # Run CISD
     cisd = pyscf.ci.CISD(scf, frozen=n_frozen).run()
     cisd_energy = cisd.e_tot
-    np.testing.assert_allclose(cisd_energy, -108.231502807842)
+    np.testing.assert_allclose(cisd_energy, -108.58532210214092)
 
     # Get RDMs
     rdm1 = cisd.make_rdm1()[n_frozen:, n_frozen:]
@@ -55,14 +55,14 @@ def test_optimize_orbitals():
         real=True,
         return_optimize_result=True,
     )
-    assert result.nit <= 5
-    assert result.nfev <= 7
-    assert result.njev <= 7
+    assert result.nit <= 7
+    assert result.nfev <= 9
+    assert result.njev <= 9
     # Compute energy
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
     # Check results
     np.testing.assert_allclose(energy, result.fun)
-    np.testing.assert_allclose(energy, -108.23156835068842)
+    np.testing.assert_allclose(energy, -108.58613393502857)
 
     # Optimize orbitals with complex rotations
     orbital_rotation, result = ffsim.optimize_orbitals(
@@ -73,11 +73,11 @@ def test_optimize_orbitals():
         ),
         return_optimize_result=True,
     )
-    assert result.nit <= 5
-    assert result.nfev <= 7
-    assert result.njev <= 7
+    assert result.nit <= 8
+    assert result.nfev <= 11
+    assert result.njev <= 11
     # Compute energy
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
     # Check results
     np.testing.assert_allclose(energy, result.fun)
-    np.testing.assert_allclose(energy, -108.23156835068842)
+    np.testing.assert_allclose(energy, -108.58613393502857)
