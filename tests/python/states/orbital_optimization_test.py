@@ -13,8 +13,11 @@
 import numpy as np
 import pyscf
 import pyscf.ci
+import scipy.linalg
 
 import ffsim
+
+RNG = np.random.default_rng(241127903049053917326682280086371763733)
 
 
 def test_optimize_orbitals():
@@ -45,19 +48,36 @@ def test_optimize_orbitals():
     rdm2 = cisd.make_rdm2()[n_frozen:, n_frozen:, n_frozen:, n_frozen:]
     rdm = ffsim.ReducedDensityMatrix(rdm1, rdm2)
 
-    # Optimize orbitals
+    # Optimize orbitals with real rotations
     orbital_rotation, result = ffsim.optimize_orbitals(
         rdm,
         mol_hamiltonian,
+        real=True,
         return_optimize_result=True,
     )
     assert result.nit <= 5
     assert result.nfev <= 7
     assert result.njev <= 7
-
     # Compute energy
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
+    # Check results
+    np.testing.assert_allclose(energy, result.fun)
+    np.testing.assert_allclose(energy, -108.23156835068842)
 
+    # Optimize orbitals with complex rotations
+    orbital_rotation, result = ffsim.optimize_orbitals(
+        rdm,
+        mol_hamiltonian,
+        initial_orbital_rotation=scipy.linalg.expm(
+            1e-4 * ffsim.random.random_antihermitian(mol_data.norb, seed=RNG)
+        ),
+        return_optimize_result=True,
+    )
+    assert result.nit <= 5
+    assert result.nfev <= 7
+    assert result.njev <= 7
+    # Compute energy
+    energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
     # Check results
     np.testing.assert_allclose(energy, result.fun)
     np.testing.assert_allclose(energy, -108.23156835068842)

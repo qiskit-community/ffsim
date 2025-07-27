@@ -84,6 +84,7 @@ def optimize_orbitals(
     hamiltonian: MolecularHamiltonian,
     *,
     initial_orbital_rotation: np.ndarray | None = None,
+    real: bool = False,
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
@@ -98,7 +99,7 @@ def optimize_orbitals(
 
     def fun(x: np.ndarray):
         # Conjugate orbital rotation to match ffsim.MolecularHamiltonian's convention
-        orbital_rotation = _orbital_rotation_from_parameters(x, norb=norb, real=True)
+        orbital_rotation = _orbital_rotation_from_parameters(x, norb=norb, real=real)
         one_rdm_rotated = contract(
             "ab,Aa,Bb->AB",
             one_rdm,
@@ -119,7 +120,7 @@ def optimize_orbitals(
             hamiltonian.constant
             + contract("ab,ab->", one_body_tensor, one_rdm_rotated)
             + 0.5 * contract("abcd,abcd->", two_body_tensor, two_rdm_rotated)
-        )
+        ).real
 
     value_and_grad = jax.value_and_grad(fun)
 
@@ -128,7 +129,7 @@ def optimize_orbitals(
 
     result = scipy.optimize.minimize(
         value_and_grad,
-        _orbital_rotation_to_parameters(initial_orbital_rotation, real=True),
+        _orbital_rotation_to_parameters(initial_orbital_rotation, real=real),
         method=method,
         jac=True,
         callback=callback,
@@ -136,7 +137,7 @@ def optimize_orbitals(
     )
 
     orbital_rotation = np.array(
-        _orbital_rotation_from_parameters(result.x, norb=norb, real=True)
+        _orbital_rotation_from_parameters(result.x, norb=norb, real=real)
     )
 
     if return_optimize_result:
