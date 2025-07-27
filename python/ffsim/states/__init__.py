@@ -15,7 +15,6 @@ from ffsim.states.bitstring import (
     addresses_to_strings,
     strings_to_addresses,
 )
-from ffsim.states.orbital_optimization import optimize_orbitals
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import ReducedDensityMatrix, rdms
 from ffsim.states.sample_slater import sample_slater_determinant
@@ -44,7 +43,6 @@ __all__ = [
     "expectation_one_body_power",
     "expectation_one_body_product",
     "hartree_fock_state",
-    "optimize_orbitals",
     "rdms",
     "sample_slater_determinant",
     "sample_state_vector",

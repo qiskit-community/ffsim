@@ -72,7 +72,6 @@ from ffsim.states import (
     expectation_one_body_power,
     expectation_one_body_product,
     hartree_fock_state,
-    optimize_orbitals,
     rdms,
     sample_slater_determinant,
     sample_state_vector,
@@ -102,6 +101,7 @@ from ffsim.variational import (
     UCJOpSpinUnbalanced,
     multireference_state,
     multireference_state_prod,
+    optimize_orbitals,
 )
 
 __all__ = [
