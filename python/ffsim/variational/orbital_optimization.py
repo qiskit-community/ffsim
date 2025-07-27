@@ -8,11 +8,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
 import numpy as np
-import scipy.linalg
 import scipy.optimize
 from opt_einsum import contract
 
