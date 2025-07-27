@@ -19,7 +19,9 @@ import numpy as np
 import pytest
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import (
+    CCZGate,
     CPhaseGate,
+    CRZGate,
     CZGate,
     GlobalPhaseGate,
     PhaseGate,
@@ -186,7 +188,12 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in big_pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+        circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
         circuit.append(CZGate(), [qubits[i], qubits[j]])
+    triples = list(itertools.combinations(range(2 * norb), 3))
+    prng.shuffle(triples)
+    for i, j, k in triples:
+        circuit.append(CCZGate(), [qubits[i], qubits[j], qubits[k]])
     for i, j in pairs:
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
         circuit.append(iSwapGate(), [qubits[norb + i], qubits[norb + j]])
@@ -233,6 +240,8 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     prng = random.Random(11832)
     pairs = list(itertools.combinations(range(norb), 2))
     prng.shuffle(pairs)
+    big_pairs = list(itertools.combinations(range(norb), 2))
+    prng.shuffle(big_pairs)
 
     # Construct circuit
     qubits = QuantumRegister(norb)
@@ -246,10 +255,16 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    for i, j in pairs:
+    for i, j in big_pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+        circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
         circuit.append(CZGate(), [qubits[i], qubits[j]])
+    for i, j in pairs:
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
+    triples = list(itertools.combinations(range(norb), 3))
+    prng.shuffle(triples)
+    for i, j, k in triples:
+        circuit.append(CCZGate(), [qubits[i], qubits[j], qubits[k]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     for i, j in pairs:

@@ -20,7 +20,9 @@ import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import (
     Barrier,
+    CCZGate,
     CPhaseGate,
+    CRZGate,
     CZGate,
     GlobalPhaseGate,
     Measure,
@@ -270,6 +272,30 @@ def _evolve_state_vector_spinless(
         vec *= cmath.rect(1, -0.5 * theta)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, CRZGate):
+        control, target = qubit_indices
+        (theta,) = op.params
+        vec = gates.apply_num_interaction(
+            vec, -0.5 * theta, control, norb=norb, nelec=nelec, copy=False
+        )
+        vec = gates.apply_num_num_interaction(
+            vec, theta, (control, target), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CCZGate):
+        i, j, k = qubit_indices
+        assert isinstance(nelec, int)
+        vec = gates.apply_num_op_prod_interaction(
+            vec,
+            math.pi,
+            target_orbs=([i, j, k], []),
+            norb=norb,
+            nelec=(nelec, 0),
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, RZZGate):
         i, j = qubit_indices
         (theta,) = op.params
@@ -467,6 +493,37 @@ def _evolve_state_vector_spinful(
             vec, theta, orb % norb, norb=norb, nelec=nelec, spin=spin, copy=False
         )
         vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CRZGate):
+        control, target = qubit_indices
+        (theta,) = op.params
+        vec = gates.apply_num_interaction(
+            vec,
+            -0.5 * theta,
+            control % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=Spin.ALPHA if control < norb else Spin.BETA,
+            copy=False,
+        )
+        target_orbs = ([], [])
+        target_orbs[control >= norb].append(control % norb)
+        target_orbs[target >= norb].append(target % norb)
+        vec = gates.apply_num_op_prod_interaction(
+            vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CCZGate):
+        i, j, k = qubit_indices
+        target_orbs = ([], [])
+        target_orbs[i >= norb].append(i % norb)
+        target_orbs[j >= norb].append(j % norb)
+        target_orbs[k >= norb].append(k % norb)
+        vec = gates.apply_num_op_prod_interaction(
+            vec, math.pi, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+        )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, RZZGate):
