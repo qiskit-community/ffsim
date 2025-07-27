@@ -18,7 +18,10 @@ from opt_einsum import contract
 
 from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.states.rdm import ReducedDensityMatrix
-from ffsim.variational.util import orbital_rotation_to_parameters
+from ffsim.variational.util import (
+    orbital_rotation_from_parameters,
+    orbital_rotation_to_parameters,
+)
 
 jax.config.update("jax_enable_x64", True)
 
@@ -156,9 +159,7 @@ def optimize_orbitals(
         options=options,
     )
 
-    orbital_rotation = np.array(
-        _orbital_rotation_from_parameters_jax(result.x, norb=norb, real=real)
-    )
+    orbital_rotation = orbital_rotation_from_parameters(result.x, norb=norb, real=real)
 
     if return_optimize_result:
         return orbital_rotation, result
