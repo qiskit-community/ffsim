@@ -40,8 +40,6 @@ __all__ = [
     "ReducedDensityMatrix",
     "StateVector",
     "addresses_to_strings",
-    "dim",
-    "dims",
     "expectation_one_body_power",
     "expectation_one_body_product",
     "hartree_fock_state",
