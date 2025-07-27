@@ -24,7 +24,7 @@ jax.config.update("jax_enable_x64", True)
 
 def _orbital_rotation_from_parameters(
     params: np.ndarray, norb: int, real: bool = False
-) -> np.ndarray:
+) -> jax.Array:
     """Construct an orbital rotation from parameters.
 
     Converts a real-valued parameter vector to an orbital rotation. The parameter vector
@@ -59,6 +59,21 @@ def _orbital_rotation_from_parameters(
 def _orbital_rotation_to_parameters(
     orbital_rotation: np.ndarray, real: bool = False
 ) -> np.ndarray:
+    """Convert an orbital rotation to parameters.
+
+    Converts an orbital rotation to a real-valued parameter vector. The parameter vector
+    contains non-redundant real and imaginary parts of the elements of the matrix
+    logarithm of the orbital rotation matrix.
+
+    Args:
+        orbital_rotation: The orbital rotation.
+        real: Whether to construct a parameter vector for a real-valued
+            orbital rotation. If True, the orbital rotation must have a real-valued
+            data type.
+
+    Returns:
+        The list of real numbers parameterizing the orbital rotation.
+    """
     if real and np.iscomplexobj(orbital_rotation):
         raise TypeError(
             "real was set to True, but the orbital rotation has a complex data type. "
@@ -90,7 +105,47 @@ def optimize_orbitals(
     options: dict | None = None,
     return_optimize_result: bool = False,
 ) -> np.ndarray | tuple[np.ndarray, scipy.optimize.OptimizeResult]:
-    """Find orbitals that minimize the energy of a pair of one- and two-RDMs."""
+    """Find orbitals that minimize the energy of a pair of one- and two-RDMs.
+
+    Uses `scipy.optimize.minimize`_ to find an orbital rotation that minimizes the
+    energy of a pair of one- and two-RDMs with respect to a molecualar Hamiltonian.
+
+    The minimized energy can be computed from the returned orbital rotation as
+
+    .. code::
+
+        rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
+
+    or
+
+    .. code::
+
+        rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))
+
+    Args:
+        rdm: The reduced density matrices.
+        hamiltonian: The Hamiltonian.
+        initial_orbital_rotation: An initial guess for the orbital rotation. If not
+            provided, the identity matrix will be used.
+        real: Whether to restrict the optimization to real-valued orbital rotations.
+        method: The optimization method. See the documentation of
+            `scipy.optimize.minimize`_ for possible values.
+        callback: Callback function for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+        options: Options for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
+            by `scipy.optimize.minimize`_.
+
+    Returns:
+        The orbital rotation, which, when applied to the reduced density matrix
+        (or conjugated and applied to the Hamiltonian), minimizes its energy.
+        If `return_optimize_result` is set to ``True``, the `OptimizeResult`_ returned
+        by `scipy.optimize.minimize`_ is also returned.
+
+    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
+    """
     norb = hamiltonian.norb
     one_rdm = jnp.array(rdm.one_rdm)
     two_rdm = jnp.array(rdm.two_rdm)
