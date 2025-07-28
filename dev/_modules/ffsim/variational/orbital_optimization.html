@@ -406,7 +406,6 @@
     <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="c1"># Conjugate orbital rotation to match ffsim.MolecularHamiltonian&#39;s convention</span>
         <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">_orbital_rotation_from_parameters_jax</span><span class="p">(</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="n">real</span>
         <span class="p">)</span>
