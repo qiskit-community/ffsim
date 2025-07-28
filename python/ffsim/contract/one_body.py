@@ -12,12 +12,13 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import scipy.sparse.linalg
 from pyscf.fci.direct_nosym import contract_1e
 
 from ffsim.cistring import gen_linkstr_index
-from ffsim.states import dim
 
 
 def contract_one_body(
@@ -75,7 +76,8 @@ def one_body_linop(
     Returns:
         A LinearOperator that implements the action of the one-body tensor.
     """
-    dim_ = dim(norb, nelec)
+    n_alpha, n_beta = nelec
+    dim = math.comb(norb, n_alpha) * math.comb(norb, n_beta)
 
     def matvec(vec: np.ndarray):
         return contract_one_body(vec, mat, norb=norb, nelec=nelec)
@@ -84,5 +86,5 @@ def one_body_linop(
         return contract_one_body(vec, mat.T.conj(), norb=norb, nelec=nelec)
 
     return scipy.sparse.linalg.LinearOperator(
-        shape=(dim_, dim_), matvec=matvec, rmatvec=rmatvec, dtype=complex
+        shape=(dim, dim), matvec=matvec, rmatvec=rmatvec, dtype=complex
     )

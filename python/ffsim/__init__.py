@@ -12,6 +12,7 @@
 
 from ffsim import contract, linalg, optimize, qiskit, random, testing
 from ffsim.cistring import init_cache
+from ffsim.dimensions import dim, dims
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -65,10 +66,9 @@ from ffsim.spin import Spin
 from ffsim.states import (
     BitstringType,
     ProductStateSum,
+    ReducedDensityMatrix,
     StateVector,
     addresses_to_strings,
-    dim,
-    dims,
     expectation_one_body_power,
     expectation_one_body_product,
     hartree_fock_state,
@@ -93,6 +93,7 @@ from ffsim.variational import (
     GivensAnsatzOp,
     HopGateAnsatzOperator,
     NumNumAnsatzOpSpinBalanced,
+    UCCSDOpRestricted,
     UCCSDOpRestrictedReal,
     UCJAnglesOpSpinBalanced,
     UCJOpSpinBalanced,
@@ -100,6 +101,7 @@ from ffsim.variational import (
     UCJOpSpinUnbalanced,
     multireference_state,
     multireference_state_prod,
+    optimize_orbitals,
 )
 
 __all__ = [
@@ -115,6 +117,7 @@ __all__ = [
     "MolecularHamiltonianSpinless",
     "NumNumAnsatzOpSpinBalanced",
     "ProductStateSum",
+    "ReducedDensityMatrix",
     "SingleFactorizedHamiltonian",
     "Spin",
     "StateVector",
@@ -124,6 +127,7 @@ __all__ = [
     "SupportsFermionOperator",
     "SupportsLinearOperator",
     "SupportsTrace",
+    "UCCSDOpRestricted",
     "UCCSDOpRestrictedReal",
     "UCJAnglesOpSpinBalanced",
     "UCJOpSpinBalanced",
@@ -167,6 +171,7 @@ __all__ = [
     "multireference_state_prod",
     "number_operator",
     "optimize",
+    "optimize_orbitals",
     "qiskit",
     "random",
     "rdms",

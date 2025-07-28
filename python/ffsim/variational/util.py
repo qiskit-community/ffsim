@@ -12,8 +12,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 import numpy as np
 import scipy.linalg
 
@@ -62,15 +60,16 @@ def orbital_rotation_to_parameters(
             "set real=False."
         )
     norb, _ = orbital_rotation.shape
-    triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
+    triu_indices = np.triu_indices(norb, k=1)
+    n_triu = norb * (norb - 1) // 2
     mat = scipy.linalg.logm(orbital_rotation)
-    params = np.zeros(norb * (norb - 1) // 2 if real else norb**2)
+    params = np.zeros(n_triu if real else norb**2)
     # real part
-    params[: len(triu_indices_no_diag)] = mat[tuple(zip(*triu_indices_no_diag))].real
+    params[:n_triu] = mat[triu_indices].real
     # imaginary part
     if not real:
-        triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
-        params[len(triu_indices_no_diag) :] = mat[tuple(zip(*triu_indices))].imag
+        triu_indices = np.triu_indices(norb)
+        params[n_triu:] = mat[triu_indices].imag
     return params
 
 
@@ -92,18 +91,17 @@ def orbital_rotation_from_parameters(
     Returns:
         The orbital rotation.
     """
-    triu_indices_no_diag = list(itertools.combinations(range(norb), 2))
     generator = np.zeros((norb, norb), dtype=float if real else complex)
+    n_triu = norb * (norb - 1) // 2
     if not real:
         # imaginary part
-        triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
-        vals = 1j * params[len(triu_indices_no_diag) :]
-        rows, cols = zip(*triu_indices)
+        rows, cols = np.triu_indices(norb)
+        vals = 1j * params[n_triu:]
         generator[rows, cols] = vals
         generator[cols, rows] = vals
     # real part
-    vals = params[: len(triu_indices_no_diag)]
-    rows, cols = zip(*triu_indices_no_diag)
+    vals = params[:n_triu]
+    rows, cols = np.triu_indices(norb, k=1)
     generator[rows, cols] += vals
     generator[cols, rows] -= vals
     return scipy.linalg.expm(generator)
