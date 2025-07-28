@@ -285,7 +285,6 @@ def _evolve_state_vector_spinless(
 
     if isinstance(op, CCZGate):
         i, j, k = qubit_indices
-        assert isinstance(nelec, int)
         vec = gates.apply_num_op_prod_interaction(
             vec,
             math.pi,
@@ -498,6 +497,9 @@ def _evolve_state_vector_spinful(
     if isinstance(op, CRZGate):
         control, target = qubit_indices
         (theta,) = op.params
+        target_orbs = ([], [])
+        target_orbs[control >= norb].append(control % norb)
+        target_orbs[target >= norb].append(target % norb)
         vec = gates.apply_num_interaction(
             vec,
             -0.5 * theta,
@@ -507,9 +509,6 @@ def _evolve_state_vector_spinful(
             spin=Spin.ALPHA if control < norb else Spin.BETA,
             copy=False,
         )
-        target_orbs = ([], [])
-        target_orbs[control >= norb].append(control % norb)
-        target_orbs[target >= norb].append(target % norb)
         vec = gates.apply_num_op_prod_interaction(
             vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
