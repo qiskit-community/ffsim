@@ -52,8 +52,8 @@ def test_double_factorized_compressed():
     pairs_aa = [(p, p + 1) for p in range(norb - 1)]
     pairs_ab = [(p, p) for p in range(norb)]
     diag_coulomb_indices = pairs_aa + pairs_ab
-    n_reps = 2
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+    n_reps = 1
+    diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
         double_factorized_t2_compressed(
             ccsd.t2,
             n_reps=n_reps,
@@ -61,8 +61,9 @@ def test_double_factorized_compressed():
             method="L-BFGS-B",
             options={"maxiter": 25},
             multi_stage_optimization=True,
-            begin_reps=5,
+            begin_reps=8,
             step=4,
+            return_optimize_result=True,
         )
     )
 
@@ -101,7 +102,10 @@ def test_double_factorized_compressed():
 
     assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
-    assert error_optimized < error
+    assert error_optimized < 0.5 * error
+    assert result.nit <= 25
+    assert result.nfev <= 30
+    assert result.njev <= 30
 
 
 def test_double_factorized_compressed_random():
@@ -163,4 +167,4 @@ def test_double_factorized_compressed_random():
 
     assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
-    assert error_optimized < error
+    assert error_optimized < 0.5 * error
