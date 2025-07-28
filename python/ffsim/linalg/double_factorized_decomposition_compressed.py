@@ -217,14 +217,17 @@ def double_factorized_t2_compressed(
           The first axis indexes the eigenvectors of the decomposition, and he last two
           axes index the rows and columns of the matrices.
     """
-    nocc, _, _, _ = t2.shape
+    nocc, _, nvrt, _ = t2.shape
+    norb = nocc + nvrt
+
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
-    _, _, norb, _ = orbital_rotations.shape
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
-    n_reps_full, norb, _ = orbital_rotations.shape
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
+    n_reps_full, _, _ = orbital_rotations.shape
+
     if n_reps is None or n_reps_full < n_reps:
         return diag_coulomb_mats, orbital_rotations
+
     if not multi_stage_optimization:
         n_reps_full = n_reps
     if begin_reps is None:
