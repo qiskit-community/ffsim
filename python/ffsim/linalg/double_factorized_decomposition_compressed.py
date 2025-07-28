@@ -154,7 +154,11 @@ def double_factorized_t2_compressed(
     multi_stage_optimization: bool = True,
     begin_reps: int | None = None,
     step: int = 2,
-) -> tuple[np.ndarray, np.ndarray]:
+    return_optimize_result: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray | scipy.optimize.OptimizeResult]
+):
     r"""Compressed double-factorized decomposition of t2 amplitudes for LUCJ ansatz.
 
     The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is
@@ -206,6 +210,8 @@ def double_factorized_t2_compressed(
             `n_reps`.
         begin_reps: The starting point of the multi-stage optimization
         step: The step size for the multi-stage optimization
+        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
+            by `scipy.optimize.minimize`_.
 
     Returns:
         - The diagonal Coulomb matrices, as a Numpy array of shape
@@ -216,6 +222,8 @@ def double_factorized_t2_compressed(
           `(n_reps, norb, norb)`.
           The first axis indexes the eigenvectors of the decomposition, and he last two
           axes index the rows and columns of the matrices.
+        If `return_optimize_result` is set to ``True``, the `OptimizeResult`_ returned
+        by `scipy.optimize.minimize`_ is also returned.
     """
     nocc, _, nvrt, _ = t2.shape
     norb = nocc + nvrt
@@ -228,13 +236,16 @@ def double_factorized_t2_compressed(
     if n_reps is None or n_reps_full < n_reps:
         return diag_coulomb_mats, orbital_rotations
 
-    if not multi_stage_optimization:
-        n_reps_full = n_reps
-    if begin_reps is None:
-        begin_reps = n_reps_full
-    begin_reps = min(n_reps_full, begin_reps)
+    if multi_stage_optimization:
+        if begin_reps is None:
+            begin_reps = n_reps_full
+        begin_reps = min(n_reps_full, begin_reps)
+        list_reps = list(range(begin_reps, n_reps, -step))
+        list_reps.append(n_reps)
+    else:
+        list_reps = [n_reps]
 
-    if diag_coulomb_indices is None or len(diag_coulomb_indices) == 0:
+    if not diag_coulomb_indices:
         diag_coulomb_mask = np.ones((norb, norb), dtype=bool)
     else:
         diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
@@ -245,8 +256,6 @@ def double_factorized_t2_compressed(
     # construct diag_coulomb_mask indices
     diag_coulomb_mask_indices = np.triu(diag_coulomb_mask)
 
-    list_reps = list(range(begin_reps, n_reps, -step))
-    list_reps.append(n_reps)
     for n_tensors in list_reps:
         diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
         orbital_rotations = orbital_rotations[:n_tensors]
@@ -353,4 +362,6 @@ def double_factorized_t2_compressed(
             result.x, n_tensors, norb, diag_coulomb_mask_indices
         )
 
+    if return_optimize_result:
+        return diag_coulomb_mats, orbital_rotations, result
     return diag_coulomb_mats, orbital_rotations
