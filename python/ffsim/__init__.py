@@ -101,6 +101,7 @@ from ffsim.variational import (
     UCJOpSpinUnbalanced,
     multireference_state,
     multireference_state_prod,
+    optimize_orbitals,
 )
 
 __all__ = [
@@ -170,6 +171,7 @@ __all__ = [
     "multireference_state_prod",
     "number_operator",
     "optimize",
+    "optimize_orbitals",
     "qiskit",
     "random",
     "rdms",
