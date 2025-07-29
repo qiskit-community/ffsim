@@ -192,9 +192,17 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in big_pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    prng.shuffle(big_pairs)
+    for i, j in big_pairs:
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    prng.shuffle(big_pairs)
+    for i, j in big_pairs:
         circuit.append(CZGate(), [qubits[i], qubits[j]])
+    prng.shuffle(big_pairs)
+    for i, j in big_pairs:
         circuit.append(CSGate(), [qubits[i], qubits[j]])
+    prng.shuffle(big_pairs)
+    for i, j in big_pairs:
         circuit.append(CSdgGate(), [qubits[i], qubits[j]])
     for i, j, k in triples:
         circuit.append(CCZGate(), [qubits[i], qubits[j], qubits[k]])
@@ -261,9 +269,17 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in pairs:
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    prng.shuffle(pairs)
+    for i, j in pairs:
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    prng.shuffle(pairs)
+    for i, j in pairs:
         circuit.append(CZGate(), [qubits[i], qubits[j]])
+    prng.shuffle(pairs)
+    for i, j in pairs:
         circuit.append(CSGate(), [qubits[i], qubits[j]])
+    prng.shuffle(pairs)
+    for i, j in pairs:
         circuit.append(CSdgGate(), [qubits[i], qubits[j]])
     for i, j in pairs:
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
