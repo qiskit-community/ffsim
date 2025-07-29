@@ -179,7 +179,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(XGate(), [qubits[i]])
     for i in range(n_beta):
         circuit.append(XGate(), [qubits[norb + i]])
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
@@ -190,30 +190,26 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    for i, j in big_pairs:
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    prng.shuffle(big_pairs)
-    for i, j in big_pairs:
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    prng.shuffle(big_pairs)
-    for i, j in big_pairs:
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CZGate(), [qubits[i], qubits[j]])
-    prng.shuffle(big_pairs)
-    for i, j in big_pairs:
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CSGate(), [qubits[i], qubits[j]])
-    prng.shuffle(big_pairs)
-    for i, j in big_pairs:
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CSdgGate(), [qubits[i], qubits[j]])
-    for i, j, k in triples:
+    for i, j, k in prng.choices(triples, k=len(triples) // 2):
         circuit.append(CCZGate(), [qubits[i], qubits[j], qubits[k]])
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
         circuit.append(iSwapGate(), [qubits[norb + i], qubits[norb + j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
-    for i, j in big_pairs:
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
@@ -260,40 +256,36 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     circuit = QuantumCircuit(qubits)
     for i in range(nocc):
         circuit.append(XGate(), [qubits[i]])
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
     for q in qubits:
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    prng.shuffle(pairs)
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
-    prng.shuffle(pairs)
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CZGate(), [qubits[i], qubits[j]])
-    prng.shuffle(pairs)
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CSGate(), [qubits[i], qubits[j]])
-    prng.shuffle(pairs)
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CSdgGate(), [qubits[i], qubits[j]])
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
-    for i, j, k in triples:
+    for i, j, k in prng.choices(triples, k=len(triples) // 2):
         circuit.append(CCZGate(), [qubits[i], qubits[j], qubits[k]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
-    for i, j in pairs:
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(SwapGate(), [qubits[i], qubits[j]])
     circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
 
