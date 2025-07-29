@@ -290,7 +290,7 @@ def _evolve_state_vector_spinless(
             math.pi,
             target_orbs=([i, j, k], []),
             norb=norb,
-            nelec=(nelec, 0),
+            nelec=(cast(int, nelec), 0),
             copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
