@@ -290,6 +290,8 @@
     <span class="n">CCZGate</span><span class="p">,</span>
     <span class="n">CPhaseGate</span><span class="p">,</span>
     <span class="n">CRZGate</span><span class="p">,</span>
+    <span class="n">CSdgGate</span><span class="p">,</span>
+    <span class="n">CSGate</span><span class="p">,</span>
     <span class="n">CZGate</span><span class="p">,</span>
     <span class="n">GlobalPhaseGate</span><span class="p">,</span>
     <span class="n">Measure</span><span class="p">,</span>
@@ -525,6 +527,20 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">CSGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">CSdgGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_num_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PhaseGate</span><span class="p">):</span>
         <span class="p">(</span><span class="n">orb</span><span class="p">,)</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
@@ -742,6 +758,36 @@
         <span class="n">target_orbs</span><span class="p">[</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
         <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
             <span class="n">vec</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">CSGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">target_orbs</span> <span class="o">=</span> <span class="p">([],</span> <span class="p">[])</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+            <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">CSdgGate</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
+        <span class="n">target_orbs</span> <span class="o">=</span> <span class="p">([],</span> <span class="p">[])</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="n">target_orbs</span><span class="p">[</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">%</span> <span class="n">norb</span><span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">apply_num_op_prod_interaction</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+            <span class="n">target_orbs</span><span class="o">=</span><span class="n">target_orbs</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
