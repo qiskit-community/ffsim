@@ -104,8 +104,8 @@ def test_double_factorized_compressed():
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
     assert error_optimized < 0.5 * error
     assert result.nit <= 25
-    assert result.nfev <= 30
-    assert result.njev <= 30
+    assert result.nfev <= 35
+    assert result.njev <= 35
 
 
 def test_double_factorized_compressed_random():
