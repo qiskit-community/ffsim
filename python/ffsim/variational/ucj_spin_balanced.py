@@ -481,6 +481,7 @@ class UCJOpSpinBalanced(
                     multi_stage_optimization=multi_stage_optimization,
                     begin_reps=begin_reps,
                     step=step,
+                    return_optimize_result=False,
                 )
             )
         else:

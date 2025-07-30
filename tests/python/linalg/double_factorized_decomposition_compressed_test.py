@@ -129,6 +129,7 @@ def test_double_factorized_compressed_random():
             multi_stage_optimization=True,
             begin_reps=5,
             step=4,
+            return_optimize_result=False,
         )
     )
 

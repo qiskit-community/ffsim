@@ -199,7 +199,7 @@ def double_factorized_t2_compressed(
     return_optimize_result: bool = False,
 ) -> (
     tuple[np.ndarray, np.ndarray]
-    | tuple[np.ndarray, np.ndarray | scipy.optimize.OptimizeResult]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
 ):
     r"""Compressed double-factorized decomposition of t2 amplitudes for LUCJ ansatz.
 
@@ -342,4 +342,5 @@ def double_factorized_t2_compressed(
 
     if return_optimize_result:
         return diag_coulomb_mats, orbital_rotations, result
+
     return diag_coulomb_mats, orbital_rotations
