@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+from typing import Literal, overload
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -182,6 +184,40 @@ def _params_to_df_tensors_jax(
         - diagonal_element
     )
     return diag_coulomb_mats, orbital_rotations
+
+
+@overload
+def double_factorized_t2_compressed(
+    t2: np.ndarray,
+    *,
+    tol: float = ...,
+    n_reps: int | None = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    multi_stage_optimization: bool = ...,
+    begin_reps: int | None = ...,
+    step: int = ...,
+    return_optimize_result: Literal[False] = False,
+) -> tuple[np.ndarray, np.ndarray]: ...
+
+
+@overload
+def double_factorized_t2_compressed(
+    t2: np.ndarray,
+    *,
+    tol: float = ...,
+    n_reps: int | None = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    multi_stage_optimization: bool = ...,
+    begin_reps: int | None = ...,
+    step: int = ...,
+    return_optimize_result: Literal[True],
+) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]: ...
 
 
 def double_factorized_t2_compressed(
