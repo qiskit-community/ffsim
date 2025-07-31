@@ -762,10 +762,10 @@ def _apply_diagonal_gate(
 ) -> np.ndarray:
     if copy:
         vec = vec.copy()
-    addresses = np.arange(vec.size)
+    addresses = np.arange(len(vec))
     strings = states.addresses_to_strings(addresses, norb=norb, nelec=nelec)
     restricted = restrict_bitstrings(strings, qubit_indices, BitstringType.INT)
-    phases = np.asarray(diag, dtype=complex)[np.asarray(restricted, dtype=int)]
+    phases = np.asarray(diag)[restricted]
     vec *= phases
     return vec
 
