@@ -98,7 +98,7 @@ def _params_to_df_tensors(
 ) -> tuple[np.ndarray, np.ndarray]:
     orb_rot_logs = _params_to_orb_rot_logs(params, n_tensors, norb)
     orbital_rotations = _expm_antihermitian(orb_rot_logs)
-    n_orb_rot_params = n_tensors * (norb * (norb - 1) // 2 + norb * (norb + 1) // 2)
+    n_orb_rot_params = n_tensors * norb**2
     diag_coulomb_params = np.real(params[n_orb_rot_params:])
     param_indices = np.nonzero(diag_coulomb_mat_mask)
     param_length = len(param_indices[0])
@@ -300,12 +300,12 @@ def double_factorized_t2_compressed(
           `(n_reps, norb, norb)`.
           The first axis indexes the eigenvectors of the decomposition, and he last two
           axes index the rows and columns of the matrices.
-        - If `return_optimize_result` is set to ``True``, the `OptimizeResult`_ returned
-        by `scipy.optimize.minimize`_ is also returned.
+        - If `return_optimize_result` is set to ``True``, the `OptimizeResult`_ returned 
+          by `scipy.optimize.minimize`_ is also returned.
 
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
-    """
+    """ 
     nocc, _, nvrt, _ = t2.shape
     norb = nocc + nvrt
 
