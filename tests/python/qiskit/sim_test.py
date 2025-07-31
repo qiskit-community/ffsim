@@ -25,6 +25,7 @@ from qiskit.circuit.library import (
     CSdgGate,
     CSGate,
     CZGate,
+    DiagonalGate,
     GlobalPhaseGate,
     PhaseGate,
     RZGate,
@@ -298,6 +299,52 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     )
 
     # Check that the state vectors match
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (norb, nelec)
+        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 4))
+        if nelec != (0, 0)
+    ],
+)
+def test_diagonal_gate_spinful(norb: int, nelec: tuple[int, int]):
+    rng = np.random.default_rng(12285)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+    chosen = rng.choice(2 * norb, size=min(3, 2 * norb), replace=False)
+    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=2 ** len(chosen)))
+    circuit.append(DiagonalGate(diag), [qubits[i] for i in chosen])
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
+    qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        Statevector(circuit).data, norb=norb, nelec=nelec
+    )
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize(
+    "norb, nocc",
+    [
+        (norb, nocc)
+        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 4))
+        if nocc
+    ],
+)
+def test_diagonal_gate_spinless(norb: int, nocc: int):
+    rng = np.random.default_rng(12285)
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
+    chosen = rng.choice(norb, size=min(3, norb), replace=False)
+    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=2 ** len(chosen)))
+    circuit.append(DiagonalGate(diag), [qubits[i] for i in chosen])
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
+    qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+        Statevector(circuit).data, norb=norb, nelec=nocc
+    )
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
 
 

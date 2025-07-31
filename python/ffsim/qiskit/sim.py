@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import Union, cast
+from typing import Sequence, Union, cast
 
 import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
@@ -26,6 +26,7 @@ from qiskit.circuit.library import (
     CSdgGate,
     CSGate,
     CZGate,
+    DiagonalGate,
     GlobalPhaseGate,
     Measure,
     PhaseGate,
@@ -61,6 +62,7 @@ from ffsim.qiskit.gates import (
     UCJOpSpinUnbalancedJW,
 )
 from ffsim.spin import Spin
+from ffsim.states.bitstring import BitstringType, restrict_bitstrings
 
 
 def final_state_vector(
@@ -376,6 +378,12 @@ def _evolve_state_vector_spinless(
         theta, beta = op.params
         vec = _apply_xx_plus_yy(
             vec, theta, beta, (i, j), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, DiagonalGate):
+        vec = _apply_diagonal_gate(
+            vec, op.params, qubit_indices, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -712,6 +720,12 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, DiagonalGate):
+        vec = _apply_diagonal_gate(
+            vec, op.params, qubit_indices, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, GlobalPhaseGate):
         (phase,) = op.params
         vec *= cmath.rect(1, phase)
@@ -735,6 +749,25 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
             dag.remove_op_node(node)
     remaining_circuit = dag_to_circuit(dag)
     return indices, remaining_circuit
+
+
+def _apply_diagonal_gate(
+    vec: np.ndarray,
+    diag: Sequence[complex],
+    qubit_indices: Sequence[int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
+    addresses = np.arange(vec.size)
+    strings = states.addresses_to_strings(addresses, norb=norb, nelec=nelec)
+    restricted = restrict_bitstrings(strings, qubit_indices, BitstringType.INT)
+    phases = np.asarray(diag, dtype=complex)[np.asarray(restricted, dtype=int)]
+    vec *= phases
+    return vec
 
 
 def _apply_swap_defect(
