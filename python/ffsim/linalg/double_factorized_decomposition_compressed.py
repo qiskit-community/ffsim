@@ -300,12 +300,12 @@ def double_factorized_t2_compressed(
           `(n_reps, norb, norb)`.
           The first axis indexes the eigenvectors of the decomposition, and he last two
           axes index the rows and columns of the matrices.
-        - If `return_optimize_result` is set to ``True``, the `OptimizeResult`_ returned 
-          by `scipy.optimize.minimize`_ is also returned.
+        - If `return_optimize_result` is set to ``True``, the `OptimizeResult`_
+          returned by `scipy.optimize.minimize`_ is also returned.
 
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
-    """ 
+    """
     nocc, _, nvrt, _ = t2.shape
     norb = nocc + nvrt
 
