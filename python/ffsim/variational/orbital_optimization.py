@@ -170,7 +170,9 @@ def optimize_orbitals(
     def fun(x: np.ndarray) -> tuple[float, np.ndarray]:
         generator = _generator_from_parameters(x, norb=norb, real=real)
         val, grad = value_and_grad(generator)
-        return val, _generator_to_parameters(grad, real=real)
+        # The complex conjugate of the gradient is actually returned
+        # See https://github.com/jax-ml/jax/issues/4891
+        return val, _generator_to_parameters(grad.conj(), real=real)
 
     if initial_orbital_rotation is None:
         initial_orbital_rotation = np.eye(norb)

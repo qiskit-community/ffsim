@@ -86,6 +86,6 @@ def test_optimize_orbitals():
     np.testing.assert_allclose(energy, -108.58613393502857)
     assert np.iscomplexobj(orbital_rotation)
     assert len(result.x) == norb**2
-    assert result.nit <= 8
-    assert result.nfev <= 11
-    assert result.njev <= 11
+    assert result.nit <= 12
+    assert result.nfev <= 14
+    assert result.njev <= 14
