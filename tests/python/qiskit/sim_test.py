@@ -221,10 +221,12 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         )
         circuit.append(SwapGate(), [qubits[i], qubits[j]])
         circuit.append(SwapGate(), [qubits[norb + i], qubits[norb + j]])
-    circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
     chosen = rng.choice(2 * norb, size=min(3, 2 * norb), replace=False)
-    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=2 ** len(chosen)))
+    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=1 << len(chosen)))
     circuit.append(DiagonalGate(diag), [qubits[i] for i in chosen])
+    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=1 << 2 * norb))
+    circuit.append(DiagonalGate(diag), qubits)
+    circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
@@ -291,10 +293,12 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         )
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(SwapGate(), [qubits[i], qubits[j]])
-    circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
     chosen = rng.choice(norb, size=min(3, norb), replace=False)
-    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=2 ** len(chosen)))
+    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=1 << len(chosen)))
     circuit.append(DiagonalGate(diag), [qubits[i] for i in chosen])
+    diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=1 << norb))
+    circuit.append(DiagonalGate(diag), qubits)
+    circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
 
     # Compute state vector using ffsim
     ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nocc)
