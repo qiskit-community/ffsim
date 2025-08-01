@@ -55,11 +55,6 @@ def test_optimize_orbitals():
         mol_hamiltonian,
         return_optimize_result=True,
     )
-    assert np.isrealobj(orbital_rotation)
-    assert len(result.x) == norb * (norb - 1) // 2
-    assert result.nit <= 7
-    assert result.nfev <= 9
-    assert result.njev <= 9
     # Compute energy
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
     energy_alt = rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))
@@ -67,6 +62,11 @@ def test_optimize_orbitals():
     np.testing.assert_allclose(energy, result.fun)
     np.testing.assert_allclose(energy, energy_alt)
     np.testing.assert_allclose(energy, -108.58613393502857)
+    assert np.isrealobj(orbital_rotation)
+    assert len(result.x) == norb * (norb - 1) // 2
+    assert result.nit <= 7
+    assert result.nfev <= 9
+    assert result.njev <= 9
 
     # Optimize orbitals with complex rotations
     orbital_rotation, result = ffsim.optimize_orbitals(
@@ -77,11 +77,6 @@ def test_optimize_orbitals():
         ),
         return_optimize_result=True,
     )
-    assert np.iscomplexobj(orbital_rotation)
-    assert len(result.x) == norb**2
-    assert result.nit <= 8
-    assert result.nfev <= 11
-    assert result.njev <= 11
     # Compute energy
     energy = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)
     energy_alt = rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))
@@ -89,3 +84,8 @@ def test_optimize_orbitals():
     np.testing.assert_allclose(energy, result.fun)
     np.testing.assert_allclose(energy, energy_alt)
     np.testing.assert_allclose(energy, -108.58613393502857)
+    assert np.iscomplexobj(orbital_rotation)
+    assert len(result.x) == norb**2
+    assert result.nit <= 8
+    assert result.nfev <= 11
+    assert result.njev <= 11
