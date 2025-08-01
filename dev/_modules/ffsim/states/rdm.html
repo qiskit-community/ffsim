@@ -350,7 +350,7 @@
             <span class="n">mol_ham</span><span class="o">.</span><span class="n">constant</span>
             <span class="o">+</span> <span class="n">contract</span><span class="p">(</span><span class="s2">&quot;ab,ab-&gt;&quot;</span><span class="p">,</span> <span class="n">mol_ham</span><span class="o">.</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_rdm</span><span class="p">)</span>
             <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">contract</span><span class="p">(</span><span class="s2">&quot;abcd,abcd-&gt;&quot;</span><span class="p">,</span> <span class="n">mol_ham</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_rdm</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span><span class="o">.</span><span class="n">real</span></div>
 </div>
 
 
