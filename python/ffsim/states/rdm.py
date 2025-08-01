@@ -76,7 +76,7 @@ class ReducedDensityMatrix:
             mol_ham.constant
             + contract("ab,ab->", mol_ham.one_body_tensor, self.one_rdm)
             + 0.5 * contract("abcd,abcd->", mol_ham.two_body_tensor, self.two_rdm)
-        )
+        ).real
 
 
 def rdms(
