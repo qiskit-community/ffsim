@@ -137,7 +137,6 @@ def optimize_orbitals(
     two_body_tensor = jnp.array(hamiltonian.two_body_tensor)
 
     def fun(x: np.ndarray):
-        # Conjugate orbital rotation to match ffsim.MolecularHamiltonian's convention
         orbital_rotation = _orbital_rotation_from_parameters_jax(
             x, norb=norb, real=real
         )

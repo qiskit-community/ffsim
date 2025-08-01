@@ -14,14 +14,19 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import Union, cast
+from typing import Sequence, Union, cast
 
 import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import (
     Barrier,
+    CCZGate,
     CPhaseGate,
+    CRZGate,
+    CSdgGate,
+    CSGate,
     CZGate,
+    DiagonalGate,
     GlobalPhaseGate,
     Measure,
     PhaseGate,
@@ -57,6 +62,7 @@ from ffsim.qiskit.gates import (
     UCJOpSpinUnbalancedJW,
 )
 from ffsim.spin import Spin
+from ffsim.states.bitstring import BitstringType, restrict_bitstrings
 
 
 def final_state_vector(
@@ -253,6 +259,20 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, CSGate):
+        i, j = qubit_indices
+        vec = gates.apply_num_num_interaction(
+            vec, 0.5 * math.pi, target_orbs=(i, j), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CSdgGate):
+        i, j = qubit_indices
+        vec = gates.apply_num_num_interaction(
+            vec, -0.5 * math.pi, target_orbs=(i, j), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, PhaseGate):
         (orb,) = qubit_indices
         (theta,) = op.params
@@ -268,6 +288,29 @@ def _evolve_state_vector_spinless(
             vec, theta, orb, norb=norb, nelec=nelec, copy=False
         )
         vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CRZGate):
+        control, target = qubit_indices
+        (theta,) = op.params
+        vec = gates.apply_num_interaction(
+            vec, -0.5 * theta, control, norb=norb, nelec=nelec, copy=False
+        )
+        vec = gates.apply_num_num_interaction(
+            vec, theta, (control, target), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CCZGate):
+        i, j, k = qubit_indices
+        vec = gates.apply_num_op_prod_interaction(
+            vec,
+            math.pi,
+            target_orbs=([i, j, k], []),
+            norb=norb,
+            nelec=(cast(int, nelec), 0),
+            copy=False,
+        )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, RZZGate):
@@ -335,6 +378,12 @@ def _evolve_state_vector_spinless(
         theta, beta = op.params
         vec = _apply_xx_plus_yy(
             vec, theta, beta, (i, j), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, DiagonalGate):
+        vec = _apply_diagonal_gate(
+            vec, op.params, qubit_indices, norb=norb, nelec=nelec, copy=False
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -450,6 +499,36 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, CSGate):
+        i, j = qubit_indices
+        target_orbs = ([], [])
+        target_orbs[i >= norb].append(i % norb)
+        target_orbs[j >= norb].append(j % norb)
+        vec = gates.apply_num_op_prod_interaction(
+            vec,
+            0.5 * math.pi,
+            target_orbs=target_orbs,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CSdgGate):
+        i, j = qubit_indices
+        target_orbs = ([], [])
+        target_orbs[i >= norb].append(i % norb)
+        target_orbs[j >= norb].append(j % norb)
+        vec = gates.apply_num_op_prod_interaction(
+            vec,
+            -0.5 * math.pi,
+            target_orbs=target_orbs,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, PhaseGate):
         (orb,) = qubit_indices
         spin = Spin.ALPHA if orb < norb else Spin.BETA
@@ -467,6 +546,37 @@ def _evolve_state_vector_spinful(
             vec, theta, orb % norb, norb=norb, nelec=nelec, spin=spin, copy=False
         )
         vec *= cmath.rect(1, -0.5 * theta)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CRZGate):
+        control, target = qubit_indices
+        (theta,) = op.params
+        target_orbs = ([], [])
+        target_orbs[control >= norb].append(control % norb)
+        target_orbs[target >= norb].append(target % norb)
+        vec = gates.apply_num_interaction(
+            vec,
+            -0.5 * theta,
+            control % norb,
+            norb=norb,
+            nelec=nelec,
+            spin=Spin.ALPHA if control < norb else Spin.BETA,
+            copy=False,
+        )
+        vec = gates.apply_num_op_prod_interaction(
+            vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, CCZGate):
+        i, j, k = qubit_indices
+        target_orbs = ([], [])
+        target_orbs[i >= norb].append(i % norb)
+        target_orbs[j >= norb].append(j % norb)
+        target_orbs[k >= norb].append(k % norb)
+        vec = gates.apply_num_op_prod_interaction(
+            vec, math.pi, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+        )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, RZZGate):
@@ -610,6 +720,12 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, DiagonalGate):
+        vec = _apply_diagonal_gate(
+            vec, op.params, qubit_indices, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, GlobalPhaseGate):
         (phase,) = op.params
         vec *= cmath.rect(1, phase)
@@ -633,6 +749,25 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
             dag.remove_op_node(node)
     remaining_circuit = dag_to_circuit(dag)
     return indices, remaining_circuit
+
+
+def _apply_diagonal_gate(
+    vec: np.ndarray,
+    diag: Sequence[complex],
+    qubit_indices: Sequence[int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
+    addresses = np.arange(len(vec))
+    strings = states.addresses_to_strings(addresses, norb=norb, nelec=nelec)
+    restricted = restrict_bitstrings(strings, qubit_indices, BitstringType.INT)
+    phases = np.asarray(diag)[restricted]
+    vec *= phases
+    return vec
 
 
 def _apply_swap_defect(
