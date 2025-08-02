@@ -15,10 +15,12 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pyscf
+import pyscf.cc
+import pyscf.mcscf
 import pytest
 import scipy.linalg
 from opt_einsum import contract
-from pyscf import ao2mo, cc, gto, mcscf, scf
 
 import ffsim
 from ffsim.linalg import (
@@ -91,7 +93,7 @@ def test_modified_cholesky(dim: int):
     eigs = rng.uniform(size=dim)
     mat = unitary @ np.diag(eigs) @ unitary.T.conj()
     cholesky_vecs = modified_cholesky(mat)
-    reconstructed = np.einsum("ji,ki->jk", cholesky_vecs, cholesky_vecs.conj())
+    reconstructed = contract("ji,ki->jk", cholesky_vecs, cholesky_vecs.conj())
     np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
 
 
@@ -102,7 +104,7 @@ def test_double_factorized_random(dim: int, cholesky: bool):
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, cholesky=cholesky
     )
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -116,24 +118,24 @@ def test_double_factorized_random(dim: int, cholesky: bool):
 @pytest.mark.parametrize("cholesky", [True, False])
 def test_double_factorized_tol_max_vecs(cholesky: bool):
     """Test double-factorized decomposition error threshold and max vecs."""
-    mol = gto.Mole()
+    mol = pyscf.gto.Mole()
     mol.build(
         verbose=0,
         atom=[["Li", (0, 0, 0)], ["H", (1.6, 0, 0)]],
         basis="sto-3g",
     )
-    hartree_fock = scf.RHF(mol)
+    hartree_fock = pyscf.scf.RHF(mol)
     hartree_fock.kernel()
     norb = hartree_fock.mol.nao_nr()
-    mc = mcscf.CASCI(hartree_fock, norb, mol.nelec)
-    two_body_tensor = ao2mo.restore(1, mc.get_h2cas(), mc.ncas)
+    mc = pyscf.mcscf.CASCI(hartree_fock, norb, mol.nelec)
+    two_body_tensor = pyscf.ao2mo.restore(1, mc.get_h2cas(), mc.ncas)
 
     # test max_vecs
     max_vecs = 20
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=max_vecs, cholesky=cholesky
     )
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -147,7 +149,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
     # test error threshold
     tol = 1e-4
     diag_coulomb_mats, orbital_rotations = double_factorized(two_body_tensor, tol=tol)
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -162,7 +164,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, tol=tol, max_vecs=max_vecs
     )
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -183,7 +185,7 @@ def test_optimal_diag_coulomb_mats_exact():
     diag_coulomb_mats_optimal = optimal_diag_coulomb_mats(
         two_body_tensor, orbital_rotations
     )
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -205,7 +207,7 @@ def test_optimal_diag_coulomb_mats_approximate():
     diag_coulomb_mats_optimal = optimal_diag_coulomb_mats(
         two_body_tensor, orbital_rotations
     )
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -213,7 +215,7 @@ def test_optimal_diag_coulomb_mats_approximate():
         orbital_rotations,
         orbital_rotations,
     )
-    reconstructed_optimal = np.einsum(
+    reconstructed_optimal = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -226,11 +228,19 @@ def test_optimal_diag_coulomb_mats_approximate():
     assert error_optimal < error
 
 
-def test_double_factorized_compressed():
-    """Test compressed double factorization"""
-    # TODO test on simple molecule like ethylene
-    dim = 2
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8364, dtype=float)
+def test_double_factorized_compressed_n2():
+    """Test compressed double factorization on N2."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = 2
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    two_body_tensor = mol_data.hamiltonian.two_body_tensor
 
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=2
@@ -238,7 +248,7 @@ def test_double_factorized_compressed():
     diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
         two_body_tensor, max_vecs=2, optimize=True
     )
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -246,7 +256,7 @@ def test_double_factorized_compressed():
         orbital_rotations,
         orbital_rotations,
     )
-    reconstructed_optimal = np.einsum(
+    reconstructed_optimal = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations_optimized,
         orbital_rotations_optimized,
@@ -256,12 +266,98 @@ def test_double_factorized_compressed():
     )
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
-    assert error_optimized < error
+    assert error_optimized < 0.2 * error
 
 
-def test_double_factorized_compressed_constrained():
+def test_double_factorized_compressed_n2_constrained():
+    """Test constrained compressed double factorization on N2."""
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = 4
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    norb = mol_data.norb
+    two_body_tensor = mol_data.hamiltonian.two_body_tensor
+
+    diag_coulomb_mats, orbital_rotations = double_factorized(
+        two_body_tensor, max_vecs=2
+    )
+    diag_coulomb_indices = [(p, p) for p in range(norb)]
+    diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
+        two_body_tensor,
+        max_vecs=4,
+        optimize=True,
+        diag_coulomb_indices=diag_coulomb_indices,
+    )
+
+    diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
+    rows, cols = zip(*diag_coulomb_indices)
+    diag_coulomb_mask[rows, cols] = True
+    diag_coulomb_mask[cols, rows] = True
+    np.testing.assert_allclose(
+        diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
+    )
+    reconstructed = contract(
+        "kpi,kqi,kij,krj,ksj->pqrs",
+        orbital_rotations,
+        orbital_rotations,
+        diag_coulomb_mats,
+        orbital_rotations,
+        orbital_rotations,
+    )
+    reconstructed_optimal = contract(
+        "kpi,kqi,kij,krj,ksj->pqrs",
+        orbital_rotations_optimized,
+        orbital_rotations_optimized,
+        diag_coulomb_mats_optimized,
+        orbital_rotations_optimized,
+        orbital_rotations_optimized,
+    )
+    error = np.sum((reconstructed - two_body_tensor) ** 2)
+    error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
+    assert error_optimized < 0.5 * error
+
+
+def test_double_factorized_compressed_random():
+    """Test compressed double factorization on random tensor."""
+    dim = 2
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8364, dtype=float)
+
+    diag_coulomb_mats, orbital_rotations = double_factorized(
+        two_body_tensor, max_vecs=2
+    )
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
+        two_body_tensor, max_vecs=2, optimize=True
+    )
+    reconstructed = contract(
+        "kpi,kqi,kij,krj,ksj->pqrs",
+        orbital_rotations,
+        orbital_rotations,
+        diag_coulomb_mats,
+        orbital_rotations,
+        orbital_rotations,
+    )
+    reconstructed_optimal = contract(
+        "kpi,kqi,kij,krj,ksj->pqrs",
+        orbital_rotations_optimized,
+        orbital_rotations_optimized,
+        diag_coulomb_mats_optimized,
+        orbital_rotations_optimized,
+        orbital_rotations_optimized,
+    )
+    error = np.sum((reconstructed - two_body_tensor) ** 2)
+    error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
+    assert error_optimized < 0.1 * error
+
+
+def test_double_factorized_compressed_random_constrained():
     """Test constrained compressed double factorization"""
-    # TODO test on simple molecule like ethylene
     dim = 3
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=2927, dtype=float)
 
@@ -269,7 +365,6 @@ def test_double_factorized_compressed_constrained():
         two_body_tensor, max_vecs=2
     )
     diag_coulomb_indices = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2)]
-
     diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
         two_body_tensor,
         max_vecs=2,
@@ -284,7 +379,7 @@ def test_double_factorized_compressed_constrained():
     np.testing.assert_allclose(
         diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
     )
-    reconstructed = np.einsum(
+    reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
         orbital_rotations,
@@ -292,7 +387,7 @@ def test_double_factorized_compressed_constrained():
         orbital_rotations,
         orbital_rotations,
     )
-    reconstructed_optimal = np.einsum(
+    reconstructed_optimal = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations_optimized,
         orbital_rotations_optimized,
@@ -302,7 +397,7 @@ def test_double_factorized_compressed_constrained():
     )
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
-    assert error_optimized < error
+    assert error_optimized < 0.3 * error
 
 
 @pytest.mark.parametrize("norb, nocc", [(4, 2), (5, 2), (5, 3)])
@@ -322,16 +417,16 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
 
 def test_double_factorized_t2_tol_max_vecs():
     """Test double-factorized decomposition error threshold and max vecs."""
-    mol = gto.Mole()
+    mol = pyscf.gto.Mole()
     mol.build(
         verbose=0,
         atom=[["Li", (0, 0, 0)], ["H", (1.6, 0, 0)]],
         basis="sto-3g",
     )
-    hartree_fock = scf.RHF(mol)
+    hartree_fock = pyscf.scf.RHF(mol)
     hartree_fock.kernel()
 
-    ccsd = cc.CCSD(hartree_fock)
+    ccsd = pyscf.cc.CCSD(hartree_fock)
     _, _, t2 = ccsd.kernel()
     nocc, _, _, _ = t2.shape
 
@@ -400,16 +495,16 @@ def test_double_factorized_t2_alpha_beta_random():
 
 def test_double_factorized_t2_alpha_beta_tol_max_vecs():
     """Test double-factorized decomposition alpha-beta error threshold and max vecs."""
-    mol = gto.Mole()
+    mol = pyscf.gto.Mole()
     mol.build(
         atom=[["H", (0, 0, 0)], ["O", (0, 0, 1.1)]],
         basis="6-31g",
         spin=1,
         symmetry="Coov",
     )
-    hartree_fock = scf.ROHF(mol).run()
+    hartree_fock = pyscf.scf.ROHF(mol).run()
 
-    ccsd = cc.CCSD(hartree_fock).run()
+    ccsd = pyscf.cc.CCSD(hartree_fock).run()
     _, t2ab, _ = ccsd.t2
     nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
     norb = nocc_a + nvrt_a
