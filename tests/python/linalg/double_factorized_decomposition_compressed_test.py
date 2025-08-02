@@ -134,15 +134,11 @@ def test_double_factorized_compressed_n2_large():
     nocc, _, _, _ = ccsd.t2.shape
 
     # Perform compressed factorization
-    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
-    pairs_ab = [(p, p) for p in range(norb)]
-    diag_coulomb_indices = pairs_aa + pairs_ab
     n_reps = 2
     diag_coulomb_mats_optimized, orbital_rotations_optimized = (
         double_factorized_t2_compressed(
             ccsd.t2,
             n_reps=n_reps,
-            diag_coulomb_indices=diag_coulomb_indices,
             method="L-BFGS-B",
             options=dict(maxiter=150),
             multi_stage_optimization=False,
@@ -181,7 +177,7 @@ def test_double_factorized_compressed_n2_large():
 
     # Check results
     assert error_optimized < 0.5 * error
-    np.testing.assert_allclose(error_optimized, 0.01157688576)
+    np.testing.assert_allclose(error_optimized, 0.01189977793)
     assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
 
