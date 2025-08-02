@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import itertools
 from typing import Literal, overload
 
 import jax
@@ -26,7 +27,7 @@ from ffsim.linalg import double_factorized_t2
 def _df_tensors_to_params(
     diag_coulomb_mats: np.ndarray,
     orbital_rotations: np.ndarray,
-    diag_coulomb_mat_mask: np.ndarray,
+    diag_coulomb_indices: list[tuple[int, int]],
 ):
     _, norb, _ = orbital_rotations.shape
     orb_rot_logs = [scipy.linalg.logm(mat) for mat in orbital_rotations]
@@ -44,12 +45,9 @@ def _df_tensors_to_params(
             [orb_rot_log[orb_rot_param_imag_indices] for orb_rot_log in orb_rot_logs]
         )
     )
-    diag_coulomb_param_indices = np.nonzero(diag_coulomb_mat_mask)
+    rows, cols = zip(*diag_coulomb_indices)
     diag_coulomb_params = np.ravel(
-        [
-            diag_coulomb_mat[diag_coulomb_param_indices]
-            for diag_coulomb_mat in diag_coulomb_mats
-        ]
+        [diag_coulomb_mat[rows, cols] for diag_coulomb_mat in diag_coulomb_mats]
     )
     return np.concatenate(
         [orb_rot_params_real, orb_rot_params_imag, diag_coulomb_params]
@@ -94,17 +92,20 @@ def _expm_antihermitian(mats: np.ndarray) -> np.ndarray:
 
 
 def _params_to_df_tensors(
-    params: np.ndarray, n_tensors: int, norb: int, diag_coulomb_mat_mask: np.ndarray
+    params: np.ndarray,
+    n_tensors: int,
+    norb: int,
+    diag_coulomb_indices: list[tuple[int, int]],
 ) -> tuple[np.ndarray, np.ndarray]:
     orb_rot_logs = _params_to_orb_rot_logs(params, n_tensors, norb)
     orbital_rotations = _expm_antihermitian(orb_rot_logs)
     n_orb_rot_params = n_tensors * norb**2
     diag_coulomb_params = np.real(params[n_orb_rot_params:])
-    param_indices = np.nonzero(diag_coulomb_mat_mask)
-    param_length = len(param_indices[0])
+    rows, cols = zip(*diag_coulomb_indices)
+    param_length = len(rows)
     diag_coulomb_mats = np.zeros((n_tensors, norb, norb))
     for i in range(n_tensors):
-        diag_coulomb_mats[i][param_indices] = diag_coulomb_params[
+        diag_coulomb_mats[i][rows, cols] = diag_coulomb_params[
             i * param_length : (i + 1) * param_length
         ]
         diag_coulomb_mats[i] += diag_coulomb_mats[i].T
@@ -113,7 +114,10 @@ def _params_to_df_tensors(
 
 
 def _params_to_df_tensors_jax(
-    params: np.ndarray, n_tensors: int, norb: int, diag_coulomb_mat_mask: np.ndarray
+    params: np.ndarray,
+    n_tensors: int,
+    norb: int,
+    diag_coulomb_indices: list[tuple[int, int]],
 ) -> tuple[jnp.ndarray, jnp.ndarray]:
     # convert orb_rot_logs
     triu_indices_real = jnp.triu_indices(norb, k=1)
@@ -157,12 +161,12 @@ def _params_to_df_tensors_jax(
 
     # convert diag coulomb mats
     n_orb_rot_params = n_tensors * (norb**2)
-    param_indices = np.nonzero(diag_coulomb_mat_mask)
-    param_length = len(param_indices[0])
+    rows, cols = zip(*diag_coulomb_indices)
+    param_length = len(rows)
     list_diag_coulomb_mats = []
     for i in range(n_tensors):
         diag_coulomb_mat = jnp.zeros((norb, norb), complex)
-        diag_coulomb_mat = diag_coulomb_mat.at[param_indices].set(
+        diag_coulomb_mat = diag_coulomb_mat.at[rows, cols].set(
             params[
                 n_orb_rot_params + i * param_length : n_orb_rot_params
                 + (i + 1) * param_length
@@ -322,14 +326,10 @@ def double_factorized_t2_compressed(
     else:
         list_reps = [n_reps]
 
-    if not diag_coulomb_indices:
-        diag_coulomb_mask = np.ones((norb, norb), dtype=bool)
-    else:
-        diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*diag_coulomb_indices)
-        diag_coulomb_mask[rows, cols] = True
-        diag_coulomb_mask[cols, rows] = True
-    diag_coulomb_mask = np.triu(diag_coulomb_mask)
+    if diag_coulomb_indices is None:
+        diag_coulomb_indices = list(
+            itertools.combinations_with_replacement(range(norb), 2)
+        )
 
     for n_tensors in list_reps:
         diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
@@ -337,7 +337,7 @@ def double_factorized_t2_compressed(
 
         def fun_jax(x):
             diag_coulomb_mats, orbital_rotations = _params_to_df_tensors_jax(
-                x, n_tensors, norb, diag_coulomb_mask
+                x, n_tensors, norb, diag_coulomb_indices
             )
             reconstructed = (
                 1j
@@ -357,7 +357,7 @@ def double_factorized_t2_compressed(
         value_and_grad_func = jax.value_and_grad(fun_jax)
 
         x0 = _df_tensors_to_params(
-            diag_coulomb_mats, orbital_rotations, diag_coulomb_mask
+            diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
         )
 
         result = scipy.optimize.minimize(
@@ -370,7 +370,7 @@ def double_factorized_t2_compressed(
         )
 
         diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
-            result.x, n_tensors, norb, diag_coulomb_mask
+            result.x, n_tensors, norb, diag_coulomb_indices
         )
 
     if return_optimize_result:
