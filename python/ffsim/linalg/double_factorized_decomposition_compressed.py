@@ -201,8 +201,6 @@ def double_factorized_t2_compressed(
     step: int = ...,
     return_optimize_result: Literal[False] = False,
 ) -> tuple[np.ndarray, np.ndarray]: ...
-
-
 @overload
 def double_factorized_t2_compressed(
     t2: np.ndarray,
@@ -218,8 +216,6 @@ def double_factorized_t2_compressed(
     step: int = ...,
     return_optimize_result: Literal[True],
 ) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]: ...
-
-
 def double_factorized_t2_compressed(
     t2: np.ndarray,
     *,
