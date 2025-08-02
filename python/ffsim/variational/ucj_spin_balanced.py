@@ -383,7 +383,7 @@ class UCJOpSpinBalanced(
         method: str = "L-BFGS-B",
         callback=None,
         options: dict | None = None,
-        multi_stage_optimization: bool = True,
+        multi_stage_optimization: bool = False,
         begin_reps: int | None = None,
         step: int = 2,
     ) -> UCJOpSpinBalanced:

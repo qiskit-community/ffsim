@@ -225,7 +225,7 @@ def double_factorized_t2_compressed(
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
-    multi_stage_optimization: bool = True,
+    multi_stage_optimization: bool = False,
     begin_reps: int | None = None,
     step: int = 2,
     return_optimize_result: bool = False,
