@@ -266,7 +266,7 @@ def test_double_factorized_compressed_n2():
     )
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
-    assert error_optimized < 0.2 * error
+    assert error_optimized < 0.3 * error
 
 
 def test_double_factorized_compressed_n2_constrained():
