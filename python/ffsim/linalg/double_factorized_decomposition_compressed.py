@@ -329,9 +329,7 @@ def double_factorized_t2_compressed(
         rows, cols = zip(*diag_coulomb_indices)
         diag_coulomb_mask[rows, cols] = True
         diag_coulomb_mask[cols, rows] = True
-
-    # construct diag_coulomb_mask indices
-    diag_coulomb_mask_indices = np.triu(diag_coulomb_mask)
+    diag_coulomb_mask = np.triu(diag_coulomb_mask)
 
     for n_tensors in list_reps:
         diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
@@ -339,7 +337,7 @@ def double_factorized_t2_compressed(
 
         def fun_jax(x):
             diag_coulomb_mats, orbital_rotations = _params_to_df_tensors_jax(
-                x, n_tensors, norb, diag_coulomb_mask_indices
+                x, n_tensors, norb, diag_coulomb_mask
             )
             reconstructed = (
                 1j
@@ -359,7 +357,7 @@ def double_factorized_t2_compressed(
         value_and_grad_func = jax.value_and_grad(fun_jax)
 
         x0 = _df_tensors_to_params(
-            diag_coulomb_mats, orbital_rotations, diag_coulomb_mask_indices
+            diag_coulomb_mats, orbital_rotations, diag_coulomb_mask
         )
 
         result = scipy.optimize.minimize(
@@ -372,7 +370,7 @@ def double_factorized_t2_compressed(
         )
 
         diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
-            result.x, n_tensors, norb, diag_coulomb_mask_indices
+            result.x, n_tensors, norb, diag_coulomb_mask
         )
 
     if return_optimize_result:
