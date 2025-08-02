@@ -267,6 +267,8 @@ def test_double_factorized_compressed_n2():
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
     assert error_optimized < 0.3 * error
+    assert np.isrealobj(orbital_rotations_optimized)
+    assert np.isrealobj(diag_coulomb_mats_optimized)
 
 
 def test_double_factorized_compressed_n2_constrained():
@@ -289,6 +291,7 @@ def test_double_factorized_compressed_n2_constrained():
     )
     diag_coulomb_indices = [(p, p) for p in range(norb)]
     diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
+    diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
     diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
         two_body_tensor,
         max_vecs=4,
@@ -322,6 +325,8 @@ def test_double_factorized_compressed_n2_constrained():
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
     assert error_optimized < 0.5 * error
+    assert np.isrealobj(orbital_rotations_optimized)
+    assert np.isrealobj(diag_coulomb_mats_optimized)
 
 
 def test_double_factorized_compressed_random():
