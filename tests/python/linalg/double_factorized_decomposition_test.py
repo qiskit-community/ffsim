@@ -228,7 +228,7 @@ def test_optimal_diag_coulomb_mats_approximate():
     assert error_optimal < error
 
 
-def test_double_factorized_compressed_n2():
+def test_double_factorized_compressed_n2_unconstrained():
     """Test compressed double factorization on N2."""
     mol = pyscf.gto.Mole()
     mol.build(
