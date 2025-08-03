@@ -144,8 +144,9 @@ def double_factorized(
     callback=None,
     options: dict | None = None,
     diag_coulomb_indices: list[tuple[int, int]] | None = None,
+    return_optimize_result: bool = False,
     cholesky: bool = True,
-) -> tuple[np.ndarray, np.ndarray]:
+):
     r"""Double-factorized decomposition of a two-body tensor.
 
     The double-factorized decomposition is a representation of a two-body tensor
@@ -209,7 +210,10 @@ def double_factorized(
             list will be set to zero. This list should contain only upper
             trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
             Passing a list with lower triangular indices will raise an error.
-            This parameter is only used if `optimize` is set to True.
+            This parameter only has effect if `optimize` is set to True.
+        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
+            by `scipy.optimize.minimize`_.
+            This parameter only has effect if `optimize` is set to True.
         cholesky: Whether to perform the factorization using a modified Cholesky
             decomposition. If False, a full eigenvalue decomposition is used instead,
             which can be much more expensive. This argument is ignored if ``optimize``
@@ -221,6 +225,8 @@ def double_factorized(
         arrays, the first containing the diagonal Coulomb matrices and the second
         containing the orbital rotations. Each Numpy array will have shape (L, n, n)
         where L is the rank of the decomposition and n is the number of orbitals.
+        If `optimize` and `return_optimize_result` are both set to ``True``,
+        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
 
     Raises:
         ValueError: diag_coulomb_indices contains lower triangular indices.
@@ -228,6 +234,7 @@ def double_factorized(
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
     if np.iscomplexobj(two_body_tensor):
         raise ValueError(
@@ -250,6 +257,7 @@ def double_factorized(
             callback=callback,
             options=options,
             diag_coulomb_indices=diag_coulomb_indices,
+            return_optimize_result=return_optimize_result,
         )
     if cholesky:
         return _double_factorized_explicit_cholesky(
@@ -335,7 +343,11 @@ def _double_factorized_compressed(
     callback,
     options: dict | None,
     diag_coulomb_indices: list[tuple[int, int]] | None,
-) -> tuple[np.ndarray, np.ndarray]:
+    return_optimize_result: bool,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
+):
     diag_coulomb_mats, orbital_rotations = _double_factorized_explicit_cholesky(
         two_body_tensor, tol=tol, max_vecs=max_vecs
     )
@@ -420,6 +432,8 @@ def _double_factorized_compressed(
         result.x, n_tensors, norb, diag_coulomb_indices, real=True
     )
 
+    if return_optimize_result:
+        return diag_coulomb_mats, orbital_rotations, result
     return diag_coulomb_mats, orbital_rotations
 
 
