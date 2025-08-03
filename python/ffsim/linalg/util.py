@@ -234,7 +234,7 @@ def df_tensors_from_params(
     params: np.ndarray,
     n_tensors: int,
     norb: int,
-    diag_coulomb_indices: list[tuple[int, int]] | None,
+    diag_coulomb_indices: list[tuple[int, int]] | None = None,
     real: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Construct double-factorization tensors from parameters.
@@ -293,7 +293,7 @@ def df_tensors_from_params_jax(
     params: np.ndarray,
     n_tensors: int,
     norb: int,
-    diag_coulomb_indices: list[tuple[int, int]] | None,
+    diag_coulomb_indices: list[tuple[int, int]] | None = None,
     real: bool = False,
 ) -> tuple[jax.Array, jax.Array]:
     """JAX version of df_tensors_from_params."""
