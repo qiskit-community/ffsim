@@ -245,8 +245,10 @@ def test_double_factorized_compressed_n2_unconstrained():
     diag_coulomb_mats, orbital_rotations = double_factorized(
         two_body_tensor, max_vecs=2
     )
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
-        two_body_tensor, max_vecs=2, optimize=True
+    diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
+        double_factorized(
+            two_body_tensor, max_vecs=2, optimize=True, return_optimize_result=True
+        )
     )
     reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
@@ -269,6 +271,9 @@ def test_double_factorized_compressed_n2_unconstrained():
     assert error_optimized < 0.3 * error
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
+    assert result.nit <= 1497
+    assert result.nfev <= 1561
+    assert result.njev <= 1561
 
 
 def test_double_factorized_compressed_n2_constrained():
@@ -292,11 +297,14 @@ def test_double_factorized_compressed_n2_constrained():
     diag_coulomb_indices = [(p, p) for p in range(norb)]
     diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
     diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
-        two_body_tensor,
-        max_vecs=4,
-        optimize=True,
-        diag_coulomb_indices=diag_coulomb_indices,
+    diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
+        double_factorized(
+            two_body_tensor,
+            max_vecs=4,
+            optimize=True,
+            diag_coulomb_indices=diag_coulomb_indices,
+            return_optimize_result=True,
+        )
     )
 
     diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
@@ -327,6 +335,9 @@ def test_double_factorized_compressed_n2_constrained():
     assert error_optimized < 0.5 * error
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
+    assert result.nit <= 2707
+    assert result.nfev <= 2841
+    assert result.njev <= 2841
 
 
 def test_double_factorized_compressed_random():
