@@ -146,9 +146,6 @@ def double_factorized(
     diag_coulomb_indices: list[tuple[int, int]] | None = None,
     return_optimize_result: bool = False,
     cholesky: bool = True,
-) -> (
-    tuple[np.ndarray, np.ndarray]
-    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
 ):
     r"""Double-factorized decomposition of a two-body tensor.
 
