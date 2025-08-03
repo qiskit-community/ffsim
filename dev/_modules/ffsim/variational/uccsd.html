@@ -287,10 +287,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">gates</span><span class="p">,</span> <span class="n">hamiltonians</span><span class="p">,</span> <span class="n">linalg</span><span class="p">,</span> <span class="n">protocols</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.variational.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">orbital_rotation_from_parameters</span><span class="p">,</span>
-    <span class="n">orbital_rotation_to_parameters</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.linalg.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">unitary_from_parameters</span><span class="p">,</span> <span class="n">unitary_to_parameters</span>
 
 
 <div class="viewcode-block" id="UCCSDOpRestrictedReal">
@@ -436,7 +433,7 @@
         <span class="c1"># Final orbital rotation</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
-            <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation_from_parameters</span><span class="p">(</span>
+            <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">unitary_from_parameters</span><span class="p">(</span>
                 <span class="n">params</span><span class="p">[</span><span class="n">index</span><span class="p">:],</span> <span class="n">norb</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">UCCSDOpRestrictedReal</span><span class="p">(</span>
@@ -472,7 +469,7 @@
             <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="c1"># Final orbital rotation</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="n">index</span><span class="p">:]</span> <span class="o">=</span> <span class="n">orbital_rotation_to_parameters</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">[</span><span class="n">index</span><span class="p">:]</span> <span class="o">=</span> <span class="n">unitary_to_parameters</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">params</span></div>
@@ -659,9 +656,7 @@
         <span class="c1"># Final orbital rotation</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
-            <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation_from_parameters</span><span class="p">(</span>
-                <span class="n">params</span><span class="p">[</span><span class="n">index</span><span class="p">:],</span> <span class="n">norb</span>
-            <span class="p">)</span>
+            <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="n">unitary_from_parameters</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">index</span><span class="p">:],</span> <span class="n">norb</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">UCCSDOpRestricted</span><span class="p">(</span>
             <span class="n">t1</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="n">t2</span><span class="p">,</span> <span class="n">final_orbital_rotation</span><span class="o">=</span><span class="n">final_orbital_rotation</span>
         <span class="p">)</span></div>
@@ -697,7 +692,7 @@
             <span class="n">index</span> <span class="o">+=</span> <span class="mi">2</span>
         <span class="c1"># Final orbital rotation</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="n">index</span><span class="p">:]</span> <span class="o">=</span> <span class="n">orbital_rotation_to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="n">index</span><span class="p">:]</span> <span class="o">=</span> <span class="n">unitary_to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_orbital_rotation</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">params</span></div>
 
 

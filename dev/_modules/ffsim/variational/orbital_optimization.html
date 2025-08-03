@@ -284,48 +284,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">opt_einsum</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.hamiltonians</span><span class="w"> </span><span class="kn">import</span> <span class="n">MolecularHamiltonian</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.states.rdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReducedDensityMatrix</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.variational.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">orbital_rotation_from_parameters</span><span class="p">,</span>
-    <span class="n">orbital_rotation_to_parameters</span><span class="p">,</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.linalg.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">unitary_from_parameters</span><span class="p">,</span>
+    <span class="n">unitary_from_parameters_jax</span><span class="p">,</span>
+    <span class="n">unitary_to_parameters</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.states.rdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReducedDensityMatrix</span>
 
 <span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_orbital_rotation_from_parameters_jax</span><span class="p">(</span>
-    <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">real</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jax</span><span class="o">.</span><span class="n">Array</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct an orbital rotation from parameters.</span>
-
-<span class="sd">    Converts a real-valued parameter vector to an orbital rotation. The parameter vector</span>
-<span class="sd">    contains non-redundant real and imaginary parts of the elements of the matrix</span>
-<span class="sd">    logarithm of the orbital rotation matrix.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        params: The real-valued parameters.</span>
-<span class="sd">        norb: The number of spatial orbitals, which gives the width and height of the</span>
-<span class="sd">            orbital rotation matrix.</span>
-<span class="sd">        real: Whether the parameter vector describes a real-valued orbital rotation.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The orbital rotation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">generator</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span> <span class="k">if</span> <span class="n">real</span> <span class="k">else</span> <span class="nb">complex</span><span class="p">)</span>
-    <span class="n">n_triu</span> <span class="o">=</span> <span class="n">norb</span> <span class="o">*</span> <span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">real</span><span class="p">:</span>
-        <span class="c1"># imaginary part</span>
-        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span>
-        <span class="n">vals</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="n">n_triu</span><span class="p">:]</span>
-        <span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
-        <span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
-    <span class="c1"># real part</span>
-    <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="n">n_triu</span><span class="p">]</span>
-    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
-    <span class="c1"># the subtract method is only available in JAX starting with Python 3.10</span>
-    <span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">-</span><span class="n">vals</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">jax</span><span class="o">.</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="optimize_orbitals">
@@ -406,9 +372,7 @@
     <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">two_body_tensor</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">_orbital_rotation_from_parameters_jax</span><span class="p">(</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="n">real</span>
-        <span class="p">)</span>
+        <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">unitary_from_parameters_jax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="n">real</span><span class="p">)</span>
         <span class="n">one_rdm_rotated</span> <span class="o">=</span> <span class="n">contract</span><span class="p">(</span>
             <span class="s2">&quot;ab,Aa,Bb-&gt;AB&quot;</span><span class="p">,</span>
             <span class="n">one_rdm</span><span class="p">,</span>
@@ -438,14 +402,14 @@
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
         <span class="n">value_and_grad</span><span class="p">,</span>
-        <span class="n">orbital_rotation_to_parameters</span><span class="p">(</span><span class="n">initial_orbital_rotation</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="n">real</span><span class="p">),</span>
+        <span class="n">unitary_to_parameters</span><span class="p">(</span><span class="n">initial_orbital_rotation</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="n">real</span><span class="p">),</span>
         <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
         <span class="n">jac</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
         <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotation_from_parameters</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="n">real</span><span class="p">)</span>
+    <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">unitary_from_parameters</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="n">real</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">return_optimize_result</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">result</span>
