@@ -20,10 +20,7 @@ import numpy as np
 import scipy.sparse.linalg
 
 from ffsim import gates, hamiltonians, linalg, protocols
-from ffsim.variational.util import (
-    orbital_rotation_from_parameters,
-    orbital_rotation_to_parameters,
-)
+from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
 
 
 @dataclass(frozen=True)
@@ -162,7 +159,7 @@ class UCCSDOpRestrictedReal(
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            final_orbital_rotation = orbital_rotation_from_parameters(
+            final_orbital_rotation = unitary_from_parameters(
                 params[index:], norb, real=True
             )
         return UCCSDOpRestrictedReal(
@@ -195,7 +192,7 @@ class UCCSDOpRestrictedReal(
             index += 1
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
-            params[index:] = orbital_rotation_to_parameters(
+            params[index:] = unitary_to_parameters(
                 self.final_orbital_rotation, real=True
             )
         return params
@@ -373,9 +370,7 @@ class UCCSDOpRestricted(
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            final_orbital_rotation = orbital_rotation_from_parameters(
-                params[index:], norb
-            )
+            final_orbital_rotation = unitary_from_parameters(params[index:], norb)
         return UCCSDOpRestricted(
             t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
         )
@@ -408,7 +403,7 @@ class UCCSDOpRestricted(
             index += 2
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
-            params[index:] = orbital_rotation_to_parameters(self.final_orbital_rotation)
+            params[index:] = unitary_to_parameters(self.final_orbital_rotation)
         return params
 
     def _apply_unitary_(
