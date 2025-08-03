@@ -19,10 +19,9 @@ from typing import cast
 import numpy as np
 
 from ffsim import gates, linalg, protocols
+from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
 from ffsim.variational.util import (
-    orbital_rotation_from_parameters,
     orbital_rotation_from_t1_amplitudes,
-    orbital_rotation_to_parameters,
     validate_interaction_pairs,
 )
 
@@ -229,7 +228,7 @@ class UCJOpSpinless(
         ):
             # Orbital rotation
             n_params = norb**2
-            orbital_rotation[:] = orbital_rotation_from_parameters(
+            orbital_rotation[:] = unitary_from_parameters(
                 params[index : index + n_params], norb
             )
             index += n_params
@@ -244,9 +243,7 @@ class UCJOpSpinless(
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            final_orbital_rotation = orbital_rotation_from_parameters(
-                params[index:], norb
-            )
+            final_orbital_rotation = unitary_from_parameters(params[index:], norb)
         return UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
@@ -303,9 +300,7 @@ class UCJOpSpinless(
         ):
             # Orbital rotation
             n_params = norb**2
-            params[index : index + n_params] = orbital_rotation_to_parameters(
-                orbital_rotation
-            )
+            params[index : index + n_params] = unitary_to_parameters(orbital_rotation)
             index += n_params
             # Diag Coulomb matrix
             if interaction_pairs:
@@ -316,7 +311,7 @@ class UCJOpSpinless(
                 index += n_params
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
-            params[index:] = orbital_rotation_to_parameters(self.final_orbital_rotation)
+            params[index:] = unitary_to_parameters(self.final_orbital_rotation)
         return params
 
     @staticmethod

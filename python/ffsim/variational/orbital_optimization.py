@@ -17,48 +17,14 @@ import scipy.optimize
 from opt_einsum import contract
 
 from ffsim.hamiltonians import MolecularHamiltonian
-from ffsim.states.rdm import ReducedDensityMatrix
-from ffsim.variational.util import (
-    orbital_rotation_from_parameters,
-    orbital_rotation_to_parameters,
+from ffsim.linalg.util import (
+    unitary_from_parameters,
+    unitary_from_parameters_jax,
+    unitary_to_parameters,
 )
+from ffsim.states.rdm import ReducedDensityMatrix
 
 jax.config.update("jax_enable_x64", True)
-
-
-def _orbital_rotation_from_parameters_jax(
-    params: np.ndarray, norb: int, real: bool = False
-) -> jax.Array:
-    """Construct an orbital rotation from parameters.
-
-    Converts a real-valued parameter vector to an orbital rotation. The parameter vector
-    contains non-redundant real and imaginary parts of the elements of the matrix
-    logarithm of the orbital rotation matrix.
-
-    Args:
-        params: The real-valued parameters.
-        norb: The number of spatial orbitals, which gives the width and height of the
-            orbital rotation matrix.
-        real: Whether the parameter vector describes a real-valued orbital rotation.
-
-    Returns:
-        The orbital rotation.
-    """
-    generator = jnp.zeros((norb, norb), dtype=float if real else complex)
-    n_triu = norb * (norb - 1) // 2
-    if not real:
-        # imaginary part
-        rows, cols = jnp.triu_indices(norb)
-        vals = 1j * params[n_triu:]
-        generator = generator.at[rows, cols].set(vals)
-        generator = generator.at[cols, rows].set(vals)
-    # real part
-    vals = params[:n_triu]
-    rows, cols = jnp.triu_indices(norb, k=1)
-    generator = generator.at[rows, cols].add(vals)
-    # the subtract method is only available in JAX starting with Python 3.10
-    generator = generator.at[cols, rows].add(-vals)
-    return jax.scipy.linalg.expm(generator)
 
 
 def optimize_orbitals(
@@ -137,9 +103,7 @@ def optimize_orbitals(
     two_body_tensor = jnp.array(hamiltonian.two_body_tensor)
 
     def fun(x: np.ndarray):
-        orbital_rotation = _orbital_rotation_from_parameters_jax(
-            x, norb=norb, real=real
-        )
+        orbital_rotation = unitary_from_parameters_jax(x, dim=norb, real=real)
         one_rdm_rotated = contract(
             "ab,Aa,Bb->AB",
             one_rdm,
@@ -169,14 +133,14 @@ def optimize_orbitals(
 
     result = scipy.optimize.minimize(
         value_and_grad,
-        orbital_rotation_to_parameters(initial_orbital_rotation, real=real),
+        unitary_to_parameters(initial_orbital_rotation, real=real),
         method=method,
         jac=True,
         callback=callback,
         options=options,
     )
 
-    orbital_rotation = orbital_rotation_from_parameters(result.x, norb=norb, real=real)
+    orbital_rotation = unitary_from_parameters(result.x, dim=norb, real=real)
 
     if return_optimize_result:
         return orbital_rotation, result
