@@ -247,7 +247,11 @@ def test_double_factorized_compressed_n2_unconstrained():
     )
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
         double_factorized(
-            two_body_tensor, max_vecs=2, optimize=True, return_optimize_result=True
+            two_body_tensor,
+            max_vecs=2,
+            optimize=True,
+            options=dict(maxiter=50),
+            return_optimize_result=True,
         )
     )
     reconstructed = contract(
@@ -271,9 +275,9 @@ def test_double_factorized_compressed_n2_unconstrained():
     assert error_optimized < 0.3 * error
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
-    assert result.nit <= 2600
-    assert result.nfev <= 2600
-    assert result.njev <= 2600
+    assert result.nit <= 100
+    assert result.nfev <= 110
+    assert result.njev <= 110
 
 
 def test_double_factorized_compressed_n2_constrained():
@@ -302,6 +306,7 @@ def test_double_factorized_compressed_n2_constrained():
             two_body_tensor,
             max_vecs=4,
             optimize=True,
+            options=dict(maxiter=50),
             diag_coulomb_indices=diag_coulomb_indices,
             return_optimize_result=True,
         )
@@ -335,9 +340,9 @@ def test_double_factorized_compressed_n2_constrained():
     assert error_optimized < 0.5 * error
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
-    assert result.nit <= 3100
-    assert result.nfev <= 3100
-    assert result.njev <= 3100
+    assert result.nit <= 100
+    assert result.nfev <= 110
+    assert result.njev <= 110
 
 
 def test_double_factorized_compressed_random():
