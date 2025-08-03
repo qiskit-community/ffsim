@@ -151,7 +151,7 @@ def real_symmetric_to_parameters(
         norb, _ = mat.shape
         rows, cols = np.triu_indices(norb)
     else:
-        rows, cols = zip(*triu_indices)
+        rows, cols = zip(*triu_indices)  # type: ignore
     return mat[rows, cols]
 
 
@@ -172,7 +172,7 @@ def real_symmetric_from_parameters(
     if triu_indices is None:
         rows, cols = np.triu_indices(dim)
     else:
-        rows, cols = zip(*triu_indices)
+        rows, cols = zip(*triu_indices)  # type: ignore
     mat = np.zeros((dim, dim))
     mat[rows, cols] = params
     mat[cols, rows] = params
@@ -186,7 +186,7 @@ def real_symmetric_from_parameters_jax(
     if triu_indices is None:
         rows, cols = jnp.triu_indices(dim)
     else:
-        rows, cols = zip(*triu_indices)
+        rows, cols = zip(*triu_indices)  # type: ignore
     mat = jnp.zeros((dim, dim))
     mat = mat.at[rows, cols].set(params)
     mat = mat.at[cols, rows].set(params)

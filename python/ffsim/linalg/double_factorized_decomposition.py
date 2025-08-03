@@ -344,7 +344,7 @@ def _double_factorized_compressed(
     if diag_coulomb_indices is None:
         rows, cols = np.triu_indices(norb)
     else:
-        rows, cols = zip(*diag_coulomb_indices)
+        rows, cols = zip(*diag_coulomb_indices)  # type: ignore
 
     n_triu = norb * (norb - 1) // 2
 
