@@ -16,6 +16,32 @@ import numpy as np
 import scipy.linalg
 
 
+def antihermitian_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
+    """Convert an antihermitian matrix to parameters.
+
+    Converts an antihermitian matrix to a real-valued parameter vector.
+
+    Args:
+        mat: The antihermitian matrix.
+        real: Whether to take only the real part of the matrix, and discard the
+            imaginary part.
+
+    Returns:
+        The list of real numbers parameterizing the antihermitian matrix.
+    """
+    norb, _ = mat.shape
+    triu_indices = np.triu_indices(norb, k=1)
+    n_triu = norb * (norb - 1) // 2
+    params = np.zeros(n_triu if real else norb**2)
+    # real part
+    params[:n_triu] = mat[triu_indices].real
+    # imaginary part
+    if not real:
+        triu_indices = np.triu_indices(norb)
+        params[n_triu:] = mat[triu_indices].imag
+    return params
+
+
 def antihermitian_from_parameters(
     params: np.ndarray, dim: int, real: bool = False
 ) -> np.ndarray:
@@ -45,32 +71,6 @@ def antihermitian_from_parameters(
     generator[rows, cols] += vals
     generator[cols, rows] -= vals
     return generator
-
-
-def antihermitian_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
-    """Convert an antihermitian matrix to parameters.
-
-    Converts an antihermitian matrix to a real-valued parameter vector.
-
-    Args:
-        mat: The antihermitian matrix.
-        real: Whether to take only the real part of the matrix, and discard the
-            imaginary part.
-
-    Returns:
-        The list of real numbers parameterizing the antihermitian matrix.
-    """
-    norb, _ = mat.shape
-    triu_indices = np.triu_indices(norb, k=1)
-    n_triu = norb * (norb - 1) // 2
-    params = np.zeros(n_triu if real else norb**2)
-    # real part
-    params[:n_triu] = mat[triu_indices].real
-    # imaginary part
-    if not real:
-        triu_indices = np.triu_indices(norb)
-        params[n_triu:] = mat[triu_indices].imag
-    return params
 
 
 def unitary_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
@@ -333,40 +333,3 @@ def df_tensors_from_params_jax(
         )
 
     return diag_coulomb_mats, orbital_rotations
-
-
-def df_tensors_to_params(
-    diag_coulomb_mats: np.ndarray,
-    orbital_rotations: np.ndarray,
-    diag_coulomb_indices: list[tuple[int, int]] | None,
-    real: bool = False,
-):
-    """Convert double factorization tensors to parameters.
-
-    Converts arrays of diagonal Coulomb matrices and orbital rotations to a
-    concatenated parameter vector. This is the inverse operation of
-    df_tensors_from_params.
-
-    Args:
-        diag_coulomb_mats: The diagonal Coulomb matrices.
-        orbital_rotations: The orbital rotations.
-        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
-            Coulomb matrices.
-        real: Whether to construct parameters for real-valued orbital rotations.
-
-    Returns:
-        The concatenated parameter vector containing all tensor parameters.
-    """
-    orbital_rotation_params = np.concatenate(
-        [
-            unitary_to_parameters(orbital_rotation, real=real)
-            for orbital_rotation in orbital_rotations
-        ]
-    )
-    diag_coulomb_params = np.concatenate(
-        [
-            real_symmetric_to_parameters(mat, diag_coulomb_indices)
-            for mat in diag_coulomb_mats
-        ]
-    )
-    return np.concatenate([orbital_rotation_params, diag_coulomb_params])
