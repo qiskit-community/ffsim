@@ -46,19 +46,12 @@ def orbital_rotation_to_parameters(
 
     Args:
         orbital_rotation: The orbital rotation.
-        real: Whether to construct a parameter vector for a real-valued
-            orbital rotation. If True, the orbital rotation must have a real-valued
-            data type.
+        real: Whether to take only the real part of the matrix logarithm of the orbital
+            rotation matrix, and discard the imaginary part.
 
     Returns:
         The list of real numbers parameterizing the orbital rotation.
     """
-    if real and np.iscomplexobj(orbital_rotation):
-        raise TypeError(
-            "real was set to True, but the orbital rotation has a complex data type. "
-            "Try passing an orbital rotation with a real-valued data type, or else "
-            "set real=False."
-        )
     norb, _ = orbital_rotation.shape
     triu_indices = np.triu_indices(norb, k=1)
     n_triu = norb * (norb - 1) // 2
