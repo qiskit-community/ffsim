@@ -416,8 +416,9 @@
     <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_optimize_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">cholesky</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Double-factorized decomposition of a two-body tensor.</span>
 
 <span class="sd">    The double-factorized decomposition is a representation of a two-body tensor</span>
@@ -481,7 +482,10 @@
 <span class="sd">            list will be set to zero. This list should contain only upper</span>
 <span class="sd">            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.</span>
 <span class="sd">            Passing a list with lower triangular indices will raise an error.</span>
-<span class="sd">            This parameter is only used if `optimize` is set to True.</span>
+<span class="sd">            This parameter only has effect if `optimize` is set to True.</span>
+<span class="sd">        return_optimize_result: Whether to also return the `OptimizeResult`_ returned</span>
+<span class="sd">            by `scipy.optimize.minimize`_.</span>
+<span class="sd">            This parameter only has effect if `optimize` is set to True.</span>
 <span class="sd">        cholesky: Whether to perform the factorization using a modified Cholesky</span>
 <span class="sd">            decomposition. If False, a full eigenvalue decomposition is used instead,</span>
 <span class="sd">            which can be much more expensive. This argument is ignored if ``optimize``</span>
@@ -493,6 +497,8 @@
 <span class="sd">        arrays, the first containing the diagonal Coulomb matrices and the second</span>
 <span class="sd">        containing the orbital rotations. Each Numpy array will have shape (L, n, n)</span>
 <span class="sd">        where L is the rank of the decomposition and n is the number of orbitals.</span>
+<span class="sd">        If `optimize` and `return_optimize_result` are both set to ``True``,</span>
+<span class="sd">        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: diag_coulomb_indices contains lower triangular indices.</span>
@@ -500,6 +506,7 @@
 <span class="sd">    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625</span>
 <span class="sd">    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957</span>
 <span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
+<span class="sd">    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="n">two_body_tensor</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -522,6 +529,7 @@
             <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
             <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
             <span class="n">diag_coulomb_indices</span><span class="o">=</span><span class="n">diag_coulomb_indices</span><span class="p">,</span>
+            <span class="n">return_optimize_result</span><span class="o">=</span><span class="n">return_optimize_result</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">cholesky</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_double_factorized_explicit_cholesky</span><span class="p">(</span>
@@ -608,7 +616,11 @@
     <span class="n">callback</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">return_optimize_result</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span>
+    <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">]</span>
+<span class="p">):</span>
     <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_double_factorized_explicit_cholesky</span><span class="p">(</span>
         <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_vecs</span><span class="o">=</span><span class="n">max_vecs</span>
     <span class="p">)</span>
@@ -693,6 +705,8 @@
         <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">diag_coulomb_indices</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">return_optimize_result</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">result</span>
     <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
 
 
