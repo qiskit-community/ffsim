@@ -59,20 +59,125 @@ def antihermitian_from_parameters(
     Returns:
         The antihermitian matrix.
     """
-    generator = np.zeros((dim, dim), dtype=float if real else complex)
+    mat = np.zeros((dim, dim), dtype=float if real else complex)
     n_triu = dim * (dim - 1) // 2
     if not real:
         # imaginary part
         rows, cols = np.triu_indices(dim)
         vals = 1j * params[n_triu:]
-        generator[rows, cols] = vals
-        generator[cols, rows] = vals
+        mat[rows, cols] = vals
+        mat[cols, rows] = vals
     # real part
     vals = params[:n_triu]
     rows, cols = np.triu_indices(dim, k=1)
-    generator[rows, cols] += vals
-    generator[cols, rows] -= vals
-    return generator
+    mat[rows, cols] += vals
+    mat[cols, rows] -= vals
+    return mat
+
+
+def antihermitian_from_parameters_jax(
+    params: np.ndarray, dim: int, real: bool = False
+) -> jax.Array:
+    """JAX version of antihermitian_from_parameters."""
+    mat = jnp.zeros((dim, dim), dtype=float if real else complex)
+    n_triu = dim * (dim - 1) // 2
+    if not real:
+        # imaginary part
+        rows, cols = jnp.triu_indices(dim)
+        vals = 1j * params[n_triu:]
+        mat = mat.at[rows, cols].set(vals)
+        mat = mat.at[cols, rows].set(vals)
+    # real part
+    vals = params[:n_triu]
+    rows, cols = jnp.triu_indices(dim, k=1)
+    mat = mat.at[rows, cols].add(vals)
+    # the subtract method is only available in JAX starting with Python 3.10
+    mat = mat.at[cols, rows].add(-vals)
+    return mat
+
+
+def antihermitians_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
+    """Convert a batch of antihermitian matrices to parameters.
+
+    Converts an array of antihermitian matrices to a real-valued parameter vector.
+
+    Args:
+        mats: The batch of antihermitian matrices, with shape (n_mats, dim, dim).
+        real: Whether to take only the real part of the matrices, and discard the
+            imaginary part.
+
+    Returns:
+        The list of real numbers parameterizing the antihermitian matrices.
+    """
+    n_mats, dim, _ = mats.shape
+    triu_indices = np.triu_indices(dim, k=1)
+    n_triu = dim * (dim - 1) // 2
+    n_params_per_mat = n_triu if real else dim**2
+    params = np.zeros((n_mats, n_params_per_mat))
+    # real part
+    params[:, :n_triu] = mats[:, triu_indices[0], triu_indices[1]].real
+    # imaginary part
+    if not real:
+        triu_indices = np.triu_indices(dim)
+        params[:, n_triu:] = mats[:, triu_indices[0], triu_indices[1]].imag
+    return params.reshape(-1)
+
+
+def antihermitians_from_parameters(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> np.ndarray:
+    """Construct a batch of antihermitian matrices from parameters.
+
+    Converts a real-valued parameter vector to an array of antihermitian matrices.
+
+    Args:
+        params: The 1D real-valued parameters.
+        dim: The width and height of each matrix.
+        n_mats: The number of matrices in the batch.
+        real: Whether the parameter vector describes real-valued antihermitian matrices.
+
+    Returns:
+        The array of antihermitian matrices, with shape (n_mats, dim, dim).
+    """
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = np.zeros((n_mats, dim, dim), dtype=float if real else complex)
+    n_triu = dim * (dim - 1) // 2
+    if not real:
+        # imaginary part
+        rows, cols = np.triu_indices(dim)
+        vals = 1j * params[:, n_triu:]
+        mats[:, rows, cols] = vals
+        mats[:, cols, rows] = vals
+    # real part
+    vals = params[:, :n_triu]
+    rows, cols = np.triu_indices(dim, k=1)
+    mats[:, rows, cols] += vals
+    mats[:, cols, rows] -= vals
+    return mats
+
+
+def antihermitians_from_parameters_jax(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> jax.Array:
+    """JAX version of antihermitians_from_parameters."""
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = jnp.zeros((n_mats, dim, dim), dtype=float if real else complex)
+    n_triu = dim * (dim - 1) // 2
+    if not real:
+        # imaginary part
+        rows, cols = jnp.triu_indices(dim)
+        vals = 1j * params[:, n_triu:]
+        mats = mats.at[:, rows, cols].set(vals)
+        mats = mats.at[:, cols, rows].set(vals)
+    # real part
+    vals = params[:, :n_triu]
+    rows, cols = jnp.triu_indices(dim, k=1)
+    mats = mats.at[:, rows, cols].add(vals)
+    # the subtract method is only available in JAX starting with Python 3.10
+    mats = mats.at[:, cols, rows].add(-vals)
+    return mats
 
 
 def unitary_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
@@ -83,9 +188,9 @@ def unitary_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
     logarithm of the unitary.
 
     Args:
-        orbital_rotation: The unitary.
+        mat: The unitary.
         real: Whether to take only the real part of the matrix logarithm of the unitary,
-        and discard the imaginary part.
+            and discard the imaginary part.
 
     Returns:
         The list of real numbers parameterizing the unitary.
@@ -117,21 +222,61 @@ def unitary_from_parameters_jax(
     params: np.ndarray, dim: int, real: bool = False
 ) -> jax.Array:
     """JAX version of unitary_from_parameters."""
-    generator = jnp.zeros((dim, dim), dtype=float if real else complex)
-    n_triu = dim * (dim - 1) // 2
-    if not real:
-        # imaginary part
-        rows, cols = jnp.triu_indices(dim)
-        vals = 1j * params[n_triu:]
-        generator = generator.at[rows, cols].set(vals)
-        generator = generator.at[cols, rows].set(vals)
-    # real part
-    vals = params[:n_triu]
-    rows, cols = jnp.triu_indices(dim, k=1)
-    generator = generator.at[rows, cols].add(vals)
-    # the subtract method is only available in JAX starting with Python 3.10
-    generator = generator.at[cols, rows].add(-vals)
-    return jax.scipy.linalg.expm(generator)
+    return jax.scipy.linalg.expm(antihermitian_from_parameters_jax(params, dim, real))
+
+
+def unitaries_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
+    """Convert a batch of unitary matrices to parameters.
+
+    Converts an array of unitaries to a real-valued parameter vector. The parameter
+    vector contains non-redundant real and imaginary parts of the elements of the matrix
+    logarithms of the unitaries.
+
+    Args:
+        mats: The batch of unitary matrices, with shape (n_mats, dim, dim).
+        real: Whether to take only the real part of the matrix logarithm of the unitary,
+            and discard the imaginary part.
+
+    Returns:
+        The list of real numbers parameterizing the unitaries.
+    """
+    # TODO in Python 3.11 this becomes
+    # return antihermitians_to_parameters(scipy.linalg.logm(mats), real=real)
+    return antihermitians_to_parameters(
+        np.stack([scipy.linalg.logm(mat) for mat in mats]), real=real
+    )
+
+
+def unitaries_from_parameters(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> np.ndarray:
+    """Construct a batch of unitary matrices from parameters.
+
+    Converts a real-valued parameter vector to an array of unitary matrices.
+    The parameter vector contains non-redundant real and imaginary parts of the elements
+    of the matrix logarithms of the unitary matrices.
+
+    Args:
+        params: The real-valued parameters.
+        dim: The width and height of the unitary matrix.
+        n_mats: The number of matrices in the batch.
+        real: Whether the parameter vector describes a real-valued unitary matrix.
+
+    Returns:
+        The array of unitary matrices, with shape (n_mats, dim, dim).
+    """
+    return scipy.linalg.expm(
+        antihermitians_from_parameters(params, dim, n_mats, real=real)
+    )
+
+
+def unitaries_from_parameters_jax(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> jax.Array:
+    """JAX version of unitaries_from_parameters."""
+    return jax.scipy.linalg.expm(
+        antihermitians_from_parameters_jax(params, dim, n_mats, real=real)
+    )
 
 
 def real_symmetric_to_parameters(
@@ -193,6 +338,85 @@ def real_symmetric_from_parameters_jax(
     return mat
 
 
+def real_symmetrics_to_parameters(
+    mats: np.ndarray, triu_indices: list[tuple[int, int]] | None = None
+) -> np.ndarray:
+    """Convert a batch of real symmetric matrices to parameters.
+
+    Converts an array of real symmetric matrices to a real-valued parameter vector.
+
+    Args:
+        mats: The batch of real symmetric matrices, with shape (n_mats, dim, dim).
+        triu_indices: Upper triangular indices to take values from. If not given,
+            the entire upper triangle is taken.
+
+    Returns:
+        The list of real numbers parameterizing the real symmetric matrices.
+    """
+    n_mats, dim, _ = mats.shape
+    if triu_indices is None:
+        rows, cols = np.triu_indices(dim)
+    else:
+        rows, cols = zip(*triu_indices)  # type: ignore
+    n_params_per_mat = len(rows)
+    params = np.zeros((n_mats, n_params_per_mat))
+    params[:, :] = mats[:, rows, cols]
+    return params.reshape(-1)
+
+
+def real_symmetrics_from_parameters(
+    params: np.ndarray,
+    dim: int,
+    n_mats: int,
+    triu_indices: list[tuple[int, int]] | None = None,
+) -> np.ndarray:
+    """Construct a batch of real symmetric matrices from parameters.
+
+    Converts a real-valued parameter vector to an array of real symmetric matrices.
+
+    Args:
+        params: The 1D real-valued parameters.
+        dim: The width and height of each matrix.
+        n_mats: The number of matrices in the batch.
+        triu_indices: Upper triangular indices to place the parameters. If not given,
+            the entire upper triangle is used.
+
+    Returns:
+        The array of real symmetric matrices, with shape (n_mats, dim, dim).
+    """
+    if triu_indices is None:
+        rows, cols = np.triu_indices(dim)
+        n_params_per_mat = dim * (dim + 1) // 2
+    else:
+        rows, cols = zip(*triu_indices)  # type: ignore
+        n_params_per_mat = len(triu_indices)
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = np.zeros((n_mats, dim, dim))
+    mats[:, rows, cols] = params
+    mats[:, cols, rows] = params
+    return mats
+
+
+def real_symmetrics_from_parameters_jax(
+    params: np.ndarray,
+    dim: int,
+    n_mats: int,
+    triu_indices: list[tuple[int, int]] | None = None,
+) -> jax.Array:
+    """JAX version of real_symmetrics_from_parameters."""
+    if triu_indices is None:
+        rows, cols = jnp.triu_indices(dim)
+        n_params_per_mat = dim * (dim + 1) // 2
+    else:
+        rows, cols = zip(*triu_indices)  # type: ignore
+        n_params_per_mat = len(triu_indices)
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = jnp.zeros((n_mats, dim, dim))
+    mats = mats.at[:, rows, cols].set(params)
+    mats = mats.at[:, cols, rows].set(params)
+    return mats
+
+
 def df_tensors_to_params(
     diag_coulomb_mats: np.ndarray,
     orbital_rotations: np.ndarray,
@@ -215,17 +439,9 @@ def df_tensors_to_params(
     Returns:
         The list of real numbers parameterizing the double-factorization tensors.
     """
-    orbital_rotation_params = np.concatenate(
-        [
-            unitary_to_parameters(orbital_rotation, real=real)
-            for orbital_rotation in orbital_rotations
-        ]
-    )
-    diag_coulomb_params = np.concatenate(
-        [
-            real_symmetric_to_parameters(mat, diag_coulomb_indices)
-            for mat in diag_coulomb_mats
-        ]
+    orbital_rotation_params = unitaries_to_parameters(orbital_rotations, real=real)
+    diag_coulomb_params = real_symmetrics_to_parameters(
+        diag_coulomb_mats, diag_coulomb_indices
     )
     return np.concatenate([orbital_rotation_params, diag_coulomb_params])
 
@@ -257,35 +473,18 @@ def df_tensors_from_params(
         second contains the orbital rotations.
     """
     n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
-    if diag_coulomb_indices is None:
-        n_params_per_diag_coulomb = norb * (norb + 1) // 2
-    else:
-        n_params_per_diag_coulomb = len(diag_coulomb_indices)
-
     n_params_orb_rot = n_tensors * n_params_per_orb_rot
     orbital_rotation_params = params[:n_params_orb_rot]
     diag_coulomb_params = params[n_params_orb_rot:]
-
-    orbital_rotations = np.zeros(
-        (n_tensors, norb, norb), dtype=float if real else complex
+    orbital_rotations = unitaries_from_parameters(
+        orbital_rotation_params, dim=norb, n_mats=n_tensors, real=real
     )
-    diag_coulomb_mats = np.zeros((n_tensors, norb, norb))
-    for i in range(n_tensors):
-        orbital_rotations[i] = unitary_from_parameters(
-            orbital_rotation_params[
-                i * n_params_per_orb_rot : (i + 1) * n_params_per_orb_rot
-            ],
-            norb,
-            real=real,
-        )
-        diag_coulomb_mats[i] = real_symmetric_from_parameters(
-            diag_coulomb_params[
-                i * n_params_per_diag_coulomb : (i + 1) * n_params_per_diag_coulomb
-            ],
-            norb,
-            diag_coulomb_indices,
-        )
-
+    diag_coulomb_mats = real_symmetrics_from_parameters(
+        diag_coulomb_params,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=diag_coulomb_indices,
+    )
     return diag_coulomb_mats, orbital_rotations
 
 
@@ -298,40 +497,16 @@ def df_tensors_from_params_jax(
 ) -> tuple[jax.Array, jax.Array]:
     """JAX version of df_tensors_from_params."""
     n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
-    if diag_coulomb_indices is None:
-        n_params_per_diag_coulomb = norb * (norb + 1) // 2
-    else:
-        n_params_per_diag_coulomb = len(diag_coulomb_indices)
-
     n_params_orb_rot = n_tensors * n_params_per_orb_rot
     orbital_rotation_params = params[:n_params_orb_rot]
     diag_coulomb_params = params[n_params_orb_rot:]
-
-    orbital_rotations = jnp.zeros(
-        (n_tensors, norb, norb), dtype=float if real else complex
+    orbital_rotations = unitaries_from_parameters_jax(
+        orbital_rotation_params, dim=norb, n_mats=n_tensors, real=real
     )
-    diag_coulomb_mats = jnp.zeros(
-        (n_tensors, norb, norb), dtype=float if real else complex
+    diag_coulomb_mats = real_symmetrics_from_parameters_jax(
+        diag_coulomb_params,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=diag_coulomb_indices,
     )
-
-    for i in range(n_tensors):
-        orbital_rotations = orbital_rotations.at[i].set(
-            unitary_from_parameters_jax(
-                orbital_rotation_params[
-                    i * n_params_per_orb_rot : (i + 1) * n_params_per_orb_rot
-                ],
-                norb,
-                real=real,
-            )
-        )
-        diag_coulomb_mats = diag_coulomb_mats.at[i].set(
-            real_symmetric_from_parameters_jax(
-                diag_coulomb_params[
-                    i * n_params_per_diag_coulomb : (i + 1) * n_params_per_diag_coulomb
-                ],
-                norb,
-                diag_coulomb_indices,
-            )
-        )
-
     return diag_coulomb_mats, orbital_rotations
