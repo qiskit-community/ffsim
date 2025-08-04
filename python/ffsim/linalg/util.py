@@ -75,6 +75,67 @@ def antihermitian_from_parameters(
     return generator
 
 
+def antihermitians_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
+    """Convert a batch of antihermitian matrices to parameters.
+
+    Converts an array of antihermitian matrices to a real-valued parameter vector.
+
+    Args:
+        mats: The batch of antihermitian matrices, with shape (n_mats, norb, norb).
+        real: Whether to take only the real part of the matrices, and discard the
+            imaginary part.
+
+    Returns:
+        The list of real numbers parameterizing the antihermitian matrices.
+    """
+    n_mats, dim, _ = mats.shape
+    triu_indices = np.triu_indices(dim, k=1)
+    n_triu = dim * (dim - 1) // 2
+    n_params_per_mat = n_triu if real else dim**2
+    params = np.zeros((n_mats, n_params_per_mat))
+    # real part
+    params[:, :n_triu] = mats[:, triu_indices[0], triu_indices[1]].real
+    # imaginary part
+    if not real:
+        triu_indices = np.triu_indices(dim)
+        params[:, n_triu:] = mats[:, triu_indices[0], triu_indices[1]].imag
+    return params.reshape(-1)
+
+
+def antihermitians_from_parameters(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> np.ndarray:
+    """Construct a batch of antihermitian matrices from parameters.
+
+    Converts a real-valued parameter vector to an array of antihermitian matrices.
+
+    Args:
+        params: The 1D real-valued parameters.
+        dim: The width and height of each matrix.
+        n_mats: The number of matrices in the batch.
+        real: Whether the parameter vector describes real-valued antihermitian matrices.
+
+    Returns:
+        The array of antihermitian matrices, with shape (n_mats, dim, dim).
+    """
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = np.zeros((n_mats, dim, dim), dtype=float if real else complex)
+    n_triu = dim * (dim - 1) // 2
+    if not real:
+        # imaginary part
+        rows, cols = np.triu_indices(dim)
+        vals = 1j * params[:, n_triu:]
+        mats[:, rows, cols] = vals
+        mats[:, cols, rows] = vals
+    # real part
+    vals = params[:, :n_triu]
+    rows, cols = np.triu_indices(dim, k=1)
+    mats[:, rows, cols] += vals
+    mats[:, cols, rows] -= vals
+    return mats
+
+
 def unitary_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
     """Convert a unitary matrix to parameters.
 

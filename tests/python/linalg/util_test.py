@@ -17,6 +17,8 @@ import ffsim
 from ffsim.linalg.util import (
     antihermitian_from_parameters,
     antihermitian_to_parameters,
+    antihermitians_from_parameters,
+    antihermitians_to_parameters,
     df_tensors_from_params,
     df_tensors_from_params_jax,
     df_tensors_to_params,
@@ -48,6 +50,60 @@ def test_antihermitian_parameters(dim: int, real: bool):
     params_roundtrip = antihermitian_to_parameters(mat, real=real)
     np.testing.assert_allclose(params_roundtrip, params)
     assert ffsim.linalg.is_antihermitian(mat)
+
+
+@pytest.mark.parametrize("n_mats", range(1, 4))
+@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("real", [True, False])
+def test_antihermitians_parameters(n_mats: int, dim: int, real: bool):
+    """Test parameterizing batch of antihermitian matrices."""
+    mats = np.stack(
+        [ffsim.random.random_antihermitian(dim, seed=RNG) for _ in range(n_mats)]
+    )
+    if real:
+        mats = mats.real
+
+    params = antihermitians_to_parameters(mats, real=real)
+    mats_roundtrip = antihermitians_from_parameters(params, dim, n_mats, real=real)
+    np.testing.assert_allclose(mats_roundtrip, mats)
+
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total)
+    mats = antihermitians_from_parameters(params, dim, n_mats, real=real)
+    params_roundtrip = antihermitians_to_parameters(mats, real=real)
+    np.testing.assert_allclose(params_roundtrip, params)
+    for i in range(n_mats):
+        assert ffsim.linalg.is_antihermitian(mats[i])
+
+
+@pytest.mark.parametrize("n_mats", range(1, 4))
+@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("real", [True, False])
+def test_antihermitians_consistent(n_mats: int, dim: int, real: bool):
+    """Test that batch function gives same result as single matrix functions."""
+    mats = np.array(
+        [ffsim.random.random_antihermitian(dim, seed=RNG) for _ in range(n_mats)]
+    )
+    if real:
+        mats = mats.real
+
+    params_batch = antihermitians_to_parameters(mats, real=real)
+    params_individual = np.concatenate(
+        [antihermitian_to_parameters(mats[i], real=real) for i in range(n_mats)]
+    )
+    np.testing.assert_allclose(params_batch, params_individual)
+
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total)
+    mats_batch = antihermitians_from_parameters(params, dim, n_mats, real=real)
+    mats_individual = np.zeros_like(mats_batch)
+    for i in range(n_mats):
+        mats_individual[i] = antihermitian_from_parameters(
+            params[i * n_params_per_mat : (i + 1) * n_params_per_mat], dim, real=real
+        )
+    np.testing.assert_allclose(mats_batch, mats_individual)
 
 
 @pytest.mark.parametrize("dim", range(1, 5))
