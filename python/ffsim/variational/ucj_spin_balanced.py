@@ -458,12 +458,10 @@ class UCJOpSpinBalanced(
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
         if optimize:
-            diag_coulomb_indices = []
-            if pairs_aa is not None:
-                diag_coulomb_indices += pairs_aa
-            if pairs_ab is not None:
-                diag_coulomb_indices += pairs_ab
-            diag_coulomb_indices = list(set(diag_coulomb_indices))
+            if pairs_aa is None and pairs_ab is None:
+                diag_coulomb_indices = None
+            else:
+                diag_coulomb_indices = list(set((pairs_aa or []) + (pairs_ab or [])))
             diag_coulomb_mats, orbital_rotations = (
                 linalg.double_factorized_t2_compressed(
                     t2,
