@@ -75,6 +75,27 @@ def antihermitian_from_parameters(
     return generator
 
 
+def antihermitian_from_parameters_jax(
+    params: np.ndarray, dim: int, real: bool = False
+) -> np.ndarray:
+    """JAX version of antihermitian_from_parameters."""
+    generator = jnp.zeros((dim, dim), dtype=float if real else complex)
+    n_triu = dim * (dim - 1) // 2
+    if not real:
+        # imaginary part
+        rows, cols = jnp.triu_indices(dim)
+        vals = 1j * params[n_triu:]
+        generator = generator.at[rows, cols].set(vals)
+        generator = generator.at[cols, rows].set(vals)
+    # real part
+    vals = params[:n_triu]
+    rows, cols = jnp.triu_indices(dim, k=1)
+    generator = generator.at[rows, cols].add(vals)
+    # the subtract method is only available in JAX starting with Python 3.10
+    generator = generator.at[cols, rows].add(-vals)
+    return generator
+
+
 def antihermitians_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
     """Convert a batch of antihermitian matrices to parameters.
 
@@ -178,21 +199,7 @@ def unitary_from_parameters_jax(
     params: np.ndarray, dim: int, real: bool = False
 ) -> jax.Array:
     """JAX version of unitary_from_parameters."""
-    generator = jnp.zeros((dim, dim), dtype=float if real else complex)
-    n_triu = dim * (dim - 1) // 2
-    if not real:
-        # imaginary part
-        rows, cols = jnp.triu_indices(dim)
-        vals = 1j * params[n_triu:]
-        generator = generator.at[rows, cols].set(vals)
-        generator = generator.at[cols, rows].set(vals)
-    # real part
-    vals = params[:n_triu]
-    rows, cols = jnp.triu_indices(dim, k=1)
-    generator = generator.at[rows, cols].add(vals)
-    # the subtract method is only available in JAX starting with Python 3.10
-    generator = generator.at[cols, rows].add(-vals)
-    return jax.scipy.linalg.expm(generator)
+    return jax.scipy.linalg.expm(antihermitian_from_parameters_jax(params, dim, real))
 
 
 def unitaries_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:

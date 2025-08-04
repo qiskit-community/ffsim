@@ -16,6 +16,7 @@ import pytest
 import ffsim
 from ffsim.linalg.util import (
     antihermitian_from_parameters,
+    antihermitian_from_parameters_jax,
     antihermitian_to_parameters,
     antihermitians_from_parameters,
     antihermitians_to_parameters,
@@ -52,6 +53,17 @@ def test_antihermitian_parameters(dim: int, real: bool):
     params_roundtrip = antihermitian_to_parameters(mat, real=real)
     np.testing.assert_allclose(params_roundtrip, params)
     assert ffsim.linalg.is_antihermitian(mat)
+
+
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("real", [True, False])
+def test_antihermiain_parameters_jax_consistent(dim: int, real: bool):
+    """Test JAX and NumPy versions of parameterizing antihermitian give same results."""
+    n_params = dim * (dim - 1) // 2 if real else dim**2
+    params = RNG.normal(size=n_params)
+    mat_numpy = antihermitian_from_parameters(params, dim, real=real)
+    mat_jax = antihermitian_from_parameters_jax(params, dim, real=real)
+    np.testing.assert_allclose(mat_jax, mat_numpy)
 
 
 @pytest.mark.parametrize("n_mats", range(1, 4))
