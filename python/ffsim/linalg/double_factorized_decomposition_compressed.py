@@ -21,275 +21,11 @@ import scipy
 from opt_einsum import contract
 
 from ffsim.linalg import double_factorized_t2
-
-
-def orbital_rotation_to_parameters(
-    orbital_rotation: np.ndarray, real: bool = False
-) -> np.ndarray:
-    """Convert an orbital rotation to parameters.
-
-    Converts an orbital rotation to a real-valued parameter vector. The parameter vector
-    contains non-redundant real and imaginary parts of the elements of the matrix
-    logarithm of the orbital rotation matrix.
-
-    Args:
-        orbital_rotation: The orbital rotation.
-        real: Whether to construct a parameter vector for a real-valued
-            orbital rotation. If True, the orbital rotation must have a real-valued
-            data type.
-
-    Returns:
-        The list of real numbers parameterizing the orbital rotation.
-    """
-    if real and np.iscomplexobj(orbital_rotation):
-        raise TypeError(
-            "real was set to True, but the orbital rotation has a complex data type. "
-            "Try passing an orbital rotation with a real-valued data type, or else "
-            "set real=False."
-        )
-    norb, _ = orbital_rotation.shape
-    triu_indices = np.triu_indices(norb, k=1)
-    n_triu = norb * (norb - 1) // 2
-    mat = scipy.linalg.logm(orbital_rotation)
-    params = np.zeros(n_triu if real else norb**2)
-    # real part
-    params[:n_triu] = mat[triu_indices].real
-    # imaginary part
-    if not real:
-        triu_indices = np.triu_indices(norb)
-        params[n_triu:] = mat[triu_indices].imag
-    return params
-
-
-def orbital_rotation_from_parameters(
-    params: np.ndarray, norb: int, real: bool = False
-) -> np.ndarray:
-    """Construct an orbital rotation from parameters.
-
-    Converts a real-valued parameter vector to an orbital rotation. The parameter vector
-    contains non-redundant real and imaginary parts of the elements of the matrix
-    logarithm of the orbital rotation matrix.
-
-    Args:
-        params: The real-valued parameters.
-        norb: The number of spatial orbitals, which gives the width and height of the
-            orbital rotation matrix.
-        real: Whether the parameter vector describes a real-valued orbital rotation.
-
-    Returns:
-        The orbital rotation.
-    """
-    generator = np.zeros((norb, norb), dtype=float if real else complex)
-    n_triu = norb * (norb - 1) // 2
-    if not real:
-        # imaginary part
-        rows, cols = np.triu_indices(norb)
-        vals = 1j * params[n_triu:]
-        generator[rows, cols] = vals
-        generator[cols, rows] = vals
-    # real part
-    vals = params[:n_triu]
-    rows, cols = np.triu_indices(norb, k=1)
-    generator[rows, cols] += vals
-    generator[cols, rows] -= vals
-    return scipy.linalg.expm(generator)
-
-
-def diag_coulomb_mat_to_parameters(
-    mat: np.ndarray, diag_coulomb_indices: list[tuple[int, int]] | None = None
-) -> np.ndarray:
-    """Convert a diagonal Coulomb matrix to parameters.
-
-    Args:
-        mat: The diagonal Coulomb matrix.
-        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
-            Coulomb matrix.
-
-    Returns:
-        The list of real numbers parameterizing the diagonal Coulomb matrix.
-    """
-    if diag_coulomb_indices is None:
-        norb, _ = mat.shape
-        rows, cols = np.triu_indices(norb)
-    else:
-        rows, cols = zip(*diag_coulomb_indices)
-    return mat[rows, cols]
-
-
-def diag_coulomb_mat_from_parameters(
-    params: np.ndarray,
-    norb: int,
-    diag_coulomb_indices: list[tuple[int, int]] | None = None,
-) -> np.ndarray:
-    """Construct a diagonal Coulomb matrix from parameters.
-
-    Args:
-        params: The real-valued parameters.
-        norb: The number of spatial orbitals, which gives the width and height of the
-            diagonal Coulomb matrix.
-        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
-            Coulomb matrix.
-
-    Returns:
-        The diagonal Coulomb matrix.
-    """
-    if diag_coulomb_indices is None:
-        rows, cols = np.triu_indices(norb)
-    else:
-        rows, cols = zip(*diag_coulomb_indices)
-    mat = np.zeros((norb, norb))
-    mat[rows, cols] = params
-    mat[cols, rows] = params
-    return mat
-
-
-def _df_tensors_to_params(
-    diag_coulomb_mats: np.ndarray,
-    orbital_rotations: np.ndarray,
-    diag_coulomb_indices: list[tuple[int, int]] | None,
-):
-    orbital_rotation_params = np.concatenate(
-        [
-            orbital_rotation_to_parameters(orbital_rotation)
-            for orbital_rotation in orbital_rotations
-        ]
-    )
-    diag_coulomb_params = np.concatenate(
-        [
-            diag_coulomb_mat_to_parameters(mat, diag_coulomb_indices)
-            for mat in diag_coulomb_mats
-        ]
-    )
-    return np.concatenate([orbital_rotation_params, diag_coulomb_params])
-
-
-def _params_to_df_tensors(
-    params: np.ndarray,
-    n_tensors: int,
-    norb: int,
-    diag_coulomb_indices: list[tuple[int, int]] | None,
-) -> tuple[np.ndarray, np.ndarray]:
-    n_params_per_orb_rot = norb**2
-    if diag_coulomb_indices is None:
-        n_params_per_diag_coulomb = norb * (norb + 1) // 2
-    else:
-        n_params_per_diag_coulomb = len(diag_coulomb_indices)
-
-    n_params_orb_rot = n_tensors * n_params_per_orb_rot
-    orbital_rotation_params = params[:n_params_orb_rot]
-    diag_coulomb_params = params[n_params_orb_rot:]
-
-    orbital_rotations = np.zeros((n_tensors, norb, norb), dtype=complex)
-    diag_coulomb_mats = np.zeros((n_tensors, norb, norb))
-    for i in range(n_tensors):
-        orbital_rotations[i] = orbital_rotation_from_parameters(
-            orbital_rotation_params[
-                i * n_params_per_orb_rot : (i + 1) * n_params_per_orb_rot
-            ],
-            norb,
-            real=False,
-        )
-        diag_coulomb_mats[i] = diag_coulomb_mat_from_parameters(
-            diag_coulomb_params[
-                i * n_params_per_diag_coulomb : (i + 1) * n_params_per_diag_coulomb
-            ],
-            norb,
-            diag_coulomb_indices,
-        )
-
-    return diag_coulomb_mats, orbital_rotations
-
-
-def _orbital_rotation_from_parameters_jax(
-    params: np.ndarray, norb: int, real: bool = False
-) -> jax.Array:
-    """Construct an orbital rotation from parameters.
-
-    Converts a real-valued parameter vector to an orbital rotation. The parameter vector
-    contains non-redundant real and imaginary parts of the elements of the matrix
-    logarithm of the orbital rotation matrix.
-
-    Args:
-        params: The real-valued parameters.
-        norb: The number of spatial orbitals, which gives the width and height of the
-            orbital rotation matrix.
-        real: Whether the parameter vector describes a real-valued orbital rotation.
-
-    Returns:
-        The orbital rotation.
-    """
-    generator = jnp.zeros((norb, norb), dtype=float if real else complex)
-    n_triu = norb * (norb - 1) // 2
-    if not real:
-        # imaginary part
-        rows, cols = jnp.triu_indices(norb)
-        vals = 1j * params[n_triu:]
-        generator = generator.at[rows, cols].set(vals)
-        generator = generator.at[cols, rows].set(vals)
-    # real part
-    vals = params[:n_triu]
-    rows, cols = jnp.triu_indices(norb, k=1)
-    generator = generator.at[rows, cols].add(vals)
-    # the subtract method is only available in JAX starting with Python 3.10
-    generator = generator.at[cols, rows].add(-vals)
-    return jax.scipy.linalg.expm(generator)
-
-
-def _diag_coulomb_mat_from_parameters_jax(
-    params: np.ndarray,
-    norb: int,
-    diag_coulomb_indices: list[tuple[int, int]] | None = None,
-) -> jax.Array:
-    if diag_coulomb_indices is None:
-        rows, cols = jnp.triu_indices(norb)
-    else:
-        rows, cols = zip(*diag_coulomb_indices)
-    mat = jnp.zeros((norb, norb))
-    mat = mat.at[rows, cols].set(params)
-    mat = mat.at[cols, rows].set(params)
-    return mat
-
-
-def _params_to_df_tensors_jax(
-    params: np.ndarray,
-    n_tensors: int,
-    norb: int,
-    diag_coulomb_indices: list[tuple[int, int]] | None,
-) -> tuple[jax.Array, jax.Array]:
-    n_params_per_orb_rot = norb**2
-    if diag_coulomb_indices is None:
-        n_params_per_diag_coulomb = norb * (norb + 1) // 2
-    else:
-        n_params_per_diag_coulomb = len(diag_coulomb_indices)
-
-    n_params_orb_rot = n_tensors * n_params_per_orb_rot
-    orbital_rotation_params = params[:n_params_orb_rot]
-    diag_coulomb_params = params[n_params_orb_rot:]
-
-    orbital_rotations = jnp.zeros((n_tensors, norb, norb), dtype=complex)
-    diag_coulomb_mats = jnp.zeros((n_tensors, norb, norb), dtype=complex)
-
-    for i in range(n_tensors):
-        orbital_rotations = orbital_rotations.at[i].set(
-            _orbital_rotation_from_parameters_jax(
-                orbital_rotation_params[
-                    i * n_params_per_orb_rot : (i + 1) * n_params_per_orb_rot
-                ],
-                norb,
-                real=False,
-            )
-        )
-        diag_coulomb_mats = diag_coulomb_mats.at[i].set(
-            _diag_coulomb_mat_from_parameters_jax(
-                diag_coulomb_params[
-                    i * n_params_per_diag_coulomb : (i + 1) * n_params_per_diag_coulomb
-                ],
-                norb,
-                diag_coulomb_indices,
-            )
-        )
-
-    return diag_coulomb_mats, orbital_rotations
+from ffsim.linalg.util import (
+    df_tensors_from_params,
+    df_tensors_from_params_jax,
+    df_tensors_to_params,
+)
 
 
 @overload
@@ -433,7 +169,7 @@ def double_factorized_t2_compressed(
         orbital_rotations = orbital_rotations[:n_tensors]
 
         def fun_jax(x):
-            diag_coulomb_mats, orbital_rotations = _params_to_df_tensors_jax(
+            diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
                 x, n_tensors, norb, diag_coulomb_indices
             )
             reconstructed = (
@@ -453,7 +189,7 @@ def double_factorized_t2_compressed(
 
         value_and_grad_func = jax.value_and_grad(fun_jax)
 
-        x0 = _df_tensors_to_params(
+        x0 = df_tensors_to_params(
             diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
         )
 
@@ -466,7 +202,7 @@ def double_factorized_t2_compressed(
             options=options,
         )
 
-        diag_coulomb_mats, orbital_rotations = _params_to_df_tensors(
+        diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
             result.x, n_tensors, norb, diag_coulomb_indices
         )
 
