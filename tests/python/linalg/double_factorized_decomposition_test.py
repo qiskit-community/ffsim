@@ -250,7 +250,7 @@ def test_double_factorized_compressed_n2_unconstrained():
             two_body_tensor,
             max_vecs=2,
             optimize=True,
-            options=dict(maxiter=50),
+            options=dict(maxiter=100),
             return_optimize_result=True,
         )
     )
@@ -306,7 +306,7 @@ def test_double_factorized_compressed_n2_constrained():
             two_body_tensor,
             max_vecs=4,
             optimize=True,
-            options=dict(maxiter=50),
+            options=dict(maxiter=100),
             diag_coulomb_indices=diag_coulomb_indices,
             return_optimize_result=True,
         )
