@@ -59,41 +59,41 @@ def antihermitian_from_parameters(
     Returns:
         The antihermitian matrix.
     """
-    generator = np.zeros((dim, dim), dtype=float if real else complex)
+    mat = np.zeros((dim, dim), dtype=float if real else complex)
     n_triu = dim * (dim - 1) // 2
     if not real:
         # imaginary part
         rows, cols = np.triu_indices(dim)
         vals = 1j * params[n_triu:]
-        generator[rows, cols] = vals
-        generator[cols, rows] = vals
+        mat[rows, cols] = vals
+        mat[cols, rows] = vals
     # real part
     vals = params[:n_triu]
     rows, cols = np.triu_indices(dim, k=1)
-    generator[rows, cols] += vals
-    generator[cols, rows] -= vals
-    return generator
+    mat[rows, cols] += vals
+    mat[cols, rows] -= vals
+    return mat
 
 
 def antihermitian_from_parameters_jax(
     params: np.ndarray, dim: int, real: bool = False
 ) -> np.ndarray:
     """JAX version of antihermitian_from_parameters."""
-    generator = jnp.zeros((dim, dim), dtype=float if real else complex)
+    mat = jnp.zeros((dim, dim), dtype=float if real else complex)
     n_triu = dim * (dim - 1) // 2
     if not real:
         # imaginary part
         rows, cols = jnp.triu_indices(dim)
         vals = 1j * params[n_triu:]
-        generator = generator.at[rows, cols].set(vals)
-        generator = generator.at[cols, rows].set(vals)
+        mat = mat.at[rows, cols].set(vals)
+        mat = mat.at[cols, rows].set(vals)
     # real part
     vals = params[:n_triu]
     rows, cols = jnp.triu_indices(dim, k=1)
-    generator = generator.at[rows, cols].add(vals)
+    mat = mat.at[rows, cols].add(vals)
     # the subtract method is only available in JAX starting with Python 3.10
-    generator = generator.at[cols, rows].add(-vals)
-    return generator
+    mat = mat.at[cols, rows].add(-vals)
+    return mat
 
 
 def antihermitians_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
