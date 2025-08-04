@@ -16,7 +16,7 @@ numpy = "0.21"
 pyo3 = { version = "0.21", features = [
     "extension-module",
     "num-complex",
-    "abi3-py310",
+    "abi3-py39",
 ] }
 num-integer = "0.1"
 
