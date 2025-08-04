@@ -508,5 +508,5 @@ def df_tensors_from_params_jax(
         dim=norb,
         n_mats=n_tensors,
         triu_indices=diag_coulomb_indices,
-    )
+    ).astype(float if real else complex)
     return diag_coulomb_mats, orbital_rotations
