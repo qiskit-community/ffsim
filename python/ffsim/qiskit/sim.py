@@ -696,8 +696,7 @@ def _evolve_state_vector_spinful(
         control, i, j = qubit_indices
         if (i < norb) != (j < norb):
             raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied on orbitals "
-                "of the same spin."
+                f"The target orbitals of '{op.__class__.__name__}' must be of the same spin."
             )
         vec = _apply_cswap(vec, control, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
