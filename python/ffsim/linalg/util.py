@@ -435,17 +435,9 @@ def df_tensors_to_params(
     Returns:
         The list of real numbers parameterizing the double-factorization tensors.
     """
-    orbital_rotation_params = np.concatenate(
-        [
-            unitary_to_parameters(orbital_rotation, real=real)
-            for orbital_rotation in orbital_rotations
-        ]
-    )
-    diag_coulomb_params = np.concatenate(
-        [
-            real_symmetric_to_parameters(mat, diag_coulomb_indices)
-            for mat in diag_coulomb_mats
-        ]
+    orbital_rotation_params = unitaries_to_parameters(orbital_rotations, real=real)
+    diag_coulomb_params = real_symmetrics_to_parameters(
+        diag_coulomb_mats, diag_coulomb_indices
     )
     return np.concatenate([orbital_rotation_params, diag_coulomb_params])
 
@@ -477,35 +469,18 @@ def df_tensors_from_params(
         second contains the orbital rotations.
     """
     n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
-    if diag_coulomb_indices is None:
-        n_params_per_diag_coulomb = norb * (norb + 1) // 2
-    else:
-        n_params_per_diag_coulomb = len(diag_coulomb_indices)
-
     n_params_orb_rot = n_tensors * n_params_per_orb_rot
     orbital_rotation_params = params[:n_params_orb_rot]
     diag_coulomb_params = params[n_params_orb_rot:]
-
-    orbital_rotations = np.zeros(
-        (n_tensors, norb, norb), dtype=float if real else complex
+    orbital_rotations = unitaries_from_parameters(
+        orbital_rotation_params, dim=norb, n_mats=n_tensors, real=real
     )
-    diag_coulomb_mats = np.zeros((n_tensors, norb, norb))
-    for i in range(n_tensors):
-        orbital_rotations[i] = unitary_from_parameters(
-            orbital_rotation_params[
-                i * n_params_per_orb_rot : (i + 1) * n_params_per_orb_rot
-            ],
-            norb,
-            real=real,
-        )
-        diag_coulomb_mats[i] = real_symmetric_from_parameters(
-            diag_coulomb_params[
-                i * n_params_per_diag_coulomb : (i + 1) * n_params_per_diag_coulomb
-            ],
-            norb,
-            diag_coulomb_indices,
-        )
-
+    diag_coulomb_mats = real_symmetrics_from_parameters(
+        diag_coulomb_params,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=diag_coulomb_indices,
+    )
     return diag_coulomb_mats, orbital_rotations
 
 
@@ -518,40 +493,16 @@ def df_tensors_from_params_jax(
 ) -> tuple[jax.Array, jax.Array]:
     """JAX version of df_tensors_from_params."""
     n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
-    if diag_coulomb_indices is None:
-        n_params_per_diag_coulomb = norb * (norb + 1) // 2
-    else:
-        n_params_per_diag_coulomb = len(diag_coulomb_indices)
-
     n_params_orb_rot = n_tensors * n_params_per_orb_rot
     orbital_rotation_params = params[:n_params_orb_rot]
     diag_coulomb_params = params[n_params_orb_rot:]
-
-    orbital_rotations = jnp.zeros(
-        (n_tensors, norb, norb), dtype=float if real else complex
+    orbital_rotations = unitaries_from_parameters_jax(
+        orbital_rotation_params, dim=norb, n_mats=n_tensors, real=real
     )
-    diag_coulomb_mats = jnp.zeros(
-        (n_tensors, norb, norb), dtype=float if real else complex
+    diag_coulomb_mats = real_symmetrics_from_parameters_jax(
+        diag_coulomb_params,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=diag_coulomb_indices,
     )
-
-    for i in range(n_tensors):
-        orbital_rotations = orbital_rotations.at[i].set(
-            unitary_from_parameters_jax(
-                orbital_rotation_params[
-                    i * n_params_per_orb_rot : (i + 1) * n_params_per_orb_rot
-                ],
-                norb,
-                real=real,
-            )
-        )
-        diag_coulomb_mats = diag_coulomb_mats.at[i].set(
-            real_symmetric_from_parameters_jax(
-                diag_coulomb_params[
-                    i * n_params_per_diag_coulomb : (i + 1) * n_params_per_diag_coulomb
-                ],
-                norb,
-                diag_coulomb_indices,
-            )
-        )
-
     return diag_coulomb_mats, orbital_rotations
