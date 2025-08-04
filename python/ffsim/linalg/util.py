@@ -91,7 +91,8 @@ def antihermitian_from_parameters_jax(
     vals = params[:n_triu]
     rows, cols = jnp.triu_indices(dim, k=1)
     mat = mat.at[rows, cols].add(vals)
-    mat = mat.at[cols, rows].subtract(vals)
+    # the subtract method is only available in JAX starting with Python 3.10
+    mat = mat.at[cols, rows].add(-vals)
     return mat
 
 
@@ -174,7 +175,8 @@ def antihermitians_from_parameters_jax(
     vals = params[:, :n_triu]
     rows, cols = jnp.triu_indices(dim, k=1)
     mats = mats.at[:, rows, cols].add(vals)
-    mats = mats.at[:, cols, rows].subtract(vals)
+    # the subtract method is only available in JAX starting with Python 3.10
+    mats = mats.at[:, cols, rows].add(-vals)
     return mats
 
 
