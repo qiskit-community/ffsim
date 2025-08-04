@@ -883,8 +883,7 @@ def _apply_cswap(
 ) -> np.ndarray:
     if copy:
         vec = vec.copy()
-    addresses = np.arange(len(vec))
-    strings = states.addresses_to_strings(addresses, norb=norb, nelec=nelec)
+    strings = states.addresses_to_strings(np.arange(len(vec)), norb=norb, nelec=nelec)
     strings = np.asarray(strings, dtype=int)
     i, j = target_orbs
     control_bits = (strings >> control) & 1
@@ -893,8 +892,8 @@ def _apply_cswap(
     mask = (control_bits == 1) & (target_i_bits != target_j_bits)
     swap_mask = (1 << i) | (1 << j)
     strings[mask] ^= swap_mask
-    new_addresses = states.strings_to_addresses(strings, norb=norb, nelec=nelec)
-    return vec[new_addresses]
+    addresses = states.strings_to_addresses(strings, norb=norb, nelec=nelec)
+    return vec[addresses]
 
 
 def _apply_xx_plus_yy(
