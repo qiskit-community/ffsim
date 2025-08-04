@@ -334,6 +334,85 @@ def real_symmetric_from_parameters_jax(
     return mat
 
 
+def real_symmetrics_to_parameters(
+    mats: np.ndarray, triu_indices: list[tuple[int, int]] | None = None
+) -> np.ndarray:
+    """Convert a batch of real symmetric matrices to parameters.
+
+    Converts an array of real symmetric matrices to a real-valued parameter vector.
+
+    Args:
+        mats: The batch of real symmetric matrices, with shape (n_mats, dim, dim).
+        triu_indices: Upper triangular indices to take values from. If not given,
+            the entire upper triangle is taken.
+
+    Returns:
+        The list of real numbers parameterizing the real symmetric matrices.
+    """
+    n_mats, dim, _ = mats.shape
+    if triu_indices is None:
+        rows, cols = np.triu_indices(dim)
+    else:
+        rows, cols = zip(*triu_indices)  # type: ignore
+    n_params_per_mat = len(rows)
+    params = np.zeros((n_mats, n_params_per_mat))
+    params[:, :] = mats[:, rows, cols]
+    return params.reshape(-1)
+
+
+def real_symmetrics_from_parameters(
+    params: np.ndarray,
+    dim: int,
+    n_mats: int,
+    triu_indices: list[tuple[int, int]] | None = None,
+) -> np.ndarray:
+    """Construct a batch of real symmetric matrices from parameters.
+
+    Converts a real-valued parameter vector to an array of real symmetric matrices.
+
+    Args:
+        params: The 1D real-valued parameters.
+        dim: The width and height of each matrix.
+        n_mats: The number of matrices in the batch.
+        triu_indices: Upper triangular indices to place the parameters. If not given,
+            the entire upper triangle is used.
+
+    Returns:
+        The array of real symmetric matrices, with shape (n_mats, dim, dim).
+    """
+    if triu_indices is None:
+        rows, cols = np.triu_indices(dim)
+        n_params_per_mat = dim * (dim + 1) // 2
+    else:
+        rows, cols = zip(*triu_indices)  # type: ignore
+        n_params_per_mat = len(triu_indices)
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = np.zeros((n_mats, dim, dim))
+    mats[:, rows, cols] = params
+    mats[:, cols, rows] = params
+    return mats
+
+
+def real_symmetrics_from_parameters_jax(
+    params: np.ndarray,
+    dim: int,
+    n_mats: int,
+    triu_indices: list[tuple[int, int]] | None = None,
+) -> jax.Array:
+    """JAX version of real_symmetrics_from_parameters."""
+    if triu_indices is None:
+        rows, cols = jnp.triu_indices(dim)
+        n_params_per_mat = dim * (dim + 1) // 2
+    else:
+        rows, cols = zip(*triu_indices)  # type: ignore
+        n_params_per_mat = len(triu_indices)
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = jnp.zeros((n_mats, dim, dim))
+    mats = mats.at[:, rows, cols].set(params)
+    mats = mats.at[:, cols, rows].set(params)
+    return mats
+
+
 def df_tensors_to_params(
     diag_coulomb_mats: np.ndarray,
     orbital_rotations: np.ndarray,

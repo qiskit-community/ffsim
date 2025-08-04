@@ -27,6 +27,9 @@ from ffsim.linalg.util import (
     real_symmetric_from_parameters,
     real_symmetric_from_parameters_jax,
     real_symmetric_to_parameters,
+    real_symmetrics_from_parameters,
+    real_symmetrics_from_parameters_jax,
+    real_symmetrics_to_parameters,
     unitaries_from_parameters,
     unitaries_from_parameters_jax,
     unitaries_to_parameters,
@@ -329,6 +332,117 @@ def test_df_tensors_parameters_custom_indices(n_tensors: int, norb: int, real: b
         diag_coulomb_mats, orbital_rotations, diag_coulomb_indices, real=real
     )
     np.testing.assert_allclose(params, params_roundtrip)
+
+
+@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_symmetrics_parameters(dim: int, n_mats: int):
+    """Test parameterizing batch of real symmetric matrices."""
+    mats = np.stack(
+        [
+            ffsim.random.random_real_symmetric_matrix(dim, seed=RNG)
+            for _ in range(n_mats)
+        ]
+    )
+
+    params = real_symmetrics_to_parameters(mats)
+    mats_roundtrip = real_symmetrics_from_parameters(params, dim, n_mats)
+    np.testing.assert_allclose(mats_roundtrip, mats)
+
+    n_params_per_mat = dim * (dim + 1) // 2
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total)
+    mats = real_symmetrics_from_parameters(params, dim, n_mats)
+    params_roundtrip = real_symmetrics_to_parameters(mats)
+    np.testing.assert_allclose(params_roundtrip, params)
+    for i in range(n_mats):
+        assert ffsim.linalg.is_real_symmetric(mats[i])
+
+
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_symmetrics_parameters_custom_indices(dim: int, n_mats: int):
+    """Test parameterizing batch of real symmetric matrices with custom indices."""
+    triu_indices = [(p, p) for p in range(dim)]
+    triu_indices.extend([(p, p + 1) for p in range(dim - 1)])
+    rows, cols = zip(*triu_indices)
+    triu_mask = np.zeros((dim, dim), dtype=bool)
+    triu_mask[rows, cols] = True
+    triu_mask[cols, rows] = True
+
+    mats = np.stack(
+        [
+            ffsim.random.random_real_symmetric_matrix(dim, seed=RNG)
+            for _ in range(n_mats)
+        ]
+    )
+    params = real_symmetrics_to_parameters(mats, triu_indices)
+    mats_roundtrip = real_symmetrics_from_parameters(params, dim, n_mats, triu_indices)
+    np.testing.assert_allclose(mats_roundtrip, mats * triu_mask)
+
+    n_params_per_mat = len(triu_indices)
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total)
+    mats = real_symmetrics_from_parameters(params, dim, n_mats, triu_indices)
+    params_roundtrip = real_symmetrics_to_parameters(mats, triu_indices)
+    np.testing.assert_allclose(params_roundtrip, params)
+    for i in range(n_mats):
+        assert ffsim.linalg.is_real_symmetric(mats[i])
+
+
+@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_symmetrics_parameters_jax_consistent(dim: int, n_mats: int):
+    """Test JAX and NumPy versions of batch symmetric matrices give same results."""
+    n_params_per_mat = dim * (dim + 1) // 2
+    params = RNG.normal(size=n_mats * n_params_per_mat)
+    mats_numpy = real_symmetrics_from_parameters(params, dim, n_mats)
+    mats_jax = real_symmetrics_from_parameters_jax(params, dim, n_mats)
+    np.testing.assert_allclose(mats_jax, mats_numpy)
+
+
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_symmetrics_parameters_custom_indices_jax_consistent(
+    dim: int, n_mats: int
+):
+    """Test JAX and NumPy versions give same results."""
+    triu_indices = [(p, p) for p in range(dim)]
+    triu_indices.extend([(p, p + 1) for p in range(dim - 1)])
+    n_params_per_mat = len(triu_indices)
+    params = RNG.normal(size=n_mats * n_params_per_mat)
+    mats_numpy = real_symmetrics_from_parameters(params, dim, n_mats, triu_indices)
+    mats_jax = real_symmetrics_from_parameters_jax(params, dim, n_mats, triu_indices)
+    np.testing.assert_allclose(mats_jax, mats_numpy)
+
+
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_symmetrics_consistent(dim: int, n_mats: int):
+    """Test that batch function gives same result as single matrix functions."""
+    mats = np.array(
+        [
+            ffsim.random.random_real_symmetric_matrix(dim, seed=RNG)
+            for _ in range(n_mats)
+        ]
+    )
+
+    params_batch = real_symmetrics_to_parameters(mats)
+    params_individual = np.concatenate(
+        [real_symmetric_to_parameters(mats[i]) for i in range(n_mats)]
+    )
+    np.testing.assert_allclose(params_batch, params_individual)
+
+    n_params_per_mat = dim * (dim + 1) // 2
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total)
+    mats_batch = real_symmetrics_from_parameters(params, dim, n_mats)
+    mats_individual = np.zeros_like(mats_batch)
+    for i in range(n_mats):
+        mats_individual[i] = real_symmetric_from_parameters(
+            params[i * n_params_per_mat : (i + 1) * n_params_per_mat], dim
+        )
+    np.testing.assert_allclose(mats_batch, mats_individual)
 
 
 @pytest.mark.parametrize("n_tensors", range(1, 4))
