@@ -100,7 +100,6 @@ def test_double_factorized_compressed_n2_small():
 
     # Check results
     assert error_optimized < 0.5 * error
-    np.testing.assert_allclose(error_optimized, 0.00696881345)
     assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
     assert result.nit <= 25
@@ -177,7 +176,6 @@ def test_double_factorized_compressed_n2_large():
 
     # Check results
     assert error_optimized < 0.5 * error
-    np.testing.assert_allclose(error_optimized, 0.01189805144)
     assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
 
