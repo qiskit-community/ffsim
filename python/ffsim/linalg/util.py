@@ -77,7 +77,7 @@ def antihermitian_from_parameters(
 
 def antihermitian_from_parameters_jax(
     params: np.ndarray, dim: int, real: bool = False
-) -> np.ndarray:
+) -> jax.Array:
     """JAX version of antihermitian_from_parameters."""
     mat = jnp.zeros((dim, dim), dtype=float if real else complex)
     n_triu = dim * (dim - 1) // 2
@@ -154,6 +154,29 @@ def antihermitians_from_parameters(
     rows, cols = np.triu_indices(dim, k=1)
     mats[:, rows, cols] += vals
     mats[:, cols, rows] -= vals
+    return mats
+
+
+def antihermitians_from_parameters_jax(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> jax.Array:
+    """JAX version of antihermitians_from_parameters."""
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = jnp.zeros((n_mats, dim, dim), dtype=float if real else complex)
+    n_triu = dim * (dim - 1) // 2
+    if not real:
+        # imaginary part
+        rows, cols = jnp.triu_indices(dim)
+        vals = 1j * params[:, n_triu:]
+        mats = mats.at[:, rows, cols].set(vals)
+        mats = mats.at[:, cols, rows].set(vals)
+    # real part
+    vals = params[:, :n_triu]
+    rows, cols = jnp.triu_indices(dim, k=1)
+    mats = mats.at[:, rows, cols].add(vals)
+    # the subtract method is only available in JAX starting with Python 3.10
+    mats = mats.at[:, cols, rows].add(-vals)
     return mats
 
 
@@ -240,6 +263,15 @@ def unitaries_from_parameters(
     """
     return scipy.linalg.expm(
         antihermitians_from_parameters(params, dim, n_mats, real=real)
+    )
+
+
+def unitaries_from_parameters_jax(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> jax.Array:
+    """JAX version of unitaries_from_parameters."""
+    return jax.scipy.linalg.expm(
+        antihermitians_from_parameters_jax(params, dim, n_mats, real=real)
     )
 
 

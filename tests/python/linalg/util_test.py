@@ -19,6 +19,7 @@ from ffsim.linalg.util import (
     antihermitian_from_parameters_jax,
     antihermitian_to_parameters,
     antihermitians_from_parameters,
+    antihermitians_from_parameters_jax,
     antihermitians_to_parameters,
     df_tensors_from_params,
     df_tensors_from_params_jax,
@@ -27,6 +28,7 @@ from ffsim.linalg.util import (
     real_symmetric_from_parameters_jax,
     real_symmetric_to_parameters,
     unitaries_from_parameters,
+    unitaries_from_parameters_jax,
     unitaries_to_parameters,
     unitary_from_parameters,
     unitary_from_parameters_jax,
@@ -57,7 +59,7 @@ def test_antihermitian_parameters(dim: int, real: bool):
 
 @pytest.mark.parametrize("dim", range(1, 5))
 @pytest.mark.parametrize("real", [True, False])
-def test_antihermiain_parameters_jax_consistent(dim: int, real: bool):
+def test_antihermitian_parameters_jax_consistent(dim: int, real: bool):
     """Test JAX and NumPy versions of parameterizing antihermitian give same results."""
     n_params = dim * (dim - 1) // 2 if real else dim**2
     params = RNG.normal(size=n_params)
@@ -66,10 +68,10 @@ def test_antihermiain_parameters_jax_consistent(dim: int, real: bool):
     np.testing.assert_allclose(mat_jax, mat_numpy)
 
 
-@pytest.mark.parametrize("n_mats", range(1, 4))
 @pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
 @pytest.mark.parametrize("real", [True, False])
-def test_antihermitians_parameters(n_mats: int, dim: int, real: bool):
+def test_antihermitians_parameters(dim: int, n_mats: int, real: bool):
     """Test parameterizing batch of antihermitian matrices."""
     mats = np.stack(
         [ffsim.random.random_antihermitian(dim, seed=RNG) for _ in range(n_mats)]
@@ -91,10 +93,22 @@ def test_antihermitians_parameters(n_mats: int, dim: int, real: bool):
         assert ffsim.linalg.is_antihermitian(mats[i])
 
 
-@pytest.mark.parametrize("n_mats", range(1, 4))
 @pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
 @pytest.mark.parametrize("real", [True, False])
-def test_antihermitians_consistent(n_mats: int, dim: int, real: bool):
+def test_antihermitians_parameters_jax_consistent(dim: int, n_mats: int, real: bool):
+    """Test JAX and NumPy versions of parameterizing antihermitian give same results."""
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    params = RNG.normal(size=n_mats * n_params_per_mat)
+    mat_numpy = antihermitians_from_parameters(params, dim, n_mats, real=real)
+    mat_jax = antihermitians_from_parameters_jax(params, dim, n_mats, real=real)
+    np.testing.assert_allclose(mat_jax, mat_numpy)
+
+
+@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+@pytest.mark.parametrize("real", [True, False])
+def test_antihermitians_consistent(dim: int, n_mats: int, real: bool):
     """Test that batch function gives same result as single matrix functions."""
     mats = np.array(
         [ffsim.random.random_antihermitian(dim, seed=RNG) for _ in range(n_mats)]
@@ -152,10 +166,10 @@ def test_unitary_parameters_jax_consistent(dim: int, real: bool):
     np.testing.assert_allclose(mat_jax, mat_numpy)
 
 
-@pytest.mark.parametrize("n_mats", range(1, 4))
 @pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
 @pytest.mark.parametrize("real", [True, False])
-def test_unitaries_parameters(n_mats: int, dim: int, real: bool):
+def test_unitaries_parameters(dim: int, n_mats: int, real: bool):
     """Test parameterizing batch of unitary matrices."""
     mats = np.stack([ffsim.random.random_unitary(dim, seed=RNG) for _ in range(n_mats)])
     if real:
@@ -178,10 +192,22 @@ def test_unitaries_parameters(n_mats: int, dim: int, real: bool):
         assert ffsim.linalg.is_unitary(mats[i])
 
 
+@pytest.mark.parametrize("dim", range(5))
 @pytest.mark.parametrize("n_mats", range(1, 4))
-@pytest.mark.parametrize("dim", range(1, 5))
 @pytest.mark.parametrize("real", [True, False])
-def test_unitaries_consistent(n_mats: int, dim: int, real: bool):
+def test_unitaries_parameters_jax_consistent(dim: int, n_mats: int, real: bool):
+    """Test JAX and NumPy versions of parameterizing antihermitian give same results."""
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    params = RNG.normal(size=n_mats * n_params_per_mat, scale=0.1)
+    mat_numpy = unitaries_from_parameters(params, dim, n_mats, real=real)
+    mat_jax = unitaries_from_parameters_jax(params, dim, n_mats, real=real)
+    np.testing.assert_allclose(mat_jax, mat_numpy)
+
+
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+@pytest.mark.parametrize("real", [True, False])
+def test_unitaries_consistent(dim: int, n_mats: int, real: bool):
     """Test that batch function gives same result as single matrix functions."""
     mats = np.array([ffsim.random.random_unitary(dim, seed=RNG) for _ in range(n_mats)])
     if real:
