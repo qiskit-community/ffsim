@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+from typing import Dict, Tuple
+
 import dataclasses
 import itertools
 from functools import cached_property
@@ -186,6 +188,88 @@ class MolecularHamiltonian(
                 }
             )
         return op
+    
+
+    @staticmethod
+    def from_fermion_operator(op: FermionOperator) -> MolecularHamiltonian:
+        """Convert a FermionOperator to a MolecularHamiltonian."""
+        # extract number of spatial orbitals
+        norb = 1 + max(orb for term in op for _, _, orb in term)
+
+        # initialize constant, one‑ and two‑body tensors
+        constant: float = 0.0
+        one_body_tensor = np.zeros((norb, norb), dtype=complex)
+        two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
+
+        # track which (p,q,r,s) we've already processed
+        seen_2b = set()
+
+        for term, coeff in op.items():
+            # constant term: empty tuple
+            if len(term) == 0:
+                if coeff.imag:
+                    raise ValueError(f"Constant term must be real. Instead, got {coeff}.")
+                constant = coeff.real
+
+
+            # one‑body term: a†_σ,p a_σ,q  (σ = α or β)
+            elif len(term) == 2:
+                (_, _, p), (_, _, q) = term
+                valid_1b = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
+                if term in valid_1b:
+                    one_body_tensor[p, q] += 0.5 * coeff
+                else:
+                    raise ValueError(
+                        "FermionOperator cannot be converted to "
+                        f"MolecularHamiltonian. The one-body term {term} is not "
+                        "of the form a^\\dagger_{\\sigma, p} a_{\\sigma, q}."
+                    )
+
+            # two‑body term: a†_σ,p a†_τ,r a_τ,s a_σ,q
+            elif len(term) == 4:
+                (_, _, p), (_, _, r), (_, _, s), (_, _, q) = term
+
+                valid_2b = [
+                    (cre_a(p), cre_a(r), des_a(s), des_a(q)),
+                    (cre_a(p), cre_b(r), des_b(s), des_a(q)),
+                    (cre_b(p), cre_a(r), des_a(s), des_b(q)),
+                    (cre_b(p), cre_b(r), des_b(s), des_b(q)),
+                ]
+                if term not in valid_2b:
+                    raise ValueError(
+                        "FermionOperator cannot be converted to "
+                        f"MolecularHamiltonian. The two-body term {term} is not "
+                        "of the form a^{\\dagger}_{\\sigma, p} a^{\\dagger}_{\\sigma, r} a_{\\sigma, s} a_{\\sigma, q}, or "
+                        "a^{\\dagger}_{\\sigma, p} a^{\\dagger}_{\\tau, r} a_{\\tau, s} a_{\\sigma, q}."
+                    )
+
+                key = (p, q, r, s)
+                if key not in seen_2b:
+
+                    h_pqrs = 2.0 * coeff
+                    # fill (p,q,r,s) and its 7 symmetric equivalents
+                    for a, b, c, d in [
+                        (p, q, r, s), (q, p, r, s),
+                        (p, q, s, r), (q, p, s, r),
+                        (r, s, p, q), (s, r, p, q),
+                        (r, s, q, p), (s, r, q, p),
+                    ]:
+                        two_body_tensor[a, b, c, d] = h_pqrs
+
+            # more terms
+            else:
+                raise ValueError(
+                    "FermionOperator cannot be converted to MolecularHamiltonian."
+                    f" The term {term} is neither a constant, one-body, or two-body "
+                    "term."
+                )
+
+
+        return MolecularHamiltonian(
+            one_body_tensor=one_body_tensor,
+            two_body_tensor=two_body_tensor,
+            constant=constant,
+        )
 
     def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
         if isinstance(other, MolecularHamiltonian):
