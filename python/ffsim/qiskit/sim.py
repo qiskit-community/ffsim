@@ -25,6 +25,7 @@ from qiskit.circuit.library import (
     CRZGate,
     CSdgGate,
     CSGate,
+    CSwapGate,
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
@@ -368,6 +369,11 @@ def _evolve_state_vector_spinless(
         vec = _apply_swap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, CSwapGate):
+        control, i, j = qubit_indices
+        vec = _apply_cswap(vec, control, (i, j), norb=norb, nelec=nelec, copy=False)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, iSwapGate):
         i, j = qubit_indices
         vec = _apply_iswap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
@@ -686,6 +692,16 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, CSwapGate):
+        control, i, j = qubit_indices
+        if (i < norb) != (j < norb):
+            raise ValueError(
+                f"The target orbitals of '{op.__class__.__name__}' must be "
+                "of the same spin."
+            )
+        vec = _apply_cswap(vec, control, (i, j), norb=norb, nelec=nelec, copy=False)
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, iSwapGate):
         i, j = qubit_indices
         if (i < norb) != (j < norb):
@@ -854,6 +870,30 @@ def _apply_iswap(
     )
     vec = _apply_swap_defect(vec, (i, j), norb=norb, nelec=nelec, spin=spin, copy=False)
     return vec
+
+
+def _apply_cswap(
+    vec: np.ndarray,
+    control: int,
+    target_orbs: tuple[int, int],
+    norb: int,
+    nelec: int | tuple[int, int],
+    *,
+    copy: bool = True,
+) -> np.ndarray:
+    if copy:
+        vec = vec.copy()
+    strings = states.addresses_to_strings(np.arange(len(vec)), norb=norb, nelec=nelec)
+    strings = np.asarray(strings, dtype=int)
+    i, j = target_orbs
+    control_bits = (strings >> control) & 1
+    target_i_bits = (strings >> i) & 1
+    target_j_bits = (strings >> j) & 1
+    mask = (control_bits == 1) & (target_i_bits != target_j_bits)
+    swap_mask = (1 << i) | (1 << j)
+    strings[mask] ^= swap_mask
+    addresses = states.strings_to_addresses(strings, norb=norb, nelec=nelec)
+    return vec[addresses]
 
 
 def _apply_xx_plus_yy(
