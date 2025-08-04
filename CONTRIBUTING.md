@@ -47,7 +47,7 @@ tox run -e <environment name>
 
 substituting `<environment name>` with the name of the tox environment for the check. The following environments are available:
 
-- `py311`, `py312`, `py313`: Run tests for a specific Python version
+- `py38`, `py39`, `py310`, `py311`, `py312`: Run tests for a specific Python version
 - `coverage`: Code coverage
 - `type`: Type check
 - `lint`: Lint check
