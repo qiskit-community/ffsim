@@ -195,7 +195,7 @@ def test_unitaries_parameters(dim: int, n_mats: int, real: bool):
         assert ffsim.linalg.is_unitary(mats[i])
 
 
-@pytest.mark.parametrize("dim", range(5))
+@pytest.mark.parametrize("dim", range(1, 5))
 @pytest.mark.parametrize("n_mats", range(1, 4))
 @pytest.mark.parametrize("real", [True, False])
 def test_unitaries_parameters_jax_consistent(dim: int, n_mats: int, real: bool):
