@@ -696,7 +696,8 @@ def _evolve_state_vector_spinful(
         control, i, j = qubit_indices
         if (i < norb) != (j < norb):
             raise ValueError(
-                f"The target orbitals of '{op.__class__.__name__}' must be of the same spin."
+                f"The target orbitals of '{op.__class__.__name__}' must be "
+                "of the same spin."
             )
         vec = _apply_cswap(vec, control, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
@@ -886,17 +887,14 @@ def _apply_cswap(
     strings = states.addresses_to_strings(addresses, norb=norb, nelec=nelec)
     strings = np.asarray(strings, dtype=int)
     i, j = target_orbs
-    c = control
-    control_bits = (strings >> c) & 1
+    control_bits = (strings >> control) & 1
     target_i_bits = (strings >> i) & 1
     target_j_bits = (strings >> j) & 1
     mask = (control_bits == 1) & (target_i_bits != target_j_bits)
     swap_mask = (1 << i) | (1 << j)
     strings[mask] ^= swap_mask
     new_addresses = states.strings_to_addresses(strings, norb=norb, nelec=nelec)
-    new_vec = np.empty_like(vec)
-    new_vec[new_addresses] = vec
-    return new_vec
+    return vec[new_addresses]
 
 
 def _apply_xx_plus_yy(
