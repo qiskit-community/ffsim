@@ -24,6 +24,7 @@ from qiskit.circuit.library import (
     CRZGate,
     CSdgGate,
     CSGate,
+    CSwapGate,
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
@@ -203,6 +204,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(CSdgGate(), [qubits[i], qubits[j]])
     for i, j, k in prng.choices(triples, k=len(triples) // 2):
         circuit.append(CCZGate(), [qubits[i], qubits[j], qubits[k]])
+    for c, i, j in prng.choices(triples, k=len(triples) // 2):
+        if (i < norb) == (j < norb):
+            circuit.append(CSwapGate(), [qubits[c], qubits[i], qubits[j]])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
         circuit.append(iSwapGate(), [qubits[norb + i], qubits[norb + j]])
@@ -283,6 +287,8 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         circuit.append(iSwapGate(), [qubits[i], qubits[j]])
     for i, j, k in prng.choices(triples, k=len(triples) // 2):
         circuit.append(CCZGate(), [qubits[i], qubits[j], qubits[k]])
+    for c, i, j in prng.choices(triples, k=len(triples) // 2):
+        circuit.append(CSwapGate(), [qubits[c], qubits[i], qubits[j]])
     for q in qubits:
         circuit.append(RZGate(rng.uniform(-10, 10)), [q])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
