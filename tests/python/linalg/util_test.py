@@ -25,6 +25,8 @@ from ffsim.linalg.util import (
     real_symmetric_from_parameters,
     real_symmetric_from_parameters_jax,
     real_symmetric_to_parameters,
+    unitaries_from_parameters,
+    unitaries_to_parameters,
     unitary_from_parameters,
     unitary_from_parameters_jax,
     unitary_to_parameters,
@@ -136,6 +138,59 @@ def test_unitary_parameters_jax_consistent(dim: int, real: bool):
     mat_numpy = unitary_from_parameters(params, dim, real=real)
     mat_jax = unitary_from_parameters_jax(params, dim, real=real)
     np.testing.assert_allclose(mat_jax, mat_numpy)
+
+
+@pytest.mark.parametrize("n_mats", range(1, 4))
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("real", [True, False])
+def test_unitaries_parameters(n_mats: int, dim: int, real: bool):
+    """Test parameterizing batch of unitary matrices."""
+    mats = np.stack([ffsim.random.random_unitary(dim, seed=RNG) for _ in range(n_mats)])
+    if real:
+        mats = mats.real
+
+    if not real:
+        # Unitary doesn't roundtrip for real orthogonal matrices because the
+        # matrix logarithm has both real and imaginary parts
+        params = unitaries_to_parameters(mats, real=real)
+        mats_roundtrip = unitaries_from_parameters(params, dim, n_mats, real=real)
+        np.testing.assert_allclose(mats_roundtrip, mats)
+
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total, scale=0.1)
+    mats = unitaries_from_parameters(params, dim, n_mats, real=real)
+    params_roundtrip = unitaries_to_parameters(mats, real=real)
+    np.testing.assert_allclose(params_roundtrip, params)
+    for i in range(n_mats):
+        assert ffsim.linalg.is_unitary(mats[i])
+
+
+@pytest.mark.parametrize("n_mats", range(1, 4))
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("real", [True, False])
+def test_unitaries_consistent(n_mats: int, dim: int, real: bool):
+    """Test that batch function gives same result as single matrix functions."""
+    mats = np.array([ffsim.random.random_unitary(dim, seed=RNG) for _ in range(n_mats)])
+    if real:
+        mats = mats.real
+
+    params_batch = unitaries_to_parameters(mats, real=real)
+    params_individual = np.concatenate(
+        [unitary_to_parameters(mats[i], real=real) for i in range(n_mats)]
+    )
+    np.testing.assert_allclose(params_batch, params_individual)
+
+    n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total, scale=0.1)
+    mats_batch = unitaries_from_parameters(params, dim, n_mats, real=real)
+    mats_individual = np.zeros_like(mats_batch)
+    for i in range(n_mats):
+        mats_individual[i] = unitary_from_parameters(
+            params[i * n_params_per_mat : (i + 1) * n_params_per_mat], dim, real=real
+        )
+    np.testing.assert_allclose(mats_batch, mats_individual)
 
 
 @pytest.mark.parametrize("dim", range(5))

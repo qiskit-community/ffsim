@@ -81,7 +81,7 @@ def antihermitians_to_parameters(mats: np.ndarray, real: bool = False) -> np.nda
     Converts an array of antihermitian matrices to a real-valued parameter vector.
 
     Args:
-        mats: The batch of antihermitian matrices, with shape (n_mats, norb, norb).
+        mats: The batch of antihermitian matrices, with shape (n_mats, dim, dim).
         real: Whether to take only the real part of the matrices, and discard the
             imaginary part.
 
@@ -144,9 +144,9 @@ def unitary_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
     logarithm of the unitary.
 
     Args:
-        orbital_rotation: The unitary.
+        mat: The unitary.
         real: Whether to take only the real part of the matrix logarithm of the unitary,
-        and discard the imaginary part.
+            and discard the imaginary part.
 
     Returns:
         The list of real numbers parameterizing the unitary.
@@ -193,6 +193,47 @@ def unitary_from_parameters_jax(
     # the subtract method is only available in JAX starting with Python 3.10
     generator = generator.at[cols, rows].add(-vals)
     return jax.scipy.linalg.expm(generator)
+
+
+def unitaries_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
+    """Convert a batch of unitary matrices to parameters.
+
+    Converts an array of unitaries to a real-valued parameter vector. The parameter
+    vector contains non-redundant real and imaginary parts of the elements of the matrix
+    logarithms of the unitaries.
+
+    Args:
+        mats: The batch of unitary matrices, with shape (n_mats, dim, dim).
+        real: Whether to take only the real part of the matrix logarithm of the unitary,
+            and discard the imaginary part.
+
+    Returns:
+        The list of real numbers parameterizing the unitaries.
+    """
+    return antihermitians_to_parameters(scipy.linalg.logm(mats), real=real)
+
+
+def unitaries_from_parameters(
+    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+) -> np.ndarray:
+    """Construct a batch of unitary matrices from parameters.
+
+    Converts a real-valued parameter vector to an array of unitary matrices.
+    The parameter vector contains non-redundant real and imaginary parts of the elements
+    of the matrix logarithms of the unitary matrices.
+
+    Args:
+        params: The real-valued parameters.
+        dim: The width and height of the unitary matrix.
+        n_mats: The number of matrices in the batch.
+        real: Whether the parameter vector describes a real-valued unitary matrix.
+
+    Returns:
+        The array of unitary matrices, with shape (n_mats, dim, dim).
+    """
+    return scipy.linalg.expm(
+        antihermitians_from_parameters(params, dim, n_mats, real=real)
+    )
 
 
 def real_symmetric_to_parameters(
