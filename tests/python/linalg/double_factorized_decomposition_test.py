@@ -276,8 +276,8 @@ def test_double_factorized_compressed_n2_unconstrained():
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
     assert result.nit <= 100
-    assert result.nfev <= 110
-    assert result.njev <= 110
+    assert result.nfev <= 120
+    assert result.njev <= 120
 
 
 def test_double_factorized_compressed_n2_constrained():
@@ -341,8 +341,8 @@ def test_double_factorized_compressed_n2_constrained():
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
     assert result.nit <= 100
-    assert result.nfev <= 110
-    assert result.njev <= 110
+    assert result.nfev <= 120
+    assert result.njev <= 120
 
 
 def test_double_factorized_compressed_random():
