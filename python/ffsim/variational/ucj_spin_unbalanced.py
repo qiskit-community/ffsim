@@ -19,10 +19,9 @@ from typing import cast
 import numpy as np
 
 from ffsim import gates, linalg, protocols
+from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
 from ffsim.variational.util import (
-    orbital_rotation_from_parameters,
     orbital_rotation_from_t1_amplitudes,
-    orbital_rotation_to_parameters,
     validate_interaction_pairs,
 )
 
@@ -288,7 +287,7 @@ class UCJOpSpinUnbalanced(
             # Orbital rotations
             n_params = norb**2
             for this_orbital_rotation in orbital_rotation:
-                this_orbital_rotation[:] = orbital_rotation_from_parameters(
+                this_orbital_rotation[:] = unitary_from_parameters(
                     params[index : index + n_params], norb
                 )
                 index += n_params
@@ -316,7 +315,7 @@ class UCJOpSpinUnbalanced(
             final_orbital_rotation = np.zeros((2, norb, norb), dtype=complex)
             n_params = norb**2
             for this_orbital_rotation in final_orbital_rotation:
-                this_orbital_rotation[:] = orbital_rotation_from_parameters(
+                this_orbital_rotation[:] = unitary_from_parameters(
                     params[index : index + n_params], norb
                 )
                 index += n_params
@@ -399,7 +398,7 @@ class UCJOpSpinUnbalanced(
             # Orbital rotations
             n_params = norb**2
             for this_orbital_rotation in orbital_rotation:
-                params[index : index + n_params] = orbital_rotation_to_parameters(
+                params[index : index + n_params] = unitary_to_parameters(
                     this_orbital_rotation
                 )
                 index += n_params
@@ -418,7 +417,7 @@ class UCJOpSpinUnbalanced(
         if self.final_orbital_rotation is not None:
             n_params = norb**2
             for this_orbital_rotation in self.final_orbital_rotation:
-                params[index : index + n_params] = orbital_rotation_to_parameters(
+                params[index : index + n_params] = unitary_to_parameters(
                     this_orbital_rotation
                 )
                 index += n_params
