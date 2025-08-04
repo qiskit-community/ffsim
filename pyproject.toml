@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "ffsim"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 version = "0.0.58.dev"
 description = "Faster simulations of fermionic quantum circuits."
 readme = "README.md"
@@ -13,7 +13,6 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -84,7 +83,7 @@ include = [
 select = ["E", "F", "I", "N", "NPY", "NPY201"]
 
 [tool.cibuildwheel]
-build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
+build = "cp311-macosx* cp311-manylinux_x86_64 cp311-manylinux_aarch64"
 test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
