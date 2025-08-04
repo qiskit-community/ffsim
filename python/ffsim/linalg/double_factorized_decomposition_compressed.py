@@ -181,7 +181,7 @@ def double_factorized_t2_compressed(
                     orbital_rotations.conj(),
                     orbital_rotations,
                     orbital_rotations.conj(),
-                    # optimize="greedy"
+                    optimize="greedy",
                 )[:nocc, :nocc, nocc:, nocc:]
             )
             diff = reconstructed - t2
