@@ -289,7 +289,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">opt_einsum</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.linalg.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">antihermitian_from_parameters</span><span class="p">,</span>
+    <span class="n">antihermitians_from_parameters</span><span class="p">,</span>
     <span class="n">df_tensors_from_params</span><span class="p">,</span>
     <span class="n">df_tensors_to_params</span><span class="p">,</span>
 <span class="p">)</span>
@@ -670,12 +670,10 @@
             <span class="n">orbital_rotations</span><span class="p">,</span>
             <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">generators</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">antihermitian_from_parameters</span><span class="p">(</span>
-                <span class="n">x</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">n_triu</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_triu</span><span class="p">],</span> <span class="n">norb</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tensors</span><span class="p">)</span>
-        <span class="p">]</span>
+        <span class="c1"># TODO this computation is redundant</span>
+        <span class="n">generators</span> <span class="o">=</span> <span class="n">antihermitians_from_parameters</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">[:</span> <span class="n">n_tensors</span> <span class="o">*</span> <span class="n">n_triu</span><span class="p">],</span> <span class="n">norb</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
         <span class="n">grad_generator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">_grad_generator</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">grad</span><span class="p">)</span>
