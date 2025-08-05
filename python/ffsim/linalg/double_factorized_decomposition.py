@@ -22,7 +22,7 @@ import scipy.optimize
 from opt_einsum import contract
 
 from ffsim.linalg.util import (
-    antihermitian_from_parameters,
+    antihermitians_from_parameters,
     df_tensors_from_params,
     df_tensors_to_params,
 )
@@ -397,12 +397,10 @@ def _double_factorized_compressed(
             orbital_rotations,
             optimize="greedy",
         )
-        generators = [
-            antihermitian_from_parameters(
-                x[i * n_triu : (i + 1) * n_triu], norb, real=True
-            )
-            for i in range(n_tensors)
-        ]
+        # TODO this computation is redundant
+        generators = antihermitians_from_parameters(
+            x[: n_tensors * n_triu], norb, n_tensors, real=True
+        )
         grad_generator = np.ravel(
             [
                 _grad_generator(log, grad)
