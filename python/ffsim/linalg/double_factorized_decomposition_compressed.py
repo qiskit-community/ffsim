@@ -168,7 +168,7 @@ def double_factorized_t2_compressed(
         diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
         orbital_rotations = orbital_rotations[:n_tensors]
 
-        def fun_jax(x):
+        def fun(x: np.ndarray):
             diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
                 x, n_tensors, norb, diag_coulomb_indices
             )
@@ -187,7 +187,7 @@ def double_factorized_t2_compressed(
             diff = reconstructed - t2
             return 0.5 * jnp.sum(jnp.abs(diff) ** 2)
 
-        value_and_grad_func = jax.value_and_grad(fun_jax)
+        value_and_grad_func = jax.value_and_grad(fun)
 
         x0 = df_tensors_to_params(
             diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
