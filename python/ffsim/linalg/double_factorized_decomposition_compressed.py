@@ -41,6 +41,8 @@ def double_factorized_t2_compressed(
     multi_stage_optimization: bool = ...,
     begin_reps: int | None = ...,
     step: int = ...,
+    regularization: bool = ...,
+    regularization_weight: float = ...,
     return_optimize_result: Literal[False] = False,
 ) -> tuple[np.ndarray, np.ndarray]: ...
 @overload
@@ -56,6 +58,8 @@ def double_factorized_t2_compressed(
     multi_stage_optimization: bool = ...,
     begin_reps: int | None = ...,
     step: int = ...,
+    regularization: bool = ...,
+    regularization_weight: float = ...,
     return_optimize_result: Literal[True],
 ) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]: ...
 def double_factorized_t2_compressed(
@@ -70,6 +74,8 @@ def double_factorized_t2_compressed(
     multi_stage_optimization: bool = False,
     begin_reps: int | None = None,
     step: int = 2,
+    regularization: bool = False,
+    regularization_weight: float = 1e-4,
     return_optimize_result: bool = False,
 ) -> (
     tuple[np.ndarray, np.ndarray]
@@ -126,6 +132,11 @@ def double_factorized_t2_compressed(
             `n_reps`.
         begin_reps: The starting point of the multi-stage optimization
         step: The step size for the multi-stage optimization
+        regularization: Whether to add a regularization term to minimize
+            .. math::
+                |\sum_{m=1}^n_{reps} ||\bar{Z}^{(mk)}_{pq}||_2 -
+                \sum_{m=1}^L \sum_{k=1}^2 ||Z^{(mk)}_{pq}||_2|
+        regularization_weight: The weight for the regularization term
         return_optimize_result: Whether to also return the `OptimizeResult`_ returned
             by `scipy.optimize.minimize`_.
 
@@ -150,6 +161,7 @@ def double_factorized_t2_compressed(
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
+    init_diag_coulomb_mats = diag_coulomb_mats
     n_reps_full, _, _ = orbital_rotations.shape
 
     if n_reps is None or n_reps_full < n_reps:
@@ -185,7 +197,17 @@ def double_factorized_t2_compressed(
                 )[:nocc, :nocc, nocc:, nocc:]
             )
             diff = reconstructed - t2
-            return 0.5 * jnp.sum(jnp.abs(diff) ** 2)
+            if regularization:
+                regularization_loss = jnp.array([0])
+                for diag_coulomb_mat in diag_coulomb_mats:
+                    regularization_loss += jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
+                for diag_coulomb_mat in init_diag_coulomb_mats:
+                    regularization_loss -= jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
+                return 0.5 * jnp.sum(
+                    jnp.abs(diff) ** 2
+                ) + regularization_weight * jnp.abs(regularization_loss)
+            else:
+                return 0.5 * jnp.sum(jnp.abs(diff) ** 2)
 
         value_and_grad_func = jax.value_and_grad(fun)
 
