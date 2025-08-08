@@ -379,13 +379,30 @@ class UCJOpSpinBalanced(
         ]
         | None = None,
         tol: float = 1e-8,
+        optimize: bool = False,
+        method: str = "L-BFGS-B",
+        callback=None,
+        options: dict | None = None,
+        multi_stage_optimization: bool = False,
+        begin_reps: int | None = None,
+        step: int = 2,
+        regularization: bool = False,
+        regularization_weight: float = 1e-4,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
         Performs a double-factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
-        specified number of ansatz repetitions. Terms are included in decreasing order
-        of the absolute value of the corresponding eigenvalue in the factorization.
+        specified number of ansatz repetitions. The default behavior of this routine
+        is to include terms in decreasing order of the absolute value of the
+        corresponding eigenvalue in the factorization.
+
+        Additionally, one can choose to compress the operator down to `n_reps` terms
+        while minimizing the difference with the original t2 amplitude with a least-
+        squares objective function.
+        This option is enabled by setting the `optimize` parameter to `True`.
+        It uses `scipy.optimize.minimize`, passing both the objective function
+        and its gradient.
 
         Args:
             t2: The t2 amplitudes.
@@ -413,6 +430,24 @@ class UCJOpSpinBalanced(
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
                 the reconstructed tensor.
+            optimize: Whether to optimize t2 amplitudes for n_reps.
+            method: The optimization method. See the documentation of
+                `scipy.optimize.minimize`_ for possible values.
+            callback: Callback function for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+            options: Options for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+            multi_stage_optimization: Iteratively reduce the number of ansatz
+                repetitions starting from full configuration if  `begin_reps` is not
+                given. In each iteration, the number of repetitions is reduced by `step`
+                until reaching `n_reps`.
+            begin_reps: The starting point of the multi-stage optimization
+            step: The step size for the multi-stage optimization
+            regularization: Whether to add a regularization term to minimize
+                .. math::
+                    |\sum_{m=1}^n_{reps} ||\bar{Z}^{(mk)}_{pq}||_2 -
+                    \sum_{m=1}^L \sum_{k=1}^2 ||Z^{(mk)}_{pq}||_2|
+            regularization_weight: The weight for the regularization term
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -429,11 +464,36 @@ class UCJOpSpinBalanced(
 
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
+        if optimize:
+            if pairs_aa is None and pairs_ab is None:
+                diag_coulomb_indices = None
+            else:
+                diag_coulomb_indices = list(set((pairs_aa or []) + (pairs_ab or [])))
+            diag_coulomb_mats, orbital_rotations = (
+                linalg.double_factorized_t2_compressed(
+                    t2,
+                    tol=tol,
+                    n_reps=n_reps,
+                    diag_coulomb_indices=diag_coulomb_indices,
+                    method=method,
+                    callback=callback,
+                    options=options,
+                    multi_stage_optimization=multi_stage_optimization,
+                    begin_reps=begin_reps,
+                    step=step,
+                    return_optimize_result=False,
+                    regularization=regularization,
+                    regularization_weight=regularization_weight,
+                )
+            )
+        else:
+            diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(
+                t2, tol=tol
+            )
+            diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
+            orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
-        diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(t2, tol=tol)
-        diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
-        orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
         n_vecs, _, _, _ = diag_coulomb_mats.shape
         if n_reps is not None and n_vecs < n_reps:
