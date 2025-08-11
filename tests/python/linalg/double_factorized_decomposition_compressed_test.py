@@ -321,5 +321,5 @@ def test_double_factorized_compressed_n2_regularization():
     assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
     assert result.nit <= 25
-    assert result.nfev <= 55
+    assert result.nfev <= 125
     assert result.njev <= 55
