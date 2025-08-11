@@ -386,8 +386,7 @@ class UCJOpSpinBalanced(
         multi_stage_optimization: bool = False,
         begin_reps: int | None = None,
         step: int = 2,
-        regularization: bool = False,
-        regularization_weight: float = 1e-4,
+        regularization: float = 0,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
@@ -443,14 +442,12 @@ class UCJOpSpinBalanced(
                 until reaching `n_reps`.
             begin_reps: The starting point of the multi-stage optimization
             step: The step size for the multi-stage optimization
-            regularization: Whether to add a regularization term to minimize
+            regularization: The weight for the regularization term to minimize
 
                 .. math::
-                
+
                     |\sum_{m=1}^n_{reps} ||\bar{Z}^{(mk)}_{pq}||_2 -
                     \sum_{m=1}^L \sum_{k=1}^2 ||Z^{(mk)}_{pq}||_2|
-
-            regularization_weight: The weight for the regularization term
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -486,7 +483,6 @@ class UCJOpSpinBalanced(
                     step=step,
                     return_optimize_result=False,
                     regularization=regularization,
-                    regularization_weight=regularization_weight,
                 )
             )
         else:

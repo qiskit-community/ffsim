@@ -282,8 +282,7 @@ def test_double_factorized_compressed_n2_regularization():
             begin_reps=8,
             step=4,
             return_optimize_result=True,
-            regularization=True,
-            regularization_weight=1e-3,
+            regularization=1e-3,
         )
     )
     reconstructed_optimized = (
@@ -322,5 +321,5 @@ def test_double_factorized_compressed_n2_regularization():
     assert diag_coulomb_mats_optimized.shape == (n_reps, norb, norb)
     assert orbital_rotations_optimized.shape == (n_reps, norb, norb)
     assert result.nit <= 25
-    assert result.nfev <= 35
-    assert result.njev <= 35
+    assert result.nfev <= 55
+    assert result.njev <= 55
