@@ -133,9 +133,12 @@ def double_factorized_t2_compressed(
         begin_reps: The starting point of the multi-stage optimization
         step: The step size for the multi-stage optimization
         regularization: Whether to add a regularization term to minimize
+            
             .. math::
+
                 |\sum_{m=1}^n_{reps} ||\bar{Z}^{(mk)}_{pq}||_2 -
                 \sum_{m=1}^L \sum_{k=1}^2 ||Z^{(mk)}_{pq}||_2|
+                
         regularization_weight: The weight for the regularization term
         return_optimize_result: Whether to also return the `OptimizeResult`_ returned
             by `scipy.optimize.minimize`_.
