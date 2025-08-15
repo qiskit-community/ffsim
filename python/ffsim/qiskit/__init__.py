@@ -35,7 +35,11 @@ from ffsim.qiskit.gates import (
 from ffsim.qiskit.jordan_wigner import jordan_wigner
 from ffsim.qiskit.sampler import FfsimSampler
 from ffsim.qiskit.sim import final_state_vector
-from ffsim.qiskit.transpiler_passes import DropNegligible, MergeOrbitalRotations
+from ffsim.qiskit.transpiler_passes import (
+    DropNegligible,
+    MergeOrbitalRotations,
+    generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas,
+)
 from ffsim.qiskit.transpiler_stages import pre_init_passes
 from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
 
@@ -45,8 +49,6 @@ PRE_INIT = PassManager(list(pre_init_passes()))
 See :func:`pre_init_passes` for a description of the transpiler passes included in this
 pass manager.
 """
-
-
 __all__ = [
     "DiagCoulombEvolutionJW",
     "DiagCoulombEvolutionSpinlessJW",
@@ -72,6 +74,7 @@ __all__ = [
     "UCJOpSpinlessJW",
     "ffsim_vec_to_qiskit_vec",
     "final_state_vector",
+    "generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas",
     "jordan_wigner",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",
