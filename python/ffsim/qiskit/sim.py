@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import Sequence, Union, cast
+from typing import Iterator, Sequence, Union, cast
 
 import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
@@ -383,14 +383,9 @@ def _evolve_state_vector_spinless(
     if isinstance(op, PermutationGate):
         perm = list(op.pattern)
         qs = qubit_indices.copy()
-        for k in range(len(perm)):
-            while perm[k] != k:
-                j = perm[k]
-                vec = _apply_swap(
-                    vec, (qs[k], qs[j]), norb=norb, nelec=nelec, copy=False
-                )
-                perm[k], perm[j] = perm[j], perm[k]
-                qs[k], qs[j] = qs[j], qs[k]
+        for i, j in _decompose_permutation(perm):
+            vec = _apply_swap(vec, (qs[i], qs[j]), norb=norb, nelec=nelec, copy=False)
+            qs[i], qs[j] = qs[j], qs[i]
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
@@ -732,25 +727,22 @@ def _evolve_state_vector_spinful(
     if isinstance(op, PermutationGate):
         perm = list(op.pattern)
         qs = qubit_indices.copy()
-        for k in range(len(perm)):
-            while perm[k] != k:
-                j = perm[k]
-                if (qs[k] < norb) != (qs[j] < norb):
-                    raise ValueError(
-                        f"Gate of type '{op.__class__.__name__}' must be applied on "
-                        "orbitals of the same spin."
-                    )
-                spin = Spin.ALPHA if qs[k] < norb else Spin.BETA
-                vec = _apply_swap(
-                    vec,
-                    (qs[k] % norb, qs[j] % norb),
-                    norb=norb,
-                    nelec=nelec,
-                    spin=spin,
-                    copy=False,
+        for i, j in _decompose_permutation(perm):
+            if (qs[i] < norb) != (qs[j] < norb):
+                raise ValueError(
+                    f"Gate of type '{op.__class__.__name__}' must be applied on "
+                    "orbitals of the same spin."
                 )
-                perm[k], perm[j] = perm[j], perm[k]
-                qs[k], qs[j] = qs[j], qs[k]
+            spin = Spin.ALPHA if qs[i] < norb else Spin.BETA
+            vec = _apply_swap(
+                vec,
+                (qs[i] % norb, qs[j] % norb),
+                norb=norb,
+                nelec=nelec,
+                spin=spin,
+                copy=False,
+            )
+            qs[i], qs[j] = qs[j], qs[i]
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
@@ -803,6 +795,16 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
             dag.remove_op_node(node)
     remaining_circuit = dag_to_circuit(dag)
     return indices, remaining_circuit
+
+
+def _decompose_permutation(perm: Sequence[int]) -> Iterator[tuple[int, int]]:
+    """Yield swap pairs to decompose a permutation into transpositions."""
+    perm = list(perm)
+    for i in range(len(perm)):
+        while perm[i] != i:
+            j = perm[i]
+            yield i, j
+            perm[i], perm[j] = perm[j], perm[i]
 
 
 def _apply_diagonal_gate(
