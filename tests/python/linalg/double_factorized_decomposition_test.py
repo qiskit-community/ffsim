@@ -40,7 +40,7 @@ def reconstruct_t2(
     return (
         1j
         * contract(
-            "mkpq,mkap,mkip,mkbq,mkjq->ijab",
+            "mpq,map,mip,mbq,mjq->ijab",
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations.conj(),
@@ -58,23 +58,19 @@ def reconstruct_t2_alpha_beta(
     nocc_b: int,
 ) -> np.ndarray:
     n_vecs = diag_coulomb_mats.shape[0]
-    expanded_diag_coulomb_mats = np.zeros((n_vecs, 4, 2 * norb, 2 * norb))
-    expanded_orbital_rotations = np.zeros(
-        (n_vecs, 4, 2 * norb, 2 * norb), dtype=complex
-    )
-    for m, k in itertools.product(range(n_vecs), range(4)):
-        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m, k]
-        expanded_diag_coulomb_mats[m, k] = np.block(
-            [[mat_aa, mat_ab], [mat_ab.T, mat_bb]]
-        )
-        orbital_rotation_a, orbital_rotation_b = orbital_rotations[m, k]
-        expanded_orbital_rotations[m, k] = scipy.linalg.block_diag(
+    expanded_diag_coulomb_mats = np.zeros((n_vecs, 2 * norb, 2 * norb))
+    expanded_orbital_rotations = np.zeros((n_vecs, 2 * norb, 2 * norb), dtype=complex)
+    for m in range(n_vecs):
+        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]
+        expanded_diag_coulomb_mats[m] = np.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
+        orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]
+        expanded_orbital_rotations[m] = scipy.linalg.block_diag(
             orbital_rotation_a, orbital_rotation_b
         )
     return (
         2j
         * contract(
-            "mkpq,mkap,mkip,mkbq,mkjq->ijab",
+            "mpq,map,mip,mbq,mjq->ijab",
             expanded_diag_coulomb_mats,
             expanded_orbital_rotations,
             expanded_orbital_rotations.conj(),
@@ -428,11 +424,14 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2)
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     np.testing.assert_allclose(reconstructed, t2, atol=1e-8)
+    n_reps, _, _ = diag_coulomb_mats.shape
+    even_index = [i for i in range(0, n_reps, 2)]
+    odd_index = [i for i in range(1, n_reps, 2)]
     np.testing.assert_allclose(
-        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 1], atol=1e-8
+        diag_coulomb_mats[even_index], -diag_coulomb_mats[odd_index], atol=1e-8
     )
     np.testing.assert_allclose(
-        orbital_rotations[:, 0], orbital_rotations[:, 1].conj(), atol=1e-8
+        orbital_rotations[even_index], orbital_rotations[odd_index].conj(), atol=1e-8
     )
 
 
@@ -452,7 +451,7 @@ def test_double_factorized_t2_tol_max_vecs():
     nocc, _, _, _ = t2.shape
 
     # test max_vecs
-    max_vecs = 8
+    max_vecs = 16
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(
         t2,
         max_vecs=max_vecs,
@@ -465,7 +464,7 @@ def test_double_factorized_t2_tol_max_vecs():
     tol = 1e-3
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
-    assert len(orbital_rotations) <= 7
+    assert len(orbital_rotations) <= 14
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
 
     # test error threshold and max vecs
@@ -473,7 +472,7 @@ def test_double_factorized_t2_tol_max_vecs():
         t2, tol=tol, max_vecs=max_vecs
     )
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
-    assert len(orbital_rotations) <= 7
+    assert len(orbital_rotations) <= 14
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
 
 
@@ -492,24 +491,30 @@ def test_double_factorized_t2_alpha_beta_random():
     )
     np.testing.assert_allclose(reconstructed, t2ab, atol=1e-8)
 
+    n_reps = len(diag_coulomb_mats)
+    index_0 = [i for i in range(0, n_reps, 4)]
+    index_1 = [i for i in range(1, n_reps, 4)]
+    index_2 = [i for i in range(2, n_reps, 4)]
+    index_3 = [i for i in range(3, n_reps, 4)]
+
     np.testing.assert_allclose(
-        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 1], atol=1e-8
+        diag_coulomb_mats[index_0], -diag_coulomb_mats[index_1], atol=1e-8
     )
     np.testing.assert_allclose(
-        diag_coulomb_mats[:, 0], -diag_coulomb_mats[:, 2], atol=1e-8
+        diag_coulomb_mats[index_0], -diag_coulomb_mats[index_2], atol=1e-8
     )
     np.testing.assert_allclose(
-        diag_coulomb_mats[:, 0], diag_coulomb_mats[:, 3], atol=1e-8
+        diag_coulomb_mats[index_0], diag_coulomb_mats[index_3], atol=1e-8
     )
 
     np.testing.assert_allclose(
-        orbital_rotations[:, 0, 0], orbital_rotations[:, 1, 0], atol=1e-8
+        orbital_rotations[index_0, 0], orbital_rotations[index_1, 0], atol=1e-8
     )
     np.testing.assert_allclose(
-        orbital_rotations[:, 0, 0], orbital_rotations[:, 2, 0].conj(), atol=1e-8
+        orbital_rotations[index_0, 0], orbital_rotations[index_2, 0].conj(), atol=1e-8
     )
     np.testing.assert_allclose(
-        orbital_rotations[:, 0, 0], orbital_rotations[:, 3, 0].conj(), atol=1e-8
+        orbital_rotations[index_0, 0], orbital_rotations[index_3, 0].conj(), atol=1e-8
     )
     # TODO add the rest of the relations
 
@@ -531,7 +536,7 @@ def test_double_factorized_t2_alpha_beta_tol_max_vecs():
     norb = nocc_a + nvrt_a
 
     # test max_vecs
-    max_vecs = 25
+    max_vecs = 100
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
         t2ab, max_vecs=max_vecs
     )
@@ -549,7 +554,7 @@ def test_double_factorized_t2_alpha_beta_tol_max_vecs():
     reconstructed = reconstruct_t2_alpha_beta(
         diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
     )
-    assert len(diag_coulomb_mats) <= 23
+    assert len(diag_coulomb_mats) <= 92
     np.testing.assert_allclose(reconstructed, t2ab, atol=tol)
 
     # test error threshold and max vecs
@@ -559,5 +564,5 @@ def test_double_factorized_t2_alpha_beta_tol_max_vecs():
     reconstructed = reconstruct_t2_alpha_beta(
         diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
     )
-    assert len(orbital_rotations) <= 23
+    assert len(orbital_rotations) <= 92
     np.testing.assert_allclose(reconstructed, t2ab, atol=tol)

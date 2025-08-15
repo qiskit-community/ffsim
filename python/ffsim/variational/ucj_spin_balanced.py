@@ -430,10 +430,10 @@ class UCJOpSpinBalanced(
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
-        diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(t2, tol=tol)
-        diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
+        diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(
+            t2, tol=tol, max_vecs=n_reps
+        )
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
-        orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
         n_vecs, _, _, _ = diag_coulomb_mats.shape
         if n_reps is not None and n_vecs < n_reps:
