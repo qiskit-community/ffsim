@@ -425,8 +425,8 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     np.testing.assert_allclose(reconstructed, t2, atol=1e-8)
     n_reps, _, _ = diag_coulomb_mats.shape
-    even_index = [i for i in range(0, n_reps, 2)]
-    odd_index = [i for i in range(1, n_reps, 2)]
+    even_index = list(range(0, n_reps, 2))
+    odd_index = list(range(1, n_reps, 2))
     np.testing.assert_allclose(
         diag_coulomb_mats[even_index], -diag_coulomb_mats[odd_index], atol=1e-8
     )
@@ -492,10 +492,10 @@ def test_double_factorized_t2_alpha_beta_random():
     np.testing.assert_allclose(reconstructed, t2ab, atol=1e-8)
 
     n_reps = len(diag_coulomb_mats)
-    index_0 = [i for i in range(0, n_reps, 4)]
-    index_1 = [i for i in range(1, n_reps, 4)]
-    index_2 = [i for i in range(2, n_reps, 4)]
-    index_3 = [i for i in range(3, n_reps, 4)]
+    index_0 = list(range(0, n_reps, 4))
+    index_1 = list(range(1, n_reps, 4))
+    index_2 = list(range(2, n_reps, 4))
+    index_3 = list(range(3, n_reps, 4))
 
     np.testing.assert_allclose(
         diag_coulomb_mats[index_0], -diag_coulomb_mats[index_1], atol=1e-8

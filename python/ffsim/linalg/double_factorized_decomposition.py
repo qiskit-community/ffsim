@@ -501,11 +501,8 @@ def double_factorized_t2(
     norb = nocc + nvrt
 
     t2_mat = t2_amplitudes.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt)
-    if max_vecs:
-        n_terms = math.ceil(max_vecs // 2)
-        outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=n_terms)
-    else:
-        outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=max_vecs)
+    outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol)
+
     n_vecs = len(outer_eigs)
 
     one_body_tensors = np.zeros((n_vecs, 2, norb, norb), dtype=complex)
@@ -618,15 +615,8 @@ def double_factorized_t2_alpha_beta(
     t2_mat = t2_amplitudes.transpose(0, 2, 1, 3).reshape(
         nocc_a * nvrt_a, nocc_b * nvrt_b
     )
-    if max_vecs:
-        n_terms = math.ceil(max_vecs // 4)
-        left_vecs, singular_vals, right_vecs = _truncated_svd(
-            t2_mat, tol=tol, max_vecs=n_terms
-        )
-    else:
-        left_vecs, singular_vals, right_vecs = _truncated_svd(
-            t2_mat, tol=tol, max_vecs=max_vecs
-        )
+    left_vecs, singular_vals, right_vecs = _truncated_svd(t2_mat, tol=tol)
+
     n_vecs = len(singular_vals)
 
     one_body_tensors = np.zeros((n_vecs, 2, 2, 2, norb, norb), dtype=complex)
