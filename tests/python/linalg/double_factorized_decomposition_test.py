@@ -57,10 +57,10 @@ def reconstruct_t2_alpha_beta(
     nocc_a: int,
     nocc_b: int,
 ) -> np.ndarray:
-    n_vecs = diag_coulomb_mats.shape[0]
-    expanded_diag_coulomb_mats = np.zeros((n_vecs, 2 * norb, 2 * norb))
-    expanded_orbital_rotations = np.zeros((n_vecs, 2 * norb, 2 * norb), dtype=complex)
-    for m in range(n_vecs):
+    n_terms = diag_coulomb_mats.shape[0]
+    expanded_diag_coulomb_mats = np.zeros((n_terms, 2 * norb, 2 * norb))
+    expanded_orbital_rotations = np.zeros((n_terms, 2 * norb, 2 * norb), dtype=complex)
+    for m in range(n_terms):
         (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]
         expanded_diag_coulomb_mats[m] = np.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
         orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]
@@ -435,8 +435,8 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     )
 
 
-def test_double_factorized_t2_tol_max_vecs():
-    """Test double-factorized decomposition error threshold and max vecs."""
+def test_double_factorized_t2_tol_max_terms():
+    """Test double-factorized decomposition error threshold and max terms."""
     mol = pyscf.gto.Mole()
     mol.build(
         verbose=0,
@@ -451,13 +451,13 @@ def test_double_factorized_t2_tol_max_vecs():
     nocc, _, _, _ = t2.shape
 
     # test max_vecs
-    max_vecs = 16
+    max_terms = 16
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(
         t2,
-        max_vecs=max_vecs,
+        max_terms=max_terms,
     )
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
-    assert len(orbital_rotations) == max_vecs
+    assert len(orbital_rotations) == max_terms
     np.testing.assert_allclose(reconstructed, t2, atol=1e-5)
 
     # test error threshold
@@ -469,7 +469,7 @@ def test_double_factorized_t2_tol_max_vecs():
 
     # test error threshold and max vecs
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(
-        t2, tol=tol, max_vecs=max_vecs
+        t2, tol=tol, max_terms=max_terms
     )
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     assert len(orbital_rotations) <= 14
@@ -520,7 +520,7 @@ def test_double_factorized_t2_alpha_beta_random():
 
 
 def test_double_factorized_t2_alpha_beta_tol_max_vecs():
-    """Test double-factorized decomposition alpha-beta error threshold and max vecs."""
+    """Test double-factorized decomposition alpha-beta error threshold and max terms."""
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["H", (0, 0, 0)], ["O", (0, 0, 1.1)]],
@@ -536,14 +536,14 @@ def test_double_factorized_t2_alpha_beta_tol_max_vecs():
     norb = nocc_a + nvrt_a
 
     # test max_vecs
-    max_vecs = 100
+    max_terms = 100
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
-        t2ab, max_vecs=max_vecs
+        t2ab, max_terms=max_terms
     )
     reconstructed = reconstruct_t2_alpha_beta(
         diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
     )
-    assert len(diag_coulomb_mats) == max_vecs
+    assert len(diag_coulomb_mats) == max_terms
     np.testing.assert_allclose(reconstructed, t2ab, atol=1e-4)
 
     # test error threshold
@@ -559,7 +559,7 @@ def test_double_factorized_t2_alpha_beta_tol_max_vecs():
 
     # test error threshold and max vecs
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
-        t2ab, tol=tol, max_vecs=max_vecs
+        t2ab, tol=tol, max_terms=max_terms
     )
     reconstructed = reconstruct_t2_alpha_beta(
         diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
