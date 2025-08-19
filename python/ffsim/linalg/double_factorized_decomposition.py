@@ -451,7 +451,7 @@ def _grad_generator(mat: np.ndarray, grad_orbital_rotation: np.ndarray) -> np.nd
 
 
 def double_factorized_t2(
-    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
+    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
     r"""Double-factorized decomposition of t2 amplitudes.
 
@@ -459,18 +459,18 @@ def double_factorized_t2(
 
     .. math::
 
-        t_{ijab} = i \sum_{m=1}^L \sum_{k=1}^2 \sum_{pq}
-            Z^{(mk)}_{pq}
-            U^{(mk)}_{ap} U^{(mk)*}_{ip} U^{(mk)}_{bq} U^{(mk)*}_{jq}
+        t_{ijab} = i \sum_{m=1}^L \sum_{pq}
+            Z^{(m)}_{pq}
+            U^{(m)}_{ap} U^{(m)*}_{ip} U^{(m)}_{bq} U^{(m)*}_{jq}
 
-    Here each :math:`Z^{(mk)}` is a real-valued matrix, referred to as a
-    "diagonal Coulomb matrix," and each :math:`U^{(mk)}` is a unitary matrix,
+    Here each :math:`Z^{(m)}` is a real-valued matrix, referred to as a
+    "diagonal Coulomb matrix," and each :math:`U^{(m)}` is a unitary matrix,
     referred to as an "orbital rotation."
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
-    Furthermore, the `max_vecs` parameter specifies an optional upper bound
-    on :math:`L`. The `max_vecs` parameter is always respected, so if it is
+    Furthermore, the `max_terms` parameter specifies an optional upper bound
+    on :math:`L`. The `max_terms` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
@@ -482,28 +482,27 @@ def double_factorized_t2(
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
-        max_vecs: An optional limit on the number of terms to keep in the decomposition
+        max_terms: An optional limit on the number of terms to keep in the decomposition
             of the t2 amplitudes tensor. This argument overrides `tol`.
 
     Returns:
         - The diagonal Coulomb matrices, as a Numpy array of shape
-          `(n_vecs, 2, norb, norb)`.
+          `(n_terms, norb, norb)`.
           The last two axes index the rows and columns of the matrices.
-          The first axis indexes the eigenvectors of the decomposition and the
-          second axis exists because each eigenvector gives rise to 2 terms in the
-          decomposition.
+          The first axis indexes the eigenvectors of the decomposition. Note that each
+          eigenvector gives rise to 2 terms in the decomposition.
         - The orbital rotations, as a Numpy array of shape
-          `(n_vecs, 2, norb, norb)`.
+          `(n_terms, norb, norb)`.
           The last two axes index the rows and columns of the orbital rotations.
-          The first axis indexes the eigenvectors of the decomposition and the
-          second axis exists because each eigenvector gives rise to 2 terms in the
-          decomposition.
+          The first axis indexes the eigenvectors of the decomposition. Note that each
+          eigenvector gives rise to 2 terms in the decomposition.
     """
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
 
     t2_mat = t2_amplitudes.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt)
-    outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol, max_vecs=max_vecs)
+    outer_eigs, outer_vecs = _truncated_eigh(t2_mat, tol=tol)
+
     n_vecs = len(outer_eigs)
 
     one_body_tensors = np.zeros((n_vecs, 2, norb, norb), dtype=complex)
@@ -520,23 +519,26 @@ def double_factorized_t2(
         coeffs[:, :, None, None] * eigs[:, :, :, None] * eigs[:, :, None, :]
     )
 
+    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:max_terms]
+    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:max_terms]
+
     return diag_coulomb_mats, orbital_rotations
 
 
 def double_factorized_t2_alpha_beta(
-    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_vecs: int | None = None
+    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
     r"""Double-factorized decomposition of alpha-beta t2 amplitudes.
 
     Decompose alpha-beta t2 amplitudes into diagonal Coulomb matrices with orbital
     rotations. This function returns two arrays:
 
-    - `diagonal_coulomb_mats`, with shape `(n_vecs, 4, 3, norb, norb)`.
-    - `orbital_rotations`, with shape `(n_vecs, 4, 2, norb, norb)`.
+    - `diagonal_coulomb_mats`, with shape `(n_terms, 3, norb, norb)`.
+    - `orbital_rotations`, with shape `(n_terms, 2, norb, norb)`.
 
-    The value of `n_vecs` depends on the error tolerance `tol`. A larger error tolerance
-    might yield a smaller value for `n_vecs`. You can also set an optional upper bound
-    on `n_vecs` using the `max_vecs` argument.
+    The value of `n_terms` depends on the error tolerance `tol`. A larger error
+    tolerance might yield a smaller value for `n_terms`. You can also set an optional
+    upper bound on `n_terms` using the `max_terms` argument.
 
     The original t2 amplitudes tensor can be reconstructed, up to the error tolerance,
     using the following function:
@@ -550,24 +552,24 @@ def double_factorized_t2_alpha_beta(
             nocc_a: int,
             nocc_b: int,
         ) -> np.ndarray:
-            n_vecs = diag_coulomb_mats.shape[0]
-            expanded_diag_coulomb_mats = np.zeros((n_vecs, 4, 2 * norb, 2 * norb))
+            n_terms = diag_coulomb_mats.shape[0]
+            expanded_diag_coulomb_mats = np.zeros((n_terms, 2 * norb, 2 * norb))
             expanded_orbital_rotations = np.zeros(
-                (n_vecs, 4, 2 * norb, 2 * norb), dtype=complex
+                (n_terms, 2 * norb, 2 * norb), dtype=complex
             )
-            for m, k in itertools.product(range(n_vecs), range(4)):
-                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m, k]
-                expanded_diag_coulomb_mats[m, k] = np.block(
+            for m in range(n_terms):
+                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]
+                expanded_diag_coulomb_mats[m] = np.block(
                     [[mat_aa, mat_ab], [mat_ab.T, mat_bb]]
                 )
-                orbital_rotation_a, orbital_rotation_b = orbital_rotations[m, k]
-                expanded_orbital_rotations[m, k] = scipy.linalg.block_diag(
+                orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]
+                expanded_orbital_rotations[m] = scipy.linalg.block_diag(
                     orbital_rotation_a, orbital_rotation_b
                 )
             return (
                 2j
                 * contract(
-                    "mkpq,mkap,mkip,mkbq,mkjq->ijab",
+                    "mpq,map,mip,mbq,mjq->ijab",
                     expanded_diag_coulomb_mats,
                     expanded_orbital_rotations,
                     expanded_orbital_rotations.conj(),
@@ -584,27 +586,25 @@ def double_factorized_t2_alpha_beta(
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
-        max_vecs: An optional limit on the number of terms to keep in the decomposition
+        max_terms: An optional limit on the number of terms to keep in the decomposition
             of the t2 amplitudes tensor. This argument overrides `tol`.
 
 
     Returns:
         - The diagonal Coulomb matrices, as a Numpy array of shape
-          `(n_vecs, 4, 3, norb, norb)`.
+          `(n_terms, 3, norb, norb)`.
           The last two axes index the rows and columns of
           the matrices, and the third from last axis, which has 3 dimensions, indexes
           the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
           beta-beta (in that order).
-          The first axis indexes the singular vectors of the decomposition and the
-          second axis exists because each singular vector gives rise to 4 terms in the
-          decomposition.
+          The first axis indexes the singular vectors of the decomposition. Note that
+          each singular vector gives rise to 4 terms in the decomposition.
         - The orbital rotations, as a Numpy array of shape
-          `(n_vecs, 4, 2, norb, norb)`. The last two axes index the rows and columns of
+          `(n_terms, 2, norb, norb)`. The last two axes index the rows and columns of
           the orbital rotations, and the third from last axis, which has 2 dimensions,
           indexes the spin sector of the orbital rotation: first alpha, then beta.
-          The first axis indexes the singular vectors of the decomposition and the
-          second axis exists because each singular vector gives rise to 4 terms in the
-          decomposition.
+          The first axis indexes the singular vectors of the decomposition. Note that
+          each singular vector gives rise to 4 terms in the decomposition.
     """
     nocc_a, nocc_b, nvrt_a, nvrt_b = t2_amplitudes.shape
     norb = nocc_a + nvrt_a
@@ -612,9 +612,8 @@ def double_factorized_t2_alpha_beta(
     t2_mat = t2_amplitudes.transpose(0, 2, 1, 3).reshape(
         nocc_a * nvrt_a, nocc_b * nvrt_b
     )
-    left_vecs, singular_vals, right_vecs = _truncated_svd(
-        t2_mat, tol=tol, max_vecs=max_vecs
-    )
+    left_vecs, singular_vals, right_vecs = _truncated_svd(t2_mat, tol=tol)
+
     n_vecs = len(singular_vals)
 
     one_body_tensors = np.zeros((n_vecs, 2, 2, 2, norb, norb), dtype=complex)
@@ -645,6 +644,9 @@ def double_factorized_t2_alpha_beta(
     mats_ab = big_diag_coulomb_mats[:, :, :norb, norb:]
     mats_bb = big_diag_coulomb_mats[:, :, norb:, norb:]
     diag_coulomb_mats = np.stack([mats_aa, mats_ab, mats_bb], axis=2)
+
+    orbital_rotations = orbital_rotations.reshape(-1, 2, norb, norb)[:max_terms]
+    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, 3, norb, norb)[:max_terms]
 
     return diag_coulomb_mats, orbital_rotations
 

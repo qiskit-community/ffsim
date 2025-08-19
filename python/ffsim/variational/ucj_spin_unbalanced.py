@@ -506,8 +506,6 @@ class UCJOpSpinUnbalanced(
         diag_coulomb_mats_ab, orbital_rotations_ab = (
             linalg.double_factorized_t2_alpha_beta(t2ab, tol=tol)
         )
-        diag_coulomb_mats_ab = diag_coulomb_mats_ab.reshape(-1, 3, norb, norb)
-        orbital_rotations_ab = orbital_rotations_ab.reshape(-1, 2, norb, norb)
         # alpha-alpha and beta-beta
         diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
             t2aa, tol=tol
@@ -515,10 +513,6 @@ class UCJOpSpinUnbalanced(
         diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
             t2bb, tol=tol
         )
-        diag_coulomb_mats_aa = diag_coulomb_mats_aa.reshape(-1, norb, norb)
-        orbital_rotations_aa = orbital_rotations_aa.reshape(-1, norb, norb)
-        diag_coulomb_mats_bb = diag_coulomb_mats_bb.reshape(-1, norb, norb)
-        orbital_rotations_bb = orbital_rotations_bb.reshape(-1, norb, norb)
         zero = np.zeros((norb, norb))
         if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
             diag_coulomb_mats_same_spin = np.stack(
