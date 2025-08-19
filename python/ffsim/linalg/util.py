@@ -31,17 +31,7 @@ def antihermitian_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarr
     Returns:
         The list of real numbers parameterizing the antihermitian matrix.
     """
-    norb, _ = mat.shape
-    triu_indices = np.triu_indices(norb, k=1)
-    n_triu = norb * (norb - 1) // 2
-    params = np.zeros(n_triu if real else norb**2)
-    # real part
-    params[:n_triu] = mat[triu_indices].real
-    # imaginary part
-    if not real:
-        triu_indices = np.triu_indices(norb)
-        params[n_triu:] = mat[triu_indices].imag
-    return params
+    return antihermitians_to_parameters(mat[None, :], real=real)
 
 
 def antihermitian_from_parameters(
@@ -59,41 +49,14 @@ def antihermitian_from_parameters(
     Returns:
         The antihermitian matrix.
     """
-    mat = np.zeros((dim, dim), dtype=float if real else complex)
-    n_triu = dim * (dim - 1) // 2
-    if not real:
-        # imaginary part
-        rows, cols = np.triu_indices(dim)
-        vals = 1j * params[n_triu:]
-        mat[rows, cols] = vals
-        mat[cols, rows] = vals
-    # real part
-    vals = params[:n_triu]
-    rows, cols = np.triu_indices(dim, k=1)
-    mat[rows, cols] += vals
-    mat[cols, rows] -= vals
-    return mat
+    return antihermitians_from_parameters(params, dim, 1, real=real)[0]
 
 
 def antihermitian_from_parameters_jax(
     params: np.ndarray, dim: int, real: bool = False
 ) -> jax.Array:
     """JAX version of antihermitian_from_parameters."""
-    mat = jnp.zeros((dim, dim), dtype=float if real else complex)
-    n_triu = dim * (dim - 1) // 2
-    if not real:
-        # imaginary part
-        rows, cols = jnp.triu_indices(dim)
-        vals = 1j * params[n_triu:]
-        mat = mat.at[rows, cols].set(vals)
-        mat = mat.at[cols, rows].set(vals)
-    # real part
-    vals = params[:n_triu]
-    rows, cols = jnp.triu_indices(dim, k=1)
-    mat = mat.at[rows, cols].add(vals)
-    # the subtract method is only available in JAX starting with Python 3.10
-    mat = mat.at[cols, rows].add(-vals)
-    return mat
+    return antihermitians_from_parameters_jax(params, dim, 1, real=real)[0]
 
 
 def antihermitians_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
@@ -195,7 +158,7 @@ def unitary_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
     Returns:
         The list of real numbers parameterizing the unitary.
     """
-    return antihermitian_to_parameters(scipy.linalg.logm(mat), real=real)
+    return unitaries_to_parameters(mat[None, :], real=real)
 
 
 def unitary_from_parameters(
@@ -215,14 +178,14 @@ def unitary_from_parameters(
     Returns:
         The unitary.
     """
-    return scipy.linalg.expm(antihermitian_from_parameters(params, dim, real=real))
+    return unitaries_from_parameters(params, dim, 1, real=real)[0]
 
 
 def unitary_from_parameters_jax(
     params: np.ndarray, dim: int, real: bool = False
 ) -> jax.Array:
     """JAX version of unitary_from_parameters."""
-    return jax.scipy.linalg.expm(antihermitian_from_parameters_jax(params, dim, real))
+    return unitaries_from_parameters_jax(params, dim, 1, real=real)[0]
 
 
 def unitaries_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
@@ -292,12 +255,7 @@ def real_symmetric_to_parameters(
     Returns:
         The list of real numbers parameterizing the real symmetric matrix.
     """
-    if triu_indices is None:
-        norb, _ = mat.shape
-        rows, cols = np.triu_indices(norb)
-    else:
-        rows, cols = zip(*triu_indices)  # type: ignore
-    return mat[rows, cols]
+    return real_symmetrics_to_parameters(mat[None, :], triu_indices)
 
 
 def real_symmetric_from_parameters(
@@ -314,28 +272,14 @@ def real_symmetric_from_parameters(
     Returns:
         The real symmetric matrix.
     """
-    if triu_indices is None:
-        rows, cols = np.triu_indices(dim)
-    else:
-        rows, cols = zip(*triu_indices)  # type: ignore
-    mat = np.zeros((dim, dim))
-    mat[rows, cols] = params
-    mat[cols, rows] = params
-    return mat
+    return real_symmetrics_from_parameters(params, dim, 1, triu_indices)[0]
 
 
 def real_symmetric_from_parameters_jax(
     params: np.ndarray, dim: int, triu_indices: list[tuple[int, int]] | None = None
 ) -> jax.Array:
     """JAX version of real_symmetric_from_parameters."""
-    if triu_indices is None:
-        rows, cols = jnp.triu_indices(dim)
-    else:
-        rows, cols = zip(*triu_indices)  # type: ignore
-    mat = jnp.zeros((dim, dim))
-    mat = mat.at[rows, cols].set(params)
-    mat = mat.at[cols, rows].set(params)
-    return mat
+    return real_symmetrics_from_parameters_jax(params, dim, 1, triu_indices)[0]
 
 
 def real_symmetrics_to_parameters(
