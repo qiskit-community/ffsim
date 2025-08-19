@@ -519,11 +519,8 @@ def double_factorized_t2(
         coeffs[:, :, None, None] * eigs[:, :, :, None] * eigs[:, :, None, :]
     )
 
-    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
-    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
-    if max_terms:
-        orbital_rotations = orbital_rotations[:max_terms]
-        diag_coulomb_mats = diag_coulomb_mats[:max_terms]
+    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:max_terms]
+    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:max_terms]
 
     return diag_coulomb_mats, orbital_rotations
 
@@ -539,8 +536,8 @@ def double_factorized_t2_alpha_beta(
     - `diagonal_coulomb_mats`, with shape `(n_terms, 3, norb, norb)`.
     - `orbital_rotations`, with shape `(n_terms, 2, norb, norb)`.
 
-    The value of `n_terms` depends on the error tolerance `tol`. A larger error 
-    tolerance might yield a smaller value for `n_terms`. You can also set an optional 
+    The value of `n_terms` depends on the error tolerance `tol`. A larger error
+    tolerance might yield a smaller value for `n_terms`. You can also set an optional
     upper bound on `n_terms` using the `max_terms` argument.
 
     The original t2 amplitudes tensor can be reconstructed, up to the error tolerance,
@@ -603,7 +600,7 @@ def double_factorized_t2_alpha_beta(
           The first axis indexes the singular vectors of the decomposition. Note that
           each singular vector gives rise to 4 terms in the decomposition.
         - The orbital rotations, as a Numpy array of shape
-          `(n_terms, 4, 2, norb, norb)`. The last two axes index the rows and columns of
+          `(n_terms, 2, norb, norb)`. The last two axes index the rows and columns of
           the orbital rotations, and the third from last axis, which has 2 dimensions,
           indexes the spin sector of the orbital rotation: first alpha, then beta.
           The first axis indexes the singular vectors of the decomposition. Note that
@@ -648,11 +645,8 @@ def double_factorized_t2_alpha_beta(
     mats_bb = big_diag_coulomb_mats[:, :, norb:, norb:]
     diag_coulomb_mats = np.stack([mats_aa, mats_ab, mats_bb], axis=2)
 
-    orbital_rotations = orbital_rotations.reshape(-1, 2, norb, norb)
-    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, 3, norb, norb)
-    if max_terms:
-        orbital_rotations = orbital_rotations[:max_terms]
-        diag_coulomb_mats = diag_coulomb_mats[:max_terms]
+    orbital_rotations = orbital_rotations.reshape(-1, 2, norb, norb)[:max_terms]
+    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, 3, norb, norb)[:max_terms]
 
     return diag_coulomb_mats, orbital_rotations
 
