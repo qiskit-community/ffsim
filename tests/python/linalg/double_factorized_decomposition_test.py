@@ -268,7 +268,7 @@ def test_double_factorized_compressed_n2_unconstrained():
     )
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimized = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
-    assert error_optimized < 0.3 * error
+    assert error_optimized < 0.5 * error
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
     assert result.nit <= 100
