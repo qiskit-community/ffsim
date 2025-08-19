@@ -464,31 +464,25 @@ class UCJOpSpinBalanced(
 
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
-        if optimize:
-            if pairs_aa is None and pairs_ab is None:
-                diag_coulomb_indices = None
-            else:
-                diag_coulomb_indices = list(set((pairs_aa or []) + (pairs_ab or [])))
-            diag_coulomb_mats, orbital_rotations = (
-                linalg.double_factorized_t2_compressed(
-                    t2,
-                    tol=tol,
-                    n_reps=n_reps,
-                    diag_coulomb_indices=diag_coulomb_indices,
-                    method=method,
-                    callback=callback,
-                    options=options,
-                    multi_stage_optimization=multi_stage_optimization,
-                    begin_reps=begin_reps,
-                    step=step,
-                    return_optimize_result=False,
-                    regularization=regularization,
-                )
-            )
+        if pairs_aa is None and pairs_ab is None:
+            diag_coulomb_indices = None
         else:
-            diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(
-                t2, tol=tol, max_terms=n_reps
-            )
+            diag_coulomb_indices = list(set((pairs_aa or []) + (pairs_ab or [])))
+        diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(
+            t2,
+            tol=tol,
+            max_terms=n_reps,
+            optimize=optimize,
+            diag_coulomb_indices=diag_coulomb_indices,
+            method=method,
+            callback=callback,
+            options=options,
+            multi_stage_optimization=multi_stage_optimization,
+            begin_terms=begin_reps,
+            step=step,
+            return_optimize_result=False,
+            regularization=regularization,
+        )
 
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
 

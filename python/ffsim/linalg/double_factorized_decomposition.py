@@ -14,8 +14,10 @@ from __future__ import annotations
 
 import itertools
 import math
-from typing import cast
+from typing import Literal, cast, overload
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 import scipy.linalg
 import scipy.optimize
@@ -24,6 +26,7 @@ from opt_einsum import contract
 from ffsim.linalg.util import (
     antihermitians_from_parameters,
     df_tensors_from_params,
+    df_tensors_from_params_jax,
     df_tensors_to_params,
 )
 
@@ -450,9 +453,59 @@ def _grad_generator(mat: np.ndarray, grad_orbital_rotation: np.ndarray) -> np.nd
     return np.real(grad[triu_indices])
 
 
+@overload
 def double_factorized_t2(
-    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
-) -> tuple[np.ndarray, np.ndarray]:
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = ...,
+    max_terms: int | None = ...,
+    optimize: bool = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    multi_stage_optimization: bool = ...,
+    begin_terms: int | None = ...,
+    step: int = ...,
+    regularization: float = ...,
+    return_optimize_result: Literal[False] = False,
+) -> tuple[np.ndarray, np.ndarray]: ...
+@overload
+def double_factorized_t2(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = ...,
+    max_terms: int | None = ...,
+    optimize: bool = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    multi_stage_optimization: bool = ...,
+    begin_terms: int | None = ...,
+    step: int = ...,
+    regularization: float = ...,
+    return_optimize_result: Literal[True],
+) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]: ...
+def double_factorized_t2(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = 1e-8,
+    max_terms: int | None = None,
+    optimize: bool = False,
+    diag_coulomb_indices: list[tuple[int, int]] | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    multi_stage_optimization: bool = False,
+    begin_terms: int | None = None,
+    step: int = 2,
+    regularization: float = 0,
+    return_optimize_result: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
+):
     r"""Double-factorized decomposition of t2 amplitudes.
 
     The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is
@@ -474,6 +527,12 @@ def double_factorized_t2(
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
+    If `optimize` is `True`, instead of direct truncation, the goal is to compress the
+    operator down to `max_terms` terms while minimizing the difference with the original
+    t2 amplitude with a least-squares objective function. This is achieved by first
+    truncating the operator and then apply optimizer to minimize the coefficients in the
+    remaining operator.
+
     Note: Currently, only real-valued t2 amplitudes are supported.
 
     Args:
@@ -484,6 +543,32 @@ def double_factorized_t2(
             the reconstructed tensor.
         max_terms: An optional limit on the number of terms to keep in the decomposition
             of the t2 amplitudes tensor. This argument overrides `tol`.
+        optimize: Perform compression to recover original t2 amplitude
+        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+            Coulomb matrices. Matrix entries corresponding to indices not in this
+            list will be set to zero. This list should contain only upper
+            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+        method: The optimization method. See the documentation of
+            `scipy.optimize.minimize`_ for possible values.
+        callback: Callback function for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+        options: Options for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+        multi_stage_optimization: Iteratively reduce the number of ansatz repetitions
+            starting from full configuration if  `begin_reps` is not given. In each
+            iteration, the number of repetitions is reduced by `step` until reaching
+            `n_reps`.
+        begin_reps: The starting point of the multi-stage optimization
+        step: The step size for the multi-stage optimization
+        regularization: The weight for the regularization term to minimize
+
+            .. math::
+
+                |\sum_{m=1}^n_{reps} ||\bar{Z}^{(m)}_{pq}||_2 -
+                \sum_{m=1}^L ||Z^{(m)}_{pq}||_2|
+
+        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
+            by `scipy.optimize.minimize`_.
 
     Returns:
         - The diagonal Coulomb matrices, as a Numpy array of shape
@@ -496,6 +581,9 @@ def double_factorized_t2(
           The last two axes index the rows and columns of the orbital rotations.
           The first axis indexes the eigenvectors of the decomposition. Note that each
           eigenvector gives rise to 2 terms in the decomposition.
+
+    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
@@ -519,8 +607,79 @@ def double_factorized_t2(
         coeffs[:, :, None, None] * eigs[:, :, :, None] * eigs[:, :, None, :]
     )
 
-    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:max_terms]
-    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:max_terms]
+    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
+    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
+    init_diag_coulomb_mats = diag_coulomb_mats
+    n_terms_full, _, _ = orbital_rotations.shape
+
+    if optimize and max_terms is not None and max_terms < n_terms_full:
+        if multi_stage_optimization:
+            if begin_terms is None:
+                begin_terms = n_terms_full
+            begin_terms = min(n_terms_full, begin_terms)
+            list_terms = list(range(begin_terms, max_terms, -step))
+            list_terms.append(max_terms)
+        else:
+            list_terms = [max_terms]
+
+        for n_tensors in list_terms:
+            diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
+            orbital_rotations = orbital_rotations[:n_tensors]
+
+            def fun(x: np.ndarray):
+                diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
+                    x, n_tensors, norb, diag_coulomb_indices
+                )
+                reconstructed = (
+                    1j
+                    * contract(
+                        "mpq,map,mip,mbq,mjq->ijab",
+                        diag_coulomb_mats,
+                        orbital_rotations,
+                        orbital_rotations.conj(),
+                        orbital_rotations,
+                        orbital_rotations.conj(),
+                        optimize="greedy",
+                    )[:nocc, :nocc, nocc:, nocc:]
+                )
+                diff = reconstructed - t2_amplitudes
+                if regularization:
+                    regularization_loss = jnp.array([0])
+                    for diag_coulomb_mat in diag_coulomb_mats:
+                        regularization_loss += jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
+                    for diag_coulomb_mat in init_diag_coulomb_mats:
+                        regularization_loss -= jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
+                    return (
+                        0.5 * jnp.sum(jnp.abs(diff) ** 2)
+                        + regularization * jnp.abs(regularization_loss).item()
+                    )
+                else:
+                    return 0.5 * jnp.sum(jnp.abs(diff) ** 2)
+
+            value_and_grad_func = jax.value_and_grad(fun)
+
+            x0 = df_tensors_to_params(
+                diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
+            )
+
+            result = scipy.optimize.minimize(
+                value_and_grad_func,
+                x0,
+                method=method,
+                jac=True,
+                callback=callback,
+                options=options,
+            )
+
+            diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
+                result.x, n_tensors, norb, diag_coulomb_indices
+            )
+
+        if return_optimize_result:
+            return diag_coulomb_mats, orbital_rotations, result
+
+    orbital_rotations = orbital_rotations[:max_terms]
+    diag_coulomb_mats = diag_coulomb_mats[:max_terms]
 
     return diag_coulomb_mats, orbital_rotations
 
