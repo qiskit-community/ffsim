@@ -585,6 +585,27 @@ def double_factorized_t2(
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
+    if optimize:
+        return _double_factorized_t2_compressed(
+            t2_amplitudes,
+            tol=tol,
+            max_terms=max_terms,
+            diag_coulomb_indices=diag_coulomb_indices,
+            method=method,
+            callback=callback,
+            options=options,
+            multi_stage_optimization=multi_stage_optimization,
+            begin_terms=begin_terms,
+            step=step,
+            regularization=regularization,
+            return_optimize_result=return_optimize_result,
+        )
+    return _double_factorized_t2_explicit(t2_amplitudes, tol=tol, max_terms=max_terms)
+
+
+def _double_factorized_t2_explicit(
+    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
+) -> tuple[np.ndarray, np.ndarray]:
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
 
@@ -607,79 +628,108 @@ def double_factorized_t2(
         coeffs[:, :, None, None] * eigs[:, :, :, None] * eigs[:, :, None, :]
     )
 
+    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:max_terms]
+    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:max_terms]
+
+    return diag_coulomb_mats, orbital_rotations
+
+
+def _double_factorized_t2_compressed(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = 1e-8,
+    max_terms: int | None = None,
+    diag_coulomb_indices: list[tuple[int, int]] | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    multi_stage_optimization: bool = False,
+    begin_terms: int | None = None,
+    step: int = 2,
+    regularization: float = 0,
+    return_optimize_result: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
+):
+    nocc, _, nvrt, _ = t2_amplitudes.shape
+    norb = nocc + nvrt
+
+    diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
+        t2_amplitudes, tol=tol
+    )
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
     init_diag_coulomb_mats = diag_coulomb_mats
     n_terms_full, _, _ = orbital_rotations.shape
 
-    if optimize and max_terms is not None and max_terms < n_terms_full:
-        if multi_stage_optimization:
-            if begin_terms is None:
-                begin_terms = n_terms_full
-            begin_terms = min(n_terms_full, begin_terms)
-            list_terms = list(range(begin_terms, max_terms, -step))
-            list_terms.append(max_terms)
-        else:
-            list_terms = [max_terms]
+    if max_terms is None or n_terms_full < max_terms:
+        return diag_coulomb_mats, orbital_rotations
 
-        for n_tensors in list_terms:
-            diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
-            orbital_rotations = orbital_rotations[:n_tensors]
+    if multi_stage_optimization:
+        if begin_terms is None:
+            begin_terms = n_terms_full
+        begin_terms = min(n_terms_full, begin_terms)
+        list_reps = list(range(begin_terms, max_terms, -step))
+        list_reps.append(max_terms)
+    else:
+        list_reps = [max_terms]
 
-            def fun(x: np.ndarray):
-                diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
-                    x, n_tensors, norb, diag_coulomb_indices
+    for n_tensors in list_reps:
+        diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
+        orbital_rotations = orbital_rotations[:n_tensors]
+
+        def fun(x: np.ndarray):
+            diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
+                x, n_tensors, norb, diag_coulomb_indices
+            )
+            reconstructed = (
+                1j
+                * contract(
+                    "mpq,map,mip,mbq,mjq->ijab",
+                    diag_coulomb_mats,
+                    orbital_rotations,
+                    orbital_rotations.conj(),
+                    orbital_rotations,
+                    orbital_rotations.conj(),
+                    optimize="greedy",
+                )[:nocc, :nocc, nocc:, nocc:]
+            )
+            diff = reconstructed - t2_amplitudes
+            if regularization:
+                regularization_loss = jnp.array([0])
+                for diag_coulomb_mat in diag_coulomb_mats:
+                    regularization_loss += jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
+                for diag_coulomb_mat in init_diag_coulomb_mats:
+                    regularization_loss -= jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
+                return (
+                    0.5 * jnp.sum(jnp.abs(diff) ** 2)
+                    + regularization * jnp.abs(regularization_loss).item()
                 )
-                reconstructed = (
-                    1j
-                    * contract(
-                        "mpq,map,mip,mbq,mjq->ijab",
-                        diag_coulomb_mats,
-                        orbital_rotations,
-                        orbital_rotations.conj(),
-                        orbital_rotations,
-                        orbital_rotations.conj(),
-                        optimize="greedy",
-                    )[:nocc, :nocc, nocc:, nocc:]
-                )
-                diff = reconstructed - t2_amplitudes
-                if regularization:
-                    regularization_loss = jnp.array([0])
-                    for diag_coulomb_mat in diag_coulomb_mats:
-                        regularization_loss += jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
-                    for diag_coulomb_mat in init_diag_coulomb_mats:
-                        regularization_loss -= jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
-                    return (
-                        0.5 * jnp.sum(jnp.abs(diff) ** 2)
-                        + regularization * jnp.abs(regularization_loss).item()
-                    )
-                else:
-                    return 0.5 * jnp.sum(jnp.abs(diff) ** 2)
+            else:
+                return 0.5 * jnp.sum(jnp.abs(diff) ** 2)
 
-            value_and_grad_func = jax.value_and_grad(fun)
+        value_and_grad_func = jax.value_and_grad(fun)
 
-            x0 = df_tensors_to_params(
-                diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
-            )
+        x0 = df_tensors_to_params(
+            diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
+        )
 
-            result = scipy.optimize.minimize(
-                value_and_grad_func,
-                x0,
-                method=method,
-                jac=True,
-                callback=callback,
-                options=options,
-            )
+        result = scipy.optimize.minimize(
+            value_and_grad_func,
+            x0,
+            method=method,
+            jac=True,
+            callback=callback,
+            options=options,
+        )
 
-            diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
-                result.x, n_tensors, norb, diag_coulomb_indices
-            )
+        diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
+            result.x, n_tensors, norb, diag_coulomb_indices
+        )
 
-        if return_optimize_result:
-            return diag_coulomb_mats, orbital_rotations, result
-
-    orbital_rotations = orbital_rotations[:max_terms]
-    diag_coulomb_mats = diag_coulomb_mats[:max_terms]
+    if return_optimize_result:
+        return diag_coulomb_mats, orbital_rotations, result
 
     return diag_coulomb_mats, orbital_rotations
 
