@@ -228,6 +228,7 @@ def _normal_ordered_term(
     while stack:
         term, coeff = stack.pop()
         parity = False
+        zero = False
         for i in range(1, len(term)):
             # shift operator at index i to the left until it's in the correct location
             for j in range(i, 0, -1):
@@ -237,7 +238,8 @@ def _normal_ordered_term(
                     # both create or both destroy
                     if (spin_right, index_right) == (spin_left, index_left):
                         # operators are the same, so product is zero
-                        return FermionOperator({})
+                        zero = True
+                        break
                     elif (spin_right, index_right) > (spin_left, index_left):
                         # swap operators and update sign
                         term[j - 1], term[j] = term[j], term[j - 1]
@@ -252,6 +254,8 @@ def _normal_ordered_term(
                     # swap operators and update sign
                     term[j - 1], term[j] = term[j], term[j - 1]
                     parity = not parity
+        if zero:
+            continue
         term = tuple(term)
         sign = -1 if parity else 1
         if term in coeffs:
