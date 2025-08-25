@@ -477,7 +477,7 @@ def test_double_factorized_t2_tol_max_terms():
 
 
 def test_double_factorized_t2_optimize_max_terms_n2_small():
-    """Test compressed double factorization"""
+    """Test compressed double factorization for smaller N2."""
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
@@ -559,7 +559,7 @@ def test_double_factorized_t2_optimize_max_terms_n2_small():
 
 
 def test_double_factorized_t2_optimize_max_terms_n2_large():
-    """Test compressed double factorization"""
+    """Test compressed double factorization for larger N2."""
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
@@ -593,6 +593,7 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
         options=dict(maxiter=150),
         regularization=1e-4,
     )
+    optimized_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats_optimized) ** 2)
     reconstructed_optimized = (
         1j
         * contract(
@@ -610,6 +611,7 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
     diag_coulomb_mats, orbital_rotations = double_factorized_t2(
         ccsd.t2, max_terms=max_terms
     )
+    init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
     reconstructed = (
         1j
         * contract(
@@ -625,6 +627,9 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
 
     # Check results
     assert error_optimized < 0.5 * error
+    np.testing.assert_allclose(
+        optimized_diag_coulomb_norm, init_diag_coulomb_norm, atol=2
+    )
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
 
