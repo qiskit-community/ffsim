@@ -14,8 +14,10 @@ from __future__ import annotations
 
 import itertools
 import math
-from typing import cast
+from typing import Literal, cast, overload
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 import scipy.linalg
 import scipy.optimize
@@ -24,6 +26,7 @@ from opt_einsum import contract
 from ffsim.linalg.util import (
     antihermitians_from_parameters,
     df_tensors_from_params,
+    df_tensors_from_params_jax,
     df_tensors_to_params,
 )
 
@@ -129,7 +132,7 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
             if i > j:
                 raise ValueError(
                     "When specifying diagonal Coulomb indices, you must give only "
-                    "upper trianglular indices. "
+                    "upper triangular indices. "
                     f"Got {(i, j)}, which is a lower triangular index."
                 )
 
@@ -170,13 +173,12 @@ def double_factorized(
 
     The default behavior of this routine is to perform a straightforward
     "exact" factorization of the two-body tensor based on a nested
-    eigenvalue decomposition. Additionally, one can choose to optimize the
-    coefficients stored in the tensor to achieve a "compressed" factorization.
-    This option is enabled by setting the `optimize` parameter to `True`.
-    The optimization attempts to minimize a least-squares objective function
-    quantifying the error in the decomposition.
-    It uses `scipy.optimize.minimize`, passing both the objective function
-    and its gradient. The diagonal Coulomb matrices returned by the optimization can be
+    eigenvalue decomposition, and then truncate the terms based on the values of `tol`
+    and `max_vecs`.
+    If `optimize` is set to ``True``, then the entries of the resulting tensors
+    (the diagonal Coulomb matrices and orbital rotations) are further optimized with
+    `scipy.optimize.minimize` to reduce the error in the factorization.
+    The diagonal Coulomb matrices returned by the optimization can be
     optionally constrained to have only certain elements allowed to be nonzero.
     This is achieved by passing the `diag_coulomb_indices` parameter, which is a
     list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
@@ -198,34 +200,37 @@ def double_factorized(
             the reconstructed tensor.
         max_vecs: An optional limit on the number of terms to keep in the decomposition
             of the two-body tensor. This argument overrides ``tol``.
-        optimize: Whether to optimize the tensors returned by the decomposition.
+        optimize: Whether to optimize the tensors returned by the decomposition to
+            to minimize the error in the factorization.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
+            This argument is ignored if `optimize` is set to ``False``.
         callback: Callback function for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
         diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
             Coulomb matrices. Matrix entries corresponding to indices not in this
             list will be set to zero. This list should contain only upper
-            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
-            Passing a list with lower triangular indices will raise an error.
-            This parameter only has effect if `optimize` is set to True.
+            triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+            This argument is ignored if `optimize` is set to ``False``.
         return_optimize_result: Whether to also return the `OptimizeResult`_ returned
             by `scipy.optimize.minimize`_.
-            This parameter only has effect if `optimize` is set to True.
+            This argument is ignored if `optimize` is set to ``False``.
         cholesky: Whether to perform the factorization using a modified Cholesky
             decomposition. If False, a full eigenvalue decomposition is used instead,
             which can be much more expensive. This argument is ignored if ``optimize``
-            is set to True.
+            is set to ``True``.
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
         is collected into a Numpy array, so this method returns a tuple of two Numpy
         arrays, the first containing the diagonal Coulomb matrices and the second
         containing the orbital rotations. Each Numpy array will have shape (L, n, n)
-        where L is the rank of the decomposition and n is the number of orbitals.
-        If `optimize` and `return_optimize_result` are both set to ``True``,
+        where L is the number of terms in the decomposition and n is the number of
+        orbitals. If `optimize` and `return_optimize_result` are both set to ``True``,
         the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
 
     Raises:
@@ -450,9 +455,56 @@ def _grad_generator(mat: np.ndarray, grad_orbital_rotation: np.ndarray) -> np.nd
     return np.real(grad[triu_indices])
 
 
+@overload
 def double_factorized_t2(
-    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
-) -> tuple[np.ndarray, np.ndarray]:
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = ...,
+    max_terms: int | None = ...,
+    optimize: bool = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
+    regularization: float = ...,
+    multi_stage_start: int | None = ...,
+    multi_stage_step: int | None = ...,
+    return_optimize_result: Literal[False] = False,
+) -> tuple[np.ndarray, np.ndarray]: ...
+@overload
+def double_factorized_t2(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = ...,
+    max_terms: int | None = ...,
+    optimize: bool = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
+    regularization: float = ...,
+    multi_stage_start: int | None = ...,
+    multi_stage_step: int | None = ...,
+    return_optimize_result: Literal[True],
+) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]: ...
+def double_factorized_t2(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = 1e-8,
+    max_terms: int | None = None,
+    optimize: bool = False,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    diag_coulomb_indices: list[tuple[int, int]] | None = None,
+    regularization: float = 0,
+    multi_stage_start: int | None = None,
+    multi_stage_step: int | None = None,
+    return_optimize_result: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
+):
     r"""Double-factorized decomposition of t2 amplitudes.
 
     The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is
@@ -474,6 +526,30 @@ def double_factorized_t2(
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
+    The default behavior of this routine is to perform a straightforward
+    "exact" factorization of the t2 amplitudes tensor based on a nested
+    eigenvalue decomposition, and then truncate the terms based on the values of `tol`
+    and `max_terms`.
+    If `optimize` is set to ``True``, then the entries of the resulting tensors
+    (the diagonal Coulomb matrices and orbital rotations) are further optimized with
+    `scipy.optimize.minimize`_ to reduce the error in the factorization.
+    The diagonal Coulomb matrices returned by the optimization can be
+    optionally constrained to have only certain elements allowed to be nonzero.
+    This is achieved by passing the `diag_coulomb_indices` parameter, which is a
+    list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
+    matrices are allowed to be nonzero. Since the diagonal Coulomb matrices are
+    symmetric, only upper triangular indices should be given, i.e.,
+    pairs :math:`(i, j)` where :math:`i \leq j`.
+
+    A "multi-stage" optimization can be requested by passing either `multi_stage_start`
+    or `multi_stage_step`. In multi-stage optimization, the number of terms is
+    iteratively reduced by `multi_stage_step`, starting from `multi_stage_start`,
+    until there are only `max_terms` remaining. This procedure can yield a more accurate
+    factorization at the cost of increased running time. If you only pass one of
+    `multi_stage_start` or `multi_stage_step`, then the value of the other is chosen
+    automatically: `multi_stage_start` defaults to the total number of terms returned by
+    the exact factorization, and `multi_stage_step` defaults to 1.
+
     Note: Currently, only real-valued t2 amplitudes are supported.
 
     Args:
@@ -484,19 +560,69 @@ def double_factorized_t2(
             the reconstructed tensor.
         max_terms: An optional limit on the number of terms to keep in the decomposition
             of the t2 amplitudes tensor. This argument overrides `tol`.
+        optimize: Whether to optimize the tensors returned by the decomposition to
+            to minimize the error in the factorization.
+        method: The optimization method. See the documentation of
+            `scipy.optimize.minimize`_ for possible values.
+            This argument is ignored if `optimize` is set to ``False``.
+        callback: Callback function for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
+        options: Options for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
+        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+            Coulomb matrices. Matrix entries corresponding to indices not in this
+            list will be set to zero. This list should contain only upper
+            triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+            This argument is ignored if `optimize` is set to ``False``.
+        regularization: Parameter for regularizing the norm of the diagonal Coulomb
+            matrices. This specifies the coefficient to a term added to the loss
+            function equal to the difference between the sums of the squares of the
+            Frobenius norms of the diagonal Coulomb matrices from the optimized
+            factorization and the exact factorization.
+            This argument is ignored if `optimize` is set to ``False``.
+        multi_stage_start: The number of terms to start multi-stage optimization.
+            This argument is ignored if `optimize` is set to ``False``.
+        multi_stage_step: The number of terms to eliminate in each stage of multi-stage
+            optimization.
+            This argument is ignored if `optimize` is set to ``False``.
+        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
+            by `scipy.optimize.minimize`_.
+            This argument is ignored if `optimize` is set to ``False``.
 
     Returns:
-        - The diagonal Coulomb matrices, as a Numpy array of shape
-          `(n_terms, norb, norb)`.
-          The last two axes index the rows and columns of the matrices.
-          The first axis indexes the eigenvectors of the decomposition. Note that each
-          eigenvector gives rise to 2 terms in the decomposition.
-        - The orbital rotations, as a Numpy array of shape
-          `(n_terms, norb, norb)`.
-          The last two axes index the rows and columns of the orbital rotations.
-          The first axis indexes the eigenvectors of the decomposition. Note that each
-          eigenvector gives rise to 2 terms in the decomposition.
+        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
+        is collected into a Numpy array, so this method returns a tuple of two Numpy
+        arrays, the first containing the diagonal Coulomb matrices and the second
+        containing the orbital rotations. Each Numpy array will have shape (L, n, n)
+        where L is the number of terms in the decomposition and n is the number of
+        orbitals. If `optimize` and `return_optimize_result` are both set to ``True``,
+        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
+
+    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
+    if optimize:
+        return _double_factorized_t2_compressed(
+            t2_amplitudes,
+            tol=tol,
+            max_terms=max_terms,
+            diag_coulomb_indices=diag_coulomb_indices,
+            method=method,
+            callback=callback,
+            options=options,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
+            regularization=regularization,
+            return_optimize_result=return_optimize_result,
+        )
+    return _double_factorized_t2_explicit(t2_amplitudes, tol=tol, max_terms=max_terms)
+
+
+def _double_factorized_t2_explicit(
+    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
+) -> tuple[np.ndarray, np.ndarray]:
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
 
@@ -522,6 +648,93 @@ def double_factorized_t2(
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:max_terms]
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:max_terms]
 
+    return diag_coulomb_mats, orbital_rotations
+
+
+def _double_factorized_t2_compressed(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float,
+    max_terms: int | None,
+    method: str,
+    callback,
+    options: dict | None,
+    diag_coulomb_indices: list[tuple[int, int]] | None,
+    multi_stage_start: int | None,
+    multi_stage_step: int | None,
+    regularization: float,
+    return_optimize_result: bool,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
+):
+    nocc, _, nvrt, _ = t2_amplitudes.shape
+    norb = nocc + nvrt
+
+    diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
+        t2_amplitudes, tol=tol
+    )
+    init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
+    n_terms_full, _, _ = orbital_rotations.shape
+
+    if max_terms is None or n_terms_full < max_terms:
+        return diag_coulomb_mats, orbital_rotations
+
+    if multi_stage_start is None and multi_stage_step is None:
+        list_reps = [max_terms]
+    else:
+        multi_stage_start = min(n_terms_full, multi_stage_start or n_terms_full)
+        multi_stage_step = multi_stage_step or 1
+        list_reps = list(range(multi_stage_start, max_terms, -multi_stage_step))
+        list_reps.append(max_terms)
+
+    for n_tensors in list_reps:
+        diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
+        orbital_rotations = orbital_rotations[:n_tensors]
+
+        def fun(x: np.ndarray):
+            diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
+                x, n_tensors, norb, diag_coulomb_indices
+            )
+            reconstructed = (
+                1j
+                * contract(
+                    "mpq,map,mip,mbq,mjq->ijab",
+                    diag_coulomb_mats,
+                    orbital_rotations,
+                    orbital_rotations.conj(),
+                    orbital_rotations,
+                    orbital_rotations.conj(),
+                    optimize="greedy",
+                )[:nocc, :nocc, nocc:, nocc:]
+            )
+            loss = 0.5 * jnp.sum(jnp.abs(reconstructed - t2_amplitudes) ** 2)
+            if regularization:
+                diag_coulomb_norm = jnp.sum(jnp.abs(diag_coulomb_mats) ** 2)
+                loss += regularization * jnp.abs(
+                    diag_coulomb_norm - init_diag_coulomb_norm
+                )
+            return loss
+
+        value_and_grad_func = jax.value_and_grad(fun)
+
+        x0 = df_tensors_to_params(
+            diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
+        )
+        result = scipy.optimize.minimize(
+            value_and_grad_func,
+            x0,
+            method=method,
+            jac=True,
+            callback=callback,
+            options=options,
+        )
+        diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
+            result.x, n_tensors, norb, diag_coulomb_indices
+        )
+
+    if return_optimize_result:
+        return diag_coulomb_mats, orbital_rotations, result
     return diag_coulomb_mats, orbital_rotations
 
 
@@ -597,14 +810,12 @@ def double_factorized_t2_alpha_beta(
           the matrices, and the third from last axis, which has 3 dimensions, indexes
           the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
           beta-beta (in that order).
-          The first axis indexes the singular vectors of the decomposition. Note that
-          each singular vector gives rise to 4 terms in the decomposition.
+          The first axis indexes the terms of the decomposition.
         - The orbital rotations, as a Numpy array of shape
           `(n_terms, 2, norb, norb)`. The last two axes index the rows and columns of
           the orbital rotations, and the third from last axis, which has 2 dimensions,
           indexes the spin sector of the orbital rotation: first alpha, then beta.
-          The first axis indexes the singular vectors of the decomposition. Note that
-          each singular vector gives rise to 4 terms in the decomposition.
+          The first axis indexes the terms of the decomposition.
     """
     nocc_a, nocc_b, nvrt_a, nvrt_b = t2_amplitudes.shape
     norb = nocc_a + nvrt_a
