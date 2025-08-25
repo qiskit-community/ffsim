@@ -132,7 +132,7 @@ def _validate_diag_coulomb_indices(indices: list[tuple[int, int]] | None):
             if i > j:
                 raise ValueError(
                     "When specifying diagonal Coulomb indices, you must give only "
-                    "upper trianglular indices. "
+                    "upper triangular indices. "
                     f"Got {(i, j)}, which is a lower triangular index."
                 )
 
@@ -204,23 +204,25 @@ def double_factorized(
             to minimize the error in the factorization.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
+            This argument is ignored if `optimize` is set to ``False``.
         callback: Callback function for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
         diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
             Coulomb matrices. Matrix entries corresponding to indices not in this
             list will be set to zero. This list should contain only upper
-            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
-            Passing a list with lower triangular indices will raise an error.
-            This parameter only has effect if `optimize` is set to True.
+            triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+            This argument is ignored if `optimize` is set to ``False``.
         return_optimize_result: Whether to also return the `OptimizeResult`_ returned
             by `scipy.optimize.minimize`_.
-            This parameter only has effect if `optimize` is set to True.
+            This argument is ignored if `optimize` is set to ``False``.
         cholesky: Whether to perform the factorization using a modified Cholesky
             decomposition. If False, a full eigenvalue decomposition is used instead,
             which can be much more expensive. This argument is ignored if ``optimize``
-            is set to True.
+            is set to ``True``.
 
     Returns:
         The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
@@ -530,7 +532,7 @@ def double_factorized_t2(
     and `max_terms`.
     If `optimize` is set to ``True``, then the entries of the resulting tensors
     (the diagonal Coulomb matrices and orbital rotations) are further optimized with
-    `scipy.optimize.minimize` to reduce the error in the factorization.
+    `scipy.optimize.minimize`_ to reduce the error in the factorization.
     The diagonal Coulomb matrices returned by the optimization can be
     optionally constrained to have only certain elements allowed to be nonzero.
     This is achieved by passing the `diag_coulomb_indices` parameter, which is a
@@ -561,24 +563,32 @@ def double_factorized_t2(
             to minimize the error in the factorization.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
+            This argument is ignored if `optimize` is set to ``False``.
         callback: Callback function for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
         diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
             Coulomb matrices. Matrix entries corresponding to indices not in this
             list will be set to zero. This list should contain only upper
-            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+            triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+            This argument is ignored if `optimize` is set to ``False``.
         regularization: Parameter for regularizing the norm of the diagonal Coulomb
             matrices. This specifies the coefficient to a term added to the loss
             function equal to the difference between the sums of the squares of the
             Frobenius norms of the diagonal Coulomb matrices from the optimized
             factorization and the exact factorization.
+            This argument is ignored if `optimize` is set to ``False``.
         multi_stage_start: The number of terms to start multi-stage optimization.
+            This argument is ignored if `optimize` is set to ``False``.
         multi_stage_step: The number of terms to eliminate in each stage of multi-stage
             optimization.
+            This argument is ignored if `optimize` is set to ``False``.
         return_optimize_result: Whether to also return the `OptimizeResult`_ returned
             by `scipy.optimize.minimize`_.
+            This argument is ignored if `optimize` is set to ``False``.
 
     Returns:
         - The diagonal Coulomb matrices, as a Numpy array of shape

@@ -185,7 +185,7 @@ class DoubleFactorizedHamiltonian(
             diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
                 Coulomb matrices. Matrix entries corresponding to indices not in this
                 list will be set to zero. This list should contain only upper
-                trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+                triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
                 Passing a list with lower triangular indices will raise an error.
                 This parameter is only used if `optimize` is set to True.
             cholesky: Whether to perform the factorization using a modified Cholesky
