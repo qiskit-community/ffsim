@@ -229,8 +229,8 @@ def double_factorized(
         is collected into a Numpy array, so this method returns a tuple of two Numpy
         arrays, the first containing the diagonal Coulomb matrices and the second
         containing the orbital rotations. Each Numpy array will have shape (L, n, n)
-        where L is the rank of the decomposition and n is the number of orbitals.
-        If `optimize` and `return_optimize_result` are both set to ``True``,
+        where L is the number of terms in the decomposition and n is the number of
+        orbitals. If `optimize` and `return_optimize_result` are both set to ``True``,
         the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
 
     Raises:
@@ -540,6 +540,7 @@ def double_factorized_t2(
     matrices are allowed to be nonzero. Since the diagonal Coulomb matrices are
     symmetric, only upper triangular indices should be given, i.e.,
     pairs :math:`(i, j)` where :math:`i \leq j`.
+
     A "multi-stage" optimization can be requested by passing either `multi_stage_start`
     or `multi_stage_step`. In multi-stage optimization, the number of terms is
     iteratively reduced by `multi_stage_step`, starting from `multi_stage_start`,
@@ -591,16 +592,13 @@ def double_factorized_t2(
             This argument is ignored if `optimize` is set to ``False``.
 
     Returns:
-        - The diagonal Coulomb matrices, as a Numpy array of shape
-          `(n_terms, norb, norb)`.
-          The last two axes index the rows and columns of the matrices.
-          The first axis indexes the eigenvectors of the decomposition. Note that each
-          eigenvector gives rise to 2 terms in the decomposition.
-        - The orbital rotations, as a Numpy array of shape
-          `(n_terms, norb, norb)`.
-          The last two axes index the rows and columns of the orbital rotations.
-          The first axis indexes the eigenvectors of the decomposition. Note that each
-          eigenvector gives rise to 2 terms in the decomposition.
+        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
+        is collected into a Numpy array, so this method returns a tuple of two Numpy
+        arrays, the first containing the diagonal Coulomb matrices and the second
+        containing the orbital rotations. Each Numpy array will have shape (L, n, n)
+        where L is the number of terms in the decomposition and n is the number of
+        orbitals. If `optimize` and `return_optimize_result` are both set to ``True``,
+        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
 
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
@@ -812,14 +810,12 @@ def double_factorized_t2_alpha_beta(
           the matrices, and the third from last axis, which has 3 dimensions, indexes
           the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
           beta-beta (in that order).
-          The first axis indexes the singular vectors of the decomposition. Note that
-          each singular vector gives rise to 4 terms in the decomposition.
+          The first axis indexes the terms of the decomposition.
         - The orbital rotations, as a Numpy array of shape
           `(n_terms, 2, norb, norb)`. The last two axes index the rows and columns of
           the orbital rotations, and the third from last axis, which has 2 dimensions,
           indexes the spin sector of the orbital rotation: first alpha, then beta.
-          The first axis indexes the singular vectors of the decomposition. Note that
-          each singular vector gives rise to 4 terms in the decomposition.
+          The first axis indexes the terms of the decomposition.
     """
     nocc_a, nocc_b, nvrt_a, nvrt_b = t2_amplitudes.shape
     norb = nocc_a + nvrt_a
