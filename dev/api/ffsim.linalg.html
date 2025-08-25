@@ -362,13 +362,12 @@ too small, then the error of the decomposition may exceed the specified
 error threshold.</p>
 <p>The default behavior of this routine is to perform a straightforward
 “exact” factorization of the two-body tensor based on a nested
-eigenvalue decomposition. Additionally, one can choose to optimize the
-coefficients stored in the tensor to achieve a “compressed” factorization.
-This option is enabled by setting the <cite>optimize</cite> parameter to <cite>True</cite>.
-The optimization attempts to minimize a least-squares objective function
-quantifying the error in the decomposition.
-It uses <cite>scipy.optimize.minimize</cite>, passing both the objective function
-and its gradient. The diagonal Coulomb matrices returned by the optimization can be
+eigenvalue decomposition, and then truncate the terms based on the values of <cite>tol</cite>
+and <cite>max_vecs</cite>.
+If <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, then the entries of the resulting tensors
+(the diagonal Coulomb matrices and orbital rotations) are further optimized with
+<cite>scipy.optimize.minimize</cite> to reduce the error in the factorization.
+The diagonal Coulomb matrices returned by the optimization can be
 optionally constrained to have only certain elements allowed to be nonzero.
 This is achieved by passing the <cite>diag_coulomb_indices</cite> parameter, which is a
 list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
@@ -391,26 +390,29 @@ an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
 <li><p><strong>max_vecs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
 of the two-body tensor. This argument overrides <code class="docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
-<li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition.</p></li>
+<li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition to
+to minimize the error in the factorization.</p></li>
 <li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The optimization method. See the documentation of
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.</p></li>
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>callback</strong> – Callback function for the optimization. See the documentation of
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Options for the optimization. See the documentation of
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.</p></li>
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>diag_coulomb_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the diagonal
 Coulomb matrices. Matrix entries corresponding to indices not in this
 list will be set to zero. This list should contain only upper
-trianglular indices, i.e., pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.
-Passing a list with lower triangular indices will raise an error.
-This parameter only has effect if <cite>optimize</cite> is set to True.</p></li>
+triangular indices, i.e., pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>return_optimize_result</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to also return the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html">OptimizeResult</a> returned
 by <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>.
-This parameter only has effect if <cite>optimize</cite> is set to True.</p></li>
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>cholesky</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to perform the factorization using a modified Cholesky
 decomposition. If False, a full eigenvalue decomposition is used instead,
 which can be much more expensive. This argument is ignored if <code class="docutils literal notranslate"><span class="pre">optimize</span></code>
-is set to True.</p></li>
+is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -418,8 +420,8 @@ is set to True.</p></li>
 is collected into a Numpy array, so this method returns a tuple of two Numpy
 arrays, the first containing the diagonal Coulomb matrices and the second
 containing the orbital rotations. Each Numpy array will have shape (L, n, n)
-where L is the rank of the decomposition and n is the number of orbitals.
-If <cite>optimize</cite> and <cite>return_optimize_result</cite> are both set to <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+where L is the number of terms in the decomposition and n is the number of
+orbitals. If <cite>optimize</cite> and <cite>return_optimize_result</cite> are both set to <code class="docutils literal notranslate"><span class="pre">True</span></code>,
 the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html">OptimizeResult</a> returned by <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> is also returned.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
@@ -430,7 +432,7 @@ the <a class="reference external" href="https://docs.scipy.org/doc/scipy/referen
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.double_factorized_t2">
-<span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">double_factorized_t2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2_amplitudes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/double_factorized_decomposition.html#double_factorized_t2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.double_factorized_t2" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">double_factorized_t2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2_amplitudes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_optimize_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/double_factorized_decomposition.html#double_factorized_t2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.double_factorized_t2" title="Link to this definition">¶</a></dt>
 <dd><p>Double-factorized decomposition of t2 amplitudes.</p>
 <p>The double-factorized decomposition of a t2 amplitudes tensor <span class="math notranslate nohighlight">\(t_{ijab}\)</span> is</p>
 <div class="math-wrapper docutils container">
@@ -448,6 +450,28 @@ Furthermore, the <cite>max_terms</cite> parameter specifies an optional upper bo
 on <span class="math notranslate nohighlight">\(L\)</span>. The <cite>max_terms</cite> parameter is always respected, so if it is
 too small, then the error of the decomposition may exceed the specified
 error threshold.</p>
+<p>The default behavior of this routine is to perform a straightforward
+“exact” factorization of the t2 amplitudes tensor based on a nested
+eigenvalue decomposition, and then truncate the terms based on the values of <cite>tol</cite>
+and <cite>max_terms</cite>.
+If <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, then the entries of the resulting tensors
+(the diagonal Coulomb matrices and orbital rotations) are further optimized with
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> to reduce the error in the factorization.
+The diagonal Coulomb matrices returned by the optimization can be
+optionally constrained to have only certain elements allowed to be nonzero.
+This is achieved by passing the <cite>diag_coulomb_indices</cite> parameter, which is a
+list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
+matrices are allowed to be nonzero. Since the diagonal Coulomb matrices are
+symmetric, only upper triangular indices should be given, i.e.,
+pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.</p>
+<p>A “multi-stage” optimization can be requested by passing either <cite>multi_stage_start</cite>
+or <cite>multi_stage_step</cite>. In multi-stage optimization, the number of terms is
+iteratively reduced by <cite>multi_stage_step</cite>, starting from <cite>multi_stage_start</cite>,
+until there are only <cite>max_terms</cite> remaining. This procedure can yield a more accurate
+factorization at the cost of increased running time. If you only pass one of
+<cite>multi_stage_start</cite> or <cite>multi_stage_step</cite>, then the value of the other is chosen
+automatically: <cite>multi_stage_start</cite> defaults to the total number of terms returned by
+the exact factorization, and <cite>multi_stage_step</cite> defaults to 1.</p>
 <p>Note: Currently, only real-valued t2 amplitudes are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -459,25 +483,49 @@ an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
 <li><p><strong>max_terms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
 of the t2 amplitudes tensor. This argument overrides <cite>tol</cite>.</p></li>
+<li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition to
+to minimize the error in the factorization.</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The optimization method. See the documentation of
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>callback</strong> – Callback function for the optimization. See the documentation of
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Options for the optimization. See the documentation of
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>diag_coulomb_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Allowed indices for nonzero values of the diagonal
+Coulomb matrices. Matrix entries corresponding to indices not in this
+list will be set to zero. This list should contain only upper
+triangular indices, i.e., pairs <span class="math notranslate nohighlight">\((i, j)\)</span> where <span class="math notranslate nohighlight">\(i \leq j\)</span>.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>regularization</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Parameter for regularizing the norm of the diagonal Coulomb
+matrices. This specifies the coefficient to a term added to the loss
+function equal to the difference between the sums of the squares of the
+Frobenius norms of the diagonal Coulomb matrices from the optimized
+factorization and the exact factorization.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>multi_stage_start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of terms to start multi-stage optimization.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>multi_stage_step</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of terms to eliminate in each stage of multi-stage
+optimization.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>return_optimize_result</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to also return the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html">OptimizeResult</a> returned
+by <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizeResult</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>The diagonal Coulomb matrices, as a Numpy array of shape
-<cite>(n_terms, norb, norb)</cite>.
-The last two axes index the rows and columns of the matrices.
-The first axis indexes the eigenvectors of the decomposition. Note that each
-eigenvector gives rise to 2 terms in the decomposition.</p></li>
-<li><p>The orbital rotations, as a Numpy array of shape
-<cite>(n_terms, norb, norb)</cite>.
-The last two axes index the rows and columns of the orbital rotations.
-The first axis indexes the eigenvectors of the decomposition. Note that each
-eigenvector gives rise to 2 terms in the decomposition.</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p>The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
+is collected into a Numpy array, so this method returns a tuple of two Numpy
+arrays, the first containing the diagonal Coulomb matrices and the second
+containing the orbital rotations. Each Numpy array will have shape (L, n, n)
+where L is the number of terms in the decomposition and n is the number of
+orbitals. If <cite>optimize</cite> and <cite>return_optimize_result</cite> are both set to <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html">OptimizeResult</a> returned by <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> is also returned.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -555,14 +603,12 @@ The last two axes index the rows and columns of
 the matrices, and the third from last axis, which has 3 dimensions, indexes
 the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
 beta-beta (in that order).
-The first axis indexes the singular vectors of the decomposition. Note that
-each singular vector gives rise to 4 terms in the decomposition.</p></li>
+The first axis indexes the terms of the decomposition.</p></li>
 <li><p>The orbital rotations, as a Numpy array of shape
 <cite>(n_terms, 2, norb, norb)</cite>. The last two axes index the rows and columns of
 the orbital rotations, and the third from last axis, which has 2 dimensions,
 indexes the spin sector of the orbital rotation: first alpha, then beta.
-The first axis indexes the singular vectors of the decomposition. Note that
-each singular vector gives rise to 4 terms in the decomposition.</p></li>
+The first axis indexes the terms of the decomposition.</p></li>
 </ul>
 </p>
 </dd>

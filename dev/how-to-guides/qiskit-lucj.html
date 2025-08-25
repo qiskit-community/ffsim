@@ -284,6 +284,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyscf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyscf.cc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericBackendV2</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.preset_passmanagers</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_preset_pass_manager</span>
@@ -329,8 +330,15 @@
 <span class="c1"># Use interactions implementable on a square lattice</span>
 <span class="n">pairs_aa</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 <span class="n">pairs_ab</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span>
+
 <span class="n">ucj_op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">UCJOpSpinBalanced</span><span class="o">.</span><span class="n">from_t_amplitudes</span><span class="p">(</span>
-    <span class="n">ccsd</span><span class="o">.</span><span class="n">t2</span><span class="p">,</span> <span class="n">t1</span><span class="o">=</span><span class="n">ccsd</span><span class="o">.</span><span class="n">t1</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">interaction_pairs</span><span class="o">=</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span><span class="p">)</span>
+    <span class="n">ccsd</span><span class="o">.</span><span class="n">t2</span><span class="p">,</span>
+    <span class="n">t1</span><span class="o">=</span><span class="n">ccsd</span><span class="o">.</span><span class="n">t1</span><span class="p">,</span>
+    <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
+    <span class="n">interaction_pairs</span><span class="o">=</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span><span class="p">),</span>
+    <span class="c1"># Setting optimize=True enables the &quot;compressed&quot; factorization</span>
+    <span class="n">optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
 <span class="p">)</span>
 
 <span class="c1"># Construct circuit</span>
@@ -359,7 +367,7 @@
 converged SCF energy = -108.835236570774
 norb = 16
 nelec = (5, 5)
-E(CCSD) = -109.0398256929732  E_corr = -0.2045891221988317
+E(CCSD) = -109.0398256929732  E_corr = -0.2045891221988314
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -368,9 +376,9 @@ E(CCSD) = -109.0398256929732  E_corr = -0.2045891221988317
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OrderedDict([(&#39;xx_plus_yy&#39;, 582),
+OrderedDict([(&#39;xx_plus_yy&#39;, 590),
+             (&#39;cp&#39;, 92),
              (&#39;p&#39;, 64),
-             (&#39;cp&#39;, 52),
              (&#39;measure&#39;, 32),
              (&#39;x&#39;, 10),
              (&#39;barrier&#39;, 1)])
@@ -438,13 +446,13 @@ OrderedDict([(&#39;xx_plus_yy&#39;, 582),
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 SCF not converged.
-SCF energy = -75.3484557078783
+SCF energy = -75.3484557085597
 norb = 11
 nelec = (5, 4)
 
 WARN: RCCSD method does not support ROHF method. ROHF object is converted to UHF object and UCCSD method is called.
 
-E(UCCSD) = -75.45619739111358  E_corr = -0.1077416832353066
+E(UCCSD) = -75.45619739098926  E_corr = -0.1077416824295431
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">

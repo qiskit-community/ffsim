@@ -659,13 +659,28 @@
         <span class="p">]</span>
         <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+        <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
+        <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">multi_stage_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">multi_stage_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UCJOpSpinBalanced</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</span>
 
 <span class="sd">        Performs a double-factorization of the t2 amplitudes and constructs the</span>
 <span class="sd">        ansatz repetitions from the terms of the decomposition, up to an optionally</span>
-<span class="sd">        specified number of ansatz repetitions. Terms are included in decreasing order</span>
-<span class="sd">        of the absolute value of the corresponding eigenvalue in the factorization.</span>
+<span class="sd">        specified number of ansatz repetitions.</span>
+
+<span class="sd">        The default behavior of this routine is to perform a straightforward</span>
+<span class="sd">        &quot;exact&quot; factorization of the t2 amplitudes tensor based on a nested</span>
+<span class="sd">        eigenvalue decomposition, and then truncate the terms based on the values of</span>
+<span class="sd">        `tol` and `n_reps`.</span>
+<span class="sd">        If `optimize` is set to ``True``, then the entries of the resulting tensors</span>
+<span class="sd">        (the diagonal Coulomb matrices and orbital rotations) are further optimized with</span>
+<span class="sd">        `scipy.optimize.minimize`_ to reduce the error in the factorization.</span>
+<span class="sd">        See :func:`ffsim.linalg.double_factorized_t2` for details.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            t2: The t2 amplitudes.</span>
@@ -693,6 +708,26 @@
 <span class="sd">                The error is defined as the maximum absolute difference between</span>
 <span class="sd">                an element of the original tensor and the corresponding element of</span>
 <span class="sd">                the reconstructed tensor.</span>
+<span class="sd">            optimize: Whether to optimize the tensors returned by the decomposition to</span>
+<span class="sd">                to minimize the error in the factorization.</span>
+<span class="sd">            method: The optimization method. See the documentation of</span>
+<span class="sd">                `scipy.optimize.minimize`_ for possible values.</span>
+<span class="sd">                This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">            callback: Callback function for the optimization. See the documentation of</span>
+<span class="sd">                `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">                This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">            options: Options for the optimization. See the documentation of</span>
+<span class="sd">                `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">                This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a</span>
+<span class="sd">                description of this argument.</span>
+<span class="sd">                This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a</span>
+<span class="sd">                description of this argument.</span>
+<span class="sd">                This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a</span>
+<span class="sd">                description of this argument.</span>
+<span class="sd">                This argument is ignored if `optimize` is set to ``False``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The UCJ operator with parameters initialized from the t2 amplitudes.</span>
@@ -700,6 +735,8 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: Interaction pairs list contained duplicate interactions.</span>
 <span class="sd">            ValueError: Interaction pairs list contained lower triangular pairs.</span>
+
+<span class="sd">        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">interaction_pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">interaction_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -709,9 +746,23 @@
 
         <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
-
+        <span class="k">if</span> <span class="n">pairs_aa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pairs_ab</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">diag_coulomb_indices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diag_coulomb_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="n">pairs_aa</span> <span class="ow">or</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">(</span><span class="n">pairs_ab</span> <span class="ow">or</span> <span class="p">[])))</span>
         <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">double_factorized_t2</span><span class="p">(</span>
-            <span class="n">t2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_terms</span><span class="o">=</span><span class="n">n_reps</span>
+            <span class="n">t2</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">max_terms</span><span class="o">=</span><span class="n">n_reps</span><span class="p">,</span>
+            <span class="n">optimize</span><span class="o">=</span><span class="n">optimize</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="n">diag_coulomb_indices</span><span class="o">=</span><span class="n">diag_coulomb_indices</span><span class="p">,</span>
+            <span class="n">regularization</span><span class="o">=</span><span class="n">regularization</span><span class="p">,</span>
+            <span class="n">multi_stage_start</span><span class="o">=</span><span class="n">multi_stage_start</span><span class="p">,</span>
+            <span class="n">multi_stage_step</span><span class="o">=</span><span class="n">multi_stage_step</span><span class="p">,</span>
+            <span class="n">return_optimize_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">diag_coulomb_mats</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 

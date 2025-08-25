@@ -281,8 +281,10 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.optimize</span>
@@ -291,6 +293,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.linalg.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">antihermitians_from_parameters</span><span class="p">,</span>
     <span class="n">df_tensors_from_params</span><span class="p">,</span>
+    <span class="n">df_tensors_from_params_jax</span><span class="p">,</span>
     <span class="n">df_tensors_to_params</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -399,7 +402,7 @@
             <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;When specifying diagonal Coulomb indices, you must give only &quot;</span>
-                    <span class="s2">&quot;upper trianglular indices. &quot;</span>
+                    <span class="s2">&quot;upper triangular indices. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}</span><span class="s2">, which is a lower triangular index.&quot;</span>
                 <span class="p">)</span>
 
@@ -442,13 +445,12 @@
 
 <span class="sd">    The default behavior of this routine is to perform a straightforward</span>
 <span class="sd">    &quot;exact&quot; factorization of the two-body tensor based on a nested</span>
-<span class="sd">    eigenvalue decomposition. Additionally, one can choose to optimize the</span>
-<span class="sd">    coefficients stored in the tensor to achieve a &quot;compressed&quot; factorization.</span>
-<span class="sd">    This option is enabled by setting the `optimize` parameter to `True`.</span>
-<span class="sd">    The optimization attempts to minimize a least-squares objective function</span>
-<span class="sd">    quantifying the error in the decomposition.</span>
-<span class="sd">    It uses `scipy.optimize.minimize`, passing both the objective function</span>
-<span class="sd">    and its gradient. The diagonal Coulomb matrices returned by the optimization can be</span>
+<span class="sd">    eigenvalue decomposition, and then truncate the terms based on the values of `tol`</span>
+<span class="sd">    and `max_vecs`.</span>
+<span class="sd">    If `optimize` is set to ``True``, then the entries of the resulting tensors</span>
+<span class="sd">    (the diagonal Coulomb matrices and orbital rotations) are further optimized with</span>
+<span class="sd">    `scipy.optimize.minimize` to reduce the error in the factorization.</span>
+<span class="sd">    The diagonal Coulomb matrices returned by the optimization can be</span>
 <span class="sd">    optionally constrained to have only certain elements allowed to be nonzero.</span>
 <span class="sd">    This is achieved by passing the `diag_coulomb_indices` parameter, which is a</span>
 <span class="sd">    list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb</span>
@@ -470,34 +472,37 @@
 <span class="sd">            the reconstructed tensor.</span>
 <span class="sd">        max_vecs: An optional limit on the number of terms to keep in the decomposition</span>
 <span class="sd">            of the two-body tensor. This argument overrides ``tol``.</span>
-<span class="sd">        optimize: Whether to optimize the tensors returned by the decomposition.</span>
+<span class="sd">        optimize: Whether to optimize the tensors returned by the decomposition to</span>
+<span class="sd">            to minimize the error in the factorization.</span>
 <span class="sd">        method: The optimization method. See the documentation of</span>
 <span class="sd">            `scipy.optimize.minimize`_ for possible values.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
 <span class="sd">        callback: Callback function for the optimization. See the documentation of</span>
 <span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
 <span class="sd">        options: Options for the optimization. See the documentation of</span>
 <span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
 <span class="sd">        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal</span>
 <span class="sd">            Coulomb matrices. Matrix entries corresponding to indices not in this</span>
 <span class="sd">            list will be set to zero. This list should contain only upper</span>
-<span class="sd">            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.</span>
-<span class="sd">            Passing a list with lower triangular indices will raise an error.</span>
-<span class="sd">            This parameter only has effect if `optimize` is set to True.</span>
+<span class="sd">            triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
 <span class="sd">        return_optimize_result: Whether to also return the `OptimizeResult`_ returned</span>
 <span class="sd">            by `scipy.optimize.minimize`_.</span>
-<span class="sd">            This parameter only has effect if `optimize` is set to True.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
 <span class="sd">        cholesky: Whether to perform the factorization using a modified Cholesky</span>
 <span class="sd">            decomposition. If False, a full eigenvalue decomposition is used instead,</span>
 <span class="sd">            which can be much more expensive. This argument is ignored if ``optimize``</span>
-<span class="sd">            is set to True.</span>
+<span class="sd">            is set to ``True``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices</span>
 <span class="sd">        is collected into a Numpy array, so this method returns a tuple of two Numpy</span>
 <span class="sd">        arrays, the first containing the diagonal Coulomb matrices and the second</span>
 <span class="sd">        containing the orbital rotations. Each Numpy array will have shape (L, n, n)</span>
-<span class="sd">        where L is the rank of the decomposition and n is the number of orbitals.</span>
-<span class="sd">        If `optimize` and `return_optimize_result` are both set to ``True``,</span>
+<span class="sd">        where L is the number of terms in the decomposition and n is the number of</span>
+<span class="sd">        orbitals. If `optimize` and `return_optimize_result` are both set to ``True``,</span>
 <span class="sd">        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.</span>
 
 <span class="sd">    Raises:</span>
@@ -723,11 +728,58 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">grad</span><span class="p">[</span><span class="n">triu_indices</span><span class="p">])</span>
 
 
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">double_factorized_t2</span><span class="p">(</span>
+    <span class="n">t2_amplitudes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">max_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">callback</span><span class="o">=...</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">multi_stage_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">multi_stage_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">return_optimize_result</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">double_factorized_t2</span><span class="p">(</span>
+    <span class="n">t2_amplitudes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">max_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">callback</span><span class="o">=...</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">multi_stage_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">multi_stage_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">return_optimize_result</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">]:</span> <span class="o">...</span>
 <div class="viewcode-block" id="double_factorized_t2">
 <a class="viewcode-back" href="../../../api/ffsim.linalg.html#ffsim.linalg.double_factorized_t2">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">double_factorized_t2</span><span class="p">(</span>
-    <span class="n">t2_amplitudes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">max_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">t2_amplitudes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="n">max_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
+    <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">multi_stage_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">multi_stage_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_optimize_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span>
+    <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">]</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Double-factorized decomposition of t2 amplitudes.</span>
 
 <span class="sd">    The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is</span>
@@ -749,6 +801,30 @@
 <span class="sd">    too small, then the error of the decomposition may exceed the specified</span>
 <span class="sd">    error threshold.</span>
 
+<span class="sd">    The default behavior of this routine is to perform a straightforward</span>
+<span class="sd">    &quot;exact&quot; factorization of the t2 amplitudes tensor based on a nested</span>
+<span class="sd">    eigenvalue decomposition, and then truncate the terms based on the values of `tol`</span>
+<span class="sd">    and `max_terms`.</span>
+<span class="sd">    If `optimize` is set to ``True``, then the entries of the resulting tensors</span>
+<span class="sd">    (the diagonal Coulomb matrices and orbital rotations) are further optimized with</span>
+<span class="sd">    `scipy.optimize.minimize`_ to reduce the error in the factorization.</span>
+<span class="sd">    The diagonal Coulomb matrices returned by the optimization can be</span>
+<span class="sd">    optionally constrained to have only certain elements allowed to be nonzero.</span>
+<span class="sd">    This is achieved by passing the `diag_coulomb_indices` parameter, which is a</span>
+<span class="sd">    list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb</span>
+<span class="sd">    matrices are allowed to be nonzero. Since the diagonal Coulomb matrices are</span>
+<span class="sd">    symmetric, only upper triangular indices should be given, i.e.,</span>
+<span class="sd">    pairs :math:`(i, j)` where :math:`i \leq j`.</span>
+
+<span class="sd">    A &quot;multi-stage&quot; optimization can be requested by passing either `multi_stage_start`</span>
+<span class="sd">    or `multi_stage_step`. In multi-stage optimization, the number of terms is</span>
+<span class="sd">    iteratively reduced by `multi_stage_step`, starting from `multi_stage_start`,</span>
+<span class="sd">    until there are only `max_terms` remaining. This procedure can yield a more accurate</span>
+<span class="sd">    factorization at the cost of increased running time. If you only pass one of</span>
+<span class="sd">    `multi_stage_start` or `multi_stage_step`, then the value of the other is chosen</span>
+<span class="sd">    automatically: `multi_stage_start` defaults to the total number of terms returned by</span>
+<span class="sd">    the exact factorization, and `multi_stage_step` defaults to 1.</span>
+
 <span class="sd">    Note: Currently, only real-valued t2 amplitudes are supported.</span>
 
 <span class="sd">    Args:</span>
@@ -759,19 +835,70 @@
 <span class="sd">            the reconstructed tensor.</span>
 <span class="sd">        max_terms: An optional limit on the number of terms to keep in the decomposition</span>
 <span class="sd">            of the t2 amplitudes tensor. This argument overrides `tol`.</span>
+<span class="sd">        optimize: Whether to optimize the tensors returned by the decomposition to</span>
+<span class="sd">            to minimize the error in the factorization.</span>
+<span class="sd">        method: The optimization method. See the documentation of</span>
+<span class="sd">            `scipy.optimize.minimize`_ for possible values.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">        callback: Callback function for the optimization. See the documentation of</span>
+<span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">        options: Options for the optimization. See the documentation of</span>
+<span class="sd">            `scipy.optimize.minimize`_ for usage.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal</span>
+<span class="sd">            Coulomb matrices. Matrix entries corresponding to indices not in this</span>
+<span class="sd">            list will be set to zero. This list should contain only upper</span>
+<span class="sd">            triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">        regularization: Parameter for regularizing the norm of the diagonal Coulomb</span>
+<span class="sd">            matrices. This specifies the coefficient to a term added to the loss</span>
+<span class="sd">            function equal to the difference between the sums of the squares of the</span>
+<span class="sd">            Frobenius norms of the diagonal Coulomb matrices from the optimized</span>
+<span class="sd">            factorization and the exact factorization.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">        multi_stage_start: The number of terms to start multi-stage optimization.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">        multi_stage_step: The number of terms to eliminate in each stage of multi-stage</span>
+<span class="sd">            optimization.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
+<span class="sd">        return_optimize_result: Whether to also return the `OptimizeResult`_ returned</span>
+<span class="sd">            by `scipy.optimize.minimize`_.</span>
+<span class="sd">            This argument is ignored if `optimize` is set to ``False``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        - The diagonal Coulomb matrices, as a Numpy array of shape</span>
-<span class="sd">          `(n_terms, norb, norb)`.</span>
-<span class="sd">          The last two axes index the rows and columns of the matrices.</span>
-<span class="sd">          The first axis indexes the eigenvectors of the decomposition. Note that each</span>
-<span class="sd">          eigenvector gives rise to 2 terms in the decomposition.</span>
-<span class="sd">        - The orbital rotations, as a Numpy array of shape</span>
-<span class="sd">          `(n_terms, norb, norb)`.</span>
-<span class="sd">          The last two axes index the rows and columns of the orbital rotations.</span>
-<span class="sd">          The first axis indexes the eigenvectors of the decomposition. Note that each</span>
-<span class="sd">          eigenvector gives rise to 2 terms in the decomposition.</span>
+<span class="sd">        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices</span>
+<span class="sd">        is collected into a Numpy array, so this method returns a tuple of two Numpy</span>
+<span class="sd">        arrays, the first containing the diagonal Coulomb matrices and the second</span>
+<span class="sd">        containing the orbital rotations. Each Numpy array will have shape (L, n, n)</span>
+<span class="sd">        where L is the number of terms in the decomposition and n is the number of</span>
+<span class="sd">        orbitals. If `optimize` and `return_optimize_result` are both set to ``True``,</span>
+<span class="sd">        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.</span>
+
+<span class="sd">    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html</span>
+<span class="sd">    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">optimize</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_double_factorized_t2_compressed</span><span class="p">(</span>
+            <span class="n">t2_amplitudes</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">max_terms</span><span class="o">=</span><span class="n">max_terms</span><span class="p">,</span>
+            <span class="n">diag_coulomb_indices</span><span class="o">=</span><span class="n">diag_coulomb_indices</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="n">multi_stage_start</span><span class="o">=</span><span class="n">multi_stage_start</span><span class="p">,</span>
+            <span class="n">multi_stage_step</span><span class="o">=</span><span class="n">multi_stage_step</span><span class="p">,</span>
+            <span class="n">regularization</span><span class="o">=</span><span class="n">regularization</span><span class="p">,</span>
+            <span class="n">return_optimize_result</span><span class="o">=</span><span class="n">return_optimize_result</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_double_factorized_t2_explicit</span><span class="p">(</span><span class="n">t2_amplitudes</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_terms</span><span class="o">=</span><span class="n">max_terms</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_double_factorized_t2_explicit</span><span class="p">(</span>
+    <span class="n">t2_amplitudes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">max_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
     <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2_amplitudes</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
 
@@ -797,8 +924,94 @@
     <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)[:</span><span class="n">max_terms</span><span class="p">]</span>
     <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)[:</span><span class="n">max_terms</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span></div>
+    <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
 
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_double_factorized_t2_compressed</span><span class="p">(</span>
+    <span class="n">t2_amplitudes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_terms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diag_coulomb_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">multi_stage_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">multi_stage_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">regularization</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">return_optimize_result</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span>
+    <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">]</span>
+<span class="p">):</span>
+    <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2_amplitudes</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc</span> <span class="o">+</span> <span class="n">nvrt</span>
+
+    <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">_double_factorized_t2_explicit</span><span class="p">(</span>
+        <span class="n">t2_amplitudes</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span>
+    <span class="p">)</span>
+    <span class="n">init_diag_coulomb_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">n_terms_full</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="k">if</span> <span class="n">max_terms</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">n_terms_full</span> <span class="o">&lt;</span> <span class="n">max_terms</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
+
+    <span class="k">if</span> <span class="n">multi_stage_start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">multi_stage_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">list_reps</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_terms</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">multi_stage_start</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_terms_full</span><span class="p">,</span> <span class="n">multi_stage_start</span> <span class="ow">or</span> <span class="n">n_terms_full</span><span class="p">)</span>
+        <span class="n">multi_stage_step</span> <span class="o">=</span> <span class="n">multi_stage_step</span> <span class="ow">or</span> <span class="mi">1</span>
+        <span class="n">list_reps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">multi_stage_start</span><span class="p">,</span> <span class="n">max_terms</span><span class="p">,</span> <span class="o">-</span><span class="n">multi_stage_step</span><span class="p">))</span>
+        <span class="n">list_reps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_terms</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">n_tensors</span> <span class="ow">in</span> <span class="n">list_reps</span><span class="p">:</span>
+        <span class="n">diag_coulomb_mats</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="p">[:</span><span class="n">n_tensors</span><span class="p">]</span>
+        <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="p">[:</span><span class="n">n_tensors</span><span class="p">]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">df_tensors_from_params_jax</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">diag_coulomb_indices</span>
+            <span class="p">)</span>
+            <span class="n">reconstructed</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">1</span><span class="n">j</span>
+                <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
+                    <span class="s2">&quot;mpq,map,mip,mbq,mjq-&gt;ijab&quot;</span><span class="p">,</span>
+                    <span class="n">diag_coulomb_mats</span><span class="p">,</span>
+                    <span class="n">orbital_rotations</span><span class="p">,</span>
+                    <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+                    <span class="n">orbital_rotations</span><span class="p">,</span>
+                    <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+                    <span class="n">optimize</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span>
+                <span class="p">)[:</span><span class="n">nocc</span><span class="p">,</span> <span class="p">:</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:,</span> <span class="n">nocc</span><span class="p">:]</span>
+            <span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">reconstructed</span> <span class="o">-</span> <span class="n">t2_amplitudes</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">regularization</span><span class="p">:</span>
+                <span class="n">diag_coulomb_norm</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">+=</span> <span class="n">regularization</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                    <span class="n">diag_coulomb_norm</span> <span class="o">-</span> <span class="n">init_diag_coulomb_norm</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss</span>
+
+        <span class="n">value_and_grad_func</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">value_and_grad</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">df_tensors_to_params</span><span class="p">(</span>
+            <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">diag_coulomb_indices</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
+            <span class="n">value_and_grad_func</span><span class="p">,</span>
+            <span class="n">x0</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">jac</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span> <span class="o">=</span> <span class="n">df_tensors_from_params</span><span class="p">(</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_tensors</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">diag_coulomb_indices</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_optimize_result</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span><span class="p">,</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">diag_coulomb_mats</span><span class="p">,</span> <span class="n">orbital_rotations</span>
 
 
 <div class="viewcode-block" id="double_factorized_t2_alpha_beta">
@@ -875,14 +1088,12 @@
 <span class="sd">          the matrices, and the third from last axis, which has 3 dimensions, indexes</span>
 <span class="sd">          the spin interaction type of the matrix: alpha-alpha, alpha-beta, and</span>
 <span class="sd">          beta-beta (in that order).</span>
-<span class="sd">          The first axis indexes the singular vectors of the decomposition. Note that</span>
-<span class="sd">          each singular vector gives rise to 4 terms in the decomposition.</span>
+<span class="sd">          The first axis indexes the terms of the decomposition.</span>
 <span class="sd">        - The orbital rotations, as a Numpy array of shape</span>
 <span class="sd">          `(n_terms, 2, norb, norb)`. The last two axes index the rows and columns of</span>
 <span class="sd">          the orbital rotations, and the third from last axis, which has 2 dimensions,</span>
 <span class="sd">          indexes the spin sector of the orbital rotation: first alpha, then beta.</span>
-<span class="sd">          The first axis indexes the singular vectors of the decomposition. Note that</span>
-<span class="sd">          each singular vector gives rise to 4 terms in the decomposition.</span>
+<span class="sd">          The first axis indexes the terms of the decomposition.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nocc_a</span><span class="p">,</span> <span class="n">nocc_b</span><span class="p">,</span> <span class="n">nvrt_a</span><span class="p">,</span> <span class="n">nvrt_b</span> <span class="o">=</span> <span class="n">t2_amplitudes</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">norb</span> <span class="o">=</span> <span class="n">nocc_a</span> <span class="o">+</span> <span class="n">nvrt_a</span>
