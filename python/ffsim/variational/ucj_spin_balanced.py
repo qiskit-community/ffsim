@@ -385,7 +385,7 @@ class UCJOpSpinBalanced(
         options: dict | None = None,
         multi_stage_optimization: bool = False,
         begin_reps: int | None = None,
-        step: int = 2,
+        step: int = 1,
         regularization: float = 0,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.

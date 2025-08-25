@@ -499,7 +499,7 @@ def double_factorized_t2(
     options: dict | None = None,
     multi_stage_optimization: bool = False,
     begin_terms: int | None = None,
-    step: int = 2,
+    step: int = 1,
     regularization: float = 0,
     return_optimize_result: bool = False,
 ) -> (
