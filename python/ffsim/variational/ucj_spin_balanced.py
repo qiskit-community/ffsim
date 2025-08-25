@@ -484,7 +484,6 @@ class UCJOpSpinBalanced(
             multi_stage_step=multi_stage_step,
             return_optimize_result=False,
         )
-
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
 
         n_vecs, _, _, _ = diag_coulomb_mats.shape

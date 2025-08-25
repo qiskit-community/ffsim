@@ -723,7 +723,6 @@ def _double_factorized_t2_compressed(
         x0 = df_tensors_to_params(
             diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
         )
-
         result = scipy.optimize.minimize(
             value_and_grad_func,
             x0,
@@ -732,14 +731,12 @@ def _double_factorized_t2_compressed(
             callback=callback,
             options=options,
         )
-
         diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
             result.x, n_tensors, norb, diag_coulomb_indices
         )
 
     if return_optimize_result:
         return diag_coulomb_mats, orbital_rotations, result
-
     return diag_coulomb_mats, orbital_rotations
 
 
