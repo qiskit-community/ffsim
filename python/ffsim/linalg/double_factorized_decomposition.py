@@ -173,13 +173,11 @@ def double_factorized(
 
     The default behavior of this routine is to perform a straightforward
     "exact" factorization of the two-body tensor based on a nested
-    eigenvalue decomposition. Additionally, one can choose to optimize the
-    coefficients stored in the tensor to achieve a "compressed" factorization.
-    This option is enabled by setting the `optimize` parameter to `True`.
-    The optimization attempts to minimize a least-squares objective function
-    quantifying the error in the decomposition.
-    It uses `scipy.optimize.minimize`, passing both the objective function
-    and its gradient. The diagonal Coulomb matrices returned by the optimization can be
+    eigenvalue decomposition, and then truncate the terms based on the values of `tol`
+    and `max_vecs`. If `optimize` is set to ``True``, then the entries of the
+    resulting tensors (the diagonal Coulomb matrices and orbital rotations) are further
+    optimized with `scipy.optimize.minimize` to reduce the error in the factorization.
+    The diagonal Coulomb matrices returned by the optimization can be
     optionally constrained to have only certain elements allowed to be nonzero.
     This is achieved by passing the `diag_coulomb_indices` parameter, which is a
     list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
@@ -527,11 +525,12 @@ def double_factorized_t2(
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
-    If `optimize` is `True`, instead of direct truncation, the goal is to compress the
-    operator down to `max_terms` terms while minimizing the difference with the original
-    t2 amplitude with a least-squares objective function. This is achieved by first
-    truncating the operator and then apply optimizer to minimize the coefficients in the
-    remaining operator.
+    The default behavior of this routine is to perform a straightforward
+    "exact" factorization of the t2 amplitudes tensor based on a nested
+    eigenvalue decomposition, and then truncate the terms based on the values of `tol`
+    and `max_terms`. If `optimize` is set to ``True``, then the entries of the
+    resulting tensors (the diagonal Coulomb matrices and orbital rotations) are further
+    optimized with `scipy.optimize.minimize` to reduce the error in the factorization.
 
     Note: Currently, only real-valued t2 amplitudes are supported.
 
