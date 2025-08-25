@@ -656,10 +656,10 @@ def _double_factorized_t2_explicit(
 def _double_factorized_t2_compressed(
     t2_amplitudes: np.ndarray,
     *,
-    tol: float = 1e-8,
+    tol: float,
     max_terms: int | None,
     method: str,
-    callback=None,
+    callback,
     options: dict | None,
     diag_coulomb_indices: list[tuple[int, int]] | None,
     multi_stage_start: int | None,
