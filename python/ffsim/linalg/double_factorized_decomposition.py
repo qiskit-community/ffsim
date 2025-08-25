@@ -658,8 +658,6 @@ def _double_factorized_t2_compressed(
     diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
         t2_amplitudes, tol=tol
     )
-    orbital_rotations = orbital_rotations.reshape(-1, norb, norb)
-    diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)
     init_diag_coulomb_mats = diag_coulomb_mats
     n_terms_full, _, _ = orbital_rotations.shape
 
