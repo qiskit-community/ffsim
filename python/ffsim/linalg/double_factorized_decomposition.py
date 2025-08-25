@@ -570,7 +570,10 @@ def double_factorized_t2(
             list will be set to zero. This list should contain only upper
             trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
         regularization: Parameter for regularizing the norm of the diagonal Coulomb
-            matrices.
+            matrices. This specifies the coefficient to a term added to the loss
+            function equal to the difference between the sums of the squares of the
+            Frobenius norms of the diagonal Coulomb matrices from the optimized
+            factorization and the exact factorization.
         multi_stage_start: The number of terms to start multi-stage optimization.
         multi_stage_step: The number of terms to eliminate in each stage of multi-stage
             optimization.
@@ -663,7 +666,7 @@ def _double_factorized_t2_compressed(
     diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
         t2_amplitudes, tol=tol
     )
-    init_diag_coulomb_mats = diag_coulomb_mats
+    init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
     n_terms_full, _, _ = orbital_rotations.shape
 
     if max_terms is None or n_terms_full < max_terms:
@@ -697,19 +700,13 @@ def _double_factorized_t2_compressed(
                     optimize="greedy",
                 )[:nocc, :nocc, nocc:, nocc:]
             )
-            diff = reconstructed - t2_amplitudes
+            loss = 0.5 * jnp.sum(jnp.abs(reconstructed - t2_amplitudes) ** 2)
             if regularization:
-                regularization_loss = jnp.array([0])
-                for diag_coulomb_mat in diag_coulomb_mats:
-                    regularization_loss += jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
-                for diag_coulomb_mat in init_diag_coulomb_mats:
-                    regularization_loss -= jnp.sum(jnp.abs(diag_coulomb_mat) ** 2)
-                return (
-                    0.5 * jnp.sum(jnp.abs(diff) ** 2)
-                    + regularization * jnp.abs(regularization_loss).item()
+                diag_coulomb_norm = jnp.sum(jnp.abs(diag_coulomb_mats) ** 2)
+                loss += regularization * jnp.abs(
+                    diag_coulomb_norm - init_diag_coulomb_norm
                 )
-            else:
-                return 0.5 * jnp.sum(jnp.abs(diff) ** 2)
+            return loss
 
         value_and_grad_func = jax.value_and_grad(fun)
 
