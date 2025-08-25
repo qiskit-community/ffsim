@@ -199,7 +199,8 @@ def double_factorized(
             the reconstructed tensor.
         max_vecs: An optional limit on the number of terms to keep in the decomposition
             of the two-body tensor. This argument overrides ``tol``.
-        optimize: Whether to optimize the tensors returned by the decomposition.
+        optimize: Whether to optimize the tensors returned by the decomposition to
+            to minimize the error in the factorization.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
         callback: Callback function for the optimization. See the documentation of
@@ -542,7 +543,8 @@ def double_factorized_t2(
             the reconstructed tensor.
         max_terms: An optional limit on the number of terms to keep in the decomposition
             of the t2 amplitudes tensor. This argument overrides `tol`.
-        optimize: Perform compression to recover original t2 amplitude
+        optimize: Whether to optimize the tensors returned by the decomposition to
+            to minimize the error in the factorization.
         diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
             Coulomb matrices. Matrix entries corresponding to indices not in this
             list will be set to zero. This list should contain only upper
@@ -554,10 +556,10 @@ def double_factorized_t2(
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
         multi_stage_optimization: Iteratively reduce the number of ansatz repetitions
-            starting from full configuration if  `begin_reps` is not given. In each
+            starting from full configuration if  `begin_terms` is not given. In each
             iteration, the number of repetitions is reduced by `step` until reaching
             `n_reps`.
-        begin_reps: The starting point of the multi-stage optimization
+        begin_terms: The starting point of the multi-stage optimization
         step: The step size for the multi-stage optimization
         regularization: The weight for the regularization term to minimize
 
