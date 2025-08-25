@@ -514,9 +514,8 @@ def test_double_factorized_t2_optimize_max_terms_n2_small():
             diag_coulomb_indices=diag_coulomb_indices,
             method="L-BFGS-B",
             options=dict(maxiter=25),
-            multi_stage_optimization=True,
-            begin_terms=8,
-            step=4,
+            multi_stage_start=8,
+            multi_stage_step=4,
             return_optimize_result=True,
         )
     )
@@ -592,7 +591,6 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
         optimize=True,
         method="L-BFGS-B",
         options=dict(maxiter=150),
-        multi_stage_optimization=False,
     )
     reconstructed_optimized = (
         1j
@@ -648,9 +646,8 @@ def test_double_factorized_t2_optimize_max_terms_random():
         diag_coulomb_indices=diag_coulomb_indices,
         method="L-BFGS-B",
         options=dict(maxiter=25),
-        multi_stage_optimization=True,
-        begin_terms=5,
-        step=4,
+        multi_stage_start=5,
+        multi_stage_step=4,
         return_optimize_result=False,
     )
     reconstructed_optimized = (

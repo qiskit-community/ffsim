@@ -174,9 +174,10 @@ def double_factorized(
     The default behavior of this routine is to perform a straightforward
     "exact" factorization of the two-body tensor based on a nested
     eigenvalue decomposition, and then truncate the terms based on the values of `tol`
-    and `max_vecs`. If `optimize` is set to ``True``, then the entries of the
-    resulting tensors (the diagonal Coulomb matrices and orbital rotations) are further
-    optimized with `scipy.optimize.minimize` to reduce the error in the factorization.
+    and `max_vecs`.
+    If `optimize` is set to ``True``, then the entries of the resulting tensors
+    (the diagonal Coulomb matrices and orbital rotations) are further optimized with
+    `scipy.optimize.minimize` to reduce the error in the factorization.
     The diagonal Coulomb matrices returned by the optimization can be
     optionally constrained to have only certain elements allowed to be nonzero.
     This is achieved by passing the `diag_coulomb_indices` parameter, which is a
@@ -459,14 +460,13 @@ def double_factorized_t2(
     tol: float = ...,
     max_terms: int | None = ...,
     optimize: bool = ...,
-    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
     method: str = ...,
     callback=...,
     options: dict | None = ...,
-    multi_stage_optimization: bool = ...,
-    begin_terms: int | None = ...,
-    step: int = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
     regularization: float = ...,
+    multi_stage_start: int | None = ...,
+    multi_stage_step: int | None = ...,
     return_optimize_result: Literal[False] = False,
 ) -> tuple[np.ndarray, np.ndarray]: ...
 @overload
@@ -476,14 +476,13 @@ def double_factorized_t2(
     tol: float = ...,
     max_terms: int | None = ...,
     optimize: bool = ...,
-    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
     method: str = ...,
     callback=...,
     options: dict | None = ...,
-    multi_stage_optimization: bool = ...,
-    begin_terms: int | None = ...,
-    step: int = ...,
+    diag_coulomb_indices: list[tuple[int, int]] | None = ...,
     regularization: float = ...,
+    multi_stage_start: int | None = ...,
+    multi_stage_step: int | None = ...,
     return_optimize_result: Literal[True],
 ) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]: ...
 def double_factorized_t2(
@@ -492,14 +491,13 @@ def double_factorized_t2(
     tol: float = 1e-8,
     max_terms: int | None = None,
     optimize: bool = False,
-    diag_coulomb_indices: list[tuple[int, int]] | None = None,
     method: str = "L-BFGS-B",
     callback=None,
     options: dict | None = None,
-    multi_stage_optimization: bool = False,
-    begin_terms: int | None = None,
-    step: int = 1,
+    diag_coulomb_indices: list[tuple[int, int]] | None = None,
     regularization: float = 0,
+    multi_stage_start: int | None = None,
+    multi_stage_step: int | None = None,
     return_optimize_result: bool = False,
 ) -> (
     tuple[np.ndarray, np.ndarray]
@@ -529,9 +527,25 @@ def double_factorized_t2(
     The default behavior of this routine is to perform a straightforward
     "exact" factorization of the t2 amplitudes tensor based on a nested
     eigenvalue decomposition, and then truncate the terms based on the values of `tol`
-    and `max_terms`. If `optimize` is set to ``True``, then the entries of the
-    resulting tensors (the diagonal Coulomb matrices and orbital rotations) are further
-    optimized with `scipy.optimize.minimize` to reduce the error in the factorization.
+    and `max_terms`.
+    If `optimize` is set to ``True``, then the entries of the resulting tensors
+    (the diagonal Coulomb matrices and orbital rotations) are further optimized with
+    `scipy.optimize.minimize` to reduce the error in the factorization.
+    The diagonal Coulomb matrices returned by the optimization can be
+    optionally constrained to have only certain elements allowed to be nonzero.
+    This is achieved by passing the `diag_coulomb_indices` parameter, which is a
+    list of matrix entry indices (integer pairs) specifying where the diagonal Coulomb
+    matrices are allowed to be nonzero. Since the diagonal Coulomb matrices are
+    symmetric, only upper triangular indices should be given, i.e.,
+    pairs :math:`(i, j)` where :math:`i \leq j`.
+    A "multi-stage" optimization can be requested by passing either `multi_stage_start`
+    or `multi_stage_step`. In multi-stage optimization, the number of terms is
+    iteratively reduced by `multi_stage_step`, starting from `multi_stage_start`,
+    until there are only `max_terms` remaining. This procedure can yield a more accurate
+    factorization at the cost of increased running time. If you only pass one of
+    `multi_stage_start` or `multi_stage_step`, then the value of the other is chosen
+    automatically: `multi_stage_start` defaults to the total number of terms returned by
+    the exact factorization, and `multi_stage_step` defaults to 1.
 
     Note: Currently, only real-valued t2 amplitudes are supported.
 
@@ -545,29 +559,21 @@ def double_factorized_t2(
             of the t2 amplitudes tensor. This argument overrides `tol`.
         optimize: Whether to optimize the tensors returned by the decomposition to
             to minimize the error in the factorization.
-        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
-            Coulomb matrices. Matrix entries corresponding to indices not in this
-            list will be set to zero. This list should contain only upper
-            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
         method: The optimization method. See the documentation of
             `scipy.optimize.minimize`_ for possible values.
         callback: Callback function for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
-        multi_stage_optimization: Iteratively reduce the number of ansatz repetitions
-            starting from full configuration if  `begin_terms` is not given. In each
-            iteration, the number of repetitions is reduced by `step` until reaching
-            `n_reps`.
-        begin_terms: The starting point of the multi-stage optimization
-        step: The step size for the multi-stage optimization
-        regularization: The weight for the regularization term to minimize
-
-            .. math::
-
-                |\sum_{m=1}^n_{reps} ||\bar{Z}^{(m)}_{pq}||_2 -
-                \sum_{m=1}^L ||Z^{(m)}_{pq}||_2|
-
+        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+            Coulomb matrices. Matrix entries corresponding to indices not in this
+            list will be set to zero. This list should contain only upper
+            trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+        regularization: Parameter for regularizing the norm of the diagonal Coulomb
+            matrices.
+        multi_stage_start: The number of terms to start multi-stage optimization.
+        multi_stage_step: The number of terms to eliminate in each stage of multi-stage
+            optimization.
         return_optimize_result: Whether to also return the `OptimizeResult`_ returned
             by `scipy.optimize.minimize`_.
 
@@ -595,9 +601,8 @@ def double_factorized_t2(
             method=method,
             callback=callback,
             options=options,
-            multi_stage_optimization=multi_stage_optimization,
-            begin_terms=begin_terms,
-            step=step,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
             regularization=regularization,
             return_optimize_result=return_optimize_result,
         )
@@ -639,16 +644,15 @@ def _double_factorized_t2_compressed(
     t2_amplitudes: np.ndarray,
     *,
     tol: float = 1e-8,
-    max_terms: int | None = None,
-    diag_coulomb_indices: list[tuple[int, int]] | None = None,
-    method: str = "L-BFGS-B",
+    max_terms: int | None,
+    method: str,
     callback=None,
-    options: dict | None = None,
-    multi_stage_optimization: bool = False,
-    begin_terms: int | None = None,
-    step: int = 2,
-    regularization: float = 0,
-    return_optimize_result: bool = False,
+    options: dict | None,
+    diag_coulomb_indices: list[tuple[int, int]] | None,
+    multi_stage_start: int | None,
+    multi_stage_step: int | None,
+    regularization: float,
+    return_optimize_result: bool,
 ) -> (
     tuple[np.ndarray, np.ndarray]
     | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
@@ -665,14 +669,13 @@ def _double_factorized_t2_compressed(
     if max_terms is None or n_terms_full < max_terms:
         return diag_coulomb_mats, orbital_rotations
 
-    if multi_stage_optimization:
-        if begin_terms is None:
-            begin_terms = n_terms_full
-        begin_terms = min(n_terms_full, begin_terms)
-        list_reps = list(range(begin_terms, max_terms, -step))
-        list_reps.append(max_terms)
-    else:
+    if multi_stage_start is None and multi_stage_step is None:
         list_reps = [max_terms]
+    else:
+        multi_stage_start = min(n_terms_full, multi_stage_start or n_terms_full)
+        multi_stage_step = multi_stage_step or 1
+        list_reps = list(range(multi_stage_start, max_terms, -multi_stage_step))
+        list_reps.append(max_terms)
 
     for n_tensors in list_reps:
         diag_coulomb_mats = diag_coulomb_mats[:n_tensors]

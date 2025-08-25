@@ -383,10 +383,9 @@ class UCJOpSpinBalanced(
         method: str = "L-BFGS-B",
         callback=None,
         options: dict | None = None,
-        multi_stage_optimization: bool = False,
-        begin_reps: int | None = None,
-        step: int = 1,
         regularization: float = 0,
+        multi_stage_start: int | None = None,
+        multi_stage_step: int | None = None,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
@@ -436,18 +435,12 @@ class UCJOpSpinBalanced(
                 `scipy.optimize.minimize`_ for usage.
             options: Options for the optimization. See the documentation of
                 `scipy.optimize.minimize`_ for usage.
-            multi_stage_optimization: Iteratively reduce the number of ansatz
-                repetitions starting from full configuration if  `begin_reps` is not
-                given. In each iteration, the number of repetitions is reduced by `step`
-                until reaching `n_reps`.
-            begin_reps: The starting point of the multi-stage optimization
-            step: The step size for the multi-stage optimization
-            regularization: The weight for the regularization term to minimize
-
-                .. math::
-
-                    |\sum_{m=1}^n_{reps} ||\bar{Z}^{(mk)}_{pq}||_2 -
-                    \sum_{m=1}^L \sum_{k=1}^2 ||Z^{(mk)}_{pq}||_2|
+            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -473,15 +466,14 @@ class UCJOpSpinBalanced(
             tol=tol,
             max_terms=n_reps,
             optimize=optimize,
-            diag_coulomb_indices=diag_coulomb_indices,
             method=method,
             callback=callback,
             options=options,
-            multi_stage_optimization=multi_stage_optimization,
-            begin_terms=begin_reps,
-            step=step,
-            return_optimize_result=False,
+            diag_coulomb_indices=diag_coulomb_indices,
             regularization=regularization,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
+            return_optimize_result=False,
         )
 
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)

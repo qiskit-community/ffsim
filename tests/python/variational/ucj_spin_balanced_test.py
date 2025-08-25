@@ -190,9 +190,8 @@ def test_t_amplitudes_random_n_reps_optimized():
             optimize=True,
             method="L-BFGS-B",
             options={"maxiter": 10},
-            multi_stage_optimization=True,
-            begin_reps=n_reps + 5,
-            step=4,
+            multi_stage_start=n_reps + 5,
+            multi_stage_step=4,
         )
         assert operator.n_reps == n_reps
         actual = len(operator.to_parameters())
