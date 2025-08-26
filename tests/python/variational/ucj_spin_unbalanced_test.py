@@ -93,24 +93,30 @@ def test_parameters_roundtrip_interaction_pairs():
     rng = np.random.default_rng()
     norb = 5
     n_reps = 2
-    interaction_pairs = ([(0, 1)], [(0, 1)], [(0, 1)])
+    interaction_pairs_list = [
+        ([(0, 1)], [(0, 1)], [(0, 1)]),
+        ([(0, 1)], [(0, 1)], []),
+        ([(0, 1)], [], []),
+        ([], [], []),
+    ]
 
-    for with_final_orbital_rotation in [False, True]:
-        operator = ffsim.random.random_ucj_op_spin_unbalanced(
-            norb,
-            n_reps=n_reps,
-            interaction_pairs=interaction_pairs,
-            with_final_orbital_rotation=with_final_orbital_rotation,
-            seed=rng,
-        )
-        roundtripped = ffsim.UCJOpSpinUnbalanced.from_parameters(
-            operator.to_parameters(interaction_pairs=interaction_pairs),
-            norb=norb,
-            n_reps=n_reps,
-            interaction_pairs=interaction_pairs,
-            with_final_orbital_rotation=with_final_orbital_rotation,
-        )
-        assert ffsim.approx_eq(roundtripped, operator)
+    for interaction_pairs in interaction_pairs_list:
+        for with_final_orbital_rotation in [False, True]:
+            operator = ffsim.random.random_ucj_op_spin_unbalanced(
+                norb,
+                n_reps=n_reps,
+                interaction_pairs=interaction_pairs,
+                with_final_orbital_rotation=with_final_orbital_rotation,
+                seed=rng,
+            )
+            roundtripped = ffsim.UCJOpSpinUnbalanced.from_parameters(
+                operator.to_parameters(interaction_pairs=interaction_pairs),
+                norb=norb,
+                n_reps=n_reps,
+                interaction_pairs=interaction_pairs,
+                with_final_orbital_rotation=with_final_orbital_rotation,
+            )
+            assert ffsim.approx_eq(roundtripped, operator)
 
 
 def test_t_amplitudes_energy():
@@ -226,7 +232,6 @@ def test_t_amplitudes_zero_n_reps():
 
 
 def test_t_amplitudes_restrict_indices():
-    # Build a BeH molecule
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
@@ -237,16 +242,13 @@ def test_t_amplitudes_restrict_indices():
     scf = pyscf.scf.ROHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()
 
-    # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
     mol_data = ffsim.MolecularData.from_scf(scf)
     norb = mol_data.norb
 
-    # Construct UCJ operator
     n_reps = 2
     pairs_aa = [(p, p + 1) for p in range(norb - 1)]
     pairs_ab = [(p, p) for p in range(norb)]
     pairs_bb = [(p, p + 1) for p in range(norb - 1)]
-
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
         ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)
     )
@@ -256,7 +258,66 @@ def test_t_amplitudes_restrict_indices():
         n_reps=n_reps,
         interaction_pairs=(pairs_aa, pairs_ab, pairs_bb),
     )
+    assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
 
+    n_reps = 2
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    pairs_bb = []
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)
+    )
+    other_operator = ffsim.UCJOpSpinUnbalanced.from_parameters(
+        operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)),
+        norb=norb,
+        n_reps=n_reps,
+        interaction_pairs=(pairs_aa, pairs_ab, pairs_bb),
+    )
+    assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
+
+    n_reps = 2
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = []
+    pairs_bb = [(p, p + 1) for p in range(norb - 1)]
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)
+    )
+    other_operator = ffsim.UCJOpSpinUnbalanced.from_parameters(
+        operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)),
+        norb=norb,
+        n_reps=n_reps,
+        interaction_pairs=(pairs_aa, pairs_ab, pairs_bb),
+    )
+    assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
+
+    n_reps = 2
+    pairs_aa = []
+    pairs_ab = [(p, p) for p in range(norb)]
+    pairs_bb = [(p, p + 1) for p in range(norb - 1)]
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)
+    )
+    other_operator = ffsim.UCJOpSpinUnbalanced.from_parameters(
+        operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)),
+        norb=norb,
+        n_reps=n_reps,
+        interaction_pairs=(pairs_aa, pairs_ab, pairs_bb),
+    )
+    assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
+
+    n_reps = 2
+    pairs_aa = []
+    pairs_ab = []
+    pairs_bb = []
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        ccsd.t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)
+    )
+    other_operator = ffsim.UCJOpSpinUnbalanced.from_parameters(
+        operator.to_parameters(interaction_pairs=(pairs_aa, pairs_ab, pairs_bb)),
+        norb=norb,
+        n_reps=n_reps,
+        interaction_pairs=(pairs_aa, pairs_ab, pairs_bb),
+    )
     assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
 
 
