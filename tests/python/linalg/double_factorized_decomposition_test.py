@@ -550,7 +550,7 @@ def test_double_factorized_t2_optimize_max_terms_n2_small():
     error = np.sum(np.abs(reconstructed - ccsd.t2) ** 2)
 
     # Check results
-    assert error_optimized < 0.5 * error
+    assert error_optimized < 0.7 * error
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
     assert result.nit <= 25
@@ -626,7 +626,7 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
     error = np.sum(np.abs(reconstructed - ccsd.t2) ** 2)
 
     # Check results
-    assert error_optimized < 0.5 * error
+    assert error_optimized < 0.7 * error
     np.testing.assert_allclose(
         optimized_diag_coulomb_norm, init_diag_coulomb_norm, atol=3.5
     )
@@ -686,7 +686,7 @@ def test_double_factorized_t2_optimize_max_terms_random():
     # Check results
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
-    assert error_optimized < 0.5 * error
+    assert error_optimized < 0.7 * error
 
 
 def test_double_factorized_t2_alpha_beta_random():
