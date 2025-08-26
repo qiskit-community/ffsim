@@ -336,6 +336,14 @@ def test_normal_ordered():
         assert list(term) == sorted(term, reverse=True)
 
 
+def test_normal_order_create_annihilate_create():
+    actual = ffsim.FermionOperator(
+        {(ffsim.cre_a(1), ffsim.des_a(1), ffsim.cre_a(1)): 1.0}
+    ).normal_ordered()
+    expected = ffsim.FermionOperator({(ffsim.cre_a(1),): 1.0})
+    assert actual == expected
+
+
 def test_normal_order_number_number():
     op1 = ffsim.FermionOperator(
         {(ffsim.cre_a(0), ffsim.des_a(0), ffsim.cre_b(0), ffsim.des_b(0)): 1}
