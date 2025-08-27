@@ -16,17 +16,22 @@ import numpy as np
 import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
+from ffsim import protocols
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
+from ffsim.dimensions import dim
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 from ffsim.linalg import double_factorized
 from ffsim.operators import FermionOperator
-from ffsim.protocols import fermion_operator
-from ffsim.states import dim
 
 
 @dataclasses.dataclass(frozen=True)
-class DoubleFactorizedHamiltonian:
+class DoubleFactorizedHamiltonian(
+    protocols.SupportsApproximateEquality,
+    protocols.SupportsDiagonal,
+    protocols.SupportsFermionOperator,
+    protocols.SupportsLinearOperator,
+):
     r"""A Hamiltonian in the double-factorized representation.
 
     The double-factorized form of the molecular Hamiltonian is
@@ -180,7 +185,7 @@ class DoubleFactorizedHamiltonian:
             diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
                 Coulomb matrices. Matrix entries corresponding to indices not in this
                 list will be set to zero. This list should contain only upper
-                trianglular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
+                triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
                 Passing a list with lower triangular indices will raise an error.
                 This parameter is only used if `optimize` is set to True.
             cholesky: Whether to perform the factorization using a modified Cholesky
@@ -238,8 +243,11 @@ class DoubleFactorizedHamiltonian:
             constant=df_hamiltonian.constant,
         )
 
-    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+    def _linear_operator_(
+        self, norb: int, nelec: int | tuple[int, int]
+    ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
+        assert isinstance(nelec, tuple)
         dim_ = dim(norb, nelec)
         eigs, vecs = scipy.linalg.eigh(self.one_body_tensor)
         num_linop = num_op_sum_linop(eigs, norb, nelec, orbital_rotation=vecs)
@@ -268,13 +276,35 @@ class DoubleFactorizedHamiltonian:
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
 
-    def _diag_(self, norb: int, nelec: tuple[int, int]) -> np.ndarray:
+    def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the Hamiltonian."""
+        assert isinstance(nelec, tuple)
         return self.to_molecular_hamiltonian()._diag_(norb, nelec)
 
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
-        return fermion_operator(self.to_molecular_hamiltonian())
+        return protocols.fermion_operator(self.to_molecular_hamiltonian())
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, DoubleFactorizedHamiltonian):
+            if self.z_representation != other.z_representation:
+                return False
+            if not np.allclose(self.constant, other.constant, rtol=rtol, atol=atol):
+                return False
+            if not np.allclose(
+                self.one_body_tensor, other.one_body_tensor, rtol=rtol, atol=atol
+            ):
+                return False
+            if not np.allclose(
+                self.diag_coulomb_mats, other.diag_coulomb_mats, rtol=rtol, atol=atol
+            ):
+                return False
+            if not np.allclose(
+                self.orbital_rotations, other.orbital_rotations, rtol=rtol, atol=atol
+            ):
+                return False
+            return True
+        return NotImplemented
 
 
 def _df_z_representation(

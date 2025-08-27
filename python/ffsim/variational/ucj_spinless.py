@@ -18,17 +18,18 @@ from typing import cast
 
 import numpy as np
 
-from ffsim import gates, linalg
+from ffsim import gates, linalg, protocols
+from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
 from ffsim.variational.util import (
-    orbital_rotation_from_parameters,
     orbital_rotation_from_t1_amplitudes,
-    orbital_rotation_to_parameters,
     validate_interaction_pairs,
 )
 
 
 @dataclass(frozen=True)
-class UCJOpSpinless:
+class UCJOpSpinless(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     r"""A spinless unitary cluster Jastrow operator.
 
     A spinless unitary cluster Jastrow (UCJ) operator has the form
@@ -45,7 +46,7 @@ class UCJOpSpinless:
         \mathcal{J} = \frac12\sum_{ij}
         \mathbf{J}_{ij} n_{i} n_{j}.
 
-    where \mathbf{J} is a real symmetric matrix.
+    where :math:`\mathbf{J}` is a real symmetric matrix.
     The number of terms :math:`L` is referred to as the
     number of ansatz repetitions and is accessible via the `n_reps` attribute.
 
@@ -227,7 +228,7 @@ class UCJOpSpinless:
         ):
             # Orbital rotation
             n_params = norb**2
-            orbital_rotation[:] = orbital_rotation_from_parameters(
+            orbital_rotation[:] = unitary_from_parameters(
                 params[index : index + n_params], norb
             )
             index += n_params
@@ -242,9 +243,7 @@ class UCJOpSpinless:
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            final_orbital_rotation = orbital_rotation_from_parameters(
-                params[index:], norb
-            )
+            final_orbital_rotation = unitary_from_parameters(params[index:], norb)
         return UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
@@ -301,9 +300,7 @@ class UCJOpSpinless:
         ):
             # Orbital rotation
             n_params = norb**2
-            params[index : index + n_params] = orbital_rotation_to_parameters(
-                orbital_rotation
-            )
+            params[index : index + n_params] = unitary_to_parameters(orbital_rotation)
             index += n_params
             # Diag Coulomb matrix
             if interaction_pairs:
@@ -314,7 +311,7 @@ class UCJOpSpinless:
                 index += n_params
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
-            params[index:] = orbital_rotation_to_parameters(self.final_orbital_rotation)
+            params[index:] = unitary_to_parameters(self.final_orbital_rotation)
         return params
 
     @staticmethod

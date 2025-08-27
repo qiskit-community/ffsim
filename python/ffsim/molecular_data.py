@@ -19,6 +19,7 @@ import lzma
 import os
 import tempfile
 from collections.abc import Iterable
+from functools import cached_property
 from typing import Callable
 
 import numpy as np
@@ -29,7 +30,6 @@ import pyscf.ci
 import pyscf.fci
 import pyscf.mcscf
 import pyscf.mp
-import pyscf.symm
 import pyscf.tools
 
 from ffsim.hamiltonians import MolecularHamiltonian
@@ -117,7 +117,7 @@ class MolecularData:
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[str] | None = None
 
-    @property
+    @cached_property
     def hamiltonian(self) -> MolecularHamiltonian:
         """The Hamiltonian defined by the molecular data."""
         return MolecularHamiltonian(
@@ -126,7 +126,7 @@ class MolecularData:
             constant=self.core_energy,
         )
 
-    @property
+    @cached_property
     def mole(self) -> pyscf.gto.Mole:
         """The PySCF Mole class for this molecular data."""
         mol = pyscf.gto.Mole()
@@ -137,16 +137,13 @@ class MolecularData:
             symmetry=self.symmetry,
         )
 
-    @property
+    @cached_property
     def scf(self) -> pyscf.scf.hf.SCF:
         """A PySCF SCF class for this molecular data."""
         # HACK Not sure if there's a better way to do this...
-        fp = tempfile.NamedTemporaryFile()
-        self.to_fcidump(fp.name)
-        # HACK without the following line, PySCF computations fail with a KeyError
-        # See https://github.com/pyscf/pyscf/issues/2586
-        _remove_sym_from_fcidump(fp.name)
-        return pyscf.tools.fcidump.to_scf(fp.name)
+        with tempfile.NamedTemporaryFile() as fp:
+            self.to_fcidump(fp.name)
+            return pyscf.tools.fcidump.to_scf(fp.name)
 
     @staticmethod
     def from_scf(
@@ -270,6 +267,12 @@ class MolecularData:
             "bz2": bz2.open,
             "lzma": lzma.open,
         }
+
+        for attribute in ["hamiltonian", "mole", "scf"]:
+            try:
+                delattr(self, attribute)
+            except AttributeError:
+                pass
         with open_func[compression](file, "wb") as f:
             f.write(
                 orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY, default=default)
@@ -386,12 +389,3 @@ class MolecularData:
             nelec=(n_alpha, n_beta),
             spin=spin,
         )
-
-
-def _remove_sym_from_fcidump(filepath):
-    """Remove ORBSYM and ISYM information from an FCIDUMP file."""
-    with open(filepath, "r") as f:
-        lines = f.readlines()
-    lines = [line for line in lines if not line.strip().startswith(("ORBSYM", "ISYM"))]
-    with open(filepath, "w") as f:
-        f.writelines(lines)

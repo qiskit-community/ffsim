@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import itertools
+import math
 from collections import defaultdict
 
 import numpy as np
@@ -311,22 +312,49 @@ def random_molecular_hamiltonian(
     )
 
 
-def random_uccsd_restricted(
+def random_molecular_hamiltonian_spinless(
+    norb: int, seed=None, dtype=complex
+) -> hamiltonians.MolecularHamiltonianSpinless:
+    """Sample a random spinless molecular Hamiltonian.
+
+    Args:
+        norb: The number of orbitals.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the one- and two-body tensors. The constant
+            term will always be of type ``float``.
+
+    Returns:
+        The sampled spinless molecular Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    if np.issubdtype(dtype, np.complexfloating):
+        one_body_tensor = random_hermitian(norb, seed=rng, dtype=dtype)
+    else:
+        one_body_tensor = random_real_symmetric_matrix(norb, seed=rng, dtype=dtype)
+    two_body_tensor = random_two_body_tensor(norb, seed=rng, dtype=dtype)
+    constant = rng.standard_normal()
+    return hamiltonians.MolecularHamiltonianSpinless(
+        one_body_tensor=one_body_tensor,
+        two_body_tensor=two_body_tensor,
+        constant=constant,
+    )
+
+
+def random_uccsd_op_restricted_real(
     norb: int,
     nocc: int,
     *,
     with_final_orbital_rotation: bool = False,
-    real: bool = False,
     seed=None,
 ) -> variational.UCCSDOpRestrictedReal:
-    """Sample a random UCCSD operator.
+    """Sample a random real-valued UCCSD operator.
 
     Args:
         norb: The number of spatial orbitals.
         nocc: The number of spatial orbitals that are occupied by electrons.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
-        real: Whether to sample a real-valued object rather than a complex-valued one.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -334,28 +362,88 @@ def random_uccsd_restricted(
         The sampled UCCSD operator.
     """
     rng = np.random.default_rng(seed)
-    dtype = float if real else complex
     nvrt = norb - nocc
-    t1: np.ndarray = rng.standard_normal((nocc, nvrt)).astype(dtype, copy=False)
-    if not real:
-        t1 += 1j * rng.standard_normal((nocc, nvrt))
-    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=dtype)
+    t1 = rng.standard_normal((nocc, nvrt))
+    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
-        unitary_func = random_orthogonal if real else random_unitary
-        final_orbital_rotation = unitary_func(norb, seed=rng)
+        final_orbital_rotation = random_orthogonal(norb, seed=rng)
     return variational.UCCSDOpRestrictedReal(
         t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
     )
+
+
+def random_uccsd_op_restricted(
+    norb: int,
+    nocc: int,
+    *,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCCSDOpRestricted:
+    """Sample a random UCCSD operator.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nocc: The number of spatial orbitals that are occupied by electrons.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCCSD operator.
+    """
+    rng = np.random.default_rng(seed)
+    nvrt = norb - nocc
+    t1 = rng.standard_normal((nocc, nvrt)).astype(complex)
+    t1 += 1j * rng.standard_normal((nocc, nvrt))
+    t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=complex)
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = random_unitary(norb, seed=rng)
+    return variational.UCCSDOpRestricted(
+        t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
+    )
+
+
+def _random_symmetric_matrix_uniform(
+    dim: int, *, mean: float, scale: float, seed=None
+) -> np.ndarray:
+    """Random real symmetric matrix with entries drawn from a uniform distribution."""
+    rng = np.random.default_rng(seed)
+    n_vals = dim * (dim + 1) // 2
+    vals = mean + rng.uniform(-0.5 * scale, 0.5 * scale, size=n_vals)
+    mat = np.zeros((dim, dim))
+    rows, cols = np.triu_indices(dim)
+    mat[rows, cols] = vals
+    mat[cols, rows] = vals
+    return mat
+
+
+def _random_symmetric_matrix_normal(
+    dim: int, *, mean: float, scale: float, seed=None
+) -> np.ndarray:
+    """Random real symmetric matrix with entries drawn from a normal distribution."""
+    rng = np.random.default_rng(seed)
+    n_vals = dim * (dim + 1) // 2
+    vals = rng.normal(loc=mean, scale=scale, size=n_vals)
+    mat = np.zeros((dim, dim))
+    rows, cols = np.triu_indices(dim)
+    mat[rows, cols] = vals
+    mat[cols, rows] = vals
+    return mat
 
 
 def random_ucj_op_spin_balanced(
     norb: int,
     *,
     n_reps: int = 1,
-    with_final_orbital_rotation: bool = False,
     interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
     | None = None,
+    with_final_orbital_rotation: bool = False,
+    diag_coulomb_mean: float = 0.0,
+    diag_coulomb_scale: float = 2 * math.pi,
+    diag_coulomb_normal: bool = False,
     seed=None,
 ) -> variational.UCJOpSpinBalanced:
     r"""Sample a random spin-balanced unitary cluster Jastrow (UCJ) operator.
@@ -363,8 +451,6 @@ def random_ucj_op_spin_balanced(
     Args:
         norb: The number of spatial orbitals.
         n_reps: The number of ansatz repetitions.
-        with_final_orbital_rotation: Whether to include a final orbital rotation
-            in the operator.
         interaction_pairs: Optional restrictions on allowed orbital interactions
             for the diagonal Coulomb operators.
             If specified, `interaction_pairs` should be a pair of lists,
@@ -377,6 +463,19 @@ def random_ucj_op_spin_balanced(
             nonzero.
             Each integer pair must be upper triangular, that is, of the form
             :math:`(i, j)` where :math:`i \leq j`.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
+            Defaults to ``0``.
+        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
+            Defaults to ``2 * pi``.
+        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
+            matrices from a normal distribution, rather than a uniform distribution.
+            If True, then the entries are drawn by calling
+            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,
+            then the entries are drawn by calling
+            ``diag_coulomb_mean +
+            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -390,12 +489,21 @@ def random_ucj_op_spin_balanced(
     validate_interaction_pairs(pairs_ab, ordered=False)
 
     rng = np.random.default_rng(seed)
+    _symmetric_matrix_generator = (
+        _random_symmetric_matrix_normal
+        if diag_coulomb_normal
+        else _random_symmetric_matrix_uniform
+    )
     diag_coulomb_mats = np.stack(
         [
             np.stack(
                 [
-                    random_real_symmetric_matrix(norb, seed=rng),
-                    random_real_symmetric_matrix(norb, seed=rng),
+                    _symmetric_matrix_generator(
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
+                    ),
+                    _symmetric_matrix_generator(
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
+                    ),
                 ]
             )
             for _ in range(n_reps)
@@ -411,15 +519,17 @@ def random_ucj_op_spin_balanced(
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_aa)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_aa:
+            rows, cols = zip(*pairs_aa)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 0] *= mask
     if pairs_ab is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_ab)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_ab:
+            rows, cols = zip(*pairs_ab)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 1] *= mask
 
     return variational.UCJOpSpinBalanced(
@@ -440,6 +550,9 @@ def random_ucj_op_spin_unbalanced(
     ]
     | None = None,
     with_final_orbital_rotation: bool = False,
+    diag_coulomb_mean: float = 0.0,
+    diag_coulomb_scale: float = 2 * math.pi,
+    diag_coulomb_normal: bool = False,
     seed=None,
 ) -> variational.UCJOpSpinUnbalanced:
     r"""Sample a random spin-unbalanced unitary cluster Jastrow (UCJ) operator.
@@ -462,6 +575,17 @@ def random_ucj_op_spin_unbalanced(
             :math:`i \leq j`.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
+        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
+            Defaults to ``0``.
+        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
+            Defaults to ``2 * pi``.
+        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
+            matrices from a normal distribution, rather than a uniform distribution.
+            If True, then the entries are drawn by calling
+            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,
+            then the entries are drawn by calling
+            ``diag_coulomb_mean +
+            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -476,13 +600,33 @@ def random_ucj_op_spin_unbalanced(
     validate_interaction_pairs(pairs_bb, ordered=False)
 
     rng = np.random.default_rng(seed)
+    _symmetric_matrix_generator = (
+        _random_symmetric_matrix_normal
+        if diag_coulomb_normal
+        else _random_symmetric_matrix_uniform
+    )
     diag_coulomb_mats = np.stack(
         [
             np.stack(
                 [
-                    random_real_symmetric_matrix(norb, seed=rng),
-                    rng.standard_normal((norb, norb)),
-                    random_real_symmetric_matrix(norb, seed=rng),
+                    _symmetric_matrix_generator(
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
+                    ),
+                    rng.normal(
+                        loc=diag_coulomb_mean,
+                        scale=diag_coulomb_scale,
+                        size=(norb, norb),
+                    )
+                    if diag_coulomb_normal
+                    else diag_coulomb_mean
+                    + rng.uniform(
+                        -0.5 * diag_coulomb_scale,
+                        0.5 * diag_coulomb_scale,
+                        size=(norb, norb),
+                    ),
+                    _symmetric_matrix_generator(
+                        norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
+                    ),
                 ]
             )
             for _ in range(n_reps)
@@ -503,20 +647,23 @@ def random_ucj_op_spin_unbalanced(
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_aa)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_aa:
+            rows, cols = zip(*pairs_aa)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 0] *= mask
     if pairs_ab is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_ab)
-        mask[rows, cols] = True
+        if pairs_ab:
+            rows, cols = zip(*pairs_ab)
+            mask[rows, cols] = True
         diag_coulomb_mats[:, 1] *= mask
     if pairs_bb is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_bb)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_bb:
+            rows, cols = zip(*pairs_bb)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 2] *= mask
 
     return variational.UCJOpSpinUnbalanced(
@@ -532,6 +679,9 @@ def random_ucj_op_spinless(
     n_reps: int = 1,
     interaction_pairs: list[tuple[int, int]] | None = None,
     with_final_orbital_rotation: bool = False,
+    diag_coulomb_mean: float = 0.0,
+    diag_coulomb_scale: float = 2 * math.pi,
+    diag_coulomb_normal: bool = False,
     seed=None,
 ) -> variational.UCJOpSpinless:
     r"""Sample a random spinless unitary cluster Jastrow (UCJ) operator.
@@ -539,8 +689,6 @@ def random_ucj_op_spinless(
     Args:
         norb: The number of orbitals.
         n_reps: The number of ansatz repetitions.
-        with_final_orbital_rotation: Whether to include a final orbital rotation
-            in the operator.
         interaction_pairs: Optional restrictions on allowed orbital interactions
             for the diagonal Coulomb operators.
             If specified, `interaction_pairs` should be a list of integer pairs
@@ -549,6 +697,19 @@ def random_ucj_op_spinless(
             that are allowed to be nonzero.
             Each integer pair must be upper triangular, that is, of the form
             :math:`(i, j)` where :math:`i \leq j`.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
+            Defaults to ``0``.
+        diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
+            Defaults to ``2 * pi``.
+        diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
+            matrices from a normal distribution, rather than a uniform distribution.
+            If True, then the entries are drawn by calling
+            ``rng.normal(loc=diag_coulomb_mean, scale=diag_coulomb_scale)``. If False,
+            then the entries are drawn by calling
+            ``diag_coulomb_mean +
+            rng.uniform(-0.5 * diag_coulomb_scale, 0.5 * diag_coulomb_scale)``.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -558,8 +719,18 @@ def random_ucj_op_spinless(
     validate_interaction_pairs(interaction_pairs, ordered=False)
 
     rng = np.random.default_rng(seed)
+    _symmetric_matrix_generator = (
+        _random_symmetric_matrix_normal
+        if diag_coulomb_normal
+        else _random_symmetric_matrix_uniform
+    )
     diag_coulomb_mats = np.stack(
-        [random_real_symmetric_matrix(norb, seed=rng) for _ in range(n_reps)]
+        [
+            _symmetric_matrix_generator(
+                norb, mean=diag_coulomb_mean, scale=diag_coulomb_scale, seed=rng
+            )
+            for _ in range(n_reps)
+        ]
     )
     orbital_rotations = np.stack(
         [random_unitary(norb, seed=rng) for _ in range(n_reps)]

@@ -171,7 +171,11 @@ def test_slater_determinant_no_rotation(norb: int, nelec: tuple[int, int]):
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
     circuit.append(gate, qubits)
-    assert circuit.decompose().count_ops().keys() in [set(), {"x"}]
+    assert circuit.decompose().count_ops().keys() in [
+        set(),
+        {"global_phase"},
+        {"x", "global_phase"},
+    ]
 
 
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))

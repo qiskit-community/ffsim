@@ -18,14 +18,16 @@ import numpy as np
 import pyscf.fci
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim import states
+from ffsim.dimensions import dim, dims
 from ffsim.operators import FermionOperator
 
 
 class SupportsLinearOperator(Protocol):
     """An object that can be converted to a SciPy LinearOperator."""
 
-    def _linear_operator_(self, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+    def _linear_operator_(
+        self, norb: int, nelec: int | tuple[int, int]
+    ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object.
 
         Args:
@@ -37,7 +39,9 @@ class SupportsLinearOperator(Protocol):
         """
 
 
-def linear_operator(obj: Any, norb: int, nelec: tuple[int, int]) -> LinearOperator:
+def linear_operator(
+    obj: Any, norb: int, nelec: int | tuple[int, int]
+) -> LinearOperator:
     """Return a SciPy LinearOperator representing the object.
 
     Args:
@@ -59,7 +63,7 @@ def linear_operator(obj: Any, norb: int, nelec: tuple[int, int]) -> LinearOperat
 
 
 def _fermion_operator_to_linear_operator(
-    operator: FermionOperator, norb: int, nelec: tuple[int, int]
+    operator: FermionOperator, norb: int, nelec: int | tuple[int, int]
 ):
     if not (operator.conserves_particle_number() and operator.conserves_spin_z()):
         raise ValueError(
@@ -69,16 +73,19 @@ def _fermion_operator_to_linear_operator(
             f"Conserves spin Z: {operator.conserves_spin_z()}"
         )
 
-    dim = states.dim(norb, nelec)
+    if isinstance(nelec, int):
+        nelec = (nelec, 0)
+
+    dim_ = dim(norb, nelec)
 
     def matvec(vec: np.ndarray):
-        result = np.zeros(dim, dtype=complex)
+        result = np.zeros(dim_, dtype=complex)
         for term, coeff in operator.items():
             result += coeff * _apply_fermion_term(vec, term, norb, nelec)
         return result
 
     return LinearOperator(
-        shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
+        shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
     )
 
 
@@ -131,7 +138,7 @@ def _apply_fermion_term_real(
         (True, False): pyscf.fci.addons.cre_a,
         (True, True): pyscf.fci.addons.cre_b,
     }
-    (dim_a, dim_b) = states.dims(norb, nelec)
+    (dim_a, dim_b) = dims(norb, nelec)
     transformed = vec.reshape((dim_a, dim_b))
     this_nelec = list(nelec)
     for action, spin, orb in reversed(term):

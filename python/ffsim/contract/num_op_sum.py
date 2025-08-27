@@ -22,7 +22,6 @@ from ffsim._lib import (
 )
 from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
-from ffsim.states import dim
 
 
 def contract_num_op_sum(
@@ -104,7 +103,8 @@ def num_op_sum_linop(
         A LinearOperator that implements the action of the linear combination of number
         operators.
     """
-    dim_ = dim(norb, nelec)
+    n_alpha, n_beta = nelec
+    dim = math.comb(norb, n_alpha) * math.comb(norb, n_beta)
 
     def matvec(vec):
         these_coeffs = coeffs
@@ -127,5 +127,5 @@ def num_op_sum_linop(
         return vec
 
     return scipy.sparse.linalg.LinearOperator(
-        (dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
+        shape=(dim, dim), matvec=matvec, rmatvec=matvec, dtype=complex
     )

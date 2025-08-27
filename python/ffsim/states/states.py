@@ -12,19 +12,21 @@
 
 from __future__ import annotations
 
-import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Optional, cast
 
 import numpy as np
+import scipy.linalg
 from pyscf.fci.spin_op import contract_ss
 
+from ffsim.dimensions import dim
 from ffsim.states.bitstring import (
     BitstringType,
     addresses_to_strings,
     concatenate_bitstrings,
     restrict_bitstrings,
+    strings_to_addresses,
 )
 
 
@@ -55,41 +57,6 @@ class StateVector:
         if dtype is None:
             return self.vec
         return self.vec.astype(dtype, copy=False)
-
-
-def dims(norb: int, nelec: tuple[int, int]) -> tuple[int, int]:
-    """Get the dimensions of the FCI space.
-
-    Args:
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-
-    Returns:
-        A pair of integers (dim_a, dim_b) representing the dimensions of the
-        alpha- and beta- FCI space.
-    """
-    n_alpha, n_beta = nelec
-    dim_a = math.comb(norb, n_alpha)
-    dim_b = math.comb(norb, n_beta)
-    return dim_a, dim_b
-
-
-def dim(norb: int, nelec: int | tuple[int, int]) -> int:
-    """Get the dimension of the FCI space.
-
-    Args:
-        norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
-
-    Returns:
-        The dimension of the FCI space.
-    """
-    if isinstance(nelec, int):
-        return math.comb(norb, nelec)
-    n_alpha, n_beta = nelec
-    return math.comb(norb, n_alpha) * math.comb(norb, n_beta)
 
 
 # source: pyscf.fci.spin_op.spin_square0
@@ -263,3 +230,63 @@ def canonicalize_vec_norb_nelec(
         nelec = vec.nelec
         vec = vec.vec
     return vec, norb, nelec
+
+
+def spinful_to_spinless_vec(
+    vec: np.ndarray, norb: int, nelec: tuple[int, int]
+) -> np.ndarray:
+    """Convert a spinful state vector to a spinless state vector.
+
+    Args:
+        vec: The state vector in spinful format.
+        norb: The number of spatial orbitals.
+        nelec: The numbers of spin alpha and spin beta electrons.
+
+    Returns:
+        The state vector in spinless format, with norb = norb and nocc = sum(nelec).
+    """
+    nocc = sum(nelec)
+    old_dim = dim(norb, nelec)
+    new_dim = dim(2 * norb, nocc)
+    new_vec = np.zeros(new_dim, dtype=vec.dtype)
+    strings = addresses_to_strings(range(old_dim), norb=norb, nelec=nelec)
+    addresses = strings_to_addresses(strings, norb=2 * norb, nelec=nocc)
+    new_vec[addresses] = vec
+    return new_vec
+
+
+def spinful_to_spinless_rdm1(mat_a: np.ndarray, mat_b: np.ndarray) -> np.ndarray:
+    """Convert a spinful 1-RDM to a spinless 1-RDM.
+
+    Args:
+        mat_a: The spin alpha part of the 1-RDM.
+        mat_b: The spin beta part of the 1-RDM.
+
+    Returns:
+        The 1-RDM as a single matrix in spinless format.
+    """
+    return scipy.linalg.block_diag(mat_a, mat_b)
+
+
+def spinful_to_spinless_rdm2(
+    mat_aa: np.ndarray, mat_ab: np.ndarray, mat_bb: np.ndarray
+) -> np.ndarray:
+    """Convert a spinful 2-RDM to a spinless 2-RDM.
+
+    Args:
+        mat_aa: The alpha-alpha part of the 2-RDM.
+        mat_ab: The alpha-beta part of the 2-RDM.
+        mat_bb: The beta-beta part of the 2-RDM.
+
+    Returns:
+        The 2-RDM as a single tensor in spinless format.
+    """
+    norb, _, _, _ = mat_aa.shape
+    new_mat = np.zeros((2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=mat_aa.dtype)
+    new_mat[:norb, :norb, :norb, :norb] = mat_aa
+    new_mat[:norb, :norb, norb:, norb:] = mat_ab
+    new_mat[:norb, norb:, norb:, :norb] = -mat_ab.transpose(0, 3, 2, 1)
+    new_mat[norb:, :norb, :norb, norb:] = -mat_ab.transpose(2, 1, 0, 3)
+    new_mat[norb:, norb:, :norb, :norb] = mat_ab.transpose(2, 3, 0, 1)
+    new_mat[norb:, norb:, norb:, norb:] = mat_bb
+    return new_mat

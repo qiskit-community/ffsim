@@ -144,7 +144,7 @@ impl FermionOperator {
             } else {
                 format!("{}+{}j", val.re, val.im)
             };
-            items_str.push(format!("{}: {}", key_str, val_str));
+            items_str.push(format!("{key_str}: {val_str}"));
         }
         Ok(format!("FermionOperator({{{}}})", items_str.join(", ")))
     }
@@ -165,7 +165,7 @@ impl FermionOperator {
                     } else {
                         action_str = "cre_b"
                     }
-                    format!("{}({})", action_str, orb)
+                    format!("{action_str}({orb})")
                 })
                 .collect();
             let key_str = format!("({})", key_parts.join(", "));
@@ -176,7 +176,7 @@ impl FermionOperator {
             } else {
                 format!("{}+{}j", val.re, val.im)
             };
-            items_str.push(format!("    {}: {}", key_str, val_str));
+            items_str.push(format!("    {key_str}: {val_str}"));
         }
         format!("FermionOperator({{\n{}\n}})", items_str.join(",\n"))
     }
@@ -553,6 +553,7 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
     let mut stack = vec![(term.to_vec(), *coeff)];
     while let Some((mut term, coeff)) = stack.pop() {
         let mut parity = false;
+        let mut zero = false;
         for i in 1..term.len() {
             // shift the operator at index i to the left until it's in the correct location
             for j in (1..=i).rev() {
@@ -563,9 +564,8 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
                     match (spin_right, index_right).cmp(&(spin_left, index_left)) {
                         Ordering::Equal => {
                             // operators are the same, so product is zero
-                            return FermionOperator {
-                                coeffs: HashMap::new(),
-                            };
+                            zero = true;
+                            break;
                         }
                         Ordering::Greater => {
                             // swap operators and update sign
@@ -576,7 +576,7 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
                     }
                 } else if action_right && !action_left {
                     // create on right and destroy on left
-                    if index_right == index_left {
+                    if (spin_right, index_right) == (spin_left, index_left) {
                         // add new term
                         let mut new_term: Vec<(bool, bool, i32)> = Vec::new();
                         new_term.extend(&term[..j - 1]);
@@ -589,6 +589,9 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
                     parity = !parity;
                 }
             }
+        }
+        if zero {
+            continue;
         }
         let signed_coeff = if parity { -coeff } else { coeff };
         let val = coeffs.entry(term).or_insert(Complex64::default());

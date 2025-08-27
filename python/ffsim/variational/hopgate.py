@@ -18,15 +18,15 @@ from typing import cast
 
 import numpy as np
 
+from ffsim import protocols
 from ffsim.gates import apply_hop_gate, apply_orbital_rotation
-from ffsim.variational.util import (
-    orbital_rotation_from_parameters,
-    orbital_rotation_to_parameters,
-)
+from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
 
 
 @dataclass(frozen=True)
-class HopGateAnsatzOperator:
+class HopGateAnsatzOperator(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
     """A hop gate ansatz operator.
 
     The hop gate ansatz consists of a sequence of `hop gates`_.
@@ -81,7 +81,7 @@ class HopGateAnsatzOperator:
         params = np.zeros(num_params)
         params[: len(self.thetas)] = self.thetas
         if self.final_orbital_rotation is not None:
-            params[len(self.thetas) :] = orbital_rotation_to_parameters(
+            params[len(self.thetas) :] = unitary_to_parameters(
                 self.final_orbital_rotation
             )
         return params
@@ -104,9 +104,7 @@ class HopGateAnsatzOperator:
         """
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            final_orbital_rotation = orbital_rotation_from_parameters(
-                params[-(norb**2) :], norb
-            )
+            final_orbital_rotation = unitary_from_parameters(params[-(norb**2) :], norb)
             params = params[: -(norb**2)]
         return HopGateAnsatzOperator(
             norb=norb,

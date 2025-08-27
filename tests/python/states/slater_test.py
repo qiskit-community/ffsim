@@ -41,6 +41,27 @@ def test_hartree_fock_state_spinless(norb: int, nelec: int):
     assert all(vec[1:] == 0)
 
 
+def test_slater_determinant_sign_spinful():
+    """Test Slater determinant sign, spinful."""
+    vec = ffsim.slater_determinant(4, ([0, 1], [0, 1]))
+    assert vec[0] == 1
+
+    vec = ffsim.slater_determinant(4, ([0, 1], [1, 0]))
+    assert vec[0] == -1
+
+    vec = ffsim.slater_determinant(4, ([1, 0], [1, 0]))
+    assert vec[0] == 1
+
+
+def test_slater_determinant_sign_spinless():
+    """Test Slater determinant sign, spinless."""
+    vec = ffsim.slater_determinant(8, [0, 1, 2, 3])
+    assert vec[0] == 1
+
+    vec = ffsim.slater_determinant(8, [0, 1, 3, 2])
+    assert vec[0] == -1
+
+
 @pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
 def test_slater_determinant_spinless(norb: int, nocc: int):
     """Test Slater determinant with same rotation for both spins."""
@@ -230,3 +251,30 @@ def test_slater_determinant_amplitudes_spinful(norb: int, nelec: tuple[int, int]
                 orbital_rotation=(orb_rot_a, orb_rot_b),
             )
             ffsim.testing.assert_allclose_up_to_global_phase(actual, expected)
+
+
+def test_slater_determinant_amplitudes_sign_spinful():
+    """Test Slater determinant amplitudes sign, spinful."""
+    amps = ffsim.slater_determinant_amplitudes(
+        ([0b0011], [0b0011]), 4, ([0, 1], [0, 1]), np.eye(4)
+    )
+    assert amps[0] == 1
+
+    amps = ffsim.slater_determinant_amplitudes(
+        ([0b0011], [0b0011]), 4, ([0, 1], [1, 0]), np.eye(4)
+    )
+    assert amps[0] == -1
+
+    amps = ffsim.slater_determinant_amplitudes(
+        ([0b0011], [0b0011]), 4, ([1, 0], [1, 0]), np.eye(4)
+    )
+    assert amps[0] == 1
+
+
+def test_slater_determinant_amplitudes_sign_spinless():
+    """Test Slater determinant amplitudes sign, spinless."""
+    amps = ffsim.slater_determinant_amplitudes([0b00001111], 8, [0, 1, 2, 3], np.eye(8))
+    assert amps[0] == 1
+
+    amps = ffsim.slater_determinant_amplitudes([0b00001111], 8, [0, 1, 3, 2], np.eye(8))
+    assert amps[0] == -1

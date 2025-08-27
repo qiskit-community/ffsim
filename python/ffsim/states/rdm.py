@@ -12,7 +12,10 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 import numpy as np
+from opt_einsum import contract
 from pyscf.fci.direct_spin1 import (
     make_rdm1,
     make_rdm1s,
@@ -25,6 +28,55 @@ from pyscf.fci.direct_spin1 import (
 )
 
 from ffsim.cistring import gen_linkstr_index
+from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
+
+
+@dataclasses.dataclass
+class ReducedDensityMatrix:
+    r"""Class to store one- and two-body reduced density matrices.
+
+    Attributes:
+        one_rdm (np.ndarray): The one-body reduced density matrix.
+        two_rdm (np.ndarray): The two-body reduced density matrix.
+    """
+
+    one_rdm: np.ndarray
+    two_rdm: np.ndarray
+
+    def rotated(self, orbital_rotation: np.ndarray) -> ReducedDensityMatrix:
+        r"""Apply an orbital rotation to the reduced density matrices.
+
+        Args:
+            orbital_rotation: The orbital rotation.
+
+        Returns:
+            The rotated reduced density matrices.
+        """
+        one_rdm_rotated = contract(
+            "ab,Aa,Bb->AB",
+            self.one_rdm,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            optimize="greedy",
+        )
+        two_rdm_rotated = contract(
+            "abcd,Aa,Bb,Cc,Dd->ABCD",
+            self.two_rdm,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            optimize="greedy",
+        )
+        return ReducedDensityMatrix(one_rdm=one_rdm_rotated, two_rdm=two_rdm_rotated)
+
+    def expectation(self, mol_ham: MolecularHamiltonian) -> float:
+        """Return the expectation value of the RDMs with a molecular Hamiltonian."""
+        return (
+            mol_ham.constant
+            + contract("ab,ab->", mol_ham.one_body_tensor, self.one_rdm)
+            + 0.5 * contract("abcd,abcd->", mol_ham.two_body_tensor, self.two_rdm)
+        ).real
 
 
 def rdms(
