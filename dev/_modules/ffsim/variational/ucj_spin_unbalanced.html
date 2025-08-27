@@ -566,23 +566,26 @@
                 <span class="p">)</span>
                 <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
             <span class="c1"># Diag Coulomb matrices</span>
-            <span class="n">n_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">)</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
-            <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n_params</span><span class="p">]</span>
-            <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
-            <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
-            <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
-            <span class="n">n_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">)</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
-            <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n_params</span><span class="p">]</span>
-            <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
-            <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
-            <span class="n">n_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_bb</span><span class="p">)</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_bb</span><span class="p">)</span>
-            <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n_params</span><span class="p">]</span>
-            <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
-            <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
-            <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
+            <span class="k">if</span> <span class="n">pairs_aa</span><span class="p">:</span>
+                <span class="n">n_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_aa</span><span class="p">)</span>
+                <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n_params</span><span class="p">]</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
+            <span class="k">if</span> <span class="n">pairs_ab</span><span class="p">:</span>
+                <span class="n">n_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">)</span>
+                <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n_params</span><span class="p">]</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
+            <span class="k">if</span> <span class="n">pairs_bb</span><span class="p">:</span>
+                <span class="n">n_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_bb</span><span class="p">)</span>
+                <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_bb</span><span class="p">)</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n_params</span><span class="p">]</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+                <span class="n">diag_coulomb_mat</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="n">n_params</span>
         <span class="c1"># Final orbital rotation</span>
         <span class="n">final_orbital_rotation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">with_final_orbital_rotation</span><span class="p">:</span>
@@ -858,20 +861,23 @@
         <span class="c1"># Zero out diagonal coulomb matrix entries if requested</span>
         <span class="k">if</span> <span class="n">pairs_aa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
-            <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">pairs_aa</span><span class="p">:</span>
+                <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_aa</span><span class="p">)</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
         <span class="k">if</span> <span class="n">pairs_ab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
-            <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">pairs_ab</span><span class="p">:</span>
+                <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_ab</span><span class="p">)</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
         <span class="k">if</span> <span class="n">pairs_bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_bb</span><span class="p">)</span>
-            <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">pairs_bb</span><span class="p">:</span>
+                <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs_bb</span><span class="p">)</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">diag_coulomb_mats</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="n">mask</span>
 
         <span class="k">return</span> <span class="n">UCJOpSpinUnbalanced</span><span class="p">(</span>
