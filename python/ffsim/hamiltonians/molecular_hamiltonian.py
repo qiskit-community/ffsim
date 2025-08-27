@@ -10,8 +10,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, Tuple
-
 import dataclasses
 import itertools
 from functools import cached_property
@@ -188,7 +186,6 @@ class MolecularHamiltonian(
                 }
             )
         return op
-    
 
     @staticmethod
     def from_fermion_operator(op: FermionOperator) -> MolecularHamiltonian:
@@ -201,16 +198,14 @@ class MolecularHamiltonian(
         one_body_tensor = np.zeros((norb, norb), dtype=complex)
         two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
 
-        # track which (p,q,r,s) we've already processed
-        seen_2b = set()
-
         for term, coeff in op.items():
             # constant term: empty tuple
             if len(term) == 0:
                 if coeff.imag:
-                    raise ValueError(f"Constant term must be real. Instead, got {coeff}.")
+                    raise ValueError(
+                        f"Constant term must be real. Instead, got {coeff}."
+                    )
                 constant = coeff.real
-
 
             # one‑body term: a†_σ,p a_σ,q  (σ = α or β)
             elif len(term) == 2:
@@ -239,22 +234,13 @@ class MolecularHamiltonian(
                     raise ValueError(
                         "FermionOperator cannot be converted to "
                         f"MolecularHamiltonian. The two-body term {term} is not "
-                        "of the form a^{\\dagger}_{\\sigma, p} a^{\\dagger}_{\\sigma, r} a_{\\sigma, s} a_{\\sigma, q}, or "
-                        "a^{\\dagger}_{\\sigma, p} a^{\\dagger}_{\\tau, r} a_{\\tau, s} a_{\\sigma, q}."
+                        "of the form "
+                        "a^{\dagger}_{\sigma,p}a^{\dagger}_{\sigma,r}a_{\sigma,s}a_{\sigma,q}"
+                        ", or "
+                        "a^{\dagger}_{\sigma,p}a^{\dagger}_{\tau,r}a_{\tau,s}a_{\sigma,q}."
                     )
 
-                key = (p, q, r, s)
-                if key not in seen_2b:
-
-                    h_pqrs = 2.0 * coeff
-                    # fill (p,q,r,s) and its 7 symmetric equivalents
-                    for a, b, c, d in [
-                        (p, q, r, s), (q, p, r, s),
-                        (p, q, s, r), (q, p, s, r),
-                        (r, s, p, q), (s, r, p, q),
-                        (r, s, q, p), (s, r, q, p),
-                    ]:
-                        two_body_tensor[a, b, c, d] = h_pqrs
+                two_body_tensor[p, q, r, s] += 0.5 * coeff
 
             # more terms
             else:
@@ -263,7 +249,6 @@ class MolecularHamiltonian(
                     f" The term {term} is neither a constant, one-body, or two-body "
                     "term."
                 )
-
 
         return MolecularHamiltonian(
             one_body_tensor=one_body_tensor,
