@@ -519,15 +519,17 @@ def random_ucj_op_spin_balanced(
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_aa)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_aa:
+            rows, cols = zip(*pairs_aa)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 0] *= mask
     if pairs_ab is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_ab)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_ab:
+            rows, cols = zip(*pairs_ab)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 1] *= mask
 
     return variational.UCJOpSpinBalanced(
@@ -645,20 +647,23 @@ def random_ucj_op_spin_unbalanced(
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_aa)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_aa:
+            rows, cols = zip(*pairs_aa)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 0] *= mask
     if pairs_ab is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_ab)
-        mask[rows, cols] = True
+        if pairs_ab:
+            rows, cols = zip(*pairs_ab)
+            mask[rows, cols] = True
         diag_coulomb_mats[:, 1] *= mask
     if pairs_bb is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*pairs_bb)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if pairs_bb:
+            rows, cols = zip(*pairs_bb)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats[:, 2] *= mask
 
     return variational.UCJOpSpinUnbalanced(
