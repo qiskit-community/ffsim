@@ -235,9 +235,9 @@ class MolecularHamiltonian(
                         "FermionOperator cannot be converted to "
                         f"MolecularHamiltonian. The two-body term {term} is not "
                         "of the form "
-                        "a^{\dagger}_{\sigma,p}a^{\dagger}_{\sigma,r}a_{\sigma,s}a_{\sigma,q}"
+                        "a^{\\dagger}_{\\sigma,p}a^{\\dagger}_{\\sigma,r}a_{\\sigma,s}a_{\\sigma,q}"
                         ", or "
-                        "a^{\dagger}_{\sigma,p}a^{\dagger}_{\tau,r}a_{\tau,s}a_{\sigma,q}."
+                        "a^{\\dagger}_{\\sigma,p}a^{\\dagger}_{\\tau,r}a_{\\tau,s}a_{\\sigma,q}."
                     )
 
                 two_body_tensor[p, q, r, s] += 0.5 * coeff
