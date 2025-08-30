@@ -458,6 +458,8 @@ class UCJOpSpinBalanced(
 
         .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
+        if isinstance(n_reps, int) and n_reps <= 0:
+            raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
