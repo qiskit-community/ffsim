@@ -494,6 +494,8 @@ class UCJOpSpinUnbalanced(
             ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
                 contained lower triangular pairs.
         """
+        if isinstance(n_reps, int) and n_reps <= 0:
+            raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
