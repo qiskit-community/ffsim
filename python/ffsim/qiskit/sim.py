@@ -30,6 +30,7 @@ from qiskit.circuit.library import (
     DiagonalGate,
     GlobalPhaseGate,
     Measure,
+    PermutationGate,
     PhaseGate,
     RZGate,
     RZZGate,
@@ -379,6 +380,19 @@ def _evolve_state_vector_spinless(
         vec = _apply_iswap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PermutationGate):
+        perm = list(op.pattern)
+        qs = qubit_indices.copy()
+        for k in range(len(perm)):
+            while perm[k] != k:
+                j = perm[k]
+                vec = _apply_swap(
+                    vec, (qs[k], qs[j]), norb=norb, nelec=nelec, copy=False
+                )
+                perm[k], perm[j] = perm[j], perm[k]
+                qs[k], qs[j] = qs[j], qs[k]
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         theta, beta = op.params
@@ -713,6 +727,30 @@ def _evolve_state_vector_spinful(
         vec = _apply_iswap(
             vec, (i % norb, j % norb), norb=norb, nelec=nelec, spin=spin, copy=False
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, PermutationGate):
+        perm = list(op.pattern)
+        qs = qubit_indices.copy()
+        for k in range(len(perm)):
+            while perm[k] != k:
+                j = perm[k]
+                if (qs[k] < norb) != (qs[j] < norb):
+                    raise ValueError(
+                        f"Gate of type '{op.__class__.__name__}' must be applied on "
+                        "orbitals of the same spin."
+                    )
+                spin = Spin.ALPHA if qs[k] < norb else Spin.BETA
+                vec = _apply_swap(
+                    vec,
+                    (qs[k] % norb, qs[j] % norb),
+                    norb=norb,
+                    nelec=nelec,
+                    spin=spin,
+                    copy=False,
+                )
+                perm[k], perm[j] = perm[j], perm[k]
+                qs[k], qs[j] = qs[j], qs[k]
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
