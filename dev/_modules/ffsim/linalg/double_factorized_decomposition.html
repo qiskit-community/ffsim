@@ -788,11 +788,14 @@
 
 <span class="sd">        t_{ijab} = i \sum_{m=1}^L \sum_{pq}</span>
 <span class="sd">            Z^{(m)}_{pq}</span>
-<span class="sd">            U^{(m)}_{ap} U^{(m)*}_{ip} U^{(m)}_{bq} U^{(m)*}_{jq}</span>
+<span class="sd">            U^{(m)}_{(\eta - 1 + a)p} U^{(m)*}_{ip}</span>
+<span class="sd">            U^{(m)}_{(\eta - 1 + b)q} U^{(m)*}_{jq}</span>
 
-<span class="sd">    Here each :math:`Z^{(m)}` is a real-valued matrix, referred to as a</span>
-<span class="sd">    &quot;diagonal Coulomb matrix,&quot; and each :math:`U^{(m)}` is a unitary matrix,</span>
-<span class="sd">    referred to as an &quot;orbital rotation.&quot;</span>
+<span class="sd">    Here each :math:`Z^{(m)}` is a real symmetric matrix, referred to as a</span>
+<span class="sd">    &quot;diagonal Coulomb matrix,&quot; each :math:`U^{(m)}` is a unitary matrix,</span>
+<span class="sd">    referred to as an &quot;orbital rotation,&quot; and the shape of the t2 amplitudes tensor is</span>
+<span class="sd">    :math:`(\eta, \eta, N - \eta, N - \eta)`, where :math:`N` is the number of orbitals</span>
+<span class="sd">    and :math:`\eta` is the number of orbitals that are occupied.</span>
 
 <span class="sd">    The number of terms :math:`L` in the decomposition depends on the allowed</span>
 <span class="sd">    error threshold. A larger error threshold may yield a smaller number of terms.</span>

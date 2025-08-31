@@ -439,11 +439,14 @@ the <a class="reference external" href="https://docs.scipy.org/doc/scipy/referen
 <div class="math notranslate nohighlight">
 \[t_{ijab} = i \sum_{m=1}^L \sum_{pq}
     Z^{(m)}_{pq}
-    U^{(m)}_{ap} U^{(m)*}_{ip} U^{(m)}_{bq} U^{(m)*}_{jq}\]</div>
+    U^{(m)}_{(\eta - 1 + a)p} U^{(m)*}_{ip}
+    U^{(m)}_{(\eta - 1 + b)q} U^{(m)*}_{jq}\]</div>
 </div>
-<p>Here each <span class="math notranslate nohighlight">\(Z^{(m)}\)</span> is a real-valued matrix, referred to as a
-“diagonal Coulomb matrix,” and each <span class="math notranslate nohighlight">\(U^{(m)}\)</span> is a unitary matrix,
-referred to as an “orbital rotation.”</p>
+<p>Here each <span class="math notranslate nohighlight">\(Z^{(m)}\)</span> is a real symmetric matrix, referred to as a
+“diagonal Coulomb matrix,” each <span class="math notranslate nohighlight">\(U^{(m)}\)</span> is a unitary matrix,
+referred to as an “orbital rotation,” and the shape of the t2 amplitudes tensor is
+<span class="math notranslate nohighlight">\((\eta, \eta, N - \eta, N - \eta)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals
+and <span class="math notranslate nohighlight">\(\eta\)</span> is the number of orbitals that are occupied.</p>
 <p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold may yield a smaller number of terms.
 Furthermore, the <cite>max_terms</cite> parameter specifies an optional upper bound
