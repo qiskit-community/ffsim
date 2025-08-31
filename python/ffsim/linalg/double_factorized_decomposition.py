@@ -513,11 +513,14 @@ def double_factorized_t2(
 
         t_{ijab} = i \sum_{m=1}^L \sum_{pq}
             Z^{(m)}_{pq}
-            U^{(m)}_{ap} U^{(m)*}_{ip} U^{(m)}_{bq} U^{(m)*}_{jq}
+            U^{(m)}_{(\eta - 1 + a)p} U^{(m)*}_{ip}
+            U^{(m)}_{(\eta - 1 + b)q} U^{(m)*}_{jq}
 
-    Here each :math:`Z^{(m)}` is a real-valued matrix, referred to as a
-    "diagonal Coulomb matrix," and each :math:`U^{(m)}` is a unitary matrix,
-    referred to as an "orbital rotation."
+    Here each :math:`Z^{(m)}` is a real symmetric matrix, referred to as a
+    "diagonal Coulomb matrix," each :math:`U^{(m)}` is a unitary matrix,
+    referred to as an "orbital rotation," and the shape of the t2 amplitudes tensor is
+    :math:`(\eta, \eta, N - \eta, N - \eta)`, where :math:`N` is the number of orbitals
+    and :math:`\eta` is the number of orbitals that are occupied.
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
