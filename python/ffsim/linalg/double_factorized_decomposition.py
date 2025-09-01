@@ -157,7 +157,7 @@ def double_factorized(
 
     .. math::
 
-        h_{pqrs} = \sum_{t=1}^L \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
+        h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
             U^{t}_{r\ell} U^{t}_{s\ell}
 
     Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a
@@ -511,10 +511,9 @@ def double_factorized_t2(
 
     .. math::
 
-        t_{ijab} = i \sum_{m=1}^L \sum_{pq}
+        t_{ijab} = i \sum_{m=0}^{L - 1} \sum_{pq}
             Z^{(m)}_{pq}
-            U^{(m)}_{(\eta - 1 + a)p} U^{(m)*}_{ip}
-            U^{(m)}_{(\eta - 1 + b)q} U^{(m)*}_{jq}
+            U^{(m)}_{(\eta + a)p} U^{(m)*}_{ip} U^{(m)}_{(\eta + b)q} U^{(m)*}_{jq}
 
     Here each :math:`Z^{(m)}` is a real symmetric matrix, referred to as a
     "diagonal Coulomb matrix," each :math:`U^{(m)}` is a unitary matrix,
