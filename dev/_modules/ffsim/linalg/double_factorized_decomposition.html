@@ -429,7 +429,7 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        h_{pqrs} = \sum_{t=1}^L \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}</span>
+<span class="sd">        h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}</span>
 <span class="sd">            U^{t}_{r\ell} U^{t}_{s\ell}</span>
 
 <span class="sd">    Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a</span>
@@ -786,10 +786,9 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        t_{ijab} = i \sum_{m=1}^L \sum_{pq}</span>
+<span class="sd">        t_{ijab} = i \sum_{m=0}^{L - 1} \sum_{pq}</span>
 <span class="sd">            Z^{(m)}_{pq}</span>
-<span class="sd">            U^{(m)}_{(\eta - 1 + a)p} U^{(m)*}_{ip}</span>
-<span class="sd">            U^{(m)}_{(\eta - 1 + b)q} U^{(m)*}_{jq}</span>
+<span class="sd">            U^{(m)}_{(\eta + a)p} U^{(m)*}_{ip} U^{(m)}_{(\eta + b)q} U^{(m)*}_{jq}</span>
 
 <span class="sd">    Here each :math:`Z^{(m)}` is a real symmetric matrix, referred to as a</span>
 <span class="sd">    &quot;diagonal Coulomb matrix,&quot; each :math:`U^{(m)}` is a unitary matrix,</span>

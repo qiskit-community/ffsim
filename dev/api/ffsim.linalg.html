@@ -348,7 +348,7 @@ and <span class="math notranslate nohighlight">\(j\)</span>-th basis vectors as<
 <span class="math notranslate nohighlight">\(h_{pqrs}\)</span> as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[h_{pqrs} = \sum_{t=1}^L \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
+\[h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
     U^{t}_{r\ell} U^{t}_{s\ell}\]</div>
 </div>
 <p>Here each <span class="math notranslate nohighlight">\(Z^{(t)}\)</span> is a real symmetric matrix, referred to as a
@@ -437,10 +437,9 @@ the <a class="reference external" href="https://docs.scipy.org/doc/scipy/referen
 <p>The double-factorized decomposition of a t2 amplitudes tensor <span class="math notranslate nohighlight">\(t_{ijab}\)</span> is</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[t_{ijab} = i \sum_{m=1}^L \sum_{pq}
+\[t_{ijab} = i \sum_{m=0}^{L - 1} \sum_{pq}
     Z^{(m)}_{pq}
-    U^{(m)}_{(\eta - 1 + a)p} U^{(m)*}_{ip}
-    U^{(m)}_{(\eta - 1 + b)q} U^{(m)*}_{jq}\]</div>
+    U^{(m)}_{(\eta + a)p} U^{(m)*}_{ip} U^{(m)}_{(\eta + b)q} U^{(m)*}_{jq}\]</div>
 </div>
 <p>Here each <span class="math notranslate nohighlight">\(Z^{(m)}\)</span> is a real symmetric matrix, referred to as a
 “diagonal Coulomb matrix,” each <span class="math notranslate nohighlight">\(U^{(m)}\)</span> is a unitary matrix,
