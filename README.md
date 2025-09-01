@@ -40,9 +40,10 @@ mol.build(atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]], basis="6-31g", symmetry="
 scf = pyscf.scf.RHF(mol).run()
 mol_data = ffsim.MolecularData.from_scf(scf, active_space=range(4, mol.nao_nr()))
 norb, nelec = mol_data.norb, mol_data.nelec
+hamiltonian = mol_data.hamiltonian
 
 # Convert the Hamiltonian to a SciPy LinearOperator
-linop = ffsim.linear_operator(mol_data.hamiltonian, norb=norb, nelec=nelec)
+linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
 
 # Generate a random orbital rotation
 orbital_rotation = ffsim.random.random_unitary(norb, seed=1234)
