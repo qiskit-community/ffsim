@@ -34,14 +34,16 @@ import pyscf
 
 import ffsim
 
-# Build an N2 molecule
+# Generate the Hamiltonian for an N2 molecule using PySCF and ffsim's wrapper for it
 mol = pyscf.gto.Mole()
 mol.build(atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]], basis="6-31g", symmetry="Dooh")
-
-# Get molecular data
 scf = pyscf.scf.RHF(mol).run()
 mol_data = ffsim.MolecularData.from_scf(scf, active_space=range(4, mol.nao_nr()))
 norb, nelec = mol_data.norb, mol_data.nelec
+hamiltonian = mol_data.hamiltonian
+
+# Convert the Hamiltonian to a SciPy LinearOperator
+linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
 
 # Generate a random orbital rotation
 orbital_rotation = ffsim.random.random_unitary(norb, seed=1234)
@@ -49,9 +51,6 @@ orbital_rotation = ffsim.random.random_unitary(norb, seed=1234)
 # Create the Hartree-Fock state and apply the orbital rotation to it
 vec = ffsim.hartree_fock_state(norb, nelec)
 vec = ffsim.apply_orbital_rotation(vec, orbital_rotation, norb=norb, nelec=nelec)
-
-# Convert the Hamiltonian to a Scipy LinearOperator
-linop = ffsim.linear_operator(mol_data.hamiltonian, norb=norb, nelec=nelec)
 
 # Compute the energy of the state
 energy = np.vdot(vec, linop @ vec).real

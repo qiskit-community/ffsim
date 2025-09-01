@@ -476,7 +476,7 @@ def test_double_factorized_t2_tol_max_terms():
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
 
 
-def test_double_factorized_t2_optimize_max_terms_n2_small():
+def test_double_factorized_t2_compressed_max_terms_n2_small():
     """Test compressed double factorization for smaller N2."""
     # Build N2 molecule
     mol = pyscf.gto.Mole()
@@ -558,7 +558,7 @@ def test_double_factorized_t2_optimize_max_terms_n2_small():
     assert result.njev <= 35
 
 
-def test_double_factorized_t2_optimize_max_terms_n2_large():
+def test_double_factorized_t2_compressed_max_terms_n2_large():
     """Test compressed double factorization for larger N2."""
     # Build N2 molecule
     mol = pyscf.gto.Mole()
@@ -634,7 +634,7 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
 
 
-def test_double_factorized_t2_optimize_max_terms_random():
+def test_double_factorized_t2_compressed_max_terms_random():
     """Test compressed double factorization with random t2"""
     norb = 4
     nocc = 2

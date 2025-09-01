@@ -360,6 +360,8 @@ class UCJOpSpinless(
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
+        if isinstance(n_reps, int) and n_reps <= 0:
+            raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
         validate_interaction_pairs(interaction_pairs, ordered=False)
 
         nocc, _, nvrt, _ = t2.shape
