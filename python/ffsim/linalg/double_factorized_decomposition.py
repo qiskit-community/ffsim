@@ -511,12 +511,12 @@ def double_factorized_t2(
 
     .. math::
 
-        t_{ijab} = i \sum_{m=0}^{L - 1} \sum_{pq}
-            Z^{(m)}_{pq}
-            U^{(m)}_{(\eta + a)p} U^{(m)*}_{ip} U^{(m)}_{(\eta + b)q} U^{(m)*}_{jq}
+        t_{ijab} = i \sum_{k=0}^{L - 1} \sum_{pq}
+            Z^{(k)}_{pq}
+            U^{(k)}_{(\eta + a)p} U^{(k)*}_{ip} U^{(k)}_{(\eta + b)q} U^{(k)*}_{jq}
 
-    Here each :math:`Z^{(m)}` is a real symmetric matrix, referred to as a
-    "diagonal Coulomb matrix," each :math:`U^{(m)}` is a unitary matrix,
+    Here each :math:`Z^{(k)}` is a real symmetric matrix, referred to as a
+    "diagonal Coulomb matrix," each :math:`U^{(k)}` is a unitary matrix,
     referred to as an "orbital rotation," and the shape of the t2 amplitudes tensor is
     :math:`(\eta, \eta, N - \eta, N - \eta)`, where :math:`N` is the number of orbitals
     and :math:`\eta` is the number of orbitals that are occupied.
@@ -772,19 +772,19 @@ def double_factorized_t2_alpha_beta(
             expanded_orbital_rotations = np.zeros(
                 (n_terms, 2 * norb, 2 * norb), dtype=complex
             )
-            for m in range(n_terms):
-                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]
-                expanded_diag_coulomb_mats[m] = np.block(
+            for k in range(n_terms):
+                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]
+                expanded_diag_coulomb_mats[k] = np.block(
                     [[mat_aa, mat_ab], [mat_ab.T, mat_bb]]
                 )
-                orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]
-                expanded_orbital_rotations[m] = scipy.linalg.block_diag(
+                orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]
+                expanded_orbital_rotations[k] = scipy.linalg.block_diag(
                     orbital_rotation_a, orbital_rotation_b
                 )
             return (
                 2j
                 * contract(
-                    "mpq,map,mip,mbq,mjq->ijab",
+                    "kpq,kap,kip,kbq,kjq->ijab",
                     expanded_diag_coulomb_mats,
                     expanded_orbital_rotations,
                     expanded_orbital_rotations.conj(),
