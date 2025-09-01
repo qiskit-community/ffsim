@@ -786,12 +786,12 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        t_{ijab} = i \sum_{m=0}^{L - 1} \sum_{pq}</span>
-<span class="sd">            Z^{(m)}_{pq}</span>
-<span class="sd">            U^{(m)}_{(\eta + a)p} U^{(m)*}_{ip} U^{(m)}_{(\eta + b)q} U^{(m)*}_{jq}</span>
+<span class="sd">        t_{ijab} = i \sum_{k=0}^{L - 1} \sum_{pq}</span>
+<span class="sd">            Z^{(k)}_{pq}</span>
+<span class="sd">            U^{(k)}_{(\eta + a)p} U^{(k)*}_{ip} U^{(k)}_{(\eta + b)q} U^{(k)*}_{jq}</span>
 
-<span class="sd">    Here each :math:`Z^{(m)}` is a real symmetric matrix, referred to as a</span>
-<span class="sd">    &quot;diagonal Coulomb matrix,&quot; each :math:`U^{(m)}` is a unitary matrix,</span>
+<span class="sd">    Here each :math:`Z^{(k)}` is a real symmetric matrix, referred to as a</span>
+<span class="sd">    &quot;diagonal Coulomb matrix,&quot; each :math:`U^{(k)}` is a unitary matrix,</span>
 <span class="sd">    referred to as an &quot;orbital rotation,&quot; and the shape of the t2 amplitudes tensor is</span>
 <span class="sd">    :math:`(\eta, \eta, N - \eta, N - \eta)`, where :math:`N` is the number of orbitals</span>
 <span class="sd">    and :math:`\eta` is the number of orbitals that are occupied.</span>
@@ -1050,19 +1050,19 @@
 <span class="sd">            expanded_orbital_rotations = np.zeros(</span>
 <span class="sd">                (n_terms, 2 * norb, 2 * norb), dtype=complex</span>
 <span class="sd">            )</span>
-<span class="sd">            for m in range(n_terms):</span>
-<span class="sd">                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]</span>
-<span class="sd">                expanded_diag_coulomb_mats[m] = np.block(</span>
+<span class="sd">            for k in range(n_terms):</span>
+<span class="sd">                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]</span>
+<span class="sd">                expanded_diag_coulomb_mats[k] = np.block(</span>
 <span class="sd">                    [[mat_aa, mat_ab], [mat_ab.T, mat_bb]]</span>
 <span class="sd">                )</span>
-<span class="sd">                orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]</span>
-<span class="sd">                expanded_orbital_rotations[m] = scipy.linalg.block_diag(</span>
+<span class="sd">                orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]</span>
+<span class="sd">                expanded_orbital_rotations[k] = scipy.linalg.block_diag(</span>
 <span class="sd">                    orbital_rotation_a, orbital_rotation_b</span>
 <span class="sd">                )</span>
 <span class="sd">            return (</span>
 <span class="sd">                2j</span>
 <span class="sd">                * contract(</span>
-<span class="sd">                    &quot;mpq,map,mip,mbq,mjq-&gt;ijab&quot;,</span>
+<span class="sd">                    &quot;kpq,kap,kip,kbq,kjq-&gt;ijab&quot;,</span>
 <span class="sd">                    expanded_diag_coulomb_mats,</span>
 <span class="sd">                    expanded_orbital_rotations,</span>
 <span class="sd">                    expanded_orbital_rotations.conj(),</span>

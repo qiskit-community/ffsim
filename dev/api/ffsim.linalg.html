@@ -437,12 +437,12 @@ the <a class="reference external" href="https://docs.scipy.org/doc/scipy/referen
 <p>The double-factorized decomposition of a t2 amplitudes tensor <span class="math notranslate nohighlight">\(t_{ijab}\)</span> is</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[t_{ijab} = i \sum_{m=0}^{L - 1} \sum_{pq}
-    Z^{(m)}_{pq}
-    U^{(m)}_{(\eta + a)p} U^{(m)*}_{ip} U^{(m)}_{(\eta + b)q} U^{(m)*}_{jq}\]</div>
+\[t_{ijab} = i \sum_{k=0}^{L - 1} \sum_{pq}
+    Z^{(k)}_{pq}
+    U^{(k)}_{(\eta + a)p} U^{(k)*}_{ip} U^{(k)}_{(\eta + b)q} U^{(k)*}_{jq}\]</div>
 </div>
-<p>Here each <span class="math notranslate nohighlight">\(Z^{(m)}\)</span> is a real symmetric matrix, referred to as a
-“diagonal Coulomb matrix,” each <span class="math notranslate nohighlight">\(U^{(m)}\)</span> is a unitary matrix,
+<p>Here each <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> is a real symmetric matrix, referred to as a
+“diagonal Coulomb matrix,” each <span class="math notranslate nohighlight">\(U^{(k)}\)</span> is a unitary matrix,
 referred to as an “orbital rotation,” and the shape of the t2 amplitudes tensor is
 <span class="math notranslate nohighlight">\((\eta, \eta, N - \eta, N - \eta)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals
 and <span class="math notranslate nohighlight">\(\eta\)</span> is the number of orbitals that are occupied.</p>
@@ -559,19 +559,19 @@ using the following function:</p>
     <span class="n">expanded_orbital_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
         <span class="p">(</span><span class="n">n_terms</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_terms</span><span class="p">):</span>
-        <span class="p">(</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">)</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
-        <span class="n">expanded_diag_coulomb_mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_terms</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">)</span> <span class="o">=</span> <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">expanded_diag_coulomb_mats</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span>
             <span class="p">[[</span><span class="n">mat_aa</span><span class="p">,</span> <span class="n">mat_ab</span><span class="p">],</span> <span class="p">[</span><span class="n">mat_ab</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mat_bb</span><span class="p">]]</span>
         <span class="p">)</span>
-        <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
-        <span class="n">expanded_orbital_rotations</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
+        <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">expanded_orbital_rotations</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
             <span class="n">orbital_rotation_a</span><span class="p">,</span> <span class="n">orbital_rotation_b</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="mi">2</span><span class="n">j</span>
         <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
-            <span class="s2">&quot;mpq,map,mip,mbq,mjq-&gt;ijab&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kpq,kap,kip,kbq,kjq-&gt;ijab&quot;</span><span class="p">,</span>
             <span class="n">expanded_diag_coulomb_mats</span><span class="p">,</span>
             <span class="n">expanded_orbital_rotations</span><span class="p">,</span>
             <span class="n">expanded_orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
