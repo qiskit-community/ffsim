@@ -40,7 +40,7 @@ def reconstruct_t2(
     return (
         1j
         * contract(
-            "mpq,map,mip,mbq,mjq->ijab",
+            "kpq,kap,kip,kbq,kjq->ijab",
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations.conj(),
@@ -60,17 +60,17 @@ def reconstruct_t2_alpha_beta(
     n_terms = diag_coulomb_mats.shape[0]
     expanded_diag_coulomb_mats = np.zeros((n_terms, 2 * norb, 2 * norb))
     expanded_orbital_rotations = np.zeros((n_terms, 2 * norb, 2 * norb), dtype=complex)
-    for m in range(n_terms):
-        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]
-        expanded_diag_coulomb_mats[m] = np.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
-        orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]
-        expanded_orbital_rotations[m] = scipy.linalg.block_diag(
+    for k in range(n_terms):
+        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]
+        expanded_diag_coulomb_mats[k] = np.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
+        orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]
+        expanded_orbital_rotations[k] = scipy.linalg.block_diag(
             orbital_rotation_a, orbital_rotation_b
         )
     return (
         2j
         * contract(
-            "mpq,map,mip,mbq,mjq->ijab",
+            "kpq,kap,kip,kbq,kjq->ijab",
             expanded_diag_coulomb_mats,
             expanded_orbital_rotations,
             expanded_orbital_rotations.conj(),
