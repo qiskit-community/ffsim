@@ -312,7 +312,7 @@ def test_double_factorized_compressed_n2_constrained():
     rows, cols = zip(*diag_coulomb_indices)
     diag_coulomb_mask[rows, cols] = True
     diag_coulomb_mask[cols, rows] = True
-    np.testing.assert_allclose(
+    np.testing.assert_array_equal(
         diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
     )
     reconstructed = contract(
@@ -585,12 +585,16 @@ def test_double_factorized_t2_compressed_max_terms_n2_large():
 
     # Perform compressed factorization
     max_terms = 2
+    diag_coulomb_indices = [(p, p) for p in range(norb)]
+    diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
+    diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
     diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized_t2(
         ccsd.t2,
         max_terms=max_terms,
         optimize=True,
         method="L-BFGS-B",
         options=dict(maxiter=150),
+        diag_coulomb_indices=diag_coulomb_indices,
         regularization=1e-4,
     )
     optimized_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats_optimized) ** 2)
@@ -626,6 +630,13 @@ def test_double_factorized_t2_compressed_max_terms_n2_large():
     error = np.sum(np.abs(reconstructed - ccsd.t2) ** 2)
 
     # Check results
+    diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
+    rows, cols = zip(*diag_coulomb_indices)
+    diag_coulomb_mask[rows, cols] = True
+    diag_coulomb_mask[cols, rows] = True
+    np.testing.assert_array_equal(
+        diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
+    )
     assert error_optimized < 0.7 * error
     np.testing.assert_allclose(
         optimized_diag_coulomb_norm, init_diag_coulomb_norm, atol=3.5
