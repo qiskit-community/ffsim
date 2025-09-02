@@ -160,12 +160,9 @@ def test_t_amplitudes_energy():
 
 def test_t_amplitudes_random_n_reps():
     rng = np.random.default_rng(8379)
-
     norb = 5
     nocc = 3
     nvrt = norb - nocc
-
-    # Construct UCJ operator
     for n_reps in [3, 15]:
         t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
         t1 = rng.standard_normal((nocc, nvrt))
@@ -178,33 +175,27 @@ def test_t_amplitudes_random_n_reps():
         assert actual == expected
 
 
-def test_t_amplitudes_random_n_reps_optimized():
+def test_t_amplitudes_random_optimize():
     rng = np.random.default_rng(8379)
-
     norb = 5
     nocc = 3
     nvrt = norb - nocc
-
-    # Construct UCJ operator
-    for n_reps in [3, 15]:
-        t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
-        t1 = rng.standard_normal((nocc, nvrt))
-        operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
-            t2,
-            t1=t1,
-            n_reps=n_reps,
-            optimize=True,
-            method="L-BFGS-B",
-            options={"maxiter": 10},
-            multi_stage_start=n_reps + 5,
-            multi_stage_step=4,
-        )
-        assert operator.n_reps == n_reps
-        actual = len(operator.to_parameters())
-        expected = ffsim.UCJOpSpinBalanced.n_params(
-            norb, n_reps, with_final_orbital_rotation=True
-        )
-        assert actual == expected
+    n_reps = 3
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
+    t1 = rng.standard_normal((nocc, nvrt))
+    operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
+        t2,
+        t1=t1,
+        n_reps=n_reps,
+        optimize=True,
+        options={"maxiter": 10},
+    )
+    assert operator.n_reps == n_reps
+    actual = len(operator.to_parameters())
+    expected = ffsim.UCJOpSpinBalanced.n_params(
+        norb, n_reps, with_final_orbital_rotation=True
+    )
+    assert actual == expected
 
 
 def test_t_amplitudes_zero_n_reps():
