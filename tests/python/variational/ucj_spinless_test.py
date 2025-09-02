@@ -179,6 +179,39 @@ def test_t_amplitudes_random_n_reps():
         assert actual == expected
 
 
+def test_t_amplitudes_random_optimize():
+    rng = np.random.default_rng(8379)
+    norb = 5
+    nocc = 3
+    nvrt = norb - nocc
+    n_reps = 3
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
+    t1 = rng.standard_normal((nocc, nvrt))
+    interaction_pairs = [(p, p) for p in range(norb)]
+    interaction_pairs.extend([(p, p + 1) for p in range(norb - 1)])
+    operator = ffsim.UCJOpSpinless.from_t_amplitudes(
+        t2,
+        t1=t1,
+        n_reps=n_reps,
+        interaction_pairs=interaction_pairs,
+        optimize=True,
+        options={"maxiter": 10},
+    )
+    diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
+    rows, cols = zip(*interaction_pairs)
+    diag_coulomb_mask[rows, cols] = True
+    diag_coulomb_mask[cols, rows] = True
+    np.testing.assert_allclose(
+        operator.diag_coulomb_mats, operator.diag_coulomb_mats * diag_coulomb_mask
+    )
+    assert operator.n_reps == n_reps
+    actual = len(operator.to_parameters())
+    expected = ffsim.UCJOpSpinless.n_params(
+        norb, n_reps, with_final_orbital_rotation=True
+    )
+    assert actual == expected
+
+
 def test_t_amplitudes_zero_n_reps():
     norb = 5
     nocc = 3
