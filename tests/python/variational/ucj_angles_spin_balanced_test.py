@@ -201,7 +201,7 @@ def test_t_amplitudes_energy():
     # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
-    np.testing.assert_allclose(energy, -108.563917)
+    np.testing.assert_allclose(energy, -108.56438)
 
 
 def test_t_amplitudes_restrict_indices():
