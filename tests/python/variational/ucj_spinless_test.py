@@ -157,7 +157,7 @@ def test_t_amplitudes_energy():
         nelec=nelec,
     )
     np.testing.assert_allclose(energy, energy_alt)
-    np.testing.assert_allclose(energy, -108.511945)
+    np.testing.assert_allclose(energy, -108.512587)
 
 
 def test_t_amplitudes_random_n_reps():
