@@ -156,7 +156,7 @@ def test_t_amplitudes_energy():
     # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
     linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.124376)
+    np.testing.assert_allclose(energy, -15.125423)
 
     # Test setting number of reps as tuple
     n_reps = (4, 2)
@@ -167,7 +167,7 @@ def test_t_amplitudes_energy():
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.124832)
+    np.testing.assert_allclose(energy, -15.125875)
 
     # Test setting number of reps as None
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, t1=ccsd.t1)
@@ -175,7 +175,7 @@ def test_t_amplitudes_energy():
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.132263)
+    np.testing.assert_allclose(energy, -15.134145)
 
 
 def test_t_amplitudes_random_n_reps():

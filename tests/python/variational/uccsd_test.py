@@ -13,6 +13,8 @@
 import dataclasses
 
 import numpy as np
+import pyscf
+import pyscf.cc
 
 import ffsim
 
@@ -110,6 +112,48 @@ def test_uccsd_real_apply_unitary():
         np.testing.assert_allclose(np.linalg.norm(result), 1.0)
 
 
+def test_uccsd_real_energy():
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = 2
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    ccsd = pyscf.cc.CCSD(
+        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
+    ).run()
+
+    # Get molecular data and molecular Hamiltonian
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    assert norb == 8
+    assert nelec == (5, 5)
+    mol_hamiltonian = mol_data.hamiltonian
+
+    # Construct UCCSD operator
+    operator = ffsim.UCCSDOpRestrictedReal(t1=ccsd.t1, t2=ccsd.t2)
+
+    # Construct the Hartree-Fock state to use as the reference state
+    n_alpha, n_beta = nelec
+    reference_state = ffsim.slater_determinant(
+        norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
+    )
+
+    # Apply the operator to the reference state
+    ansatz_state = ffsim.apply_unitary(
+        reference_state, operator, norb=norb, nelec=nelec
+    )
+
+    # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
+    energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
+    np.testing.assert_allclose(energy, -108.594284)
+
+
 def test_uccsd_complex_norb():
     """Test norb property."""
     rng = np.random.default_rng(4878)
@@ -201,3 +245,45 @@ def test_uccsd_complex_apply_unitary():
         )
         result = ffsim.apply_unitary(vec, operator, norb=norb, nelec=(nocc, nocc))
         np.testing.assert_allclose(np.linalg.norm(result), 1.0)
+
+
+def test_uccsd_complex_energy():
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = 2
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    ccsd = pyscf.cc.CCSD(
+        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
+    ).run()
+
+    # Get molecular data and molecular Hamiltonian
+    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    assert norb == 8
+    assert nelec == (5, 5)
+    mol_hamiltonian = mol_data.hamiltonian
+
+    # Construct UCCSD operator
+    operator = ffsim.UCCSDOpRestricted(t1=ccsd.t1, t2=ccsd.t2)
+
+    # Construct the Hartree-Fock state to use as the reference state
+    n_alpha, n_beta = nelec
+    reference_state = ffsim.slater_determinant(
+        norb=norb, occupied_orbitals=(range(n_alpha), range(n_beta))
+    )
+
+    # Apply the operator to the reference state
+    ansatz_state = ffsim.apply_unitary(
+        reference_state, operator, norb=norb, nelec=nelec
+    )
+
+    # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
+    hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
+    energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
+    np.testing.assert_allclose(energy, -108.594284)
