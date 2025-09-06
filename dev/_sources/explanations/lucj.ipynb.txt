@@ -261,7 +261,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Near the equilibrium bond length, which is around 1.2 angstroms at this level of approximation, CCSD approximates the ground state energy fairly well. However, at stretched bond lengths, CCSD is unable to capture the static correlation of the electrons, and it begins to undershoot the exact energy (the CCSD energy is not variational, so it can return values below the ground state energy).\n",
+    "Near the equilibrium bond length, which is around 1.2 angstroms at this level of theory, CCSD approximates the ground state energy fairly well. However, at stretched bond lengths, CCSD is unable to capture the static correlation of the electrons, and it begins to undershoot the exact energy (the CCSD energy is not variational, so it can return values below the ground state energy).\n",
     "\n",
     "In the next code cell, we use the $t$-amplitudes from CCSD to initialize UCCSD and UCJ ansatzes. For each bond length, we apply the ansatz operator to the Hartree-Fock state, and compute the energy (expectation value of the Hamiltonian) of the resulting state. Instead of plotting the energy directly, we'll plot the error, that is, the difference from the exact energy."
    ]
