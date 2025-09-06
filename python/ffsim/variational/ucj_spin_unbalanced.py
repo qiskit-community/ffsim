@@ -442,7 +442,7 @@ class UCJOpSpinUnbalanced(
     ) -> UCJOpSpinUnbalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
-        Performs a double-factorization of the t2 amplitudes and constructs the
+        Performs a double factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
         specified number of repetitions. Terms are included in decreasing order
         of the magnitude of the corresponding singular value in the factorization.
@@ -462,9 +462,9 @@ class UCJOpSpinUnbalanced(
                 and the second integer specifies the number of terms to use from the
                 alpha-alpha and beta-beta t2 amplitudes.
                 If not specified, then it is set
-                to the number of terms resulting from the double-factorization of the
+                to the number of terms resulting from the double factorization of the
                 t2 amplitudes. If the specified number of repetitions is larger than the
-                number of terms resulting from the double-factorization, then the ansatz
+                number of terms resulting from the double factorization, then the ansatz
                 is padded with additional identity operators up to the specified number
                 of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions

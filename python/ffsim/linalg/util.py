@@ -367,7 +367,7 @@ def df_tensors_to_params(
     diag_coulomb_indices: list[tuple[int, int]] | None = None,
     real: bool = False,
 ):
-    """Convert double-factorization tensors to parameters.
+    """Convert double factorization tensors to parameters.
 
     Converts arrays of diagonal Coulomb matrices and orbital rotations to a
     single real-valued parameter vector.
@@ -381,7 +381,7 @@ def df_tensors_to_params(
             rotations, and discard the imaginary parts.
 
     Returns:
-        The list of real numbers parameterizing the double-factorization tensors.
+        The list of real numbers parameterizing the double factorization tensors.
     """
     orbital_rotation_params = unitaries_to_parameters(orbital_rotations, real=real)
     diag_coulomb_params = real_symmetrics_to_parameters(
@@ -397,7 +397,7 @@ def df_tensors_from_params(
     diag_coulomb_indices: list[tuple[int, int]] | None = None,
     real: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Construct double-factorization tensors from parameters.
+    """Construct double factorization tensors from parameters.
 
     Converts a real-valued  parameter vector to arrays of diagonal Coulomb matrices and
     orbital rotations
