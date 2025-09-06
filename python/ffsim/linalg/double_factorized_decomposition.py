@@ -243,7 +243,7 @@ def double_factorized(
     """
     if np.iscomplexobj(two_body_tensor):
         raise ValueError(
-            "Double-factorization of complex two-body tensors is not supported."
+            "Double factorization of complex two-body tensors is not supported."
         )
 
     norb, _, _, _ = two_body_tensor.shape
