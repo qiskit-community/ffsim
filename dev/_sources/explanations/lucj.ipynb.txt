@@ -91,7 +91,7 @@
     "\n",
     "### From UCCSD to (L)UCJ\n",
     "\n",
-    "The UCJ ansatz can be related to the UCCSD ansatz via a double-factorized representation the $T_2$ operator. We can focus on the $T_2$ operator because the $T_1$ operator can be separated by invoking a Trotter approximation:\n",
+    "The UCJ ansatz can be related to the UCCSD ansatz via a double-factorized representation of the $T_2$ operator. We can focus on the $T_2$ operator because the $T_1$ operator can be separated by invoking a Trotter approximation:\n",
     "$$\n",
     "e^{T - T^\\dagger} = e^{T_1 - T_1^\\dagger + T_2 - T_2^\\dagger} \\approx e^{T_1 - T_1^\\dagger} e^{T_2 - T_2^\\dagger}.\n",
     "$$\n",
