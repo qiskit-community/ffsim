@@ -210,8 +210,8 @@ class UCCSDOpRestrictedReal(
 
         one_body_tensor = np.zeros((norb, norb))
         two_body_tensor = np.zeros((norb, norb, norb, norb))
-        one_body_tensor[:nocc, nocc:] = self.t1
-        one_body_tensor[nocc:, :nocc] = -self.t1.T
+        one_body_tensor[:nocc, nocc:] = -self.t1
+        one_body_tensor[nocc:, :nocc] = self.t1.T
         two_body_tensor[nocc:, :nocc, nocc:, :nocc] = self.t2.transpose(2, 0, 3, 1)
         two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -self.t2.transpose(0, 2, 1, 3)
 
@@ -419,8 +419,9 @@ class UCCSDOpRestricted(
 
         one_body_tensor = np.zeros((norb, norb), dtype=complex)
         two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
-        one_body_tensor[:nocc, nocc:] = self.t1
-        one_body_tensor[nocc:, :nocc] = -self.t1.T.conj()
+        # TODO check placement of conj()
+        one_body_tensor[:nocc, nocc:] = -self.t1
+        one_body_tensor[nocc:, :nocc] = self.t1.T.conj()
         two_body_tensor[nocc:, :nocc, nocc:, :nocc] = self.t2.transpose(2, 0, 3, 1)
         two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -self.t2.transpose(
             0, 2, 1, 3
