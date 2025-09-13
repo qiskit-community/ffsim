@@ -38,6 +38,9 @@ from ffsim.molecular_data import MolecularData
 from ffsim.operators import (
     FermionAction,
     FermionOperator,
+    ccsd_generator_restricted,
+    coupled_cluster_doubles_restricted,
+    coupled_cluster_singles_restricted,
     cre,
     cre_a,
     cre_b,
@@ -47,6 +50,7 @@ from ffsim.operators import (
     fermi_hubbard_1d,
     fermi_hubbard_2d,
     number_operator,
+    uccsd_generator_restricted,
 )
 from ffsim.protocols import (
     SupportsApplyUnitary,
@@ -148,7 +152,10 @@ __all__ = [
     "apply_tunneling_interaction",
     "apply_unitary",
     "approx_eq",
+    "ccsd_generator_restricted",
     "contract",
+    "coupled_cluster_doubles_restricted",
+    "coupled_cluster_singles_restricted",
     "cre",
     "cre_a",
     "cre_b",
@@ -190,4 +197,5 @@ __all__ = [
     "strings_to_addresses",
     "testing",
     "trace",
+    "uccsd_generator_restricted",
 ]
