@@ -320,6 +320,23 @@ impl FermionOperator {
         }
     }
 
+    /// Return the adjoint (Hermitian conjugate) of the operator.
+    ///
+    /// Returns:
+    ///     FermionOperator: The adjoint of the fermion operator.
+    fn adjoint(&self) -> Self {
+        let mut coeffs = HashMap::new();
+        for (term, coeff) in &self.coeffs {
+            let adjoint_term: Vec<(bool, bool, i32)> = term
+                .iter()
+                .rev()
+                .map(|&(action, spin, orb)| (!action, spin, orb))
+                .collect();
+            coeffs.insert(adjoint_term, coeff.conj());
+        }
+        Self { coeffs }
+    }
+
     /// Return the normal ordered form of the operator.
     ///
     /// The normal ordered form of an operator is an equivalent operator in which

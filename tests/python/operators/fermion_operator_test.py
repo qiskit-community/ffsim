@@ -760,3 +760,29 @@ def test_trace():
     t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
     t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
     np.testing.assert_allclose(t1, t2)
+
+
+def test_adjoint():
+    """Test adjoint method."""
+    op = FermionOperator(
+        {
+            (): 1 + 2j,
+            (ffsim.cre_a(0), ffsim.des_a(1), ffsim.cre_b(2), ffsim.des_b(3)): 1 + 1j,
+            (ffsim.des_a(4), ffsim.cre_a(5)): 2 - 3j,
+        }
+    )
+    expected = FermionOperator(
+        {
+            (): 1 - 2j,
+            (ffsim.cre_b(3), ffsim.des_b(2), ffsim.cre_a(1), ffsim.des_a(0)): 1 - 1j,
+            (ffsim.des_a(5), ffsim.cre_a(4)): 2 + 3j,
+        }
+    )
+    assert op.adjoint() == expected
+
+    # Test that adjoint of adjoint gives back original
+    assert op.adjoint().adjoint() == op
+
+    # Test empty operator
+    op = FermionOperator({})
+    assert op.adjoint() == op
