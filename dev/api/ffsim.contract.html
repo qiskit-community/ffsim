@@ -473,6 +473,34 @@ operators.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.contract.two_body_linop">
+<span class="sig-prename descclassname"><span class="pre">ffsim.contract.</span></span><span class="sig-name descname"><span class="pre">two_body_linop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/contract/two_body.html#two_body_linop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.two_body_linop" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a two-body tensor to a linear operator.</p>
+<p>A two-body tensor has the form</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\sum_{\sigma \tau, pqrs} h_{pqrs}
+a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(h_{pqrs}\)</span> is a tensor of complex coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat</strong> – The two-body tensor.</p></li>
+<li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
+<li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A LinearOperator that implements the action of the two-body tensor.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -537,6 +565,7 @@ operators.</p>
 <li><a class="reference internal" href="#ffsim.contract.diag_coulomb_linop"><code class="docutils literal notranslate"><span class="pre">diag_coulomb_linop()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.contract.num_op_sum_linop"><code class="docutils literal notranslate"><span class="pre">num_op_sum_linop()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.contract.one_body_linop"><code class="docutils literal notranslate"><span class="pre">one_body_linop()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.contract.two_body_linop"><code class="docutils literal notranslate"><span class="pre">two_body_linop()</span></code></a></li>
 </ul>
 </li>
 </ul>
