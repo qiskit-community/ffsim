@@ -40,7 +40,7 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     bond_distance = 2.4
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[("N", (-0.5 * bond_distance, 0, 0)), ("N", (0.5 * bond_distance, 0, 0))],
+        atom=[("H", (0, 0, i * bond_distance)) for i in range(4)],
         basis="sto-6g",
         symmetry="c1",
         verbose=0,
@@ -50,14 +50,11 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     # test the sign of the singles operator
     scf.max_cycle = 2
     scf.kernel()
-    active_space = list(range(2, mol.nao_nr()))
-    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    mol_data = ffsim.MolecularData.from_scf(scf)
     norb = mol_data.norb
     nelec = mol_data.nelec
     ham_linop = ffsim.linear_operator(mol_data.hamiltonian, norb=norb, nelec=nelec)
-    ccsd = pyscf.cc.RCCSD(
-        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
-    )
+    ccsd = pyscf.cc.RCCSD(scf)
     ccsd.kernel()
 
     t1_energy = ccsd.energy(ccsd.t1, np.zeros_like(ccsd.t2), ccsd.ao2mo(ccsd.mo_coeff))
@@ -105,7 +102,7 @@ def test_ccsd_generator_restricted():
     bond_distance = 2.4
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[("N", (-0.5 * bond_distance, 0, 0)), ("N", (0.5 * bond_distance, 0, 0))],
+        atom=[("H", (0, 0, i * bond_distance)) for i in range(4)],
         basis="sto-6g",
         symmetry="c1",
         verbose=0,
@@ -115,14 +112,11 @@ def test_ccsd_generator_restricted():
     # test the sign of the singles operator
     scf.max_cycle = 2
     scf.kernel()
-    active_space = list(range(2, mol.nao_nr()))
-    mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
+    mol_data = ffsim.MolecularData.from_scf(scf)
     norb = mol_data.norb
     nelec = mol_data.nelec
     ham_linop = ffsim.linear_operator(mol_data.hamiltonian, norb=norb, nelec=nelec)
-    ccsd = pyscf.cc.RCCSD(
-        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
-    )
+    ccsd = pyscf.cc.RCCSD(scf)
     ccsd.kernel()
 
     ccsd_gen = ffsim.ccsd_generator_restricted(t1=ccsd.t1, t2=ccsd.t2)
