@@ -132,11 +132,29 @@ def test_ccsd_generator_restricted():
 
 
 def test_uccsd_generator_restricted_real():
-    norb = 5
-    nocc = 3
+    norb = 4
+    nocc = 2
     nelec = (nocc, nocc)
 
     uccsd_op = ffsim.random.random_uccsd_op_restricted_real(norb, nocc, seed=RNG)
+    uccsd_gen = ffsim.uccsd_generator_restricted(t1=uccsd_op.t1, t2=uccsd_op.t2)
+    uccsd_gen_linop = ffsim.linear_operator(uccsd_gen, norb=norb, nelec=nelec)
+
+    dim = ffsim.dim(norb, nelec)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
+    result_ferm = scipy.sparse.linalg.expm_multiply(uccsd_gen_linop, vec, traceA=0.0)
+    result_contract = ffsim.apply_unitary(vec, uccsd_op, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(np.linalg.norm(result_ferm), 1.0)
+    np.testing.assert_allclose(np.linalg.norm(result_contract), 1.0)
+    np.testing.assert_allclose(result_ferm, result_contract)
+
+
+def test_uccsd_generator_restricted_complex():
+    norb = 4
+    nocc = 2
+    nelec = (nocc, nocc)
+
+    uccsd_op = ffsim.random.random_uccsd_op_restricted(norb, nocc, seed=RNG)
     uccsd_gen = ffsim.uccsd_generator_restricted(t1=uccsd_op.t1, t2=uccsd_op.t2)
     uccsd_gen_linop = ffsim.linear_operator(uccsd_gen, norb=norb, nelec=nelec)
 

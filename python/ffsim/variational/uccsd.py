@@ -43,8 +43,8 @@ def uccsd_restricted_linear_operator(
 
     one_body_tensor = np.zeros((norb, norb), dtype=complex)
     two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
-    one_body_tensor[:nocc, nocc:] = -t1
-    one_body_tensor[nocc:, :nocc] = t1.T.conj()
+    one_body_tensor[:nocc, nocc:] = -t1.conj()
+    one_body_tensor[nocc:, :nocc] = t1.T
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = t2.transpose(2, 0, 3, 1)
     two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -t2.transpose(0, 2, 1, 3).conj()
     combined_tensor = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
