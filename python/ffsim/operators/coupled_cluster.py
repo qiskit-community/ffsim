@@ -18,8 +18,27 @@ from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
 
 
-def coupled_cluster_singles_restricted(t1: np.ndarray) -> FermionOperator:
-    """Restricted coupled cluster singles operator."""
+def singles_excitations_restricted(t1: np.ndarray) -> FermionOperator:
+    r"""Restricted singles excitations operator.
+
+    The restricted singles excitations operator is
+
+    .. math::
+
+        T_1 = \sum_{ia} t_{ia}
+        (a^\dagger_{\alpha, a} a_{\alpha, i} + a^\dagger_{\beta, a} a_{\beta, i})
+
+    where :math:`i` runs over occupied orbitals, :math:`a` runs over virtual orbitals,
+    and :math:`t_{ia}` are the singles amplitudes.
+
+    Args:
+        t1: The singles amplitudes tensor of shape ``(nocc, nvrt)``, where ``nocc`` is
+            the number of occupied orbitals and ``nvrt`` is the number of virtual
+            orbitals.
+
+    Returns:
+        The singles excitations operator.
+    """
     nocc, nvrt = t1.shape
     op = FermionOperator({})
     for i, a in itertools.product(range(nocc), range(nvrt)):
@@ -33,8 +52,30 @@ def coupled_cluster_singles_restricted(t1: np.ndarray) -> FermionOperator:
     return op
 
 
-def coupled_cluster_doubles_restricted(t2: np.ndarray) -> FermionOperator:
-    """Restricted coupled cluster doubles operator."""
+def doubles_excitations_restricted(t2: np.ndarray) -> FermionOperator:
+    r"""Restricted doubles excitations operator.
+
+    The restricted doubles excitations operator is
+
+    .. math::
+
+        T_2 = \sum_{ijab} t_{ijab} \left[
+        \frac12 \left(
+        a^\dagger_{\alpha, a} a^\dagger_{\alpha, b} a_{\alpha, j} a_{\alpha, i} +
+        a^\dagger_{\beta, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\beta, i} \right)
+        + a^\dagger_{\alpha, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\alpha, i}\right]
+
+    where :math:`i` and :math:`j` run over occupied orbitals, :math:`a` and :math:`b`
+    run over virtual orbitals, and :math:`t_{ijab}` are the doubles amplitudes.
+
+    Args:
+        t2: The doubles amplitudes tensor of shape ``(nocc, nocc, nvrt, nvrt)``, where
+            ``nocc`` is the number of occupied orbitals and ``nvrt`` is the number of
+            virtual orbitals.
+
+    Returns:
+        The doubles excitations operator.
+    """
     nocc, _, nvrt, _ = t2.shape
     op = FermionOperator({})
     for i, j, a, b in itertools.product(
@@ -52,13 +93,54 @@ def coupled_cluster_doubles_restricted(t2: np.ndarray) -> FermionOperator:
 
 
 def ccsd_generator_restricted(t1: np.ndarray, t2: np.ndarray) -> FermionOperator:
-    """Restricted coupled cluster, singles and doubles generator."""
-    return coupled_cluster_singles_restricted(t1) + coupled_cluster_doubles_restricted(
-        t2
-    )
+    r"""Restricted coupled cluster, singles and doubles (CCSD) generator.
+
+    The restricted CCSD generator is
+
+    .. math::
+
+        T = T_1 + T_2
+
+    where :math:`T_1` is the restricted singles excitations operator
+    (see :func:`singles_excitations_restricted`) and :math:`T_2` is the restricted
+    doubles excitations operator (see :func:`doubles_excitations_restricted`).
+
+    Args:
+        t1: The singles amplitudes tensor of shape ``(nocc, nvrt)``, where ``nocc`` is
+            the number of occupied orbitals and ``nvrt`` is the number of virtual
+            orbitals.
+        t2: The doubles amplitudes tensor of shape ``(nocc, nocc, nvrt, nvrt)``, where
+            ``nocc`` is the number of occupied orbitals and ``nvrt`` is the number of
+            virtual orbitals.
+
+    Returns:
+        The CCSD generator.
+    """
+    return singles_excitations_restricted(t1) + doubles_excitations_restricted(t2)
 
 
 def uccsd_generator_restricted(t1: np.ndarray, t2: np.ndarray) -> FermionOperator:
-    """Restricted unitary coupled cluster, singles and doubles generator."""
+    r"""Restricted unitary coupled cluster, singles and doubles (UCCSD) generator.
+
+    The restricted UCCSD generator is
+
+    .. math::
+
+        T - T^\dagger
+
+    where :math:`T` is the restricted CCSD generator
+    (see :func:`ccsd_generator_restricted`).
+
+    Args:
+        t1: The singles amplitudes tensor of shape ``(nocc, nvrt)``, where ``nocc`` is
+            the number of occupied orbitals and ``nvrt`` is the number of virtual
+            orbitals.
+        t2: The doubles amplitudes tensor of shape ``(nocc, nocc, nvrt, nvrt)``, where
+            ``nocc`` is the number of occupied orbitals and ``nvrt`` is the number of
+            virtual orbitals.
+
+    Returns:
+        The UCCSD generator.
+    """
     ccsd_gen = ccsd_generator_restricted(t1=t1, t2=t2)
     return ccsd_gen - ccsd_gen.adjoint()

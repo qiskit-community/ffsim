@@ -62,7 +62,7 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     np.testing.assert_allclose(t1_energy + t2_energy, ccsd.e_corr)
 
     # Test singles energy
-    cc_singles = ffsim.coupled_cluster_singles_restricted(ccsd.t1)
+    cc_singles = ffsim.singles_excitations_restricted(ccsd.t1)
     cc_singles_linop = ffsim.linear_operator(cc_singles, norb=norb, nelec=nelec)
     energy_ferm = ccsd_energy(cc_singles_linop, ham_linop, norb=norb, nelec=nelec)
     nocc, _ = ccsd.t1.shape
@@ -76,7 +76,7 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     np.testing.assert_allclose(energy_ferm, t1_energy + scf.e_tot)
 
     # Test doubles energy
-    cc_doubles = ffsim.coupled_cluster_doubles_restricted(ccsd.t2)
+    cc_doubles = ffsim.doubles_excitations_restricted(ccsd.t2)
     cc_doubles_linop = ffsim.linear_operator(cc_doubles, norb=norb, nelec=nelec)
     energy_ferm = ccsd_energy(cc_doubles_linop, ham_linop, norb=norb, nelec=nelec)
     nocc, _ = ccsd.t1.shape
