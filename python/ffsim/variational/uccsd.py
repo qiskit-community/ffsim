@@ -18,10 +18,9 @@ from typing import cast
 
 import numpy as np
 import scipy.sparse.linalg
-from pyscf.fci.direct_nosym import absorb_h1e, contract_2e
+from pyscf.fci.direct_nosym import absorb_h1e
 
-from ffsim import dimensions, gates, linalg, protocols
-from ffsim.cistring import gen_linkstr_index
+from ffsim import contract, gates, linalg, protocols
 from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
 
 
@@ -48,36 +47,8 @@ def uccsd_restricted_linear_operator(
     one_body_tensor[nocc:, :nocc] = t1.T.conj()
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = t2.transpose(2, 0, 3, 1)
     two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -t2.transpose(0, 2, 1, 3).conj()
-
-    n_alpha, n_beta = nelec
-    linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
-    linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
-    link_index = (linkstr_index_a, linkstr_index_b)
-    two_body = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
-
-    def matvec(vec: np.ndarray):
-        return contract_2e(
-            two_body,
-            vec.astype(complex, copy=False),
-            norb,
-            nelec,
-            link_index=link_index,
-        )
-
-    def rmatvec(vec: np.ndarray):
-        return contract_2e(
-            # TODO double-check this
-            two_body.transpose(1, 0, 3, 2).conj(),
-            vec.astype(complex, copy=False),
-            norb,
-            nelec,
-            link_index=link_index,
-        )
-
-    dim_ = dimensions.dim(norb, nelec)
-    return scipy.sparse.linalg.LinearOperator(
-        shape=(dim_, dim_), matvec=matvec, rmatvec=rmatvec, dtype=complex
-    )
+    combined_tensor = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
+    return contract.two_body_linop(combined_tensor, norb=norb, nelec=nelec)
 
 
 @dataclass(frozen=True)
