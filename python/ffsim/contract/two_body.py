@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import numpy as np
-from pyscf.fci.direct_nosym import contract_2e
+from pyscf.fci.direct_nosym import absorb_h1e, contract_2e
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import dimensions
@@ -21,7 +21,11 @@ from ffsim.cistring import gen_linkstr_index
 
 
 def two_body_linop(
-    two_body_tensor: np.ndarray, norb: int, nelec: tuple[int, int]
+    two_body_tensor: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    one_body_tensor: np.ndarray | None = None,
+    constant: float = 0,
 ) -> LinearOperator:
     r"""Convert a two-body tensor to a linear operator.
 
@@ -35,17 +39,24 @@ def two_body_linop(
     where :math:`h_{pqrs}` is a tensor of complex coefficients.
 
     Args:
-        mat: The two-body tensor.
+        two_body_tensor: The two-body tensor.
         norb: The number of spatial orbitals.
         nelec: The number of alpha and beta electrons.
+        one_body_tensor: Optional one-body tensor to absorb into the two-body operator.
+            See :func:`~.one_body_linop`.
+        constant: Optional constant to add to the operator.
 
     Returns:
         A LinearOperator that implements the action of the two-body tensor.
     """
+    if one_body_tensor is None:
+        one_body_tensor = np.zeros((norb, norb))
+
     n_alpha, n_beta = nelec
     linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
     linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
     link_index = (linkstr_index_a, linkstr_index_b)
+    two_body_tensor = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
 
     def matvec(vec: np.ndarray):
         result = contract_2e(
@@ -55,6 +66,8 @@ def two_body_linop(
             nelec,
             link_index=link_index,
         )
+        if constant:
+            result += constant * vec
         return result
 
     def rmatvec(vec: np.ndarray):

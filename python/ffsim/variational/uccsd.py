@@ -18,7 +18,6 @@ from typing import cast
 
 import numpy as np
 import scipy.sparse.linalg
-from pyscf.fci.direct_nosym import absorb_h1e
 
 from ffsim import contract, gates, linalg, protocols
 from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
@@ -47,8 +46,9 @@ def uccsd_restricted_linear_operator(
     one_body_tensor[nocc:, :nocc] = t1.T
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = t2.transpose(2, 0, 3, 1)
     two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -t2.transpose(0, 2, 1, 3).conj()
-    combined_tensor = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
-    return contract.two_body_linop(combined_tensor, norb=norb, nelec=nelec)
+    return contract.two_body_linop(
+        two_body_tensor, norb=norb, nelec=nelec, one_body_tensor=one_body_tensor
+    )
 
 
 @dataclass(frozen=True)

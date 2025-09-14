@@ -81,7 +81,7 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     energy_ferm = ccsd_energy(cc_doubles_linop, ham_linop, norb=norb, nelec=nelec)
     nocc, _ = ccsd.t1.shape
     two_body_tensor = np.zeros((norb, norb, norb, norb))
-    two_body_tensor[nocc:, :nocc, nocc:, :nocc] = 0.5 * ccsd.t2.transpose(2, 0, 3, 1)
+    two_body_tensor[nocc:, :nocc, nocc:, :nocc] = ccsd.t2.transpose(2, 0, 3, 1)
     two_body_linop = ffsim.contract.two_body_linop(
         two_body_tensor, norb=norb, nelec=nelec
     )
