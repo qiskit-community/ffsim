@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ffsim.trotter.double_factorized - ffsim 0.0.59</title>
+        <title>ffsim.operators.coupled_cluster - ffsim 0.0.59</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -264,8 +264,8 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for ffsim.trotter.double_factorized</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) Copyright IBM 2023.</span>
+          <h1>Source code for ffsim.operators.coupled_cluster</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2025.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
 <span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
@@ -275,148 +275,154 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Trotter simulation for double-factorized Hamiltonian.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Coupled cluster operators.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">cmath</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.gates</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">apply_diag_coulomb_evolution</span><span class="p">,</span>
-    <span class="n">apply_num_op_sum_evolution</span><span class="p">,</span>
-    <span class="n">apply_orbital_rotation</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.hamiltonians</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleFactorizedHamiltonian</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.trotter._util</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_trotter_step_iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim._lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">FermionOperator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.operators.fermion_action</span><span class="w"> </span><span class="kn">import</span> <span class="n">cre_a</span><span class="p">,</span> <span class="n">cre_b</span><span class="p">,</span> <span class="n">des_a</span><span class="p">,</span> <span class="n">des_b</span>
 
 
-<div class="viewcode-block" id="simulate_trotter_double_factorized">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.simulate_trotter_double_factorized">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">simulate_trotter_double_factorized</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">,</span>
-    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Double-factorized Hamiltonian simulation using Trotter-Suzuki formula.</span>
+<div class="viewcode-block" id="singles_excitations_restricted">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.singles_excitations_restricted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">singles_excitations_restricted</span><span class="p">(</span><span class="n">t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Restricted singles excitations operator.</span>
+
+<span class="sd">    The restricted singles excitations operator is</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        T_1 = \sum_{ia} t_{ia}</span>
+<span class="sd">        (a^\dagger_{\alpha, a} a_{\alpha, i} + a^\dagger_{\beta, a} a_{\beta, i})</span>
+
+<span class="sd">    where :math:`i` runs over occupied orbitals, :math:`a` runs over virtual orbitals,</span>
+<span class="sd">    and :math:`t_{ia}` are the singles amplitudes.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        vec: The state vector to evolve.</span>
-<span class="sd">        hamiltonian: The Hamiltonian.</span>
-<span class="sd">        time: The evolution time.</span>
-<span class="sd">        norb: The number of spatial orbitals.</span>
-<span class="sd">        nelec: The number of alpha and beta electrons.</span>
-<span class="sd">        n_steps: The number of Trotter steps.</span>
-<span class="sd">        order: The order of the Trotter decomposition.</span>
-<span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-
-<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
-<span class="sd">              vector and the original vector is left untouched.</span>
-<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
-<span class="sd">              vector, but the original vector may have its data overwritten.</span>
-<span class="sd">              It is also possible that the original vector is returned,</span>
-<span class="sd">              modified in-place.</span>
+<span class="sd">        t1: The singles amplitudes tensor of shape ``(nocc, nvrt)``, where ``nocc`` is</span>
+<span class="sd">            the number of occupied orbitals and ``nvrt`` is the number of virtual</span>
+<span class="sd">            orbitals.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The final state of the simulation.</span>
+<span class="sd">        The singles excitations operator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">order</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;order must be non-negative, got </span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">n_steps</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_steps must be non-negative, got </span><span class="si">{</span><span class="n">n_steps</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">n_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vec</span>
-
-    <span class="n">one_body_energies</span><span class="p">,</span> <span class="n">one_body_basis_change</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span>
-        <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span>
-    <span class="p">)</span>
-    <span class="n">step_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="n">n_steps</span>
-
-    <span class="n">current_basis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
-        <span class="n">vec</span><span class="p">,</span> <span class="n">current_basis</span> <span class="o">=</span> <span class="n">_simulate_trotter_step_double_factorized</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">current_basis</span><span class="p">,</span>
-            <span class="n">one_body_energies</span><span class="p">,</span>
-            <span class="n">one_body_basis_change</span><span class="p">,</span>
-            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
-            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
-            <span class="n">step_time</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
-            <span class="n">z_representation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
+    <span class="n">nocc</span><span class="p">,</span> <span class="n">nvrt</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="n">FermionOperator</span><span class="p">({})</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nocc</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">nvrt</span><span class="p">)):</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">a</span><span class="p">]</span>
+        <span class="n">op</span> <span class="o">+=</span> <span class="n">FermionOperator</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="p">(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">a</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span> <span class="n">coeff</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">a</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span> <span class="n">coeff</span><span class="p">,</span>
+            <span class="p">}</span>
         <span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">current_basis</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">constant</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">vec</span></div>
+    <span class="k">return</span> <span class="n">op</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_simulate_trotter_step_double_factorized</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">current_basis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">one_body_energies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">one_body_basis_change</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-    <span class="k">for</span> <span class="n">term_index</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">simulate_trotter_step_iterator</span><span class="p">(</span>
-        <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">),</span> <span class="n">time</span><span class="p">,</span> <span class="n">order</span>
+<div class="viewcode-block" id="doubles_excitations_restricted">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.doubles_excitations_restricted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">doubles_excitations_restricted</span><span class="p">(</span><span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Restricted doubles excitations operator.</span>
+
+<span class="sd">    The restricted doubles excitations operator is</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        T_2 = \sum_{ijab} t_{ijab} \left[</span>
+<span class="sd">        \frac12 \left(</span>
+<span class="sd">        a^\dagger_{\alpha, a} a^\dagger_{\alpha, b} a_{\alpha, j} a_{\alpha, i} +</span>
+<span class="sd">        a^\dagger_{\beta, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\beta, i} \right)</span>
+<span class="sd">        + a^\dagger_{\alpha, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\alpha, i}\right]</span>
+
+<span class="sd">    where :math:`i` and :math:`j` run over occupied orbitals, :math:`a` and :math:`b`</span>
+<span class="sd">    run over virtual orbitals, and :math:`t_{ijab}` are the doubles amplitudes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t2: The doubles amplitudes tensor of shape ``(nocc, nocc, nvrt, nvrt)``, where</span>
+<span class="sd">            ``nocc`` is the number of occupied orbitals and ``nvrt`` is the number of</span>
+<span class="sd">            virtual orbitals.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The doubles excitations operator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nocc</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">nvrt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="n">FermionOperator</span><span class="p">({})</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span>
+        <span class="nb">range</span><span class="p">(</span><span class="n">nocc</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">nocc</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">nvrt</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">nvrt</span><span class="p">)</span>
     <span class="p">):</span>
-        <span class="k">if</span> <span class="n">term_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">one_body_basis_change</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">current_basis</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">one_body_energies</span><span class="p">,</span>
-                <span class="n">time</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">current_basis</span> <span class="o">=</span> <span class="n">one_body_basis_change</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">current_basis</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
-                <span class="n">time</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">current_basis</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-    <span class="k">return</span> <span class="n">vec</span><span class="p">,</span> <span class="n">current_basis</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+        <span class="n">op</span> <span class="o">+=</span> <span class="n">FermionOperator</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="p">(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">a</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">b</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">j</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">coeff</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">a</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">b</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">j</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">coeff</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">a</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">nocc</span> <span class="o">+</span> <span class="n">b</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">j</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span> <span class="n">coeff</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">op</span></div>
+
+
+
+<div class="viewcode-block" id="ccsd_generator_restricted">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.ccsd_generator_restricted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ccsd_generator_restricted</span><span class="p">(</span><span class="n">t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Restricted coupled cluster, singles and doubles (CCSD) generator.</span>
+
+<span class="sd">    The restricted CCSD generator is</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        T = T_1 + T_2</span>
+
+<span class="sd">    where :math:`T_1` is the restricted singles excitations operator</span>
+<span class="sd">    (see :func:`singles_excitations_restricted`) and :math:`T_2` is the restricted</span>
+<span class="sd">    doubles excitations operator (see :func:`doubles_excitations_restricted`).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t1: The singles amplitudes tensor of shape ``(nocc, nvrt)``, where ``nocc`` is</span>
+<span class="sd">            the number of occupied orbitals and ``nvrt`` is the number of virtual</span>
+<span class="sd">            orbitals.</span>
+<span class="sd">        t2: The doubles amplitudes tensor of shape ``(nocc, nocc, nvrt, nvrt)``, where</span>
+<span class="sd">            ``nocc`` is the number of occupied orbitals and ``nvrt`` is the number of</span>
+<span class="sd">            virtual orbitals.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The CCSD generator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">singles_excitations_restricted</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span> <span class="n">doubles_excitations_restricted</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="uccsd_generator_restricted">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.uccsd_generator_restricted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">uccsd_generator_restricted</span><span class="p">(</span><span class="n">t1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FermionOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Restricted unitary coupled cluster, singles and doubles (UCCSD) generator.</span>
+
+<span class="sd">    The restricted UCCSD generator is</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        T - T^\dagger</span>
+
+<span class="sd">    where :math:`T` is the restricted CCSD generator</span>
+<span class="sd">    (see :func:`ccsd_generator_restricted`).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t1: The singles amplitudes tensor of shape ``(nocc, nvrt)``, where ``nocc`` is</span>
+<span class="sd">            the number of occupied orbitals and ``nvrt`` is the number of virtual</span>
+<span class="sd">            orbitals.</span>
+<span class="sd">        t2: The doubles amplitudes tensor of shape ``(nocc, nocc, nvrt, nvrt)``, where</span>
+<span class="sd">            ``nocc`` is the number of occupied orbitals and ``nvrt`` is the number of</span>
+<span class="sd">            virtual orbitals.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The UCCSD generator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ccsd_gen</span> <span class="o">=</span> <span class="n">ccsd_generator_restricted</span><span class="p">(</span><span class="n">t1</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="n">t2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ccsd_gen</span> <span class="o">-</span> <span class="n">ccsd_gen</span><span class="o">.</span><span class="n">adjoint</span><span class="p">()</span></div>
+
 </pre></div>
         </article>
       </div>

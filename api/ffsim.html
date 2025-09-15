@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ffsim.contract" href="ffsim.contract.html" /><link rel="prev" title="API reference" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ffsim - ffsim 0.0.58</title>
+        <title>ffsim - ffsim 0.0.59</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.58</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.59</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.58</span>
+  <span class="sidebar-brand-text">ffsim 0.0.59</span>
   
 </a>
 
@@ -670,6 +670,20 @@ multiplication operator, e.g. <code class="docutils literal notranslate"><span c
 operator.</p>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.FermionOperator.adjoint">
+<span class="sig-name descname"><span class="pre">adjoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator.adjoint" title="Link to this definition">¶</a></dt>
+<dd><p>Return the adjoint (Hermitian conjugate) of the operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The adjoint of the fermion operator.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator">FermionOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.FermionOperator.conserves_particle_number">
 <span class="sig-name descname"><span class="pre">conserves_particle_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ffsim.FermionOperator.conserves_particle_number" title="Link to this definition">¶</a></dt>
@@ -2419,7 +2433,7 @@ in the operator.</p></li>
 <dt class="sig sig-object py" id="ffsim.UCJOpSpinBalanced.from_t_amplitudes">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_balanced.html#UCJOpSpinBalanced.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinBalanced.from_t_amplitudes" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
-<p>Performs a double-factorization of the t2 amplitudes and constructs the
+<p>Performs a double factorization of the t2 amplitudes and constructs the
 ansatz repetitions from the terms of the decomposition, up to an optionally
 specified number of ansatz repetitions.</p>
 <p>The default behavior of this routine is to perform a straightforward
@@ -2436,9 +2450,9 @@ See <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_fa
 <li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes.</p></li>
 <li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes.</p></li>
 <li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions. If not specified, then it is set
-to the number of terms resulting from the double-factorization of the
+to the number of terms resulting from the double factorization of the
 t2 amplitudes. If the specified number of repetitions is larger than the
-number of terms resulting from the double-factorization, then the ansatz
+number of terms resulting from the double factorization, then the ansatz
 is padded with additional identity operators up to the specified number
 of repetitions.</p></li>
 <li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
@@ -2710,7 +2724,7 @@ in the operator.</p></li>
 <dt class="sig sig-object py" id="ffsim.UCJOpSpinUnbalanced.from_t_amplitudes">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spin_unbalanced.html#UCJOpSpinUnbalanced.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinUnbalanced.from_t_amplitudes" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
-<p>Performs a double-factorization of the t2 amplitudes and constructs the
+<p>Performs a double factorization of the t2 amplitudes and constructs the
 ansatz repetitions from the terms of the decomposition, up to an optionally
 specified number of repetitions. Terms are included in decreasing order
 of the magnitude of the corresponding singular value in the factorization.</p>
@@ -2731,9 +2745,9 @@ the number of terms to use from the alpha-beta t2 amplitudes,
 and the second integer specifies the number of terms to use from the
 alpha-alpha and beta-beta t2 amplitudes.
 If not specified, then it is set
-to the number of terms resulting from the double-factorization of the
+to the number of terms resulting from the double factorization of the
 t2 amplitudes. If the specified number of repetitions is larger than the
-number of terms resulting from the double-factorization, then the ansatz
+number of terms resulting from the double factorization, then the ansatz
 is padded with additional identity operators up to the specified number
 of repetitions.</p></li>
 <li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
@@ -2970,21 +2984,29 @@ in the operator.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.UCJOpSpinless.from_t_amplitudes">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spinless.html#UCJOpSpinless.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinless.from_t_amplitudes" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_t_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/variational/ucj_spinless.html#UCJOpSpinless.from_t_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.UCJOpSpinless.from_t_amplitudes" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize the UCJ operator from t2 (and optionally t1) amplitudes.</p>
-<p>Performs a double-factorization of the t2 amplitudes and constructs the
+<p>Performs a double factorization of the t2 amplitudes and constructs the
 ansatz repetitions from the terms of the decomposition, up to an optionally
 specified number of ansatz repetitions. Terms are included in decreasing order
 of the absolute value of the corresponding eigenvalue in the factorization.</p>
+<p>The default behavior of this routine is to perform a straightforward
+“exact” factorization of the t2 amplitudes tensor based on a nested
+eigenvalue decomposition, and then truncate the terms based on the values of
+<cite>tol</cite> and <cite>n_reps</cite>.
+If <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, then the entries of the resulting tensors
+(the diagonal Coulomb matrices and orbital rotations) are further optimized with
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> to reduce the error in the factorization.
+See <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized_t2" title="ffsim.linalg.double_factorized_t2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.linalg.double_factorized_t2()</span></code></a> for details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes.</p></li>
 <li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The t1 amplitudes.</p></li>
 <li><p><strong>n_reps</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The number of ansatz repetitions. If not specified, then it is set
-to the number of terms resulting from the double-factorization of the
+to the number of terms resulting from the double factorization of the
 t2 amplitudes. If the specified number of repetitions is larger than the
-number of terms resulting from the double-factorization, then the ansatz
+number of terms resulting from the double factorization, then the ansatz
 is padded with additional identity operators up to the specified number
 of repetitions.</p></li>
 <li><p><strong>interaction_pairs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional restrictions on allowed orbital interactions
@@ -3000,6 +3022,26 @@ t2 amplitudes.
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
+<li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition to
+to minimize the error in the factorization.</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The optimization method. See the documentation of
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for possible values.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>callback</strong> – Callback function for the optimization. See the documentation of
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Options for the optimization. See the documentation of
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for usage.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>regularization</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – See <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized_t2" title="ffsim.linalg.double_factorized_t2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.linalg.double_factorized_t2()</span></code></a> for a
+description of this argument.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>multi_stage_start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – See <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized_t2" title="ffsim.linalg.double_factorized_t2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.linalg.double_factorized_t2()</span></code></a> for a
+description of this argument.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>multi_stage_step</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – See <a class="reference internal" href="ffsim.linalg.html#ffsim.linalg.double_factorized_t2" title="ffsim.linalg.double_factorized_t2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ffsim.linalg.double_factorized_t2()</span></code></a> for a
+description of this argument.
+This argument is ignored if <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -3860,6 +3902,38 @@ and False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.ccsd_generator_restricted">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">ccsd_generator_restricted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/coupled_cluster.html#ccsd_generator_restricted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.ccsd_generator_restricted" title="Link to this definition">¶</a></dt>
+<dd><p>Restricted coupled cluster, singles and doubles (CCSD) generator.</p>
+<p>The restricted CCSD generator is</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[T = T_1 + T_2\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(T_1\)</span> is the restricted singles excitations operator
+(see <a class="reference internal" href="#ffsim.singles_excitations_restricted" title="ffsim.singles_excitations_restricted"><code class="xref py py-func docutils literal notranslate"><span class="pre">singles_excitations_restricted()</span></code></a>) and <span class="math notranslate nohighlight">\(T_2\)</span> is the restricted
+doubles excitations operator (see <a class="reference internal" href="#ffsim.doubles_excitations_restricted" title="ffsim.doubles_excitations_restricted"><code class="xref py py-func docutils literal notranslate"><span class="pre">doubles_excitations_restricted()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The singles amplitudes tensor of shape <code class="docutils literal notranslate"><span class="pre">(nocc,</span> <span class="pre">nvrt)</span></code>, where <code class="docutils literal notranslate"><span class="pre">nocc</span></code> is
+the number of occupied orbitals and <code class="docutils literal notranslate"><span class="pre">nvrt</span></code> is the number of virtual
+orbitals.</p></li>
+<li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The doubles amplitudes tensor of shape <code class="docutils literal notranslate"><span class="pre">(nocc,</span> <span class="pre">nocc,</span> <span class="pre">nvrt,</span> <span class="pre">nvrt)</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">nocc</span></code> is the number of occupied orbitals and <code class="docutils literal notranslate"><span class="pre">nvrt</span></code> is the number of
+virtual orbitals.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The CCSD generator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.cre">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">cre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/fermion_action.html#cre"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.cre" title="Link to this definition">¶</a></dt>
 <dd><p>Create a fermion.</p>
@@ -3999,6 +4073,36 @@ and spin beta fermions.</p></li>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A pair of integers (dim_a, dim_b) representing the dimensions of the
 alpha- and beta- FCI space.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.doubles_excitations_restricted">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">doubles_excitations_restricted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/coupled_cluster.html#doubles_excitations_restricted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.doubles_excitations_restricted" title="Link to this definition">¶</a></dt>
+<dd><p>Restricted doubles excitations operator.</p>
+<p>The restricted doubles excitations operator is</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[T_2 = \sum_{ijab} t_{ijab} \left[
+\frac12 \left(
+a^\dagger_{\alpha, a} a^\dagger_{\alpha, b} a_{\alpha, j} a_{\alpha, i} +
+a^\dagger_{\beta, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\beta, i} \right)
++ a^\dagger_{\alpha, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\alpha, i}\right]\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> run over occupied orbitals, <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>
+run over virtual orbitals, and <span class="math notranslate nohighlight">\(t_{ijab}\)</span> are the doubles amplitudes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The doubles amplitudes tensor of shape <code class="docutils literal notranslate"><span class="pre">(nocc,</span> <span class="pre">nocc,</span> <span class="pre">nvrt,</span> <span class="pre">nvrt)</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">nocc</span></code> is the number of occupied orbitals and <code class="docutils literal notranslate"><span class="pre">nvrt</span></code> is the number of
+virtual orbitals.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The doubles excitations operator.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4658,6 +4762,33 @@ modified in-place.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ffsim.singles_excitations_restricted">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">singles_excitations_restricted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/coupled_cluster.html#singles_excitations_restricted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.singles_excitations_restricted" title="Link to this definition">¶</a></dt>
+<dd><p>Restricted singles excitations operator.</p>
+<p>The restricted singles excitations operator is</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[T_1 = \sum_{ia} t_{ia}
+(a^\dagger_{\alpha, a} a_{\alpha, i} + a^\dagger_{\beta, a} a_{\beta, i})\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(i\)</span> runs over occupied orbitals, <span class="math notranslate nohighlight">\(a\)</span> runs over virtual orbitals,
+and <span class="math notranslate nohighlight">\(t_{ia}\)</span> are the singles amplitudes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The singles amplitudes tensor of shape <code class="docutils literal notranslate"><span class="pre">(nocc,</span> <span class="pre">nvrt)</span></code>, where <code class="docutils literal notranslate"><span class="pre">nocc</span></code> is
+the number of occupied orbitals and <code class="docutils literal notranslate"><span class="pre">nvrt</span></code> is the number of virtual
+orbitals.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The singles excitations operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ffsim.slater_determinant">
 <span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">slater_determinant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/states/slater.html#slater_determinant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.slater_determinant" title="Link to this definition">¶</a></dt>
 <dd><p>Return a Slater determinant.</p>
@@ -4924,6 +5055,37 @@ and spin beta fermions.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="ffsim.uccsd_generator_restricted">
+<span class="sig-prename descclassname"><span class="pre">ffsim.</span></span><span class="sig-name descname"><span class="pre">uccsd_generator_restricted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/operators/coupled_cluster.html#uccsd_generator_restricted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.uccsd_generator_restricted" title="Link to this definition">¶</a></dt>
+<dd><p>Restricted unitary coupled cluster, singles and doubles (UCCSD) generator.</p>
+<p>The restricted UCCSD generator is</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[T - T^\dagger\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(T\)</span> is the restricted CCSD generator
+(see <a class="reference internal" href="#ffsim.ccsd_generator_restricted" title="ffsim.ccsd_generator_restricted"><code class="xref py py-func docutils literal notranslate"><span class="pre">ccsd_generator_restricted()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t1</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The singles amplitudes tensor of shape <code class="docutils literal notranslate"><span class="pre">(nocc,</span> <span class="pre">nvrt)</span></code>, where <code class="docutils literal notranslate"><span class="pre">nocc</span></code> is
+the number of occupied orbitals and <code class="docutils literal notranslate"><span class="pre">nvrt</span></code> is the number of virtual
+orbitals.</p></li>
+<li><p><strong>t2</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The doubles amplitudes tensor of shape <code class="docutils literal notranslate"><span class="pre">(nocc,</span> <span class="pre">nocc,</span> <span class="pre">nvrt,</span> <span class="pre">nvrt)</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">nocc</span></code> is the number of occupied orbitals and <code class="docutils literal notranslate"><span class="pre">nvrt</span></code> is the number of
+virtual orbitals.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The UCCSD generator.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -5016,6 +5178,7 @@ and spin beta fermions.</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ffsim.FermionOperator"><code class="docutils literal notranslate"><span class="pre">FermionOperator</span></code></a><ul>
+<li><a class="reference internal" href="#ffsim.FermionOperator.adjoint"><code class="docutils literal notranslate"><span class="pre">FermionOperator.adjoint()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.conserves_particle_number"><code class="docutils literal notranslate"><span class="pre">FermionOperator.conserves_particle_number()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.conserves_spin_z"><code class="docutils literal notranslate"><span class="pre">FermionOperator.conserves_spin_z()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.FermionOperator.many_body_order"><code class="docutils literal notranslate"><span class="pre">FermionOperator.many_body_order()</span></code></a></li>
@@ -5232,6 +5395,7 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.apply_tunneling_interaction"><code class="docutils literal notranslate"><span class="pre">apply_tunneling_interaction()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.apply_unitary"><code class="docutils literal notranslate"><span class="pre">apply_unitary()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.approx_eq"><code class="docutils literal notranslate"><span class="pre">approx_eq()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.ccsd_generator_restricted"><code class="docutils literal notranslate"><span class="pre">ccsd_generator_restricted()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.cre"><code class="docutils literal notranslate"><span class="pre">cre()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.cre_a"><code class="docutils literal notranslate"><span class="pre">cre_a()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.cre_b"><code class="docutils literal notranslate"><span class="pre">cre_b()</span></code></a></li>
@@ -5241,6 +5405,7 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.diag"><code class="docutils literal notranslate"><span class="pre">diag()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.dim"><code class="docutils literal notranslate"><span class="pre">dim()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.dims"><code class="docutils literal notranslate"><span class="pre">dims()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.doubles_excitations_restricted"><code class="docutils literal notranslate"><span class="pre">doubles_excitations_restricted()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.expectation_one_body_power"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_power()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.expectation_one_body_product"><code class="docutils literal notranslate"><span class="pre">expectation_one_body_product()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.fermi_hubbard_1d"><code class="docutils literal notranslate"><span class="pre">fermi_hubbard_1d()</span></code></a></li>
@@ -5259,6 +5424,7 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.simulate_qdrift_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_qdrift_double_factorized()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.simulate_trotter_diag_coulomb_split_op"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_diag_coulomb_split_op()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.simulate_trotter_double_factorized"><code class="docutils literal notranslate"><span class="pre">simulate_trotter_double_factorized()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.singles_excitations_restricted"><code class="docutils literal notranslate"><span class="pre">singles_excitations_restricted()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant"><code class="docutils literal notranslate"><span class="pre">slater_determinant()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_amplitudes"><code class="docutils literal notranslate"><span class="pre">slater_determinant_amplitudes()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.slater_determinant_rdms"><code class="docutils literal notranslate"><span class="pre">slater_determinant_rdms()</span></code></a></li>
@@ -5268,6 +5434,7 @@ and spin beta fermions.</p></li>
 <li><a class="reference internal" href="#ffsim.spinful_to_spinless_vec"><code class="docutils literal notranslate"><span class="pre">spinful_to_spinless_vec()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.strings_to_addresses"><code class="docutils literal notranslate"><span class="pre">strings_to_addresses()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.trace"><code class="docutils literal notranslate"><span class="pre">trace()</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.uccsd_generator_restricted"><code class="docutils literal notranslate"><span class="pre">uccsd_generator_restricted()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -5279,7 +5446,7 @@ and spin beta fermions.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=c3e19674"></script>
+</div><script src="../_static/documentation_options.js?v=6799126d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

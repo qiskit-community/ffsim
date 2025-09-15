@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.58</title>
+        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.59</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.58</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.59</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.58</span>
+  <span class="sidebar-brand-text">ffsim 0.0.59</span>
   
 </a>
 
@@ -332,9 +332,9 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.8266321248744
-Parsing /tmp/tmp9sj07czh
+Parsing /tmp/tmpxifb4gm8
 converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643862  E(CI) = -4.02122442107772  S^2 = 0.0000000
+CASCI E = -77.8742165643862  E(CI) = -4.02122442107773  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -344,7 +344,7 @@ nelec = (2, 2)
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
+Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute energy_nuc because it is not JSON-serializable
   warnings.warn(msg)
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute intor_symmetric because it is not JSON-serializable
@@ -389,8 +389,8 @@ Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374025  E_corr = -0.04758323886584558
-Energy at initialization: -77.87160024816266
+E(CCSD) = -77.87421536374025  E_corr = -0.04758323886584553
+Energy at initialization: -77.871600248163
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -430,10 +430,10 @@ Number of parameters: 88
   message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.87387334347135
-        x: [-1.152e+00 -3.165e-04 ...  5.485e-05  8.618e-05]
+      fun: -77.87387379179
+        x: [-1.070e-04 -1.277e+00 ...  2.336e-04  7.436e-05]
       nit: 10
-      jac: [ 4.832e-05  4.121e-05 ...  5.684e-06 -1.705e-05]
+      jac: [-1.137e-05  2.700e-05 ... -2.558e-05 -4.547e-05]
      nfev: 1157
      njev: 13
  hess_inv: &lt;88x88 LbfgsInvHessProduct with dtype=float64&gt;
@@ -485,10 +485,10 @@ Number of parameters: 62
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363426223588
-        x: [-1.152e+00  1.016e-05 ... -3.280e-05 -2.979e-05]
+      fun: -77.87363425704359
+        x: [-1.464e-06 -1.276e+00 ...  4.200e-05 -2.590e-05]
       nit: 6
-      jac: [-2.132e-05 -3.553e-05 ... -1.137e-05 -1.847e-05]
+      jac: [-1.137e-05 -1.421e-06 ...  1.421e-05  2.416e-05]
      nfev: 567
      njev: 9
  hess_inv: &lt;62x62 LbfgsInvHessProduct with dtype=float64&gt;
@@ -568,61 +568,31 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 62
- message: Stop: Total number of iterations reached limit.
- success: False
-     fun: -77.87421578252285
-       x: [-1.219e+00  4.723e-02 ... -5.233e-04 -1.733e-03]
-     nit: 10
-     jac: [ 8.793e-06 -2.112e-05 ...  2.573e-06 -6.974e-06]
-    nfev: 1692
-    njev: 10
-  nlinop: 1072
+ message: Convergence: Relative reduction of objective function &lt;= ftol.
+ success: True
+     fun: -77.87363434045064
+       x: [-1.754e-03 -1.277e+00 ... -2.314e-04  5.403e-04]
+     nit: 3
+     jac: [-4.248e-06  5.214e-06 ...  1.767e-06 -7.768e-07]
+    nfev: 627
+    njev: 4
+  nlinop: 379
 
 Iteration 1
-    Energy: -77.87361345935798
-    Norm of gradient: 0.003878095354311362
-    Regularization hyperparameter: 0.001342057036832856
-    Variation hyperparameter: 0.9571235216988447
+    Energy: -77.87362778956434
+    Norm of gradient: 0.002177046976584971
+    Regularization hyperparameter: 0.003918986685904579
+    Variation hyperparameter: 0.9969418652735118
 Iteration 2
-    Energy: -77.87363437285724
-    Norm of gradient: 0.00025340149360067454
-    Regularization hyperparameter: 0.001342033980723312
-    Variation hyperparameter: 0.9571235556829427
+    Energy: -77.87363431640686
+    Norm of gradient: 6.16076473479922e-05
+    Regularization hyperparameter: 0.0036223091044923178
+    Variation hyperparameter: 0.9969429983616236
 Iteration 3
-    Energy: -77.87369922032438
-    Norm of gradient: 0.0049975087021072164
-    Regularization hyperparameter: 0.00014955753156095422
-    Variation hyperparameter: 0.9570177980745957
-Iteration 4
-    Energy: -77.87370682385468
-    Norm of gradient: 0.0038053648916881308
-    Regularization hyperparameter: 1.0246068984266548
-    Variation hyperparameter: 0.9569207862544885
-Iteration 5
-    Energy: -77.87405402909275
-    Norm of gradient: 0.010022435510366693
-    Regularization hyperparameter: 0.0008784680562778146
-    Variation hyperparameter: 0.5873545731793273
-Iteration 6
-    Energy: -77.87417510861744
-    Norm of gradient: 0.00434675864165419
-    Regularization hyperparameter: 0.0004229902125361748
-    Variation hyperparameter: 0.586792148609625
-Iteration 7
-    Energy: -77.87420150844785
-    Norm of gradient: 0.0033638754661533825
-    Regularization hyperparameter: 0.00035086381918373883
-    Variation hyperparameter: 0.586637175857462
-Iteration 8
-    Energy: -77.87421281911088
-    Norm of gradient: 0.0017448415769302057
-    Regularization hyperparameter: 0.0002174886336223351
-    Variation hyperparameter: 0.5855828936718291
-Iteration 9
-    Energy: -77.8742153163198
-    Norm of gradient: 0.000579261411487521
-    Regularization hyperparameter: 0.00021748867955133526
-    Variation hyperparameter: 0.5855828936088476
+    Energy: -77.87363434045064
+    Norm of gradient: 6.794413376011876e-05
+    Regularization hyperparameter: 0.0004895288520557664
+    Variation hyperparameter: 0.9966175433389217
 </pre></div></div>
 </div>
 </section>
@@ -698,7 +668,7 @@ Iteration 9
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=c3e19674"></script>
+</div><script src="../_static/documentation_options.js?v=6799126d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

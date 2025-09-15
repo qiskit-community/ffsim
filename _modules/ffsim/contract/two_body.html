@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ffsim.trotter.double_factorized - ffsim 0.0.59</title>
+        <title>ffsim.contract.two_body - ffsim 0.0.59</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -264,8 +264,8 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for ffsim.trotter.double_factorized</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) Copyright IBM 2023.</span>
+          <h1>Source code for ffsim.contract.two_body</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2025.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
 <span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
@@ -275,148 +275,86 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Trotter simulation for double-factorized Hamiltonian.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Contract two-body operator.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">cmath</span>
-
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.fci.direct_nosym</span><span class="w"> </span><span class="kn">import</span> <span class="n">absorb_h1e</span><span class="p">,</span> <span class="n">contract_2e</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearOperator</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.gates</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">apply_diag_coulomb_evolution</span><span class="p">,</span>
-    <span class="n">apply_num_op_sum_evolution</span><span class="p">,</span>
-    <span class="n">apply_orbital_rotation</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.hamiltonians</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleFactorizedHamiltonian</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.trotter._util</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_trotter_step_iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">dimensions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.cistring</span><span class="w"> </span><span class="kn">import</span> <span class="n">gen_linkstr_index</span>
 
 
-<div class="viewcode-block" id="simulate_trotter_double_factorized">
-<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.simulate_trotter_double_factorized">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">simulate_trotter_double_factorized</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">hamiltonian</span><span class="p">:</span> <span class="n">DoubleFactorizedHamiltonian</span><span class="p">,</span>
-    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
+<div class="viewcode-block" id="two_body_linop">
+<a class="viewcode-back" href="../../../api/ffsim.contract.html#ffsim.contract.two_body_linop">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">two_body_linop</span><span class="p">(</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Double-factorized Hamiltonian simulation using Trotter-Suzuki formula.</span>
+    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearOperator</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert a two-body tensor to a linear operator.</span>
+
+<span class="sd">    A two-body tensor has the form</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \sum_{\sigma \tau, pqrs} h_{pqrs}</span>
+<span class="sd">        a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}</span>
+
+<span class="sd">    where :math:`h_{pqrs}` is a tensor of complex coefficients.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        vec: The state vector to evolve.</span>
-<span class="sd">        hamiltonian: The Hamiltonian.</span>
-<span class="sd">        time: The evolution time.</span>
+<span class="sd">        two_body_tensor: The two-body tensor.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
-<span class="sd">        n_steps: The number of Trotter steps.</span>
-<span class="sd">        order: The order of the Trotter decomposition.</span>
-<span class="sd">        copy: Whether to copy the vector before operating on it.</span>
-
-<span class="sd">            - If `copy=True` then this function always returns a newly allocated</span>
-<span class="sd">              vector and the original vector is left untouched.</span>
-<span class="sd">            - If `copy=False` then this function may still return a newly allocated</span>
-<span class="sd">              vector, but the original vector may have its data overwritten.</span>
-<span class="sd">              It is also possible that the original vector is returned,</span>
-<span class="sd">              modified in-place.</span>
+<span class="sd">        one_body_tensor: Optional one-body tensor to absorb into the two-body operator.</span>
+<span class="sd">            See :func:`~.one_body_linop`.</span>
+<span class="sd">        constant: Optional constant to add to the operator.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The final state of the simulation.</span>
+<span class="sd">        A LinearOperator that implements the action of the two-body tensor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">order</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;order must be non-negative, got </span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">n_steps</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_steps must be non-negative, got </span><span class="si">{</span><span class="n">n_steps</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">n_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vec</span>
+    <span class="k">if</span> <span class="n">one_body_tensor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
 
-    <span class="n">one_body_energies</span><span class="p">,</span> <span class="n">one_body_basis_change</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span>
-        <span class="n">hamiltonian</span><span class="o">.</span><span class="n">one_body_tensor</span>
-    <span class="p">)</span>
-    <span class="n">step_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="n">n_steps</span>
+    <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+    <span class="n">linkstr_index_a</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
+    <span class="n">linkstr_index_b</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
+    <span class="n">link_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">linkstr_index_a</span><span class="p">,</span> <span class="n">linkstr_index_b</span><span class="p">)</span>
+    <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">absorb_h1e</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
 
-    <span class="n">current_basis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
-        <span class="n">vec</span><span class="p">,</span> <span class="n">current_basis</span> <span class="o">=</span> <span class="n">_simulate_trotter_step_double_factorized</span><span class="p">(</span>
-            <span class="n">vec</span><span class="p">,</span>
-            <span class="n">current_basis</span><span class="p">,</span>
-            <span class="n">one_body_energies</span><span class="p">,</span>
-            <span class="n">one_body_basis_change</span><span class="p">,</span>
-            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">diag_coulomb_mats</span><span class="p">,</span>
-            <span class="n">hamiltonian</span><span class="o">.</span><span class="n">orbital_rotations</span><span class="p">,</span>
-            <span class="n">step_time</span><span class="p">,</span>
-            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-            <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
-            <span class="n">z_representation</span><span class="o">=</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">z_representation</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">contract_2e</span><span class="p">(</span>
+            <span class="n">two_body_tensor</span><span class="p">,</span>
+            <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="p">,</span>
+            <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">current_basis</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">*=</span> <span class="n">cmath</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">constant</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">constant</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span>
+        <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">return</span> <span class="n">vec</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rmatvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">contract_2e</span><span class="p">(</span>
+            <span class="c1"># TODO come up with a way to test this transpose</span>
+            <span class="n">two_body_tensor</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="n">vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="p">,</span>
+            <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
 
+    <span class="n">dim_</span> <span class="o">=</span> <span class="n">dimensions</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">LinearOperator</span><span class="p">(</span>
+        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim_</span><span class="p">,</span> <span class="n">dim_</span><span class="p">),</span> <span class="n">matvec</span><span class="o">=</span><span class="n">matvec</span><span class="p">,</span> <span class="n">rmatvec</span><span class="o">=</span><span class="n">rmatvec</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+    <span class="p">)</span></div>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_simulate_trotter_step_double_factorized</span><span class="p">(</span>
-    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">current_basis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">one_body_energies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">one_body_basis_change</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">z_representation</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-    <span class="k">for</span> <span class="n">term_index</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">simulate_trotter_step_iterator</span><span class="p">(</span>
-        <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_coulomb_mats</span><span class="p">),</span> <span class="n">time</span><span class="p">,</span> <span class="n">order</span>
-    <span class="p">):</span>
-        <span class="k">if</span> <span class="n">term_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">one_body_basis_change</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">current_basis</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_num_op_sum_evolution</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">one_body_energies</span><span class="p">,</span>
-                <span class="n">time</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">current_basis</span> <span class="o">=</span> <span class="n">one_body_basis_change</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">orbital_rotations</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_orbital_rotation</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">orbital_rotation</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span> <span class="o">@</span> <span class="n">current_basis</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">vec</span> <span class="o">=</span> <span class="n">apply_diag_coulomb_evolution</span><span class="p">(</span>
-                <span class="n">vec</span><span class="p">,</span>
-                <span class="n">diag_coulomb_mats</span><span class="p">[</span><span class="n">term_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
-                <span class="n">time</span><span class="p">,</span>
-                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
-                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
-                <span class="n">z_representation</span><span class="o">=</span><span class="n">z_representation</span><span class="p">,</span>
-                <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">current_basis</span> <span class="o">=</span> <span class="n">orbital_rotation</span>
-    <span class="k">return</span> <span class="n">vec</span><span class="p">,</span> <span class="n">current_basis</span>
 </pre></div>
         </article>
       </div>
