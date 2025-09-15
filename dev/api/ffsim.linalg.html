@@ -348,12 +348,12 @@ and <span class="math notranslate nohighlight">\(j\)</span>-th basis vectors as<
 <span class="math notranslate nohighlight">\(h_{pqrs}\)</span> as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
-    U^{t}_{r\ell} U^{t}_{s\ell}\]</div>
+\[h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell}
+    Z^{(t)}_{k\ell} U^{(t)}_{pk} U^{(t)}_{qk} U^{(t)}_{r\ell} U^{(t)}_{s\ell},\]</div>
 </div>
-<p>Here each <span class="math notranslate nohighlight">\(Z^{(t)}\)</span> is a real symmetric matrix, referred to as a
-“diagonal Coulomb matrix,” and each <span class="math notranslate nohighlight">\(U^{t}\)</span> is a unitary matrix, referred to
-as an “orbital rotation.”</p>
+<p>where each <span class="math notranslate nohighlight">\(Z^{(t)}\)</span> is a real symmetric matrix representing a diagonal
+Coulomb operator and each <span class="math notranslate nohighlight">\(U^{(t)}\)</span> is a unitary matrix representing an
+orbital rotation.</p>
 <p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold may yield a smaller number of terms.
 Furthermore, the <cite>max_vecs</cite> parameter specifies an optional upper bound
