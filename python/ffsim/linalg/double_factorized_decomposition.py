@@ -157,12 +157,12 @@ def double_factorized(
 
     .. math::
 
-        h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
-            U^{t}_{r\ell} U^{t}_{s\ell}
+        h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell}
+            Z^{(t)}_{k\ell} U^{(t)}_{pk} U^{(t)}_{qk} U^{(t)}_{r\ell} U^{(t)}_{s\ell},
 
-    Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a
-    "diagonal Coulomb matrix," and each :math:`U^{t}` is a unitary matrix, referred to
-    as an "orbital rotation."
+    where each :math:`Z^{(t)}` is a real symmetric matrix representing a diagonal
+    Coulomb operator and each :math:`U^{(t)}` is a unitary matrix representing an
+    orbital rotation.
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
