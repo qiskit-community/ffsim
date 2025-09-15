@@ -433,19 +433,19 @@ the <a class="reference external" href="https://docs.scipy.org/doc/scipy/referen
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.double_factorized_t2">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">double_factorized_t2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2_amplitudes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L-BFGS-B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_coulomb_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_stage_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_optimize_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/double_factorized_decomposition.html#double_factorized_t2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.double_factorized_t2" title="Link to this definition">¶</a></dt>
-<dd><p>Double-factorized decomposition of t2 amplitudes.</p>
-<p>The double-factorized decomposition of a t2 amplitudes tensor <span class="math notranslate nohighlight">\(t_{ijab}\)</span> is</p>
+<dd><p>Double-factorized decomposition of <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes.</p>
+<p>The double-factorized decomposition of a <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes tensor
+<span class="math notranslate nohighlight">\(t_{ijab}\)</span> is</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[t_{ijab} = i \sum_{k=0}^{L - 1} \sum_{pq}
     Z^{(k)}_{pq}
-    U^{(k)}_{(\eta + a)p} U^{(k)*}_{ip} U^{(k)}_{(\eta + b)q} U^{(k)*}_{jq}\]</div>
+    U^{(k)}_{ap} U^{(k)*}_{ip} U^{(k)}_{bq} U^{(k)*}_{jq},\]</div>
 </div>
-<p>Here each <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> is a real symmetric matrix, referred to as a
-“diagonal Coulomb matrix,” each <span class="math notranslate nohighlight">\(U^{(k)}\)</span> is a unitary matrix,
-referred to as an “orbital rotation,” and the shape of the t2 amplitudes tensor is
-<span class="math notranslate nohighlight">\((\eta, \eta, N - \eta, N - \eta)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals
-and <span class="math notranslate nohighlight">\(\eta\)</span> is the number of orbitals that are occupied.</p>
+<p>where each <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> is a real symmetric matrix representing a diagonal
+Coulomb operator, each <span class="math notranslate nohighlight">\(U^{(k)}\)</span> is a unitary matrix representing an orbital
+rotation, <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> run over occupied orbitals, and <span class="math notranslate nohighlight">\(a\)</span> and
+<span class="math notranslate nohighlight">\(b\)</span> run over virtual orbitals.</p>
 <p>The number of terms <span class="math notranslate nohighlight">\(L\)</span> in the decomposition depends on the allowed
 error threshold. A larger error threshold may yield a smaller number of terms.
 Furthermore, the <cite>max_terms</cite> parameter specifies an optional upper bound
@@ -453,7 +453,7 @@ on <span class="math notranslate nohighlight">\(L\)</span>. The <cite>max_terms<
 too small, then the error of the decomposition may exceed the specified
 error threshold.</p>
 <p>The default behavior of this routine is to perform a straightforward
-“exact” factorization of the t2 amplitudes tensor based on a nested
+“exact” factorization of the <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes tensor based on a nested
 eigenvalue decomposition, and then truncate the terms based on the values of <cite>tol</cite>
 and <cite>max_terms</cite>.
 If <cite>optimize</cite> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, then the entries of the resulting tensors
@@ -474,17 +474,37 @@ factorization at the cost of increased running time. If you only pass one of
 <cite>multi_stage_start</cite> or <cite>multi_stage_step</cite>, then the value of the other is chosen
 automatically: <cite>multi_stage_start</cite> defaults to the total number of terms returned by
 the exact factorization, and <cite>multi_stage_step</cite> defaults to 1.</p>
-<p>Note: Currently, only real-valued t2 amplitudes are supported.</p>
+<p>The original <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes tensor can be reconstructed, up to the error
+tolerance, using the following function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">reconstruct_t2</span><span class="p">(</span>
+    <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="mi">1</span><span class="n">j</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+            <span class="s2">&quot;kpq,kap,kip,kbq,kjq-&gt;ijab&quot;</span><span class="p">,</span>
+            <span class="n">diag_coulomb_mats</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+            <span class="n">orbital_rotations</span><span class="p">,</span>
+            <span class="n">orbital_rotations</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span>
+        <span class="p">)[:</span><span class="n">nocc</span><span class="p">,</span> <span class="p">:</span><span class="n">nocc</span><span class="p">,</span> <span class="n">nocc</span><span class="p">:,</span> <span class="n">nocc</span><span class="p">:]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: Currently, only real-valued <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t2_amplitudes</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes tensor.</p></li>
+<li><p><strong>t2_amplitudes</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The doubles amplitudes tensor of shape
+<code class="docutils literal notranslate"><span class="pre">(nocc,</span> <span class="pre">nocc,</span> <span class="pre">nvrt,</span> <span class="pre">nvrt)</span></code>, where <code class="docutils literal notranslate"><span class="pre">nocc</span></code> is the number of occupied
+orbitals and <code class="docutils literal notranslate"><span class="pre">nvrt</span></code> is the number of virtual orbitals.</p></li>
 <li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
 <li><p><strong>max_terms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
-of the t2 amplitudes tensor. This argument overrides <cite>tol</cite>.</p></li>
+of the <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes tensor. This argument overrides <cite>tol</cite>.</p></li>
 <li><p><strong>optimize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to optimize the tensors returned by the decomposition to
 to minimize the error in the factorization.</p></li>
 <li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The optimization method. See the documentation of
@@ -535,9 +555,9 @@ the <a class="reference external" href="https://docs.scipy.org/doc/scipy/referen
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.linalg.double_factorized_t2_alpha_beta">
 <span class="sig-prename descclassname"><span class="pre">ffsim.linalg.</span></span><span class="sig-name descname"><span class="pre">double_factorized_t2_alpha_beta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t2_amplitudes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/linalg/double_factorized_decomposition.html#double_factorized_t2_alpha_beta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.linalg.double_factorized_t2_alpha_beta" title="Link to this definition">¶</a></dt>
-<dd><p>Double-factorized decomposition of alpha-beta t2 amplitudes.</p>
-<p>Decompose alpha-beta t2 amplitudes into diagonal Coulomb matrices with orbital
-rotations. This function returns two arrays:</p>
+<dd><p>Double-factorized decomposition of alpha-beta <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes.</p>
+<p>Decompose alpha-beta <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes into diagonal Coulomb matrices with
+orbital rotations. This function returns two arrays:</p>
 <ul class="simple">
 <li><p><cite>diagonal_coulomb_mats</cite>, with shape <cite>(n_terms, 3, norb, norb)</cite>.</p></li>
 <li><p><cite>orbital_rotations</cite>, with shape <cite>(n_terms, 2, norb, norb)</cite>.</p></li>
@@ -545,8 +565,8 @@ rotations. This function returns two arrays:</p>
 <p>The value of <cite>n_terms</cite> depends on the error tolerance <cite>tol</cite>. A larger error
 tolerance might yield a smaller value for <cite>n_terms</cite>. You can also set an optional
 upper bound on <cite>n_terms</cite> using the <cite>max_terms</cite> argument.</p>
-<p>The original t2 amplitudes tensor can be reconstructed, up to the error tolerance,
-using the following function:</p>
+<p>The original <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes tensor can be reconstructed, up to the error
+tolerance, using the following function:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">reconstruct_t2_alpha_beta</span><span class="p">(</span>
     <span class="n">diag_coulomb_mats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">orbital_rotations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -570,7 +590,7 @@ using the following function:</p>
         <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="mi">2</span><span class="n">j</span>
-        <span class="o">*</span> <span class="n">contract</span><span class="p">(</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
             <span class="s2">&quot;kpq,kap,kip,kbq,kjq-&gt;ijab&quot;</span><span class="p">,</span>
             <span class="n">expanded_diag_coulomb_mats</span><span class="p">,</span>
             <span class="n">expanded_orbital_rotations</span><span class="p">,</span>
@@ -581,17 +601,21 @@ using the following function:</p>
     <span class="p">)</span>
 </pre></div>
 </div>
-<p>Note: Currently, only real-valued t2 amplitudes are supported.</p>
+<p>Note: Currently, only real-valued <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t2_amplitudes</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The t2 amplitudes tensor.</p></li>
+<li><p><strong>t2_amplitudes</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The doubles amplitudes tensor of shape
+<code class="docutils literal notranslate"><span class="pre">(nocc_a,</span> <span class="pre">nocc_b,</span> <span class="pre">nvrt_a,</span> <span class="pre">nvrt_b)</span></code>, where <code class="docutils literal notranslate"><span class="pre">nocc_a</span></code> is the number of
+occupied spin-alpha orbitals, <code class="docutils literal notranslate"><span class="pre">nvrt_a</span></code> is the number of virtual spin-alpha
+orbitals, <code class="docutils literal notranslate"><span class="pre">nocc_b</span></code> is the number of occupied spin-beta orbitals, and
+<code class="docutils literal notranslate"><span class="pre">nvrt_b</span></code> is the number of virtual spin-beta orbitals.</p></li>
 <li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Tolerance for error in the decomposition.
 The error is defined as the maximum absolute difference between
 an element of the original tensor and the corresponding element of
 the reconstructed tensor.</p></li>
 <li><p><strong>max_terms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – An optional limit on the number of terms to keep in the decomposition
-of the t2 amplitudes tensor. This argument overrides <cite>tol</cite>.</p></li>
+of the <span class="math notranslate nohighlight">\(t_2\)</span> amplitudes tensor. This argument overrides <cite>tol</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
