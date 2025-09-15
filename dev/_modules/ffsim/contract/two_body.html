@@ -280,7 +280,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.fci.direct_nosym</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract_2e</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.fci.direct_nosym</span><span class="w"> </span><span class="kn">import</span> <span class="n">absorb_h1e</span><span class="p">,</span> <span class="n">contract_2e</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearOperator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">dimensions</span>
@@ -290,7 +290,11 @@
 <div class="viewcode-block" id="two_body_linop">
 <a class="viewcode-back" href="../../../api/ffsim.contract.html#ffsim.contract.two_body_linop">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">two_body_linop</span><span class="p">(</span>
-    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+    <span class="n">two_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">one_body_tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearOperator</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert a two-body tensor to a linear operator.</span>
 
@@ -304,17 +308,24 @@
 <span class="sd">    where :math:`h_{pqrs}` is a tensor of complex coefficients.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        mat: The two-body tensor.</span>
+<span class="sd">        two_body_tensor: The two-body tensor.</span>
 <span class="sd">        norb: The number of spatial orbitals.</span>
 <span class="sd">        nelec: The number of alpha and beta electrons.</span>
+<span class="sd">        one_body_tensor: Optional one-body tensor to absorb into the two-body operator.</span>
+<span class="sd">            See :func:`~.one_body_linop`.</span>
+<span class="sd">        constant: Optional constant to add to the operator.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A LinearOperator that implements the action of the two-body tensor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">one_body_tensor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">))</span>
+
     <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
     <span class="n">linkstr_index_a</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_alpha</span><span class="p">)</span>
     <span class="n">linkstr_index_b</span> <span class="o">=</span> <span class="n">gen_linkstr_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">),</span> <span class="n">n_beta</span><span class="p">)</span>
     <span class="n">link_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">linkstr_index_a</span><span class="p">,</span> <span class="n">linkstr_index_b</span><span class="p">)</span>
+    <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">absorb_h1e</span><span class="p">(</span><span class="n">one_body_tensor</span><span class="p">,</span> <span class="n">two_body_tensor</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">matvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">contract_2e</span><span class="p">(</span>
@@ -324,6 +335,8 @@
             <span class="n">nelec</span><span class="p">,</span>
             <span class="n">link_index</span><span class="o">=</span><span class="n">link_index</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">constant</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">constant</span> <span class="o">*</span> <span class="n">vec</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">rmatvec</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>

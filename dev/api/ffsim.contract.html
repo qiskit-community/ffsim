@@ -475,7 +475,7 @@ operators.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.contract.two_body_linop">
-<span class="sig-prename descclassname"><span class="pre">ffsim.contract.</span></span><span class="sig-name descname"><span class="pre">two_body_linop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/contract/two_body.html#two_body_linop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.two_body_linop" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.contract.</span></span><span class="sig-name descname"><span class="pre">two_body_linop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">two_body_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/contract/two_body.html#two_body_linop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.contract.two_body_linop" title="Link to this definition">¶</a></dt>
 <dd><p>Convert a two-body tensor to a linear operator.</p>
 <p>A two-body tensor has the form</p>
 <div class="math-wrapper docutils container">
@@ -487,9 +487,12 @@ a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> – The two-body tensor.</p></li>
+<li><p><strong>two_body_tensor</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The two-body tensor.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The number of spatial orbitals.</p></li>
 <li><p><strong>nelec</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – The number of alpha and beta electrons.</p></li>
+<li><p><strong>one_body_tensor</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional one-body tensor to absorb into the two-body operator.
+See <a class="reference internal" href="#ffsim.contract.one_body_linop" title="ffsim.contract.one_body_linop"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_body_linop()</span></code></a>.</p></li>
+<li><p><strong>constant</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Optional constant to add to the operator.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
