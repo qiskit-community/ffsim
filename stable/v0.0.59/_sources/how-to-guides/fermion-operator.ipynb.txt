@@ -1,0 +1,461 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# How to use the FermionOperator class\n",
+    "\n",
+    "This guide shows how to use the [FermionOperator](https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.FermionOperator) class to represent arbitrary fermionic operators.\n",
+    "\n",
+    "## Data representation\n",
+    "\n",
+    "The FermionOperator class is used to represent a linear combination of products of fermionic creation and annihilation operators. For example:\n",
+    "\n",
+    "$$\n",
+    "0.5 a_{\\alpha, 0}^\\dagger a_{\\alpha, 3} - 0.25 a_{\\alpha, 3}^\\dagger a_{\\alpha, 0}\n",
+    "+ (1 + i) a_{\\beta, 1}^\\dagger a_{\\beta, 5} a_{\\alpha, 4}^\\dagger.\n",
+    "$$\n",
+    "\n",
+    "Such operators are represented programmatically as a dictionary (hash table) that maps each term to its associated coefficient. An individual term is represented as a tuple of fermionic actions. Each action is described by three pieces of information:\n",
+    "\n",
+    "1. Whether the action is to create or destroy a fermion.\n",
+    "2. The spin of the orbital being acted upon (alpha or beta).\n",
+    "3. The numerical index of the orbital.\n",
+    "\n",
+    "Internally, the action is itself represented as a tuple containing these three pieces of information, but we recommend using the helper functions `cre_a`, `cre_b`, `des_a`, and `des_b` to construct these tuples.\n",
+    "\n",
+    "The following code example shows how to construct the operator shown above."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "FermionOperator({\n",
+       "    (cre_a(0), des_a(3)): 0.5,\n",
+       "    (cre_a(3), des_a(0)): -0.25,\n",
+       "    (cre_b(1), des_b(5), cre_a(4)): 1+1j\n",
+       "})"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import ffsim\n",
+    "\n",
+    "op1 = ffsim.FermionOperator(\n",
+    "    {\n",
+    "        (ffsim.cre_a(0), ffsim.des_a(3)): 0.5,\n",
+    "        (ffsim.cre_a(3), ffsim.des_a(0)): -0.25,\n",
+    "        (ffsim.cre_b(1), ffsim.des_b(5), ffsim.cre_a(4)): 1 + 1j,\n",
+    "    }\n",
+    ")\n",
+    "op1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Use `repr` to view a string representation that displays the action tuples."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "'FermionOperator({((True, False, 0), (False, False, 3)): 0.5+0j, ((True, False, 3), (False, False, 0)): -0.25+0j, ((True, True, 1), (False, True, 5), (True, False, 4)): 1+1j})'"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "repr(op1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Converting other objects to FermionOperators\n",
+    "\n",
+    "Some objects, such as instances of [MolecularHamiltonian](https://qiskit-community.github.io/ffsim/api/ffsim.html#ffsim.MolecularHamiltonian), can be converted to FermionOperators using the `ffsim.fermion_operator` function. This function works on any object that has a `_fermion_operator_` method, so if you make your own class, you can implement this method to tell `ffsim.fermion_operator` how to convert your class to a FermionOperator.\n",
+    "\n",
+    "The following code cell demonstrates converting a MolecularHamiltonian to a FermionOperator."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -1.07358293078636\n",
+      "FermionOperator({\n",
+      "    (cre_b(1), cre_b(1), des_b(0), des_b(0)): 0.0985617249345788,\n",
+      "    (cre_a(1), cre_b(0), des_b(0), des_a(1)): 0.3110432387826118,\n",
+      "    (cre_b(0), cre_b(1), des_b(1), des_b(0)): 0.3110432387826118,\n",
+      "    (cre_b(1), cre_a(1), des_a(0), des_b(0)): 0.0985617249345788,\n",
+      "    (cre_b(1), cre_a(1), des_a(1), des_b(1)): 0.3267544183944909,\n",
+      "    (cre_a(0), cre_b(1), des_b(1), des_a(0)): 0.3110432387826118,\n",
+      "    (cre_a(0), cre_b(0), des_b(0), des_a(0)): 0.3132200956766947,\n",
+      "    (cre_a(0), cre_a(1), des_a(0), des_a(1)): 0.0985617249345788,\n",
+      "    (cre_b(0), cre_a(0), des_a(1), des_b(1)): 0.0985617249345788,\n",
+      "    (cre_b(0), des_b(0)): -1.114600166529875,\n",
+      "    (cre_b(0), cre_a(0), des_a(0), des_b(0)): 0.3132200956766947,\n",
+      "    (cre_a(1), cre_a(1), des_a(1), des_a(1)): 0.3267544183944909,\n",
+      "    (cre_b(1), cre_b(0), des_b(1), des_b(0)): 0.0985617249345788,\n",
+      "    (cre_a(0), cre_a(1), des_a(1), des_a(0)): 0.3110432387826118,\n",
+      "    (cre_b(0), cre_a(1), des_a(1), des_b(0)): 0.3110432387826118,\n",
+      "    (cre_a(0), cre_b(0), des_b(1), des_a(1)): 0.0985617249345788,\n",
+      "    (cre_b(0), cre_a(1), des_a(0), des_b(1)): 0.0985617249345788,\n",
+      "    (cre_a(0), cre_a(0), des_a(1), des_a(1)): 0.0985617249345788,\n",
+      "    (): 0.52917721092,\n",
+      "    (cre_b(0), cre_b(0), des_b(0), des_b(0)): 0.3132200956766947,\n",
+      "    (cre_b(0), cre_b(0), des_b(1), des_b(1)): 0.0985617249345788,\n",
+      "    (cre_b(0), cre_b(1), des_b(0), des_b(1)): 0.0985617249345788,\n",
+      "    (cre_a(1), des_a(1)): -0.5952339032326008,\n",
+      "    (cre_a(1), cre_a(0), des_a(1), des_a(0)): 0.0985617249345788,\n",
+      "    (cre_b(1), cre_b(0), des_b(0), des_b(1)): 0.3110432387826118,\n",
+      "    (cre_a(1), cre_b(0), des_b(1), des_a(0)): 0.0985617249345788,\n",
+      "    (cre_a(1), cre_a(0), des_a(0), des_a(1)): 0.3110432387826118,\n",
+      "    (cre_b(1), des_b(1)): -0.5952339032326008,\n",
+      "    (cre_a(0), cre_b(1), des_b(0), des_a(1)): 0.0985617249345788,\n",
+      "    (cre_b(1), cre_b(1), des_b(1), des_b(1)): 0.3267544183944909,\n",
+      "    (cre_a(0), des_a(0)): -1.114600166529875,\n",
+      "    (cre_a(1), cre_b(1), des_b(1), des_a(1)): 0.3267544183944909,\n",
+      "    (cre_b(1), cre_a(0), des_a(0), des_b(1)): 0.3110432387826118,\n",
+      "    (cre_a(0), cre_a(0), des_a(0), des_a(0)): 0.3132200956766947,\n",
+      "    (cre_a(1), cre_b(1), des_b(0), des_a(0)): 0.0985617249345788,\n",
+      "    (cre_b(1), cre_a(0), des_a(1), des_b(0)): 0.0985617249345788,\n",
+      "    (cre_a(1), cre_a(1), des_a(0), des_a(0)): 0.0985617249345788\n",
+      "})\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pyscf\n",
+    "\n",
+    "# Build H2 molecule\n",
+    "mol = pyscf.gto.Mole()\n",
+    "mol.build(atom=[[\"H\", (0, 0, 0)], [\"H\", (1.0, 0, 0)]], basis=\"sto-6g\", symmetry=\"Dooh\")\n",
+    "\n",
+    "# Get molecular data and Hamiltonian\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf)\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "\n",
+    "# Convert MolecularHamiltonian to FermionOperator\n",
+    "ferm_op = ffsim.fermion_operator(mol_hamiltonian)\n",
+    "\n",
+    "# Remove small coefficients before printing\n",
+    "ferm_op.simplify()\n",
+    "print(ferm_op)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Arithmetic\n",
+    "\n",
+    "FermionOperators support arithmetic operations. Note that when multiplying a FermionOperator by a scalar, the scalar must go on the left, i.e. `2 * op` and not `op * 2`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "FermionOperator({\n",
+       "    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -0.25-0.25j,\n",
+       "    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): -1+1j,\n",
+       "    (cre_a(3), des_a(0), cre_b(2)): 0-0.25j,\n",
+       "    (cre_a(3), des_a(0)): -0.5,\n",
+       "    (cre_a(0), des_a(3)): 1,\n",
+       "    (cre_a(0), des_a(3), cre_b(2)): 0+0.5j,\n",
+       "    (cre_b(1), des_b(5), cre_a(4)): 2+2j,\n",
+       "    (des_a(3), des_b(3)): 0.0625,\n",
+       "    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0.0625,\n",
+       "    (cre_a(0), des_a(3), des_a(3), des_b(3)): -0.125,\n",
+       "    (cre_b(2)): 0-0.25j\n",
+       "})"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "op2 = ffsim.FermionOperator(\n",
+    "    {\n",
+    "        (ffsim.cre_b(2),): 1j,\n",
+    "        (ffsim.des_a(3), ffsim.des_b(3)): -0.25,\n",
+    "    }\n",
+    ")\n",
+    "\n",
+    "op3 = op1 * op2 + 2 * op1 - op2 / 4\n",
+    "\n",
+    "op3"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It is good to be aware that some in-place operations are especially efficient because they avoid copying data into a new FermionOperator object. These operations are:\n",
+    "\n",
+    "- In-place addition and subtraction\n",
+    "- In-place multiplication and division by a scalar\n",
+    "\n",
+    "Some examples of usage:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "FermionOperator({\n",
+       "    (cre_b(1), des_b(5), cre_a(4), des_a(3), des_b(3)): -1+1j,\n",
+       "    (cre_b(1), des_b(5), cre_a(4), cre_b(2)): 4+4j,\n",
+       "    (cre_a(3), des_a(0), cre_b(2)): -1,\n",
+       "    (cre_a(3), des_a(0)): 0+3j,\n",
+       "    (cre_a(0), des_a(3)): 0-6j,\n",
+       "    (cre_a(0), des_a(3), cre_b(2)): 2,\n",
+       "    (cre_b(1), des_b(5), cre_a(4)): 12-12j,\n",
+       "    (des_a(3), des_b(3)): 0-1.25j,\n",
+       "    (cre_a(3), des_a(0), des_a(3), des_b(3)): 0-0.25j,\n",
+       "    (cre_a(0), des_a(3), des_a(3), des_b(3)): 0+0.5j,\n",
+       "    (cre_b(2)): -5\n",
+       "})"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "op3 += op1\n",
+    "op3 -= op2\n",
+    "op3 *= 4\n",
+    "op3 /= 1j\n",
+    "op3"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Normal-ordering\n",
+    "\n",
+    "Operators can be normal-ordered by calling the `normal_ordered` method, which returns a new FermionOperator. In the normal-ordered form of a FermionOperator, the operators comprising each term appear from left to right in descending lexicographic order by `(action, spin, orb)`. That is, all creation operators appear before all annihilation operators; within creation/annihilation operators, spin beta operators appear before spin alpha operators, and larger orbital indices appear before smaller orbital indices."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "FermionOperator({\n",
+       "    (cre_a(3), des_b(3), des_a(3), des_a(0)): 0+0.25j,\n",
+       "    (cre_b(2)): -5,\n",
+       "    (cre_a(0), des_a(3)): 0-6j,\n",
+       "    (cre_b(2), cre_a(0), des_a(3)): 2,\n",
+       "    (cre_b(1), cre_a(4), des_b(5)): -12+12j,\n",
+       "    (des_b(3), des_a(3)): 0+1.25j,\n",
+       "    (cre_b(1), cre_a(4), des_b(5), des_b(3), des_a(3)): -1+1j,\n",
+       "    (cre_a(3), des_a(0)): 0+3j,\n",
+       "    (cre_b(2), cre_a(3), des_a(0)): -1,\n",
+       "    (cre_b(2), cre_b(1), cre_a(4), des_b(5)): 4+4j\n",
+       "})"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "op3.normal_ordered()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Operator action\n",
+    "\n",
+    "If a FermionOperator conserves particle number and the Z component of spin, then it can be converted to a [LinearOperator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.LinearOperator.html) using the `ffsim.linear_operator` function. In order for a FermionOperator to conserve particle number and the Z component of spin, it must preserve the number of spin-alpha fermions and the number of spin-beta fermions. So far, the operators we have created do not satisfy these criteria:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "False\n",
+      "False\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(op3.conserves_particle_number())\n",
+    "print(op3.conserves_spin_z())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's construct a FermionOperator that does conserve particle number and spin, and then convert it to a LinearOperator within the subspace of 3 spatial orbitals with 1 alpha and 1 beta fermion."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "True\n",
+      "True\n"
+     ]
+    }
+   ],
+   "source": [
+    "op4 = ffsim.FermionOperator(\n",
+    "    {\n",
+    "        (ffsim.cre_a(0), ffsim.des_a(3)): 1 + 1j,\n",
+    "        (ffsim.cre_a(1), ffsim.des_a(1), ffsim.cre_b(1), ffsim.des_b(1)): -0.5,\n",
+    "    }\n",
+    ")\n",
+    "print(op4.conserves_particle_number())\n",
+    "print(op4.conserves_spin_z())\n",
+    "\n",
+    "norb = 3\n",
+    "nelec = (1, 1)\n",
+    "linop = ffsim.linear_operator(op4, norb=norb, nelec=nelec)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A LinearOperator can be matrix-multiplied onto a vector:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([ 0.       +0.j        ,  0.       +0.j        ,\n",
+       "        0.       +0.j        ,  0.       +0.j        ,\n",
+       "       -0.0777719-0.04677541j,  0.       +0.j        ,\n",
+       "        0.       +0.j        ,  0.       +0.j        ,\n",
+       "        0.       +0.j        ])"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=1234)\n",
+    "linop @ vec"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It can also be passed into most linear algebra routines in `scipy.sparse.linalg`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([-0.5+5.28582186e-18j])"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import scipy.sparse.linalg\n",
+    "\n",
+    "eigs, vecs = scipy.sparse.linalg.eigs(linop, which=\"LM\", k=1)\n",
+    "eigs"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "ffsim",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.1"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
