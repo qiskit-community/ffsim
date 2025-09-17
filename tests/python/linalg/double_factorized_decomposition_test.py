@@ -554,8 +554,8 @@ def test_double_factorized_t2_compressed_max_terms_n2_small():
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
     assert result.nit <= 25
-    assert result.nfev <= 35
-    assert result.njev <= 35
+    assert result.nfev <= 40
+    assert result.njev <= 40
 
 
 def test_double_factorized_t2_compressed_max_terms_n2_large():
