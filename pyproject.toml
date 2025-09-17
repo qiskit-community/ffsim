@@ -90,19 +90,4 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
 [tool.cibuildwheel.linux]
-# Set the build image ONLY for aarch64.
-# x86_64 will continue to use its default (manylinux2014).
-manylinux-aarch64-image = "quay.io/pypa/manylinux_2_34_aarch64"
-
-before-all = """
-  set -ex
-  if [ "$(uname -m)" = "aarch64" ]; then
-    # new environment for aarch64 image
-    dnf install -y openssl-devel rust cargo openblas-devel
-  else
-    # Original environment for x86_64 linux
-    # mirrorlist.centos.org doesn't exist anymore
-    # Workaround from https://serverfault.com/a/1161847
-    sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo && yum install -y openssl-devel rust cargo openblas-devel
-  fi
-"""
+before-all = "dnf install -y cargo openblas-devel openssl-devel rust"
