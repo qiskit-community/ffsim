@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  test-linux:
+  test-linux-x86_64:
     runs-on: ubuntu-latest
     strategy:
       matrix:
