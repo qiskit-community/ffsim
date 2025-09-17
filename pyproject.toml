@@ -90,6 +90,4 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
 [tool.cibuildwheel.linux]
-# mirrorlist.centos.org doesn't exist anymore
-# Workaround from https://serverfault.com/a/1161847
-before-all = "sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo && yum install -y openssl-devel rust cargo openblas-devel"
+before-all = "dnf install -y cargo openblas-devel openssl-devel rust"
