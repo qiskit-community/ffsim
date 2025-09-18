@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Qubit gate decompositions of fermionic gates" href="qiskit-gate-decompositions.html" /><link rel="prev" title="Double-factorized representation of the molecular Hamiltonian" href="double-factorized.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>The local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.59</title>
+        <title>The local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.60</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.59</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.60</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.59</span>
+  <span class="sidebar-brand-text">ffsim 0.0.60</span>
   
 </a>
 
@@ -374,10 +374,10 @@ optimization that adjusts the orbital rotations and diagonal Coulomb operators f
 <div class="math notranslate nohighlight">
 \[t_{ijab} = i \sum_{k=0}^{L - 1} \sum_{pq}
     Z^{(k)}_{pq}
-    U^{(k)}_{(\eta + a)p} U^{(k)*}_{ip} U^{(k)}_{(\eta + b)q} U^{(k)*}_{jq}\]</div>
+    U^{(k)}_{ap} U^{(k)*}_{ip} U^{(k)}_{bq} U^{(k)*}_{jq}.\]</div>
 </div>
-<p>Here, each <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> is a real symmetric matrix representing a diagonal Coulomb operator, each <span class="math notranslate nohighlight">\(U^{(k)}\)</span> is a unitary matrix representing an orbital rotation, and the shape of the t2 amplitudes tensor is <span class="math notranslate nohighlight">\((\eta, \eta, N - \eta, N - \eta)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of orbitals and <span class="math notranslate nohighlight">\(\eta\)</span> is the number of orbitals that are occupied. If the number of terms in the sum is truncated, or if some diagonal Coulomb interactions are dropped (by zeroing out the corresponding
-entries of the <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> matrices), then the equality no longer holds. However, given any two tensors <span class="math notranslate nohighlight">\(\bar{U}^{(k)}_{ij}\)</span> and <span class="math notranslate nohighlight">\(\bar{Z}^{(k)}_{ij}\)</span>, we can plug them into the expression to obtain some <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes <span class="math notranslate nohighlight">\(\bar{t}_{ijab}\)</span>. The compressed double factorization attempts to find tensors that minimize the least-squares objective function</p>
+<p>Here, each <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> is a real symmetric matrix representing a diagonal Coulomb operator, each <span class="math notranslate nohighlight">\(U^{(k)}\)</span> is a unitary matrix representing an orbital rotation, <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> run over occupied orbitals, and <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span> run over virtual orbitals. If the number of terms in the sum is truncated, or if some diagonal Coulomb interactions are dropped (by zeroing out the corresponding entries of the <span class="math notranslate nohighlight">\(Z^{(k)}\)</span> matrices), then the equality no longer holds. However,
+given any two tensors <span class="math notranslate nohighlight">\(\bar{U}^{(k)}_{ij}\)</span> and <span class="math notranslate nohighlight">\(\bar{Z}^{(k)}_{ij}\)</span>, we can plug them into the expression to obtain some <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes <span class="math notranslate nohighlight">\(\bar{t}_{ijab}\)</span>. The compressed double factorization attempts to find tensors that minimize the least-squares objective function</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\frac12 \sum_{ijab} \lvert \bar{t}_{ijab} - t_{ijab} \rvert ^2.\]</div>
@@ -503,7 +503,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f435c9ada90&gt;
+&lt;matplotlib.legend.Legend at 0x7fc4d8bc2120&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -569,7 +569,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f435c8ac690&gt;
+&lt;matplotlib.legend.Legend at 0x7fc4d8abbed0&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -649,7 +649,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f4354dbad50&gt;
+&lt;matplotlib.legend.Legend at 0x7fc4d1fe6710&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -737,7 +737,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f42ef552990&gt;
+&lt;matplotlib.legend.Legend at 0x7fc468840a50&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -836,7 +836,7 @@ sampled repeatedly to generate configurations on which to project and diagonaliz
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f42ef018cd0&gt;
+&lt;matplotlib.legend.Legend at 0x7fc4682c0e10&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -930,7 +930,7 @@ sampled repeatedly to generate configurations on which to project and diagonaliz
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=6799126d"></script>
+</div><script src="../_static/documentation_options.js?v=4d22d5b7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
