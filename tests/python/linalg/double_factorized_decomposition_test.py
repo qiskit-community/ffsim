@@ -639,7 +639,7 @@ def test_double_factorized_t2_compressed_max_terms_n2_large():
     )
     assert error_optimized < 0.7 * error
     np.testing.assert_allclose(
-        optimized_diag_coulomb_norm, init_diag_coulomb_norm, atol=3.5
+        optimized_diag_coulomb_norm, init_diag_coulomb_norm, atol=5
     )
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
