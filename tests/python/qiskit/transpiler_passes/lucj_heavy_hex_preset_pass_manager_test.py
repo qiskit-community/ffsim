@@ -1,11 +1,18 @@
 import pytest
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_ibm_runtime.fake_provider import FakeMarrakesh
+from qiskit.providers.fake_provider import GenericBackendV2
+from qiskit.transpiler import CouplingMap
 
 import ffsim
 from ffsim.qiskit import generate_pm_and_interactions_lucj_heavy_hex
 
-backend = FakeMarrakesh()
+cmap = CouplingMap.from_heavy_hex(distance=9)
+backend = GenericBackendV2(
+    num_qubits=cmap.size(),
+    basis_gates=["id", "rz", "sx", "x", "cz"],
+    coupling_map=cmap,
+    noise_info=True,
+)
 num_orbitals = 36
 
 
