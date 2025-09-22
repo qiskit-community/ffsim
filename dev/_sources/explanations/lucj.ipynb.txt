@@ -541,7 +541,7 @@
     "If the increased energy due to Trotter error is undesirable, we can mitigate this issue by adding a term to the least-squares objective function that regularizes the norm of the diagonal Coulomb matrices. The objective function with the regularization term is\n",
     "$$\n",
     "\\frac12 \\sum_{ijab} \\lvert \\bar{t}_{ijab} - t_{ijab} \\rvert ^2 +\n",
-    "\\lambda \\left( \\sum_{k} \\| \\bar{Z}^{(k)} \\|_\\text{F}^2 - \\sum_{k} \\| Z^{(k)} \\|_\\text{F}^2 \\right),\n",
+    "\\lambda \\left\\lvert \\sum_{k} \\| \\bar{Z}^{(k)} \\|_\\text{F}^2 - \\sum_{k} \\| Z^{(k)} \\|_\\text{F}^2 \\right\\rvert,\n",
     "$$\n",
     "where $\\|\\cdot\\|_\\text{F}$ denotes the Frobenius matrix norm, and $\\lambda$ is a parameter that determines how strongly to weight the regularization term.\n",
     "\n",
