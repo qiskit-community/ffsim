@@ -38,7 +38,7 @@ from ffsim.qiskit.sim import final_state_vector
 from ffsim.qiskit.transpiler_passes import (
     DropNegligible,
     MergeOrbitalRotations,
-    generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas,
+    generate_pm_and_interactions_lucj_heavy_hex,
 )
 from ffsim.qiskit.transpiler_stages import pre_init_passes
 from ffsim.qiskit.util import ffsim_vec_to_qiskit_vec, qiskit_vec_to_ffsim_vec
@@ -74,7 +74,7 @@ __all__ = [
     "UCJOpSpinlessJW",
     "ffsim_vec_to_qiskit_vec",
     "final_state_vector",
-    "generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas",
+    "generate_pm_and_interactions_lucj_heavy_hex",
     "jordan_wigner",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",

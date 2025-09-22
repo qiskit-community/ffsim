@@ -153,7 +153,7 @@ def _make_backend_cmap_pygraph(backend: BackendV2) -> PyGraph:
     return backend_coupling_graph
 
 
-def _get_placeholder_initial_layout_and_allowed_alpha_beta_indices(
+def _get_placeholder_layout_and_allowed_interactions(
     backend: BackendV2,
     num_orbitals: int,
     requested_alpha_beta_indices: Sequence[tuple[int, int]],
@@ -204,7 +204,7 @@ def _get_placeholder_initial_layout_and_allowed_alpha_beta_indices(
     return initial_layout[:-num_allowed_alpha_beta_indices], allowed_alpha_beta_indices
 
 
-def generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas(
+def generate_pm_and_interactions_lucj_heavy_hex(
     backend: BackendV2,
     num_orbitals: int,
     requested_alpha_beta_indices: Sequence[tuple[int, int]] | None = None,
@@ -225,7 +225,7 @@ def generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas(
         requested_alpha_beta_indices: A user may optionally request a list of
             alpha-beta interactions. The code will try to find a layout that satisfies
             the user requested alpha-beta pairs. However, due to limited hardware
-            connectivity, the request may not be entirely entertained. It that case,
+            connectivity, the request may not be entirely entertained. In that case,
             the code removes pairs from the end of the requested list one-by-one from
             the end of the list until a layout is found. Therefore, a user should list
             the pairs in desceding order of priority. If `None`, the code uses
@@ -251,13 +251,21 @@ def generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas(
         warnings.warn("Argument `layout_method` is ignored.")
         del qiskit_pm_kwargs["layout_method"]
 
+    if requested_alpha_beta_indices:
+        for alpha, beta in requested_alpha_beta_indices:
+            if alpha >= num_orbitals or beta >= num_orbitals:
+                raise ValueError(
+                    f"Requested alpha-beta interaction {(alpha, beta)} is out of "
+                    f"range for maximum spatial orbital index of {num_orbitals - 1}."
+                )
+
     if requested_alpha_beta_indices is None:
         requested_alpha_beta_indices = [
             (p, p) for p in range(num_orbitals) if p % 4 == 0
         ]
 
     (placeholder_initial_layout, allowed_alpha_beta_indices) = (
-        _get_placeholder_initial_layout_and_allowed_alpha_beta_indices(
+        _get_placeholder_layout_and_allowed_interactions(
             backend=backend,
             num_orbitals=num_orbitals,
             requested_alpha_beta_indices=requested_alpha_beta_indices,
@@ -269,6 +277,11 @@ def generate_preset_pass_manager_lucj_heavy_hex_with_alpha_betas(
     )
     pm.pre_init = ffsim.qiskit.PRE_INIT
 
+    # generating a preset pass manager with `initial_layout`
+    # (`=placeholder_initial_layout`) disables the `VF2PostLayout` pass.
+    # Therefore, we manually turn on the pass here so that it can search
+    # (better) isomorphic subgraph layouts to the initial layout and apply it
+    # to the circuit.
     def _custom_apply_post_layout_condition(property_set: dict[str, Any]) -> bool:
         return property_set["post_layout"] is not None
 
