@@ -379,21 +379,36 @@ class UCJOpSpinBalanced(
         ]
         | None = None,
         tol: float = 1e-8,
+        optimize: bool = False,
+        method: str = "L-BFGS-B",
+        callback=None,
+        options: dict | None = None,
+        regularization: float = 0,
+        multi_stage_start: int | None = None,
+        multi_stage_step: int | None = None,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
-        Performs a double-factorization of the t2 amplitudes and constructs the
+        Performs a double factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
-        specified number of ansatz repetitions. Terms are included in decreasing order
-        of the absolute value of the corresponding eigenvalue in the factorization.
+        specified number of ansatz repetitions.
+
+        The default behavior of this routine is to perform a straightforward
+        "exact" factorization of the t2 amplitudes tensor based on a nested
+        eigenvalue decomposition, and then truncate the terms based on the values of
+        `tol` and `n_reps`.
+        If `optimize` is set to ``True``, then the entries of the resulting tensors
+        (the diagonal Coulomb matrices and orbital rotations) are further optimized with
+        `scipy.optimize.minimize`_ to reduce the error in the factorization.
+        See :func:`ffsim.linalg.double_factorized_t2` for details.
 
         Args:
             t2: The t2 amplitudes.
             t1: The t1 amplitudes.
             n_reps: The number of ansatz repetitions. If not specified, then it is set
-                to the number of terms resulting from the double-factorization of the
+                to the number of terms resulting from the double factorization of the
                 t2 amplitudes. If the specified number of repetitions is larger than the
-                number of terms resulting from the double-factorization, then the ansatz
+                number of terms resulting from the double factorization, then the ansatz
                 is padded with additional identity operators up to the specified number
                 of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
@@ -413,6 +428,26 @@ class UCJOpSpinBalanced(
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
                 the reconstructed tensor.
+            optimize: Whether to optimize the tensors returned by the decomposition to
+                to minimize the error in the factorization.
+            method: The optimization method. See the documentation of
+                `scipy.optimize.minimize`_ for possible values.
+                This argument is ignored if `optimize` is set to ``False``.
+            callback: Callback function for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+                This argument is ignored if `optimize` is set to ``False``.
+            options: Options for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+                This argument is ignored if `optimize` is set to ``False``.
+            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
+            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
+            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -420,7 +455,11 @@ class UCJOpSpinBalanced(
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
+
+        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
+        if isinstance(n_reps, int) and n_reps <= 0:
+            raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
@@ -429,11 +468,25 @@ class UCJOpSpinBalanced(
 
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
-
-        diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(t2, tol=tol)
-        diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:n_reps]
+        if pairs_aa is None and pairs_ab is None:
+            diag_coulomb_indices = None
+        else:
+            diag_coulomb_indices = list(set((pairs_aa or []) + (pairs_ab or [])))
+        diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(
+            t2,
+            tol=tol,
+            max_terms=n_reps,
+            optimize=optimize,
+            method=method,
+            callback=callback,
+            options=options,
+            diag_coulomb_indices=diag_coulomb_indices,
+            regularization=regularization,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
+            return_optimize_result=False,
+        )
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
-        orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:n_reps]
 
         n_vecs, _, _, _ = diag_coulomb_mats.shape
         if n_reps is not None and n_vecs < n_reps:
@@ -453,15 +506,17 @@ class UCJOpSpinBalanced(
         # Zero out diagonal coulomb matrix entries if requested
         if pairs_aa is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*pairs_aa)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
+            if pairs_aa:
+                rows, cols = zip(*pairs_aa)
+                mask[rows, cols] = True
+                mask[cols, rows] = True
             diag_coulomb_mats[:, 0] *= mask
         if pairs_ab is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*pairs_ab)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
+            if pairs_ab:
+                rows, cols = zip(*pairs_ab)
+                mask[rows, cols] = True
+                mask[cols, rows] = True
             diag_coulomb_mats[:, 1] *= mask
 
         return UCJOpSpinBalanced(

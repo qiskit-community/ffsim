@@ -77,6 +77,7 @@ def _fermion_operator_to_linear_operator(
         nelec = (nelec, 0)
 
     dim_ = dim(norb, nelec)
+    adjoint = operator.adjoint()
 
     def matvec(vec: np.ndarray):
         result = np.zeros(dim_, dtype=complex)
@@ -84,8 +85,14 @@ def _fermion_operator_to_linear_operator(
             result += coeff * _apply_fermion_term(vec, term, norb, nelec)
         return result
 
+    def rmatvec(vec: np.ndarray):
+        result = np.zeros(dim_, dtype=complex)
+        for term, coeff in adjoint.items():
+            result += coeff * _apply_fermion_term(vec, term, norb, nelec)
+        return result
+
     return LinearOperator(
-        shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
+        shape=(dim_, dim_), matvec=matvec, rmatvec=rmatvec, dtype=complex
     )
 
 

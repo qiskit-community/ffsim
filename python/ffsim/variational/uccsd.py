@@ -19,8 +19,36 @@ from typing import cast
 import numpy as np
 import scipy.sparse.linalg
 
-from ffsim import gates, hamiltonians, linalg, protocols
+from ffsim import contract, gates, linalg, protocols
 from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
+
+
+def uccsd_restricted_linear_operator(
+    t1: np.ndarray, t2: np.ndarray, norb: int, nelec: tuple[int, int]
+) -> scipy.sparse.linalg.LinearOperator:
+    """Return a linear operator for a UCCSD operator generator.
+
+    Args:
+        t1: The t1-amplitudes.
+        t2: The t2-amplitudes.
+        norb: The number of spatial orbitals.
+        nelec: The numbers of spin alpha and spin beta fermions.
+
+    Returns:
+        The LinearOperator for the UCCSD operator generator.
+    """
+    nocc, _ = t1.shape
+    assert nelec == (nocc, nocc)
+
+    one_body_tensor = np.zeros((norb, norb), dtype=complex)
+    two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
+    one_body_tensor[:nocc, nocc:] = -t1.conj()
+    one_body_tensor[nocc:, :nocc] = t1.T
+    two_body_tensor[nocc:, :nocc, nocc:, :nocc] = t2.transpose(2, 0, 3, 1)
+    two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -t2.transpose(0, 2, 1, 3).conj()
+    return contract.two_body_linop(
+        two_body_tensor, norb=norb, nelec=nelec, one_body_tensor=one_body_tensor
+    )
 
 
 @dataclass(frozen=True)
@@ -205,22 +233,8 @@ class UCCSDOpRestrictedReal(
         if copy:
             vec = vec.copy()
 
-        nocc, _ = self.t1.shape
-        assert nelec == (nocc, nocc)
-
-        one_body_tensor = np.zeros((norb, norb))
-        two_body_tensor = np.zeros((norb, norb, norb, norb))
-        one_body_tensor[:nocc, nocc:] = self.t1
-        one_body_tensor[nocc:, :nocc] = -self.t1.T
-        two_body_tensor[nocc:, :nocc, nocc:, :nocc] = self.t2.transpose(2, 0, 3, 1)
-        two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -self.t2.transpose(0, 2, 1, 3)
-
-        linop = protocols.linear_operator(
-            hamiltonians.MolecularHamiltonian(
-                one_body_tensor=one_body_tensor, two_body_tensor=two_body_tensor
-            ),
-            norb=norb,
-            nelec=nelec,
+        linop = uccsd_restricted_linear_operator(
+            self.t1, self.t2, norb=norb, nelec=nelec
         )
         vec = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=0.0)
 
@@ -414,24 +428,8 @@ class UCCSDOpRestricted(
         if copy:
             vec = vec.copy()
 
-        nocc, _ = self.t1.shape
-        assert nelec == (nocc, nocc)
-
-        one_body_tensor = np.zeros((norb, norb), dtype=complex)
-        two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
-        one_body_tensor[:nocc, nocc:] = self.t1
-        one_body_tensor[nocc:, :nocc] = -self.t1.T.conj()
-        two_body_tensor[nocc:, :nocc, nocc:, :nocc] = self.t2.transpose(2, 0, 3, 1)
-        two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -self.t2.transpose(
-            0, 2, 1, 3
-        ).conj()
-
-        linop = protocols.linear_operator(
-            hamiltonians.MolecularHamiltonian(
-                one_body_tensor=one_body_tensor, two_body_tensor=two_body_tensor
-            ),
-            norb=norb,
-            nelec=nelec,
+        linop = uccsd_restricted_linear_operator(
+            self.t1, self.t2, norb=norb, nelec=nelec
         )
         vec = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=0.0)
 
