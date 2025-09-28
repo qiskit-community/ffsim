@@ -333,10 +333,26 @@ def test_molecular_hamiltonian_spinless_rotated(norb: int, nelec: int):
 
 
 @pytest.mark.parametrize("norb", range(1, 5))
-def test_from_fermion_operator(norb: int):
-    """Test converting from fermion operator to molecular Hamiltonian."""
+def test_from_fermion_operator_roundtrip(norb: int):
+    """Test converting fermion operator to molecular Hamiltonian."""
     mol_ham = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
     roundtripped = ffsim.MolecularHamiltonian.from_fermion_operator(
         ffsim.fermion_operator(mol_ham)
     )
     assert ffsim.approx_eq(roundtripped, mol_ham, atol=0)
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_from_fermion_operator_invalid(norb: int):
+    """Test converting fermion operator with invalid terms."""
+    op = ffsim.FermionOperator({(ffsim.cre_a(3), ffsim.cre_b(2)): 1.0})
+    with pytest.raises(ValueError, match="quadratic"):
+        _ = ffsim.MolecularHamiltonian.from_fermion_operator(op)
+    op = ffsim.FermionOperator(
+        {(ffsim.cre_a(3), ffsim.cre_b(2), ffsim.cre_a(3), ffsim.cre_b(2)): 1.0}
+    )
+    with pytest.raises(ValueError, match="quartic"):
+        _ = ffsim.MolecularHamiltonian.from_fermion_operator(op)
+    op = ffsim.FermionOperator({(ffsim.cre_a(3),): 1.0})
+    with pytest.raises(ValueError, match="term"):
+        _ = ffsim.MolecularHamiltonian.from_fermion_operator(op)

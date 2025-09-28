@@ -214,9 +214,9 @@ class MolecularHamiltonian(
                     one_body_tensor[p, q] += 0.5 * coeff
                 else:
                     raise ValueError(
-                        "FermionOperator cannot be converted to "
-                        f"MolecularHamiltonian. The one-body term {term} is not "
-                        r"of the form a^\dagger_{\sigma, p} a_{\sigma, q}."
+                        "FermionOperator cannot be converted to MolecularHamiltonian. "
+                        f"The quadratic term {term} is not of the required form "
+                        r"a^\dagger_{\sigma, p} a_{\sigma, q}."
                     )
             # two‑body term: a†_σ,p a†_τ,r a_τ,s a_σ,q
             elif len(term) == 4:
@@ -229,12 +229,11 @@ class MolecularHamiltonian(
                 ]
                 if term not in valid_two_body:
                     raise ValueError(
-                        "FermionOperator cannot be converted to "
-                        f"MolecularHamiltonian. The two-body term {term} is not "
-                        "of the form "
-                        r"a^{\dagger}_{\sigma,p}a^{\dagger}_{\sigma,r}a_{\sigma,s}a_{\sigma,q}"
-                        ", or "
-                        r"a^{\dagger}_{\sigma,p}a^{\dagger}_{\tau,r}a_{\tau,s}a_{\sigma,q}."
+                        "FermionOperator cannot be converted to MolecularHamiltonian. "
+                        f"The quartic term {term} is not of the required form "
+                        r"a^\dagger_{\sigma,p}a^\dagger_{\sigma,r}a_{\sigma,s}a_{\sigma,q}"
+                        " or "
+                        r"a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}."
                     )
                 two_body_tensor[p, q, r, s] += 0.5 * coeff
             # other terms
