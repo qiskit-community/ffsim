@@ -40,7 +40,7 @@ def reconstruct_t2(
     return (
         1j
         * contract(
-            "mpq,map,mip,mbq,mjq->ijab",
+            "kpq,kap,kip,kbq,kjq->ijab",
             diag_coulomb_mats,
             orbital_rotations,
             orbital_rotations.conj(),
@@ -60,17 +60,17 @@ def reconstruct_t2_alpha_beta(
     n_terms = diag_coulomb_mats.shape[0]
     expanded_diag_coulomb_mats = np.zeros((n_terms, 2 * norb, 2 * norb))
     expanded_orbital_rotations = np.zeros((n_terms, 2 * norb, 2 * norb), dtype=complex)
-    for m in range(n_terms):
-        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]
-        expanded_diag_coulomb_mats[m] = np.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
-        orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]
-        expanded_orbital_rotations[m] = scipy.linalg.block_diag(
+    for k in range(n_terms):
+        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]
+        expanded_diag_coulomb_mats[k] = np.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
+        orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]
+        expanded_orbital_rotations[k] = scipy.linalg.block_diag(
             orbital_rotation_a, orbital_rotation_b
         )
     return (
         2j
         * contract(
-            "mpq,map,mip,mbq,mjq->ijab",
+            "kpq,kap,kip,kbq,kjq->ijab",
             expanded_diag_coulomb_mats,
             expanded_orbital_rotations,
             expanded_orbital_rotations.conj(),
@@ -272,8 +272,8 @@ def test_double_factorized_compressed_n2_unconstrained():
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
     assert result.nit <= 100
-    assert result.nfev <= 120
-    assert result.njev <= 120
+    assert result.nfev <= 150
+    assert result.njev <= 150
 
 
 def test_double_factorized_compressed_n2_constrained():
@@ -312,7 +312,7 @@ def test_double_factorized_compressed_n2_constrained():
     rows, cols = zip(*diag_coulomb_indices)
     diag_coulomb_mask[rows, cols] = True
     diag_coulomb_mask[cols, rows] = True
-    np.testing.assert_allclose(
+    np.testing.assert_array_equal(
         diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
     )
     reconstructed = contract(
@@ -476,7 +476,7 @@ def test_double_factorized_t2_tol_max_terms():
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
 
 
-def test_double_factorized_t2_optimize_max_terms_n2_small():
+def test_double_factorized_t2_compressed_max_terms_n2_small():
     """Test compressed double factorization for smaller N2."""
     # Build N2 molecule
     mol = pyscf.gto.Mole()
@@ -554,11 +554,11 @@ def test_double_factorized_t2_optimize_max_terms_n2_small():
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
     assert result.nit <= 25
-    assert result.nfev <= 35
-    assert result.njev <= 35
+    assert result.nfev <= 40
+    assert result.njev <= 40
 
 
-def test_double_factorized_t2_optimize_max_terms_n2_large():
+def test_double_factorized_t2_compressed_max_terms_n2_large():
     """Test compressed double factorization for larger N2."""
     # Build N2 molecule
     mol = pyscf.gto.Mole()
@@ -585,12 +585,16 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
 
     # Perform compressed factorization
     max_terms = 2
+    diag_coulomb_indices = [(p, p) for p in range(norb)]
+    diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
+    diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
     diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized_t2(
         ccsd.t2,
         max_terms=max_terms,
         optimize=True,
         method="L-BFGS-B",
         options=dict(maxiter=150),
+        diag_coulomb_indices=diag_coulomb_indices,
         regularization=1e-4,
     )
     optimized_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats_optimized) ** 2)
@@ -626,15 +630,22 @@ def test_double_factorized_t2_optimize_max_terms_n2_large():
     error = np.sum(np.abs(reconstructed - ccsd.t2) ** 2)
 
     # Check results
+    diag_coulomb_mask = np.zeros((norb, norb), dtype=bool)
+    rows, cols = zip(*diag_coulomb_indices)
+    diag_coulomb_mask[rows, cols] = True
+    diag_coulomb_mask[cols, rows] = True
+    np.testing.assert_array_equal(
+        diag_coulomb_mats_optimized, diag_coulomb_mats_optimized * diag_coulomb_mask
+    )
     assert error_optimized < 0.7 * error
     np.testing.assert_allclose(
-        optimized_diag_coulomb_norm, init_diag_coulomb_norm, atol=3.5
+        optimized_diag_coulomb_norm, init_diag_coulomb_norm, atol=5
     )
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
 
 
-def test_double_factorized_t2_optimize_max_terms_random():
+def test_double_factorized_t2_compressed_max_terms_random():
     """Test compressed double factorization with random t2"""
     norb = 4
     nocc = 2

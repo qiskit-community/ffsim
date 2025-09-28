@@ -17,12 +17,11 @@ from functools import cached_property
 import numpy as np
 import scipy.linalg
 from opt_einsum import contract
-from pyscf.fci.direct_nosym import absorb_h1e, contract_2e, make_hdiag
+from pyscf.fci.direct_nosym import make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import protocols
-from ffsim.cistring import gen_linkstr_index
-from ffsim.dimensions import dim
+from ffsim.contract.two_body import two_body_linop
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 
 
@@ -124,29 +123,12 @@ class MolecularHamiltonian(
     ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         assert isinstance(nelec, tuple)
-        n_alpha, n_beta = nelec
-        linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
-        linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
-        link_index = (linkstr_index_a, linkstr_index_b)
-        two_body = absorb_h1e(
-            self.one_body_tensor, self.two_body_tensor, norb, nelec, 0.5
-        )
-
-        def matvec(vec: np.ndarray):
-            result = contract_2e(
-                two_body,
-                vec.astype(complex, copy=False),
-                norb,
-                nelec,
-                link_index=link_index,
-            )
-            if self.constant:
-                result += self.constant * vec
-            return result
-
-        dim_ = dim(norb, nelec)
-        return LinearOperator(
-            shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
+        return two_body_linop(
+            self.two_body_tensor,
+            norb=norb,
+            nelec=nelec,
+            one_body_tensor=self.one_body_tensor,
+            constant=self.constant,
         )
 
     def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
@@ -346,30 +328,12 @@ class MolecularHamiltonianSpinless(
     ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         assert isinstance(nelec, int)
-        nelec = (nelec, 0)
-        n_alpha, n_beta = nelec
-        linkstr_index_a = gen_linkstr_index(range(norb), n_alpha)
-        linkstr_index_b = gen_linkstr_index(range(norb), n_beta)
-        link_index = (linkstr_index_a, linkstr_index_b)
-        two_body = absorb_h1e(
-            self.one_body_tensor, self.two_body_tensor, norb, nelec, 0.5
-        )
-
-        def matvec(vec: np.ndarray):
-            result = contract_2e(
-                two_body,
-                vec.astype(complex, copy=False),
-                norb,
-                nelec,
-                link_index=link_index,
-            )
-            if self.constant:
-                result += self.constant * vec
-            return result
-
-        dim_ = dim(norb, nelec)
-        return LinearOperator(
-            shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
+        return two_body_linop(
+            self.two_body_tensor,
+            norb=norb,
+            nelec=(nelec, 0),
+            one_body_tensor=self.one_body_tensor,
+            constant=self.constant,
         )
 
     def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:

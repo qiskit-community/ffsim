@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  test-linux:
+  test-linux-x86_64:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,13 +34,16 @@ jobs:
       - name: Run tests
         run: |
           tox run -e py${{ matrix.python-version }}
-  test-macos-arm:
-    runs-on: macos-latest
+  test-linux-arm:
+    runs-on: ubuntu-24.04-arm
     strategy:
       matrix:
         python-version: ["3.9", "3.13"]
     steps:
       - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt install -y libopenblas-dev
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -52,8 +55,8 @@ jobs:
       - name: Run tests
         run: |
           tox run -e py${{ matrix.python-version }}
-  test-macos-intel:
-    runs-on: macos-13
+  test-macos:
+    runs-on: macos-latest
     strategy:
       matrix:
         python-version: ["3.9", "3.13"]

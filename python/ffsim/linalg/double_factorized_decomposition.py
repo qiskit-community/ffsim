@@ -157,12 +157,12 @@ def double_factorized(
 
     .. math::
 
-        h_{pqrs} = \sum_{t=1}^L \sum_{k\ell} Z^{t}_{k\ell} U^{t}_{pk} U^{t}_{qk}
-            U^{t}_{r\ell} U^{t}_{s\ell}
+        h_{pqrs} = \sum_{t=0}^{L - 1} \sum_{k\ell}
+            Z^{(t)}_{k\ell} U^{(t)}_{pk} U^{(t)}_{qk} U^{(t)}_{r\ell} U^{(t)}_{s\ell},
 
-    Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a
-    "diagonal Coulomb matrix," and each :math:`U^{t}` is a unitary matrix, referred to
-    as an "orbital rotation."
+    where each :math:`Z^{(t)}` is a real symmetric matrix representing a diagonal
+    Coulomb operator and each :math:`U^{(t)}` is a unitary matrix representing an
+    orbital rotation.
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
@@ -243,7 +243,7 @@ def double_factorized(
     """
     if np.iscomplexobj(two_body_tensor):
         raise ValueError(
-            "Double-factorization of complex two-body tensors is not supported."
+            "Double factorization of complex two-body tensors is not supported."
         )
 
     norb, _, _, _ = two_body_tensor.shape
@@ -505,19 +505,21 @@ def double_factorized_t2(
     tuple[np.ndarray, np.ndarray]
     | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
 ):
-    r"""Double-factorized decomposition of t2 amplitudes.
+    r"""Double-factorized decomposition of :math:`t_2` amplitudes.
 
-    The double-factorized decomposition of a t2 amplitudes tensor :math:`t_{ijab}` is
+    The double-factorized decomposition of a :math:`t_2` amplitudes tensor
+    :math:`t_{ijab}` is
 
     .. math::
 
-        t_{ijab} = i \sum_{m=1}^L \sum_{pq}
-            Z^{(m)}_{pq}
-            U^{(m)}_{ap} U^{(m)*}_{ip} U^{(m)}_{bq} U^{(m)*}_{jq}
+        t_{ijab} = i \sum_{k=0}^{L - 1} \sum_{pq}
+            Z^{(k)}_{pq}
+            U^{(k)}_{ap} U^{(k)*}_{ip} U^{(k)}_{bq} U^{(k)*}_{jq},
 
-    Here each :math:`Z^{(m)}` is a real-valued matrix, referred to as a
-    "diagonal Coulomb matrix," and each :math:`U^{(m)}` is a unitary matrix,
-    referred to as an "orbital rotation."
+    where each :math:`Z^{(k)}` is a real symmetric matrix representing a diagonal
+    Coulomb operator, each :math:`U^{(k)}` is a unitary matrix representing an orbital
+    rotation, :math:`i` and :math:`j` run over occupied orbitals, and :math:`a` and
+    :math:`b` run over virtual orbitals.
 
     The number of terms :math:`L` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
@@ -527,7 +529,7 @@ def double_factorized_t2(
     error threshold.
 
     The default behavior of this routine is to perform a straightforward
-    "exact" factorization of the t2 amplitudes tensor based on a nested
+    "exact" factorization of the :math:`t_2` amplitudes tensor based on a nested
     eigenvalue decomposition, and then truncate the terms based on the values of `tol`
     and `max_terms`.
     If `optimize` is set to ``True``, then the entries of the resulting tensors
@@ -550,16 +552,38 @@ def double_factorized_t2(
     automatically: `multi_stage_start` defaults to the total number of terms returned by
     the exact factorization, and `multi_stage_step` defaults to 1.
 
-    Note: Currently, only real-valued t2 amplitudes are supported.
+    The original :math:`t_2` amplitudes tensor can be reconstructed, up to the error
+    tolerance, using the following function:
+
+    .. code::
+
+        def reconstruct_t2(
+            diag_coulomb_mats: np.ndarray, orbital_rotations: np.ndarray, nocc: int
+        ) -> np.ndarray:
+            return (
+                1j
+                * np.einsum(
+                    "kpq,kap,kip,kbq,kjq->ijab",
+                    diag_coulomb_mats,
+                    orbital_rotations,
+                    orbital_rotations.conj(),
+                    orbital_rotations,
+                    orbital_rotations.conj(),
+                )[:nocc, :nocc, nocc:, nocc:]
+            )
+
+    Note: Currently, only real-valued :math:`t_2` amplitudes are supported.
 
     Args:
-        t2_amplitudes: The t2 amplitudes tensor.
+        t2_amplitudes: The doubles amplitudes tensor of shape
+            ``(nocc, nocc, nvrt, nvrt)``, where ``nocc`` is the number of occupied
+            orbitals and ``nvrt`` is the number of virtual orbitals.
         tol: Tolerance for error in the decomposition.
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
         max_terms: An optional limit on the number of terms to keep in the decomposition
-            of the t2 amplitudes tensor. This argument overrides `tol`.
+            of the :math:`t_2` amplitudes tensor. This argument overrides `tol`.
         optimize: Whether to optimize the tensors returned by the decomposition to
             to minimize the error in the factorization.
         method: The optimization method. See the documentation of
@@ -741,10 +765,10 @@ def _double_factorized_t2_compressed(
 def double_factorized_t2_alpha_beta(
     t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
-    r"""Double-factorized decomposition of alpha-beta t2 amplitudes.
+    r"""Double-factorized decomposition of alpha-beta :math:`t_2` amplitudes.
 
-    Decompose alpha-beta t2 amplitudes into diagonal Coulomb matrices with orbital
-    rotations. This function returns two arrays:
+    Decompose alpha-beta :math:`t_2` amplitudes into diagonal Coulomb matrices with
+    orbital rotations. This function returns two arrays:
 
     - `diagonal_coulomb_mats`, with shape `(n_terms, 3, norb, norb)`.
     - `orbital_rotations`, with shape `(n_terms, 2, norb, norb)`.
@@ -753,8 +777,8 @@ def double_factorized_t2_alpha_beta(
     tolerance might yield a smaller value for `n_terms`. You can also set an optional
     upper bound on `n_terms` using the `max_terms` argument.
 
-    The original t2 amplitudes tensor can be reconstructed, up to the error tolerance,
-    using the following function:
+    The original :math:`t_2` amplitudes tensor can be reconstructed, up to the error
+    tolerance, using the following function:
 
     .. code::
 
@@ -770,19 +794,19 @@ def double_factorized_t2_alpha_beta(
             expanded_orbital_rotations = np.zeros(
                 (n_terms, 2 * norb, 2 * norb), dtype=complex
             )
-            for m in range(n_terms):
-                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[m]
-                expanded_diag_coulomb_mats[m] = np.block(
+            for k in range(n_terms):
+                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]
+                expanded_diag_coulomb_mats[k] = np.block(
                     [[mat_aa, mat_ab], [mat_ab.T, mat_bb]]
                 )
-                orbital_rotation_a, orbital_rotation_b = orbital_rotations[m]
-                expanded_orbital_rotations[m] = scipy.linalg.block_diag(
+                orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]
+                expanded_orbital_rotations[k] = scipy.linalg.block_diag(
                     orbital_rotation_a, orbital_rotation_b
                 )
             return (
                 2j
-                * contract(
-                    "mpq,map,mip,mbq,mjq->ijab",
+                * np.einsum(
+                    "kpq,kap,kip,kbq,kjq->ijab",
                     expanded_diag_coulomb_mats,
                     expanded_orbital_rotations,
                     expanded_orbital_rotations.conj(),
@@ -791,16 +815,20 @@ def double_factorized_t2_alpha_beta(
                 )[:nocc_a, norb : norb + nocc_b, nocc_a:norb, norb + nocc_b :]
             )
 
-    Note: Currently, only real-valued t2 amplitudes are supported.
+    Note: Currently, only real-valued :math:`t_2` amplitudes are supported.
 
     Args:
-        t2_amplitudes: The t2 amplitudes tensor.
+        t2_amplitudes: The doubles amplitudes tensor of shape
+            ``(nocc_a, nocc_b, nvrt_a, nvrt_b)``, where ``nocc_a`` is the number of
+            occupied spin-alpha orbitals, ``nvrt_a`` is the number of virtual spin-alpha
+            orbitals, ``nocc_b`` is the number of occupied spin-beta orbitals, and
+            ``nvrt_b`` is the number of virtual spin-beta orbitals.
         tol: Tolerance for error in the decomposition.
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
         max_terms: An optional limit on the number of terms to keep in the decomposition
-            of the t2 amplitudes tensor. This argument overrides `tol`.
+            of the :math:`t_2` amplitudes tensor. This argument overrides `tol`.
 
 
     Returns:
