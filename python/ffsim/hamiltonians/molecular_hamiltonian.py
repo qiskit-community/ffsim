@@ -171,7 +171,23 @@ class MolecularHamiltonian(
 
     @staticmethod
     def from_fermion_operator(op: FermionOperator) -> MolecularHamiltonian:
-        """Convert a FermionOperator to a MolecularHamiltonian."""
+        r"""Initialize a MolecularHamiltonian from a FermionOperator.
+
+        The input operator must contain only terms of the following form:
+
+        - A real-valued constant
+        - :math:`a^\dagger_{\sigma, p} a_{\sigma, q}`
+        - :math:`a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}`
+
+        Any other terms will cause an error to be raised. No attempt will be made to
+        normal-order terms.
+
+        Args:
+            op: The FermionOperator from which to initialize the MolecularHamiltonian.
+
+        Returns:
+            The MolecularHamiltonian represented by the input FermionOperator.
+        """
         # extract number of spatial orbitals
         norb = 1 + max(orb for term in op for _, _, orb in term)
 
@@ -213,8 +229,6 @@ class MolecularHamiltonian(
                     raise ValueError(
                         "FermionOperator cannot be converted to MolecularHamiltonian. "
                         f"The quartic term {term} is not of the required form "
-                        r"a^\dagger_{\sigma,p}a^\dagger_{\sigma,r}a_{\sigma,s}a_{\sigma,q}"
-                        " or "
                         r"a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}."
                     )
                 two_body_tensor[p, q, r, s] += 0.5 * coeff
