@@ -335,30 +335,8 @@ def test_molecular_hamiltonian_spinless_rotated(norb: int, nelec: int):
 @pytest.mark.parametrize("norb", range(1, 5))
 def test_from_fermion_operator(norb: int):
     """Test converting from fermion operator to molecular Hamiltonian."""
-
-    # generate a random molecular hamiltonian
-    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
-
-    # convert to fermion op
-    mol_hamiltonian_fops = ffsim.fermion_operator(mol_hamiltonian)
-
-    # convert back from fermion op to ham
-    mol_hamiltonian_from_ferm = ffsim.MolecularHamiltonian.from_fermion_operator(
-        mol_hamiltonian_fops
+    mol_ham = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
+    roundtripped = ffsim.MolecularHamiltonian.from_fermion_operator(
+        ffsim.fermion_operator(mol_ham)
     )
-
-    # check they are matching
-    tol = 1e-8
-    np.testing.assert_allclose(
-        mol_hamiltonian.constant, mol_hamiltonian_from_ferm.constant, atol=tol
-    )
-    np.testing.assert_allclose(
-        mol_hamiltonian.one_body_tensor,
-        mol_hamiltonian_from_ferm.one_body_tensor,
-        atol=tol,
-    )
-    np.testing.assert_allclose(
-        mol_hamiltonian.two_body_tensor,
-        mol_hamiltonian_from_ferm.two_body_tensor,
-        atol=tol,
-    )
+    assert ffsim.approx_eq(roundtripped, mol_ham, atol=0)
