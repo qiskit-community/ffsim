@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import Iterator, Sequence, Union, cast
+from typing import Sequence, Union, cast
 
 import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
@@ -381,11 +381,13 @@ def _evolve_state_vector_spinless(
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PermutationGate):
-        perm = list(op.pattern)
-        qs = qubit_indices.copy()
-        for i, j in _decompose_permutation(perm):
-            vec = _apply_swap(vec, (qs[i], qs[j]), norb=norb, nelec=nelec, copy=False)
-            qs[i], qs[j] = qs[j], qs[i]
+        vec = _apply_permutation_gate_vec(
+            vec,
+            qubit_indices,
+            op.pattern,
+            norb=norb,
+            nelec=nelec,
+        )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
@@ -726,23 +728,25 @@ def _evolve_state_vector_spinful(
 
     if isinstance(op, PermutationGate):
         perm = list(op.pattern)
-        qs = qubit_indices.copy()
-        for i, j in _decompose_permutation(perm):
-            if (qs[i] < norb) != (qs[j] < norb):
+        qs = qubit_indices
+        inverse_perm = [0] * len(perm)
+        for out_idx, src_idx in enumerate(perm):
+            inverse_perm[src_idx] = out_idx
+        dests = [qs[inverse_perm[i]] for i in range(len(qs))]
+        for src, dest in zip(qs, dests):
+            if (src < norb) != (dest < norb):
                 raise ValueError(
                     f"Gate of type '{op.__class__.__name__}' must be applied on "
                     "orbitals of the same spin."
                 )
-            spin = Spin.ALPHA if qs[i] < norb else Spin.BETA
-            vec = _apply_swap(
-                vec,
-                (qs[i] % norb, qs[j] % norb),
-                norb=norb,
-                nelec=nelec,
-                spin=spin,
-                copy=False,
-            )
-            qs[i], qs[j] = qs[j], qs[i]
+        vec = _apply_permutation_gate_vec(
+            vec,
+            qubit_indices,
+            perm,
+            norb=norb,
+            nelec=nelec,
+            dests=dests,
+        )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, XXPlusYYGate):
@@ -797,14 +801,42 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
     return indices, remaining_circuit
 
 
-def _decompose_permutation(perm: Sequence[int]) -> Iterator[tuple[int, int]]:
-    """Yield swap pairs to decompose a permutation into transpositions."""
-    perm = list(perm)
-    for i in range(len(perm)):
-        while perm[i] != i:
-            j = perm[i]
-            yield i, j
-            perm[i], perm[j] = perm[j], perm[i]
+def _apply_permutation_gate_vec(
+    vec: np.ndarray,
+    qubit_indices: Sequence[int],
+    perm: Sequence[int],
+    *,
+    norb: int,
+    nelec: int | tuple[int, int],
+    dests: Sequence[int] | None = None,
+) -> np.ndarray:
+    qs = list(qubit_indices)
+    if dests is None:
+        perm = list(perm)
+        inverse_perm = [0] * len(perm)
+        for out_idx, src_idx in enumerate(perm):
+            inverse_perm[src_idx] = out_idx
+        dests = [qs[inverse_perm[i]] for i in range(len(qs))]
+    else:
+        dests = list(dests)
+
+    dest_mask = 0
+    for dest in dests:
+        dest_mask |= 1 << dest
+
+    addresses = np.arange(len(vec))
+    strings = np.asarray(
+        states.addresses_to_strings(
+            addresses, norb=norb, nelec=nelec, bitstring_type=BitstringType.INT
+        ),
+        dtype=object,
+    )
+    permuted = strings & ~dest_mask
+    for src, dest in zip(qs, dests):
+        permuted |= ((strings >> src) & 1) << dest
+    indices = states.strings_to_addresses(permuted.tolist(), norb=norb, nelec=nelec)
+    vec = vec[np.argsort(indices)]
+    return vec
 
 
 def _apply_diagonal_gate(
