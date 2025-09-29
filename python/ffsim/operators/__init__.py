@@ -11,6 +11,12 @@
 """Operators."""
 
 from ffsim.operators.common_operators import number_operator
+from ffsim.operators.coupled_cluster import (
+    ccsd_generator_restricted,
+    doubles_excitations_restricted,
+    singles_excitations_restricted,
+    uccsd_generator_restricted,
+)
 from ffsim.operators.fermi_hubbard import fermi_hubbard_1d, fermi_hubbard_2d
 from ffsim.operators.fermion_action import (
     FermionAction,
@@ -26,13 +32,17 @@ from ffsim.operators.fermion_operator import FermionOperator
 __all__ = [
     "FermionAction",
     "FermionOperator",
+    "ccsd_generator_restricted",
     "cre",
     "cre_a",
     "cre_b",
     "des",
     "des_a",
     "des_b",
+    "doubles_excitations_restricted",
     "fermi_hubbard_1d",
     "fermi_hubbard_2d",
     "number_operator",
+    "singles_excitations_restricted",
+    "uccsd_generator_restricted",
 ]

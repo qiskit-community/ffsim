@@ -299,7 +299,7 @@ def test_real_symmetric_parameters_custom_indices_jax_consistent(dim: int):
 @pytest.mark.parametrize("norb", range(1, 5))
 @pytest.mark.parametrize("real", [True, False])
 def test_df_tensors_parameters(n_tensors: int, norb: int, real: bool):
-    """Test parameterizing double-factorization tensors."""
+    """Test parameterizing double factorization tensors."""
     n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
     n_params_per_diag_coulomb = norb * (norb + 1) // 2
     n_params_total = n_tensors * (n_params_per_orb_rot + n_params_per_diag_coulomb)
@@ -317,7 +317,7 @@ def test_df_tensors_parameters(n_tensors: int, norb: int, real: bool):
 @pytest.mark.parametrize("norb", range(1, 5))
 @pytest.mark.parametrize("real", [True, False])
 def test_df_tensors_parameters_custom_indices(n_tensors: int, norb: int, real: bool):
-    """Test parameterizing double-factorization tensors with custom indices."""
+    """Test parameterizing double factorization tensors with custom indices."""
     diag_coulomb_indices = [(p, p) for p in range(norb)]
     diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
 

@@ -292,23 +292,26 @@ class UCJOpSpinUnbalanced(
                 )
                 index += n_params
             # Diag Coulomb matrices
-            n_params = len(pairs_aa)
-            rows, cols = zip(*pairs_aa)
-            vals = params[index : index + n_params]
-            diag_coulomb_mat[0, cols, rows] = vals
-            diag_coulomb_mat[0, rows, cols] = vals
-            index += n_params
-            n_params = len(pairs_ab)
-            rows, cols = zip(*pairs_ab)
-            vals = params[index : index + n_params]
-            diag_coulomb_mat[1, rows, cols] = vals
-            index += n_params
-            n_params = len(pairs_bb)
-            rows, cols = zip(*pairs_bb)
-            vals = params[index : index + n_params]
-            diag_coulomb_mat[2, cols, rows] = vals
-            diag_coulomb_mat[2, rows, cols] = vals
-            index += n_params
+            if pairs_aa:
+                n_params = len(pairs_aa)
+                rows, cols = zip(*pairs_aa)
+                vals = params[index : index + n_params]
+                diag_coulomb_mat[0, cols, rows] = vals
+                diag_coulomb_mat[0, rows, cols] = vals
+                index += n_params
+            if pairs_ab:
+                n_params = len(pairs_ab)
+                rows, cols = zip(*pairs_ab)
+                vals = params[index : index + n_params]
+                diag_coulomb_mat[1, rows, cols] = vals
+                index += n_params
+            if pairs_bb:
+                n_params = len(pairs_bb)
+                rows, cols = zip(*pairs_bb)
+                vals = params[index : index + n_params]
+                diag_coulomb_mat[2, cols, rows] = vals
+                diag_coulomb_mat[2, rows, cols] = vals
+                index += n_params
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -439,7 +442,7 @@ class UCJOpSpinUnbalanced(
     ) -> UCJOpSpinUnbalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
-        Performs a double-factorization of the t2 amplitudes and constructs the
+        Performs a double factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
         specified number of repetitions. Terms are included in decreasing order
         of the magnitude of the corresponding singular value in the factorization.
@@ -459,9 +462,9 @@ class UCJOpSpinUnbalanced(
                 and the second integer specifies the number of terms to use from the
                 alpha-alpha and beta-beta t2 amplitudes.
                 If not specified, then it is set
-                to the number of terms resulting from the double-factorization of the
+                to the number of terms resulting from the double factorization of the
                 t2 amplitudes. If the specified number of repetitions is larger than the
-                number of terms resulting from the double-factorization, then the ansatz
+                number of terms resulting from the double factorization, then the ansatz
                 is padded with additional identity operators up to the specified number
                 of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
@@ -491,6 +494,8 @@ class UCJOpSpinUnbalanced(
             ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
                 contained lower triangular pairs.
         """
+        if isinstance(n_reps, int) and n_reps <= 0:
+            raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
@@ -506,8 +511,6 @@ class UCJOpSpinUnbalanced(
         diag_coulomb_mats_ab, orbital_rotations_ab = (
             linalg.double_factorized_t2_alpha_beta(t2ab, tol=tol)
         )
-        diag_coulomb_mats_ab = diag_coulomb_mats_ab.reshape(-1, 3, norb, norb)
-        orbital_rotations_ab = orbital_rotations_ab.reshape(-1, 2, norb, norb)
         # alpha-alpha and beta-beta
         diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
             t2aa, tol=tol
@@ -515,10 +518,6 @@ class UCJOpSpinUnbalanced(
         diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
             t2bb, tol=tol
         )
-        diag_coulomb_mats_aa = diag_coulomb_mats_aa.reshape(-1, norb, norb)
-        orbital_rotations_aa = orbital_rotations_aa.reshape(-1, norb, norb)
-        diag_coulomb_mats_bb = diag_coulomb_mats_bb.reshape(-1, norb, norb)
-        orbital_rotations_bb = orbital_rotations_bb.reshape(-1, norb, norb)
         zero = np.zeros((norb, norb))
         if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
             diag_coulomb_mats_same_spin = np.stack(
@@ -584,20 +583,23 @@ class UCJOpSpinUnbalanced(
         # Zero out diagonal coulomb matrix entries if requested
         if pairs_aa is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*pairs_aa)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
+            if pairs_aa:
+                rows, cols = zip(*pairs_aa)
+                mask[rows, cols] = True
+                mask[cols, rows] = True
             diag_coulomb_mats[:, 0] *= mask
         if pairs_ab is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*pairs_ab)
-            mask[rows, cols] = True
+            if pairs_ab:
+                rows, cols = zip(*pairs_ab)
+                mask[rows, cols] = True
             diag_coulomb_mats[:, 1] *= mask
         if pairs_bb is not None:
             mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*pairs_bb)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
+            if pairs_bb:
+                rows, cols = zip(*pairs_bb)
+                mask[rows, cols] = True
+                mask[cols, rows] = True
             diag_coulomb_mats[:, 2] *= mask
 
         return UCJOpSpinUnbalanced(

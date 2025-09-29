@@ -49,8 +49,8 @@ def orbital_rotation_from_t1_amplitudes(t1: np.ndarray) -> np.ndarray:
     nocc, nvrt = t1.shape
     norb = nocc + nvrt
     generator = np.zeros((norb, norb), dtype=t1.dtype)
-    generator[:nocc, nocc:] = t1
-    generator[nocc:, :nocc] = -t1.T.conj()
+    generator[:nocc, nocc:] = -t1.conj()
+    generator[nocc:, :nocc] = t1.T
     return scipy.linalg.expm(generator)
 
 
