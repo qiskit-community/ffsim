@@ -824,19 +824,19 @@ def _apply_permutation_gate_vec(
     for dest in dests:
         dest_mask |= 1 << dest
 
-    addresses = np.arange(len(vec))
     strings = np.asarray(
         states.addresses_to_strings(
-            addresses, norb=norb, nelec=nelec, bitstring_type=BitstringType.INT
+            range(len(vec)), norb=norb, nelec=nelec, bitstring_type=BitstringType.INT
         ),
         dtype=object,
     )
     permuted = strings & ~dest_mask
     for src, dest in zip(qs, dests):
         permuted |= ((strings >> src) & 1) << dest
-    indices = states.strings_to_addresses(permuted.tolist(), norb=norb, nelec=nelec)
-    vec = vec[np.argsort(indices)]
-    return vec
+    indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
+    permuted_vec = np.empty_like(vec)
+    permuted_vec[indices] = vec
+    return permuted_vec
 
 
 def _apply_diagonal_gate(
