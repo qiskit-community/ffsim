@@ -371,10 +371,25 @@ that order).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ffsim.DiagonalCoulombHamiltonian.from_fermion_operator">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/diagonal_coulomb_hamiltonian.html#DiagonalCoulombHamiltonian.from_fermion_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.DiagonalCoulombHamiltonian.from_fermion_operator" title="Link to this definition">¶</a></dt>
-<dd><p>Convert a FermionOperator to a DiagonalCoulombHamiltonian.</p>
+<dd><p>Initialize a DiagonalCoulombHamiltonian from a FermionOperator.</p>
+<p>The input operator must contain only terms of the following form:</p>
+<ul class="simple">
+<li><p>A real-valued constant</p></li>
+<li><p><span class="math notranslate nohighlight">\(a^\dagger_{\sigma, p} a_{\sigma, q}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(n_{\sigma, p} n_{\tau, q}\)</span></p></li>
+</ul>
+<p>Any other terms will cause an error to be raised. No attempt will be made to
+normal-order terms.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian" title="ffsim.hamiltonians.diagonal_coulomb_hamiltonian.DiagonalCoulombHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span>) – The FermionOperator from which to initialize the
+DiagonalCoulombHamiltonian.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.DiagonalCoulombHamiltonian" title="ffsim.hamiltonians.diagonal_coulomb_hamiltonian.DiagonalCoulombHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagonalCoulombHamiltonian</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The DiagonalCoulombHamiltonian represented by the input FermionOperator.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1531,6 +1546,31 @@ the two-body tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffsim.MolecularHamiltonian.from_fermion_operator">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/hamiltonians/molecular_hamiltonian.html#MolecularHamiltonian.from_fermion_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.MolecularHamiltonian.from_fermion_operator" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize a MolecularHamiltonian from a FermionOperator.</p>
+<p>The input operator must contain only terms of the following form:</p>
+<ul class="simple">
+<li><p>A real-valued constant</p></li>
+<li><p><span class="math notranslate nohighlight">\(a^\dagger_{\sigma, p} a_{\sigma, q}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}\)</span></p></li>
+</ul>
+<p>Any other terms will cause an error to be raised. No attempt will be made to
+normal-order terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span>) – The FermionOperator from which to initialize the MolecularHamiltonian.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ffsim.MolecularHamiltonian" title="ffsim.hamiltonians.molecular_hamiltonian.MolecularHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolecularHamiltonian</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The MolecularHamiltonian represented by the input FermionOperator.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -5256,6 +5296,7 @@ virtual orbitals.</p></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.one_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.one_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.two_body_tensor"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.two_body_tensor</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.constant"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.constant</span></code></a></li>
+<li><a class="reference internal" href="#ffsim.MolecularHamiltonian.from_fermion_operator"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.from_fermion_operator()</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.norb"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.norb</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.one_body_tensor_spinless"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.one_body_tensor_spinless</span></code></a></li>
 <li><a class="reference internal" href="#ffsim.MolecularHamiltonian.rotated"><code class="docutils literal notranslate"><span class="pre">MolecularHamiltonian.rotated()</span></code></a></li>

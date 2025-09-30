@@ -393,7 +393,24 @@
 <a class="viewcode-back" href="../../../api/ffsim.html#ffsim.DiagonalCoulombHamiltonian.from_fermion_operator">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_fermion_operator</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">FermionOperator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DiagonalCoulombHamiltonian</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a FermionOperator to a DiagonalCoulombHamiltonian.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize a DiagonalCoulombHamiltonian from a FermionOperator.</span>
+
+<span class="sd">        The input operator must contain only terms of the following form:</span>
+
+<span class="sd">        - A real-valued constant</span>
+<span class="sd">        - :math:`a^\dagger_{\sigma, p} a_{\sigma, q}`</span>
+<span class="sd">        - :math:`n_{\sigma, p} n_{\tau, q}`</span>
+
+<span class="sd">        Any other terms will cause an error to be raised. No attempt will be made to</span>
+<span class="sd">        normal-order terms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            op: The FermionOperator from which to initialize the</span>
+<span class="sd">                DiagonalCoulombHamiltonian.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The DiagonalCoulombHamiltonian represented by the input FermionOperator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># extract norb</span>
         <span class="n">norb</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">orb</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">op</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">term</span><span class="p">)</span>
@@ -421,8 +438,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;FermionOperator cannot be converted to &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;DiagonalCoulombHamiltonian. The one-body term </span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s2"> is not &quot;</span>
-                        <span class="s2">&quot;of the form a^</span><span class="se">\\</span><span class="s2">dagger_{</span><span class="se">\\</span><span class="s2">sigma, p} a_{</span><span class="se">\\</span><span class="s2">sigma, q}.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;DiagonalCoulombHamiltonian. The quadratic term </span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s2"> is not &quot;</span>
+                        <span class="sa">r</span><span class="s2">&quot;of the form a^\dagger_{\sigma, p} a_{\sigma, q}.&quot;</span>
                     <span class="p">)</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="c1"># two-body term</span>
@@ -442,8 +459,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;FermionOperator cannot be converted to &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;DiagonalCoulombHamiltonian. The two-body term </span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s2"> is not &quot;</span>
-                        <span class="s2">&quot;of the form n_{</span><span class="se">\\</span><span class="s2">sigma, p} n_{</span><span class="se">\\</span><span class="s2">tau, q}.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;DiagonalCoulombHamiltonian. The quartic term </span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s2"> is not &quot;</span>
+                        <span class="sa">r</span><span class="s2">&quot;of the form n_{\sigma, p} n_{\tau, q}.&quot;</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>

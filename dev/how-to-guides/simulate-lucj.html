@@ -332,9 +332,9 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.8266321248745
-Parsing /tmp/tmpmkfix90l
-converged SCF energy = -77.8266321248744
-CASCI E = -77.8742165643862  E(CI) = -4.02122442107773  S^2 = 0.0000000
+Parsing /tmp/tmpc06r1exe
+converged SCF energy = -77.8266321248745
+CASCI E = -77.8742165643863  E(CI) = -4.02122442107772  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -344,7 +344,7 @@ nelec = (2, 2)
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
+Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute energy_nuc because it is not JSON-serializable
   warnings.warn(msg)
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute intor_symmetric because it is not JSON-serializable
@@ -389,8 +389,8 @@ Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf_symm.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.8742153637403  E_corr = -0.04758323886583569
-Energy at initialization: -77.87160024816276
+E(CCSD) = -77.87421536374035  E_corr = -0.04758323886584834
+Energy at initialization: -77.87160024816284
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -430,10 +430,10 @@ Number of parameters: 88
   message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.87387387690232
-        x: [-1.152e+00  2.107e-04 ...  4.131e-05 -1.108e-04]
+      fun: -77.87387390161803
+        x: [-4.781e-01 -4.647e-04 ...  2.375e-04 -9.726e-05]
       nit: 10
-      jac: [ 1.279e-05 -1.563e-05 ...  1.563e-05 -1.421e-06]
+      jac: [-2.558e-05 -1.421e-06 ...  9.948e-06 -7.105e-06]
      nfev: 1068
      njev: 12
  hess_inv: &lt;88x88 LbfgsInvHessProduct with dtype=float64&gt;
@@ -485,12 +485,12 @@ Number of parameters: 62
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363424929596
-        x: [-1.152e+00  2.855e-05 ... -4.588e-05 -5.456e-05]
+      fun: -77.87363424905539
+        x: [-4.774e-01  5.579e-05 ...  2.686e-05 -1.896e-05]
       nit: 6
-      jac: [-1.990e-05  1.279e-05 ...  4.263e-06 -8.527e-06]
-     nfev: 504
-     njev: 8
+      jac: [ 8.527e-06 -1.563e-05 ...  9.948e-06 -5.684e-06]
+     nfev: 567
+     njev: 9
  hess_inv: &lt;62x62 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -570,29 +570,49 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 62
  message: Convergence: Relative reduction of objective function &lt;= ftol.
  success: True
-     fun: -77.87363475870795
-       x: [-1.152e+00 -3.327e-05 ... -6.801e-04  3.193e-04]
-     nit: 3
-     jac: [-5.318e-06 -5.730e-06 ...  2.830e-06 -3.643e-06]
-    nfev: 690
-    njev: 4
-  nlinop: 442
+     fun: -77.87421559393383
+       x: [-5.010e-01  4.715e-02 ...  7.306e-03 -1.329e-03]
+     nit: 7
+     jac: [ 3.930e-06 -1.888e-06 ...  7.767e-07  1.824e-06]
+    nfev: 1265
+    njev: 8
+  nlinop: 769
 
 Iteration 1
-    Energy: -77.87363078268508
-    Norm of gradient: 0.0013236578044284882
-    Regularization hyperparameter: 0.002315382905625689
-    Variation hyperparameter: 0.9998454243491866
+    Energy: -77.87361953337586
+    Norm of gradient: 0.0021840466539153913
+    Regularization hyperparameter: 0.0006312220879135035
+    Variation hyperparameter: 0.9817466111879254
 Iteration 2
-    Energy: -77.87363434071372
-    Norm of gradient: 8.67204759516627e-05
-    Regularization hyperparameter: 0.0023153740553295762
-    Variation hyperparameter: 0.9998454243314201
+    Energy: -77.87363508485063
+    Norm of gradient: 0.0006391732573887739
+    Regularization hyperparameter: 0.0005883903849196303
+    Variation hyperparameter: 0.981767324336148
 Iteration 3
-    Energy: -77.87363475870795
-    Norm of gradient: 9.903081610307065e-05
-    Regularization hyperparameter: 0.002315376355684192
-    Variation hyperparameter: 0.9998454243282077
+    Energy: -77.8737416732768
+    Norm of gradient: 0.007175753422199173
+    Regularization hyperparameter: 0.0006373124676767279
+    Variation hyperparameter: 0.9817672744305255
+Iteration 4
+    Energy: -77.8741209154178
+    Norm of gradient: 0.00940768752570919
+    Regularization hyperparameter: 0.0016983470978715214
+    Variation hyperparameter: 0.9817791401766445
+Iteration 5
+    Energy: -77.87421196228678
+    Norm of gradient: 0.0018392435748235095
+    Regularization hyperparameter: 0.0003651144174133565
+    Variation hyperparameter: 0.9818296147993488
+Iteration 6
+    Energy: -77.8742153538799
+    Norm of gradient: 0.00015649241239673958
+    Regularization hyperparameter: 0.0003539680484896471
+    Variation hyperparameter: 0.9818236209666473
+Iteration 7
+    Energy: -77.87421559393383
+    Norm of gradient: 6.727649553004939e-05
+    Regularization hyperparameter: 0.00035396828143768866
+    Variation hyperparameter: 0.9818236207677814
 </pre></div></div>
 </div>
 </section>

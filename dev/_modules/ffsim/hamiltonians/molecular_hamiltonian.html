@@ -447,6 +447,86 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">op</span>
 
+<div class="viewcode-block" id="MolecularHamiltonian.from_fermion_operator">
+<a class="viewcode-back" href="../../../api/ffsim.html#ffsim.MolecularHamiltonian.from_fermion_operator">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_fermion_operator</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">FermionOperator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MolecularHamiltonian</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize a MolecularHamiltonian from a FermionOperator.</span>
+
+<span class="sd">        The input operator must contain only terms of the following form:</span>
+
+<span class="sd">        - A real-valued constant</span>
+<span class="sd">        - :math:`a^\dagger_{\sigma, p} a_{\sigma, q}`</span>
+<span class="sd">        - :math:`a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}`</span>
+
+<span class="sd">        Any other terms will cause an error to be raised. No attempt will be made to</span>
+<span class="sd">        normal-order terms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            op: The FermionOperator from which to initialize the MolecularHamiltonian.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The MolecularHamiltonian represented by the input FermionOperator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># extract number of spatial orbitals</span>
+        <span class="n">norb</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">orb</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">op</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">term</span><span class="p">)</span>
+
+        <span class="c1"># initialize constant, one‑ and two‑body tensors</span>
+        <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">one_body_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">two_body_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">term</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># constant term: empty tuple</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">term</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">coeff</span><span class="o">.</span><span class="n">imag</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Constant term must be real. Instead, got </span><span class="si">{</span><span class="n">coeff</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">constant</span> <span class="o">=</span> <span class="n">coeff</span><span class="o">.</span><span class="n">real</span>
+            <span class="c1"># one‑body term: a†_σ,p a_σ,q  (σ = α or β)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">=</span> <span class="n">term</span>
+                <span class="n">valid_one_body</span> <span class="o">=</span> <span class="p">[(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">q</span><span class="p">)),</span> <span class="p">(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">q</span><span class="p">))]</span>
+                <span class="k">if</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">valid_one_body</span><span class="p">:</span>
+                    <span class="n">one_body_tensor</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">coeff</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;FermionOperator cannot be converted to MolecularHamiltonian. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;The quadratic term </span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s2"> is not of the required form &quot;</span>
+                        <span class="sa">r</span><span class="s2">&quot;a^\dagger_{\sigma, p} a_{\sigma, q}.&quot;</span>
+                    <span class="p">)</span>
+            <span class="c1"># two‑body term: a†_σ,p a†_τ,r a_τ,s a_σ,q</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span><span class="p">),</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">=</span> <span class="n">term</span>
+                <span class="n">valid_two_body</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">q</span><span class="p">)),</span>
+                    <span class="p">(</span><span class="n">cre_a</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">q</span><span class="p">)),</span>
+                    <span class="p">(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_a</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">des_a</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">q</span><span class="p">)),</span>
+                    <span class="p">(</span><span class="n">cre_b</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">cre_b</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">des_b</span><span class="p">(</span><span class="n">q</span><span class="p">)),</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="n">term</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_two_body</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;FermionOperator cannot be converted to MolecularHamiltonian. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;The quartic term </span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s2"> is not of the required form &quot;</span>
+                        <span class="sa">r</span><span class="s2">&quot;a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">two_body_tensor</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">coeff</span>
+            <span class="c1"># other terms</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;FermionOperator cannot be converted to MolecularHamiltonian.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; The term </span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s2"> is neither a constant, one-body, nor two-body &quot;</span>
+                    <span class="s2">&quot;term.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">MolecularHamiltonian</span><span class="p">(</span>
+            <span class="n">one_body_tensor</span><span class="o">=</span><span class="n">one_body_tensor</span><span class="p">,</span>
+            <span class="n">two_body_tensor</span><span class="o">=</span><span class="n">two_body_tensor</span><span class="p">,</span>
+            <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_approx_eq_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">MolecularHamiltonian</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
