@@ -18,8 +18,10 @@ import ffsim
 
 
 def _create_two_linear_chains(num_orbitals: int) -> PyGraph:
-    """In zig-zag layout, there are two linear chains (with connecting qubits between
-    the chains). This function creates those two linear chains which is a rustworkx
+    """In zig-zag layout, there are two linear chains (with connecting qubits
+    between the chains). This function creates those two linear chains which is
+    a rustworkx.
+
     PyGraph with two disconnected linear chains. Each chain contains `num_orbitals`
     number of nodes, i.e., in the final graph there are `2 * num_orbitals` number of
     nodes.
@@ -54,20 +56,19 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
     backend_coupling_graph: PyGraph,
     alpha_beta_indices: list[tuple[int, int]],
 ) -> tuple[PyGraph, list[tuple[int, int]]]:
-    """This function creates the complete zigzag graph that _can be mapped_ to a IBM
-        QPU with heavy-hex connectivity (i.e., the zigzag pattern is an isomorphic
-        sub-graph to the QPU/backend coupling graph). The zigzag pattern includes
-        both linear chains (alpha-alpha/beta-beta interactions) and connecting qubits
-        between the linear chains (alpha-beta interactions).
-
-        The algorithm works as follows: It starts with an interm graph (`graph_new`)
-        that has two linear chains with connecting nodes between two nodes (qubits)
-        specified by `alpha_beta_indices` list. The algorithm checks if the starting
-        graph is an isomorphic subgraph to the larger `backend_cpupling_graph`. If yes,
-        the routine ends and returns the `graph_new`. If not, it removes an alpha-beta
-        interaction pair from the end of list `alpha_beta_indices` and checks for
-        subgraph isomorphism again. It cycle continues, until a isomorhic subgraph is
-        found.
+    """This function creates the complete zigzag graph that _can be mapped_ to
+    a IBM QPU with heavy-hex connectivity (i.e., the zigzag pattern is an
+    isomorphic sub-graph to the QPU/backend coupling graph). The zigzag pattern
+    includes both linear chains (alpha-alpha/beta-beta interactions) and
+    connecting qubits between the linear chains (alpha-beta interactions).
+    The algorithm works as follows: It starts with an interm graph (`graph_new`)
+    that has two linear chains with connecting nodes between two nodes (qubits)
+    specified by `alpha_beta_indices` list. The algorithm checks if the starting
+    graph is an isomorphic subgraph to the larger `backend_cpupling_graph`. If yes,
+    the routine ends and returns the `graph_new`. If not, it removes an alpha-beta
+    interaction pair from the end of list `alpha_beta_indices` and checks for
+    subgraph isomorphism again. It cycle continues, until a isomorhic subgraph is
+    found.
 
     Args:
         num_orbitals: Number of orbitals, i.e., number of nodes in each alpha-alpha
@@ -127,8 +128,8 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
 
 
 def _make_backend_cmap_pygraph(backend: BackendV2) -> PyGraph:
-    """Converts an IBM backend coupling map to an undirected rustworkx.PyGraph where
-    there is only a single edge between same two nodes.
+    """Converts an IBM backend coupling map to an undirected rustworkx.PyGraph
+    where there is only a single edge between same two nodes.
 
     Args:
         backend: An IBM backend.
@@ -160,8 +161,8 @@ def _get_placeholder_layout_and_allowed_interactions(
     num_orbitals: int,
     requested_alpha_beta_indices: Sequence[tuple[int, int]],
 ) -> tuple[list[int], list[tuple[int, int]]]:
-    """The main function that generates the zigzag pattern with physical qubits that
-        can be used as an `intial_layout` in a preset passmanager/transpiler.
+    """The main function that generates the zigzag pattern with physical qubits
+    that can be used as an `intial_layout` in a preset passmanager/transpiler.
 
     Args:
         num_orbitals: Number of orbitals.
@@ -235,15 +236,15 @@ def generate_pm_and_interactions_lucj_heavy_hex(
             allowed by backend connectivity].
             Default: `None`.
         **qiskit_pm_kwargs: The function accepts full list of arguments from
-            [`qiskit.transpiler.generate_preset_pass_manager`](https://quantum.cloud.ibm.com/docs/en/api/qiskit/qiskit.transpiler.generate_preset_pass_manager)
+            `qiskit.transpiler.generate_preset_pass_manager <https://quantum.cloud.ibm.com/docs/en/api/qiskit/qiskit.transpiler.generate_preset_pass_manager>`_
             except `initial_layout` and `layout_method` as they are conflicting with this
             routine's functionality.
+
             If specified, they will be deleted with a warning.
 
     Returns:
-        pm: A preset pass manager.
-        allowed_alpha_beta_indices: A list of alpha-beta pairs that can be accomodated
-            on the backend.
+        - A preset pass manager.
+        - A list of alpha-beta pairs that can be accomodated on the backend.
     """  # noqa: E501
     if "initial_layout" in qiskit_pm_kwargs:
         warnings.warn("Argument `initial_layout` is ignored.")
