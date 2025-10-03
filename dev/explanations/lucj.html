@@ -281,7 +281,7 @@
 <p>This page explains the local unitary cluster Jastrow (LUCJ) ansatz, which was originally introduced in <a class="reference external" href="https://pubs.rsc.org/en/content/articlelanding/2023/sc/d3sc02516k">this paper</a>. For a guide on simulating the LUCJ ansatz using ffsim, see <a class="reference internal" href="../how-to-guides/simulate-lucj.html"><span class="doc">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</span></a>.</p>
 <section id="The-general-unitary-cluster-Jastrow-(UCJ)-ansatz">
 <h2>The general unitary cluster Jastrow (UCJ) ansatz<a class="headerlink" href="#The-general-unitary-cluster-Jastrow-(UCJ)-ansatz" title="Link to this heading">¶</a></h2>
-<p>The LUCJ ansatz is a specialized form of the general unitary cluster Jastrow (UCJ) ansatz, which has the form</p>
+<p>The LUCJ ansatz is a specialized form of the more general unitary cluster Jastrow (UCJ) ansatz, which has the form</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\lvert \Psi \rangle = \prod_{k = 0}^{L - 1} \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger \lvert \Phi_0 \rangle\]</div>
@@ -367,8 +367,8 @@ the exponential operators. Therefore, the <span class="math notranslate nohighli
 </section>
 <section id="Truncation-error-and-the-compressed-double-factorization">
 <h3>Truncation error and the compressed double factorization<a class="headerlink" href="#Truncation-error-and-the-compressed-double-factorization" title="Link to this heading">¶</a></h3>
-<p>Initializing the UCJ ansatz from CCSD <span class="math notranslate nohighlight">\(t\)</span>-amplitudes can often yield a reasonable approximation to CCSD. However, discarding interactions to obtain an LUCJ ansatz can severely degrade the quality of the approximation. Additionally, truncating the ansatz to a smaller number of repetitions, compared to the full number of terms in the double factorization of the <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes, also degrades the quality of the approximation. This degradation can be mitigated by performing an
-optimization that adjusts the orbital rotations and diagonal Coulomb operators from the truncated double factorization so that the <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes that would be recovered from them better match the original <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes. This procedure is referred to as a “compressed” double factorization because it compresses the information from a full double factorization into a smaller number of terms (or interactions).</p>
+<p>Initializing the UCJ ansatz from CCSD <span class="math notranslate nohighlight">\(t\)</span>-amplitudes often yields a reasonable approximation to CCSD. However, discarding interactions to obtain an LUCJ ansatz can severely degrade the quality of the approximation. Additionally, truncating the ansatz to a smaller number of repetitions, compared to the full number of terms in the double factorization of the <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes, also degrades the quality of the approximation. This degradation can be mitigated by performing an optimization
+that adjusts the orbital rotations and diagonal Coulomb operators from the truncated double factorization so that the <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes that would be recovered from them better match the original <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes. This procedure is referred to as a “compressed” double factorization because it compresses the information from a full double factorization into a smaller number of terms (or interactions).</p>
 <p>The double factorization of the <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes returns tensors <span class="math notranslate nohighlight">\(U^{(k)}_{ij}\)</span> and <span class="math notranslate nohighlight">\(Z^{(k)}_{ij}\)</span> such that</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -503,7 +503,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f2391e49e80&gt;
+&lt;matplotlib.legend.Legend at 0x7fe28dd55e80&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -569,7 +569,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f239152f890&gt;
+&lt;matplotlib.legend.Legend at 0x7fe28d43f750&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -649,7 +649,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f23914ddf90&gt;
+&lt;matplotlib.legend.Legend at 0x7fe28d255f90&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -737,7 +737,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f2329c34410&gt;
+&lt;matplotlib.legend.Legend at 0x7fe229adc2d0&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -836,7 +836,7 @@ sampled repeatedly to generate configurations on which to project and diagonaliz
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f23298c47d0&gt;
+&lt;matplotlib.legend.Legend at 0x7fe229584690&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
