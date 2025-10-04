@@ -30,6 +30,7 @@ from qiskit.circuit.library import (
     DiagonalGate,
     GlobalPhaseGate,
     Measure,
+    PermutationGate,
     PhaseGate,
     RZGate,
     RZZGate,
@@ -379,6 +380,16 @@ def _evolve_state_vector_spinless(
         vec = _apply_iswap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PermutationGate):
+        vec = _apply_permutation_gate_vec(
+            vec,
+            qubit_indices,
+            op.pattern,
+            norb=norb,
+            nelec=nelec,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         theta, beta = op.params
@@ -715,6 +726,29 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PermutationGate):
+        perm = list(op.pattern)
+        qs = qubit_indices
+        inverse_perm = [0] * len(perm)
+        for out_idx, src_idx in enumerate(perm):
+            inverse_perm[src_idx] = out_idx
+        dests = [qs[inverse_perm[i]] for i in range(len(qs))]
+        for src, dest in zip(qs, dests):
+            if (src < norb) != (dest < norb):
+                raise ValueError(
+                    f"Gate of type '{op.__class__.__name__}' must be applied on "
+                    "orbitals of the same spin."
+                )
+        vec = _apply_permutation_gate_vec(
+            vec,
+            qubit_indices,
+            perm,
+            norb=norb,
+            nelec=nelec,
+            dests=dests,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if (i < norb) != (j < norb):
@@ -765,6 +799,44 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
             dag.remove_op_node(node)
     remaining_circuit = dag_to_circuit(dag)
     return indices, remaining_circuit
+
+
+def _apply_permutation_gate_vec(
+    vec: np.ndarray,
+    qubit_indices: Sequence[int],
+    perm: Sequence[int],
+    *,
+    norb: int,
+    nelec: int | tuple[int, int],
+    dests: Sequence[int] | None = None,
+) -> np.ndarray:
+    qs = list(qubit_indices)
+    if dests is None:
+        perm = list(perm)
+        inverse_perm = [0] * len(perm)
+        for out_idx, src_idx in enumerate(perm):
+            inverse_perm[src_idx] = out_idx
+        dests = [qs[inverse_perm[i]] for i in range(len(qs))]
+    else:
+        dests = list(dests)
+
+    dest_mask = 0
+    for dest in dests:
+        dest_mask |= 1 << dest
+
+    strings = np.asarray(
+        states.addresses_to_strings(
+            range(len(vec)), norb=norb, nelec=nelec, bitstring_type=BitstringType.INT
+        ),
+        dtype=object,
+    )
+    permuted = strings & ~dest_mask
+    for src, dest in zip(qs, dests):
+        permuted |= ((strings >> src) & 1) << dest
+    indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
+    permuted_vec = np.empty_like(vec)
+    permuted_vec[indices] = vec
+    return permuted_vec
 
 
 def _apply_diagonal_gate(

@@ -28,6 +28,7 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    PermutationGate,
     PhaseGate,
     RZGate,
     RZZGate,
@@ -230,6 +231,8 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     circuit.append(DiagonalGate(diag), [qubits[i] for i in chosen])
     diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=1 << 2 * norb))
     circuit.append(DiagonalGate(diag), qubits)
+    circuit.append(PermutationGate(list(rng.permutation(norb))), qubits[:norb])
+    circuit.append(PermutationGate(list(rng.permutation(norb))), qubits[norb:])
     circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
 
     # Compute state vector using ffsim
@@ -304,6 +307,7 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     circuit.append(DiagonalGate(diag), [qubits[i] for i in chosen])
     diag = np.exp(1j * rng.uniform(-np.pi, np.pi, size=1 << norb))
     circuit.append(DiagonalGate(diag), qubits)
+    circuit.append(PermutationGate(list(rng.permutation(norb))), qubits)
     circuit.append(GlobalPhaseGate(rng.uniform(-10, 10)))
 
     # Compute state vector using ffsim
