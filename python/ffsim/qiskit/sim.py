@@ -727,7 +727,7 @@ def _evolve_state_vector_spinful(
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PermutationGate):
-        perm = list(op.pattern)
+        perm = op.pattern
         qs = qubit_indices
         inverse_perm = [0] * len(perm)
         for out_idx, src_idx in enumerate(perm):
