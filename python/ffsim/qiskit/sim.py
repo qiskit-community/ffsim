@@ -728,10 +728,9 @@ def _evolve_state_vector_spinful(
 
     if isinstance(op, PermutationGate):
         perm = op.pattern
-        inverse_perm = [0] * len(perm)
-        for out_idx, src_idx in enumerate(perm):
-            inverse_perm[src_idx] = out_idx
-        dests = [qubit_indices[inverse_perm[i]] for i in range(len(qubit_indices))]
+        inverse_perm = np.empty_like(perm)
+        inverse_perm[perm] = np.arange(len(perm))
+        dests = [qubit_indices[i] for i in inverse_perm.tolist()]
         for src, dest in zip(qubit_indices, dests):
             if (src < norb) != (dest < norb):
                 raise ValueError(
