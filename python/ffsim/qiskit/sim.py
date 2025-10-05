@@ -728,12 +728,11 @@ def _evolve_state_vector_spinful(
 
     if isinstance(op, PermutationGate):
         perm = op.pattern
-        qs = qubit_indices
         inverse_perm = [0] * len(perm)
         for out_idx, src_idx in enumerate(perm):
             inverse_perm[src_idx] = out_idx
-        dests = [qs[inverse_perm[i]] for i in range(len(qs))]
-        for src, dest in zip(qs, dests):
+        dests = [qubit_indices[inverse_perm[i]] for i in range(len(qubit_indices))]
+        for src, dest in zip(qubit_indices, dests):
             if (src < norb) != (dest < norb):
                 raise ValueError(
                     f"Gate of type '{op.__class__.__name__}' must be applied on "
