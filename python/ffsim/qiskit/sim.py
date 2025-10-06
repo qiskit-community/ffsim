@@ -381,7 +381,7 @@ def _evolve_state_vector_spinless(
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PermutationGate):
-        vec = _apply_permutation_gate_vec(
+        vec = _apply_permutation_gate(
             vec,
             qubit_indices,
             op.pattern,
@@ -738,7 +738,7 @@ def _evolve_state_vector_spinful(
                 f"Gate of type '{op.__class__.__name__}' must be applied on "
                 "orbitals of the same spin."
             )
-        vec = _apply_permutation_gate_vec(
+        vec = _apply_permutation_gate(
             vec,
             qubit_indices,
             perm,
@@ -800,7 +800,7 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
     return indices, remaining_circuit
 
 
-def _apply_permutation_gate_vec(
+def _apply_permutation_gate(
     vec: np.ndarray,
     qubit_indices: Sequence[int],
     perm: Sequence[int],
