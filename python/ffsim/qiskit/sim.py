@@ -731,12 +731,13 @@ def _evolve_state_vector_spinful(
         inverse_perm = np.empty_like(perm)
         inverse_perm[perm] = np.arange(len(perm))
         dests = [qubit_indices[i] for i in inverse_perm.tolist()]
-        for src, dest in zip(qubit_indices, dests):
-            if (src < norb) != (dest < norb):
-                raise ValueError(
-                    f"Gate of type '{op.__class__.__name__}' must be applied on "
-                    "orbitals of the same spin."
-                )
+        if any(
+            (src < norb) != (dest < norb) for src, dest in zip(qubit_indices, dests)
+        ):
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied on "
+                "orbitals of the same spin."
+            )
         vec = _apply_permutation_gate_vec(
             vec,
             qubit_indices,
