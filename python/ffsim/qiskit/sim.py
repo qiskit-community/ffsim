@@ -809,13 +809,12 @@ def _apply_permutation_gate(
     nelec: int | tuple[int, int],
     dests: Sequence[int] | None = None,
 ) -> np.ndarray:
-    qs = list(qubit_indices)
     if dests is None:
         perm = list(perm)
         inverse_perm = [0] * len(perm)
         for out_idx, src_idx in enumerate(perm):
             inverse_perm[src_idx] = out_idx
-        dests = [qs[inverse_perm[i]] for i in range(len(qs))]
+        dests = [qubit_indices[inverse_perm[i]] for i in range(len(qubit_indices))]
     else:
         dests = list(dests)
 
@@ -828,7 +827,7 @@ def _apply_permutation_gate(
         dtype=object,
     )
     permuted = strings & ~dest_mask
-    for src, dest in zip(qs, dests):
+    for src, dest in zip(qubit_indices, dests):
         permuted |= ((strings >> src) & 1) << dest
     indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
     permuted_vec = np.empty_like(vec)
