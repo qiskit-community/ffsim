@@ -819,9 +819,7 @@ def _apply_permutation_gate_vec(
     else:
         dests = list(dests)
 
-    dest_mask = 0
-    for dest in dests:
-        dest_mask |= 1 << dest
+    dest_mask = sum(1 << dest for dest in dests)
 
     strings = np.asarray(
         states.addresses_to_strings(
