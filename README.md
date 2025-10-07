@@ -67,7 +67,7 @@ You can cite ffsim using the following BibTeX:
 
 ```bibtex
 @misc{ffsim,
-  author = {The ffsim developers},
+  author = {{The ffsim developers}},
   title = {ffsim: Faster simulations of fermionic quantum circuits},
   url = {https://github.com/qiskit-community/ffsim},
   howpublished = {\url{https://github.com/qiskit-community/ffsim}},
