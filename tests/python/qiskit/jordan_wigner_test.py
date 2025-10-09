@@ -17,6 +17,50 @@ import ffsim
 import ffsim.random.random
 
 
+@pytest.mark.parametrize("spinless", [True, False])
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+def test_random_molecular_hamiltonian(
+    norb: int, nelec: tuple[int, int], spinless: bool
+):
+    """Test on random fermion Hamiltonian."""
+    rng = np.random.default_rng(4482)
+
+    if spinless:
+        nelec = nelec[0]
+        mol_ham = ffsim.random.random_molecular_hamiltonian_spinless(norb, seed=rng)
+    else:
+        mol_ham = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+
+    op = ffsim.fermion_operator(mol_ham)
+    linop = ffsim.linear_operator(op, norb=norb, nelec=nelec)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    expected_result = ffsim.qiskit.ffsim_vec_to_qiskit_vec(linop @ vec, norb, nelec)
+    qubit_op = ffsim.qiskit.jordan_wigner(op)
+    qubit_op_sparse = qubit_op.to_matrix(sparse=True)
+    actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+        vec, norb, nelec
+    )
+    np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
+
+    qubit_op = ffsim.qiskit.jordan_wigner(op, norb=norb)
+    qubit_op_sparse = qubit_op.to_matrix(sparse=True)
+    actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+        vec, norb, nelec
+    )
+    np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
+    actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+        vec, norb, nelec
+    )
+    np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
+
+    qubit_op = ffsim.qiskit.jordan_wigner(op, norb=norb)
+    qubit_op_sparse = qubit_op.to_matrix(sparse=True)
+    actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+        vec, norb, nelec
+    )
+    np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
+
+
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_random(norb: int, nelec: tuple[int, int]):
     """Test on random fermion Hamiltonian."""
@@ -26,14 +70,14 @@ def test_random(norb: int, nelec: tuple[int, int]):
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
     expected_result = ffsim.qiskit.ffsim_vec_to_qiskit_vec(linop @ vec, norb, nelec)
 
-    qubit_op = ffsim.qiskit.jordan_wigner(op)
+    qubit_op = ffsim.qiskit.jordan_wigner(op, allow_spinless=False)
     qubit_op_sparse = qubit_op.to_matrix(sparse=True)
     actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
         vec, norb, nelec
     )
     np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
 
-    qubit_op = ffsim.qiskit.jordan_wigner(op, norb=norb)
+    qubit_op = ffsim.qiskit.jordan_wigner(op, norb=norb, allow_spinless=False)
     qubit_op_sparse = qubit_op.to_matrix(sparse=True)
     actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
         vec, norb, nelec
