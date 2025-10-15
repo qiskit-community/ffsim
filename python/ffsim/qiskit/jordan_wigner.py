@@ -98,7 +98,7 @@ def jordan_wigner(op: FermionOperator, norb: int | None = None, parallel: bool =
             initializer=_jw_worker_init,
             initargs=(os.environ["OMP_NUM_THREADS"], os.environ["MKL_NUM_THREADS"], os.environ["OPENBLAS_NUM_THREADS"]),
         ) as pool:
-            partials = list(pool.imap_unordered(_jw_chunk_worker, args, chunksize=1))
+            partials = list(pool.imap(_jw_chunk_worker, args, chunksize=1))
 
         total = SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)
         for p in partials:
@@ -150,10 +150,10 @@ def _jw_nprocs():
 
 def _jw_chunk_worker(args):
     chunk, norb = args
-    acc = SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)
+    qubit_terms = []
     for term, coeff in chunk:
         qop = SparsePauliOp.from_sparse_list([("", [], coeff)], num_qubits=2 * norb)
         for action, spin, orb in term:
             qop @= _qubit_action(action, orb + spin * norb, norb)
-        acc = acc + qop
-    return acc
+        qubit_terms.append(qop)
+    return SparsePauliOp.sum(qubit_terms)
