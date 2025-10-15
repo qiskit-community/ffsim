@@ -14,23 +14,27 @@ from __future__ import annotations
 
 import functools
 
-from typing import Iterable, Tuple, List
-
-from concurrent.futures import ProcessPoolExecutor, as_completed
-
 from qiskit.quantum_info import SparsePauliOp
 
 from ffsim.operators import FermionOperator
 
-def jordan_wigner(op, norb: int | None = None, parallel: bool = False, max_workers: int | None = None, chunk: int = 256):
-    r"""
-    Jordan-Wigner transformation.
+# MP tools
+import os
+import multiprocessing as mp
+import math
+
+
+def jordan_wigner(op: FermionOperator, norb: int | None = None, parallel: bool = False) -> SparsePauliOp:
+    r"""Jordan-Wigner transformation.
 
     Transform a fermion operator to a qubit operator using the Jordan-Wigner
     transformation. The Jordan-Wigner transformation maps fermionic annihilation
     operators to qubits as follows:
+
     .. math::
+
         a_p \mapsto \frac12 (X_p + iY_p)Z_1 \cdots Z_{p-1}
+
     In the transformed operator, the first ``norb`` qubits represent spin-up (alpha)
     orbitals, and the latter ``norb`` qubits represent spin-down (beta) orbitals. As a
     result of this convention, the qubit index that an orbital is mapped to depends on
@@ -42,9 +46,7 @@ def jordan_wigner(op, norb: int | None = None, parallel: bool = False, max_worke
         op: The fermion operator to transform.
         norb: The total number of spatial orbitals. If not specified, it is determined
             by the largest-index orbital present in the operator.
-        parallell: Allow for parallel execution. Default is False.
-        max_workers: The maximum number of worker processes to use if parallel is True.
-        chunk: The number of terms to include in each parallel chunk if parallel is True.
+        parallel: Decide if we want to run MP on the mapper to speed up the operation on HPC. Default is False.
 
     Returns:
         The qubit operator as a Qiskit SparsePauliOp.
@@ -73,38 +75,45 @@ def jordan_wigner(op, norb: int | None = None, parallel: bool = False, max_worke
             f"only {norb} were specified."
         )
 
-    num_qubits = 2 * norb
-    
-    # -- Parallel version --
+    # Parallel route 
     if parallel:
         items = list(op.items())
-        if len(items) <= max(chunk, 1):
-            qubit_terms = [SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=num_qubits)]
-            for term, coeff in items:
-                qubit_terms.append(_term_to_qubit_op((term, coeff, norb)))
-            return SparsePauliOp.sum(qubit_terms).simplify()
+        if not items:
+            return SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)
 
-        partial_sums = []
-        with ProcessPoolExecutor(max_workers=max_workers) as ex:
-            futures = [
-                ex.submit(
-                    _sum_batch,
-                    [(term, coeff, norb) for term, coeff in batch],
-                    num_qubits,
-                )
-                for batch in _chunks(items, max(chunk, 1))
-            ]
-            for fut in as_completed(futures):
-                partial_sums.append(fut.result())
+        nprocs = _jw_nprocs()
+        try:
+            ctx = mp.get_context("fork")
+        except ValueError:
+            ctx = mp.get_context("spawn")
 
-        return SparsePauliOp.sum(partial_sums).simplify()
+        task_size = max(1, math.ceil(len(items) / max(1, nprocs)))
 
-    qubit_terms = [SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=num_qubits)]
+        nchunks = max(1, math.ceil(len(items) / task_size))
+        chunks = [items[i * task_size:(i + 1) * task_size] for i in range(nchunks)]
+        args = [(ch, norb) for ch in chunks]
+
+        with ctx.Pool(
+            processes=nprocs,
+            initializer=_jw_worker_init,
+            initargs=(os.environ["OMP_NUM_THREADS"], os.environ["MKL_NUM_THREADS"], os.environ["OPENBLAS_NUM_THREADS"]),
+        ) as pool:
+            partials = list(pool.imap_unordered(_jw_chunk_worker, args, chunksize=1))
+
+        total = SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)
+        for p in partials:
+            total = total + p
+        return total.simplify()
+
+    qubit_terms = [SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)]
     for term, coeff in op.items():
-        qubit_op = SparsePauliOp.from_sparse_list([("", [], coeff)], num_qubits=num_qubits)
+        qubit_op = SparsePauliOp.from_sparse_list(
+            [("", [], coeff)], num_qubits=2 * norb
+        )
         for action, spin, orb in term:
             qubit_op @= _qubit_action(action, orb + spin * norb, norb)
         qubit_terms.append(qubit_op)
+
 
     return SparsePauliOp.sum(qubit_terms).simplify()
 
@@ -120,32 +129,31 @@ def _qubit_action(action: bool, qubit: int, norb: int):
         num_qubits=2 * norb,
     )
 
-def _term_to_qubit_op(term_coeff_norb: Tuple[tuple, complex, int]) -> SparsePauliOp:
-    term, coeff, norb = term_coeff_norb
-    qubit_op = SparsePauliOp.from_sparse_list([("", [], coeff)], num_qubits=2 * norb)
-    # term is an ordered tuple of (action: bool, spin: int, orb: int)
-    for action, spin, orb in term:
-        qubit_op @= _qubit_action(action, orb + spin * norb, norb)
-    return qubit_op
+def _jw_worker_init(omp_threads, mkl_threads, openblas_threads):
+    if omp_threads is not None: os.environ["OMP_NUM_THREADS"] = str(omp_threads)
+    else: os.environ.setdefault("OMP_NUM_THREADS", "1")
+    if mkl_threads is not None: os.environ["MKL_NUM_THREADS"] = str(mkl_threads)
+    else: os.environ.setdefault("MKL_NUM_THREADS", "1")
+    if openblas_threads is not None: os.environ["OPENBLAS_NUM_THREADS"] = str(openblas_threads)
+    else: os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+    os.environ.setdefault("MKL_DYNAMIC", "FALSE")
 
+def _jw_nprocs():
+    for k in ("FFSIM_JW_PROCESSES", "OMP_NUM_THREADS", "MKL_NUM_THREADS"):
+        v = os.environ.get(k)
+        if v and v.isdigit():
+            return max(1, int(v))
+    try:
+        return max(1, mp.cpu_count())
+    except NotImplementedError:
+        return 1
 
-def _sum_batch(batch: List[Tuple[tuple, complex, int]], num_qubits: int) -> SparsePauliOp:
-    # Local reduction of a batch of terms to a SparsePauliOp
-    qubit_terms = [SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=num_qubits)]
-    for term, coeff, norb in batch:
-        qubit_terms.append(_term_to_qubit_op((term, coeff, norb)))
-    return SparsePauliOp.sum(qubit_terms)
-
-
-def _chunks(it: Iterable, size: int):
-    it = iter(it)
-    while True:
-        batch = []
-        try:
-            for _ in range(size):
-                batch.append(next(it))
-        except StopIteration:
-            if batch:
-                yield batch
-            break
-        yield batch
+def _jw_chunk_worker(args):
+    chunk, norb = args
+    acc = SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)
+    for term, coeff in chunk:
+        qop = SparsePauliOp.from_sparse_list([("", [], coeff)], num_qubits=2 * norb)
+        for action, spin, orb in term:
+            qop @= _qubit_action(action, orb + spin * norb, norb)
+        acc = acc + qop
+    return acc
