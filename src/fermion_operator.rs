@@ -15,6 +15,8 @@ use pyo3::exceptions::PyKeyError;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
+use pyo3::types::{PyList, PyModule};
+use pyo3::{IntoPy, PyObject};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -335,6 +337,185 @@ impl FermionOperator {
             coeffs.insert(adjoint_term, coeff.conj());
         }
         Self { coeffs }
+    }
+
+    /// Jordan–Wigner transform to a sparse list of Pauli strings with weights.
+    ///
+    /// Args:
+    ///     py: Python handle (for returning a Python list).
+    ///     norb: Number of *spatial* orbitals. The number of qubits is 2*norb
+    ///           (one for α, one for β per spatial orbital) ordered as
+    ///           [α0, β0, α1, β1, ...].
+    ///
+    /// Returns:
+    ///     list[tuple[str, complex]]: Sparse list of (Pauli string, weight).
+    ///
+    /// Notes:
+    ///   - Creation operator maps as: a_p^\dagger = 1/2 * (X_p - i Y_p) ⊗ Z^{p-1..0}
+    ///   - Annihilation operator maps as: a_p = 1/2 * (X_p + i Y_p) ⊗ Z^{p-1..0}
+    /// Jordan–Wigner → qiskit.quantum_info.SparsePauliOp
+    ///
+    /// Returns:
+    ///     qiskit.quantum_info.SparsePauliOp
+    /// Python: to_qubit(norb: int | None = None) -> SparsePauliOp
+    #[pyo3(signature = (norb=None))]
+    pub fn to_qubit(&self, py: Python<'_>, norb: Option<i64>) -> PyResult<PyObject> {
+        // infer norb_in_op & basic validation of indices
+        let mut max_orb: i32 = -1;
+        for ops in self.coeffs.keys() {
+            for &(_action, _spin, orb_i32) in ops {
+                if orb_i32 < 0 {
+                    return Err(PyValueError::new_err("orbital index must be non-negative"));
+                }
+                if orb_i32 > max_orb {
+                    max_orb = orb_i32;
+                }
+            }
+        }
+        let norb_in_op: usize = if max_orb < 0 {
+            0
+        } else {
+            (max_orb as usize) + 1
+        };
+
+        // choose norb (validate signed input first)
+        let norb: usize = match norb {
+            Some(n) => {
+                if n < 0 {
+                    return Err(PyValueError::new_err("norb must be non-negative"));
+                }
+                n as usize
+            }
+            None => norb_in_op,
+        };
+
+        if norb < norb_in_op {
+            return Err(PyValueError::new_err(format!(
+                "norb has fewer spatial orbitals than required by the operator: \
+                 got {}, requires at least {}.",
+                norb, norb_in_op
+            )));
+        }
+
+        let n_qubits = norb
+            .checked_mul(2)
+            .ok_or_else(|| PyValueError::new_err("norb too large (overflow)"))?;
+
+        // ---- helpers ----
+        #[inline]
+        fn mul_pauli(a: u8, b: u8) -> (u8, Complex64) {
+            match (a, b) {
+                (b'I', p) => (p, Complex64::new(1.0, 0.0)),
+                (p, b'I') => (p, Complex64::new(1.0, 0.0)),
+                (b'X', b'X') | (b'Y', b'Y') | (b'Z', b'Z') => (b'I', Complex64::new(1.0, 0.0)),
+                (b'X', b'Y') => (b'Z', Complex64::new(0.0, 1.0)),
+                (b'X', b'Z') => (b'Y', Complex64::new(0.0, -1.0)),
+                (b'Y', b'X') => (b'Z', Complex64::new(0.0, -1.0)),
+                (b'Y', b'Z') => (b'X', Complex64::new(0.0, 1.0)),
+                (b'Z', b'X') => (b'Y', Complex64::new(0.0, 1.0)),
+                (b'Z', b'Y') => (b'X', Complex64::new(0.0, -1.0)),
+                _ => unreachable!(),
+            }
+        }
+
+        fn multiply_by_zs_and_main(s: &mut [u8], zs: &[usize], q: usize, main: u8) -> Complex64 {
+            let mut phase = Complex64::new(1.0, 0.0);
+            for &i in zs {
+                let (c, p) = mul_pauli(s[i], b'Z');
+                s[i] = c;
+                phase *= p;
+            }
+            let (c, p) = mul_pauli(s[q], main);
+            s[q] = c;
+            phase *= p;
+            phase
+        }
+
+        // Jordan Wigner mapping
+        let mut acc: HashMap<Vec<u8>, Complex64> = HashMap::new();
+        let identity = vec![b'I'; n_qubits];
+        let tol = 1e-12_f64;
+
+        for (ops, &term_coeff) in &self.coeffs {
+            let mut current: HashMap<Vec<u8>, Complex64> = HashMap::new();
+            current.insert(identity.clone(), Complex64::new(1.0, 0.0));
+
+            for &(action, spin, orb_i32) in ops {
+                let orb = orb_i32 as usize;
+
+                // block ordering: all alpha first, then all beta
+                let q = orb + if spin { norb } else { 0 };
+
+                // Z parity on indices < q
+                let z_positions: Vec<usize> = (0..q).collect();
+
+                // a^dag = (X - iY)/2, a = (X + iY)/2
+                let coeff_x = Complex64::new(0.5, 0.0);
+                let coeff_y = if action {
+                    Complex64::new(0.0, -0.5)
+                } else {
+                    Complex64::new(0.0, 0.5)
+                };
+
+                let mut next: HashMap<Vec<u8>, Complex64> = HashMap::new();
+                for (ps, c) in current.into_iter() {
+                    // X branch
+                    let mut s_x = ps.clone();
+                    let phase_x = multiply_by_zs_and_main(&mut s_x, &z_positions, q, b'X');
+                    let w_x = c * phase_x * coeff_x;
+                    if w_x.re.abs() > tol || w_x.im.abs() > tol {
+                        *next.entry(s_x).or_insert(Complex64::new(0.0, 0.0)) += w_x;
+                    }
+                    // Y branch
+                    let mut s_y = ps;
+                    let phase_y = multiply_by_zs_and_main(&mut s_y, &z_positions, q, b'Y');
+                    let w_y = c * phase_y * coeff_y;
+                    if w_y.re.abs() > tol || w_y.im.abs() > tol {
+                        *next.entry(s_y).or_insert(Complex64::new(0.0, 0.0)) += w_y;
+                    }
+                }
+                current = next;
+            }
+
+            for (ps, c) in current.into_iter() {
+                let w = c * term_coeff;
+                if w.re.abs() > tol || w.im.abs() > tol {
+                    *acc.entry(ps).or_insert(Complex64::new(0.0, 0.0)) += w;
+                }
+            }
+        }
+
+        // Building python objects for easy usage
+        let mut pairs: Vec<PyObject> = Vec::with_capacity(acc.len());
+        for (ps_bytes, w) in acc.into_iter() {
+            if w.re.abs() <= tol && w.im.abs() <= tol {
+                continue;
+            }
+            let mut rev = ps_bytes.clone();
+            rev.reverse(); // Qiskit: qubit-0 rightmost
+            let s = String::from_utf8(rev)
+                .unwrap_or_else(|_| "I".repeat(n_qubits))
+                .into_py(py);
+            let tup = PyTuple::new_bound(py, &[s, w.into_py(py)]);
+            pairs.push(tup.into_py(py));
+        }
+
+        if pairs.is_empty() {
+            let mut rev = identity.clone();
+            rev.reverse();
+            let s = String::from_utf8(rev)
+                .unwrap_or_else(|_| "I".repeat(n_qubits))
+                .into_py(py);
+            let z = Complex64::new(0.0, 0.0).into_py(py);
+            let tup = PyTuple::new_bound(py, &[s, z]);
+            pairs.push(tup.into_py(py));
+        }
+
+        let qi = PyModule::import_bound(py, "qiskit.quantum_info")?;
+        let spo_cls = qi.getattr("SparsePauliOp")?;
+        let list_bound = PyList::new_bound(py, pairs);
+        let spo = spo_cls.call_method1("from_list", (list_bound.as_any(),))?;
+        Ok(spo.into_py(py))
     }
 
     /// Return the normal ordered form of the operator.
