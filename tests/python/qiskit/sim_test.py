@@ -447,3 +447,17 @@ def test_qiskit_gates_norb_nelec():
     # Pass wrong nelec
     with pytest.raises(ValueError, match="nelec"):
         ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=(2, 1))
+
+
+def test_permutation_gate_cross_spin_error():
+    """PermutationGate must preserve spin sectors."""
+    norb = 1
+    nelec = (1, 0)
+
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+    circuit.append(PermutationGate([1, 0]), qubits)
+
+    with pytest.raises(ValueError, match="same spin"):
+        ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
