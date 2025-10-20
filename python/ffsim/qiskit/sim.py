@@ -800,6 +800,21 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
     return indices, remaining_circuit
 
 
+def _permute_bitstrings(
+    bits: np.ndarray, pairs: Sequence[tuple[int, int]]
+) -> np.ndarray:
+    """Return bitstrings with bits moved according to (src, dest) pairs."""
+    if not pairs:
+        return bits
+    mask = sum(1 << dest for _, dest in pairs)
+    permuted = bits.copy()
+    if mask:
+        permuted &= ~mask
+    for src, dest in pairs:
+        permuted |= ((bits >> src) & 1) << dest
+    return permuted
+
+
 def _apply_permutation_gate(
     vec: np.ndarray,
     qubit_indices: Sequence[int],
@@ -826,12 +841,7 @@ def _apply_permutation_gate(
                 bitstring_type=BitstringType.INT,
             )
         )
-        dest_mask = sum(1 << dest for _, dest in pairs)
-        permuted = bitstrings.copy()
-        if dest_mask:
-            permuted &= ~dest_mask
-        for src, dest in pairs:
-            permuted |= ((bitstrings >> src) & 1) << dest
+        permuted = _permute_bitstrings(bitstrings, pairs)
         indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
     else:
         # Spinful case
@@ -847,20 +857,8 @@ def _apply_permutation_gate(
         alpha_pairs = [(src, dest) for src, dest in pairs if src < norb]
         beta_pairs = [(src - norb, dest - norb) for src, dest in pairs if src >= norb]
 
-        permuted_alpha = alpha_bits
-        permuted_beta = beta_bits
-        if alpha_pairs:
-            alpha_mask = sum(1 << dest for _, dest in alpha_pairs)
-            permuted_alpha = alpha_bits.copy()
-            permuted_alpha &= ~alpha_mask
-            for src, dest in alpha_pairs:
-                permuted_alpha |= ((alpha_bits >> src) & 1) << dest
-        if beta_pairs:
-            beta_mask = sum(1 << dest for _, dest in beta_pairs)
-            permuted_beta = beta_bits.copy()
-            permuted_beta &= ~beta_mask
-            for src, dest in beta_pairs:
-                permuted_beta |= ((beta_bits >> src) & 1) << dest
+        permuted_alpha = _permute_bitstrings(alpha_bits, alpha_pairs)
+        permuted_beta = _permute_bitstrings(beta_bits, beta_pairs)
 
         combined = permuted_alpha + (permuted_beta << norb)
         indices = states.strings_to_addresses(combined, norb=norb, nelec=nelec)
