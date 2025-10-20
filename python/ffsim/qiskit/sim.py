@@ -730,7 +730,7 @@ def _evolve_state_vector_spinful(
         perm = op.pattern
         inverse_perm = np.empty_like(perm)
         inverse_perm[perm] = np.arange(len(perm))
-        dests = [qubit_indices[i] for i in inverse_perm.tolist()]
+        dests = [qubit_indices[i] for i in inverse_perm]
         if any(
             (src < norb) != (dest < norb) for src, dest in zip(qubit_indices, dests)
         ):
@@ -810,26 +810,60 @@ def _apply_permutation_gate(
     dests: Sequence[int] | None = None,
 ) -> np.ndarray:
     if dests is None:
-        perm = list(perm)
-        inverse_perm = [0] * len(perm)
-        for out_idx, src_idx in enumerate(perm):
-            inverse_perm[src_idx] = out_idx
-        dests = [qubit_indices[inverse_perm[i]] for i in range(len(qubit_indices))]
+        inverse_perm = np.empty_like(perm)
+        inverse_perm[perm] = np.arange(len(perm))
+        dests = [qubit_indices[i] for i in inverse_perm]
+
+    pairs = list(zip(qubit_indices, dests))
+    addresses = range(len(vec))
+    if isinstance(nelec, int):
+        # Spinless case
+        bitstrings = np.asarray(
+            states.addresses_to_strings(
+                addresses,
+                norb=norb,
+                nelec=nelec,
+                bitstring_type=BitstringType.INT,
+            )
+        )
+        dest_mask = sum(1 << dest for _, dest in pairs)
+        permuted = bitstrings.copy()
+        if dest_mask:
+            permuted &= ~dest_mask
+        for src, dest in pairs:
+            permuted |= ((bitstrings >> src) & 1) << dest
+        indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
     else:
-        dests = list(dests)
+        # Spinful case
+        strings_a, strings_b = states.addresses_to_strings(
+            addresses,
+            norb=norb,
+            nelec=nelec,
+            bitstring_type=BitstringType.INT,
+            concatenate=False,
+        )
+        alpha_bits = np.asarray(strings_a)
+        beta_bits = np.asarray(strings_b)
+        alpha_pairs = [(src, dest) for src, dest in pairs if src < norb]
+        beta_pairs = [(src - norb, dest - norb) for src, dest in pairs if src >= norb]
 
-    dest_mask = sum(1 << dest for dest in dests)
+        permuted_alpha = alpha_bits
+        permuted_beta = beta_bits
+        if alpha_pairs:
+            alpha_mask = sum(1 << dest for _, dest in alpha_pairs)
+            permuted_alpha = alpha_bits.copy()
+            permuted_alpha &= ~alpha_mask
+            for src, dest in alpha_pairs:
+                permuted_alpha |= ((alpha_bits >> src) & 1) << dest
+        if beta_pairs:
+            beta_mask = sum(1 << dest for _, dest in beta_pairs)
+            permuted_beta = beta_bits.copy()
+            permuted_beta &= ~beta_mask
+            for src, dest in beta_pairs:
+                permuted_beta |= ((beta_bits >> src) & 1) << dest
 
-    strings = np.asarray(
-        states.addresses_to_strings(
-            range(len(vec)), norb=norb, nelec=nelec, bitstring_type=BitstringType.INT
-        ),
-        dtype=object,
-    )
-    permuted = strings & ~dest_mask
-    for src, dest in zip(qubit_indices, dests):
-        permuted |= ((strings >> src) & 1) << dest
-    indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
+        combined = permuted_alpha + (permuted_beta << norb)
+        indices = states.strings_to_addresses(combined, norb=norb, nelec=nelec)
     permuted_vec = np.empty_like(vec)
     permuted_vec[indices] = vec
     return permuted_vec
