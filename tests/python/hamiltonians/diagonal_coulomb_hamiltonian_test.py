@@ -118,7 +118,7 @@ def test_from_fermion_operator_errors():
 
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
     op = ffsim.fermion_operator(mol_hamiltonian)
-    with pytest.raises(ValueError, match="two-body"):
+    with pytest.raises(ValueError, match="quartic"):
         _ = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
     dc_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)

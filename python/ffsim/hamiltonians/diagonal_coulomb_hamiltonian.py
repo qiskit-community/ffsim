@@ -122,7 +122,24 @@ class DiagonalCoulombHamiltonian(
 
     @staticmethod
     def from_fermion_operator(op: FermionOperator) -> DiagonalCoulombHamiltonian:
-        """Convert a FermionOperator to a DiagonalCoulombHamiltonian."""
+        r"""Initialize a DiagonalCoulombHamiltonian from a FermionOperator.
+
+        The input operator must contain only terms of the following form:
+
+        - A real-valued constant
+        - :math:`a^\dagger_{\sigma, p} a_{\sigma, q}`
+        - :math:`n_{\sigma, p} n_{\tau, q}`
+
+        Any other terms will cause an error to be raised. No attempt will be made to
+        normal-order terms.
+
+        Args:
+            op: The FermionOperator from which to initialize the
+                DiagonalCoulombHamiltonian.
+
+        Returns:
+            The DiagonalCoulombHamiltonian represented by the input FermionOperator.
+        """
 
         # extract norb
         norb = 1 + max(orb for term in op for _, _, orb in term)
@@ -150,8 +167,8 @@ class DiagonalCoulombHamiltonian(
                 else:
                     raise ValueError(
                         "FermionOperator cannot be converted to "
-                        f"DiagonalCoulombHamiltonian. The one-body term {term} is not "
-                        "of the form a^\\dagger_{\\sigma, p} a_{\\sigma, q}."
+                        f"DiagonalCoulombHamiltonian. The quadratic term {term} is not "
+                        r"of the form a^\dagger_{\sigma, p} a_{\sigma, q}."
                     )
             elif len(term) == 4:
                 # two-body term
@@ -171,8 +188,8 @@ class DiagonalCoulombHamiltonian(
                 else:
                     raise ValueError(
                         "FermionOperator cannot be converted to "
-                        f"DiagonalCoulombHamiltonian. The two-body term {term} is not "
-                        "of the form n_{\\sigma, p} n_{\\tau, q}."
+                        f"DiagonalCoulombHamiltonian. The quartic term {term} is not "
+                        r"of the form n_{\sigma, p} n_{\tau, q}."
                     )
             else:
                 raise ValueError(
