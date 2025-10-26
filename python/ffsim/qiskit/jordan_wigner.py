@@ -20,7 +20,7 @@ from ffsim.operators import FermionOperator
 
 
 def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp:
-    r"""Jordan-Wigner transformation.
+    r"""Jordan-Wigner transformation as implemented in `src/fermion_operator.rs`.
 
     Transform a fermion operator to a qubit operator using the Jordan-Wigner
     transformation. The Jordan-Wigner transformation maps fermionic annihilation
@@ -50,44 +50,4 @@ def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp
         ValueError: Number of spatial orbitals was fewer than the number detected in the
             operator.
     """
-    if norb and norb < 0:
-        raise ValueError(
-            f"Number of spatial orbitals must be non-negative. Got {norb}."
-        )
-    if not op:
-        return SparsePauliOp.from_sparse_list(
-            [("", [], 0.0)], num_qubits=2 * (norb or 0)
-        )
-
-    norb_in_op = 1 + max(orb for term in op for _, _, orb in term)
-    if norb is None:
-        norb = norb_in_op
-    if norb < norb_in_op:
-        raise ValueError(
-            "Number of spatial orbitals specified is fewer than the number detected in "
-            f"the operator. The operator has {norb_in_op} spatial orbitals, but "
-            f"only {norb} were specified."
-        )
-
-    qubit_terms = [SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)]
-    for term, coeff in op.items():
-        qubit_op = SparsePauliOp.from_sparse_list(
-            [("", [], coeff)], num_qubits=2 * norb
-        )
-        for action, spin, orb in term:
-            qubit_op @= _qubit_action(action, orb + spin * norb, norb)
-        qubit_terms.append(qubit_op)
-
-    return SparsePauliOp.sum(qubit_terms).simplify()
-
-
-@functools.cache
-def _qubit_action(action: bool, qubit: int, norb: int):
-    qubits = list(range(qubit + 1))
-    return SparsePauliOp.from_sparse_list(
-        [
-            ("Z" * qubit + "X", qubits, 0.5),
-            ("Z" * qubit + "Y", qubits, -0.5j if action else 0.5j),
-        ],
-        num_qubits=2 * norb,
-    )
+    return op.to_qubit(norb=norb)
