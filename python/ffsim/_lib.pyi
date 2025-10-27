@@ -91,3 +91,6 @@ def contract_num_op_sum_spin_into_buffer(
     occupations: np.ndarray,
     out: np.ndarray,
 ) -> None: ...
+def jordan_wigner(
+    op: FermionOperator, norb: int
+) -> tuple[list[tuple[str, list[int], complex]], int]: ...
