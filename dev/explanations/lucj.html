@@ -471,25 +471,29 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
     <span class="n">mol_datas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol_data</span><span class="p">)</span>
 
 <span class="c1"># Plot FCI, CISD, and CCSD energies</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.prop_cycle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">by_key</span><span class="p">()[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+<span class="n">ccsd_color</span><span class="p">,</span> <span class="n">cisd_color</span><span class="p">,</span> <span class="n">uccsd_color</span><span class="p">,</span> <span class="n">ucj_color</span><span class="p">,</span> <span class="n">lucj_color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">bond_distance_range</span><span class="p">,</span>
     <span class="p">[</span><span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
     <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;FCI&quot;</span><span class="p">,</span>
     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-    <span class="n">bond_distance_range</span><span class="p">,</span>
-    <span class="p">[</span><span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
-    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;FCI&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">bond_distance_range</span><span class="p">,</span>
     <span class="p">[</span><span class="n">mol_data</span><span class="o">.</span><span class="n">ccsd_energy</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
-    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">ccsd_color</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CCSD&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">bond_distance_range</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">cisd_color</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Bond distance (angstrom)&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Energy (hartree)&quot;</span><span class="p">)</span>
@@ -503,7 +507,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f3994857cb0&gt;
+&lt;matplotlib.legend.Legend at 0x7f6d6ce77770&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -543,19 +547,21 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">bond_distance_range</span><span class="p">,</span>
-    <span class="p">[</span><span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
-    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
+    <span class="c1"># Take absolute value because CCSD energy is not variational</span>
+    <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">mol_data</span><span class="o">.</span><span class="n">ccsd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">)</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">ccsd_color</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CCSD&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">bond_distance_range</span><span class="p">,</span>
-    <span class="c1"># Take absolute value because CCSD energy is not variational</span>
-    <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">mol_data</span><span class="o">.</span><span class="n">ccsd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">)</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
-    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CCSD&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span> <span class="k">for</span> <span class="n">mol_data</span> <span class="ow">in</span> <span class="n">mol_datas</span><span class="p">],</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">cisd_color</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bond_distance_range</span><span class="p">,</span> <span class="n">uccsd_errors</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCCSD&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bond_distance_range</span><span class="p">,</span> <span class="n">ucj_errors</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bond_distance_range</span><span class="p">,</span> <span class="n">uccsd_errors</span><span class="p">,</span> <span class="s2">&quot;-.&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">uccsd_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCCSD&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bond_distance_range</span><span class="p">,</span> <span class="n">ucj_errors</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">ucj_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Bond distance (angstrom)&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Error (hartree)&quot;</span><span class="p">)</span>
@@ -569,7 +575,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f398cd1efd0&gt;
+&lt;matplotlib.legend.Legend at 0x7f6d6cd63890&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -622,19 +628,19 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 
 <span class="c1"># Plot energy errors</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">ucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">lucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
-    <span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
-    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">ucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">ucj_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">lucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;s--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">lucj_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
     <span class="n">mol_data</span><span class="o">.</span><span class="n">ccsd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
-    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CCSD&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">ccsd_color</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+    <span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">cisd_color</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Ansatz repetitions&quot;</span><span class="p">)</span>
@@ -649,7 +655,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f398cb61810&gt;
+&lt;matplotlib.legend.Legend at 0x7f6d6c391f90&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -694,35 +700,35 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 
 <span class="c1"># Plot energy errors</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="p">(</span><span class="n">line</span><span class="p">,)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">ucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">ucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">ucj_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">n_reps_range</span><span class="p">,</span>
     <span class="n">ucj_opt_errors_n_reps</span><span class="p">,</span>
-    <span class="s2">&quot;s--&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;o:&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">get_color</span><span class="p">(),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">ucj_color</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ opt&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="p">(</span><span class="n">line</span><span class="p">,)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">lucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ&quot;</span><span class="p">)</span>
-<span class="p">(</span><span class="n">line</span><span class="p">,)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">lucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;s--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">lucj_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">n_reps_range</span><span class="p">,</span>
     <span class="n">lucj_opt_errors_n_reps</span><span class="p">,</span>
-    <span class="s2">&quot;s--&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;s:&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">get_color</span><span class="p">(),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">lucj_color</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ opt&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
-    <span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
-    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
     <span class="n">mol_data</span><span class="o">.</span><span class="n">ccsd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
     <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">ccsd_color</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CCSD&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+    <span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">cisd_color</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Ansatz repetitions&quot;</span><span class="p">)</span>
@@ -737,7 +743,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f392522cb90&gt;
+&lt;matplotlib.legend.Legend at 0x7f6d06941450&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -793,35 +799,35 @@ sampled repeatedly to generate configurations on which to project and diagonaliz
 
 <span class="c1"># Plot energy errors</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="p">(</span><span class="n">line</span><span class="p">,)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">ucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">ucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">ucj_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">n_reps_range</span><span class="p">,</span>
     <span class="n">ucj_opt_reg_errors_n_reps</span><span class="p">,</span>
-    <span class="s2">&quot;s--&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;o:&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">get_color</span><span class="p">(),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">ucj_color</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;UCJ opt reg&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="p">(</span><span class="n">line</span><span class="p">,)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">lucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;o--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ&quot;</span><span class="p">)</span>
-<span class="p">(</span><span class="n">line</span><span class="p">,)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_reps_range</span><span class="p">,</span> <span class="n">lucj_errors_n_reps</span><span class="p">,</span> <span class="s2">&quot;s--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">lucj_color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">n_reps_range</span><span class="p">,</span>
     <span class="n">lucj_opt_reg_errors_n_reps</span><span class="p">,</span>
-    <span class="s2">&quot;s--&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;s:&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">get_color</span><span class="p">(),</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">lucj_color</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LUCJ opt reg&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
-    <span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
-    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
     <span class="n">mol_data</span><span class="o">.</span><span class="n">ccsd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
     <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">ccsd_color</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CCSD&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+    <span class="n">mol_data</span><span class="o">.</span><span class="n">cisd_energy</span> <span class="o">-</span> <span class="n">mol_data</span><span class="o">.</span><span class="n">fci_energy</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">cisd_color</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CISD&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Ansatz repetitions&quot;</span><span class="p">)</span>
@@ -836,7 +842,7 @@ sampled repeatedly to generate configurations on which to project and diagonaliz
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f3924ce0f50&gt;
+&lt;matplotlib.legend.Legend at 0x7f6d063d5810&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
