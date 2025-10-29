@@ -56,8 +56,8 @@ pub fn apply_givens_rotation_in_place(
     let slice1_slice = slice1.as_slice().unwrap();
     let slice2_slice = slice2.as_slice().unwrap();
 
-    // Sequential execution for single thread
-    if n_threads == 1 {
+    // Sequential execution for single thread or small slice
+    if n_threads == 1 || n_pairs < 128 {
         let vec_ptr = vec.as_mut_ptr();
         for (&i, &j) in slice1_slice.iter().zip(slice2_slice) {
             unsafe {
