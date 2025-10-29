@@ -22,7 +22,7 @@ use numpy::PyReadwriteArray2;
 
 use pyo3::prelude::*;
 
-/// Apply a matrix to slices of a matrix.
+/// Apply a Givens rotation between two slices of a vector
 #[pyfunction]
 pub fn apply_givens_rotation_in_place(
     mut vec: PyReadwriteArray2<Complex64>,
