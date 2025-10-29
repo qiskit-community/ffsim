@@ -52,31 +52,64 @@ pub fn apply_givens_rotation_in_place(
                 .unwrap_or(1)
         })
         .min(n_pairs);
+
+    let slice1_slice = slice1.as_slice().unwrap();
+    let slice2_slice = slice2.as_slice().unwrap();
+
+    // Sequential execution for single thread
+    if n_threads == 1 {
+        let vec_ptr = vec.as_mut_ptr();
+        for (&i, &j) in slice1_slice.iter().zip(slice2_slice) {
+            unsafe {
+                _apply_givens_rotation_to_pair(
+                    vec_ptr, i, j, dim_b, dim_b_i32, c, s_abs, phase, phase_conj,
+                );
+            }
+        }
+        return;
+    }
+
+    // Parallel execution
     let chunk_size = n_pairs.div_ceil(n_threads);
     let vec_ptr = vec.as_mut_ptr() as usize;
-    let slice1 = slice1.as_slice().unwrap();
-    let slice2 = slice2.as_slice().unwrap();
-
     std::thread::scope(|scope| {
         for k in 0..n_threads {
             let start = k * chunk_size;
             let end = (start + chunk_size).min(n_pairs);
-            let slice1_chunk = &slice1[start..end];
-            let slice2_chunk = &slice2[start..end];
+            let slice1_chunk = &slice1_slice[start..end];
+            let slice2_chunk = &slice2_slice[start..end];
             scope.spawn(move || {
                 let vec_ptr = vec_ptr as *mut Complex64;
                 for (&i, &j) in slice1_chunk.iter().zip(slice2_chunk) {
                     unsafe {
-                        let row_i = std::slice::from_raw_parts_mut(vec_ptr.add(i * dim_b), dim_b);
-                        let row_j = std::slice::from_raw_parts_mut(vec_ptr.add(j * dim_b), dim_b);
-                        // Use zdrot and zscal because zrot is not currently available
-                        // See https://github.com/qiskit-community/ffsim/issues/28
-                        zscal(dim_b_i32, phase_conj, row_i, 1);
-                        zdrot(dim_b_i32, row_i, 1, row_j, 1, c, s_abs);
-                        zscal(dim_b_i32, phase, row_i, 1);
+                        _apply_givens_rotation_to_pair(
+                            vec_ptr, i, j, dim_b, dim_b_i32, c, s_abs, phase, phase_conj,
+                        );
                     }
                 }
             });
         }
     });
+}
+
+/// Apply Givens rotation to a pair of rows
+#[allow(clippy::too_many_arguments)]
+unsafe fn _apply_givens_rotation_to_pair(
+    vec_ptr: *mut Complex64,
+    i: usize,
+    j: usize,
+    dim_b: usize,
+    dim_b_i32: i32,
+    c: f64,
+    s_abs: f64,
+    phase: Complex64,
+    phase_conj: Complex64,
+) {
+    let row_i = std::slice::from_raw_parts_mut(vec_ptr.add(i * dim_b), dim_b);
+    let row_j = std::slice::from_raw_parts_mut(vec_ptr.add(j * dim_b), dim_b);
+    // Use zdrot and zscal because zrot is not currently available
+    // See https://github.com/qiskit-community/ffsim/issues/28
+    zscal(dim_b_i32, phase_conj, row_i, 1);
+    zdrot(dim_b_i32, row_i, 1, row_j, 1, c, s_abs);
+    zscal(dim_b_i32, phase, row_i, 1);
 }
