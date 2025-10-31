@@ -13,7 +13,11 @@ type SparseList = Vec<SparseListEntry>;
 ///
 /// Returns (sparse_list, num_qubits) where sparse_list is used to construct a Sparse Pauli Operator in Qiskit.
 #[pyfunction]
-pub fn jordan_wigner(op: &FermionOperator, norb: usize) -> PyResult<(SparseList, usize)> {
+pub fn jordan_wigner_qiskit(
+    op: &FermionOperator,
+    norb: usize,
+    tol: f64,
+) -> PyResult<(SparseList, usize)> {
     let n_qubits: usize = 2 * norb;
 
     // ---- helpers ----
@@ -50,10 +54,9 @@ pub fn jordan_wigner(op: &FermionOperator, norb: usize) -> PyResult<(SparseList,
     // Jordan–Wigner mapping into dense Pauli bytes + coeffs
     let mut acc: HashMap<Vec<u8>, Complex64> = HashMap::new();
     let identity = vec![b'I'; n_qubits];
-    let tol = 1e-12_f64;
 
     // We need both key and value here.
-    for (ops, &term_coeff) in op.terms_map() {
+    for (ops, &term_coeff) in op.coeffs() {
         let mut current: HashMap<Vec<u8>, Complex64> = HashMap::new();
         current.insert(identity.clone(), Complex64::new(1.0, 0.0));
 

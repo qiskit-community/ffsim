@@ -18,7 +18,9 @@ from ffsim import _lib
 from ffsim.operators import FermionOperator
 
 
-def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp:
+def jordan_wigner(
+    op: FermionOperator, norb: int | None = None, *, tol: float = 1e-12
+) -> SparsePauliOp:
     r"""Jordan-Wigner transformation.
 
     Transform a fermion operator to a qubit operator using the Jordan-Wigner
@@ -40,6 +42,8 @@ def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp
         op: The fermion operator to transform.
         norb: The total number of spatial orbitals. If not specified, it is determined
             by the largest-index orbital present in the operator.
+        tol: remove coefficients within specified tol to simplify the
+            SparsePauliOp. Default: 1e-12
 
     Returns:
         The qubit operator as a Qiskit SparsePauliOp.
@@ -68,8 +72,8 @@ def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp
             f"only {norb} were specified."
         )
 
-    sparse_list, num_qubits = _lib.jordan_wigner(
-        op, norb
+    sparse_list, num_qubits = _lib.jordan_wigner_qiskit(
+        op, norb, tol
     )  # computed in Rust (src/jordan_wigner.rs)
 
     return SparsePauliOp.from_sparse_list(sparse_list, num_qubits=num_qubits)
