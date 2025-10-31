@@ -337,10 +337,10 @@ connectivity. The constraints are specified by a list of indices indicating whic
 <p>with</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[T_1 = \sum_{ia} t_{ia} c^\dagger_i c_a, \quad
-T_2 = \sum_{ijab} t_{ijab} c^\dagger_i c^\dagger_j c_a c_b.\]</div>
+\[T_1 = \sum_{ia} t_{ia} c^\dagger_a c_i, \quad
+T_2 = \sum_{ijab} t_{ijab} c^\dagger_a c^\dagger_b c_j c_i.\]</div>
 </div>
-<p>The ansatz is parameterized by the numbers <span class="math notranslate nohighlight">\(t_{ia}\)</span> and <span class="math notranslate nohighlight">\(t_{ijab}\)</span>, called <span class="math notranslate nohighlight">\(t\)</span>-amplitudes (separately, <span class="math notranslate nohighlight">\(t_1\)</span>- and <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes), which can be efficiently solved for on a classical computer.</p>
+<p>The ansatz is parameterized by the numbers <span class="math notranslate nohighlight">\(t_{ia}\)</span> and <span class="math notranslate nohighlight">\(t_{ijab}\)</span>, called <span class="math notranslate nohighlight">\(t\)</span>-amplitudes (separately, <span class="math notranslate nohighlight">\(t_1\)</span>- and <span class="math notranslate nohighlight">\(t_2\)</span>-amplitudes), which can be efficiently solved for on a classical computer. Here, <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> index occupied orbitals and <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span> index virtual orbitals.</p>
 <p>Unitary CCSD (UCCSD) is a variant of CCSD that uses a similar exponential ansatz, but with an operator that is guaranteed to be unitary,</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -510,7 +510,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7feeaca5f620&gt;
+&lt;matplotlib.legend.Legend at 0x7f3c4ce4f620&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -578,7 +578,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7feeac94f890&gt;
+&lt;matplotlib.legend.Legend at 0x7f3c4c53b890&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -658,7 +658,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7feea4e01f90&gt;
+&lt;matplotlib.legend.Legend at 0x7f3c4c335f90&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -746,7 +746,7 @@ interactions still need to be discarded when constructing the LUCJ ansatz, but f
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7fee3b349450&gt;
+&lt;matplotlib.legend.Legend at 0x7f3be28a5450&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -845,7 +845,7 @@ sampled repeatedly to generate configurations on which to project and diagonaliz
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7fee3ae05810&gt;
+&lt;matplotlib.legend.Legend at 0x7f3be2345a90&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
