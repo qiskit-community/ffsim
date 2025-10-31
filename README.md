@@ -59,6 +59,10 @@ print(energy)  # prints -104.17181289596
 
 <!-- end code-example -->
 
+## Multithreading
+
+Some ffsim functions implemented in Rust use multithreading. The number of threads can be set using the environment variable `RAYON_NUM_THREADS`. For example, to disable multithreading, set this variable as `RAYON_NUM_THREADS=1`.
+
 ## Citing ffsim
 
 <!-- start citing -->
