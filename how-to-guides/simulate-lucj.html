@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How-to guides" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate Trotterized time evolution for the molecular Hamiltonian" href="simulate-trotter-mol-ham.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.60</title>
+        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.61</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ffsim 0.0.60</div></a>
+      <a href="../index.html"><div class="brand">ffsim 0.0.61</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ffsim 0.0.60</span>
+  <span class="sidebar-brand-text">ffsim 0.0.61</span>
   
 </a>
 
@@ -213,9 +213,12 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-mol-ham.html">How to simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-hubbard.html">How to simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qiskit-lucj.html">How to build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-trotter.html">How to build Qiskit circuits for Trotterized Hamiltonian simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qiskit-circuits-sim.html">How to simulate excitation-preserving Qiskit circuits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qiskit-merge-orbital-rotations.html">How to merge orbital rotations in Qiskit circuits</a></li>
 </ul>
@@ -332,9 +335,9 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 converged SCF energy = -77.8266321248745
-Parsing /tmp/tmprqjtd90b
-converged SCF energy = -77.8266321248745
-CASCI E = -77.8742165643863  E(CI) = -4.02122442107772  S^2 = 0.0000000
+Parsing /tmp/tmp9c8z1d5x
+converged SCF energy = -77.8266321248744
+CASCI E = -77.8742165643862  E(CI) = -4.02122442107772  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
 </pre></div></div>
@@ -389,7 +392,7 @@ Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374033  E_corr = -0.04758323886584068
+E(CCSD) = -77.8742153637403  E_corr = -0.04758323886584176
 Energy at initialization: -77.8716002481628
 </pre></div></div>
 </div>
@@ -430,10 +433,10 @@ Number of parameters: 88
   message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
   success: False
    status: 1
-      fun: -77.87387390124928
-        x: [-1.153e+00 -3.833e-04 ...  7.308e-05 -9.473e-05]
+      fun: -77.87387316400324
+        x: [-4.772e-01  1.609e-04 ... -1.330e-04 -1.251e-04]
       nit: 10
-      jac: [-5.684e-06 -1.847e-05 ... -1.421e-05 -8.527e-06]
+      jac: [ 3.979e-05 -3.411e-05 ... -4.690e-05 -2.274e-05]
      nfev: 1157
      njev: 13
  hess_inv: &lt;88x88 LbfgsInvHessProduct with dtype=float64&gt;
@@ -485,10 +488,10 @@ Number of parameters: 62
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363424495685
-        x: [-1.152e+00 -2.796e-06 ...  1.033e-05 -2.250e-05]
+      fun: -77.8736342618358
+        x: [-4.773e-01  3.145e-05 ... -4.922e-06 -9.234e-05]
       nit: 6
-      jac: [-3.553e-05 -1.421e-05 ... -9.948e-06 -1.279e-05]
+      jac: [ 2.416e-05  1.279e-05 ...  8.527e-06  4.263e-06]
      nfev: 567
      njev: 9
  hess_inv: &lt;62x62 LbfgsInvHessProduct with dtype=float64&gt;
@@ -570,29 +573,54 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 Number of parameters: 62
  message: Convergence: Relative reduction of objective function &lt;= ftol.
  success: True
-     fun: -77.87363478237117
-       x: [-1.152e+00  3.011e-04 ... -6.146e-04  2.353e-04]
-     nit: 3
-     jac: [ 4.162e-07 -5.937e-06 ...  2.757e-06 -3.124e-06]
-    nfev: 684
-    njev: 4
-  nlinop: 436
+     fun: -77.87421564188935
+       x: [-5.043e-01  5.016e-02 ...  2.268e-03 -1.365e-03]
+     nit: 8
+     jac: [ 5.313e-06 -4.480e-06 ...  1.814e-06  2.268e-06]
+    nfev: 1441
+    njev: 9
+  nlinop: 883
 
 Iteration 1
-    Energy: -77.87362303305595
-    Norm of gradient: 0.0027577265066914855
-    Regularization hyperparameter: 0.0016652875896346247
-    Variation hyperparameter: 0.9750930867947525
+    Energy: -77.87362796891745
+    Norm of gradient: 0.0018590488589383023
+    Regularization hyperparameter: 0.0017995680852471736
+    Variation hyperparameter: 0.9884767357094786
 Iteration 2
-    Energy: -77.87363436196848
-    Norm of gradient: 0.00013734531221804223
-    Regularization hyperparameter: 0.002900631314259058
-    Variation hyperparameter: 0.9763298523777495
+    Energy: -77.87363431545435
+    Norm of gradient: 0.0001237135851606635
+    Regularization hyperparameter: 0.0017995680852471736
+    Variation hyperparameter: 0.9884767357094786
 Iteration 3
-    Energy: -77.87363478237117
-    Norm of gradient: 9.871837252584462e-05
-    Regularization hyperparameter: 0.002900631459425937
-    Variation hyperparameter: 0.9763298522771271
+    Energy: -77.87363531334196
+    Norm of gradient: 0.0001588191629325453
+    Regularization hyperparameter: 0.0017995680784933692
+    Variation hyperparameter: 0.9884767357091488
+Iteration 4
+    Energy: -77.87384100078171
+    Norm of gradient: 0.013205057893690248
+    Regularization hyperparameter: 0.00021008211183626177
+    Variation hyperparameter: 0.9884881731562698
+Iteration 5
+    Energy: -77.8741816773828
+    Norm of gradient: 0.005232716355327388
+    Regularization hyperparameter: 0.0012270267367815912
+    Variation hyperparameter: 0.988519838721456
+Iteration 6
+    Energy: -77.87421385988726
+    Norm of gradient: 0.0012748110907321963
+    Regularization hyperparameter: 0.00026421804084141324
+    Variation hyperparameter: 0.9885625686311561
+Iteration 7
+    Energy: -77.87421539729331
+    Norm of gradient: 0.00017951420482045173
+    Regularization hyperparameter: 0.00026421820154174855
+    Variation hyperparameter: 0.9885625687801975
+Iteration 8
+    Energy: -77.87421564188935
+    Norm of gradient: 0.00010078059951467942
+    Regularization hyperparameter: 0.00026421820154174855
+    Variation hyperparameter: 0.9885625687801975
 </pre></div></div>
 </div>
 </section>
@@ -603,12 +631,12 @@ Iteration 3
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="entanglement-forging.html">
+          <a class="next-page" href="simulate-trotter-mol-ham.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">How to simulate entanglement forging</div>
+                <div class="title">How to simulate Trotterized time evolution for the molecular Hamiltonian</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -668,7 +696,7 @@ Iteration 3
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=4d22d5b7"></script>
+</div><script src="../_static/documentation_options.js?v=e95a51ae"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
