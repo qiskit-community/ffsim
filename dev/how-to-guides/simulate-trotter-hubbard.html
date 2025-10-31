@@ -3,13 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="State vectors and gates" href="state-vectors-and-gates.html" /><link rel="prev" title="Implementing Trotter simulation of the double-factorized Hamiltonian" href="../tutorials/double-factorized-trotter.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate entanglement forging" href="entanglement-forging.html" /><link rel="prev" title="How to simulate Trotterized time evolution for the molecular Hamiltonian" href="simulate-trotter-mol-ham.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Explanations - ffsim 0.0.61.dev0</title>
+        <title>How to simulate Trotterized time evolution for the Fermi-Hubbard model - ffsim 0.0.61.dev0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     
     
@@ -201,24 +202,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/double-factorized-trotter.html">Implementing Trotter simulation of the double-factorized Hamiltonian</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">Explanations</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="state-vectors-and-gates.html">State vectors and gates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hamiltonians.html">Hamiltonians</a></li>
-<li class="toctree-l2"><a class="reference internal" href="orbital-rotation.html">Orbital rotations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/simulate-lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/simulate-trotter-mol-ham.html">How to simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/simulate-trotter-hubbard.html">How to simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/entanglement-forging.html">How to simulate entanglement forging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/fermion-operator.html">How to use the FermionOperator class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-lucj.html">How to build Qiskit circuits for the LUCJ ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-circuits-sim.html">How to simulate excitation-preserving Qiskit circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to-guides/qiskit-merge-orbital-rotations.html">How to merge orbital rotations in Qiskit circuits</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="simulate-lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-mol-ham.html">How to simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-lucj.html">How to build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-circuits-sim.html">How to simulate excitation-preserving Qiskit circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-merge-orbital-rotations.html">How to merge orbital rotations in Qiskit circuits</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -253,12 +254,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/blob/main/docs/explanations/index.md?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/blob/main/docs/how-to-guides/simulate-trotter-hubbard.ipynb?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/edit/main/docs/explanations/index.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/edit/main/docs/how-to-guides/simulate-trotter-hubbard.ipynb" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -277,17 +278,128 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="explanations">
-<h1>Explanations<a class="headerlink" href="#explanations" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="state-vectors-and-gates.html">State vectors and gates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hamiltonians.html">Hamiltonians</a></li>
-<li class="toctree-l1"><a class="reference internal" href="orbital-rotation.html">Orbital rotations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
-</ul>
+          <section id="How-to-simulate-Trotterized-time-evolution-for-the-Fermi-Hubbard-model">
+<h1>How to simulate Trotterized time evolution for the Fermi-Hubbard model<a class="headerlink" href="#How-to-simulate-Trotterized-time-evolution-for-the-Fermi-Hubbard-model" title="Link to this heading">¶</a></h1>
+<p>In this guide, we show how to use ffsim to simulate Trotterized time evolution for the Fermi-Hubbard model using the split-operator method. In the split-operator method, the Hamiltonian is expressed as a sum of two terms, the one-body part and the two-body part, for the purposes of the Trotter product formula.</p>
+<p>First, let’s create a Fermi-Hubbard Hamiltonian and choose the number of electrons, which will remain fixed.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ffsim</span>
+
+<span class="n">norb_x</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">norb_y</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">norb</span> <span class="o">=</span> <span class="n">norb_x</span> <span class="o">*</span> <span class="n">norb_y</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">op</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">fermi_hubbard_2d</span><span class="p">(</span>
+    <span class="n">norb_x</span><span class="o">=</span><span class="n">norb_x</span><span class="p">,</span>
+    <span class="n">norb_y</span><span class="o">=</span><span class="n">norb_y</span><span class="p">,</span>
+    <span class="n">tunneling</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">interaction</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">chemical_potential</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">periodic_x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">periodic_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Before we can simulate Trotterized time evolution, we need to convert the operator to an instance of the DiagonalCoulombHamiltonian class.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dc_hamiltonian</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">DiagonalCoulombHamiltonian</span><span class="o">.</span><span class="n">from_fermion_operator</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Now, let’s apply time evolution to an initial state. Here, we’ll sample a random state vector to use as the initial state.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Construct the initial state.</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_state_vector</span><span class="p">(</span><span class="n">ffsim</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="p">),</span> <span class="n">seed</span><span class="o">=</span><span class="mi">12345</span><span class="p">)</span>
+
+<span class="c1"># Set the evolution time.</span>
+<span class="n">time</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="c1"># Perform the Trotterized time evolution</span>
+<span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">simulate_trotter_diag_coulomb_split_op</span><span class="p">(</span>
+    <span class="n">initial_state</span><span class="p">,</span>
+    <span class="n">dc_hamiltonian</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">,</span>
+    <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+    <span class="n">n_steps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To check the error from Trotterization, we can compute the result of exact time evolution and compare it with the final state we got.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span>
+
+<span class="c1"># Convert the Hamiltonian to a LinearOperator</span>
+<span class="n">linop</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">linear_operator</span><span class="p">(</span><span class="n">dc_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
+<span class="c1"># Compute the exact result of time evolution</span>
+<span class="n">exact_state</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm_multiply</span><span class="p">(</span>
+    <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">linop</span><span class="p">,</span>
+    <span class="n">initial_state</span><span class="p">,</span>
+    <span class="n">traceA</span><span class="o">=-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">time</span> <span class="o">*</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">dc_hamiltonian</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Compute fidelity between results from Trotterized evolution and exact evolution</span>
+<span class="n">fidelity</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">final_state</span><span class="p">,</span> <span class="n">exact_state</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fidelity of Trotter-evolved state with exact state: </span><span class="si">{</span><span class="n">fidelity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fidelity of Trotter-evolved state with exact state: 0.9801590816514582
+</pre></div></div>
+</div>
+<p>To reduce the Trotter error, you can increase the number of steps or use a higher-order formula.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">final_state</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">simulate_trotter_diag_coulomb_split_op</span><span class="p">(</span>
+    <span class="n">initial_state</span><span class="p">,</span>
+    <span class="n">dc_hamiltonian</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">,</span>
+    <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+    <span class="n">n_steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">fidelity</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">final_state</span><span class="p">,</span> <span class="n">exact_state</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fidelity of Trotter-evolved state with exact state: </span><span class="si">{</span><span class="n">fidelity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fidelity of Trotter-evolved state with exact state: 0.9999507048379485
+</pre></div></div>
 </div>
 </section>
 
@@ -296,23 +408,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="state-vectors-and-gates.html">
+          <a class="next-page" href="entanglement-forging.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">State vectors and gates</div>
+                <div class="title">How to simulate entanglement forging</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../tutorials/double-factorized-trotter.html">
+          <a class="prev-page" href="simulate-trotter-mol-ham.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Implementing Trotter simulation of the double-factorized Hamiltonian</div>
+                <div class="title">How to simulate Trotterized time evolution for the molecular Hamiltonian</div>
                 
               </div>
             </a>

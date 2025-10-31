@@ -5,6 +5,7 @@
 
 simulate-lucj
 simulate-trotter-mol-ham
+simulate-trotter-hubbard
 entanglement-forging
 fermion-operator
 qiskit-lucj
