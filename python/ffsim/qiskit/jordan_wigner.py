@@ -42,8 +42,8 @@ def jordan_wigner(
         op: The fermion operator to transform.
         norb: The total number of spatial orbitals. If not specified, it is determined
             by the largest-index orbital present in the operator.
-        tol: remove coefficients within specified tol to simplify the
-            SparsePauliOp. Default: 1e-12
+        tol: Terms with coefficients whose real and imaginary parts are smaller than
+          this value will be discarded.
 
     Returns:
         The qubit operator as a Qiskit SparsePauliOp.
