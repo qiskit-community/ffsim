@@ -1066,7 +1066,7 @@ state.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ffsim.qiskit.jordan_wigner">
-<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/jordan_wigner.html#jordan_wigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.jordan_wigner" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ffsim.qiskit.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffsim/qiskit/jordan_wigner.html#jordan_wigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffsim.qiskit.jordan_wigner" title="Link to this definition">¶</a></dt>
 <dd><p>Jordan-Wigner transformation.</p>
 <p>Transform a fermion operator to a qubit operator using the Jordan-Wigner
 transformation. The Jordan-Wigner transformation maps fermionic annihilation
@@ -1087,6 +1087,8 @@ operator, but you can manually specify the number using the <cite>norb</cite> ar
 <li><p><strong>op</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="ffsim.html#ffsim.FermionOperator" title="ffsim.FermionOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></a></span>) – The fermion operator to transform.</p></li>
 <li><p><strong>norb</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The total number of spatial orbitals. If not specified, it is determined
 by the largest-index orbital present in the operator.</p></li>
+<li><p><strong>tol</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Terms with coefficients whose real and imaginary parts are smaller than
+this value will be discarded.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

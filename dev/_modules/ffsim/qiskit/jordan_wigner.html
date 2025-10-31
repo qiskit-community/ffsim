@@ -282,16 +282,17 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparsePauliOp</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">ffsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">_lib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ffsim.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">FermionOperator</span>
 
 
 <div class="viewcode-block" id="jordan_wigner">
 <a class="viewcode-back" href="../../../api/ffsim.qiskit.html#ffsim.qiskit.jordan_wigner">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">jordan_wigner</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">FermionOperator</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparsePauliOp</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">jordan_wigner</span><span class="p">(</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">FermionOperator</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparsePauliOp</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Jordan-Wigner transformation.</span>
 
 <span class="sd">    Transform a fermion operator to a qubit operator using the Jordan-Wigner</span>
@@ -313,6 +314,8 @@
 <span class="sd">        op: The fermion operator to transform.</span>
 <span class="sd">        norb: The total number of spatial orbitals. If not specified, it is determined</span>
 <span class="sd">            by the largest-index orbital present in the operator.</span>
+<span class="sd">        tol: Terms with coefficients whose real and imaginary parts are smaller than</span>
+<span class="sd">          this value will be discarded.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The qubit operator as a Qiskit SparsePauliOp.</span>
@@ -341,29 +344,12 @@
             <span class="sa">f</span><span class="s2">&quot;only </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2"> were specified.&quot;</span>
         <span class="p">)</span>
 
-    <span class="n">qubit_terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_sparse_list</span><span class="p">([(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="mf">0.0</span><span class="p">)],</span> <span class="n">num_qubits</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">)]</span>
-    <span class="k">for</span> <span class="n">term</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">qubit_op</span> <span class="o">=</span> <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_sparse_list</span><span class="p">(</span>
-            <span class="p">[(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="n">coeff</span><span class="p">)],</span> <span class="n">num_qubits</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">action</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">term</span><span class="p">:</span>
-            <span class="n">qubit_op</span> <span class="o">@=</span> <span class="n">_qubit_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">orb</span> <span class="o">+</span> <span class="n">spin</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span> <span class="n">norb</span><span class="p">)</span>
-        <span class="n">qubit_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit_op</span><span class="p">)</span>
+    <span class="n">sparse_list</span><span class="p">,</span> <span class="n">num_qubits</span> <span class="o">=</span> <span class="n">_lib</span><span class="o">.</span><span class="n">jordan_wigner_qiskit</span><span class="p">(</span>
+        <span class="n">op</span><span class="p">,</span> <span class="n">norb</span><span class="p">,</span> <span class="n">tol</span>
+    <span class="p">)</span>  <span class="c1"># computed in Rust (src/jordan_wigner.rs)</span>
 
-    <span class="k">return</span> <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">qubit_terms</span><span class="p">)</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_sparse_list</span><span class="p">(</span><span class="n">sparse_list</span><span class="p">,</span> <span class="n">num_qubits</span><span class="o">=</span><span class="n">num_qubits</span><span class="p">)</span></div>
 
-
-
-<span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_qubit_action</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">qubit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="n">qubits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">qubit</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_sparse_list</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;Z&quot;</span> <span class="o">*</span> <span class="n">qubit</span> <span class="o">+</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;Z&quot;</span> <span class="o">*</span> <span class="n">qubit</span> <span class="o">+</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="n">j</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="mf">0.5</span><span class="n">j</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="n">num_qubits</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span><span class="p">,</span>
-    <span class="p">)</span>
 </pre></div>
         </article>
       </div>
