@@ -41,7 +41,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Before we can simulate Trotterized time evolution, we need to convert the operator to an instance of the DiagonalCoulombHamiltonian class."
+    "Before we can simulate Trotterized time evolution, we need to convert the operator to an instance of the [DiagonalCoulombHamiltonian](../api/ffsim.rst#ffsim.DiagonalCoulombHamiltonian) class."
    ]
   },
   {
