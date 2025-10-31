@@ -4,6 +4,7 @@
 :maxdepth: 1
 
 simulate-lucj
+simulate-trotter-mol-ham
 entanglement-forging
 fermion-operator
 qiskit-lucj
