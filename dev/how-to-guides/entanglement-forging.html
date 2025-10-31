@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to use the FermionOperator class" href="fermion-operator.html" /><link rel="prev" title="How to simulate the local unitary cluster Jastrow (LUCJ) ansatz" href="simulate-lucj.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to use the FermionOperator class" href="fermion-operator.html" /><link rel="prev" title="How to simulate Trotterized time evolution for the molecular Hamiltonian" href="simulate-trotter-mol-ham.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>How to simulate entanglement forging - ffsim 0.0.61.dev0</title>
@@ -213,6 +213,7 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="simulate-lucj.html">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-mol-ham.html">How to simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate entanglement forging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qiskit-lucj.html">How to build Qiskit circuits for the LUCJ ansatz</a></li>
@@ -335,9 +336,9 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -75.6787887956296
-Parsing /tmp/tmpgcxe1izd
-converged SCF energy = -75.6787887956313
+converged SCF energy = -75.6787887956297
+Parsing /tmp/tmp1zg6kxc2
+converged SCF energy = -75.6787887956314
 CASCI E = -75.7288249991515  E(CI) = -23.6332495815006  S^2 = 0.0000000
 norb = 6
 nelec = (4, 4)
@@ -348,7 +349,7 @@ nelec = (4, 4)
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
+Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute energy_nuc because it is not JSON-serializable
   warnings.warn(msg)
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute intor_symmetric because it is not JSON-serializable
@@ -426,7 +427,7 @@ Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf_symm.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Energy at initialialization: -75.67794403659721
+Energy at initialialization: -75.67794403659724
 </pre></div></div>
 </div>
 </section>
@@ -472,10 +473,10 @@ Number of parameters: 15
   message: STOP: TOTAL NO. OF F,G EVALUATIONS EXCEEDS LIMIT
   success: False
    status: 1
-      fun: -75.6838156865091
-        x: [-1.603e-01  6.414e-03 ...  5.747e-02 -1.005e-01]
+      fun: -75.68381560813208
+        x: [-1.603e-01  6.417e-03 ...  5.748e-02 -1.005e-01]
       nit: 3
-      jac: [ 2.160e-04  1.094e-04 ... -4.746e-03  7.385e-03]
+      jac: [ 2.174e-04  1.108e-04 ... -4.744e-03  7.418e-03]
      nfev: 112
      njev: 7
  hess_inv: &lt;15x15 LbfgsInvHessProduct with dtype=float64&gt;
@@ -498,14 +499,14 @@ Number of parameters: 15
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="simulate-lucj.html">
+          <a class="prev-page" href="simulate-trotter-mol-ham.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</div>
+                <div class="title">How to simulate Trotterized time evolution for the molecular Hamiltonian</div>
                 
               </div>
             </a>
