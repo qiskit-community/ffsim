@@ -9,6 +9,7 @@ simulate-trotter-hubbard
 entanglement-forging
 fermion-operator
 qiskit-lucj
+qiskit-trotter
 qiskit-circuits-sim
 qiskit-merge-orbital-rotations
 ```
