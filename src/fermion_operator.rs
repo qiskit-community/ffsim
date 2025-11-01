@@ -616,3 +616,11 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
     }
     FermionOperator { coeffs }
 }
+
+// Separate Rust-only impl block
+impl FermionOperator {
+    /// Crate-visible accessor for iterating
+    pub(crate) fn coeffs(&self) -> &std::collections::HashMap<Vec<(bool, bool, i32)>, Complex64> {
+        &self.coeffs
+    }
+}

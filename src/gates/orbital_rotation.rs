@@ -22,7 +22,7 @@ use numpy::PyReadwriteArray2;
 
 use pyo3::prelude::*;
 
-/// Apply a matrix to slices of a matrix.
+/// Apply a Givens rotation between two slices of a vector
 #[pyfunction]
 pub fn apply_givens_rotation_in_place(
     mut vec: PyReadwriteArray2<Complex64>,
@@ -46,6 +46,8 @@ pub fn apply_givens_rotation_in_place(
         match row_i.as_slice_mut() {
             Some(row_i) => match row_j.as_slice_mut() {
                 Some(row_j) => unsafe {
+                    // Use zdrot and zscal because zrot is not currently available
+                    // See https://github.com/qiskit-community/ffsim/issues/28
                     zscal(dim_b, phase_conj, row_i, 1);
                     zdrot(dim_b, row_i, 1, row_j, 1, c, s_abs);
                     zscal(dim_b, phase, row_i, 1);

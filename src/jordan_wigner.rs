@@ -1,0 +1,121 @@
+use crate::fermion_operator::FermionOperator;
+use numpy::Complex64;
+use pyo3::prelude::*;
+use std::collections::HashMap;
+
+type SparseLabel = String;
+type SparseIndices = Vec<usize>;
+type SparseCoeff = Complex64;
+type SparseListEntry = (SparseLabel, SparseIndices, SparseCoeff);
+type SparseList = Vec<SparseListEntry>;
+
+/// Jordan–Wigner map of a FermionOperator.
+///
+/// Returns (sparse_list, num_qubits) where sparse_list is used to construct a Sparse Pauli Operator in Qiskit.
+#[pyfunction]
+pub fn jordan_wigner_qiskit(
+    op: &FermionOperator,
+    norb: usize,
+    tol: f64,
+) -> PyResult<(SparseList, usize)> {
+    let n_qubits: usize = 2 * norb;
+
+    // ---- helpers ----
+    #[inline]
+    fn mul_pauli(a: u8, b: u8) -> (u8, Complex64) {
+        match (a, b) {
+            (b'I', p) => (p, Complex64::new(1.0, 0.0)),
+            (p, b'I') => (p, Complex64::new(1.0, 0.0)),
+            (b'X', b'X') | (b'Y', b'Y') | (b'Z', b'Z') => (b'I', Complex64::new(1.0, 0.0)),
+            (b'X', b'Y') => (b'Z', Complex64::new(0.0, 1.0)),
+            (b'X', b'Z') => (b'Y', Complex64::new(0.0, -1.0)),
+            (b'Y', b'X') => (b'Z', Complex64::new(0.0, -1.0)),
+            (b'Y', b'Z') => (b'X', Complex64::new(0.0, 1.0)),
+            (b'Z', b'X') => (b'Y', Complex64::new(0.0, 1.0)),
+            (b'Z', b'Y') => (b'X', Complex64::new(0.0, -1.0)),
+            _ => unreachable!(),
+        }
+    }
+
+    #[inline]
+    fn multiply_by_zs_and_main(s: &mut [u8], zs: &[usize], q: usize, main: u8) -> Complex64 {
+        let mut phase = Complex64::new(1.0, 0.0);
+        for &i in zs {
+            let (c, p) = mul_pauli(s[i], b'Z');
+            s[i] = c;
+            phase *= p;
+        }
+        let (c, p) = mul_pauli(s[q], main);
+        s[q] = c;
+        phase *= p;
+        phase
+    }
+
+    // Jordan–Wigner mapping into dense Pauli bytes + coeffs
+    let mut acc: HashMap<Vec<u8>, Complex64> = HashMap::new();
+    let identity = vec![b'I'; n_qubits];
+
+    // We need both key and value here.
+    for (ops, &term_coeff) in op.coeffs() {
+        let mut current: HashMap<Vec<u8>, Complex64> = HashMap::new();
+        current.insert(identity.clone(), Complex64::new(1.0, 0.0));
+
+        // ops: Vec<(action, spin, orb)>
+        // action: true=creation, false=annihilation
+        // spin:   false=alpha, true=beta
+        for &(action, spin, orb_i32) in ops {
+            let orb = orb_i32 as usize;
+            let q = orb + if spin { norb } else { 0 };
+            let z_positions: Vec<usize> = (0..q).collect();
+
+            // a^dag = (X - iY)/2, a = (X + iY)/2
+            let coeff_x = Complex64::new(0.5, 0.0);
+            let coeff_y = if action {
+                Complex64::new(0.0, -0.5)
+            } else {
+                Complex64::new(0.0, 0.5)
+            };
+
+            let mut next: HashMap<Vec<u8>, Complex64> = HashMap::new();
+            for (ps, c) in current.into_iter() {
+                // X branch
+                let mut s_x = ps.clone();
+                let phase_x = multiply_by_zs_and_main(&mut s_x, &z_positions, q, b'X');
+                *next.entry(s_x).or_insert(Complex64::new(0.0, 0.0)) += c * coeff_x * phase_x;
+
+                // Y branch
+                let mut s_y = ps;
+                let phase_y = multiply_by_zs_and_main(&mut s_y, &z_positions, q, b'Y');
+                *next.entry(s_y).or_insert(Complex64::new(0.0, 0.0)) += c * coeff_y * phase_y;
+            }
+            current = next;
+        }
+
+        for (ps, c) in current.into_iter() {
+            let w = c * term_coeff;
+            if w.re.abs() > tol || w.im.abs() > tol {
+                *acc.entry(ps).or_insert(Complex64::new(0.0, 0.0)) += w;
+            }
+        }
+    }
+
+    // Convert dense bytes to compact sparse_list triples
+    let mut sparse_list: SparseList = Vec::with_capacity(acc.len());
+    for (ps_bytes, w) in acc.into_iter() {
+        if w.re.abs() <= tol && w.im.abs() <= tol {
+            continue;
+        }
+        let mut indices: Vec<usize> = Vec::new();
+        let mut label = String::new();
+        for (q, &ch) in ps_bytes.iter().enumerate() {
+            if ch != b'I' {
+                indices.push(q);
+                label.push(ch as char);
+            }
+        }
+        // Identity term allowed as ("", [], coeff)
+        sparse_list.push((label, indices, w));
+    }
+
+    Ok((sparse_list, n_qubits))
+}

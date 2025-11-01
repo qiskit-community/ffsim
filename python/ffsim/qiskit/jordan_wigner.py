@@ -12,14 +12,15 @@
 
 from __future__ import annotations
 
-import functools
-
 from qiskit.quantum_info import SparsePauliOp
 
+from ffsim import _lib
 from ffsim.operators import FermionOperator
 
 
-def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp:
+def jordan_wigner(
+    op: FermionOperator, norb: int | None = None, *, tol: float = 1e-12
+) -> SparsePauliOp:
     r"""Jordan-Wigner transformation.
 
     Transform a fermion operator to a qubit operator using the Jordan-Wigner
@@ -41,6 +42,8 @@ def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp
         op: The fermion operator to transform.
         norb: The total number of spatial orbitals. If not specified, it is determined
             by the largest-index orbital present in the operator.
+        tol: Terms with coefficients whose real and imaginary parts are smaller than
+          this value will be discarded.
 
     Returns:
         The qubit operator as a Qiskit SparsePauliOp.
@@ -69,25 +72,8 @@ def jordan_wigner(op: FermionOperator, norb: int | None = None) -> SparsePauliOp
             f"only {norb} were specified."
         )
 
-    qubit_terms = [SparsePauliOp.from_sparse_list([("", [], 0.0)], num_qubits=2 * norb)]
-    for term, coeff in op.items():
-        qubit_op = SparsePauliOp.from_sparse_list(
-            [("", [], coeff)], num_qubits=2 * norb
-        )
-        for action, spin, orb in term:
-            qubit_op @= _qubit_action(action, orb + spin * norb, norb)
-        qubit_terms.append(qubit_op)
+    sparse_list, num_qubits = _lib.jordan_wigner_qiskit(
+        op, norb, tol
+    )  # computed in Rust (src/jordan_wigner.rs)
 
-    return SparsePauliOp.sum(qubit_terms).simplify()
-
-
-@functools.cache
-def _qubit_action(action: bool, qubit: int, norb: int):
-    qubits = list(range(qubit + 1))
-    return SparsePauliOp.from_sparse_list(
-        [
-            ("Z" * qubit + "X", qubits, 0.5),
-            ("Z" * qubit + "Y", qubits, -0.5j if action else 0.5j),
-        ],
-        num_qubits=2 * norb,
-    )
+    return SparsePauliOp.from_sparse_list(sparse_list, num_qubits=num_qubits)
