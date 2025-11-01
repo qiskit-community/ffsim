@@ -9,6 +9,7 @@ name = "ffsim"
 crate-type = ["cdylib"]
 
 [dependencies]
+rayon = "1.10"
 blas = "0.22"
 ndarray = { version = "0.15", features = ["rayon"] }
 blas-src = { version = "0.10" }
