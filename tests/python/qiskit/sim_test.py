@@ -461,3 +461,22 @@ def test_permutation_gate_cross_spin_error():
 
     with pytest.raises(ValueError, match="same spin"):
         ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
+
+
+def test_permutation_gate_large_spinful():
+    """PermutationGate handles large bit positions without overflow."""
+    norb = 63
+    nelec = (1, 1)
+
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+
+    perm = list(range(2 * norb))
+    perm[0], perm[norb - 1] = perm[norb - 1], perm[0]
+    perm[norb], perm[2 * norb - 1] = perm[2 * norb - 1], perm[norb]
+    circuit.append(PermutationGate(perm), qubits)
+
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit, norb=norb, nelec=nelec)
+    expected = ffsim.slater_determinant(norb, ([norb - 1], [norb - 1]))
+    np.testing.assert_allclose(ffsim_vec, expected)

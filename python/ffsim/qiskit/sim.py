@@ -853,8 +853,13 @@ def _apply_permutation_gate(
         permuted_alpha = _permute_bitstrings(alpha_bits, alpha_pairs)
         permuted_beta = _permute_bitstrings(beta_bits, beta_pairs)
 
-        combined = permuted_alpha + (permuted_beta << norb)
-        indices = states.strings_to_addresses(combined, norb=norb, nelec=nelec)
+        n_alpha, n_beta = nelec
+        addrs_alpha = states.strings_to_addresses(
+            permuted_alpha, norb=norb, nelec=n_alpha
+        )
+        addrs_beta = states.strings_to_addresses(permuted_beta, norb=norb, nelec=n_beta)
+        dim_beta = math.comb(norb, n_beta)
+        indices = addrs_alpha * dim_beta + addrs_beta
     permuted_vec = np.empty_like(vec)
     permuted_vec[indices] = vec
     return permuted_vec
