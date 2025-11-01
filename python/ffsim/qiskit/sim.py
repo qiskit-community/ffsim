@@ -811,6 +811,17 @@ def _apply_permutation_gate(
     norb: int,
     nelec: int | tuple[int, int],
 ) -> np.ndarray:
+    """Apply a permutation gate by clearing and refilling the selected occupations.
+
+    The qubits listed in ``qubit_indices`` are permuted according to ``perm``, so the
+    routine converts the pull rule y[q_t] = x[q_{pi(t)}] into push assignments with
+    destinations d_t = q_{perm^{-1}(t)}. It constructs a destination mask
+    M = sum(2 ** d_t) to clear all targets in one operation, reads each source bit via
+    (x >> q_t) & 1, and accumulates the shifted bits (b_t << d_t) to restore the
+    permuted bitstrings. For spinful systems the clear-and-fill steps run separately
+    on the alpha and beta halves before recombining the addresses, which preserves
+    N_alpha and N_beta.
+    """
     inverse_perm = np.empty_like(perm)
     inverse_perm[perm] = np.arange(len(perm))
     dests = [qubit_indices[i] for i in inverse_perm]
