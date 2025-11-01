@@ -727,24 +727,12 @@ def _evolve_state_vector_spinful(
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, PermutationGate):
-        perm = op.pattern
-        inverse_perm = np.empty_like(perm)
-        inverse_perm[perm] = np.arange(len(perm))
-        dests = [qubit_indices[i] for i in inverse_perm]
-        if any(
-            (src < norb) != (dest < norb) for src, dest in zip(qubit_indices, dests)
-        ):
-            raise ValueError(
-                f"Gate of type '{op.__class__.__name__}' must be applied on "
-                "orbitals of the same spin."
-            )
         vec = _apply_permutation_gate(
             vec,
             qubit_indices,
-            perm,
+            op.pattern,
             norb=norb,
             nelec=nelec,
-            dests=dests,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -822,12 +810,17 @@ def _apply_permutation_gate(
     *,
     norb: int,
     nelec: int | tuple[int, int],
-    dests: Sequence[int] | None = None,
 ) -> np.ndarray:
-    if dests is None:
-        inverse_perm = np.empty_like(perm)
-        inverse_perm[perm] = np.arange(len(perm))
-        dests = [qubit_indices[i] for i in inverse_perm]
+    inverse_perm = np.empty_like(perm)
+    inverse_perm[perm] = np.arange(len(perm))
+    dests = [qubit_indices[i] for i in inverse_perm]
+    if not isinstance(nelec, int) and any(
+        (src < norb) != (dest < norb) for src, dest in zip(qubit_indices, dests)
+    ):
+        raise ValueError(
+            "Gate of type 'PermutationGate' must be applied on orbitals "
+            "of the same spin."
+        )
 
     pairs = list(zip(qubit_indices, dests))
     addresses = range(len(vec))
