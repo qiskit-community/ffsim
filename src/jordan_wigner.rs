@@ -1,6 +1,7 @@
 use crate::fermion_operator::FermionOperator;
 use numpy::Complex64;
 use pyo3::prelude::*;
+use rayon::prelude::*;
 use std::collections::HashMap;
 
 type SparseLabel = String;
@@ -9,7 +10,7 @@ type SparseCoeff = Complex64;
 type SparseListEntry = (SparseLabel, SparseIndices, SparseCoeff);
 type SparseList = Vec<SparseListEntry>;
 
-/// Jordan–Wigner map of a FermionOperator.
+/// Jordan–Wigner map of a FermionOperator with Rayon multithreading support.
 ///
 /// Returns (sparse_list, num_qubits) where sparse_list is used to construct a Sparse Pauli Operator in Qiskit.
 #[pyfunction]
@@ -51,53 +52,69 @@ pub fn jordan_wigner_qiskit(
         phase
     }
 
-    // Jordan–Wigner mapping into dense Pauli bytes + coeffs
-    let mut acc: HashMap<Vec<u8>, Complex64> = HashMap::new();
+    // Identity Pauli string template reused per term.
     let identity = vec![b'I'; n_qubits];
 
-    // We need both key and value here.
-    for (ops, &term_coeff) in op.coeffs() {
-        let mut current: HashMap<Vec<u8>, Complex64> = HashMap::new();
-        current.insert(identity.clone(), Complex64::new(1.0, 0.0));
+    // Parallel outer accumulation over all fermion terms
+    let acc: HashMap<Vec<u8>, Complex64> = op
+        .coeffs()
+        .par_iter()
+        .fold(
+            HashMap::<Vec<u8>, Complex64>::new,
+            |mut acc_local, (ops, &term_coeff)| {
+                // dense Pauli bytes -> coeff for the specific term's expansion
+                let mut current: HashMap<Vec<u8>, Complex64> = HashMap::new();
+                current.insert(identity.clone(), Complex64::new(1.0, 0.0));
 
-        // ops: Vec<(action, spin, orb)>
-        // action: true=creation, false=annihilation
-        // spin:   false=alpha, true=beta
-        for &(action, spin, orb_i32) in ops {
-            let orb = orb_i32 as usize;
-            let q = orb + if spin { norb } else { 0 };
-            let z_positions: Vec<usize> = (0..q).collect();
+                // ops: Vec<(action, spin, orb)>
+                // action: true=creation, false=annihilation
+                // spin:   false=alpha, true=beta
+                for &(action, spin, orb_i32) in ops {
+                    let orb = orb_i32 as usize;
+                    let q = orb + if spin { norb } else { 0 };
+                    let z_positions: Vec<usize> = (0..q).collect();
 
-            // a^dag = (X - iY)/2, a = (X + iY)/2
-            let coeff_x = Complex64::new(0.5, 0.0);
-            let coeff_y = if action {
-                Complex64::new(0.0, -0.5)
-            } else {
-                Complex64::new(0.0, 0.5)
-            };
+                    // a^dag = (X - iY)/2, a = (X + iY)/2
+                    let coeff_x = Complex64::new(0.5, 0.0);
+                    let coeff_y = if action {
+                        Complex64::new(0.0, -0.5)
+                    } else {
+                        Complex64::new(0.0, 0.5)
+                    };
 
-            let mut next: HashMap<Vec<u8>, Complex64> = HashMap::new();
-            for (ps, c) in current.into_iter() {
-                // X branch
-                let mut s_x = ps.clone();
-                let phase_x = multiply_by_zs_and_main(&mut s_x, &z_positions, q, b'X');
-                *next.entry(s_x).or_insert(Complex64::new(0.0, 0.0)) += c * coeff_x * phase_x;
+                    let mut next: HashMap<Vec<u8>, Complex64> = HashMap::new();
+                    for (ps, c) in current.into_iter() {
+                        // X branch
+                        let mut s_x = ps.clone();
+                        let phase_x = multiply_by_zs_and_main(&mut s_x, &z_positions, q, b'X');
+                        *next.entry(s_x).or_insert(Complex64::new(0.0, 0.0)) +=
+                            c * coeff_x * phase_x;
 
-                // Y branch
-                let mut s_y = ps;
-                let phase_y = multiply_by_zs_and_main(&mut s_y, &z_positions, q, b'Y');
-                *next.entry(s_y).or_insert(Complex64::new(0.0, 0.0)) += c * coeff_y * phase_y;
+                        // Y branch
+                        let mut s_y = ps;
+                        let phase_y = multiply_by_zs_and_main(&mut s_y, &z_positions, q, b'Y');
+                        *next.entry(s_y).or_insert(Complex64::new(0.0, 0.0)) +=
+                            c * coeff_y * phase_y;
+                    }
+                    current = next;
+                }
+
+                // Accumulating term contribution into the thread-local accumulator.
+                for (ps, c) in current.into_iter() {
+                    let w = c * term_coeff;
+                    if w.re.abs() > tol || w.im.abs() > tol {
+                        *acc_local.entry(ps).or_insert(Complex64::new(0.0, 0.0)) += w;
+                    }
+                }
+                acc_local
+            },
+        )
+        .reduce(HashMap::<Vec<u8>, Complex64>::new, |mut a, b| {
+            for (k, v) in b {
+                *a.entry(k).or_insert(Complex64::new(0.0, 0.0)) += v;
             }
-            current = next;
-        }
-
-        for (ps, c) in current.into_iter() {
-            let w = c * term_coeff;
-            if w.re.abs() > tol || w.im.abs() > tol {
-                *acc.entry(ps).or_insert(Complex64::new(0.0, 0.0)) += w;
-            }
-        }
-    }
+            a
+        });
 
     // Convert dense bytes to compact sparse_list triples
     let mut sparse_list: SparseList = Vec::with_capacity(acc.len());
@@ -116,6 +133,5 @@ pub fn jordan_wigner_qiskit(
         // Identity term allowed as ("", [], coeff)
         sparse_list.push((label, indices, w));
     }
-
     Ok((sparse_list, n_qubits))
 }
