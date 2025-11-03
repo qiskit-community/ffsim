@@ -300,6 +300,7 @@
     <span class="n">DiagonalGate</span><span class="p">,</span>
     <span class="n">GlobalPhaseGate</span><span class="p">,</span>
     <span class="n">Measure</span><span class="p">,</span>
+    <span class="n">PermutationGate</span><span class="p">,</span>
     <span class="n">PhaseGate</span><span class="p">,</span>
     <span class="n">RZGate</span><span class="p">,</span>
     <span class="n">RZZGate</span><span class="p">,</span>
@@ -652,6 +653,16 @@
         <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_iswap</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PermutationGate</span><span class="p">):</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_permutation_gate</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">qubit_indices</span><span class="p">,</span>
+            <span class="n">op</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">XXPlusYYGate</span><span class="p">):</span>
         <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">params</span>
@@ -988,6 +999,16 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">PermutationGate</span><span class="p">):</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">_apply_permutation_gate</span><span class="p">(</span>
+            <span class="n">vec</span><span class="p">,</span>
+            <span class="n">qubit_indices</span><span class="p">,</span>
+            <span class="n">op</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">states</span><span class="o">.</span><span class="n">StateVector</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">XXPlusYYGate</span><span class="p">):</span>
         <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">qubit_indices</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">):</span>
@@ -1038,6 +1059,94 @@
             <span class="n">dag</span><span class="o">.</span><span class="n">remove_op_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
     <span class="n">remaining_circuit</span> <span class="o">=</span> <span class="n">dag_to_circuit</span><span class="p">(</span><span class="n">dag</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">remaining_circuit</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_permute_bitstrings</span><span class="p">(</span>
+    <span class="n">bits</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pairs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return bitstrings with bits moved according to (src, dest) pairs.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">bits</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">dest</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">)</span>
+    <span class="n">permuted</span> <span class="o">=</span> <span class="n">bits</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">mask</span><span class="p">:</span>
+        <span class="n">permuted</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">mask</span>
+    <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="n">permuted</span> <span class="o">|=</span> <span class="p">((</span><span class="n">bits</span> <span class="o">&gt;&gt;</span> <span class="n">src</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">dest</span>
+    <span class="k">return</span> <span class="n">permuted</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_permutation_gate</span><span class="p">(</span>
+    <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">qubit_indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">perm</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nelec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a permutation gate by clearing and refilling the selected occupations.</span>
+
+<span class="sd">    The qubits listed in ``qubit_indices`` are permuted according to ``perm``, so the</span>
+<span class="sd">    routine converts the pull rule y[q_t] = x[q_{pi(t)}] into push assignments with</span>
+<span class="sd">    destinations d_t = q_{perm^{-1}(t)}. It constructs a destination mask</span>
+<span class="sd">    M = sum(2 ** d_t) to clear all targets in one operation, reads each source bit via</span>
+<span class="sd">    (x &gt;&gt; q_t) &amp; 1, and accumulates the shifted bits (b_t &lt;&lt; d_t) to restore the</span>
+<span class="sd">    permuted bitstrings. For spinful systems the clear-and-fill steps run separately</span>
+<span class="sd">    on the alpha and beta halves before recombining the addresses, which preserves</span>
+<span class="sd">    N_alpha and N_beta.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inverse_perm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
+    <span class="n">inverse_perm</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">))</span>
+    <span class="n">dests</span> <span class="o">=</span> <span class="p">[</span><span class="n">qubit_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inverse_perm</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">src</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">dest</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">qubit_indices</span><span class="p">,</span> <span class="n">dests</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Gate of type &#39;PermutationGate&#39; must be applied on orbitals &quot;</span>
+            <span class="s2">&quot;of the same spin.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">qubit_indices</span><span class="p">,</span> <span class="n">dests</span><span class="p">))</span>
+    <span class="n">addresses</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nelec</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="c1"># Spinless case</span>
+        <span class="n">bitstrings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">states</span><span class="o">.</span><span class="n">addresses_to_strings</span><span class="p">(</span>
+                <span class="n">addresses</span><span class="p">,</span>
+                <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+                <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+                <span class="n">bitstring_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">permuted</span> <span class="o">=</span> <span class="n">_permute_bitstrings</span><span class="p">(</span><span class="n">bitstrings</span><span class="p">,</span> <span class="n">pairs</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">strings_to_addresses</span><span class="p">(</span><span class="n">permuted</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Spinful case</span>
+        <span class="n">strings_a</span><span class="p">,</span> <span class="n">strings_b</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">addresses_to_strings</span><span class="p">(</span>
+            <span class="n">addresses</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">nelec</span><span class="o">=</span><span class="n">nelec</span><span class="p">,</span>
+            <span class="n">bitstring_type</span><span class="o">=</span><span class="n">BitstringType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
+            <span class="n">concatenate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">alpha_bits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">strings_a</span><span class="p">)</span>
+        <span class="n">beta_bits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">strings_b</span><span class="p">)</span>
+        <span class="n">alpha_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">src</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">]</span>
+        <span class="n">beta_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">src</span> <span class="o">-</span> <span class="n">norb</span><span class="p">,</span> <span class="n">dest</span> <span class="o">-</span> <span class="n">norb</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">src</span> <span class="o">&gt;=</span> <span class="n">norb</span><span class="p">]</span>
+
+        <span class="n">permuted_alpha</span> <span class="o">=</span> <span class="n">_permute_bitstrings</span><span class="p">(</span><span class="n">alpha_bits</span><span class="p">,</span> <span class="n">alpha_pairs</span><span class="p">)</span>
+        <span class="n">permuted_beta</span> <span class="o">=</span> <span class="n">_permute_bitstrings</span><span class="p">(</span><span class="n">beta_bits</span><span class="p">,</span> <span class="n">beta_pairs</span><span class="p">)</span>
+
+        <span class="n">n_alpha</span><span class="p">,</span> <span class="n">n_beta</span> <span class="o">=</span> <span class="n">nelec</span>
+        <span class="n">addrs_alpha</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">strings_to_addresses</span><span class="p">(</span>
+            <span class="n">permuted_alpha</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_alpha</span>
+        <span class="p">)</span>
+        <span class="n">addrs_beta</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">strings_to_addresses</span><span class="p">(</span><span class="n">permuted_beta</span><span class="p">,</span> <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span> <span class="n">nelec</span><span class="o">=</span><span class="n">n_beta</span><span class="p">)</span>
+        <span class="n">dim_beta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">n_beta</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">addrs_alpha</span> <span class="o">*</span> <span class="n">dim_beta</span> <span class="o">+</span> <span class="n">addrs_beta</span>
+    <span class="n">permuted_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="n">permuted_vec</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">vec</span>
+    <span class="k">return</span> <span class="n">permuted_vec</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_apply_diagonal_gate</span><span class="p">(</span>
