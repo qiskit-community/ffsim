@@ -201,7 +201,7 @@ def _apply_num_op_sum_evolution_spinful(
         apply_num_op_sum_evolution_in_place(vec, phases_a, occupations=occupations_a)
     if phases_b is not None:
         # apply beta
-        vec = vec.T
+        vec = np.ascontiguousarray(vec.T)
         apply_num_op_sum_evolution_in_place(vec, phases_b, occupations=occupations_b)
         vec = vec.T
     vec = vec.reshape(-1)

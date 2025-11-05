@@ -8,6 +8,7 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.
 
+use blas::zscal;
 use ndarray::Zip;
 use numpy::Complex64;
 use numpy::PyReadonlyArray1;
@@ -25,12 +26,20 @@ pub fn apply_num_op_sum_evolution_in_place(
     let phases = phases.as_array();
     let mut vec = vec.as_array_mut();
     let occupations = occupations.as_array();
+    let dim_b = vec.shape()[1] as i32;
 
     Zip::from(vec.rows_mut())
         .and(occupations.rows())
         .par_for_each(|mut row, orbs| {
             let mut phase = Complex64::new(1.0, 0.0);
             orbs.for_each(|&orb| phase *= phases[orb]);
-            row *= phase;
-        });
+            match row.as_slice_mut() {
+                Some(row) => unsafe {
+                    zscal(dim_b, phase, row, 1);
+                },
+                None => panic!(
+                    "Failed to convert ArrayBase to slice, possibly because the data was not contiguous and in standard order."
+                ),
+            };
+        })
 }
