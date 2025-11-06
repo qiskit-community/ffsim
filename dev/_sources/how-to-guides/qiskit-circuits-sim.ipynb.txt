@@ -4,7 +4,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# How to simulate excitation-preserving Qiskit circuits\n",
+    "# Simulate excitation-preserving Qiskit circuits\n",
     "\n",
     "ffsim supports the simulation of a restricted class of Qiskit circuits built from gates in the Qiskit circuit library. The simulation is accomplished by mapping the qubits to fermions. The circuits that can be simulated are those whose gates, except for state preparation and measurement, are \"excitation-preserving,\" that is, they do not alter the Hamming weight of computational basis states. Concretely, the circuit should have the following structure:\n",
     "\n",

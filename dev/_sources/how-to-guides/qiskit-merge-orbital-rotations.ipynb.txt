@@ -4,7 +4,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# How to merge orbital rotations in Qiskit circuits\n",
+    "# Merge orbital rotations in Qiskit circuits\n",
     "\n",
     "Due to the homomorphism property of [orbital rotations](../explanations/orbital-rotation.ipynb), adjacent orbital rotations occurring in a quantum circuit can be merged into a single orbital rotation, reducing the number of gates that result when the circuit is decomposed into more basic gates.\n",
     "\n",

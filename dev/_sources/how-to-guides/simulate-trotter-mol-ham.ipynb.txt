@@ -4,7 +4,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# How to simulate Trotterized time evolution for the molecular Hamiltonian\n",
+    "# Simulate Trotterized time evolution for the molecular Hamiltonian\n",
     "\n",
     "In this guide, we show how to use ffsim to simulate Trotterized time evolution for the molecular Hamiltonian in the [double-factorized representation](../explanations/double-factorized.ipynb).\n",
     "\n",

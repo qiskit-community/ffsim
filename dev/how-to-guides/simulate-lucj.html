@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How to simulate Trotterized time evolution for the molecular Hamiltonian" href="simulate-trotter-mol-ham.html" /><link rel="prev" title="How-to guides" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Simulate Trotterized time evolution for the molecular Hamiltonian" href="simulate-trotter-mol-ham.html" /><link rel="prev" title="How-to guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.62.dev0</title>
+        <title>Simulate the local unitary cluster Jastrow (LUCJ) ansatz - ffsim 0.0.62.dev0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -212,15 +212,15 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-mol-ham.html">How to simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-hubbard.html">How to simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">How to simulate entanglement forging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">How to use the FermionOperator class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-lucj.html">How to build Qiskit circuits for the LUCJ ansatz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-trotter.html">How to build Qiskit circuits for Trotterized Hamiltonian simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-circuits-sim.html">How to simulate excitation-preserving Qiskit circuits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qiskit-merge-orbital-rotations.html">How to merge orbital rotations in Qiskit circuits</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-mol-ham.html">Simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-hubbard.html">Simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">Simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fermion-operator.html">The FermionOperator class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-lucj.html">Build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-trotter.html">Build Qiskit circuits for Trotterized Hamiltonian simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-circuits-sim.html">Simulate excitation-preserving Qiskit circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-merge-orbital-rotations.html">Merge orbital rotations in Qiskit circuits</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -279,8 +279,8 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
-<h1>How to simulate the local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#How-to-simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h1>
+          <section id="Simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz">
+<h1>Simulate the local unitary cluster Jastrow (LUCJ) ansatz<a class="headerlink" href="#Simulate-the-local-unitary-cluster-Jastrow-(LUCJ)-ansatz" title="Link to this heading">¶</a></h1>
 <p>In this guide, we show how to use ffsim to simulate the <a class="reference internal" href="../explanations/lucj.html"><span class="doc">local unitary cluster Jastrow (LUCJ) ansatz</span></a>. We’ll use it to calculate an approximation to the ground state energy of an ethene molecule.</p>
 <p>First, let’s build the molecule.</p>
 <div class="nbinput docutils container">
@@ -334,9 +334,9 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-converged SCF energy = -77.8266321248745
-Parsing /tmp/tmpuhi5rt6a
 converged SCF energy = -77.8266321248744
+Parsing /tmp/tmpy18ax11v
+converged SCF energy = -77.8266321248745
 CASCI E = -77.8742165643863  E(CI) = -4.02122442107773  S^2 = 0.0000000
 norb = 4
 nelec = (2, 2)
@@ -347,7 +347,7 @@ nelec = (2, 2)
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
+Overwritten attributes  get_hcore get_ovlp  of &lt;class &#39;pyscf.scf.hf_symm.SymAdaptedRHF&#39;&gt;
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute energy_nuc because it is not JSON-serializable
   warnings.warn(msg)
 /home/runner/work/ffsim/ffsim/.tox/docs/lib/python3.13/site-packages/pyscf/gto/mole.py:1300: UserWarning: Function mol.dumps drops attribute intor_symmetric because it is not JSON-serializable
@@ -392,8 +392,8 @@ Overwritten attributes  get_ovlp get_hcore  of &lt;class &#39;pyscf.scf.hf_symm.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-E(CCSD) = -77.87421536374032  E_corr = -0.04758323886585565
-Energy at initialization: -77.87160024816271
+E(CCSD) = -77.87421536374026  E_corr = -0.04758323886585233
+Energy at initialization: -77.87160024816275
 </pre></div></div>
 </div>
 <p>To variationally optimize the ansatz, we’ll take advantage of methods for conversion to and from real-valued parameter vectors. In the following code cell, we define an objective function that takes a parameter vector as input and outputs the energy of the associated ansatz state. We then optimize this objective function using <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>, with an initial guess obtained from the operator we initialized previously from t2 amplitudes.</p>
@@ -430,15 +430,15 @@ Energy at initialization: -77.87160024816271
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 88
-  message: STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
-  success: False
-   status: 1
-      fun: -77.87387322167274
-        x: [-1.153e+00  8.166e-05 ...  9.497e-05 -5.353e-05]
-      nit: 10
-      jac: [ 3.979e-05  2.700e-05 ...  1.705e-05  0.000e+00]
-     nfev: 1157
-     njev: 13
+  message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
+  success: True
+   status: 0
+      fun: -77.87387003518212
+        x: [-4.774e-01  1.797e-05 ...  2.452e-05 -1.246e-05]
+      nit: 5
+      jac: [-2.132e-05 -3.126e-05 ... -3.126e-05  1.421e-05]
+     nfev: 623
+     njev: 7
  hess_inv: &lt;88x88 LbfgsInvHessProduct with dtype=float64&gt;
 </pre></div></div>
 </div>
@@ -488,10 +488,10 @@ Number of parameters: 62
   message: CONVERGENCE: RELATIVE REDUCTION OF F &lt;= FACTR*EPSMCH
   success: True
    status: 0
-      fun: -77.87363425225305
-        x: [-1.152e+00 -4.245e-05 ... -2.680e-06 -9.826e-05]
+      fun: -77.87363425905244
+        x: [-4.773e-01  1.872e-05 ...  4.080e-05 -9.888e-05]
       nit: 6
-      jac: [ 1.563e-05  5.542e-05 ...  2.274e-05  3.411e-05]
+      jac: [ 8.527e-06  4.263e-06 ...  1.990e-05  1.421e-05]
      nfev: 567
      njev: 9
  hess_inv: &lt;62x62 LbfgsInvHessProduct with dtype=float64&gt;
@@ -571,61 +571,31 @@ Hamiltonian representing the energy to be optimized as a <code class="docutils l
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of parameters: 62
- message: Stop: Total number of iterations reached limit.
- success: False
-     fun: -77.87421592264937
-       x: [-1.263e+00  1.060e-01 ...  3.204e-02 -3.068e-02]
-     nit: 10
-     jac: [-9.947e-05  9.888e-05 ... -4.933e-05 -2.084e-05]
-    nfev: 1626
-    njev: 10
-  nlinop: 1006
+ message: Convergence: Relative reduction of objective function &lt;= ftol.
+ success: True
+     fun: -77.87363449372542
+       x: [-4.788e-01  5.565e-04 ... -1.879e-05 -9.364e-05]
+     nit: 3
+     jac: [ 3.936e-06 -7.598e-06 ... -5.437e-07 -1.313e-06]
+    nfev: 675
+    njev: 4
+  nlinop: 427
 
 Iteration 1
-    Energy: -77.87363043324989
-    Norm of gradient: 0.0014292157183121575
-    Regularization hyperparameter: 0.0023061448108590483
-    Variation hyperparameter: 0.9981550396518261
+    Energy: -77.87362527221417
+    Norm of gradient: 0.002446429084189624
+    Regularization hyperparameter: 0.001976257320676039
+    Variation hyperparameter: 0.9809063415754207
 Iteration 2
-    Energy: -77.87363434432157
-    Norm of gradient: 7.600921006342909e-05
-    Regularization hyperparameter: 0.0033322225263338638
-    Variation hyperparameter: 0.9981137422189759
+    Energy: -77.87363433821368
+    Norm of gradient: 0.0001103670259048404
+    Regularization hyperparameter: 0.0035228284427271483
+    Variation hyperparameter: 0.9821223241347669
 Iteration 3
-    Energy: -77.87366591627091
-    Norm of gradient: 0.0025427426030720343
-    Regularization hyperparameter: 5.339917939846058e-05
-    Variation hyperparameter: 0.9984110155646566
-Iteration 4
-    Energy: -77.8736682818578
-    Norm of gradient: 0.002111246139048282
-    Regularization hyperparameter: 1.014633195019307
-    Variation hyperparameter: 0.9984110039783658
-Iteration 5
-    Energy: -77.87398871237922
-    Norm of gradient: 0.011597678703109474
-    Regularization hyperparameter: 0.0015512352032504108
-    Variation hyperparameter: 0.9965305489400813
-Iteration 6
-    Energy: -77.87418312712636
-    Norm of gradient: 0.002410192784822387
-    Regularization hyperparameter: 0.0009295210389409632
-    Variation hyperparameter: 0.9965330626847961
-Iteration 7
-    Energy: -77.87420055203509
-    Norm of gradient: 0.003086571682653349
-    Regularization hyperparameter: 0.0005570967097970717
-    Variation hyperparameter: 0.9965340880110175
-Iteration 8
-    Energy: -77.87421033045072
-    Norm of gradient: 0.0014934641219881317
-    Regularization hyperparameter: 0.00041523031463850654
-    Variation hyperparameter: 0.9965299007051446
-Iteration 9
-    Energy: -77.87421481056391
-    Norm of gradient: 0.0011112543778825834
-    Regularization hyperparameter: 0.0002410672233691979
-    Variation hyperparameter: 0.9965111558653861
+    Energy: -77.87363449372542
+    Norm of gradient: 5.910339493201389e-05
+    Regularization hyperparameter: 0.0035228332800678916
+    Variation hyperparameter: 0.9821223254923752
 </pre></div></div>
 </div>
 </section>
@@ -641,7 +611,7 @@ Iteration 9
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">How to simulate Trotterized time evolution for the molecular Hamiltonian</div>
+                <div class="title">Simulate Trotterized time evolution for the molecular Hamiltonian</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -686,7 +656,7 @@ Iteration 9
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">How to simulate the local unitary cluster Jastrow (LUCJ) ansatz</a><ul>
+<li><a class="reference internal" href="#">Simulate the local unitary cluster Jastrow (LUCJ) ansatz</a><ul>
 <li><a class="reference internal" href="#General-UCJ-ansatz">General UCJ ansatz</a></li>
 <li><a class="reference internal" href="#LUCJ-ansatz">LUCJ ansatz</a></li>
 <li><a class="reference internal" href="#Optimize-with-the-linear-method">Optimize with the linear method</a></li>

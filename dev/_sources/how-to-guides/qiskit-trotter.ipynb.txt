@@ -4,7 +4,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# How to build Qiskit circuits for Trotterized Hamiltonian simulation\n",
+    "# Build Qiskit circuits for Trotterized Hamiltonian simulation\n",
     "\n",
     "This guide provides some examples of building and transpiling Qiskit circuits for Trotterized time evolution of various Hamiltonians."
    ]
