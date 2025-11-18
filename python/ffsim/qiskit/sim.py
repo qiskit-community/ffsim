@@ -30,6 +30,7 @@ from qiskit.circuit.library import (
     DiagonalGate,
     GlobalPhaseGate,
     Measure,
+    PermutationGate,
     PhaseGate,
     RZGate,
     RZZGate,
@@ -379,6 +380,16 @@ def _evolve_state_vector_spinless(
         vec = _apply_iswap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PermutationGate):
+        vec = _apply_permutation_gate(
+            vec,
+            qubit_indices,
+            op.pattern,
+            norb=norb,
+            nelec=nelec,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         theta, beta = op.params
@@ -715,6 +726,16 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PermutationGate):
+        vec = _apply_permutation_gate(
+            vec,
+            qubit_indices,
+            op.pattern,
+            norb=norb,
+            nelec=nelec,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if (i < norb) != (j < norb):
@@ -765,6 +786,94 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
             dag.remove_op_node(node)
     remaining_circuit = dag_to_circuit(dag)
     return indices, remaining_circuit
+
+
+def _permute_bitstrings(
+    bits: np.ndarray, pairs: Sequence[tuple[int, int]]
+) -> np.ndarray:
+    """Return bitstrings with bits moved according to (src, dest) pairs."""
+    if not pairs:
+        return bits
+    mask = sum(1 << dest for _, dest in pairs)
+    permuted = bits.copy()
+    if mask:
+        permuted &= ~mask
+    for src, dest in pairs:
+        permuted |= ((bits >> src) & 1) << dest
+    return permuted
+
+
+def _apply_permutation_gate(
+    vec: np.ndarray,
+    qubit_indices: Sequence[int],
+    perm: Sequence[int],
+    *,
+    norb: int,
+    nelec: int | tuple[int, int],
+) -> np.ndarray:
+    """Apply a permutation gate by clearing and refilling the selected occupations.
+
+    The qubits listed in ``qubit_indices`` are permuted according to ``perm``, so the
+    routine converts the pull rule y[q_t] = x[q_{pi(t)}] into push assignments with
+    destinations d_t = q_{perm^{-1}(t)}. It constructs a destination mask
+    M = sum(2 ** d_t) to clear all targets in one operation, reads each source bit via
+    (x >> q_t) & 1, and accumulates the shifted bits (b_t << d_t) to restore the
+    permuted bitstrings. For spinful systems the clear-and-fill steps run separately
+    on the alpha and beta halves before recombining the addresses, which preserves
+    N_alpha and N_beta.
+    """
+    inverse_perm = np.empty_like(perm)
+    inverse_perm[perm] = np.arange(len(perm))
+    dests = [qubit_indices[i] for i in inverse_perm]
+    if not isinstance(nelec, int) and any(
+        (src < norb) != (dest < norb) for src, dest in zip(qubit_indices, dests)
+    ):
+        raise ValueError(
+            "Gate of type 'PermutationGate' must be applied on orbitals "
+            "of the same spin."
+        )
+
+    pairs = list(zip(qubit_indices, dests))
+    addresses = range(len(vec))
+    if isinstance(nelec, int):
+        # Spinless case
+        bitstrings = np.asarray(
+            states.addresses_to_strings(
+                addresses,
+                norb=norb,
+                nelec=nelec,
+                bitstring_type=BitstringType.INT,
+            )
+        )
+        permuted = _permute_bitstrings(bitstrings, pairs)
+        indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
+    else:
+        # Spinful case
+        strings_a, strings_b = states.addresses_to_strings(
+            addresses,
+            norb=norb,
+            nelec=nelec,
+            bitstring_type=BitstringType.INT,
+            concatenate=False,
+        )
+        alpha_bits = np.asarray(strings_a)
+        beta_bits = np.asarray(strings_b)
+        alpha_pairs = [(src, dest) for src, dest in pairs if src < norb]
+        beta_pairs = [(src - norb, dest - norb) for src, dest in pairs if src >= norb]
+
+        permuted_alpha = _permute_bitstrings(alpha_bits, alpha_pairs)
+        permuted_beta = _permute_bitstrings(beta_bits, beta_pairs)
+
+        n_alpha, n_beta = nelec
+        addrs_alpha = states.strings_to_addresses(
+            permuted_alpha, norb=norb, nelec=n_alpha
+        )
+        addrs_beta = states.strings_to_addresses(permuted_beta, norb=norb, nelec=n_beta)
+        dim_beta = math.comb(norb, n_beta)
+        indices = addrs_alpha * dim_beta + addrs_beta
+    permuted_vec = np.empty_like(vec)
+    permuted_vec[indices] = vec
+    return permuted_vec
 
 
 def _apply_diagonal_gate(
