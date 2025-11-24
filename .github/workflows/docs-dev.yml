@@ -30,3 +30,4 @@ jobs:
         with:
           folder: docs/_build/html/
           target-folder: dev/
+          single-commit: true
