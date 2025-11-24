@@ -31,3 +31,4 @@ jobs:
           folder: docs/_build/html/
           clean-exclude: |
             dev/*
+          single-commit: true
