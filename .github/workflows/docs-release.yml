@@ -30,5 +30,4 @@ jobs:
         with:
           folder: docs/_build/html/
           clean-exclude: |
-            stable/*
             dev/*
