@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
@@ -31,7 +31,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install tox
-          pip install extremal-python-dependencies==0.0.3
+          pip install extremal-python-dependencies
           extremal-python-dependencies pin-dependencies-to-minimum --inplace
       - name: Run tests
         run: |
