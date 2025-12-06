@@ -35,7 +35,7 @@ import pyscf.tools
 from ffsim.hamiltonians import MolecularHamiltonian
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class MolecularData:
     """Class for storing molecular data.
 
