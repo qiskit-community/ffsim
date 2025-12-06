@@ -113,6 +113,8 @@ class MolecularData:
     # FCI data
     fci_energy: float | None = None
     fci_vec: np.ndarray | None = None
+    # DMRG data
+    dmrg_energy: float | None = None
     # other information
     dipole_integrals: np.ndarray | None = None
     orbital_symmetries: list[str] | None = None
@@ -345,6 +347,7 @@ class MolecularData:
             sci_vec=as_array_tuple_or_none(data.get("sci_vec")),
             fci_energy=data.get("fci_energy"),
             fci_vec=as_array_or_none(data.get("fci_vec")),
+            dmrg_energy=data.get("dmrg_energy"),
             dipole_integrals=as_array_or_none(data.get("dipole_integrals")),
             orbital_symmetries=data.get("orbital_symmetries"),
         )
