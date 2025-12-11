@@ -18,27 +18,11 @@ import numpy
 import numpy as np
 from pyscf import ao2mo
 from pyscf.fci.cistring import libfci
-from pyscf.fci.direct_spin1 import FCIvector, _unpack
+from pyscf.fci.direct_spin1 import FCIvector, _unpack, absorb_h1e
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import dimensions
 from ffsim.cistring import gen_linkstr_index_trilidx
-
-
-def absorb_h1e(h1e, eri, norb, nelec, fac=1):
-    """Modify 2e Hamiltonian to include 1e Hamiltonian contribution."""
-    if h1e.dtype == numpy.complex128 or eri.dtype == numpy.complex128:
-        raise NotImplementedError("Complex Hamiltonian")
-
-    if not isinstance(nelec, (int, numpy.number)):
-        nelec = sum(nelec)
-    h2e = ao2mo.restore(1, eri.copy(), norb)
-    f1e = h1e - numpy.einsum("jiik->jk", h2e) * 0.5
-    f1e = f1e * (1.0 / (nelec + 1e-100))
-    for k in range(norb):
-        h2e[k, k, :, :] += f1e
-        h2e[:, :, k, k] += f1e
-    return ao2mo.restore(4, h2e, norb) * fac
 
 
 def contract_2e(eri, fcivec, norb, nelec, link_index=None):
@@ -85,22 +69,33 @@ def contract_2e(eri, fcivec, norb, nelec, link_index=None):
     na, nlinka = link_indexa.shape[:2]
     nb, nlinkb = link_indexb.shape[:2]
     assert fcivec.size == na * nb
-    assert fcivec.dtype == eri.dtype == np.float64
-    ci1 = np.empty_like(fcivec)
+    assert eri.dtype == np.float64
+    if fcivec.dtype == eri.dtype == numpy.float64:
+        fcivec = numpy.asarray(fcivec, order="C")
+        eri = numpy.asarray(eri, order="C")
+        ci1 = np.empty_like(fcivec)
+        libfci.FCIcontract_2e_spin1(
+            eri.ctypes.data_as(ctypes.c_void_p),
+            fcivec.ctypes.data_as(ctypes.c_void_p),
+            ci1.ctypes.data_as(ctypes.c_void_p),
+            ctypes.c_int(norb),
+            ctypes.c_int(na),
+            ctypes.c_int(nb),
+            ctypes.c_int(nlinka),
+            ctypes.c_int(nlinkb),
+            link_indexa.ctypes.data_as(ctypes.c_void_p),
+            link_indexb.ctypes.data_as(ctypes.c_void_p),
+        )
+        return ci1.view(FCIvector)
 
-    libfci.FCIcontract_2e_spin1(
-        eri.ctypes.data_as(ctypes.c_void_p),
-        fcivec.ctypes.data_as(ctypes.c_void_p),
-        ci1.ctypes.data_as(ctypes.c_void_p),
-        ctypes.c_int(norb),
-        ctypes.c_int(na),
-        ctypes.c_int(nb),
-        ctypes.c_int(nlinka),
-        ctypes.c_int(nlinkb),
-        link_indexa.ctypes.data_as(ctypes.c_void_p),
-        link_indexb.ctypes.data_as(ctypes.c_void_p),
-    )
-    return ci1.view(FCIvector)
+    ciR = numpy.asarray(fcivec.real, order="C")  # noqa: N806
+    ciI = numpy.asarray(fcivec.imag, order="C")  # noqa: N806
+    link_index = (link_indexa, link_indexb)
+    outR = contract_2e(eri, ciR, norb, nelec, link_index=link_index)  # noqa: N806
+    outI = contract_2e(eri, ciI, norb, nelec, link_index=link_index)  # noqa: N806
+    out = outR.astype(numpy.complex128)
+    out.imag = outI
+    return out
 
 
 def two_body_linop(
