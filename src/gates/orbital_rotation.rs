@@ -75,6 +75,9 @@ pub fn apply_givens_rotation_in_place(
     std::thread::scope(|scope| {
         for k in 0..n_threads {
             let start = k * chunk_size;
+            if start >= n_pairs {
+                break;
+            }
             let end = (start + chunk_size).min(n_pairs);
             let slice1_chunk = &slice1_slice[start..end];
             let slice2_chunk = &slice2_slice[start..end];
