@@ -411,4 +411,4 @@ def _is_projection_eigvals(eigvals: np.ndarray, nelec: int, tol: float = 1e-8) -
     idempotent_ok = np.all(
         np.isclose(eigvals, 0.0, atol=tol) | np.isclose(eigvals, 1.0, atol=tol)
     )
-    return trace_ok and idempotent_ok
+    return bool(trace_ok and idempotent_ok)
