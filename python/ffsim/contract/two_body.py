@@ -79,6 +79,8 @@ def two_body_linop(
             nelec,
             link_index=link_index,
         )
+        if constant:
+            result += constant * vec
         return result
 
     dim_ = dimensions.dim(norb, nelec)
