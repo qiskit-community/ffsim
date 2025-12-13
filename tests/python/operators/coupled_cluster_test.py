@@ -86,7 +86,7 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     two_body_tensor = np.zeros((norb, norb, norb, norb))
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = ccsd.t2.transpose(2, 0, 3, 1)
     two_body_linop = ffsim.contract.two_body_linop(
-        two_body_tensor, norb=norb, nelec=nelec, constant=1.0
+        two_body_tensor.astype(complex), norb=norb, nelec=nelec, constant=1.0
     )
     energy_contract = ccsd_energy(two_body_linop, ham_linop, norb=norb, nelec=nelec)
     np.testing.assert_allclose(energy_ferm, energy_contract)
