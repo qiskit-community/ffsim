@@ -29,6 +29,7 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    MCPhaseGate,
     Measure,
     PermutationGate,
     PhaseGate,
@@ -315,6 +316,29 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, MCPhaseGate):
+        (theta,) = op.params
+        if op.ctrl_state == (1 << op.num_ctrl_qubits) - 1:
+            vec = gates.apply_num_op_prod_interaction(
+                vec,
+                theta,
+                target_orbs=(qubit_indices, []),
+                norb=norb,
+                nelec=(cast(int, nelec), 0),
+                copy=False,
+            )
+        else:
+            strings = states.addresses_to_strings(
+                np.arange(len(vec)),
+                norb=norb,
+                nelec=nelec,
+            )
+            restricted = restrict_bitstrings(strings, qubit_indices, BitstringType.INT)
+            vec[np.equal(restricted, op.ctrl_state + (1 << op.num_ctrl_qubits))] *= (
+                cmath.exp(1j * theta)
+            )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, RZZGate):
         i, j = qubit_indices
         (theta,) = op.params
@@ -594,6 +618,27 @@ def _evolve_state_vector_spinful(
         vec = gates.apply_num_op_prod_interaction(
             vec, math.pi, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, MCPhaseGate):
+        (theta,) = op.params
+        if op.ctrl_state == (1 << op.num_ctrl_qubits) - 1:
+            target_orbs = ([], [])
+            for i in qubit_indices:
+                target_orbs[i >= norb].append(i % norb)
+            vec = gates.apply_num_op_prod_interaction(
+                vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+            )
+        else:
+            strings = states.addresses_to_strings(
+                np.arange(len(vec)),
+                norb=norb,
+                nelec=nelec,
+            )
+            restricted = restrict_bitstrings(strings, qubit_indices, BitstringType.INT)
+            vec[np.equal(restricted, op.ctrl_state + (1 << op.num_ctrl_qubits))] *= (
+                cmath.exp(1j * theta)
+            )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, RZZGate):

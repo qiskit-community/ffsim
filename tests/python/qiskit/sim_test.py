@@ -17,7 +17,7 @@ import random
 
 import numpy as np
 import pytest
-from qiskit.circuit import QuantumCircuit, QuantumRegister
+from qiskit.circuit import CircuitInstruction, QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import (
     CCZGate,
     CPhaseGate,
@@ -28,6 +28,7 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    MCPhaseGate,
     PermutationGate,
     PhaseGate,
     RZGate,
@@ -45,6 +46,38 @@ from qiskit.circuit.library import (
 from qiskit.quantum_info import Statevector
 
 import ffsim
+
+
+def _rewrite_for_stable_reference(circuit: QuantumCircuit) -> QuantumCircuit:
+    """Rewrite gates to obtain a numerically stable reference circuit.
+
+    Some Qiskit library gates are defined only through a decomposition into more
+    elementary gates, rather than via a direct matrix representation. When a
+    state-vector simulator evaluates such a decomposition in finite-precision
+    arithmetic, intermediate steps can move amplitude between computational-basis
+    states and between invariant subspaces. In exact arithmetic these transfers cancel
+    out over the full decomposition, but floating-point roundoff can leave tiny
+    residual amplitudes.
+
+    The ffsim simulator evolves directly within the particle-number-conserving
+    subspace, so these residuals appear as small mismatches when comparing against a
+    Qiskit reference statevector. This helper rewrites affected gates into exact,
+    numerically stable equivalents before constructing the Qiskit reference.
+
+    Currently, it replaces ``MCPhaseGate`` instructions with equivalent
+    ``DiagonalGate`` ones.
+    """
+    circuit = circuit.copy()
+    for i, instruction in enumerate(circuit.data):
+        op = instruction.operation
+        if isinstance(op, MCPhaseGate):
+            (theta,) = op.params
+            diag = np.ones(1 << op.num_qubits, dtype=complex)
+            diag[op.ctrl_state + (1 << op.num_ctrl_qubits)] = np.exp(1j * theta)
+            circuit.data[i] = CircuitInstruction(
+                DiagonalGate(diag), instruction.qubits, instruction.clbits
+            )
+    return circuit
 
 
 def _brickwork(norb: int, n_layers: int):
@@ -196,6 +229,23 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 1, ctrl_state=prng.randrange(2)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j, k in prng.choices(triples, k=len(triples) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 2, ctrl_state=prng.randrange(4)),
+            [qubits[i], qubits[j], qubits[k]],
+        )
+    quadruples = list(itertools.combinations(range(2 * norb), 4))
+    prng.shuffle(quadruples)
+    for i, j, k, m in prng.choices(quadruples, k=len(quadruples) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 3, ctrl_state=prng.randrange(8)),
+            [qubits[i], qubits[j], qubits[k], qubits[m]],
+        )
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CZGate(), [qubits[i], qubits[j]])
@@ -240,7 +290,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     # Compute state vector using Qiskit
     qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
-        Statevector(circuit).data, norb=norb, nelec=nelec
+        Statevector(_rewrite_for_stable_reference(circuit)).data, norb=norb, nelec=nelec
     )
 
     # Check that the state vectors match
@@ -279,6 +329,21 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 1, ctrl_state=prng.randrange(2)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j, k in prng.choices(triples, k=len(triples) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 2, ctrl_state=prng.randrange(4)),
+            [qubits[i], qubits[j], qubits[k]],
+        )
+    if norb >= 4:
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 3, ctrl_state=prng.randrange(8)),
+            qubits,
+        )
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CZGate(), [qubits[i], qubits[j]])
@@ -315,7 +380,7 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
 
     # Compute state vector using Qiskit
     qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
-        Statevector(circuit).data, norb=norb, nelec=nocc
+        Statevector(_rewrite_for_stable_reference(circuit)).data, norb=norb, nelec=nocc
     )
 
     # Check that the state vectors match
