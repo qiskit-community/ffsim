@@ -39,7 +39,36 @@ def two_body_operator(two_body_tensor: np.ndarray) -> ffsim.FermionOperator:
     return op
 
 
-def test_two_body_linop_hermitian():
+def test_two_body_linop_hermitian_real():
+    """Test converting real hermitian two-body operator to a linear operator."""
+    norb = 5
+    nelec = (3, 2)
+
+    # Generate random two-body tensor
+    two_body = ffsim.random.random_two_body_tensor(norb, seed=RNG, dtype=float)
+
+    # Get linear operator from contract
+    linop_contract = ffsim.contract.two_body_linop(two_body, norb=norb, nelec=nelec)
+
+    # Get linear operator from FermionOperator
+    ferm_op = two_body_operator(two_body)
+    linop_ferm = ffsim.linear_operator(ferm_op, norb=norb, nelec=nelec)
+
+    # Generate random vector
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    # Test operator application
+    result_contract = linop_contract @ vec
+    result_ferm = linop_ferm @ vec
+    np.testing.assert_allclose(result_contract, result_ferm)
+
+    # Test adjoint operator application
+    result_contract = linop_contract.adjoint() @ vec
+    result_ferm = linop_ferm.adjoint() @ vec
+    np.testing.assert_allclose(result_contract, result_ferm)
+
+
+def test_two_body_linop_hermitian_complex():
     """Test converting hermitian two-body operator to a linear operator."""
     norb = 5
     nelec = (3, 2)
@@ -68,7 +97,40 @@ def test_two_body_linop_hermitian():
     np.testing.assert_allclose(result_contract, result_ferm)
 
 
-def test_two_body_linop_antihermitian():
+def test_two_body_linop_antihermitian_real():
+    """Test converting real antihermitian two-body operator to a linear operator."""
+    norb = 4
+    nocc = 2
+    nelec = (nocc, nocc)
+
+    # Generate random UCCSD operator
+    uccsd_op = ffsim.random.random_uccsd_op_restricted_real(norb, nocc, seed=RNG)
+
+    # Get linear operator from contract
+    linop_contract = uccsd_restricted_linear_operator(
+        t1=uccsd_op.t1, t2=uccsd_op.t2, norb=norb, nelec=nelec
+    )
+
+    # Get linear operator from FermionOperator
+    uccsd_gen = ffsim.uccsd_generator_restricted(t1=uccsd_op.t1, t2=uccsd_op.t2)
+    linop_ferm = ffsim.linear_operator(uccsd_gen, norb=norb, nelec=nelec)
+
+    # Generate random vector
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    # Test operator application
+    result_contract = linop_contract @ vec
+    result_ferm = linop_ferm @ vec
+    np.testing.assert_allclose(result_contract, result_ferm)
+
+    # Test adjoint operator application
+    result_contract = linop_contract.adjoint() @ vec
+    result_ferm = linop_ferm.adjoint() @ vec
+    np.testing.assert_allclose(result_contract, result_ferm)
+    np.testing.assert_allclose(result_contract, -linop_contract @ vec)
+
+
+def test_two_body_linop_antihermitian_complex():
     """Test converting antihermitian two-body operator to a linear operator."""
     norb = 4
     nocc = 2
