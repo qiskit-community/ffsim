@@ -32,6 +32,9 @@ from ffsim.cistring import gen_linkstr_index, gen_linkstr_index_trilidx
 
 
 def contract_2e(eri, fcivec, norb, nelec, link_index=None):
+    # Source: pyscf.fci.direct_spin1.py
+    # Modified to support complex-valued vector
+    # TODO remove this once it's in PySCF
     r"""Contract the 4-index tensor eri[pqrs] with a FCI vector
 
     .. math::
