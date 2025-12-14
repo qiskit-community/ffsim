@@ -28,6 +28,7 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    MCPhaseGate,
     PermutationGate,
     PhaseGate,
     RZGate,
@@ -196,6 +197,23 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 1, ctrl_state=prng.randrange(2)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j, k in prng.choices(triples, k=len(triples) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 2, ctrl_state=prng.randrange(4)),
+            [qubits[i], qubits[j], qubits[k]],
+        )
+    quadruples = list(itertools.combinations(range(2 * norb), 4))
+    prng.shuffle(quadruples)
+    for i, j, k, m in prng.choices(quadruples, k=len(quadruples) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 3, ctrl_state=prng.randrange(8)),
+            [qubits[i], qubits[j], qubits[k], qubits[m]],
+        )
+    for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in prng.choices(big_pairs, k=len(big_pairs) // 2):
         circuit.append(CZGate(), [qubits[i], qubits[j]])
@@ -244,7 +262,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     )
 
     # Check that the state vectors match
-    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec, atol=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -278,6 +296,21 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+    for i, j in prng.choices(pairs, k=len(pairs) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 1, ctrl_state=prng.randrange(2)),
+            [qubits[i], qubits[j]],
+        )
+    for i, j, k in prng.choices(triples, k=len(triples) // 2):
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 2, ctrl_state=prng.randrange(4)),
+            [qubits[i], qubits[j], qubits[k]],
+        )
+    if norb >= 4:
+        circuit.append(
+            MCPhaseGate(rng.uniform(-10, 10), 3, ctrl_state=prng.randrange(8)),
+            qubits,
+        )
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(CRZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
@@ -319,7 +352,7 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     )
 
     # Check that the state vectors match
-    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec, atol=1e-12)
 
 
 @pytest.mark.parametrize(
