@@ -61,7 +61,7 @@ def two_body_linop(
     def matvec(vec: np.ndarray):
         result = contract_2e(
             two_body_tensor,
-            vec.astype(complex, copy=False),
+            vec,
             norb,
             nelec,
             link_index=link_index,
@@ -74,7 +74,7 @@ def two_body_linop(
         result = contract_2e(
             # TODO come up with a way to test this transpose
             two_body_tensor.transpose(1, 0, 3, 2).conj(),
-            vec.astype(complex, copy=False),
+            vec,
             norb,
             nelec,
             link_index=link_index,
