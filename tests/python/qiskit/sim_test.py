@@ -17,7 +17,7 @@ import random
 
 import numpy as np
 import pytest
-from qiskit.circuit import CircuitInstruction, QuantumCircuit, QuantumRegister
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import (
     CCZGate,
     CPhaseGate,
@@ -46,38 +46,6 @@ from qiskit.circuit.library import (
 from qiskit.quantum_info import Statevector
 
 import ffsim
-
-
-def _rewrite_for_stable_reference(circuit: QuantumCircuit) -> QuantumCircuit:
-    """Rewrite gates to obtain a numerically stable reference circuit.
-
-    Some Qiskit library gates are defined only through a decomposition into more
-    elementary gates, rather than via a direct matrix representation. When a
-    state-vector simulator evaluates such a decomposition in finite-precision
-    arithmetic, intermediate steps can move amplitude between computational-basis
-    states and between invariant subspaces. In exact arithmetic these transfers cancel
-    out over the full decomposition, but floating-point roundoff can leave tiny
-    residual amplitudes.
-
-    The ffsim simulator evolves directly within the particle-number-conserving
-    subspace, so these residuals appear as small mismatches when comparing against a
-    Qiskit reference statevector. This helper rewrites affected gates into exact,
-    numerically stable equivalents before constructing the Qiskit reference.
-
-    Currently, it replaces ``MCPhaseGate`` instructions with equivalent
-    ``DiagonalGate`` ones.
-    """
-    circuit = circuit.copy()
-    for i, instruction in enumerate(circuit.data):
-        op = instruction.operation
-        if isinstance(op, MCPhaseGate):
-            (theta,) = op.params
-            diag = np.ones(1 << op.num_qubits, dtype=complex)
-            diag[op.ctrl_state + (1 << op.num_ctrl_qubits)] = np.exp(1j * theta)
-            circuit.data[i] = CircuitInstruction(
-                DiagonalGate(diag), instruction.qubits, instruction.clbits
-            )
-    return circuit
 
 
 def _brickwork(norb: int, n_layers: int):
@@ -290,11 +258,11 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     # Compute state vector using Qiskit
     qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
-        Statevector(_rewrite_for_stable_reference(circuit)).data, norb=norb, nelec=nelec
+        Statevector(circuit).data, norb=norb, nelec=nelec
     )
 
     # Check that the state vectors match
-    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec, atol=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -380,11 +348,11 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
 
     # Compute state vector using Qiskit
     qiskit_vec = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
-        Statevector(_rewrite_for_stable_reference(circuit)).data, norb=norb, nelec=nocc
+        Statevector(circuit).data, norb=norb, nelec=nocc
     )
 
     # Check that the state vectors match
-    np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+    np.testing.assert_allclose(ffsim_vec, qiskit_vec, atol=1e-12)
 
 
 @pytest.mark.parametrize(
