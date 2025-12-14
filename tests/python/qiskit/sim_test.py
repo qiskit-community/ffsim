@@ -174,6 +174,8 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     prng.shuffle(big_pairs)
     triples = list(itertools.combinations(range(2 * norb), 3))
     prng.shuffle(triples)
+    quadruples = list(itertools.combinations(range(2 * norb), 4))
+    prng.shuffle(quadruples)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
@@ -206,8 +208,6 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
             MCPhaseGate(rng.uniform(-10, 10), 2, ctrl_state=prng.randrange(4)),
             [qubits[i], qubits[j], qubits[k]],
         )
-    quadruples = list(itertools.combinations(range(2 * norb), 4))
-    prng.shuffle(quadruples)
     for i, j, k, m in prng.choices(quadruples, k=len(quadruples) // 2):
         circuit.append(
             MCPhaseGate(rng.uniform(-10, 10), 3, ctrl_state=prng.randrange(8)),
