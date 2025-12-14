@@ -12,99 +12,23 @@
 
 from __future__ import annotations
 
-import ctypes
-
-import numpy
 import numpy as np
-from pyscf import ao2mo
-from pyscf.fci.cistring import libfci
 from pyscf.fci.direct_nosym import (
     absorb_h1e as absorb_h1e_nosym,
 )
 from pyscf.fci.direct_nosym import (
     contract_2e as contract_2e_nosym,
 )
-from pyscf.fci.direct_spin1 import FCIvector, _unpack, absorb_h1e
+from pyscf.fci.direct_spin1 import (
+    absorb_h1e as absorb_h1e_spin1,
+)
+from pyscf.fci.direct_spin1 import (
+    contract_2e as contract_2e_spin1,
+)
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import dimensions
 from ffsim.cistring import gen_linkstr_index, gen_linkstr_index_trilidx
-
-
-def contract_2e(eri, fcivec, norb, nelec, link_index=None):
-    # Source: pyscf.fci.direct_spin1.py
-    # Modified to support complex-valued vector
-    # TODO remove this once it's in PySCF
-    r"""Contract the 4-index tensor eri[pqrs] with a FCI vector
-
-    .. math::
-
-        |output\rangle = E_{pq} E_{rs} eri_{pq,rs} |CI\rangle \\
-
-        E_{pq}E_{rs} = E_{pr,qs} + \delta_{qr} E_{ps} \\
-
-        E_{pq} = p^+ q + \bar{p}^+ \bar{q}
-
-        E_{pr,qs} = p^+ r^+ s q + \bar{p}^+ r^+ s \bar{q} + ...
-
-    :math:`p,q,...` means spin-up orbitals and :math:`\bar{p}, \bar{q}` means
-    spin-down orbitals.
-
-    Note the input argument eri is NOT the 2e hamiltonian tensor. 2e hamiltonian is
-
-    .. math::
-
-        h2e &= (pq|rs) E_{pr,qs} \\
-            &= (pq|rs) (E_{pq}E_{rs} - \delta_{qr} E_{ps}) \\
-            &= eri_{pq,rs} E_{pq}E_{rs} \\
-
-    So the relation between eri and hamiltonian (the 2e-integral tensor) is
-
-    .. math::
-
-        eri_{pq,rs} = (pq|rs) - (1/Nelec) \sum_q (pq|qs)
-
-    to restore the symmetry between pq and rs,
-
-    .. math::
-
-        eri_{pq,rs} = (pq|rs) - (.5/Nelec) [\sum_q (pq|qs) + \sum_p (pq|rp)]
-
-    See also :func:`direct_spin1.absorb_h1e`
-    """
-    fcivec = np.asarray(fcivec, order="C")
-    eri = np.asarray(ao2mo.restore(4, eri, norb), order="C")
-    link_indexa, link_indexb = _unpack(norb, nelec, link_index)
-    na, nlinka = link_indexa.shape[:2]
-    nb, nlinkb = link_indexb.shape[:2]
-    assert fcivec.size == na * nb
-    assert eri.dtype == np.float64
-    if fcivec.dtype == eri.dtype == numpy.float64:
-        fcivec = numpy.asarray(fcivec, order="C")
-        eri = numpy.asarray(eri, order="C")
-        ci1 = np.empty_like(fcivec)
-        libfci.FCIcontract_2e_spin1(
-            eri.ctypes.data_as(ctypes.c_void_p),
-            fcivec.ctypes.data_as(ctypes.c_void_p),
-            ci1.ctypes.data_as(ctypes.c_void_p),
-            ctypes.c_int(norb),
-            ctypes.c_int(na),
-            ctypes.c_int(nb),
-            ctypes.c_int(nlinka),
-            ctypes.c_int(nlinkb),
-            link_indexa.ctypes.data_as(ctypes.c_void_p),
-            link_indexb.ctypes.data_as(ctypes.c_void_p),
-        )
-        return ci1.view(FCIvector)
-
-    ciR = numpy.asarray(fcivec.real, order="C")  # noqa: N806
-    ciI = numpy.asarray(fcivec.imag, order="C")  # noqa: N806
-    link_index = (link_indexa, link_indexb)
-    outR = contract_2e(eri, ciR, norb, nelec, link_index=link_index)  # noqa: N806
-    outI = contract_2e(eri, ciI, norb, nelec, link_index=link_index)  # noqa: N806
-    out = outR.astype(numpy.complex128)
-    out.imag = outI
-    return out
 
 
 def two_body_linop(
@@ -167,12 +91,21 @@ def _two_body_linop_real(
     linkstr_index_a = gen_linkstr_index_trilidx(range(norb), n_alpha)
     linkstr_index_b = gen_linkstr_index_trilidx(range(norb), n_beta)
     link_index = (linkstr_index_a, linkstr_index_b)
-    two_body_tensor = absorb_h1e(one_body_tensor, two_body_tensor, norb, nelec, 0.5)
+    two_body_tensor = absorb_h1e_spin1(
+        one_body_tensor, two_body_tensor, norb, nelec, 0.5
+    )
 
     def matvec(vec: np.ndarray):
-        result = contract_2e(
+        result = contract_2e_spin1(
             two_body_tensor,
-            vec,
+            vec.real,
+            norb,
+            nelec,
+            link_index=link_index,
+        ).astype(complex)
+        result += 1j * contract_2e_spin1(
+            two_body_tensor,
+            vec.imag,
             norb,
             nelec,
             link_index=link_index,
