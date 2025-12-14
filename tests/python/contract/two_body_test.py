@@ -22,6 +22,21 @@ from ffsim.variational.uccsd import uccsd_restricted_linear_operator
 RNG = np.random.default_rng(99651117001088794077543029456876666776)
 
 
+def one_body_operator(one_body_tensor: np.ndarray) -> ffsim.FermionOperator:
+    """Return a FermionOperator representing a one-body operator."""
+    norb, _ = one_body_tensor.shape
+    op = ffsim.FermionOperator({})
+    for p, q in itertools.product(range(norb), repeat=2):
+        coeff = one_body_tensor[p, q]
+        op += ffsim.FermionOperator(
+            {
+                (ffsim.cre_a(p), ffsim.des_a(q)): coeff,
+                (ffsim.cre_b(p), ffsim.des_b(q)): coeff,
+            }
+        )
+    return op
+
+
 def two_body_operator(two_body_tensor: np.ndarray) -> ffsim.FermionOperator:
     """Return a FermionOperator representing a two-body operator."""
     norb, _, _, _ = two_body_tensor.shape
@@ -45,13 +60,16 @@ def test_two_body_linop_hermitian_real():
     nelec = (3, 2)
 
     # Generate random two-body tensor
+    one_body = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     two_body = ffsim.random.random_two_body_tensor(norb, seed=RNG, dtype=float)
 
     # Get linear operator from contract
-    linop_contract = ffsim.contract.two_body_linop(two_body, norb=norb, nelec=nelec)
+    linop_contract = ffsim.contract.two_body_linop(
+        two_body, norb=norb, nelec=nelec, one_body_tensor=one_body
+    )
 
     # Get linear operator from FermionOperator
-    ferm_op = two_body_operator(two_body)
+    ferm_op = one_body_operator(one_body) + two_body_operator(two_body)
     linop_ferm = ffsim.linear_operator(ferm_op, norb=norb, nelec=nelec)
 
     # Generate random vector
@@ -73,14 +91,17 @@ def test_two_body_linop_hermitian_complex():
     norb = 5
     nelec = (3, 2)
 
-    # Generate random two-body tensor
+    # Generate random one- and two-body tensors
+    one_body = ffsim.random.random_hermitian(norb, seed=RNG)
     two_body = ffsim.random.random_two_body_tensor(norb, seed=RNG)
 
     # Get linear operator from contract
-    linop_contract = ffsim.contract.two_body_linop(two_body, norb=norb, nelec=nelec)
+    linop_contract = ffsim.contract.two_body_linop(
+        two_body, norb=norb, nelec=nelec, one_body_tensor=one_body
+    )
 
     # Get linear operator from FermionOperator
-    ferm_op = two_body_operator(two_body)
+    ferm_op = one_body_operator(one_body) + two_body_operator(two_body)
     linop_ferm = ffsim.linear_operator(ferm_op, norb=norb, nelec=nelec)
 
     # Generate random vector
