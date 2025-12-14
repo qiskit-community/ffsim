@@ -38,7 +38,7 @@ def two_body_linop(
     one_body_tensor: np.ndarray | None = None,
     constant: float = 0,
 ) -> LinearOperator:
-    if np.iscomplexobj(two_body_tensor):
+    if np.iscomplexobj(two_body_tensor) or np.iscomplexobj(one_body_tensor):
         return _two_body_linop_complex(
             two_body_tensor,
             norb=norb,
