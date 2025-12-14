@@ -230,7 +230,7 @@ def _two_body_linop_complex(
     def matvec(vec: np.ndarray):
         result = contract_2e_nosym(
             two_body_tensor,
-            vec.astype(complex, copy=False),
+            vec,
             norb,
             nelec,
             link_index=link_index,
