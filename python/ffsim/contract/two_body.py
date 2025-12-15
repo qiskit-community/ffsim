@@ -98,6 +98,8 @@ def _two_body_linop_real(
     )
 
     def matvec(vec: np.ndarray):
+        # TODO don't need to manually handle real and imaginary parts with
+        # next PySCF release
         result = contract_2e_spin1(
             two_body_tensor,
             vec.real,
