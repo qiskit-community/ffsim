@@ -40,6 +40,7 @@ from qiskit.circuit.library import (
     SwapGate,
     TdgGate,
     TGate,
+    UCRZGate,
     XGate,
     XXPlusYYGate,
     ZGate,
@@ -301,6 +302,21 @@ def _evolve_state_vector_spinless(
         )
         vec = gates.apply_num_num_interaction(
             vec, theta, (control, target), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, UCRZGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            [
+                phase
+                for theta in op.params
+                for phase in (cmath.rect(1, -0.5 * theta), cmath.rect(1, 0.5 * theta))
+            ],
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -606,6 +622,21 @@ def _evolve_state_vector_spinful(
         )
         vec = gates.apply_num_op_prod_interaction(
             vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, UCRZGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            [
+                phase
+                for theta in op.params
+                for phase in (cmath.rect(1, -0.5 * theta), cmath.rect(1, 0.5 * theta))
+            ],
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
