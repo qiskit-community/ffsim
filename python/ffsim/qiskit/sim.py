@@ -29,6 +29,7 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    InnerProductGate,
     MCPhaseGate,
     Measure,
     PermutationGate,
@@ -261,6 +262,19 @@ def _evolve_state_vector_spinless(
         vec = gates.apply_num_num_interaction(
             vec, math.pi, target_orbs=(i, j), norb=norb, nelec=nelec, copy=False
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, InnerProductGate):
+        n = op.num_qubits // 2
+        for i in range(n):
+            vec = gates.apply_num_num_interaction(
+                vec,
+                math.pi,
+                target_orbs=(qubit_indices[i], qubit_indices[n + i]),
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, CSGate):
@@ -554,6 +568,23 @@ def _evolve_state_vector_spinful(
         vec = gates.apply_num_op_prod_interaction(
             vec, math.pi, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, InnerProductGate):
+        n = op.num_qubits // 2
+        for i in range(n):
+            p, q = qubit_indices[i], qubit_indices[n + i]
+            target_orbs = ([], [])
+            target_orbs[p >= norb].append(p % norb)
+            target_orbs[q >= norb].append(q % norb)
+            vec = gates.apply_num_op_prod_interaction(
+                vec,
+                math.pi,
+                target_orbs=target_orbs,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, CSGate):
