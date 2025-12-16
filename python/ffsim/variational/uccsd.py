@@ -40,8 +40,8 @@ def uccsd_restricted_linear_operator(
     nocc, _ = t1.shape
     assert nelec == (nocc, nocc)
 
-    one_body_tensor = np.zeros((norb, norb), dtype=t1.dtype)
-    two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=t2.dtype)
+    one_body_tensor = np.zeros((norb, norb), dtype=complex)
+    two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
     one_body_tensor[:nocc, nocc:] = -t1.conj()
     one_body_tensor[nocc:, :nocc] = t1.T
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = t2.transpose(2, 0, 3, 1)
