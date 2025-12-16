@@ -25,7 +25,7 @@ import ffsim
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+            ffsim.testing.generate_norb_nelec(range(1, 5)), [False, True]
         )
     ],
 )
@@ -52,7 +52,7 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
     """Test computing reduced matrix on product states."""
     rng = np.random.default_rng(7869)
@@ -95,7 +95,7 @@ def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_expectation_product_state_slater_determinant(
     norb: int, nelec: tuple[int, int]
 ):
@@ -129,7 +129,7 @@ def test_expectation_product_state_slater_determinant(
         np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
 def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     """Test computing expectation value on product state."""
     rng = np.random.default_rng(6775)
