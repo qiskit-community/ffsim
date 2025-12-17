@@ -29,6 +29,7 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    IGate,
     InnerProductGate,
     MCPhaseGate,
     Measure,
@@ -242,7 +243,7 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, Barrier):
+    if isinstance(op, (Barrier, IGate)):
         return state_vector
 
     if isinstance(op, Measure):
@@ -553,7 +554,7 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, Barrier):
+    if isinstance(op, (Barrier, IGate)):
         return state_vector
 
     if isinstance(op, Measure):
