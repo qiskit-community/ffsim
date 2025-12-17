@@ -106,7 +106,7 @@ def _two_body_linop_real(
             norb,
             nelec,
             link_index=link_index,
-        ).astype(complex)
+        ).astype(complex, copy=False)
         result += 1j * contract_2e_spin1(
             two_body_tensor,
             vec.imag,
