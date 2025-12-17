@@ -1008,7 +1008,7 @@ def _apply_permutation_gate(
 
 def _apply_diagonal_gate(
     vec: np.ndarray,
-    diag: Sequence[complex],
+    diag: Sequence[complex] | np.ndarray,
     qubit_indices: Sequence[int],
     norb: int,
     nelec: int | tuple[int, int],
