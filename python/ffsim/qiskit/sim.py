@@ -34,6 +34,7 @@ from qiskit.circuit.library import (
     Measure,
     PermutationGate,
     PhaseGate,
+    PhaseOracleGate,
     RZGate,
     RZZGate,
     SdgGate,
@@ -458,6 +459,17 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PhaseOracleGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            np.where(op.boolean_expression.truth_table.values, -1, 1),
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, GlobalPhaseGate):
         (phase,) = op.params
         vec *= cmath.rect(1, phase)
@@ -867,6 +879,17 @@ def _evolve_state_vector_spinful(
     if isinstance(op, DiagonalGate):
         vec = _apply_diagonal_gate(
             vec, op.params, qubit_indices, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, PhaseOracleGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            np.where(op.boolean_expression.truth_table.values, -1, 1),
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
