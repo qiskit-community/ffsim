@@ -76,14 +76,17 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     np.testing.assert_allclose(energy_ferm, t1_energy + scf.e_tot)
 
     # Test doubles energy
-    cc_doubles = ffsim.doubles_excitations_restricted(ccsd.t2)
+    # Add a constant to test rmatvec
+    cc_doubles = ffsim.doubles_excitations_restricted(ccsd.t2) + ffsim.FermionOperator(
+        {(): 1.0}
+    )
     cc_doubles_linop = ffsim.linear_operator(cc_doubles, norb=norb, nelec=nelec)
     energy_ferm = ccsd_energy(cc_doubles_linop, ham_linop, norb=norb, nelec=nelec)
     nocc, _ = ccsd.t1.shape
     two_body_tensor = np.zeros((norb, norb, norb, norb))
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = ccsd.t2.transpose(2, 0, 3, 1)
     two_body_linop = ffsim.contract.two_body_linop(
-        two_body_tensor, norb=norb, nelec=nelec
+        two_body_tensor.astype(complex), norb=norb, nelec=nelec, constant=1.0
     )
     energy_contract = ccsd_energy(two_body_linop, ham_linop, norb=norb, nelec=nelec)
     np.testing.assert_allclose(energy_ferm, energy_contract)

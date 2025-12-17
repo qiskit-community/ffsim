@@ -118,6 +118,7 @@ def test_json_closed_shell(tmp_path: pathlib.Path):
     mol_data.run_cisd(store_cisd_vec=True)
     mol_data.run_sci(store_sci_vec=True)
     mol_data.run_fci(store_fci_vec=True)
+    mol_data.dmrg_energy = 1.2345
 
     for compression in [None, "gzip", "bz2", "lzma"]:
         mol_data.to_json(tmp_path / "test.json", compression=compression)

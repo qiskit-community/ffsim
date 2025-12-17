@@ -120,10 +120,11 @@ def test_diag():
         (4, (0, 0)),
     ],
 )
-def test_fermion_operator(norb: int, nelec: tuple[int, int]):
+@pytest.mark.parametrize("real", [True, False])
+def test_fermion_operator(norb: int, nelec: tuple[int, int], real: bool):
     """Test FermionOperator."""
     df_hamiltonian = ffsim.random.random_double_factorized_hamiltonian(
-        norb, real=True, seed=RNG
+        norb, real=real, seed=RNG
     )
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
