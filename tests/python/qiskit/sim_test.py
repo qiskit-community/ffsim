@@ -28,6 +28,7 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    IGate,
     InnerProductGate,
     MCPhaseGate,
     PermutationGate,
@@ -89,6 +90,8 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+    for q in qubits:
+        circuit.append(IGate(), [q])
     circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
     circuit.append(
         ffsim.qiskit.DiagCoulombEvolutionJW(norb, diag_coulomb_mat, time=1.0), qubits
@@ -141,6 +144,8 @@ def test_random_gates_spinless(norb: int, nocc: int):
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
+    for q in qubits:
+        circuit.append(IGate(), [q])
     circuit.append(
         ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation), qubits
     )
@@ -188,6 +193,8 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(XGate(), [qubits[i]])
     for i in range(n_beta):
         circuit.append(XGate(), [qubits[norb + i]])
+    for q in qubits:
+        circuit.append(IGate(), [q])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
@@ -315,6 +322,8 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     circuit = QuantumCircuit(qubits)
     for i in range(nocc):
         circuit.append(XGate(), [qubits[i]])
+    for q in qubits:
+        circuit.append(IGate(), [q])
     for i, j in prng.choices(pairs, k=len(pairs) // 2):
         circuit.append(
             XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
