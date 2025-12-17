@@ -29,7 +29,7 @@ dependencies = [
     "opt_einsum",
     "orjson",
     "pyscf >= 2.9",
-    "qiskit >= 1.3",
+    "qiskit >= 2.0.0",
     "scipy",
     "typing-extensions",
 ]
