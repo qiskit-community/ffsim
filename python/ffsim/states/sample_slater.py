@@ -227,6 +227,10 @@ def sample_slater_determinant(
 ) -> Sequence[int] | Sequence[str] | np.ndarray:
     """Collect samples of electronic configurations from a Slater determinant.
 
+    Note:
+        Deprecated. Use `ffsim.sample_slater` instead. This function will be
+        removed in a future release.
+
     The Slater determinant is defined by its one-body reduced density matrix (RDM).
     The sampler uses a determinantal point process to auto-regressively produce
     uncorrelated samples.
