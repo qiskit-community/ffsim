@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Sequence
-from typing import cast
+from typing import cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -27,78 +27,106 @@ from ffsim.states.bitstring import (
 )
 
 
+@overload
 def sample_slater(
-    rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
     norb: int,
-    nelec: int | tuple[int, int],
+    occupied_orbitals: Sequence[int],
+    orbital_rotation: np.ndarray | None = None,
+    *,
+    orbs: Sequence[int] | None = None,
+    shots: int = 1,
+    bitstring_type: BitstringType = BitstringType.STRING,
+    seed: np.random.Generator | int | None = None,
+) -> Sequence[int] | Sequence[str] | np.ndarray: ...
+@overload
+def sample_slater(
+    norb: int,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+    *,
+    orbs: tuple[Sequence[int], Sequence[int]] | None = None,
+    shots: int = 1,
+    concatenate: bool = True,
+    bitstring_type: BitstringType = BitstringType.STRING,
+    seed: np.random.Generator | int | None = None,
+) -> Sequence[int] | Sequence[str] | np.ndarray: ...
+def sample_slater(
+    norb: int,
+    occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
     *,
     orbs: Sequence[int] | tuple[Sequence[int], Sequence[int]] | None = None,
     shots: int = 1,
     concatenate: bool = True,
     bitstring_type: BitstringType = BitstringType.STRING,
-    method: str = "fast",
     seed: np.random.Generator | int | None = None,
 ) -> Sequence[int] | Sequence[str] | np.ndarray:
     """Collect samples of electronic configurations from a Slater determinant.
 
-    The Slater determinant is defined by its one-body reduced density matrix (RDM).
-    The sampler uses a determinantal point process to auto-regressively produce
-    uncorrelated samples.
-
-    This sampling strategy is known as
-    `determinantal point processes <https://arxiv.org/abs/1207.6083>`
+    The Slater determinant is specified as an orbital rotation applied to the
+    reference electronic configuration given by `occupied_orbitals`. The sampler
+    draws independent samples from the corresponding determinantal point process
+    using the projection-based sequential sampling algorithm of *Fermion Sampling
+    Made More Efficient* (Phys. Rev. B 107, 035119, 2023).
 
     Args:
-        rdm: The one-body reduced density matrix that defines the Slater determinant
-            This is either a single Numpy array specifying the 1-RDM of a
-            spin-polarized system, or a pair of Numpy arrays where each element
-            of the pair contains the 1-RDM for each spin sector.
         norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is either a list of integers specifying spinless orbitals, or a
+            pair of lists, where the first list specifies the spin alpha orbitals and
+            the second list specifies the spin beta orbitals.
+        orbital_rotation: The optional orbital rotation.
+            Either a single Numpy array specifying the orbital rotation to apply to
+            both spin sectors, or a pair of Numpy arrays specifying independent orbital
+            rotations for spin alpha and spin beta. In the paired form, ``None``
+            indicates that the identity operation is applied to the corresponding spin
+            sector.
+        orbs: The orbitals to sample.
+            In the spinless case, this is a list of integers in ``range(norb)``.
+            In the spinful case, this is a pair of such lists, where the first list
+            stores spin-alpha orbitals and the second list stores spin-beta orbitals.
+            If not specified, then all orbitals are sampled.
         shots: The number of bitstrings to sample.
         concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
             bitstrings. If True, then a single list of concatenated bitstrings is
             returned. The strings are concatenated in the order :math:`s_b s_a`,
             that is, the alpha string appears on the right.
-            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
-            the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
+            If False, then two lists are returned, ``(strings_a, strings_b)``, with the
+            alpha strings listed first.
+            In the spinless case (when `occupied_orbitals` is a sequence of integers),
+            this argument is ignored.
         bitstring_type: The desired type of bitstring output.
-        method: Which sampler to use.
-            ``"fast"`` (default) runs the projection-based algorithm from
-            *Fermion Sampling Made More Efficient* (Phys. Rev. B 107, 035119),
-            including the marginal mode when the projector rank exceeds ``nelec``,
-            and falls back internally when the 1-RDM is not an exact projector.
-            ``"determinant"`` uses the determinant-based autoregressive sampler.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
     Returns:
-        A 2D Numpy array with samples of electronic configurations.
-        Each row is a sample.
+        The sampled bitstrings.
     """
-    method = method.lower()
-    if method not in {"determinant", "fast"}:
-        raise ValueError(f"Unsupported sampling method: {method}")
-
     rng = np.random.default_rng(seed)
 
-    if isinstance(nelec, int):
+    if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
-        rdm = cast(np.ndarray, rdm)
-        norb, _ = rdm.shape
+        occupied_orbitals = cast(Sequence[int], occupied_orbitals)
+        nelec = len(occupied_orbitals)
         if orbs is None:
             orbs = range(norb)
         orbs = cast(Sequence[int], orbs)
-        if method == "fast":
-            try:
-                strings = _sample_slater_spinless_fast(rdm, nelec, shots, rng)
-            except ValueError:
-                strings = _sample_slater_spinless(rdm, nelec, shots, rng)
+        if nelec == 0:
+            strings = [0] * shots
+        elif nelec == norb:
+            strings = [(1 << norb) - 1] * shots
         else:
-            strings = _sample_slater_spinless(rdm, nelec, shots, rng)
+            if orbital_rotation is None:
+                orbitals = np.eye(norb, dtype=complex)[:, occupied_orbitals]
+            else:
+                orbital_rotation = cast(np.ndarray, orbital_rotation)
+                orbitals = orbital_rotation.conj()[:, occupied_orbitals]
+            sampler = _FastProjectionSampler(orbitals)
+            strings = [sampler.sample(rng) for _ in range(shots)]
         strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
         return convert_bitstring_type(
             strings,
@@ -108,24 +136,54 @@ def sample_slater(
         )
 
     # Spinful case
-    rdm_a, rdm_b = rdm
-    n_a, n_b = nelec
-    norb, _ = rdm_a.shape
+    orbs = cast(tuple[Sequence[int], Sequence[int]] | None, orbs)
     if orbs is None:
         orbs = (range(norb), range(norb))
-    orbs_a, orbs_b = orbs
+    orbs_a, orbs_b = cast(tuple[Sequence[int], Sequence[int]], orbs)
     orbs_a = cast(Sequence[int], orbs_a)
     orbs_b = cast(Sequence[int], orbs_b)
-    if method == "fast":
-        try:
-            strings_a = _sample_slater_spinless_fast(rdm_a, n_a, shots, rng)
-            strings_b = _sample_slater_spinless_fast(rdm_b, n_b, shots, rng)
-        except ValueError:
-            strings_a = _sample_slater_spinless(rdm_a, n_a, shots, rng)
-            strings_b = _sample_slater_spinless(rdm_b, n_b, shots, rng)
+
+    occupied_orbitals_a, occupied_orbitals_b = cast(
+        tuple[Sequence[int], Sequence[int]], occupied_orbitals
+    )
+    n_a = len(occupied_orbitals_a)
+    n_b = len(occupied_orbitals_b)
+
+    if orbital_rotation is None:
+        orbital_rotation_a = None
+        orbital_rotation_b = None
+    elif isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
+        orbital_rotation_a = orbital_rotation
+        orbital_rotation_b = orbital_rotation
     else:
-        strings_a = _sample_slater_spinless(rdm_a, n_a, shots, rng)
-        strings_b = _sample_slater_spinless(rdm_b, n_b, shots, rng)
+        orbital_rotation_a, orbital_rotation_b = cast(
+            tuple[np.ndarray | None, np.ndarray | None], orbital_rotation
+        )
+
+    if n_a == 0:
+        strings_a = [0] * shots
+    elif n_a == norb:
+        strings_a = [(1 << norb) - 1] * shots
+    else:
+        if orbital_rotation_a is None:
+            orbitals_a = np.eye(norb, dtype=complex)[:, occupied_orbitals_a]
+        else:
+            orbitals_a = orbital_rotation_a.conj()[:, occupied_orbitals_a]
+        sampler_a = _FastProjectionSampler(orbitals_a)
+        strings_a = [sampler_a.sample(rng) for _ in range(shots)]
+
+    if n_b == 0:
+        strings_b = [0] * shots
+    elif n_b == norb:
+        strings_b = [(1 << norb) - 1] * shots
+    else:
+        if orbital_rotation_b is None:
+            orbitals_b = np.eye(norb, dtype=complex)[:, occupied_orbitals_b]
+        else:
+            orbitals_b = orbital_rotation_b.conj()[:, occupied_orbitals_b]
+        sampler_b = _FastProjectionSampler(orbitals_b)
+        strings_b = [sampler_b.sample(rng) for _ in range(shots)]
+
     strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=BitstringType.INT)
     strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=BitstringType.INT)
 
@@ -294,68 +352,6 @@ def _sample_slater_spinless(
     return [sum(1 << orb for orb in sample) for sample in samples]
 
 
-def _sample_slater_spinless_fast(
-    rdm: np.ndarray,
-    nelec: int,
-    shots: int,
-    seed: np.random.Generator | int | None = None,
-) -> list[int]:
-    """Collect samples of electronic configurations from a Slater determinant.
-
-    Uses the projection-based fast sampler: it builds an orthonormal orbital
-    basis from a Hermitian projector 1-RDM and iteratively samples rows via
-    Gaussian-elimination updates. If the projector rank exceeds ``nelec``, it
-    samples the marginal distribution by uniformly selecting occupied orbitals
-    inside the projector subspace on every draw. This routine raises a
-    ``ValueError`` when given a nonprojector 1-RDM or when ``nelec`` exceeds
-    the projector rank; callers are expected to catch and fall back to the
-    determinant-based sampler when needed.
-
-    Args:
-        rdm: The one-body reduced density matrix that defines the Slater determinant.
-        nelec: Number of electrons.
-        shots: Number of samples to collect.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-
-    Returns:
-        The sampled bitstrings in integer format.
-    """
-    norb, _ = rdm.shape
-
-    if nelec == 0:
-        return [0] * shots
-
-    if nelec == norb:
-        return [(1 << norb) - 1] * shots
-
-    rng = np.random.default_rng(seed)
-    if not np.allclose(rdm, rdm.conj().T, atol=1e-10):
-        raise ValueError("Fast sampler requires a Hermitian projector 1-RDM.")
-    tol = 1e-8
-    eigvals, eigvecs = np.linalg.eigh(rdm)
-    rank = int(round(float(np.clip(eigvals, 0.0, 1.0).sum())))
-    if not _is_projection_eigvals(eigvals, rank, tol=tol):
-        raise ValueError("Fast sampler requires a projector 1-RDM.")
-    order = np.argsort(eigvals)[::-1]
-    orbitals = eigvecs[:, order[:rank]]
-    if nelec > rank:
-        raise ValueError("Fast sampler requires at least nelec occupied orbitals.")
-
-    if nelec == rank:
-        # Full-rank projector
-        sampler = _FastProjectionSampler(orbitals)
-        return [sampler.sample(rng) for _ in range(shots)]
-
-    def sample_once() -> int:
-        """Draw one bitstring from a rank-``rank`` projector marginal."""
-        cols = rng.choice(rank, size=nelec, replace=False)
-        sampler = _FastProjectionSampler(orbitals[:, cols])
-        return sampler.sample(rng)
-
-    return [sample_once() for _ in range(shots)]
-
-
 def _autoregressive_slater(
     rdm: np.ndarray,
     norb: int,
@@ -496,23 +492,3 @@ class _FastProjectionSampler:
             h = h[:, 1:active]
             active -= 1
         return sum(1 << orb for orb in selected)
-
-
-def _is_projection_eigvals(eigvals: np.ndarray, nelec: int, tol: float = 1e-8) -> bool:
-    """Return True if eigenvalues describe a rank-``nelec`` projector.
-
-    Args:
-        eigvals: Eigenvalues of the 1-RDM.
-        nelec: Expected rank (number of occupied orbitals).
-        tol: Absolute tolerance for checking idempotency and trace.
-
-    Returns:
-        True when the spectrum is within ``tol`` of a {0, 1} projector with trace
-        ``nelec``; False otherwise.
-    """
-    eigvals = np.clip(eigvals, 0.0, 1.0)
-    trace_ok = np.isclose(np.sum(eigvals), nelec, atol=tol)
-    idempotent_ok = np.all(
-        np.isclose(eigvals, 0.0, atol=tol) | np.isclose(eigvals, 1.0, atol=tol)
-    )
-    return bool(trace_ok and idempotent_ok)
