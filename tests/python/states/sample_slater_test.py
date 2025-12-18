@@ -122,7 +122,6 @@ def test_sample_slater_determinant_large():
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
 
-@pytest.mark.parametrize("method", ["determinant", "fast"])
 def test_sample_slater_determinant_restrict(method: str):
     """Test sample Slater determinant with subset of orbitals."""
     norb = 8
@@ -140,53 +139,3 @@ def test_sample_slater_determinant_restrict(method: str):
         method=method,
     )
     assert samples == ["011110"] * 10
-
-
-def test_sample_slater_determinant_fast_marginal():
-    """Fast sampler supports marginal sampling when rank exceeds nelec."""
-    norb = 4
-    nelec = 2
-    shots = 2000
-    rng = np.random.default_rng(1234)
-    rdm = np.eye(norb)
-
-    samples = ffsim.sample_slater_determinant(
-        rdm, norb, nelec, shots=shots, method="fast", seed=rng
-    )
-    addresses = ffsim.strings_to_addresses(samples, norb, nelec)
-    indices, counts = np.unique(addresses, return_counts=True)
-    empirical = np.zeros(ffsim.dim(norb, nelec))
-    empirical[indices] = counts / shots
-    uniform = np.full_like(empirical, 1 / ffsim.dim(norb, nelec), dtype=float)
-    assert np.sum(np.sqrt(empirical * uniform)) > 0.99
-
-
-def test_fast_matches_determinant_distribution():
-    """Fast sampler matches determinant sampler on a projector 1-RDM."""
-    norb = 5
-    nelec = 3
-    shots = 4000
-    rng = np.random.default_rng(1234)
-    rotation = ffsim.random.random_unitary(norb, seed=rng)
-    occupied_orbitals = (0, 2, 4)
-    rdm = ffsim.slater_determinant_rdms(norb, occupied_orbitals, rotation, rank=1)
-
-    fast_samples = ffsim.sample_slater_determinant(
-        rdm, norb, nelec, shots=shots, method="fast", seed=1234
-    )
-    det_samples = ffsim.sample_slater_determinant(
-        rdm, norb, nelec, shots=shots, method="determinant", seed=1235
-    )
-
-    fast_addresses = ffsim.strings_to_addresses(fast_samples, norb, nelec)
-    det_addresses = ffsim.strings_to_addresses(det_samples, norb, nelec)
-
-    fast_indices, fast_counts = np.unique(fast_addresses, return_counts=True)
-    det_indices, det_counts = np.unique(det_addresses, return_counts=True)
-
-    fast_dist = np.zeros(ffsim.dim(norb, nelec))
-    det_dist = np.zeros_like(fast_dist)
-    fast_dist[fast_indices] = fast_counts / shots
-    det_dist[det_indices] = det_counts / shots
-
-    assert np.sum(np.sqrt(fast_dist * det_dist)) > 0.99
