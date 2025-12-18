@@ -27,7 +27,7 @@ from ffsim.states.bitstring import (
 )
 
 
-def sample_slater_determinant(
+def sample_slater(
     rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
     norb: int,
     nelec: int | tuple[int, int],
@@ -126,6 +126,110 @@ def sample_slater_determinant(
     else:
         strings_a = _sample_slater_spinless(rdm_a, n_a, shots, rng)
         strings_b = _sample_slater_spinless(rdm_b, n_b, shots, rng)
+    strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=BitstringType.INT)
+    strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=BitstringType.INT)
+
+    if concatenate:
+        strings = concatenate_bitstrings(
+            strings_a,
+            strings_b,
+            BitstringType.INT,
+            length=len(orbs_a),
+        )
+        return convert_bitstring_type(
+            strings,
+            BitstringType.INT,
+            bitstring_type,
+            length=len(orbs_a) + len(orbs_b),
+        )
+
+    return convert_bitstring_type(
+        strings_a,
+        BitstringType.INT,
+        bitstring_type,
+        length=len(orbs_a),
+    ), convert_bitstring_type(
+        strings_b,
+        BitstringType.INT,
+        bitstring_type,
+        length=len(orbs_b),
+    )
+
+
+def sample_slater_determinant(
+    rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
+    norb: int,
+    nelec: int | tuple[int, int],
+    *,
+    orbs: Sequence[int] | tuple[Sequence[int], Sequence[int]] | None = None,
+    shots: int = 1,
+    concatenate: bool = True,
+    bitstring_type: BitstringType = BitstringType.STRING,
+    seed: np.random.Generator | int | None = None,
+) -> Sequence[int] | Sequence[str] | np.ndarray:
+    """Collect samples of electronic configurations from a Slater determinant.
+
+    The Slater determinant is defined by its one-body reduced density matrix (RDM).
+    The sampler uses a determinantal point process to auto-regressively produce
+    uncorrelated samples.
+
+    This sampling strategy is known as
+    `determinantal point processes <https://arxiv.org/abs/1207.6083>`
+
+    Args:
+        rdm: The one-body reduced density matrix that defines the Slater determinant
+            This is either a single Numpy array specifying the 1-RDM of a
+            spin-polarized system, or a pair of Numpy arrays where each element
+            of the pair contains the 1-RDM for each spin sector.
+        norb: The number of spatial orbitals.
+        nelec: Either a single integer representing the number of fermions for a
+            spinless system, or a pair of integers storing the numbers of spin alpha
+            and spin beta fermions.
+        shots: The number of bitstrings to sample.
+        concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
+            bitstrings. If True, then a single list of concatenated bitstrings is
+            returned. The strings are concatenated in the order :math:`s_b s_a`,
+            that is, the alpha string appears on the right.
+            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
+            the list of alpha strings appears first, that is, on the left.
+            In the spinless case (when `nelec` is an integer), this argument is ignored.
+        bitstring_type: The desired type of bitstring output.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        A 2D Numpy array with samples of electronic configurations.
+        Each row is a sample.
+    """
+    rng = np.random.default_rng(seed)
+
+    if isinstance(nelec, int):
+        # Spinless case
+        rdm = cast(np.ndarray, rdm)
+        norb, _ = rdm.shape
+        if orbs is None:
+            orbs = range(norb)
+        orbs = cast(Sequence[int], orbs)
+        strings = _sample_slater_spinless(rdm, nelec, shots, rng)
+        strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
+        return convert_bitstring_type(
+            strings,
+            BitstringType.INT,
+            bitstring_type,
+            length=len(orbs),
+        )
+
+    # Spinful case
+    rdm_a, rdm_b = rdm
+    n_a, n_b = nelec
+    norb, _ = rdm_a.shape
+    if orbs is None:
+        orbs = (range(norb), range(norb))
+    orbs_a, orbs_b = orbs
+    orbs_a = cast(Sequence[int], orbs_a)
+    orbs_b = cast(Sequence[int], orbs_b)
+    strings_a = _sample_slater_spinless(rdm_a, n_a, shots, rng)
+    strings_b = _sample_slater_spinless(rdm_b, n_b, shots, rng)
     strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=BitstringType.INT)
     strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=BitstringType.INT)
 
