@@ -197,7 +197,7 @@ class DoubleFactorizedHamiltonian(
             The double-factorized Hamiltonian.
         """
         one_body_tensor = hamiltonian.one_body_tensor - 0.5 * np.einsum(
-            "prqr", hamiltonian.two_body_tensor
+            "prrq", hamiltonian.two_body_tensor
         )
 
         diag_coulomb_mats, orbital_rotations = double_factorized(
@@ -235,7 +235,7 @@ class DoubleFactorizedHamiltonian(
             df_hamiltonian.orbital_rotations.conj(),
         )
         one_body_tensor = df_hamiltonian.one_body_tensor + 0.5 * np.einsum(
-            "prqr", two_body_tensor
+            "prrq", two_body_tensor
         )
         return MolecularHamiltonian(
             one_body_tensor=one_body_tensor,
