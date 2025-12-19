@@ -126,8 +126,10 @@ def sample_slater(
             else:
                 orbital_rotation = cast(np.ndarray, orbital_rotation)
                 orbitals = orbital_rotation.conj()[:, occupied_orbitals]
-            sampler = _FastProjectionSampler(orbitals)
-            strings = [sampler.sample(rng) for _ in range(shots)]
+            normals = _compute_projection_normals(orbitals)
+            strings = [
+                _sample_from_projection_normals(normals, rng) for _ in range(shots)
+            ]
         strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
         return convert_bitstring_type(
             strings,
@@ -170,8 +172,10 @@ def sample_slater(
             orbitals_a = np.eye(norb, dtype=complex)[:, occupied_orbitals_a]
         else:
             orbitals_a = orbital_rotation_a.conj()[:, occupied_orbitals_a]
-        sampler_a = _FastProjectionSampler(orbitals_a)
-        strings_a = [sampler_a.sample(rng) for _ in range(shots)]
+        normals_a = _compute_projection_normals(orbitals_a)
+        strings_a = [
+            _sample_from_projection_normals(normals_a, rng) for _ in range(shots)
+        ]
 
     if n_b == 0:
         strings_b = [0] * shots
@@ -182,8 +186,10 @@ def sample_slater(
             orbitals_b = np.eye(norb, dtype=complex)[:, occupied_orbitals_b]
         else:
             orbitals_b = orbital_rotation_b.conj()[:, occupied_orbitals_b]
-        sampler_b = _FastProjectionSampler(orbitals_b)
-        strings_b = [sampler_b.sample(rng) for _ in range(shots)]
+        normals_b = _compute_projection_normals(orbitals_b)
+        strings_b = [
+            _sample_from_projection_normals(normals_b, rng) for _ in range(shots)
+        ]
 
     strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=BitstringType.INT)
     strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=BitstringType.INT)
@@ -408,94 +414,85 @@ def _generate_probs(rdm: np.ndarray, sample: set[int], norb: int) -> np.ndarray:
     return probs / np.sum(probs)
 
 
-class _FastProjectionSampler:
-    """Projection-based fast sampler core with cached precomputation.
+def _compute_projection_normals(orbitals: np.ndarray) -> np.ndarray:
+    """Compute the normal vectors needed for fast projection sampling.
 
-    Given an orthonormal orbital matrix for a projector 1-RDM, the sampler
-    precomputes the normal vectors needed for the Gaussian-elimination sampling
-    routine and exposes a ``sample`` method that generates integer-encoded
-    bitstrings using a provided RNG.
+    Given an orthonormal orbital matrix for a projector 1-RDM, precomputes dual
+    normal vectors via reduced QR factorization and triangular solves for reuse
+    during sampling.
+
+    Args:
+        orbitals: A 2D array whose columns are orthonormal orbitals spanning the
+            occupied subspace. Shape ``(norb, nelec)``.
+
+    Returns:
+        A 2D array of normal vectors with shape ``(norb, nelec)``.
+
+    Raises:
+        ValueError: If the input is not 2D, has zero occupied orbitals, or is
+            ill-conditioned for the QR-based precomputation.
     """
-
-    def __init__(self, orbitals: np.ndarray):
-        """Initialize the sampler with occupied orbitals from a projector 1-RDM.
-
-        Precomputes dual normal vectors via reduced QR factorization and
-        triangular solves for reuse during sampling.
-
-        Args:
-            orbitals: A 2D array whose columns are orthonormal orbitals spanning
-                the occupied subspace. Shape ``(norb, nelec)``.
-
-        Raises:
-            ValueError: If the input is not 2D, has zero occupied orbitals, or is
-                ill-conditioned for the QR-based precomputation.
-        """
-        if orbitals.ndim != 2:
-            raise ValueError("Projector orbitals must be a 2D array.")
-        self._norb, self._nelec = orbitals.shape
-        if self._nelec == 0:
-            raise ValueError("Fast sampler requires at least one occupied orbital.")
-        # Precompute normal vectors h_t from QR
-        q, r = np.linalg.qr(orbitals, mode="reduced")
-        diag = np.abs(np.diag(r))
-        tol = 1e-12
-        if np.any(diag <= tol):
-            raise ValueError(
-                "Projector factorization is ill-conditioned for fast sampling."
-            )
-        inv_rt = scipy.linalg.solve_triangular(
-            r.T, np.eye(self._nelec), lower=True, check_finite=False
+    if orbitals.ndim != 2:
+        raise ValueError("Projector orbitals must be a 2D array.")
+    _, nelec = orbitals.shape
+    if nelec == 0:
+        raise ValueError("Fast sampler requires at least one occupied orbital.")
+    q, r = np.linalg.qr(orbitals, mode="reduced")
+    diag = np.abs(np.diag(r))
+    tol = 1e-12
+    if np.any(diag <= tol):
+        raise ValueError(
+            "Projector factorization is ill-conditioned for fast sampling."
         )
-        self._normals = q @ inv_rt
+    inv_rt = scipy.linalg.solve_triangular(
+        r.T, np.eye(nelec), lower=True, check_finite=False
+    )
+    return q @ inv_rt
 
-    @property
-    def norb(self) -> int:
-        return self._norb
 
-    @property
-    def nelec(self) -> int:
-        return self._nelec
+def _sample_from_projection_normals(
+    normals: np.ndarray, rng: np.random.Generator
+) -> int:
+    """Draw one configuration using cached projection normals and supplied RNG.
 
-    def sample(self, rng: np.random.Generator) -> int:
-        """Draw one configuration using the cached normals and supplied RNG.
+    Permutes the precomputed normal vectors, then iteratively picks an orbital
+    with probability proportional to the squared magnitude of the leading normal,
+    performs a Gaussian-elimination pivot to update the remaining normals, and
+    repeats until all electrons are placed.
 
-        Permutes the precomputed normal vectors, then iteratively picks an
-        orbital with probability proportional to the squared magnitude of the
-        leading normal, performs a Gaussian-elimination pivot to update the
-        remaining normals, and repeats until all electrons are placed.
+    Args:
+        normals: A 2D array of precomputed normal vectors with shape ``(norb, nelec)``.
+        rng: NumPy Generator to use for randomness.
 
-        Args:
-            rng: NumPy Generator to use for randomness.
-
-        Returns:
-            Integer-encoded bitstring for the sampled configuration.
-        """
-        perm = rng.permutation(self._nelec)
-        h = self._normals[:, perm].copy()
-        selected: list[int] = []
-        active = self._nelec
-        tol = 1e-12
-        # Iterate until all electrons are placed
-        while active:
-            h0 = h[:, 0]
-            row_norms = np.abs(h0) ** 2
-            total = float(np.sum(row_norms))
-            if total <= 0:
-                raise ValueError("Failed to compute sampling probabilities.")
-            probs = row_norms / total
-            orb = int(rng.choice(self._norb, p=probs))
-            selected.append(orb)
-            if active == 1:
-                # No further elimination needed
-                break
-            pivot_val = h0[orb]
-            if np.abs(pivot_val) <= tol:
-                raise ValueError("Numerical pivot breakdown in fast sampler.")
-            # Update remaining normals via Gaussian elimination (O(N^2))
-            for j in range(1, active):
-                h[:, j] = h[:, j] - (h[orb, j] / pivot_val) * h0
-            # Drop the first normal vector
-            h = h[:, 1:active]
-            active -= 1
-        return sum(1 << orb for orb in selected)
+    Returns:
+        Integer-encoded bitstring for the sampled configuration.
+    """
+    norb, nelec = normals.shape
+    perm = rng.permutation(nelec)
+    h = normals[:, perm].copy()
+    selected: list[int] = []
+    active = nelec
+    tol = 1e-12
+    # Iterate until all electrons are placed
+    while active:
+        h0 = h[:, 0]
+        row_norms = np.abs(h0) ** 2
+        total = float(np.sum(row_norms))
+        if total <= 0:
+            raise ValueError("Failed to compute sampling probabilities.")
+        probs = row_norms / total
+        orb = int(rng.choice(norb, p=probs))
+        selected.append(orb)
+        if active == 1:
+            # No further elimination needed
+            break
+        pivot_val = h0[orb]
+        if np.abs(pivot_val) <= tol:
+            raise ValueError("Numerical pivot breakdown in fast sampler.")
+        # Update remaining normals via Gaussian elimination (O(N^2))
+        for j in range(1, active):
+            h[:, j] = h[:, j] - (h[orb, j] / pivot_val) * h0
+        # Drop the first normal vector
+        h = h[:, 1:active]
+        active -= 1
+    return sum(1 << orb for orb in selected)
