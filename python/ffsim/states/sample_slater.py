@@ -470,13 +470,15 @@ def _sample_from_projection_normals(
     """
     norb, nelec = normals.shape
     perm = rng.permutation(nelec)
-    h = normals[:, perm].copy()
+    # Working set of normals after applying the random permutation.
+    active_normals = normals[:, perm].copy()
     selected: list[int] = []
     active = nelec
     # Iterate until all electrons are placed
     while active:
-        h0 = h[:, 0]
-        row_norms = np.abs(h0) ** 2
+        # Pivot column used for sampling and elimination.
+        pivot_normal = active_normals[:, 0]
+        row_norms = np.abs(pivot_normal) ** 2
         total = float(np.sum(row_norms))
         if total <= 0:
             raise ValueError("Failed to compute sampling probabilities.")
@@ -486,13 +488,16 @@ def _sample_from_projection_normals(
         if active == 1:
             # No further elimination needed
             break
-        pivot_val = h0[orb]
+        pivot_val = pivot_normal[orb]
         if np.abs(pivot_val) <= tol:
             raise ValueError("Numerical pivot breakdown in fast sampler.")
         # Update remaining normals via Gaussian elimination (O(N^2))
         for j in range(1, active):
-            h[:, j] = h[:, j] - (h[orb, j] / pivot_val) * h0
+            active_normals[:, j] = (
+                active_normals[:, j]
+                - (active_normals[orb, j] / pivot_val) * pivot_normal
+            )
         # Drop the first normal vector
-        h = h[:, 1:active]
+        active_normals = active_normals[:, 1:active]
         active -= 1
     return sum(1 << orb for orb in selected)
