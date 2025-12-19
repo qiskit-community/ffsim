@@ -134,3 +134,113 @@ def test_sample_slater_determinant_restrict():
         (rdm_a, rdm_b), norb, nelec, orbs=([1, 2, 5], [3, 4, 5]), shots=shots
     )
     assert samples == ["011110"] * 10
+
+
+@pytest.mark.parametrize(
+    "norb, nelec, bitstring_type",
+    [
+        (norb, nelec, bitstring_type)
+        for (norb, nelec), bitstring_type in itertools.product(
+            ffsim.testing.generate_norb_nelec(range(1, 5)), BitstringType
+        )
+    ],
+)
+def test_sample_slater_spinful(
+    norb: int, nelec: tuple[int, int], bitstring_type: BitstringType
+):
+    """Test sample Slater, spinful."""
+    rng = np.random.default_rng(1234)
+    shots = 1000
+    for _ in range(min(2, ffsim.dim(norb, nelec))):
+        rotation_a = ffsim.random.random_unitary(norb, seed=rng)
+        rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+        occupied_orbitals = ffsim.testing.random_occupied_orbitals(
+            norb, nelec, seed=rng
+        )
+        vec = ffsim.slater_determinant(
+            norb, occupied_orbitals, (rotation_a, rotation_b)
+        )
+        test_distribution = np.abs(vec) ** 2
+        samples = ffsim.sample_slater(
+            norb,
+            occupied_orbitals,
+            (rotation_a, rotation_b),
+            shots=shots,
+            bitstring_type=bitstring_type,
+            seed=rng,
+        )
+        addresses = ffsim.strings_to_addresses(samples, norb, nelec)
+        indices, counts = np.unique(addresses, return_counts=True)
+        assert np.sum(counts) == shots
+        empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+        empirical_distribution[indices] = counts / shots
+        assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+
+
+@pytest.mark.parametrize(
+    "norb, nelec, bitstring_type",
+    [
+        (norb, nelec, bitstring_type)
+        for (norb, nelec), bitstring_type in itertools.product(
+            ffsim.testing.generate_norb_nocc(range(1, 5)), BitstringType
+        )
+    ],
+)
+def test_sample_slater_spinless(norb: int, nelec: int, bitstring_type: BitstringType):
+    """Test sample Slater, spinless."""
+    rng = np.random.default_rng(1234)
+    shots = 1000
+
+    rotation = ffsim.random.random_unitary(norb, seed=rng)
+    for occupied_orbitals in itertools.combinations(range(norb), nelec):
+        vec = ffsim.slater_determinant(norb, occupied_orbitals, rotation)
+        test_distribution = np.abs(vec) ** 2
+        samples = ffsim.sample_slater(
+            norb,
+            occupied_orbitals,
+            rotation,
+            shots=shots,
+            bitstring_type=bitstring_type,
+            seed=rng,
+        )
+        addresses = ffsim.strings_to_addresses(samples, norb, nelec)
+        indices, counts = np.unique(addresses, return_counts=True)
+        assert np.sum(counts) == shots
+        empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+        empirical_distribution[indices] = counts / shots
+        assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+
+
+def test_sample_slater_large():
+    """Test sample Slater for a larger number of orbitals."""
+    norb = 6
+    nelec = (3, 2)
+
+    rng = np.random.default_rng(1234)
+    shots = 5000
+    rotation_a = ffsim.random.random_unitary(norb, seed=rng)
+    rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+    occupied_orbitals = ((0, 2, 3), (2, 4))
+    vec = ffsim.slater_determinant(norb, occupied_orbitals, (rotation_a, rotation_b))
+    test_distribution = np.abs(vec) ** 2
+    samples = ffsim.sample_slater(
+        norb, occupied_orbitals, (rotation_a, rotation_b), shots=shots, seed=rng
+    )
+    addresses = ffsim.strings_to_addresses(samples, norb, nelec)
+    indices, counts = np.unique(addresses, return_counts=True)
+    assert np.sum(counts) == shots
+    empirical_distribution = np.zeros(ffsim.dim(norb, nelec), dtype=float)
+    empirical_distribution[indices] = counts / shots
+    assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
+
+
+def test_sample_slater_restrict():
+    """Test sample Slater with subset of orbitals."""
+    norb = 8
+
+    shots = 10
+    occupied_orbitals = ((0, 2, 3, 5), (2, 3, 4))
+    samples = ffsim.sample_slater(
+        norb, occupied_orbitals, orbs=([1, 2, 5], [3, 4, 5]), shots=shots
+    )
+    assert samples == ["011110"] * 10
