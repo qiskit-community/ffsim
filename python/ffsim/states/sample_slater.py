@@ -414,7 +414,7 @@ def _generate_probs(rdm: np.ndarray, sample: set[int], norb: int) -> np.ndarray:
     return probs / np.sum(probs)
 
 
-def _compute_projection_normals(orbitals: np.ndarray) -> np.ndarray:
+def _compute_projection_normals(orbitals: np.ndarray, tol: float = 1e-12) -> np.ndarray:
     """Compute the normal vectors needed for fast projection sampling.
 
     Given an orthonormal orbital matrix for a projector 1-RDM, precomputes dual
@@ -424,6 +424,7 @@ def _compute_projection_normals(orbitals: np.ndarray) -> np.ndarray:
     Args:
         orbitals: A 2D array whose columns are orthonormal orbitals spanning the
             occupied subspace. Shape ``(norb, nelec)``.
+        tol: Tolerance for detecting ill-conditioned QR factorizations.
 
     Returns:
         A 2D array of normal vectors with shape ``(norb, nelec)``.
@@ -439,7 +440,6 @@ def _compute_projection_normals(orbitals: np.ndarray) -> np.ndarray:
         raise ValueError("Fast sampler requires at least one occupied orbital.")
     q, r = np.linalg.qr(orbitals, mode="reduced")
     diag = np.abs(np.diag(r))
-    tol = 1e-12
     if np.any(diag <= tol):
         raise ValueError(
             "Projector factorization is ill-conditioned for fast sampling."
@@ -451,7 +451,7 @@ def _compute_projection_normals(orbitals: np.ndarray) -> np.ndarray:
 
 
 def _sample_from_projection_normals(
-    normals: np.ndarray, rng: np.random.Generator
+    normals: np.ndarray, rng: np.random.Generator, tol: float = 1e-12
 ) -> int:
     """Draw one configuration using cached projection normals and supplied RNG.
 
@@ -463,6 +463,7 @@ def _sample_from_projection_normals(
     Args:
         normals: A 2D array of precomputed normal vectors with shape ``(norb, nelec)``.
         rng: NumPy Generator to use for randomness.
+        tol: Tolerance for detecting pivot breakdown in elimination.
 
     Returns:
         Integer-encoded bitstring for the sampled configuration.
@@ -472,7 +473,6 @@ def _sample_from_projection_normals(
     h = normals[:, perm].copy()
     selected: list[int] = []
     active = nelec
-    tol = 1e-12
     # Iterate until all electrons are placed
     while active:
         h0 = h[:, 0]
