@@ -18,6 +18,7 @@ from typing import cast, overload
 
 import numpy as np
 import scipy.linalg
+from typing_extensions import deprecated
 
 from ffsim.states.bitstring import (
     BitstringType,
@@ -214,6 +215,9 @@ def sample_slater(
     )
 
 
+@deprecated(
+    "ffsim.sample_slater_determinant is deprecated. Instead, use ffsim.sample_slater."
+)
 def sample_slater_determinant(
     rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
     norb: int,
@@ -227,9 +231,8 @@ def sample_slater_determinant(
 ) -> Sequence[int] | Sequence[str] | np.ndarray:
     """Collect samples of electronic configurations from a Slater determinant.
 
-    Note:
-        Deprecated. Use `ffsim.sample_slater` instead. This function will be
-        removed in a future release.
+    .. warning::
+        This function is deprecated. Use :func:`ffsim.sample_slater` instead.
 
     The Slater determinant is defined by its one-body reduced density matrix (RDM).
     The sampler uses a determinantal point process to auto-regressively produce
