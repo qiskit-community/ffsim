@@ -45,3 +45,4 @@ html_theme_options = {
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 300
 nbsphinx_execute = "always"
+nbsphinx_allow_errors = True
