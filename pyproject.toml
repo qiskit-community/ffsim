@@ -25,11 +25,13 @@ classifiers = [
 ]
 dependencies = [
     "jax",
-    "numpy",
+    # restrict Numpy version due to https://github.com/pyscf/pyscf/issues/3079
+    # TODO remove this when it's fixed
+    "numpy <= 2.3",
     "opt_einsum",
     "orjson",
     "pyscf >= 2.9",
-    "qiskit >= 2.0.0",
+    "qiskit >= 2.0",
     "scipy",
     "typing-extensions",
 ]
