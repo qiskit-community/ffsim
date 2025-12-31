@@ -221,6 +221,95 @@ def sample_slater(
     )
 
 
+def _compute_projection_normals(orbitals: np.ndarray, tol: float = 1e-12) -> np.ndarray:
+    """Compute the normal vectors needed for fast projection sampling.
+
+    Given an orthonormal orbital matrix for a projector 1-RDM, precomputes dual
+    normal vectors via reduced QR factorization and triangular solves for reuse
+    during sampling.
+
+    Args:
+        orbitals: A 2D array whose columns are orthonormal orbitals spanning the
+            occupied subspace. Shape ``(norb, nelec)``.
+        tol: Tolerance for detecting ill-conditioned QR factorizations.
+
+    Returns:
+        A 2D array of normal vectors with shape ``(norb, nelec)``.
+
+    Raises:
+        ValueError: If the input is not 2D, has zero occupied orbitals, or is
+            ill-conditioned for the QR-based precomputation.
+    """
+    if orbitals.ndim != 2:
+        raise ValueError("Projector orbitals must be a 2D array.")
+    _, nelec = orbitals.shape
+    if nelec == 0:
+        raise ValueError("Fast sampler requires at least one occupied orbital.")
+    q, r = np.linalg.qr(orbitals, mode="reduced")
+    diag = np.abs(np.diag(r))
+    if np.any(diag <= tol):
+        raise ValueError(
+            "Projector factorization is ill-conditioned for fast sampling."
+        )
+    inv_rt = scipy.linalg.solve_triangular(
+        r.T, np.eye(nelec), lower=True, check_finite=False
+    )
+    return q @ inv_rt
+
+
+def _sample_from_projection_normals(
+    normals: np.ndarray, rng: np.random.Generator, tol: float = 1e-12
+) -> int:
+    """Draw one configuration using cached projection normals and supplied RNG.
+
+    Permutes the precomputed normal vectors, then iteratively picks an orbital
+    with probability proportional to the squared magnitude of the leading normal,
+    performs a Gaussian-elimination pivot to update the remaining normals, and
+    repeats until all electrons are placed.
+
+    Args:
+        normals: A 2D array of precomputed normal vectors with shape ``(norb, nelec)``.
+        rng: NumPy Generator to use for randomness.
+        tol: Tolerance for detecting pivot breakdown in elimination.
+
+    Returns:
+        Integer-encoded bitstring for the sampled configuration.
+    """
+    norb, nelec = normals.shape
+    perm = rng.permutation(nelec)
+    # Working set of normals after applying the random permutation.
+    active_normals = normals[:, perm].copy()
+    selected: list[int] = []
+    active = nelec
+    # Iterate until all electrons are placed
+    while active:
+        # Pivot column used for sampling and elimination.
+        pivot_normal = active_normals[:, 0]
+        row_norms = np.abs(pivot_normal) ** 2
+        total = float(np.sum(row_norms))
+        if total <= 0:
+            raise ValueError("Failed to compute sampling probabilities.")
+        probs = row_norms / total
+        orb = int(rng.choice(norb, p=probs))
+        selected.append(orb)
+        if active == 1:
+            # No further elimination needed
+            break
+        pivot_val = pivot_normal[orb]
+        if np.abs(pivot_val) <= tol:
+            raise ValueError("Numerical pivot breakdown in fast sampler.")
+        # Update remaining normals via Gaussian elimination (O(N^2))
+        for j in range(1, active):
+            active_normals[:, j] = (
+                active_normals[:, j]
+                - (active_normals[orb, j] / pivot_val) * pivot_normal
+            )
+        # Drop the first normal vector
+        active_normals = active_normals[:, 1:active]
+        active -= 1
+    return sum(1 << orb for orb in selected)
+
+
 @deprecated(
     "ffsim.sample_slater_determinant is deprecated. Instead, use ffsim.sample_slater."
 )
@@ -412,92 +501,3 @@ def _generate_probs(rdm: np.ndarray, sample: set[int], norb: int) -> np.ndarray:
         indices = list(sample | {orb})
         probs[i] = np.linalg.det(rdm[indices][:, indices]).real
     return probs / np.sum(probs)
-
-
-def _compute_projection_normals(orbitals: np.ndarray, tol: float = 1e-12) -> np.ndarray:
-    """Compute the normal vectors needed for fast projection sampling.
-
-    Given an orthonormal orbital matrix for a projector 1-RDM, precomputes dual
-    normal vectors via reduced QR factorization and triangular solves for reuse
-    during sampling.
-
-    Args:
-        orbitals: A 2D array whose columns are orthonormal orbitals spanning the
-            occupied subspace. Shape ``(norb, nelec)``.
-        tol: Tolerance for detecting ill-conditioned QR factorizations.
-
-    Returns:
-        A 2D array of normal vectors with shape ``(norb, nelec)``.
-
-    Raises:
-        ValueError: If the input is not 2D, has zero occupied orbitals, or is
-            ill-conditioned for the QR-based precomputation.
-    """
-    if orbitals.ndim != 2:
-        raise ValueError("Projector orbitals must be a 2D array.")
-    _, nelec = orbitals.shape
-    if nelec == 0:
-        raise ValueError("Fast sampler requires at least one occupied orbital.")
-    q, r = np.linalg.qr(orbitals, mode="reduced")
-    diag = np.abs(np.diag(r))
-    if np.any(diag <= tol):
-        raise ValueError(
-            "Projector factorization is ill-conditioned for fast sampling."
-        )
-    inv_rt = scipy.linalg.solve_triangular(
-        r.T, np.eye(nelec), lower=True, check_finite=False
-    )
-    return q @ inv_rt
-
-
-def _sample_from_projection_normals(
-    normals: np.ndarray, rng: np.random.Generator, tol: float = 1e-12
-) -> int:
-    """Draw one configuration using cached projection normals and supplied RNG.
-
-    Permutes the precomputed normal vectors, then iteratively picks an orbital
-    with probability proportional to the squared magnitude of the leading normal,
-    performs a Gaussian-elimination pivot to update the remaining normals, and
-    repeats until all electrons are placed.
-
-    Args:
-        normals: A 2D array of precomputed normal vectors with shape ``(norb, nelec)``.
-        rng: NumPy Generator to use for randomness.
-        tol: Tolerance for detecting pivot breakdown in elimination.
-
-    Returns:
-        Integer-encoded bitstring for the sampled configuration.
-    """
-    norb, nelec = normals.shape
-    perm = rng.permutation(nelec)
-    # Working set of normals after applying the random permutation.
-    active_normals = normals[:, perm].copy()
-    selected: list[int] = []
-    active = nelec
-    # Iterate until all electrons are placed
-    while active:
-        # Pivot column used for sampling and elimination.
-        pivot_normal = active_normals[:, 0]
-        row_norms = np.abs(pivot_normal) ** 2
-        total = float(np.sum(row_norms))
-        if total <= 0:
-            raise ValueError("Failed to compute sampling probabilities.")
-        probs = row_norms / total
-        orb = int(rng.choice(norb, p=probs))
-        selected.append(orb)
-        if active == 1:
-            # No further elimination needed
-            break
-        pivot_val = pivot_normal[orb]
-        if np.abs(pivot_val) <= tol:
-            raise ValueError("Numerical pivot breakdown in fast sampler.")
-        # Update remaining normals via Gaussian elimination (O(N^2))
-        for j in range(1, active):
-            active_normals[:, j] = (
-                active_normals[:, j]
-                - (active_normals[orb, j] / pivot_val) * pivot_normal
-            )
-        # Drop the first normal vector
-        active_normals = active_normals[:, 1:active]
-        active -= 1
-    return sum(1 << orb for orb in selected)
