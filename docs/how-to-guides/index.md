@@ -3,6 +3,7 @@
 ```{toctree}
 :maxdepth: 1
 
+sample-from-state-vectors
 simulate-lucj
 simulate-trotter-mol-ham
 simulate-trotter-hubbard
