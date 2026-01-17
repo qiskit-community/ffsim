@@ -13,8 +13,8 @@ rayon = "1.10"
 blas = "0.22"
 ndarray = { version = "0.15", features = ["rayon"] }
 blas-src = { version = "0.10" }
-numpy = "0.21"
-pyo3 = { version = "0.21", features = [
+numpy = "0.27"
+pyo3 = { version = "0.27", features = [
     "extension-module",
     "num-complex",
     "abi3-py310",
