@@ -258,7 +258,7 @@ impl FermionOperator {
     }
 
     fn __truediv__(&self, other: Complex64) -> Self {
-        let mut coeffs = HashMap::new();
+        let mut coeffs = HashMap::with_capacity(self.coeffs.len());
         for (term_1, coeff_1) in &self.coeffs {
             coeffs.insert(term_1.to_vec(), coeff_1 / other);
         }
@@ -272,7 +272,7 @@ impl FermionOperator {
     }
 
     fn __rmul__(&self, other: Complex64) -> Self {
-        let mut coeffs = HashMap::new();
+        let mut coeffs = HashMap::with_capacity(self.coeffs.len());
         for (term_1, coeff_1) in &self.coeffs {
             coeffs.insert(term_1.to_vec(), other * coeff_1);
         }
@@ -316,7 +316,7 @@ impl FermionOperator {
     /// Returns:
     ///     FermionOperator: The adjoint of the fermion operator.
     fn adjoint(&self) -> Self {
-        let mut coeffs = HashMap::new();
+        let mut coeffs = HashMap::with_capacity(self.coeffs.len());
         for (term, coeff) in &self.coeffs {
             let adjoint_term: Vec<(bool, bool, i32)> = term
                 .iter()
