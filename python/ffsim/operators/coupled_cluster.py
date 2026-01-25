@@ -195,7 +195,7 @@ def doubles_excitations_unrestricted(
         coeff = t2bb[i, j, a, b]
         op += FermionOperator(
             {
-                (cre_b(nocc_a + a), cre_b(nocc_a + b), des_b(j), des_b(i)): 0.5 * coeff,
+                (cre_b(nocc_b + a), cre_b(nocc_b + b), des_b(j), des_b(i)): 0.5 * coeff,
             }
         )
     for i, j, a, b in itertools.product(
@@ -204,7 +204,7 @@ def doubles_excitations_unrestricted(
         coeff = t2ab[i, j, a, b]
         op += FermionOperator(
             {
-                (cre_a(nocc_a + a), cre_b(nocc_a + b), des_b(j), des_a(i)): coeff,
+                (cre_a(nocc_a + a), cre_b(nocc_b + b), des_b(j), des_a(i)): coeff,
             }
         )
     return op
@@ -237,6 +237,39 @@ def ccsd_generator_restricted(t1: np.ndarray, t2: np.ndarray) -> FermionOperator
     return singles_excitations_restricted(t1) + doubles_excitations_restricted(t2)
 
 
+def ccsd_generator_unrestricted(
+    t1: tuple[np.ndarray, np.ndarray], t2: tuple[np.ndarray, np.ndarray, np.ndarray]
+) -> FermionOperator:
+    r"""Unrestricted coupled cluster, singles and doubles (CCSD) generator.
+
+    The restricted CCSD generator is
+
+    .. math::
+
+        T = T_1 + T_2
+
+    where :math:`T_1` is the unrestricted singles excitations operator
+    (see :func:`singles_excitations_unrestricted`) and :math:`T_2` is the restricted
+    doubles excitations operator (see :func:`doubles_excitations_unrestricted`).
+
+    Args:
+        t1: The singles amplitudes. This should be a pair of Numpy arrays,
+            ``(t1a, t1b)``, containing the spin-up and spin-down singles amplitudes.
+            ``t1a`` should have shape (``nocc_a, nvrt_a``), where ``nocc_a`` is the
+            number of occupied spin-up orbitals and ``nvrt_a`` is the number of
+            virtual spin-up orbitals.
+            ``t1b`` should have shape (``nocc_b, nvrt_b``), where ``nocc_b`` is the
+            number of occupied spin-down orbitals and ``nvrt_b`` is the number of
+            virtual spin-down orbitals.
+        t2: The doubles amplitudes. This should be a tuple of three of Numpy arrays,
+            ``(t2aa, t2ab, t2bb)``.
+
+    Returns:
+        The CCSD generator.
+    """
+    return singles_excitations_unrestricted(t1) + doubles_excitations_unrestricted(t2)
+
+
 def uccsd_generator_restricted(t1: np.ndarray, t2: np.ndarray) -> FermionOperator:
     r"""Restricted unitary coupled cluster, singles and doubles (UCCSD) generator.
 
@@ -261,4 +294,37 @@ def uccsd_generator_restricted(t1: np.ndarray, t2: np.ndarray) -> FermionOperato
         The UCCSD generator.
     """
     ccsd_gen = ccsd_generator_restricted(t1=t1, t2=t2)
+    return ccsd_gen - ccsd_gen.adjoint()
+
+
+def uccsd_generator_unrestricted(
+    t1: tuple[np.ndarray, np.ndarray], t2: tuple[np.ndarray, np.ndarray, np.ndarray]
+) -> FermionOperator:
+    r"""Unestricted unitary coupled cluster, singles and doubles (UCCSD) generator.
+
+    The unrestricted UCCSD generator is
+
+    .. math::
+
+        T - T^\dagger
+
+    where :math:`T` is the unrestricted CCSD generator
+    (see :func:`ccsd_generator_unrestricted`).
+
+    Args:
+        t1: The singles amplitudes. This should be a pair of Numpy arrays,
+            ``(t1a, t1b)``, containing the spin-up and spin-down singles amplitudes.
+            ``t1a`` should have shape (``nocc_a, nvrt_a``), where ``nocc_a`` is the
+            number of occupied spin-up orbitals and ``nvrt_a`` is the number of
+            virtual spin-up orbitals.
+            ``t1b`` should have shape (``nocc_b, nvrt_b``), where ``nocc_b`` is the
+            number of occupied spin-down orbitals and ``nvrt_b`` is the number of
+            virtual spin-down orbitals.
+        t2: The doubles amplitudes. This should be a tuple of three of Numpy arrays,
+            ``(t2aa, t2ab, t2bb)``.
+
+    Returns:
+        The UCCSD generator.
+    """
+    ccsd_gen = ccsd_generator_unrestricted(t1=t1, t2=t2)
     return ccsd_gen - ccsd_gen.adjoint()
