@@ -12,7 +12,7 @@
 
 from __future__ import annotations
 
-from typing import overload
+from typing import cast, overload
 
 import numpy as np
 import scipy.linalg
@@ -90,7 +90,7 @@ def apply_quad_ham_evolution(
 
     if isinstance(nelec, int) or isinstance(mat, np.ndarray) and mat.ndim == 2:
         # Spinless, or spinful with same matrix for each spin sector
-        evolution_mat = scipy.linalg.expm(-1j * time * mat)
+        evolution_mat = scipy.linalg.expm(-1j * time * cast(np.ndarray, mat))
         return apply_orbital_rotation(
             vec, evolution_mat, norb=norb, nelec=nelec, copy=False
         )
