@@ -25,6 +25,7 @@ from ffsim.gates import (
     apply_num_op_sum_evolution,
     apply_on_site_interaction,
     apply_orbital_rotation,
+    apply_quad_ham_evolution,
     apply_tunneling_interaction,
 )
 from ffsim.hamiltonians import (
@@ -150,6 +151,7 @@ __all__ = [
     "apply_num_op_sum_evolution",
     "apply_on_site_interaction",
     "apply_orbital_rotation",
+    "apply_quad_ham_evolution",
     "apply_tunneling_interaction",
     "apply_unitary",
     "approx_eq",
