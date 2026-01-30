@@ -21,9 +21,15 @@ from ffsim.linalg.util import (
     antihermitians_from_parameters,
     antihermitians_from_parameters_jax,
     antihermitians_to_parameters,
+    df_tensors_alpha_beta_from_params,
+    df_tensors_alpha_beta_from_params_jax,
+    df_tensors_alpha_beta_to_params,
     df_tensors_from_params,
     df_tensors_from_params_jax,
     df_tensors_to_params,
+    real_matrices_from_parameters,
+    real_matrices_from_parameters_jax,
+    real_matrices_to_parameters,
     real_symmetric_from_parameters,
     real_symmetric_from_parameters_jax,
     real_symmetric_to_parameters,
@@ -334,6 +340,51 @@ def test_df_tensors_parameters_custom_indices(n_tensors: int, norb: int, real: b
     np.testing.assert_allclose(params, params_roundtrip)
 
 
+@pytest.mark.parametrize("n_tensors", range(1, 4))
+@pytest.mark.parametrize("norb", range(1, 5))
+@pytest.mark.parametrize("real", [True, False])
+def test_df_tensors_alpha_beta_parameters_all_indices(
+    n_tensors: int, norb: int, real: bool
+):
+    """Test parameterizing double factorization tensors."""
+    n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
+    n_params_per_diag_coulomb = norb * (norb + 1) + norb**2
+    n_params_total = n_tensors * (2 * n_params_per_orb_rot + n_params_per_diag_coulomb)
+    params = RNG.normal(size=n_params_total, scale=0.1)
+    diag_coulomb_mats, orbital_rotations = df_tensors_alpha_beta_from_params(
+        params, n_tensors, norb, real=real
+    )
+    params_roundtrip = df_tensors_alpha_beta_to_params(
+        diag_coulomb_mats, orbital_rotations, real=real
+    )
+    np.testing.assert_allclose(params_roundtrip, params)
+
+
+@pytest.mark.parametrize("n_tensors", range(1, 4))
+@pytest.mark.parametrize("norb", range(2, 5))
+@pytest.mark.parametrize("real", [True, False])
+def test_df_tensors_alpha_beta_parameters_custom_indices(
+    n_tensors: int, norb: int, real: bool
+):
+    """Test parameterizing double factorization tensors with custom indices."""
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    pairs_bb = [(p, p + 1) for p in range(norb - 1)]
+    diag_coulomb_indices = (pairs_aa, pairs_ab, pairs_bb)
+
+    n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
+    n_params_per_diag_coulomb = sum(len(pairs) for pairs in diag_coulomb_indices)
+    n_params_total = n_tensors * (2 * n_params_per_orb_rot + n_params_per_diag_coulomb)
+    params = RNG.normal(size=n_params_total, scale=0.1)
+    diag_coulomb_mats, orbital_rotations = df_tensors_alpha_beta_from_params(
+        params, n_tensors, norb, diag_coulomb_indices, real=real
+    )
+    params_roundtrip = df_tensors_alpha_beta_to_params(
+        diag_coulomb_mats, orbital_rotations, diag_coulomb_indices, real=real
+    )
+    np.testing.assert_allclose(params, params_roundtrip)
+
+
 @pytest.mark.parametrize("dim", range(5))
 @pytest.mark.parametrize("n_mats", range(1, 4))
 def test_real_symmetrics_parameters(dim: int, n_mats: int):
@@ -394,8 +445,7 @@ def test_real_symmetrics_parameters_custom_indices(dim: int, n_mats: int):
 @pytest.mark.parametrize("n_mats", range(1, 4))
 def test_real_symmetrics_parameters_jax_consistent(dim: int, n_mats: int):
     """Test JAX and NumPy versions of batch symmetric matrices give same results."""
-    n_params_per_mat = dim * (dim + 1) // 2
-    params = RNG.normal(size=n_mats * n_params_per_mat)
+    params = RNG.normal(size=n_mats * dim * (dim + 1) // 2)
     mats_numpy = real_symmetrics_from_parameters(params, dim, n_mats)
     mats_jax = real_symmetrics_from_parameters_jax(params, dim, n_mats)
     np.testing.assert_allclose(mats_jax, mats_numpy)
@@ -445,6 +495,67 @@ def test_real_symmetrics_consistent(dim: int, n_mats: int):
     np.testing.assert_allclose(mats_batch, mats_individual)
 
 
+@pytest.mark.parametrize("dim", range(1, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_matrices_parameters(dim: int, n_mats: int):
+    """Test parameterizing batch of real matrices."""
+    mats = np.stack([RNG.normal(size=(dim, dim)) for _ in range(n_mats)])
+
+    params = real_matrices_to_parameters(mats)
+    mats_roundtrip = real_matrices_from_parameters(params, dim, n_mats)
+    np.testing.assert_allclose(mats_roundtrip, mats)
+
+    n_params_per_mat = dim**2
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total)
+    mats = real_matrices_from_parameters(params, dim, n_mats)
+    params_roundtrip = real_matrices_to_parameters(mats)
+    np.testing.assert_allclose(params_roundtrip, params)
+
+
+@pytest.mark.parametrize("dim", range(2, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_matrices_parameters_custom_indices(dim: int, n_mats: int):
+    """Test parameterizing batch of real matrices with custom indices."""
+    indices = [(p, p + 1) for p in range(dim - 1)]
+    mask = np.zeros((dim, dim), dtype=bool)
+    rows, cols = zip(*indices)
+    mask[rows, cols] = True
+
+    mats = np.stack([RNG.normal(size=(dim, dim)) for _ in range(n_mats)])
+    params = real_matrices_to_parameters(mats, indices)
+    mats_roundtrip = real_matrices_from_parameters(params, dim, n_mats, indices)
+    np.testing.assert_allclose(mats_roundtrip, mats * mask)
+
+    n_params_per_mat = len(indices)
+    n_params_total = n_mats * n_params_per_mat
+    params = RNG.normal(size=n_params_total)
+    mats = real_matrices_from_parameters(params, dim, n_mats, indices)
+    params_roundtrip = real_matrices_to_parameters(mats, indices)
+    np.testing.assert_allclose(params_roundtrip, params)
+
+
+@pytest.mark.parametrize("dim", range(1, 4))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_matrices_parameters_jax_consistent(dim: int, n_mats: int):
+    """Test JAX and NumPy versions of parameterizing real mat give same results."""
+    params = RNG.normal(size=n_mats * dim**2)
+    mat_numpy = real_matrices_from_parameters(params, dim, n_mats)
+    mat_jax = real_matrices_from_parameters_jax(params, dim, n_mats)
+    np.testing.assert_allclose(mat_jax, mat_numpy)
+
+
+@pytest.mark.parametrize("dim", range(2, 5))
+@pytest.mark.parametrize("n_mats", range(1, 4))
+def test_real_matrices_parameters_custom_indices_jax_consistent(dim: int, n_mats: int):
+    """Test JAX and NumPy versions give same results."""
+    indices = [(p, p + 1) for p in range(dim - 1)]
+    params = RNG.normal(size=n_mats * len(indices))
+    mats_numpy = real_symmetrics_from_parameters(params, dim, n_mats, indices)
+    mats_jax = real_symmetrics_from_parameters_jax(params, dim, n_mats, indices)
+    np.testing.assert_allclose(mats_jax, mats_numpy)
+
+
 @pytest.mark.parametrize("n_tensors", range(1, 4))
 @pytest.mark.parametrize("norb", range(1, 5))
 @pytest.mark.parametrize("real", [True, False])
@@ -482,6 +593,53 @@ def test_df_tensors_parameters_custom_indices_jax_consistency(
         params, n_tensors, norb, diag_coulomb_indices, real=real
     )
     diag_coulomb_jax, orb_rot_jax = df_tensors_from_params_jax(
+        params, n_tensors, norb, diag_coulomb_indices, real=real
+    )
+    np.testing.assert_allclose(diag_coulomb_jax, diag_coulomb_numpy)
+    np.testing.assert_allclose(orb_rot_jax, orb_rot_numpy)
+
+
+@pytest.mark.parametrize("n_tensors", range(1, 4))
+@pytest.mark.parametrize("norb", range(1, 5))
+@pytest.mark.parametrize("real", [True, False])
+def test_df_tensors_alpha_beta_parameters_jax_consistency(
+    n_tensors: int, norb: int, real: bool
+):
+    """Test JAX and NumPy versions of parameterizing DF tensors give same results."""
+    n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
+    n_params_per_diag_coulomb = norb * (norb + 1) + norb**2
+    n_params_total = n_tensors * (2 * n_params_per_orb_rot + n_params_per_diag_coulomb)
+    params = RNG.normal(size=n_params_total)
+    diag_coulomb_numpy, orb_rot_numpy = df_tensors_alpha_beta_from_params(
+        params, n_tensors, norb, real=real
+    )
+    diag_coulomb_jax, orb_rot_jax = df_tensors_alpha_beta_from_params_jax(
+        params, n_tensors, norb, real=real
+    )
+    np.testing.assert_allclose(diag_coulomb_jax, diag_coulomb_numpy)
+    np.testing.assert_allclose(orb_rot_jax, orb_rot_numpy)
+
+
+@pytest.mark.parametrize("n_tensors", range(1, 4))
+@pytest.mark.parametrize("norb", range(2, 5))
+@pytest.mark.parametrize("real", [True, False])
+def test_df_tensors_alpha_beta_parameters_custom_indices_jax_consistency(
+    n_tensors: int, norb: int, real: bool
+):
+    """Test JAX and NumPy versions of DF tensors with indices give same results."""
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    pairs_bb = [(p, p + 1) for p in range(norb - 1)]
+    diag_coulomb_indices = (pairs_aa, pairs_ab, pairs_bb)
+
+    n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
+    n_params_per_diag_coulomb = sum(len(pairs) for pairs in diag_coulomb_indices)
+    n_params_total = n_tensors * (2 * n_params_per_orb_rot + n_params_per_diag_coulomb)
+    params = RNG.normal(size=n_params_total)
+    diag_coulomb_numpy, orb_rot_numpy = df_tensors_alpha_beta_from_params(
+        params, n_tensors, norb, diag_coulomb_indices, real=real
+    )
+    diag_coulomb_jax, orb_rot_jax = df_tensors_alpha_beta_from_params_jax(
         params, n_tensors, norb, diag_coulomb_indices, real=real
     )
     np.testing.assert_allclose(diag_coulomb_jax, diag_coulomb_numpy)
