@@ -743,7 +743,7 @@ def test_double_factorized_t2_alpha_beta_random():
     # TODO add the rest of the relations
 
 
-def test_double_factorized_t2_alpha_beta_tol_max_vecs():
+def test_double_factorized_t2_alpha_beta_tol_max_terms():
     """Test double-factorized decomposition alpha-beta error threshold and max terms."""
     mol = pyscf.gto.Mole()
     mol.build(
