@@ -23,15 +23,7 @@ import scipy.linalg
 from opt_einsum import contract
 
 import ffsim
-from ffsim.linalg import (
-    double_factorized,
-    modified_cholesky,
-)
-from ffsim.linalg.double_factorized_decomposition import (
-    double_factorized_t2,
-    optimal_diag_coulomb_mats,
-)
-from ffsim.random import random_t2_amplitudes, random_unitary
+from ffsim.linalg.double_factorized_decomposition import optimal_diag_coulomb_mats
 
 
 def reconstruct_t2(
@@ -85,10 +77,10 @@ def test_modified_cholesky(dim: int):
     """Test modified Cholesky decomposition on a random tensor."""
     rng = np.random.default_rng(4088)
     # construct a random positive definite matrix
-    unitary = np.array(random_unitary(dim, seed=rng))
+    unitary = np.array(ffsim.random.random_unitary(dim, seed=rng))
     eigs = rng.uniform(size=dim)
     mat = unitary @ np.diag(eigs) @ unitary.T.conj()
-    cholesky_vecs = modified_cholesky(mat)
+    cholesky_vecs = ffsim.linalg.modified_cholesky(mat)
     reconstructed = contract("ji,ki->jk", cholesky_vecs, cholesky_vecs.conj())
     np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
 
@@ -97,7 +89,7 @@ def test_modified_cholesky(dim: int):
 def test_double_factorized_random(dim: int, cholesky: bool):
     """Test double-factorized decomposition on a random tensor."""
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=9825, dtype=float)
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, cholesky=cholesky
     )
     reconstructed = contract(
@@ -128,7 +120,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
 
     # test max_vecs
     max_vecs = 20
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=max_vecs, cholesky=cholesky
     )
     reconstructed = contract(
@@ -144,7 +136,9 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
 
     # test error threshold
     tol = 1e-4
-    diag_coulomb_mats, orbital_rotations = double_factorized(two_body_tensor, tol=tol)
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
+        two_body_tensor, tol=tol
+    )
     reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
         orbital_rotations,
@@ -157,7 +151,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
     np.testing.assert_allclose(reconstructed, two_body_tensor, atol=tol)
 
     # test error threshold and max vecs
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, tol=tol, max_vecs=max_vecs
     )
     reconstructed = contract(
@@ -177,7 +171,7 @@ def test_optimal_diag_coulomb_mats_exact():
     dim = 5
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8386, dtype=float)
 
-    _, orbital_rotations = double_factorized(two_body_tensor)
+    _, orbital_rotations = ffsim.linalg.double_factorized(two_body_tensor)
     diag_coulomb_mats_optimal = optimal_diag_coulomb_mats(
         two_body_tensor, orbital_rotations
     )
@@ -197,7 +191,7 @@ def test_optimal_diag_coulomb_mats_approximate():
     dim = 5
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=3718, dtype=float)
 
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=3
     )
     diag_coulomb_mats_optimal = optimal_diag_coulomb_mats(
@@ -238,11 +232,11 @@ def test_double_factorized_compressed_n2_unconstrained():
     mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
     two_body_tensor = mol_data.hamiltonian.two_body_tensor
 
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
     )
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
-        double_factorized(
+        ffsim.linalg.double_factorized(
             two_body_tensor,
             max_vecs=2,
             optimize=True,
@@ -291,14 +285,14 @@ def test_double_factorized_compressed_n2_constrained():
     norb = mol_data.norb
     two_body_tensor = mol_data.hamiltonian.two_body_tensor
 
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
     )
     diag_coulomb_indices = [(p, p) for p in range(norb)]
     diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
     diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
-        double_factorized(
+        ffsim.linalg.double_factorized(
             two_body_tensor,
             max_vecs=4,
             optimize=True,
@@ -346,11 +340,11 @@ def test_double_factorized_compressed_random():
     dim = 2
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8364, dtype=float)
 
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
     )
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
-        two_body_tensor, max_vecs=2, optimize=True
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+        ffsim.linalg.double_factorized(two_body_tensor, max_vecs=2, optimize=True)
     )
     reconstructed = contract(
         "kpi,kqi,kij,krj,ksj->pqrs",
@@ -378,15 +372,17 @@ def test_double_factorized_compressed_random_constrained():
     dim = 3
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=2927, dtype=float)
 
-    diag_coulomb_mats, orbital_rotations = double_factorized(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
     )
     diag_coulomb_indices = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2)]
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized(
-        two_body_tensor,
-        max_vecs=2,
-        optimize=True,
-        diag_coulomb_indices=diag_coulomb_indices,
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+        ffsim.linalg.double_factorized(
+            two_body_tensor,
+            max_vecs=2,
+            optimize=True,
+            diag_coulomb_indices=diag_coulomb_indices,
+        )
     )
 
     diag_coulomb_mask = np.zeros((3, 3), dtype=bool)
@@ -420,8 +416,8 @@ def test_double_factorized_compressed_random_constrained():
 @pytest.mark.parametrize("norb, nocc", [(4, 2), (5, 2), (5, 3)])
 def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     """Test double factorization of random t2 amplitudes."""
-    t2 = random_t2_amplitudes(norb, nocc, dtype=float)
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2)
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, dtype=float)
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2(t2)
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     np.testing.assert_allclose(reconstructed, t2, atol=1e-8)
     n_reps, _, _ = diag_coulomb_mats.shape
@@ -452,7 +448,7 @@ def test_double_factorized_t2_tol_max_terms():
 
     # test max_vecs
     max_terms = 16
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2(
         t2,
         max_terms=max_terms,
     )
@@ -462,13 +458,15 @@ def test_double_factorized_t2_tol_max_terms():
 
     # test error threshold
     tol = 1e-3
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, tol=tol)
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2(
+        t2, tol=tol
+    )
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
     assert len(orbital_rotations) <= 14
     np.testing.assert_allclose(reconstructed, t2, atol=tol)
 
     # test error threshold and max vecs
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2(
         t2, tol=tol, max_terms=max_terms
     )
     reconstructed = reconstruct_t2(diag_coulomb_mats, orbital_rotations, nocc=nocc)
@@ -507,7 +505,7 @@ def test_double_factorized_t2_compressed_max_terms_n2_small():
     diag_coulomb_indices = pairs_aa + pairs_ab
     max_terms = 1
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
-        double_factorized_t2(
+        ffsim.linalg.double_factorized_t2(
             ccsd.t2,
             optimize=True,
             max_terms=max_terms,
@@ -533,7 +531,7 @@ def test_double_factorized_t2_compressed_max_terms_n2_small():
     error_optimized = np.sum(np.abs(reconstructed_optimized - ccsd.t2) ** 2)
 
     # Perform uncompressed factorization
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2(
         ccsd.t2, max_terms=max_terms
     )
     reconstructed = (
@@ -588,14 +586,16 @@ def test_double_factorized_t2_compressed_max_terms_n2_large():
     diag_coulomb_indices = [(p, p) for p in range(norb)]
     diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
     diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized_t2(
-        ccsd.t2,
-        max_terms=max_terms,
-        optimize=True,
-        method="L-BFGS-B",
-        options=dict(maxiter=150),
-        diag_coulomb_indices=diag_coulomb_indices,
-        regularization=1e-4,
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+        ffsim.linalg.double_factorized_t2(
+            ccsd.t2,
+            max_terms=max_terms,
+            optimize=True,
+            method="L-BFGS-B",
+            options=dict(maxiter=150),
+            diag_coulomb_indices=diag_coulomb_indices,
+            regularization=1e-4,
+        )
     )
     optimized_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats_optimized) ** 2)
     reconstructed_optimized = (
@@ -612,7 +612,7 @@ def test_double_factorized_t2_compressed_max_terms_n2_large():
     error_optimized = np.sum(np.abs(reconstructed_optimized - ccsd.t2) ** 2)
 
     # Perform uncompressed factorization
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2(
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2(
         ccsd.t2, max_terms=max_terms
     )
     init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
@@ -656,15 +656,17 @@ def test_double_factorized_t2_compressed_max_terms_random():
     pairs_ab = [(p, p) for p in range(norb)]
     diag_coulomb_indices = pairs_aa + pairs_ab
     max_terms = 2
-    diag_coulomb_mats_optimized, orbital_rotations_optimized = double_factorized_t2(
-        t2,
-        max_terms=max_terms,
-        optimize=True,
-        diag_coulomb_indices=diag_coulomb_indices,
-        method="L-BFGS-B",
-        options=dict(maxiter=25),
-        multi_stage_start=3,
-        return_optimize_result=False,
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+        ffsim.linalg.double_factorized_t2(
+            t2,
+            max_terms=max_terms,
+            optimize=True,
+            diag_coulomb_indices=diag_coulomb_indices,
+            method="L-BFGS-B",
+            options=dict(maxiter=25),
+            multi_stage_start=3,
+            return_optimize_result=False,
+        )
     )
     reconstructed_optimized = (
         1j
@@ -680,7 +682,9 @@ def test_double_factorized_t2_compressed_max_terms_random():
     error_optimized = np.sum(np.abs(reconstructed_optimized - t2) ** 2)
 
     # Perform uncompressed factorization
-    diag_coulomb_mats, orbital_rotations = double_factorized_t2(t2, max_terms=max_terms)
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2(
+        t2, max_terms=max_terms
+    )
     reconstructed = (
         1j
         * contract(
