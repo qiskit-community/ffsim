@@ -186,7 +186,8 @@ def doubles_excitations_unrestricted(
         coeff = t2aa[i, j, a, b]
         op += FermionOperator(
             {
-                (cre_a(nocc_a + a), cre_a(nocc_a + b), des_a(j), des_a(i)): 0.5 * coeff,
+                (cre_a(nocc_a + a), cre_a(nocc_a + b), des_a(j), des_a(i)): 0.25
+                * coeff,
             }
         )
     for i, j, a, b in itertools.product(
@@ -195,7 +196,8 @@ def doubles_excitations_unrestricted(
         coeff = t2bb[i, j, a, b]
         op += FermionOperator(
             {
-                (cre_b(nocc_b + a), cre_b(nocc_b + b), des_b(j), des_b(i)): 0.5 * coeff,
+                (cre_b(nocc_b + a), cre_b(nocc_b + b), des_b(j), des_b(i)): 0.25
+                * coeff,
             }
         )
     for i, j, a, b in itertools.product(
