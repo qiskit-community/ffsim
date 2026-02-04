@@ -10,11 +10,9 @@
 
 """Linear algebra predicates."""
 
-from typing import Union
-
 import numpy as np
 
-_bool = Union[bool, np.bool_]
+_bool = bool | np.bool_
 
 
 def is_hermitian(mat: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
