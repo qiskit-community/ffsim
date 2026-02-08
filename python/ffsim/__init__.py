@@ -25,6 +25,7 @@ from ffsim.gates import (
     apply_num_op_sum_evolution,
     apply_on_site_interaction,
     apply_orbital_rotation,
+    apply_quad_ham_evolution,
     apply_tunneling_interaction,
 )
 from ffsim.hamiltonians import (
@@ -77,6 +78,7 @@ from ffsim.states import (
     expectation_one_body_product,
     hartree_fock_state,
     rdms,
+    sample_slater,
     sample_slater_determinant,
     sample_state_vector,
     slater_determinant,
@@ -149,6 +151,7 @@ __all__ = [
     "apply_num_op_sum_evolution",
     "apply_on_site_interaction",
     "apply_orbital_rotation",
+    "apply_quad_ham_evolution",
     "apply_tunneling_interaction",
     "apply_unitary",
     "approx_eq",
@@ -181,6 +184,7 @@ __all__ = [
     "qiskit",
     "random",
     "rdms",
+    "sample_slater",
     "sample_slater_determinant",
     "sample_state_vector",
     "simulate_qdrift_double_factorized",

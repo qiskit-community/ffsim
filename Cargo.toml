@@ -9,12 +9,12 @@ name = "ffsim"
 crate-type = ["cdylib"]
 
 [dependencies]
-rayon = "1.10"
-blas = "0.22"
+rayon = "1.11"
+blas = "0.23"
 ndarray = { version = "0.15", features = ["rayon"] }
-blas-src = { version = "0.10" }
-numpy = "0.21"
-pyo3 = { version = "0.21", features = [
+blas-src = { version = "0.14" }
+numpy = "0.27"
+pyo3 = { version = "0.27", features = [
     "extension-module",
     "num-complex",
     "abi3-py310",
@@ -22,5 +22,5 @@ pyo3 = { version = "0.21", features = [
 num-integer = "0.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-blas-src = { version = "0.10", features = ["openblas"] }
+blas-src = { version = "0.14", features = ["openblas"] }
 openblas-src = { version = "0.10", features = ["system"] }

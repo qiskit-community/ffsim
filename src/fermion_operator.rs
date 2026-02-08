@@ -10,7 +10,6 @@
 
 use num_integer::binomial;
 use numpy::Complex64;
-use pyo3::class::basic::CompareOp;
 use pyo3::exceptions::PyKeyError;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -30,12 +29,10 @@ impl KeysIterator {
         slf
     }
 
-    fn __next__(&mut self) -> Option<PyObject> {
-        Python::with_gil(|py| {
-            self.keys
-                .next()
-                .map(|vec| PyTuple::new_bound(py, &vec).to_object(py))
-        })
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<Bound<'_, PyTuple>> {
+        slf.keys
+            .next()
+            .map(|vec| PyTuple::new(slf.py(), vec).unwrap())
     }
 }
 
@@ -118,7 +115,7 @@ impl FermionOperator {
     }
 
     #[classattr]
-    const __hash__: Option<PyObject> = None;
+    const __hash__: Option<Py<PyAny>> = None;
 
     fn copy(&self) -> Self {
         self.clone()
@@ -181,15 +178,13 @@ impl FermionOperator {
         format!("FermionOperator({{\n{}\n}})", items_str.join(",\n"))
     }
 
-    fn _repr_pretty_(&self, p: PyObject, cycle: bool) -> PyResult<()> {
-        Python::with_gil(|py| {
-            if cycle {
-                p.call_method1(py, "text", ("FermionOperator(...)",))?;
-            } else {
-                p.call_method1(py, "text", (self._repr_pretty_str(),))?;
-            }
-            Ok(())
-        })
+    fn _repr_pretty_(&self, p: &Bound<'_, PyAny>, cycle: bool) -> PyResult<()> {
+        if cycle {
+            p.call_method1("text", ("FermionOperator(...)",))?;
+        } else {
+            p.call_method1("text", (self._repr_pretty_str(),))?;
+        }
+        Ok(())
     }
 
     fn __str__(&self) -> PyResult<String> {
@@ -263,7 +258,7 @@ impl FermionOperator {
     }
 
     fn __truediv__(&self, other: Complex64) -> Self {
-        let mut coeffs = HashMap::new();
+        let mut coeffs = HashMap::with_capacity(self.coeffs.len());
         for (term_1, coeff_1) in &self.coeffs {
             coeffs.insert(term_1.to_vec(), coeff_1 / other);
         }
@@ -277,7 +272,7 @@ impl FermionOperator {
     }
 
     fn __rmul__(&self, other: Complex64) -> Self {
-        let mut coeffs = HashMap::new();
+        let mut coeffs = HashMap::with_capacity(self.coeffs.len());
         for (term_1, coeff_1) in &self.coeffs {
             coeffs.insert(term_1.to_vec(), other * coeff_1);
         }
@@ -312,12 +307,8 @@ impl FermionOperator {
         }
     }
 
-    fn __richcmp__(&self, other: &Self, op: CompareOp, py: Python<'_>) -> PyObject {
-        match op {
-            CompareOp::Eq => (self.coeffs == other.coeffs).into_py(py),
-            CompareOp::Ne => (self.coeffs != other.coeffs).into_py(py),
-            _ => py.NotImplemented(),
-        }
+    fn __eq__(&self, other: &Self) -> bool {
+        self.coeffs == other.coeffs
     }
 
     /// Return the adjoint (Hermitian conjugate) of the operator.
@@ -325,7 +316,7 @@ impl FermionOperator {
     /// Returns:
     ///     FermionOperator: The adjoint of the fermion operator.
     fn adjoint(&self) -> Self {
-        let mut coeffs = HashMap::new();
+        let mut coeffs = HashMap::with_capacity(self.coeffs.len());
         for (term, coeff) in &self.coeffs {
             let adjoint_term: Vec<(bool, bool, i32)> = term
                 .iter()
