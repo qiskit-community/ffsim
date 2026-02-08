@@ -2,7 +2,7 @@
 
 ```{toctree}
 :maxdepth: 1
-
+compute-expectation-values
 sample-from-state-vectors
 simulate-lucj
 simulate-trotter-mol-ham
