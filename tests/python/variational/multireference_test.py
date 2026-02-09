@@ -15,11 +15,11 @@ import numpy as np
 import ffsim
 import ffsim.random.random
 
+RNG = np.random.default_rng(93168499419216758993474429408133009477)
+
 
 def test_multireference_state_prod():
     """Test multireference state for product operator."""
-    rng = np.random.default_rng(30314)
-
     norb = 8
     nelec = (4, 4)
 
@@ -32,11 +32,11 @@ def test_multireference_state_prod():
     interaction_pairs = list(brickwork(norb, n_layers))
 
     for _ in range(5):
-        thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+        thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
         operator = ffsim.HopGateAnsatzOperator(norb, interaction_pairs, thetas)
 
         mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
-            norb, seed=rng, dtype=float
+            norb, seed=RNG, dtype=float
         )
         reference_occupations = [
             ((0, 1, 2, 3), (1, 2, 3, 4)),

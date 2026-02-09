@@ -18,6 +18,8 @@ import pyscf.cc
 
 import ffsim
 
+RNG = np.random.default_rng(301312747948034963541438592504182479355)
+
 
 def _brickwork(norb: int, n_layers: int):
     for i in range(n_layers):
@@ -70,7 +72,6 @@ def test_n_params():
 
 
 def test_parameters_roundtrip():
-    rng = np.random.default_rng()
     norb = 5
     n_reps = 2
     triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
@@ -84,7 +85,7 @@ def test_parameters_roundtrip():
             n_reps=n_reps,
             with_final_orbital_rotation=with_final_orbital_rotation,
             interaction_pairs=(pairs_aa, pairs_ab),
-            seed=rng,
+            seed=RNG,
         )
         operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
         roundtripped = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
@@ -99,8 +100,6 @@ def test_parameters_roundtrip():
 
 
 def test_apply_unitary_consistent_with_ucj_op():
-    rng = np.random.default_rng(44299)
-
     norb = 8
     nelec = (5, 5)
     n_reps = 3
@@ -109,7 +108,7 @@ def test_apply_unitary_consistent_with_ucj_op():
         norb, n_reps=n_reps, with_final_orbital_rotation=True
     )
     ucj_angles_op = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
     actual = ffsim.apply_unitary(vec, ucj_angles_op, norb=norb, nelec=nelec)
     expected = ffsim.apply_unitary(vec, ucj_op, norb=norb, nelec=nelec)
@@ -118,7 +117,6 @@ def test_apply_unitary_consistent_with_ucj_op():
 
 
 def test_from_t_amplitudes_consistent_with_ucj_op():
-    rng = np.random.default_rng(6072)
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
@@ -151,7 +149,7 @@ def test_from_t_amplitudes_consistent_with_ucj_op():
         t1=ccsd.t1,
         n_reps=n_reps,
     )
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
     actual = ffsim.apply_unitary(vec, ucj_angles_op, norb=norb, nelec=nelec)
     expected = ffsim.apply_unitary(vec, ucj_op, norb=norb, nelec=nelec)
