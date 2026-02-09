@@ -796,9 +796,9 @@ def test_double_factorized_t2_alpha_beta_tol_max_terms():
     np.testing.assert_allclose(reconstructed, t2ab, atol=tol)
 
 
-def test_double_factorized_t2_alpha_beta_compressed_max_terms_n2_small():
-    """Test compressed double factorization for smaller N2."""
-    # Build N2 molecule
+def test_double_factorized_t2_alpha_beta_compressed_max_terms_h5():
+    """Test compressed double factorization for H5."""
+    # Build H5 molecule
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[("H", (0, 0, i)) for i in range(5)],
