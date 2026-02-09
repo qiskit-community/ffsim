@@ -55,7 +55,11 @@ def uccsd_restricted_linear_operator(
 class UCCSDOpRestrictedReal(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
 ):
-    """Real-valued restricted unitary coupled cluster, singles and doubles operator."""
+    """Real-valued restricted unitary coupled cluster, singles and doubles operator.
+
+    UCCSD operator with real-valued t-amplitudes. Note that the final orbital rotation,
+    if included, is allowed to be complex-valued.
+    """
 
     t1: np.ndarray  # shape: (nocc, nvrt)
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
@@ -74,14 +78,6 @@ class UCCSDOpRestrictedReal(
             raise TypeError(
                 "UCCSDOpRestricted only accepts real-valued t2 amplitudes. "
                 "Please pass a t2 amplitudes tensor with a real-valued data type."
-            )
-        if self.final_orbital_rotation is not None and np.iscomplexobj(
-            self.final_orbital_rotation
-        ):
-            raise TypeError(
-                "UCCSDOpRestricted only accepts a real-valued final "
-                "orbital rotation. Please pass a final orbital rotation with a "
-                "real-valued data type."
             )
         if validate:
             # Validate shapes
@@ -130,11 +126,11 @@ class UCCSDOpRestrictedReal(
         n_pairs = nocc * nvrt
         # t1 has n_pairs parameters
         # t2 has n_pairs * (n_pairs + 1) // 2 parameters
-        # Final orbital rotation has norb * (norb - 1) // 2 parameters
+        # Final orbital rotation has norb**2 parameters
         return (
             n_pairs
             + n_pairs * (n_pairs + 1) // 2
-            + with_final_orbital_rotation * norb * (norb - 1) // 2
+            + with_final_orbital_rotation * norb**2
         )
 
     @staticmethod
@@ -187,9 +183,7 @@ class UCCSDOpRestrictedReal(
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            final_orbital_rotation = unitary_from_parameters(
-                params[index:], norb, real=True
-            )
+            final_orbital_rotation = unitary_from_parameters(params[index:], norb)
         return UCCSDOpRestrictedReal(
             t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
         )
@@ -220,9 +214,7 @@ class UCCSDOpRestrictedReal(
             index += 1
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
-            params[index:] = unitary_to_parameters(
-                self.final_orbital_rotation, real=True
-            )
+            params[index:] = unitary_to_parameters(self.final_orbital_rotation)
         return params
 
     def _apply_unitary_(
@@ -270,7 +262,10 @@ class UCCSDOpRestrictedReal(
 class UCCSDOpRestricted(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
 ):
-    """Restricted unitary coupled cluster, singles and doubles operator."""
+    """Restricted unitary coupled cluster, singles and doubles operator.
+
+    UCCSD operator with complex-valued t-amplitudes.
+    """
 
     t1: np.ndarray  # shape: (nocc, nvrt)
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
