@@ -720,19 +720,19 @@ def df_tensors_alpha_beta_from_params_jax(
         dim=norb,
         n_mats=n_tensors,
         triu_indices=pairs_aa,
-    ).astype(float if real else complex)
+    )
     diag_coulomb_mats_ab = real_matrices_from_parameters_jax(
         diag_coulomb_params_ab,
         dim=norb,
         n_mats=n_tensors,
         indices=pairs_ab,
-    ).astype(float if real else complex)
+    )
     diag_coulomb_mats_bb = real_symmetrics_from_parameters_jax(
         diag_coulomb_params_bb,
         dim=norb,
         n_mats=n_tensors,
         triu_indices=pairs_bb,
-    ).astype(float if real else complex)
+    )
 
     diag_coulomb_mats = jnp.stack(
         [diag_coulomb_mats_aa, diag_coulomb_mats_ab, diag_coulomb_mats_bb], axis=1

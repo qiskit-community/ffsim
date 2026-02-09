@@ -1015,7 +1015,9 @@ def _double_factorized_t2_alpha_beta_compressed(
                 )
             )
             n_terms = diag_coulomb_mats.shape[0]
-            expanded_diag_coulomb_mats = jnp.zeros((n_terms, 2 * norb, 2 * norb))
+            expanded_diag_coulomb_mats = jnp.zeros(
+                (n_terms, 2 * norb, 2 * norb), dtype=complex
+            )
             expanded_orbital_rotations = jnp.zeros(
                 (n_terms, 2 * norb, 2 * norb), dtype=complex
             )
