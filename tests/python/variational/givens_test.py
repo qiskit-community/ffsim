@@ -22,16 +22,17 @@ import scipy.linalg
 import ffsim
 import ffsim.linalg.givens
 
+RNG = np.random.default_rng(161874205665885421362924793664282585535)
+
 
 def test_givens_parameters_roundtrip():
     """Test converting to and back from parameters gives consistent results."""
     norb = 5
-    rng = np.random.default_rng()
 
     interaction_pairs = list(itertools.combinations(range(norb), 2))
-    thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+    thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phis = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phase_angles = RNG.uniform(-np.pi, np.pi, size=norb)
 
     operator = ffsim.GivensAnsatzOp(
         norb=norb,
@@ -119,8 +120,7 @@ def test_givens_parameters_roundtrip():
 @pytest.mark.parametrize("norb", range(5))
 def test_givens_orbital_rotation_roundtrip(norb: int):
     """Test round-tripping orbital rotation."""
-    rng = np.random.default_rng()
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
     roundtripped = operator.to_orbital_rotation()
     np.testing.assert_allclose(roundtripped, orbital_rotation)
@@ -162,10 +162,9 @@ def test_givens_orbital_rotation_t1_roundtrip():
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_givens_orbital_rotation_unitary(norb: int, nelec: tuple[int, int]):
     """Test initialization from orbital rotation."""
-    rng = np.random.default_rng()
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
         vec, orbital_rotation, norb=norb, nelec=nelec
@@ -175,8 +174,6 @@ def test_givens_orbital_rotation_unitary(norb: int, nelec: tuple[int, int]):
 
 def test_givens_orbital_rotation_t_amplitudes():
     """Test initialization from orbital rotation gives fully parametrized ansatz."""
-    rng = np.random.default_rng(50783)
-
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
@@ -206,7 +203,7 @@ def test_givens_orbital_rotation_t_amplitudes():
 
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
     assert len(operator.interaction_pairs) == norb * (norb - 1) // 2
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
         vec, orbital_rotation, norb=norb, nelec=nelec
@@ -218,14 +215,13 @@ def test_givens_orbital_rotation_fully_parameterized():
     """Test initialization from orbital rotation gives fully parametrized ansatz."""
     norb = 8
     nelec = 4
-    rng = np.random.default_rng()
     orbital_rotation = scipy.linalg.block_diag(
-        ffsim.random.random_unitary(norb // 2, seed=rng),
-        ffsim.random.random_unitary(norb // 2, seed=rng),
+        ffsim.random.random_unitary(norb // 2, seed=RNG),
+        ffsim.random.random_unitary(norb // 2, seed=RNG),
     )
     operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
     assert len(operator.interaction_pairs) == norb * (norb - 1) // 2
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_orbital_rotation(
         vec, orbital_rotation, norb=norb, nelec=nelec
