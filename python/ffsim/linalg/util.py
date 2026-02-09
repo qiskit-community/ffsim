@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -361,6 +363,82 @@ def real_symmetrics_from_parameters_jax(
     return mats
 
 
+def real_matrices_to_parameters(
+    mats: np.ndarray, indices: list[tuple[int, int]] | None = None
+) -> np.ndarray:
+    """Convert a batch of real matrices to parameters.
+
+    Converts an array of real matrices to a real-valued parameter vector.
+
+    Args:
+        mats: The batch of real matrices, with shape (n_mats, dim, dim).
+        indices: Indices to take values from. If not given, the entire matrix is taken.
+
+    Returns:
+        The list of real numbers parameterizing the real matrices.
+    """
+    n_mats, dim, _ = mats.shape
+    if indices is None:
+        rows, cols = zip(*itertools.product(range(dim), repeat=2))
+    else:
+        rows, cols = zip(*indices)  # type: ignore
+    n_params_per_mat = len(rows)
+    params = np.zeros((n_mats, n_params_per_mat))
+    params[:, :] = mats[:, rows, cols]
+    return params.reshape(-1)
+
+
+def real_matrices_from_parameters(
+    params: np.ndarray,
+    dim: int,
+    n_mats: int,
+    indices: list[tuple[int, int]] | None = None,
+) -> np.ndarray:
+    """Construct a batch of real matrices from parameters.
+
+    Converts a real-valued parameter vector to an array of real matrices.
+
+    Args:
+        params: The 1D real-valued parameters.
+        dim: The width and height of each matrix.
+        n_mats: The number of matrices in the batch.
+        indices: Indices to place the parameters. If not given, the entire matrix
+            is used.
+
+    Returns:
+        The array of real matrices, with shape (n_mats, dim, dim).
+    """
+    if indices is None:
+        rows, cols = zip(*itertools.product(range(dim), repeat=2))
+        n_params_per_mat = dim**2
+    else:
+        rows, cols = zip(*indices)  # type: ignore
+        n_params_per_mat = len(indices)
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = np.zeros((n_mats, dim, dim))
+    mats[:, rows, cols] = params
+    return mats
+
+
+def real_matrices_from_parameters_jax(
+    params: np.ndarray,
+    dim: int,
+    n_mats: int,
+    indices: list[tuple[int, int]] | None = None,
+) -> jax.Array:
+    """JAX version of real_matrices_from_parameters."""
+    if indices is None:
+        rows, cols = zip(*itertools.product(range(dim), repeat=2))
+        n_params_per_mat = dim**2
+    else:
+        rows, cols = zip(*indices)  # type: ignore
+        n_params_per_mat = len(indices)
+    params = params.reshape(n_mats, n_params_per_mat)
+    mats = jnp.zeros((n_mats, dim, dim))
+    mats = mats.at[:, rows, cols].set(params)
+    return mats
+
+
 def df_tensors_to_params(
     diag_coulomb_mats: np.ndarray,
     orbital_rotations: np.ndarray,
@@ -453,4 +531,210 @@ def df_tensors_from_params_jax(
         n_mats=n_tensors,
         triu_indices=diag_coulomb_indices,
     ).astype(float if real else complex)
+    return diag_coulomb_mats, orbital_rotations
+
+
+def df_tensors_alpha_beta_to_params(
+    diag_coulomb_mats: np.ndarray,
+    orbital_rotations: np.ndarray,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    real: bool = False,
+):
+    """Convert double factorization tensors to parameters.
+
+    Converts arrays of diagonal Coulomb matrices and orbital rotations to a
+    single real-valued parameter vector.
+
+    Args:
+        diag_coulomb_mats: The diagonal Coulomb matrices.
+        orbital_rotations: The orbital rotations.
+        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+            Coulomb matrices.
+        real: Whether to keep only the real parts of the logarithms of the orbital
+            rotations, and discard the imaginary parts.
+
+    Returns:
+        The list of real numbers parameterizing the double factorization tensors.
+    """
+    _, _, norb, _ = diag_coulomb_mats.shape
+    orbital_rotation_params = unitaries_to_parameters(
+        orbital_rotations.reshape(-1, norb, norb), real=real
+    )
+    if diag_coulomb_indices is None:
+        pairs_aa, pairs_ab, pairs_bb = None, None, None
+    else:
+        pairs_aa, pairs_ab, pairs_bb = diag_coulomb_indices
+    diag_coulomb_params_aa = real_symmetrics_to_parameters(
+        diag_coulomb_mats[:, 0], pairs_aa
+    )
+    diag_coulomb_params_ab = real_matrices_to_parameters(
+        diag_coulomb_mats[:, 1], pairs_ab
+    )
+    diag_coulomb_params_bb = real_symmetrics_to_parameters(
+        diag_coulomb_mats[:, 2], pairs_bb
+    )
+    return np.concatenate(
+        [
+            orbital_rotation_params,
+            diag_coulomb_params_aa,
+            diag_coulomb_params_ab,
+            diag_coulomb_params_bb,
+        ]
+    )
+
+
+def df_tensors_alpha_beta_from_params(
+    params: np.ndarray,
+    n_tensors: int,
+    norb: int,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    real: bool = False,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Construct double factorization tensors from parameters.
+
+    Converts a real-valued  parameter vector to arrays of diagonal Coulomb matrices and
+    orbital rotations
+
+    Args:
+        params: The real-valued parameters.
+        n_tensors: The number of tensors. This is the number of diagonal Coulomb
+            matrices expected, or equivalently, the number of orbital rotations.
+        norb: The number of spatial orbitals, which gives the width and height of the
+            matrices.
+        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+            Coulomb matrices.
+        real: Whether the parameter vector describes real-valued orbital rotations.
+
+    Returns:
+        Two arrays. The first contains the diagonal Coulomb matrices, and the
+        second contains the orbital rotations.
+    """
+    n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
+    n_params_orb_rot = n_tensors * 2 * n_params_per_orb_rot
+
+    if diag_coulomb_indices is None:
+        pairs_aa, pairs_ab, pairs_bb = None, None, None
+    else:
+        pairs_aa, pairs_ab, pairs_bb = diag_coulomb_indices
+    n_params_aa = n_tensors * (
+        norb * (norb + 1) // 2 if pairs_aa is None else len(pairs_aa)
+    )
+    n_params_ab = n_tensors * (norb**2 if pairs_ab is None else len(pairs_ab))
+
+    (
+        orbital_rotation_params,
+        diag_coulomb_params_aa,
+        diag_coulomb_params_ab,
+        diag_coulomb_params_bb,
+    ) = np.split(
+        params,
+        [
+            n_params_orb_rot,
+            n_params_orb_rot + n_params_aa,
+            n_params_orb_rot + n_params_aa + n_params_ab,
+        ],
+    )
+
+    orbital_rotations = unitaries_from_parameters(
+        orbital_rotation_params, dim=norb, n_mats=n_tensors * 2, real=real
+    ).reshape(n_tensors, 2, norb, norb)
+    diag_coulomb_mats_aa = real_symmetrics_from_parameters(
+        diag_coulomb_params_aa,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=pairs_aa,
+    )
+    diag_coulomb_mats_ab = real_matrices_from_parameters(
+        diag_coulomb_params_ab,
+        dim=norb,
+        n_mats=n_tensors,
+        indices=pairs_ab,
+    )
+    diag_coulomb_mats_bb = real_symmetrics_from_parameters(
+        diag_coulomb_params_bb,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=pairs_bb,
+    )
+
+    diag_coulomb_mats = np.stack(
+        [diag_coulomb_mats_aa, diag_coulomb_mats_ab, diag_coulomb_mats_bb], axis=1
+    )
+    return diag_coulomb_mats, orbital_rotations
+
+
+def df_tensors_alpha_beta_from_params_jax(
+    params: np.ndarray,
+    n_tensors: int,
+    norb: int,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    real: bool = False,
+) -> tuple[jax.Array, jax.Array]:
+    """JAX version of df_tensors_alpha_beta_from_params."""
+    n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
+    n_params_orb_rot = n_tensors * 2 * n_params_per_orb_rot
+
+    if diag_coulomb_indices is None:
+        pairs_aa, pairs_ab, pairs_bb = None, None, None
+    else:
+        pairs_aa, pairs_ab, pairs_bb = diag_coulomb_indices
+    n_params_aa = n_tensors * (
+        norb * (norb + 1) // 2 if pairs_aa is None else len(pairs_aa)
+    )
+    n_params_ab = n_tensors * (norb**2 if pairs_ab is None else len(pairs_ab))
+
+    (
+        orbital_rotation_params,
+        diag_coulomb_params_aa,
+        diag_coulomb_params_ab,
+        diag_coulomb_params_bb,
+    ) = np.split(
+        params,
+        [
+            n_params_orb_rot,
+            n_params_orb_rot + n_params_aa,
+            n_params_orb_rot + n_params_aa + n_params_ab,
+        ],
+    )
+
+    orbital_rotations = unitaries_from_parameters_jax(
+        orbital_rotation_params, dim=norb, n_mats=n_tensors * 2, real=real
+    ).reshape(n_tensors, 2, norb, norb)
+    diag_coulomb_mats_aa = real_symmetrics_from_parameters_jax(
+        diag_coulomb_params_aa,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=pairs_aa,
+    )
+    diag_coulomb_mats_ab = real_matrices_from_parameters_jax(
+        diag_coulomb_params_ab,
+        dim=norb,
+        n_mats=n_tensors,
+        indices=pairs_ab,
+    )
+    diag_coulomb_mats_bb = real_symmetrics_from_parameters_jax(
+        diag_coulomb_params_bb,
+        dim=norb,
+        n_mats=n_tensors,
+        triu_indices=pairs_bb,
+    )
+
+    diag_coulomb_mats = jnp.stack(
+        [diag_coulomb_mats_aa, diag_coulomb_mats_ab, diag_coulomb_mats_bb], axis=1
+    )
     return diag_coulomb_mats, orbital_rotations

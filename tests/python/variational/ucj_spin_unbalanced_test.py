@@ -205,6 +205,35 @@ def test_t_amplitudes_random_n_reps():
         assert actual == expected
 
 
+def test_t_amplitudes_random_optimize():
+    rng = np.random.default_rng(3899)
+    norb = 5
+    nelec = (3, 2)
+    nocc_a, nocc_b = nelec
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+
+    n_reps: int | tuple[int, int]
+    for n_reps in [5, (10, 5)]:  # type: ignore
+        t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
+        t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+        t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
+        t1a = rng.standard_normal((nocc_a, nvrt_a))
+        t1b = rng.standard_normal((nocc_b, nvrt_b))
+        t2 = (t2aa, t2ab, t2bb)
+        t1 = (t1a, t1b)
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, t1=t1, n_reps=n_reps, optimize=True, options=dict(maxiter=10)
+        )
+        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+        assert operator.n_reps == total_n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinUnbalanced.n_params(
+            norb, total_n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
+
+
 def test_t_amplitudes_zero_n_reps():
     norb = 5
     nelec = (3, 2)

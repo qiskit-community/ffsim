@@ -25,6 +25,9 @@ from opt_einsum import contract
 
 from ffsim.linalg.util import (
     antihermitians_from_parameters,
+    df_tensors_alpha_beta_from_params,
+    df_tensors_alpha_beta_from_params_jax,
+    df_tensors_alpha_beta_to_params,
     df_tensors_from_params,
     df_tensors_from_params_jax,
     df_tensors_to_params,
@@ -762,9 +765,71 @@ def _double_factorized_t2_compressed(
     return diag_coulomb_mats, orbital_rotations
 
 
+@overload
 def double_factorized_t2_alpha_beta(
-    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
-) -> tuple[np.ndarray, np.ndarray]:
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = ...,
+    max_terms: int | None = ...,
+    optimize: bool = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = ...,
+    regularization: float = ...,
+    multi_stage_start: int | None = ...,
+    multi_stage_step: int | None = ...,
+    return_optimize_result: Literal[False] = False,
+) -> tuple[np.ndarray, np.ndarray]: ...
+@overload
+def double_factorized_t2_alpha_beta(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = ...,
+    max_terms: int | None = ...,
+    optimize: bool = ...,
+    method: str = ...,
+    callback=...,
+    options: dict | None = ...,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = ...,
+    regularization: float = ...,
+    multi_stage_start: int | None = ...,
+    multi_stage_step: int | None = ...,
+    return_optimize_result: Literal[True],
+) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]: ...
+def double_factorized_t2_alpha_beta(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float = 1e-8,
+    max_terms: int | None = None,
+    optimize: bool = False,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    regularization: float = 0,
+    multi_stage_start: int | None = None,
+    multi_stage_step: int | None = None,
+    return_optimize_result: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
+):
     r"""Double-factorized decomposition of alpha-beta :math:`t_2` amplitudes.
 
     Decompose alpha-beta :math:`t_2` amplitudes into diagonal Coulomb matrices with
@@ -829,6 +894,39 @@ def double_factorized_t2_alpha_beta(
             the reconstructed tensor.
         max_terms: An optional limit on the number of terms to keep in the decomposition
             of the :math:`t_2` amplitudes tensor. This argument overrides `tol`.
+        optimize: Whether to optimize the tensors returned by the decomposition to
+            to minimize the error in the factorization.
+        method: The optimization method. See the documentation of
+            `scipy.optimize.minimize`_ for possible values.
+            This argument is ignored if `optimize` is set to ``False``.
+        callback: Callback function for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
+        options: Options for the optimization. See the documentation of
+            `scipy.optimize.minimize`_ for usage.
+            This argument is ignored if `optimize` is set to ``False``.
+        diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
+            Coulomb matrices.
+            If specified, should be a tuple of 3 lists, for alpha-alpha, alpha-beta,
+            and beta-beta matrices, in that order.
+            For the alpha-alpha and beta-beta matrices, each index must be
+            upper triangular, that is, of the form :math:`(i, j)` where
+            :math:`i \leq j`.
+            This argument is ignored if `optimize` is set to ``False``.
+        regularization: Parameter for regularizing the norm of the diagonal Coulomb
+            matrices. This specifies the coefficient to a term added to the loss
+            function equal to the difference between the sums of the squares of the
+            Frobenius norms of the diagonal Coulomb matrices from the optimized
+            factorization and the exact factorization.
+            This argument is ignored if `optimize` is set to ``False``.
+        multi_stage_start: The number of terms to start multi-stage optimization.
+            This argument is ignored if `optimize` is set to ``False``.
+        multi_stage_step: The number of terms to eliminate in each stage of multi-stage
+            optimization.
+            This argument is ignored if `optimize` is set to ``False``.
+        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
+            by `scipy.optimize.minimize`_.
+            This argument is ignored if `optimize` is set to ``False``.
 
 
     Returns:
@@ -845,6 +943,137 @@ def double_factorized_t2_alpha_beta(
           indexes the spin sector of the orbital rotation: first alpha, then beta.
           The first axis indexes the terms of the decomposition.
     """
+    if optimize:
+        return _double_factorized_t2_alpha_beta_compressed(
+            t2_amplitudes,
+            tol=tol,
+            max_terms=max_terms,
+            diag_coulomb_indices=diag_coulomb_indices,
+            method=method,
+            callback=callback,
+            options=options,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
+            regularization=regularization,
+            return_optimize_result=return_optimize_result,
+        )
+    return _double_factorized_t2_alpha_beta_explicit(
+        t2_amplitudes, tol=tol, max_terms=max_terms
+    )
+
+
+def _double_factorized_t2_alpha_beta_compressed(
+    t2_amplitudes: np.ndarray,
+    *,
+    tol: float,
+    max_terms: int | None,
+    method: str,
+    callback,
+    options: dict | None,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    multi_stage_start: int | None,
+    multi_stage_step: int | None,
+    regularization: float,
+    return_optimize_result: bool,
+) -> (
+    tuple[np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
+):
+    nocc_a, nocc_b, nvrt_a, _ = t2_amplitudes.shape
+    norb = nocc_a + nvrt_a
+
+    diag_coulomb_mats, orbital_rotations = _double_factorized_t2_alpha_beta_explicit(
+        t2_amplitudes, tol=tol
+    )
+    init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
+    n_terms_full, _, _, _ = orbital_rotations.shape
+
+    if max_terms is None or n_terms_full < max_terms:
+        return diag_coulomb_mats, orbital_rotations
+
+    if multi_stage_start is None and multi_stage_step is None:
+        list_reps = [max_terms]
+    else:
+        multi_stage_start = min(n_terms_full, multi_stage_start or n_terms_full)
+        multi_stage_step = multi_stage_step or 1
+        list_reps = list(range(multi_stage_start, max_terms, -multi_stage_step))
+        list_reps.append(max_terms)
+
+    for n_tensors in list_reps:
+        diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
+        orbital_rotations = orbital_rotations[:n_tensors]
+
+        def fun(x: np.ndarray):
+            diag_coulomb_mats, orbital_rotations = (
+                df_tensors_alpha_beta_from_params_jax(
+                    x, n_tensors, norb, diag_coulomb_indices
+                )
+            )
+            n_terms = diag_coulomb_mats.shape[0]
+            expanded_diag_coulomb_mats = jnp.zeros(
+                (n_terms, 2 * norb, 2 * norb), dtype=complex
+            )
+            expanded_orbital_rotations = jnp.zeros(
+                (n_terms, 2 * norb, 2 * norb), dtype=complex
+            )
+            for k in range(n_terms):
+                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]
+                expanded_diag_coulomb_mats = expanded_diag_coulomb_mats.at[k].set(
+                    jnp.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
+                )
+                orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]
+                expanded_orbital_rotations = expanded_orbital_rotations.at[k].set(
+                    jax.scipy.linalg.block_diag(orbital_rotation_a, orbital_rotation_b)
+                )
+            reconstructed = (
+                2j
+                * contract(
+                    "kpq,kap,kip,kbq,kjq->ijab",
+                    expanded_diag_coulomb_mats,
+                    expanded_orbital_rotations,
+                    expanded_orbital_rotations.conj(),
+                    expanded_orbital_rotations,
+                    expanded_orbital_rotations.conj(),
+                )[:nocc_a, norb : norb + nocc_b, nocc_a:norb, norb + nocc_b :]
+            )
+            loss = 0.5 * jnp.sum(jnp.abs(reconstructed - t2_amplitudes) ** 2)
+            if regularization:
+                diag_coulomb_norm = jnp.sum(jnp.abs(diag_coulomb_mats) ** 2)
+                loss += regularization * jnp.abs(
+                    diag_coulomb_norm - init_diag_coulomb_norm
+                )
+            return loss
+
+        value_and_grad_func = jax.value_and_grad(fun)
+
+        x0 = df_tensors_alpha_beta_to_params(
+            diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
+        )
+        result = scipy.optimize.minimize(
+            value_and_grad_func,
+            x0,
+            method=method,
+            jac=True,
+            callback=callback,
+            options=options,
+        )
+        diag_coulomb_mats, orbital_rotations = df_tensors_alpha_beta_from_params(
+            result.x, n_tensors, norb, diag_coulomb_indices
+        )
+
+    if return_optimize_result:
+        return diag_coulomb_mats, orbital_rotations, result
+    return diag_coulomb_mats, orbital_rotations
+
+
+def _double_factorized_t2_alpha_beta_explicit(
+    t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
+) -> tuple[np.ndarray, np.ndarray]:
     nocc_a, nocc_b, nvrt_a, nvrt_b = t2_amplitudes.shape
     norb = nocc_a + nvrt_a
 
