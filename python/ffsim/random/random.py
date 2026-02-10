@@ -367,7 +367,7 @@ def random_uccsd_op_restricted_real(
     t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
-        final_orbital_rotation = random_orthogonal(norb, seed=rng)
+        final_orbital_rotation = random_unitary(norb, seed=rng)
     return variational.UCCSDOpRestrictedReal(
         t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
     )
