@@ -508,14 +508,6 @@ class UCCSDOpUnrestrictedReal(
                 "UCCSDOpRestricted only accepts real-valued t2 amplitudes. "
                 "Please pass t2 amplitudes with a real-valued data type."
             )
-        if self.final_orbital_rotation is not None and np.iscomplexobj(
-            self.final_orbital_rotation
-        ):
-            raise TypeError(
-                "UCCSDOpRestricted only accepts a real-valued final "
-                "orbital rotation. Please pass a final orbital rotation with a "
-                "real-valued data type."
-            )
         if validate:
             # Validate shapes
             t1_a, t1_b = self.t1
@@ -597,7 +589,7 @@ class UCCSDOpUnrestrictedReal(
             + n_pairs_a * n_pairs_b
             + n_pairs_b * (n_pairs_b + 1) // 2
             # final orbital rotation
-            + with_final_orbital_rotation * norb * (norb - 1)
+            + with_final_orbital_rotation * 2 * norb**2
         )
 
     @staticmethod
@@ -673,12 +665,10 @@ class UCCSDOpUnrestrictedReal(
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            n_params = norb * (norb - 1) // 2
-            orb_rot_a = unitary_from_parameters(
-                params[index : index + n_params], norb, real=True
-            )
+            n_params = norb**2
+            orb_rot_a = unitary_from_parameters(params[index : index + n_params], norb)
             index += n_params
-            orb_rot_b = unitary_from_parameters(params[index:], norb, real=True)
+            orb_rot_b = unitary_from_parameters(params[index:], norb)
             final_orbital_rotation = np.stack((orb_rot_a, orb_rot_b))
         return UCCSDOpUnrestrictedReal(
             t1=(t1_a, t1_b),
@@ -733,12 +723,10 @@ class UCCSDOpUnrestrictedReal(
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
             orb_rot_a, orb_rot_b = self.final_orbital_rotation
-            n_params = norb * (norb - 1) // 2
-            params[index : index + n_params] = unitary_to_parameters(
-                orb_rot_a, real=True
-            )
+            n_params = norb**2
+            params[index : index + n_params] = unitary_to_parameters(orb_rot_a)
             index += n_params
-            params[index:] = unitary_to_parameters(orb_rot_b, real=True)
+            params[index:] = unitary_to_parameters(orb_rot_b)
         return params
 
     def _apply_unitary_(
@@ -762,10 +750,16 @@ class UCCSDOpUnrestrictedReal(
         return vec
 
     def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
-        if isinstance(other, UCCSDOpRestrictedReal):
-            if not np.allclose(self.t1, other.t1, rtol=rtol, atol=atol):
+        if isinstance(other, UCCSDOpUnrestrictedReal):
+            if not all(
+                np.allclose(t1_self, t1_other, rtol=rtol, atol=atol)
+                for t1_self, t1_other in zip(self.t1, other.t1)
+            ):
                 return False
-            if not np.allclose(self.t2, other.t2, rtol=rtol, atol=atol):
+            if not all(
+                np.allclose(t2_self, t2_other, rtol=rtol, atol=atol)
+                for t2_self, t2_other in zip(self.t2, other.t2)
+            ):
                 return False
             if (self.final_orbital_rotation is None) != (
                 other.final_orbital_rotation is None

@@ -438,7 +438,7 @@ def random_uccsd_op_unrestricted_real(
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         final_orbital_rotation = np.stack(
-            [random_orthogonal(norb, seed=rng), random_orthogonal(norb, seed=rng)]
+            [random_unitary(norb, seed=rng), random_unitary(norb, seed=rng)]
         )
     return variational.UCCSDOpUnrestrictedReal(
         t1=(t1_a, t1_b),
