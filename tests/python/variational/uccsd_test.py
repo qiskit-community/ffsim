@@ -347,11 +347,13 @@ def test_uccsd_unrestricted_real_approx_eq():
         assert ffsim.approx_eq(operator, roundtripped)
         assert not ffsim.approx_eq(
             operator,
-            dataclasses.replace(operator, t1=tuple(2 * t1 for t1 in operator.t1)),
+            dataclasses.replace(operator, t1=(2 * operator.t1[0], operator.t1[1])),
         )
         assert not ffsim.approx_eq(
             operator,
-            dataclasses.replace(operator, t2=tuple(2 * t2 for t2 in operator.t2)),
+            dataclasses.replace(
+                operator, t2=(2 * operator.t2[0], operator.t2[1], operator.t2[2])
+            ),
         )
 
 
