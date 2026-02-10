@@ -68,7 +68,6 @@ def uccsd_unrestricted_linear_operator(
     Returns:
         The LinearOperator for the UCCSD operator generator.
     """
-    # TODO replace with faster contraction-based linear operator
     return protocols.linear_operator(
         operators.uccsd_generator_unrestricted(t1, t2), norb=norb, nelec=nelec
     )
