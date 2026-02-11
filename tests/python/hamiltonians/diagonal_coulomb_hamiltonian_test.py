@@ -169,12 +169,10 @@ def test_from_fermion_operator_fermi_hubbard_2d(periodic: bool):
     assert roundtripped.normal_ordered() == op.normal_ordered()
 
 
-def test_diag():
+@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+def test_diag(norb: int, nelec: tuple[int, int]):
     """Test computing diagonal."""
-    norb = 5
-    nelec = (3, 2)
-    # TODO test complex one-body after adding support for it
-    one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
     diag_coulomb_mat_a = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     diag_coulomb_mat_b = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     diag_coulomb_mats = np.stack([diag_coulomb_mat_a, diag_coulomb_mat_b])
