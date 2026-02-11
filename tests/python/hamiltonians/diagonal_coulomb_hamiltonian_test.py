@@ -17,6 +17,8 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(339886828499190899200750001819855319350)
+
 
 @pytest.mark.parametrize(
     "norb, nelec",
@@ -30,14 +32,13 @@ import ffsim
 def test_linear_operator(norb: int, nelec: tuple[int, int]):
     """Test linear_operator method."""
     dim = ffsim.dim(norb, nelec)
-    rng = np.random.default_rng()
 
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
-        norb, seed=rng, dtype=float
+        norb, seed=RNG, dtype=float
     )
     diag_coulomb_mats = np.array([diag_coulomb_mat, diag_coulomb_mat])
-    constant = rng.standard_normal()
+    constant = RNG.standard_normal()
 
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
         one_body_tensor, diag_coulomb_mats, constant
@@ -53,12 +54,12 @@ def test_linear_operator(norb: int, nelec: tuple[int, int]):
     actual_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
     expected_linop = ffsim.linear_operator(df_hamiltonian, norb, nelec)
 
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
 
-    vec = ffsim.random.random_state_vector(dim, seed=rng, dtype=float)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG, dtype=float)
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
@@ -76,16 +77,15 @@ def test_linear_operator(norb: int, nelec: tuple[int, int]):
 def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     """Test fermion_operator method."""
     dim = ffsim.dim(norb, nelec)
-    rng = np.random.default_rng()
 
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
     diag_coulomb_mats = np.empty((2, norb, norb), dtype=float)
     for i in range(2):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
-            norb, seed=rng, dtype=float
+            norb, seed=RNG, dtype=float
         )
         diag_coulomb_mats[i] = diag_coulomb_mat
-    constant = rng.standard_normal()
+    constant = RNG.standard_normal()
 
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
         one_body_tensor, diag_coulomb_mats, constant=constant
@@ -95,7 +95,7 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
     actual_linop = ffsim.linear_operator(op, norb, nelec)
     expected_linop = ffsim.linear_operator(dc_hamiltonian, norb, nelec)
 
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
     actual = actual_linop @ vec
     expected = expected_linop @ vec
     np.testing.assert_allclose(actual, expected)
@@ -104,8 +104,7 @@ def test_fermion_operator(norb: int, nelec: tuple[int, int]):
 @pytest.mark.parametrize("norb", range(1, 5))
 def test_from_fermion_operator_random(norb: int):
     """Test initialization from FermionOperator with random Hamiltonian."""
-    rng = np.random.default_rng()
-    dc_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)
+    dc_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=RNG)
     op = ffsim.fermion_operator(dc_hamiltonian)
     roundtripped = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
     assert ffsim.approx_eq(roundtripped, dc_hamiltonian)
@@ -114,14 +113,13 @@ def test_from_fermion_operator_random(norb: int):
 def test_from_fermion_operator_errors():
     """Test from_fermion_operator raises errors correctly."""
     norb = 4
-    rng = np.random.default_rng()
 
-    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=rng)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
     op = ffsim.fermion_operator(mol_hamiltonian)
     with pytest.raises(ValueError, match="quartic"):
         _ = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)
 
-    dc_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)
+    dc_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=RNG)
     op = ffsim.fermion_operator(dc_hamiltonian)
     op[()] += 1j
     with pytest.raises(ValueError, match="Constant"):
@@ -131,9 +129,8 @@ def test_from_fermion_operator_errors():
 @pytest.mark.parametrize("periodic", [False, True])
 def test_from_fermion_operator_fermi_hubbard_1d(periodic: bool):
     """Test from_fermion_operator method with the fermi_hubbard_1d model."""
-    rng = np.random.default_rng()
     tunneling, interaction, chemical_potential, nearest_neighbor_interaction = (
-        rng.standard_normal(4)
+        RNG.standard_normal(4)
     )
     op = ffsim.fermi_hubbard_1d(
         norb=4,
@@ -153,9 +150,8 @@ def test_from_fermion_operator_fermi_hubbard_1d(periodic: bool):
 @pytest.mark.parametrize("periodic", [False, True])
 def test_from_fermion_operator_fermi_hubbard_2d(periodic: bool):
     """Test from_fermion_operator method with the fermi_hubbard_2d model."""
-    rng = np.random.default_rng()
     tunneling, interaction, chemical_potential, nearest_neighbor_interaction = (
-        rng.standard_normal(4)
+        RNG.standard_normal(4)
     )
     op = ffsim.fermi_hubbard_2d(
         norb_x=2,
@@ -175,15 +171,14 @@ def test_from_fermion_operator_fermi_hubbard_2d(periodic: bool):
 
 def test_diag():
     """Test computing diagonal."""
-    rng = np.random.default_rng(2222)
     norb = 5
     nelec = (3, 2)
     # TODO test complex one-body after adding support for it
-    one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    diag_coulomb_mat_a = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    diag_coulomb_mat_b = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    diag_coulomb_mat_a = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    diag_coulomb_mat_b = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     diag_coulomb_mats = np.stack([diag_coulomb_mat_a, diag_coulomb_mat_b])
-    constant = rng.standard_normal()
+    constant = RNG.standard_normal()
     hamiltonian = ffsim.DiagonalCoulombHamiltonian(
         one_body_tensor, diag_coulomb_mats, constant=constant
     )
