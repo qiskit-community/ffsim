@@ -39,22 +39,22 @@ class DiagonalCoulombHamiltonian(
     .. math::
 
         H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-            + \frac12 \sum_{\sigma \tau, pq} V^{\sigma \tau}_{pq} n_{\sigma, p}
+            + \frac12 \sum_{\sigma \tau, pq} J^{\sigma \tau}_{pq} n_{\sigma, p}
             n_{\tau, q} + \text{constant}.
 
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
 
-    Here :math:`h_{pq}` is called the one-body tensor and the :math:`V^{\sigma \tau}`
+    Here :math:`h_{pq}` is called the one-body tensor and the :math:`J^{\sigma \tau}`
     are called diagonal Coulomb matrices. We require that
-    :math:`V^{\alpha\alpha}=V^{\beta\beta}` and
-    :math:`V^{\alpha\beta}=V^{\beta\alpha}`, so only two matrices are needed to describe
+    :math:`J^{\alpha\alpha}=J^{\beta\beta}` and
+    :math:`J^{\alpha\beta}=J^{\beta\alpha}`, so only two matrices are needed to describe
     the Hamiltonian.
 
     Attributes:
         one_body_tensor (np.ndarray): The one-body tensor :math:`h`.
         diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices
-            :math:`V^{\alpha\alpha}` and :math:`V^{\alpha\beta}`, given as a pair
+            :math:`J^{\alpha\alpha}` and :math:`J^{\alpha\beta}`, given as a pair
             of Numpy arrays specifying independent coefficients for alpha-alpha and
             alpha-beta interactions (in that order).
         constant (float): The constant.
