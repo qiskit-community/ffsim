@@ -8,5 +8,6 @@ hamiltonians
 orbital-rotation
 double-factorized
 lucj
+protocols
 qiskit-gate-decompositions
 ```
