@@ -60,7 +60,7 @@ def reconstruct_t2_alpha_beta(
             orbital_rotation_a, orbital_rotation_b
         )
     return (
-        2j
+        1j
         * contract(
             "kpq,kap,kip,kbq,kjq->ijab",
             expanded_diag_coulomb_mats,

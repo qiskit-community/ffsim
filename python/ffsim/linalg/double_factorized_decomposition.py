@@ -869,7 +869,7 @@ def double_factorized_t2_alpha_beta(
                     orbital_rotation_a, orbital_rotation_b
                 )
             return (
-                2j
+                1j
                 * np.einsum(
                     "kpq,kap,kip,kbq,kjq->ijab",
                     expanded_diag_coulomb_mats,
@@ -1031,7 +1031,7 @@ def _double_factorized_t2_alpha_beta_compressed(
                     jax.scipy.linalg.block_diag(orbital_rotation_a, orbital_rotation_b)
                 )
             reconstructed = (
-                2j
+                1j
                 * contract(
                     "kpq,kap,kip,kbq,kjq->ijab",
                     expanded_diag_coulomb_mats,
@@ -1104,7 +1104,7 @@ def _double_factorized_t2_alpha_beta_explicit(
 
     eigs, orbital_rotations = np.linalg.eigh(one_body_tensors)
     eigs = np.concatenate([eigs[:, :, 0], eigs[:, :, 1]], axis=-1)
-    coeffs = 0.25 * np.array([1, -1, -1, 1]) * singular_vals[:, None]
+    coeffs = 0.5 * np.array([1, -1, -1, 1]) * singular_vals[:, None]
     big_diag_coulomb_mats = (
         coeffs[:, :, None, None] * eigs[:, :, :, None] * eigs[:, :, None, :]
     )
