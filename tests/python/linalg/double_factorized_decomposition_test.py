@@ -25,6 +25,8 @@ from opt_einsum import contract
 import ffsim
 from ffsim.linalg.double_factorized_decomposition import optimal_diag_coulomb_mats
 
+RNG = np.random.default_rng(139632037091916421993148931543991464292)
+
 
 def reconstruct_t2(
     diag_coulomb_mats: np.ndarray, orbital_rotations: np.ndarray, nocc: int
@@ -75,10 +77,9 @@ def reconstruct_t2_alpha_beta(
 @pytest.mark.parametrize("dim", range(6))
 def test_modified_cholesky(dim: int):
     """Test modified Cholesky decomposition on a random tensor."""
-    rng = np.random.default_rng(4088)
     # construct a random positive definite matrix
-    unitary = np.array(ffsim.random.random_unitary(dim, seed=rng))
-    eigs = rng.uniform(size=dim)
+    unitary = np.array(ffsim.random.random_unitary(dim, seed=RNG))
+    eigs = RNG.uniform(size=dim)
     mat = unitary @ np.diag(eigs) @ unitary.T.conj()
     cholesky_vecs = ffsim.linalg.modified_cholesky(mat)
     reconstructed = contract("ji,ki->jk", cholesky_vecs, cholesky_vecs.conj())
@@ -88,7 +89,7 @@ def test_modified_cholesky(dim: int):
 @pytest.mark.parametrize("dim, cholesky", itertools.product(range(6), [False, True]))
 def test_double_factorized_random(dim: int, cholesky: bool):
     """Test double-factorized decomposition on a random tensor."""
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=9825, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, cholesky=cholesky
     )
@@ -169,7 +170,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
 def test_optimal_diag_coulomb_mats_exact():
     """Test optimal diag Coulomb matrices on exact decomposition."""
     dim = 5
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8386, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     _, orbital_rotations = ffsim.linalg.double_factorized(two_body_tensor)
     diag_coulomb_mats_optimal = optimal_diag_coulomb_mats(
@@ -189,7 +190,7 @@ def test_optimal_diag_coulomb_mats_exact():
 def test_optimal_diag_coulomb_mats_approximate():
     """Test optimal diag Coulomb matrices on approximate decomposition."""
     dim = 5
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=3718, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=3
@@ -338,7 +339,7 @@ def test_double_factorized_compressed_n2_constrained():
 def test_double_factorized_compressed_random():
     """Test compressed double factorization on random tensor."""
     dim = 2
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8364, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
@@ -370,7 +371,7 @@ def test_double_factorized_compressed_random():
 def test_double_factorized_compressed_random_constrained():
     """Test constrained compressed double factorization"""
     dim = 3
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=2927, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
@@ -649,7 +650,7 @@ def test_double_factorized_t2_compressed_max_terms_random():
     """Test compressed double factorization with random t2"""
     norb = 4
     nocc = 2
-    t2 = ffsim.random.random_t2_amplitudes(norb=norb, nocc=nocc, seed=8856, dtype=float)
+    t2 = ffsim.random.random_t2_amplitudes(norb=norb, nocc=nocc, seed=RNG, dtype=float)
 
     # Perform compressed factorization
     pairs_aa = [(p, p + 1) for p in range(norb - 1)]
@@ -706,9 +707,8 @@ def test_double_factorized_t2_compressed_max_terms_random():
 
 def test_double_factorized_t2_alpha_beta_random():
     """Test double factorization of opposite-spin t2 amplitudes with random tensor."""
-    rng = np.random.default_rng()
     shape = (3, 6, 7, 4)
-    t2ab = rng.standard_normal(shape)
+    t2ab = RNG.standard_normal(shape)
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
         t2ab
     )
