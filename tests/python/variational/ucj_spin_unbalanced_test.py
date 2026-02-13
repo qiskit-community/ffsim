@@ -19,6 +19,8 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(155313014187200663515254027006546431903)
+
 
 def test_n_params():
     for norb, n_reps, with_final_orbital_rotation in itertools.product(
@@ -69,7 +71,6 @@ def test_n_params():
 
 
 def test_parameters_roundtrip_all_to_all():
-    rng = np.random.default_rng()
     norb = 5
     n_reps = 2
 
@@ -78,7 +79,7 @@ def test_parameters_roundtrip_all_to_all():
             norb,
             n_reps=n_reps,
             with_final_orbital_rotation=with_final_orbital_rotation,
-            seed=rng,
+            seed=RNG,
         )
         roundtripped = ffsim.UCJOpSpinUnbalanced.from_parameters(
             operator.to_parameters(),
@@ -90,7 +91,6 @@ def test_parameters_roundtrip_all_to_all():
 
 
 def test_parameters_roundtrip_interaction_pairs():
-    rng = np.random.default_rng()
     norb = 5
     n_reps = 2
     interaction_pairs_list = [
@@ -107,7 +107,7 @@ def test_parameters_roundtrip_interaction_pairs():
                 n_reps=n_reps,
                 interaction_pairs=interaction_pairs,
                 with_final_orbital_rotation=with_final_orbital_rotation,
-                seed=rng,
+                seed=RNG,
             )
             roundtripped = ffsim.UCJOpSpinUnbalanced.from_parameters(
                 operator.to_parameters(interaction_pairs=interaction_pairs),
@@ -156,7 +156,7 @@ def test_t_amplitudes_energy():
     # Compute the energy ⟨ψ|H|ψ⟩ of the ansatz state
     linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.125423)
+    np.testing.assert_allclose(energy, -15.128401)
 
     # Test setting number of reps as tuple
     n_reps = (4, 2)
@@ -167,7 +167,7 @@ def test_t_amplitudes_energy():
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.125875)
+    np.testing.assert_allclose(energy, -15.128847)
 
     # Test setting number of reps as None
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, t1=ccsd.t1)
@@ -175,11 +175,10 @@ def test_t_amplitudes_energy():
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.134145)
+    np.testing.assert_allclose(energy, -15.139681)
 
 
 def test_t_amplitudes_random_n_reps():
-    rng = np.random.default_rng(3899)
     norb = 5
     nelec = (3, 2)
     nocc_a, nocc_b = nelec
@@ -188,14 +187,42 @@ def test_t_amplitudes_random_n_reps():
 
     n_reps: int | tuple[int, int]
     for n_reps in [5, 50, (10, 5)]:  # type: ignore
-        t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
-        t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-        t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
-        t1a = rng.standard_normal((nocc_a, nvrt_a))
-        t1b = rng.standard_normal((nocc_b, nvrt_b))
+        t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+        t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+        t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+        t1a = RNG.standard_normal((nocc_a, nvrt_a))
+        t1b = RNG.standard_normal((nocc_b, nvrt_b))
         t2 = (t2aa, t2ab, t2bb)
         t1 = (t1a, t1b)
         operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
+        assert operator.n_reps == total_n_reps
+        actual = len(operator.to_parameters())
+        expected = ffsim.UCJOpSpinUnbalanced.n_params(
+            norb, total_n_reps, with_final_orbital_rotation=True
+        )
+        assert actual == expected
+
+
+def test_t_amplitudes_random_optimize():
+    norb = 5
+    nelec = (3, 2)
+    nocc_a, nocc_b = nelec
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+
+    n_reps: int | tuple[int, int]
+    for n_reps in [5, (10, 5)]:  # type: ignore
+        t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+        t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+        t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+        t1a = RNG.standard_normal((nocc_a, nvrt_a))
+        t1b = RNG.standard_normal((nocc_b, nvrt_b))
+        t2 = (t2aa, t2ab, t2bb)
+        t1 = (t1a, t1b)
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, t1=t1, n_reps=n_reps, optimize=True, options=dict(maxiter=10)
+        )
         total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
         assert operator.n_reps == total_n_reps
         actual = len(operator.to_parameters())
@@ -322,7 +349,6 @@ def test_t_amplitudes_restrict_indices():
 
 
 def test_validate():
-    rng = np.random.default_rng(335)
     n_reps = 3
     norb = 4
     eye = np.eye(norb)
@@ -330,32 +356,32 @@ def test_validate():
     orbital_rotations = np.stack([np.stack([eye, eye]) for _ in range(n_reps)])
 
     _ = ffsim.UCJOpSpinUnbalanced(
-        diag_coulomb_mats=rng.standard_normal(10),
+        diag_coulomb_mats=RNG.standard_normal(10),
         orbital_rotations=orbital_rotations,
         validate=False,
     )
 
     _ = ffsim.UCJOpSpinUnbalanced(
-        diag_coulomb_mats=rng.standard_normal((n_reps, 3, norb, norb)),
+        diag_coulomb_mats=RNG.standard_normal((n_reps, 3, norb, norb)),
         orbital_rotations=orbital_rotations,
         atol=10,
     )
 
     with pytest.raises(ValueError, match="shape"):
         _ = ffsim.UCJOpSpinUnbalanced(
-            diag_coulomb_mats=rng.standard_normal(10),
+            diag_coulomb_mats=RNG.standard_normal(10),
             orbital_rotations=orbital_rotations,
         )
     with pytest.raises(ValueError, match="shape"):
         _ = ffsim.UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,
-            orbital_rotations=rng.standard_normal(10),
+            orbital_rotations=RNG.standard_normal(10),
         )
     with pytest.raises(ValueError, match="shape"):
         _ = ffsim.UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
-            final_orbital_rotation=rng.standard_normal(10),
+            final_orbital_rotation=RNG.standard_normal(10),
         )
     with pytest.raises(ValueError, match="dimension"):
         _ = ffsim.UCJOpSpinUnbalanced(
@@ -364,19 +390,19 @@ def test_validate():
         )
     with pytest.raises(ValueError, match="symmetric"):
         _ = ffsim.UCJOpSpinUnbalanced(
-            diag_coulomb_mats=rng.standard_normal((n_reps, 3, norb, norb)),
+            diag_coulomb_mats=RNG.standard_normal((n_reps, 3, norb, norb)),
             orbital_rotations=orbital_rotations,
         )
     with pytest.raises(ValueError, match="unitary"):
         _ = ffsim.UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,
-            orbital_rotations=rng.standard_normal((n_reps, 2, norb, norb)),
+            orbital_rotations=RNG.standard_normal((n_reps, 2, norb, norb)),
         )
     with pytest.raises(ValueError, match="unitary"):
         _ = ffsim.UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
-            final_orbital_rotation=rng.standard_normal((2, norb, norb)),
+            final_orbital_rotation=RNG.standard_normal((2, norb, norb)),
         )
     with pytest.raises(ValueError, match="shape"):
         _ = ffsim.UCJOpSpinUnbalanced(

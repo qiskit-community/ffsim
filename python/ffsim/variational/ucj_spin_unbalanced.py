@@ -439,6 +439,13 @@ class UCJOpSpinUnbalanced(
         ]
         | None = None,
         tol: float = 1e-8,
+        optimize: bool = False,
+        method: str = "L-BFGS-B",
+        callback=None,
+        options: dict | None = None,
+        regularization: float = 0,
+        multi_stage_start: int | None = None,
+        multi_stage_step: int | None = None,
     ) -> UCJOpSpinUnbalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
@@ -485,6 +492,26 @@ class UCJOpSpinUnbalanced(
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
                 the reconstructed tensor.
+            optimize: Whether to optimize the tensors returned by the decomposition to
+                to minimize the error in the factorization.
+            method: The optimization method. See the documentation of
+                `scipy.optimize.minimize`_ for possible values.
+                This argument is ignored if `optimize` is set to ``False``.
+            callback: Callback function for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+                This argument is ignored if `optimize` is set to ``False``.
+            options: Options for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+                This argument is ignored if `optimize` is set to ``False``.
+            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
+            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
+            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -508,35 +535,87 @@ class UCJOpSpinUnbalanced(
         norb = nocc_a + nvrt_a
 
         # alpha-beta
+        if n_reps is None:
+            n_reps_ab = None
+        elif isinstance(n_reps, int):
+            n_reps_ab = n_reps
+        else:
+            n_reps_ab, _ = n_reps
         diag_coulomb_mats_ab, orbital_rotations_ab = (
-            linalg.double_factorized_t2_alpha_beta(t2ab, tol=tol)
+            linalg.double_factorized_t2_alpha_beta(
+                t2ab,
+                tol=tol,
+                max_terms=n_reps_ab,
+                optimize=optimize,
+                method=method,
+                callback=callback,
+                options=options,
+                diag_coulomb_indices=interaction_pairs,
+                regularization=regularization,
+                multi_stage_start=multi_stage_start,
+                multi_stage_step=multi_stage_step,
+                return_optimize_result=False,
+            )
         )
+        n_reps_ab, _, _, _ = diag_coulomb_mats_ab.shape
         # alpha-alpha and beta-beta
-        diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
-            t2aa, tol=tol
-        )
-        diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
-            t2bb, tol=tol
-        )
-        zero = np.zeros((norb, norb))
-        if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
-            diag_coulomb_mats_same_spin = np.stack(
-                [
-                    [mat_aa, zero, mat_bb]
-                    for mat_aa, mat_bb in itertools.zip_longest(
-                        diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
-                    )
-                ]
+        if n_reps is None:
+            n_reps_aa = None
+        elif isinstance(n_reps, int):
+            n_reps_aa = n_reps - n_reps_ab
+        else:
+            _, n_reps_aa = n_reps
+        if n_reps_aa is None or n_reps_aa >= 1:
+            diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
+                t2aa,
+                tol=tol,
+                max_terms=n_reps_aa,
+                optimize=optimize,
+                method=method,
+                callback=callback,
+                options=options,
+                diag_coulomb_indices=pairs_aa,
+                regularization=regularization,
+                multi_stage_start=multi_stage_start,
+                multi_stage_step=multi_stage_step,
+                return_optimize_result=False,
             )
-            eye = np.eye(norb)
-            orbital_rotations_same_spin = np.stack(
-                [
-                    [orb_rot_aa, orb_rot_bb]
-                    for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
-                        orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
-                    )
-                ]
+            diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
+                t2bb,
+                tol=tol,
+                max_terms=n_reps_aa,
+                optimize=optimize,
+                method=method,
+                callback=callback,
+                options=options,
+                diag_coulomb_indices=pairs_bb,
+                regularization=regularization,
+                multi_stage_start=multi_stage_start,
+                multi_stage_step=multi_stage_step,
+                return_optimize_result=False,
             )
+            if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
+                zero = np.zeros((norb, norb))
+                diag_coulomb_mats_same_spin = np.stack(
+                    [
+                        [mat_aa, zero, mat_bb]
+                        for mat_aa, mat_bb in itertools.zip_longest(
+                            diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
+                        )
+                    ]
+                )
+                eye = np.eye(norb)
+                orbital_rotations_same_spin = np.stack(
+                    [
+                        [orb_rot_aa, orb_rot_bb]
+                        for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
+                            orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
+                        )
+                    ]
+                )
+            else:
+                diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
+                orbital_rotations_same_spin = np.empty((0, 2, norb, norb))
         else:
             diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
             orbital_rotations_same_spin = np.empty((0, 2, norb, norb))

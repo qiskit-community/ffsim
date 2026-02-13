@@ -17,12 +17,13 @@ import numpy as np
 
 import ffsim
 
+RNG = np.random.default_rng(93168499419216758993474429408133009477)
+
 
 def test_parameters_roundtrip():
     """Test converting to and back from parameters gives consistent results."""
     norb = 5
     n_reps = 2
-    rng = np.random.default_rng()
 
     def ncycles(iterable, n):
         "Returns the sequence elements n times"
@@ -30,7 +31,7 @@ def test_parameters_roundtrip():
 
     pairs = itertools.combinations(range(norb), 2)
     interaction_pairs = list(ncycles(pairs, n_reps))
-    thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
     final_orbital_rotation = ffsim.random.random_unitary(norb)
 
     operator = ffsim.HopGateAnsatzOperator(

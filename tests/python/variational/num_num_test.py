@@ -19,16 +19,17 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(93168499419216758993474429408133009477)
+
 
 def test_parameters_roundtrip():
     """Test converting to and back from parameters gives consistent results."""
     norb = 5
-    rng = np.random.default_rng()
 
     pairs_aa = list(itertools.combinations(range(norb), 2))[:norb]
     pairs_ab = list(itertools.combinations(range(norb), 2))[-norb:]
-    thetas_aa = rng.uniform(-np.pi, np.pi, size=len(pairs_aa))
-    thetas_ab = rng.uniform(-np.pi, np.pi, size=len(pairs_ab))
+    thetas_aa = RNG.uniform(-np.pi, np.pi, size=len(pairs_aa))
+    thetas_ab = RNG.uniform(-np.pi, np.pi, size=len(pairs_ab))
 
     operator = ffsim.NumNumAnsatzOpSpinBalanced(
         norb=norb,
@@ -53,11 +54,10 @@ def test_parameters_roundtrip():
 @pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
 def test_diag_coulomb_mats(norb: int, nelec: tuple[int, int]):
     """Test initialization from diagonal Coulomb matrices."""
-    rng = np.random.default_rng()
-    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     operator = ffsim.NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats((mat_aa, mat_ab))
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
     expected = ffsim.apply_diag_coulomb_evolution(
         vec, (mat_aa, mat_ab, mat_aa), time=-1.0, norb=norb, nelec=nelec

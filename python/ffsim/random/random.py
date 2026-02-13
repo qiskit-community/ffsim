@@ -367,7 +367,7 @@ def random_uccsd_op_restricted_real(
     t2 = random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
-        final_orbital_rotation = random_orthogonal(norb, seed=rng)
+        final_orbital_rotation = random_unitary(norb, seed=rng)
     return variational.UCCSDOpRestrictedReal(
         t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
     )
@@ -403,6 +403,47 @@ def random_uccsd_op_restricted(
         final_orbital_rotation = random_unitary(norb, seed=rng)
     return variational.UCCSDOpRestricted(
         t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
+    )
+
+
+def random_uccsd_op_unrestricted_real(
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCCSDOpUnrestrictedReal:
+    """Sample a random real-valued UCCSD operator.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nocc: The number of spatial orbitals that are occupied by electrons.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCCSD operator.
+    """
+    rng = np.random.default_rng(seed)
+    nocc_a, nocc_b = nelec
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+    t1_a = rng.standard_normal((nocc_a, nvrt_a))
+    t1_b = rng.standard_normal((nocc_b, nvrt_b))
+    t2_aa = random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
+    t2_ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+    t2_bb = random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = np.stack(
+            [random_unitary(norb, seed=rng), random_unitary(norb, seed=rng)]
+        )
+    return variational.UCCSDOpUnrestrictedReal(
+        t1=(t1_a, t1_b),
+        t2=(t2_aa, t2_ab, t2_bb),
+        final_orbital_rotation=final_orbital_rotation,
     )
 
 

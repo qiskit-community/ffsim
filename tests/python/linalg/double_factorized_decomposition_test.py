@@ -25,6 +25,8 @@ from opt_einsum import contract
 import ffsim
 from ffsim.linalg.double_factorized_decomposition import optimal_diag_coulomb_mats
 
+RNG = np.random.default_rng(139632037091916421993148931543991464292)
+
 
 def reconstruct_t2(
     diag_coulomb_mats: np.ndarray, orbital_rotations: np.ndarray, nocc: int
@@ -60,7 +62,7 @@ def reconstruct_t2_alpha_beta(
             orbital_rotation_a, orbital_rotation_b
         )
     return (
-        2j
+        1j
         * contract(
             "kpq,kap,kip,kbq,kjq->ijab",
             expanded_diag_coulomb_mats,
@@ -75,10 +77,9 @@ def reconstruct_t2_alpha_beta(
 @pytest.mark.parametrize("dim", range(6))
 def test_modified_cholesky(dim: int):
     """Test modified Cholesky decomposition on a random tensor."""
-    rng = np.random.default_rng(4088)
     # construct a random positive definite matrix
-    unitary = np.array(ffsim.random.random_unitary(dim, seed=rng))
-    eigs = rng.uniform(size=dim)
+    unitary = np.array(ffsim.random.random_unitary(dim, seed=RNG))
+    eigs = RNG.uniform(size=dim)
     mat = unitary @ np.diag(eigs) @ unitary.T.conj()
     cholesky_vecs = ffsim.linalg.modified_cholesky(mat)
     reconstructed = contract("ji,ki->jk", cholesky_vecs, cholesky_vecs.conj())
@@ -88,7 +89,7 @@ def test_modified_cholesky(dim: int):
 @pytest.mark.parametrize("dim, cholesky", itertools.product(range(6), [False, True]))
 def test_double_factorized_random(dim: int, cholesky: bool):
     """Test double-factorized decomposition on a random tensor."""
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=9825, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, cholesky=cholesky
     )
@@ -169,7 +170,7 @@ def test_double_factorized_tol_max_vecs(cholesky: bool):
 def test_optimal_diag_coulomb_mats_exact():
     """Test optimal diag Coulomb matrices on exact decomposition."""
     dim = 5
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8386, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     _, orbital_rotations = ffsim.linalg.double_factorized(two_body_tensor)
     diag_coulomb_mats_optimal = optimal_diag_coulomb_mats(
@@ -189,7 +190,7 @@ def test_optimal_diag_coulomb_mats_exact():
 def test_optimal_diag_coulomb_mats_approximate():
     """Test optimal diag Coulomb matrices on approximate decomposition."""
     dim = 5
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=3718, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=3
@@ -338,7 +339,7 @@ def test_double_factorized_compressed_n2_constrained():
 def test_double_factorized_compressed_random():
     """Test compressed double factorization on random tensor."""
     dim = 2
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=8364, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
@@ -370,7 +371,7 @@ def test_double_factorized_compressed_random():
 def test_double_factorized_compressed_random_constrained():
     """Test constrained compressed double factorization"""
     dim = 3
-    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=2927, dtype=float)
+    two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
 
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
         two_body_tensor, max_vecs=2
@@ -649,7 +650,7 @@ def test_double_factorized_t2_compressed_max_terms_random():
     """Test compressed double factorization with random t2"""
     norb = 4
     nocc = 2
-    t2 = ffsim.random.random_t2_amplitudes(norb=norb, nocc=nocc, seed=8856, dtype=float)
+    t2 = ffsim.random.random_t2_amplitudes(norb=norb, nocc=nocc, seed=RNG, dtype=float)
 
     # Perform compressed factorization
     pairs_aa = [(p, p + 1) for p in range(norb - 1)]
@@ -706,9 +707,8 @@ def test_double_factorized_t2_compressed_max_terms_random():
 
 def test_double_factorized_t2_alpha_beta_random():
     """Test double factorization of opposite-spin t2 amplitudes with random tensor."""
-    rng = np.random.default_rng()
     shape = (3, 6, 7, 4)
-    t2ab = rng.standard_normal(shape)
+    t2ab = RNG.standard_normal(shape)
     diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
         t2ab
     )
@@ -794,3 +794,77 @@ def test_double_factorized_t2_alpha_beta_tol_max_terms():
     )
     assert len(orbital_rotations) <= 92
     np.testing.assert_allclose(reconstructed, t2ab, atol=tol)
+
+
+def test_double_factorized_t2_alpha_beta_compressed_max_terms_h5():
+    """Test compressed double factorization for H5."""
+    # Build H5 molecule
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[("H", (0, 0, i)) for i in range(5)],
+        basis="sto-6g",
+        spin=1,
+        symmetry="Dooh",
+        verbose=0,
+    )
+
+    # Get molecular data and Hamiltonian
+    scf = pyscf.scf.ROHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf)
+    norb, _ = mol_data.norb, mol_data.nelec
+
+    # Get CCSD t2 amplitudes for initializing the ansatz
+    ccsd = pyscf.cc.CCSD(scf).run()
+    _, t2_ab, _ = ccsd.t2
+    nocc_a, nocc_b, _, _ = t2_ab.shape
+
+    # Perform compressed factorization
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = pairs_aa + [(p, p) for p in range(norb)]
+    max_terms = 1
+    diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
+        ffsim.linalg.double_factorized_t2_alpha_beta(
+            t2_ab,
+            optimize=True,
+            max_terms=max_terms,
+            diag_coulomb_indices=(pairs_aa, pairs_ab, pairs_aa),
+            method="L-BFGS-B",
+            options=dict(maxiter=25),
+            multi_stage_start=8,
+            multi_stage_step=4,
+            return_optimize_result=True,
+        )
+    )
+    _check_diag_coulomb_alpha_beta_symmetries(diag_coulomb_mats_optimized)
+    reconstructed_optimized = reconstruct_t2_alpha_beta(
+        diag_coulomb_mats_optimized,
+        orbital_rotations_optimized,
+        norb=norb,
+        nocc_a=nocc_a,
+        nocc_b=nocc_b,
+    )
+    error_optimized = np.sum(np.abs(reconstructed_optimized - t2_ab) ** 2)
+
+    # Perform uncompressed factorization
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized_t2_alpha_beta(
+        t2_ab, max_terms=max_terms
+    )
+    reconstructed = reconstruct_t2_alpha_beta(
+        diag_coulomb_mats, orbital_rotations, norb=norb, nocc_a=nocc_a, nocc_b=nocc_b
+    )
+    error = np.sum(np.abs(reconstructed - t2_ab) ** 2)
+
+    # Check results
+    assert error_optimized < 0.7 * error
+    assert diag_coulomb_mats_optimized.shape == (max_terms, 3, norb, norb)
+    assert orbital_rotations_optimized.shape == (max_terms, 2, norb, norb)
+    assert result.nit <= 25
+    assert result.nfev <= 40
+    assert result.njev <= 40
+
+
+def _check_diag_coulomb_alpha_beta_symmetries(diag_coulomb_mats: np.ndarray):
+    mats_aa = diag_coulomb_mats[:, 0]
+    mats_bb = diag_coulomb_mats[:, 2]
+    np.testing.assert_allclose(mats_aa, mats_aa.transpose(0, 2, 1))
+    np.testing.assert_allclose(mats_bb, mats_bb.transpose(0, 2, 1))

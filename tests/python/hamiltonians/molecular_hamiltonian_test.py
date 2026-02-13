@@ -88,14 +88,16 @@ def test_linear_operator():
         (5, (3, 2)),
     ],
 )
-def test_diag(norb: int, nelec: tuple[int, int]):
+def test_diag_and_trace(norb: int, nelec: tuple[int, int]):
     """Test computing diagonal."""
     # TODO remove dtype=float once complex is supported
     hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=float)
     linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
     hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
+    diag = ffsim.diag(hamiltonian, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(diag, np.diag(hamiltonian_dense))
     np.testing.assert_allclose(
-        ffsim.diag(hamiltonian, norb=norb, nelec=nelec), np.diag(hamiltonian_dense)
+        ffsim.trace(hamiltonian, norb=norb, nelec=nelec), np.sum(diag)
     )
 
 

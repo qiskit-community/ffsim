@@ -18,7 +18,11 @@ from ffsim.variational.multireference import (
 )
 from ffsim.variational.num_num import NumNumAnsatzOpSpinBalanced
 from ffsim.variational.orbital_optimization import optimize_orbitals
-from ffsim.variational.uccsd import UCCSDOpRestricted, UCCSDOpRestrictedReal
+from ffsim.variational.uccsd import (
+    UCCSDOpRestricted,
+    UCCSDOpRestrictedReal,
+    UCCSDOpUnrestrictedReal,
+)
 from ffsim.variational.ucj_angles_spin_balanced import UCJAnglesOpSpinBalanced
 from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
 from ffsim.variational.ucj_spin_unbalanced import UCJOpSpinUnbalanced
@@ -30,6 +34,7 @@ __all__ = [
     "NumNumAnsatzOpSpinBalanced",
     "UCCSDOpRestricted",
     "UCCSDOpRestrictedReal",
+    "UCCSDOpUnrestrictedReal",
     "UCJAnglesOpSpinBalanced",
     "UCJOpSpinBalanced",
     "UCJOpSpinUnbalanced",
