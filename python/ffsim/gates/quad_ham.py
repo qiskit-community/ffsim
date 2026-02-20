@@ -88,7 +88,7 @@ def apply_quad_ham_evolution(
     if copy:
         vec = vec.copy()
 
-    if isinstance(nelec, int) or isinstance(mat, np.ndarray) and mat.ndim == 2:
+    if isinstance(nelec, int) or (isinstance(mat, np.ndarray) and mat.ndim == 2):
         # Spinless, or spinful with same matrix for each spin sector
         evolution_mat = scipy.linalg.expm(-1j * time * cast(np.ndarray, mat))
         return apply_orbital_rotation(

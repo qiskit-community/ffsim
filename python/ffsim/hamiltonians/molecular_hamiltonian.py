@@ -191,20 +191,20 @@ class MolecularHamiltonian(
         # extract number of spatial orbitals
         norb = 1 + max(orb for term in op for _, _, orb in term)
 
-        # initialize constant, one‑ and two‑body tensors
+        # initialize constant, one- and two-body tensors
         constant: float = 0.0
         one_body_tensor = np.zeros((norb, norb), dtype=complex)
         two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
 
         for term, coeff in op.items():
-            # constant term: empty tuple
+            # constant term
             if not term:
                 if coeff.imag:
                     raise ValueError(
                         f"Constant term must be real. Instead, got {coeff}."
                     )
                 constant = coeff.real
-            # one‑body term: a†_σ,p a_σ,q  (σ = α or β)
+            # one-body term
             elif len(term) == 2:
                 (_, _, p), (_, _, q) = term
                 valid_one_body = [(cre_a(p), des_a(q)), (cre_b(p), des_b(q))]
@@ -216,7 +216,7 @@ class MolecularHamiltonian(
                         f"The quadratic term {term} is not of the required form "
                         r"a^\dagger_{\sigma, p} a_{\sigma, q}."
                     )
-            # two‑body term: a†_σ,p a†_τ,r a_τ,s a_σ,q
+            # two-body term
             elif len(term) == 4:
                 (_, _, p), (_, _, r), (_, _, s), (_, _, q) = term
                 valid_two_body = [

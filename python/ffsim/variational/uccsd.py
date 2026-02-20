@@ -684,7 +684,7 @@ class UCCSDOpUnrestrictedReal(
         t1_a, t1_b = self.t1
         t2_aa, t2_ab, t2_bb = self.t2
         nocc_a, nvrt_a = t1_a.shape
-        nocc_b, nvrt_b = t1_b.shape
+        nocc_b, _ = t1_b.shape
         norb = nocc_a + nvrt_a
         n_params = UCCSDOpUnrestrictedReal.n_params(
             norb,
