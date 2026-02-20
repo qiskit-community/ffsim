@@ -531,7 +531,7 @@ class UCJOpSpinUnbalanced(
         validate_interaction_pairs(pairs_bb, ordered=False)
 
         t2aa, t2ab, t2bb = t2
-        nocc_a, nocc_b, nvrt_a, _ = t2ab.shape
+        nocc_a, _, nvrt_a, _ = t2ab.shape
         norb = nocc_a + nvrt_a
 
         # alpha-beta

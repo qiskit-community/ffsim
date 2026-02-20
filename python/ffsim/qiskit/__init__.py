@@ -48,6 +48,7 @@ pass manager.
 
 
 __all__ = [
+    "PRE_INIT",
     "DiagCoulombEvolutionJW",
     "DiagCoulombEvolutionSpinlessJW",
     "DropNegligible",
@@ -60,7 +61,6 @@ __all__ = [
     "NumOpSumEvolutionSpinlessJW",
     "OrbitalRotationJW",
     "OrbitalRotationSpinlessJW",
-    "PRE_INIT",
     "PrepareHartreeFockJW",
     "PrepareHartreeFockSpinlessJW",
     "PrepareSlaterDeterminantJW",

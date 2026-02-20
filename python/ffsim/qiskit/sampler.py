@@ -109,7 +109,7 @@ class FfsimSampler(BaseSamplerV2):
         bound_circuits = pub.parameter_values.bind_all(circuit)
         arrays = {
             item.creg_name: np.zeros(
-                bound_circuits.shape + (pub.shots, item.num_bytes), dtype=np.uint8
+                (*bound_circuits.shape, pub.shots, item.num_bytes), dtype=np.uint8
             )
             for item in meas_info
         }

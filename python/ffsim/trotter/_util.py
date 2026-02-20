@@ -30,9 +30,9 @@ def simulate_trotter_step_iterator_symmetric(
 ) -> Iterator[tuple[int, float]]:
     # Reference:
     # Masuo Suzuki
-    # General theory of fractal path integrals with applications to many‐body theories
+    # General theory of fractal path integrals with applications to many-body theories
     # and statistical physics
-    # J. Math. Phys. 32, 400–407 (1991)
+    # J. Math. Phys. 32, 400-407 (1991)
     # https://doi.org/10.1063/1.529425
     if order == 1:
         for i in range(n_terms - 1):
