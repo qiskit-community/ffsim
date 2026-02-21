@@ -1,0 +1,1396 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 --><title>Index - ffsim 0.0.68.dev0</title>
+<link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H2C1.73478 2 1.48043 2.10536 1.29289 2.29289C1.10536 2.48043 1 2.73478 1 3V13C1 13.2652 1.10536 13.5196 1.29289 13.7071C1.48043 13.8946 1.73478 14 2 14H14C14.2652 14 14.5196 13.8946 14.7071 13.7071C14.8946 13.5196 15 13.2652 15 13V3C15 2.73478 14.8946 2.48043 14.7071 2.29289C14.5196 2.10536 14.2652 2 14 2V2ZM2 3H10V13H2V3ZM14 13H11V3H14V13Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3H2V4H14V3Z" fill="currentColor"/>
+      <path d="M14 12H2V13H14V12Z" fill="currentColor"/>
+      <path d="M14 6H2V7H14V6Z" fill="currentColor"/>
+      <path d="M14 9H2V10H14V9Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 8L6.00005 13L5.30005 12.3L9.60005 8L5.30005 3.7L6.00005 3L11 8Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 13H1V14H15V13Z" fill="currentColor"/>
+      <path d="M12.7 4.5C13.1 4.1 13.1 3.5 12.7 3.1L10.9 1.3C10.5 0.9 9.9 0.9 9.5 1.3L2 8.8V12H5.2L12.7 4.5ZM10.2 2L12 3.8L10.5 5.3L8.7 3.5L10.2 2ZM3 11V9.2L8 4.2L9.8 6L4.8 11H3Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 13.0002C11.5523 13.0002 12 12.5525 12 12.0002C12 11.4479 11.5523 11.0002 11 11.0002C10.4477 11.0002 10 11.4479 10 12.0002C10 12.5525 10.4477 13.0002 11 13.0002Z" fill="currentColor"/>
+      <path d="M14.8884 11.7394C14.5795 10.9524 14.0464 10.2734 13.3552 9.78646C12.664 9.29954 11.8451 9.02615 11 9.00017C10.1549 9.02615 9.33604 9.29954 8.64484 9.78646C7.95365 10.2734 7.42052 10.9524 7.11155 11.7394L7 12.0002L7.11155 12.2609C7.42052 13.0479 7.95365 13.727 8.64484 14.2139C9.33604 14.7008 10.1549 14.9742 11 15.0002C11.8451 14.9742 12.664 14.7008 13.3552 14.2139C14.0464 13.727 14.5795 13.0479 14.8884 12.2609L15 12.0002L14.8884 11.7394ZM11 14.0002C10.6044 14.0002 10.2178 13.8829 9.88886 13.6631C9.55996 13.4433 9.30362 13.131 9.15224 12.7655C9.00087 12.4001 8.96126 11.998 9.03843 11.61C9.1156 11.222 9.30608 10.8657 9.58579 10.586C9.86549 10.3063 10.2219 10.1158 10.6098 10.0386C10.9978 9.96143 11.3999 10.001 11.7654 10.1524C12.1308 10.3038 12.4432 10.5601 12.6629 10.889C12.8827 11.2179 13 11.6046 13 12.0002C12.9994 12.5304 12.7885 13.0388 12.4136 13.4137C12.0386 13.7887 11.5303 13.9996 11 14.0002Z" fill="currentColor"/>
+      <path d="M6 14.0002H4V2.00017H8V5.00017C8.00077 5.26515 8.10637 5.51906 8.29374 5.70643C8.48111 5.8938 8.73502 5.99941 9 6.00017H12V8.00017H13V5.00017C13.0018 4.93446 12.9893 4.86913 12.9634 4.80871C12.9375 4.74828 12.8988 4.6942 12.85 4.65017L9.35 1.15017C9.30599 1.10134 9.2519 1.06263 9.19147 1.03674C9.13104 1.01084 9.06572 0.998364 9 1.00017H4C3.73502 1.00094 3.48111 1.10654 3.29374 1.29391C3.10637 1.48128 3.00077 1.73519 3 2.00017V14.0002C3.00077 14.2652 3.10637 14.5191 3.29374 14.7064C3.48111 14.8938 3.73502 14.9994 4 15.0002H6V14.0002ZM9 2.20017L11.8 5.00017H9V2.20017Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">ffsim 0.0.68.dev0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">ffsim 0.0.68.dev0</span>
+  
+</a>
+
+<p class="sidebar-ecosystem-link">
+  This project is part of the <a class="reference external" href="https://www.ibm.com/quantum/ecosystem">Qiskit ecosystem</a>
+</p><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/double-factorized-trotter.html">Implementing Trotter simulation of the double-factorized Hamiltonian</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/hamiltonians.html">Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/orbital-rotation.html">Orbital rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/diag-coulomb-hamiltonian.html">Diagonal Coulomb Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/protocols.html">Protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanations/qiskit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/sample-from-state-vectors.html">Sample from state vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/compute-expectation-values.html">Compute expectation values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/simulate-lucj.html">Simulate the local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/simulate-trotter-mol-ham.html">Simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/simulate-trotter-hubbard.html">Simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/entanglement-forging.html">Simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/fermion-operator.html">The FermionOperator class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/qiskit-lucj.html">Build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/qiskit-trotter.html">Build Qiskit circuits for Trotterized Hamiltonian simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/qiskit-circuits-sim.html">Simulate excitation-preserving Qiskit circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-guides/qiskit-merge-orbital-rotations.html">Merge orbital rotations in Qiskit circuits</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.html">ffsim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.contract.html">ffsim.contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.linalg.html">ffsim.linalg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.optimize.html">ffsim.optimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.qiskit.html">ffsim.qiskit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.random.html">ffsim.random</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ffsim.testing.html">ffsim.testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/releases">Release notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development branch docs</a></li>
+</ul>
+
+</div></div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
+</section>
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW.__init__">__init__() (ffsim.qiskit.DiagCoulombEvolutionJW method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.__init__">(ffsim.qiskit.DiagCoulombEvolutionSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DropNegligible.__init__">(ffsim.qiskit.DropNegligible method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.FfsimSampler.__init__">(ffsim.qiskit.FfsimSampler method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpJW.__init__">(ffsim.qiskit.GivensAnsatzOpJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpSpinlessJW.__init__">(ffsim.qiskit.GivensAnsatzOpSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW.__init__">(ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumOpSumEvolutionJW.__init__">(ffsim.qiskit.NumOpSumEvolutionJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumOpSumEvolutionSpinlessJW.__init__">(ffsim.qiskit.NumOpSumEvolutionSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW.__init__">(ffsim.qiskit.OrbitalRotationJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationSpinlessJW.__init__">(ffsim.qiskit.OrbitalRotationSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockJW.__init__">(ffsim.qiskit.PrepareHartreeFockJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockSpinlessJW.__init__">(ffsim.qiskit.PrepareHartreeFockSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantJW.__init__">(ffsim.qiskit.PrepareSlaterDeterminantJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.__init__">(ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW.__init__">(ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.__init__">(ffsim.qiskit.SimulateTrotterDoubleFactorizedJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinBalancedJW.__init__">(ffsim.qiskit.UCJOpSpinBalancedJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinlessJW.__init__">(ffsim.qiskit.UCJOpSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinUnbalancedJW.__init__">(ffsim.qiskit.UCJOpSpinUnbalancedJW method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.FermionAction.action">action (ffsim.FermionAction attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.active_space">active_space (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.addresses_to_strings">addresses_to_strings() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionOperator.adjoint">adjoint() (ffsim.FermionOperator method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.Spin.ALPHA">ALPHA (ffsim.Spin attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.Spin.ALPHA_AND_BETA">ALPHA_AND_BETA (ffsim.Spin attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_diag_coulomb_evolution">apply_diag_coulomb_evolution() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_fsim_gate">apply_fsim_gate() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_fswap_gate">apply_fswap_gate() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_givens_rotation">apply_givens_rotation() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_hop_gate">apply_hop_gate() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.apply_matrix_to_slices">apply_matrix_to_slices() (in module ffsim.linalg)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.apply_num_interaction">apply_num_interaction() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_num_num_interaction">apply_num_num_interaction() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_num_op_prod_interaction">apply_num_op_prod_interaction() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_num_op_sum_evolution">apply_num_op_sum_evolution() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_on_site_interaction">apply_on_site_interaction() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_orbital_rotation">apply_orbital_rotation() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_quad_ham_evolution">apply_quad_ham_evolution() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_tunneling_interaction">apply_tunneling_interaction() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.apply_unitary">apply_unitary() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.approx_eq">approx_eq() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.testing.html#ffsim.testing.assert_allclose_up_to_global_phase">assert_allclose_up_to_global_phase() (in module ffsim.testing)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.atom">atom (ffsim.MolecularData attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.basis">basis (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.Spin.BETA">BETA (ffsim.Spin attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.BitstringType.BIT_ARRAY">BIT_ARRAY (ffsim.BitstringType attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.BitstringType">BitstringType (class in ffsim)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.GivensRotation.c">c (ffsim.linalg.GivensRotation attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.ccsd_energy">ccsd_energy (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.ccsd_generator_restricted">ccsd_generator_restricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.ccsd_generator_unrestricted">ccsd_generator_unrestricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.ccsd_t1">ccsd_t1 (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.ccsd_t2">ccsd_t2 (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.cisd_energy">cisd_energy (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.cisd_vec">cisd_vec (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.ProductStateSum.coeffs">coeffs (ffsim.ProductStateSum attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionOperator.conserves_particle_number">conserves_particle_number() (ffsim.FermionOperator method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionOperator.conserves_spin_z">conserves_spin_z() (ffsim.FermionOperator method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.DiagonalCoulombHamiltonian.constant">constant (ffsim.DiagonalCoulombHamiltonian attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.constant">(ffsim.DoubleFactorizedHamiltonian attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.constant">(ffsim.MolecularHamiltonian attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonianSpinless.constant">(ffsim.MolecularHamiltonianSpinless attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian.constant">(ffsim.SingleFactorizedHamiltonian attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.contract.html#ffsim.contract.contract_diag_coulomb">contract_diag_coulomb() (in module ffsim.contract)</a>
+</li>
+        <li><a href="api/ffsim.contract.html#ffsim.contract.contract_num_op_sum">contract_num_op_sum() (in module ffsim.contract)</a>
+</li>
+        <li><a href="api/ffsim.contract.html#ffsim.contract.contract_one_body">contract_one_body() (in module ffsim.contract)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.core_energy">core_energy (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.cre">cre() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.cre_a">cre_a() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.cre_b">cre_b() (in module ffsim)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.des">des() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.des_a">des_a() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.des_b">des_b() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.diag">diag() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.contract.html#ffsim.contract.diag_coulomb_linop">diag_coulomb_linop() (in module ffsim.contract)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DiagonalCoulombHamiltonian.diag_coulomb_mats">diag_coulomb_mats (ffsim.DiagonalCoulombHamiltonian attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.diag_coulomb_mats">(ffsim.DoubleFactorizedHamiltonian attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.diag_coulomb_mats">(ffsim.UCJOpSpinBalanced attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.diag_coulomb_mats">(ffsim.UCJOpSpinless attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.diag_coulomb_mats">(ffsim.UCJOpSpinUnbalanced attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW">DiagCoulombEvolutionJW (class in ffsim.qiskit)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW">DiagCoulombEvolutionSpinlessJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DiagonalCoulombHamiltonian">DiagonalCoulombHamiltonian (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.dim">dim() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.dims">dims() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.dipole_integrals">dipole_integrals (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.double_factorized">double_factorized() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.double_factorized_t2">double_factorized_t2() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.double_factorized_t2_alpha_beta">double_factorized_t2_alpha_beta() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian">DoubleFactorizedHamiltonian (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.doubles_excitations_restricted">doubles_excitations_restricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.doubles_excitations_unrestricted">doubles_excitations_unrestricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DropNegligible">DropNegligible (class in ffsim.qiskit)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.ReducedDensityMatrix.expectation">expectation() (ffsim.ReducedDensityMatrix method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.expectation_one_body_power">expectation_one_body_power() (in module ffsim)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.expectation_one_body_product">expectation_one_body_product() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian.expectation_product_state">expectation_product_state() (ffsim.SingleFactorizedHamiltonian method)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.expm_multiply_taylor">expm_multiply_taylor() (in module ffsim.linalg)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.fci_energy">fci_energy (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.fci_vec">fci_vec (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.fermi_hubbard_1d">fermi_hubbard_1d() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.fermi_hubbard_2d">fermi_hubbard_2d() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.fermion_operator">fermion_operator() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionAction">FermionAction (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionOperator">FermionOperator (class in ffsim)</a>
+</li>
+        <li>
+    ffsim
+
+        <ul>
+          <li><a href="api/ffsim.html#module-ffsim">module</a>
+</li>
+        </ul></li>
+        <li>
+    ffsim.contract
+
+        <ul>
+          <li><a href="api/ffsim.contract.html#module-ffsim.contract">module</a>
+</li>
+        </ul></li>
+        <li>
+    ffsim.linalg
+
+        <ul>
+          <li><a href="api/ffsim.linalg.html#module-ffsim.linalg">module</a>
+</li>
+        </ul></li>
+        <li>
+    ffsim.optimize
+
+        <ul>
+          <li><a href="api/ffsim.optimize.html#module-ffsim.optimize">module</a>
+</li>
+        </ul></li>
+        <li>
+    ffsim.qiskit
+
+        <ul>
+          <li><a href="api/ffsim.qiskit.html#module-ffsim.qiskit">module</a>
+</li>
+        </ul></li>
+        <li>
+    ffsim.random
+
+        <ul>
+          <li><a href="api/ffsim.random.html#module-ffsim.random">module</a>
+</li>
+        </ul></li>
+        <li>
+    ffsim.testing
+
+        <ul>
+          <li><a href="api/ffsim.testing.html#module-ffsim.testing">module</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.ffsim_vec_to_qiskit_vec">ffsim_vec_to_qiskit_vec() (in module ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.FfsimSampler">FfsimSampler (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.HopGateAnsatzOperator.final_orbital_rotation">final_orbital_rotation (ffsim.HopGateAnsatzOperator attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.final_orbital_rotation">(ffsim.UCJOpSpinBalanced attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.final_orbital_rotation">(ffsim.UCJOpSpinless attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.final_orbital_rotation">(ffsim.UCJOpSpinUnbalanced attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.final_state_vector">final_state_vector() (in module ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats">from_diag_coulomb_mats() (ffsim.NumNumAnsatzOpSpinBalanced static method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.from_fcidump">from_fcidump() (ffsim.MolecularData static method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DiagonalCoulombHamiltonian.from_fermion_operator">from_fermion_operator() (ffsim.DiagonalCoulombHamiltonian static method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.from_fermion_operator">(ffsim.MolecularHamiltonian static method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.from_json">from_json() (ffsim.MolecularData static method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian">from_molecular_hamiltonian() (ffsim.DoubleFactorizedHamiltonian static method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian">(ffsim.SingleFactorizedHamiltonian static method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.from_orbital_rotation">from_orbital_rotation() (ffsim.GivensAnsatzOp static method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.from_parameters">from_parameters() (ffsim.GivensAnsatzOp static method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.HopGateAnsatzOperator.from_parameters">(ffsim.HopGateAnsatzOperator static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.from_parameters">(ffsim.NumNumAnsatzOpSpinBalanced static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestricted.from_parameters">(ffsim.UCCSDOpRestricted static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestrictedReal.from_parameters">(ffsim.UCCSDOpRestrictedReal static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpUnrestrictedReal.from_parameters">(ffsim.UCCSDOpUnrestrictedReal static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced.from_parameters">(ffsim.UCJAnglesOpSpinBalanced static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.from_parameters">(ffsim.UCJOpSpinBalanced static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.from_parameters">(ffsim.UCJOpSpinless static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.from_parameters">(ffsim.UCJOpSpinUnbalanced static method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.from_scf">from_scf() (ffsim.MolecularData static method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes">from_t_amplitudes() (ffsim.UCJAnglesOpSpinBalanced static method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.from_t_amplitudes">(ffsim.UCJOpSpinBalanced static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.from_t_amplitudes">(ffsim.UCJOpSpinless static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.from_t_amplitudes">(ffsim.UCJOpSpinUnbalanced static method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced.from_ucj_op">from_ucj_op() (ffsim.UCJAnglesOpSpinBalanced static method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.testing.html#ffsim.testing.generate_norb_nelec">generate_norb_nelec() (in module ffsim.testing)</a>
+</li>
+        <li><a href="api/ffsim.testing.html#ffsim.testing.generate_norb_nelec_spin">generate_norb_nelec_spin() (in module ffsim.testing)</a>
+</li>
+        <li><a href="api/ffsim.testing.html#ffsim.testing.generate_norb_nocc">generate_norb_nocc() (in module ffsim.testing)</a>
+</li>
+        <li><a href="api/ffsim.testing.html#ffsim.testing.generate_norb_spin">generate_norb_spin() (in module ffsim.testing)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.givens_decomposition">givens_decomposition() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp">GivensAnsatzOp (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpJW">GivensAnsatzOpJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.GivensAnsatzOpSpinlessJW">GivensAnsatzOpSpinlessJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.GivensRotation">GivensRotation (class in ffsim.linalg)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.hamiltonian">hamiltonian (ffsim.MolecularData property)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.hartree_fock_state">hartree_fock_state() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.hf_energy">hf_energy (ffsim.MolecularData attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.hf_mo_coeff">hf_mo_coeff (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.hf_mo_occ">hf_mo_occ (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.HopGateAnsatzOperator">HopGateAnsatzOperator (class in ffsim)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.GivensRotation.i">i (ffsim.linalg.GivensRotation attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.init_cache">init_cache() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.BitstringType.INT">INT (ffsim.BitstringType attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.interaction_pairs">interaction_pairs (ffsim.GivensAnsatzOp attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.HopGateAnsatzOperator.interaction_pairs">(ffsim.HopGateAnsatzOperator attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.interaction_pairs">(ffsim.NumNumAnsatzOpSpinBalanced attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionJW.inverse">inverse() (ffsim.qiskit.DiagCoulombEvolutionJW method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.inverse">(ffsim.qiskit.DiagCoulombEvolutionSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumOpSumEvolutionJW.inverse">(ffsim.qiskit.NumOpSumEvolutionJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumOpSumEvolutionSpinlessJW.inverse">(ffsim.qiskit.NumOpSumEvolutionSpinlessJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW.inverse">(ffsim.qiskit.OrbitalRotationJW method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationSpinlessJW.inverse">(ffsim.qiskit.OrbitalRotationSpinlessJW method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_antihermitian">is_antihermitian() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_hermitian">is_hermitian() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_orthogonal">is_orthogonal() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_real_symmetric">is_real_symmetric() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_special_orthogonal">is_special_orthogonal() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.is_unitary">is_unitary() (in module ffsim.linalg)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.GivensRotation.j">j (ffsim.linalg.GivensRotation attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.jordan_wigner">jordan_wigner() (in module ffsim.qiskit)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.linear_operator">linear_operator() (in module ffsim)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.lup">lup() (in module ffsim.linalg)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.FermionOperator.many_body_order">many_body_order() (ffsim.FermionOperator method)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.match_global_phase">match_global_phase() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.MergeOrbitalRotations">MergeOrbitalRotations (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.optimize.html#ffsim.optimize.minimize_linear_method">minimize_linear_method() (in module ffsim.optimize)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.mo_coeff">mo_coeff (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.mo_occ">mo_occ (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.modified_cholesky">modified_cholesky() (in module ffsim.linalg)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="api/ffsim.html#module-ffsim">ffsim</a>
+</li>
+          <li><a href="api/ffsim.contract.html#module-ffsim.contract">ffsim.contract</a>
+</li>
+          <li><a href="api/ffsim.linalg.html#module-ffsim.linalg">ffsim.linalg</a>
+</li>
+          <li><a href="api/ffsim.optimize.html#module-ffsim.optimize">ffsim.optimize</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#module-ffsim.qiskit">ffsim.qiskit</a>
+</li>
+          <li><a href="api/ffsim.random.html#module-ffsim.random">ffsim.random</a>
+</li>
+          <li><a href="api/ffsim.testing.html#module-ffsim.testing">ffsim.testing</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.mole">mole (ffsim.MolecularData property)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData">MolecularData (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian">MolecularHamiltonian (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularHamiltonianSpinless">MolecularHamiltonianSpinless (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.mp2_energy">mp2_energy (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.mp2_t2">mp2_t2 (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.multireference_state">multireference_state() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.multireference_state_prod">multireference_state_prod() (in module ffsim)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.n_params">n_params() (ffsim.GivensAnsatzOp static method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.n_params">(ffsim.NumNumAnsatzOpSpinBalanced static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestricted.n_params">(ffsim.UCCSDOpRestricted static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestrictedReal.n_params">(ffsim.UCCSDOpRestrictedReal static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpUnrestrictedReal.n_params">(ffsim.UCCSDOpUnrestrictedReal static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced.n_params">(ffsim.UCJAnglesOpSpinBalanced static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.n_params">(ffsim.UCJOpSpinBalanced static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.n_params">(ffsim.UCJOpSpinless static method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.n_params">(ffsim.UCJOpSpinUnbalanced static method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced.n_reps">n_reps (ffsim.UCJAnglesOpSpinBalanced property)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.n_reps">(ffsim.UCJOpSpinBalanced property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.n_reps">(ffsim.UCJOpSpinless property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.n_reps">(ffsim.UCJOpSpinUnbalanced property)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.nelec">nelec (ffsim.MolecularData attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.StateVector.nelec">(ffsim.StateVector attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.DiagonalCoulombHamiltonian.norb">norb (ffsim.DiagonalCoulombHamiltonian property)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.norb">(ffsim.DoubleFactorizedHamiltonian property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.norb">(ffsim.GivensAnsatzOp attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.HopGateAnsatzOperator.norb">(ffsim.HopGateAnsatzOperator attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.MolecularData.norb">(ffsim.MolecularData attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.norb">(ffsim.MolecularHamiltonian property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonianSpinless.norb">(ffsim.MolecularHamiltonianSpinless property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.norb">(ffsim.NumNumAnsatzOpSpinBalanced attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian.norb">(ffsim.SingleFactorizedHamiltonian property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.StateVector.norb">(ffsim.StateVector attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestricted.norb">(ffsim.UCCSDOpRestricted property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestrictedReal.norb">(ffsim.UCCSDOpRestrictedReal property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpUnrestrictedReal.norb">(ffsim.UCCSDOpUnrestrictedReal property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.norb">(ffsim.UCJOpSpinBalanced property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.norb">(ffsim.UCJOpSpinless property)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.norb">(ffsim.UCJOpSpinUnbalanced property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.FermionOperator.normal_ordered">normal_ordered() (ffsim.FermionOperator method)</a>
+</li>
+        <li><a href="api/ffsim.contract.html#ffsim.contract.num_op_sum_linop">num_op_sum_linop() (in module ffsim.contract)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.number_operator">number_operator() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced">NumNumAnsatzOpSpinBalanced (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW">NumNumAnsatzOpSpinBalancedJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumOpSumEvolutionJW">NumOpSumEvolutionJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.NumOpSumEvolutionSpinlessJW">NumOpSumEvolutionSpinlessJW (class in ffsim.qiskit)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.one_body_integrals">one_body_integrals (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.contract.html#ffsim.contract.one_body_linop">one_body_linop() (in module ffsim.contract)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian.one_body_squares">one_body_squares (ffsim.SingleFactorizedHamiltonian attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DiagonalCoulombHamiltonian.one_body_tensor">one_body_tensor (ffsim.DiagonalCoulombHamiltonian attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.one_body_tensor">(ffsim.DoubleFactorizedHamiltonian attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.one_body_tensor">(ffsim.MolecularHamiltonian attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonianSpinless.one_body_tensor">(ffsim.MolecularHamiltonianSpinless attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian.one_body_tensor">(ffsim.SingleFactorizedHamiltonian attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.one_body_tensor_spinless">one_body_tensor_spinless (ffsim.MolecularHamiltonian property)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.one_hot">one_hot() (in module ffsim.linalg)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.ReducedDensityMatrix.one_rdm">one_rdm (ffsim.ReducedDensityMatrix attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.optimize_orbitals">optimize_orbitals() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionAction.orb">orb (ffsim.FermionAction attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.orbital_rotations">orbital_rotations (ffsim.DoubleFactorizedHamiltonian attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.orbital_rotations">(ffsim.UCJOpSpinBalanced attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.orbital_rotations">(ffsim.UCJOpSpinless attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.orbital_rotations">(ffsim.UCJOpSpinUnbalanced attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.orbital_symmetries">orbital_symmetries (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationJW">OrbitalRotationJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.OrbitalRotationSpinlessJW">OrbitalRotationSpinlessJW (class in ffsim.qiskit)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.phase_angles">phase_angles (ffsim.GivensAnsatzOp attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.phis">phis (ffsim.GivensAnsatzOp attribute)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PRE_INIT">PRE_INIT (in module ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.pre_init_passes">pre_init_passes() (in module ffsim.qiskit)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockJW">PrepareHartreeFockJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareHartreeFockSpinlessJW">PrepareHartreeFockSpinlessJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantJW">PrepareSlaterDeterminantJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW">PrepareSlaterDeterminantSpinlessJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.ProductStateSum">ProductStateSum (class in ffsim)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Q" class="genindex-section">
+  <h2>Q</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.qiskit_vec_to_ffsim_vec">qiskit_vec_to_ffsim_vec() (in module ffsim.qiskit)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_antihermitian">random_antihermitian() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_density_matrix">random_density_matrix() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_diagonal_coulomb_hamiltonian">random_diagonal_coulomb_hamiltonian() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_double_factorized_hamiltonian">random_double_factorized_hamiltonian() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_fermion_hamiltonian">random_fermion_hamiltonian() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_fermion_operator">random_fermion_operator() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_hermitian">random_hermitian() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_molecular_hamiltonian">random_molecular_hamiltonian() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_molecular_hamiltonian_spinless">random_molecular_hamiltonian_spinless() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.testing.html#ffsim.testing.random_nelec">random_nelec() (in module ffsim.testing)</a>
+</li>
+        <li><a href="api/ffsim.testing.html#ffsim.testing.random_occupied_orbitals">random_occupied_orbitals() (in module ffsim.testing)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_orthogonal">random_orthogonal() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_real_symmetric_matrix">random_real_symmetric_matrix() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_special_orthogonal">random_special_orthogonal() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_state_vector">random_state_vector() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_t2_amplitudes">random_t2_amplitudes() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_two_body_tensor">random_two_body_tensor() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_uccsd_op_restricted">random_uccsd_op_restricted() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_uccsd_op_restricted_real">random_uccsd_op_restricted_real() (in module ffsim.random)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_uccsd_op_unrestricted_real">random_uccsd_op_unrestricted_real() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_ucj_op_spin_balanced">random_ucj_op_spin_balanced() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_ucj_op_spin_unbalanced">random_ucj_op_spin_unbalanced() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_ucj_op_spinless">random_ucj_op_spinless() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.random.html#ffsim.random.random_unitary">random_unitary() (in module ffsim.random)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.rdms">rdms() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.reduced_matrix">reduced_matrix() (in module ffsim.linalg)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian.reduced_matrix_product_states">reduced_matrix_product_states() (ffsim.SingleFactorizedHamiltonian method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.ReducedDensityMatrix">ReducedDensityMatrix (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.rotated">rotated() (ffsim.MolecularHamiltonian method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonianSpinless.rotated">(ffsim.MolecularHamiltonianSpinless method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.ReducedDensityMatrix.rotated">(ffsim.ReducedDensityMatrix method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.DropNegligible.run">run() (ffsim.qiskit.DropNegligible method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.FfsimSampler.run">(ffsim.qiskit.FfsimSampler method)</a>
+</li>
+          <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.MergeOrbitalRotations.run">(ffsim.qiskit.MergeOrbitalRotations method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.run_ccsd">run_ccsd() (ffsim.MolecularData method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.run_cisd">run_cisd() (ffsim.MolecularData method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.run_fci">run_fci() (ffsim.MolecularData method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.run_mp2">run_mp2() (ffsim.MolecularData method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.run_sci">run_sci() (ffsim.MolecularData method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.linalg.html#ffsim.linalg.GivensRotation.s">s (ffsim.linalg.GivensRotation attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.sample_slater">sample_slater() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.sample_slater_determinant">sample_slater_determinant() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.sample_state_vector">sample_state_vector() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.scf">scf (ffsim.MolecularData property)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.sci_energy">sci_energy (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.sci_vec">sci_vec (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionOperator.simplify">simplify() (ffsim.FermionOperator method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.simulate_qdrift_double_factorized">simulate_qdrift_double_factorized() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.simulate_trotter_diag_coulomb_split_op">simulate_trotter_diag_coulomb_split_op() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.simulate_trotter_double_factorized">simulate_trotter_double_factorized() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW">SimulateTrotterDiagCoulombSplitOpJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.SimulateTrotterDoubleFactorizedJW">SimulateTrotterDoubleFactorizedJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SingleFactorizedHamiltonian">SingleFactorizedHamiltonian (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.singles_excitations_restricted">singles_excitations_restricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.singles_excitations_unrestricted">singles_excitations_unrestricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.slater_determinant">slater_determinant() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.slater_determinant_amplitudes">slater_determinant_amplitudes() (in module ffsim)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.slater_determinant_rdms">slater_determinant_rdms() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.Spin">Spin (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.FermionAction.spin">spin (ffsim.FermionAction attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.MolecularData.spin">(ffsim.MolecularData attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.spin_square">spin_square() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.spinful_to_spinless_rdm1">spinful_to_spinless_rdm1() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.spinful_to_spinless_rdm2">spinful_to_spinless_rdm2() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.spinful_to_spinless_vec">spinful_to_spinless_vec() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.ProductStateSum.states">states (ffsim.ProductStateSum attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.StateVector">StateVector (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.BitstringType.STRING">STRING (ffsim.BitstringType attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.strings_to_addresses">strings_to_addresses() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SupportsApplyUnitary">SupportsApplyUnitary (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SupportsApproximateEquality">SupportsApproximateEquality (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SupportsDiagonal">SupportsDiagonal (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SupportsFermionOperator">SupportsFermionOperator (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SupportsLinearOperator">SupportsLinearOperator (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.SupportsTrace">SupportsTrace (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.symmetry">symmetry (ffsim.MolecularData attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.thetas">thetas (ffsim.GivensAnsatzOp attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.HopGateAnsatzOperator.thetas">(ffsim.HopGateAnsatzOperator attribute)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.thetas">(ffsim.NumNumAnsatzOpSpinBalanced attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats">to_diag_coulomb_mats() (ffsim.NumNumAnsatzOpSpinBalanced method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.to_fcidump">to_fcidump() (ffsim.MolecularData method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.to_json">to_json() (ffsim.MolecularData method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.to_molecular_hamiltonian">to_molecular_hamiltonian() (ffsim.DoubleFactorizedHamiltonian method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.to_number_representation">to_number_representation() (ffsim.DoubleFactorizedHamiltonian method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.to_orbital_rotation">to_orbital_rotation() (ffsim.GivensAnsatzOp method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.GivensAnsatzOp.to_parameters">to_parameters() (ffsim.GivensAnsatzOp method)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.HopGateAnsatzOperator.to_parameters">(ffsim.HopGateAnsatzOperator method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.NumNumAnsatzOpSpinBalanced.to_parameters">(ffsim.NumNumAnsatzOpSpinBalanced method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestricted.to_parameters">(ffsim.UCCSDOpRestricted method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpRestrictedReal.to_parameters">(ffsim.UCCSDOpRestrictedReal method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCCSDOpUnrestrictedReal.to_parameters">(ffsim.UCCSDOpUnrestrictedReal method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced.to_parameters">(ffsim.UCJAnglesOpSpinBalanced method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced.to_parameters">(ffsim.UCJOpSpinBalanced method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinless.to_parameters">(ffsim.UCJOpSpinless method)</a>
+</li>
+          <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced.to_parameters">(ffsim.UCJOpSpinUnbalanced method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.to_z_representation">to_z_representation() (ffsim.DoubleFactorizedHamiltonian method)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.trace">trace() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularData.two_body_integrals">two_body_integrals (ffsim.MolecularData attribute)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.two_body_tensor">two_body_tensor (ffsim.MolecularHamiltonian attribute)</a>
+
+        <ul>
+          <li><a href="api/ffsim.html#ffsim.MolecularHamiltonianSpinless.two_body_tensor">(ffsim.MolecularHamiltonianSpinless attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/ffsim.html#ffsim.MolecularHamiltonian.two_body_tensor_spinless">two_body_tensor_spinless (ffsim.MolecularHamiltonian property)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.ReducedDensityMatrix.two_rdm">two_rdm (ffsim.ReducedDensityMatrix attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.uccsd_generator_restricted">uccsd_generator_restricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.uccsd_generator_unrestricted">uccsd_generator_unrestricted() (in module ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.UCCSDOpRestricted">UCCSDOpRestricted (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.UCCSDOpRestrictedReal">UCCSDOpRestrictedReal (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.UCCSDOpUnrestrictedReal">UCCSDOpUnrestrictedReal (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.UCJAnglesOpSpinBalanced">UCJAnglesOpSpinBalanced (class in ffsim)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.UCJOpSpinBalanced">UCJOpSpinBalanced (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinBalancedJW">UCJOpSpinBalancedJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.UCJOpSpinless">UCJOpSpinless (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinlessJW">UCJOpSpinlessJW (class in ffsim.qiskit)</a>
+</li>
+        <li><a href="api/ffsim.html#ffsim.UCJOpSpinUnbalanced">UCJOpSpinUnbalanced (class in ffsim)</a>
+</li>
+        <li><a href="api/ffsim.qiskit.html#ffsim.qiskit.UCJOpSpinUnbalancedJW">UCJOpSpinUnbalancedJW (class in ffsim.qiskit)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.StateVector.vec">vec (ffsim.StateVector attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Z" class="genindex-section">
+  <h2>Z</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/ffsim.html#ffsim.DoubleFactorizedHamiltonian.z_representation">z_representation (ffsim.DoubleFactorizedHamiltonian attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, IBM
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=967bbc65"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>
