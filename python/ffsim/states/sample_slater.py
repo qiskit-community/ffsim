@@ -36,6 +36,7 @@ def sample_slater(
     *,
     orbs: Sequence[int] | None = None,
     shots: int = 1,
+    concatenate: bool = True,
     bitstring_type: BitstringType = BitstringType.STRING,
     seed: np.random.Generator | int | None = None,
 ) -> Sequence[int] | Sequence[str] | np.ndarray: ...
