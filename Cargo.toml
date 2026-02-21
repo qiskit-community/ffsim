@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 blas = "0.23"
-blas-src = { version = "0.14" }
+blas-src = "0.14"
 ndarray = { version = "0.15", features = ["rayon"] }
 num-integer = "0.1"
 numpy = "0.27"
