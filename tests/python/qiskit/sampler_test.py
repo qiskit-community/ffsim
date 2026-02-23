@@ -373,7 +373,7 @@ def test_reproducible_with_seed():
 def test_edge_cases():
     """Test edge cases."""
     with pytest.raises(
-        ValueError, match="Circuit must contain at least one instruction."
+        ValueError, match="Circuit must contain at least one instruction"
     ):
         qubits = QuantumRegister(1, name="q")
         circuit = QuantumCircuit(qubits)

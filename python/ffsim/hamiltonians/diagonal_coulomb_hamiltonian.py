@@ -15,10 +15,9 @@ import itertools
 
 import numpy as np
 import scipy.linalg
-from pyscf.fci.direct_uhf import make_hdiag
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim import protocols
+from ffsim import cistring, protocols
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
 from ffsim.dimensions import dim
@@ -39,23 +38,24 @@ class DiagonalCoulombHamiltonian(
     .. math::
 
         H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-            + \frac12 \sum_{\sigma \tau, pq} V_{(\sigma \tau), pq} n_{\sigma, p}
+            + \frac12 \sum_{\sigma \tau, pq} J^{\sigma \tau}_{pq} n_{\sigma, p}
             n_{\tau, q} + \text{constant}.
 
     where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
 
-    Here :math:`h_{pq}` is called the one-body tensor and :math:`V_{(\sigma \tau), pq}`
-    are called the diagonal Coulomb matrices. The brackets indicate that
-    :math:`V_{(\sigma \tau)}` is a circulant matrix, which satisfies
-    :math:`V_{\alpha\alpha}=V_{\beta\beta}` and :math:`V_{\alpha\beta}=V_{\beta\alpha}`.
+    Here :math:`h_{pq}` is called the one-body tensor and the :math:`J^{\sigma \tau}`
+    are called diagonal Coulomb matrices. We require that
+    :math:`J^{\alpha\alpha}=J^{\beta\beta}` and
+    :math:`J^{\alpha\beta}=J^{\beta\alpha}`, so only two matrices are needed to describe
+    the Hamiltonian.
 
     Attributes:
         one_body_tensor (np.ndarray): The one-body tensor :math:`h`.
         diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices
-            :math:`V_{(\sigma \tau)}`, given as a pair of Numpy arrays specifying
-            independent coefficients for alpha-alpha and alpha-beta interactions (in
-            that order).
+            :math:`J^{\alpha\alpha}` and :math:`J^{\alpha\beta}`, given as a pair
+            of Numpy arrays specifying independent coefficients for alpha-alpha and
+            alpha-beta interactions (in that order).
         constant (float): The constant.
     """
 
@@ -122,7 +122,24 @@ class DiagonalCoulombHamiltonian(
 
     @staticmethod
     def from_fermion_operator(op: FermionOperator) -> DiagonalCoulombHamiltonian:
-        """Convert a FermionOperator to a DiagonalCoulombHamiltonian."""
+        r"""Initialize a DiagonalCoulombHamiltonian from a FermionOperator.
+
+        The input operator must contain only terms of the following form:
+
+        - A real-valued constant
+        - :math:`a^\dagger_{\sigma, p} a_{\sigma, q}`
+        - :math:`n_{\sigma, p} n_{\tau, q}`
+
+        Any other terms will cause an error to be raised. No attempt will be made to
+        normal-order terms.
+
+        Args:
+            op: The FermionOperator from which to initialize the
+                DiagonalCoulombHamiltonian.
+
+        Returns:
+            The DiagonalCoulombHamiltonian represented by the input FermionOperator.
+        """
 
         # extract norb
         norb = 1 + max(orb for term in op for _, _, orb in term)
@@ -150,8 +167,8 @@ class DiagonalCoulombHamiltonian(
                 else:
                     raise ValueError(
                         "FermionOperator cannot be converted to "
-                        f"DiagonalCoulombHamiltonian. The one-body term {term} is not "
-                        "of the form a^\\dagger_{\\sigma, p} a_{\\sigma, q}."
+                        f"DiagonalCoulombHamiltonian. The quadratic term {term} is not "
+                        r"of the form a^\dagger_{\sigma, p} a_{\sigma, q}."
                     )
             elif len(term) == 4:
                 # two-body term
@@ -171,8 +188,8 @@ class DiagonalCoulombHamiltonian(
                 else:
                     raise ValueError(
                         "FermionOperator cannot be converted to "
-                        f"DiagonalCoulombHamiltonian. The two-body term {term} is not "
-                        "of the form n_{\\sigma, p} n_{\\tau, q}."
+                        f"DiagonalCoulombHamiltonian. The quartic term {term} is not "
+                        r"of the form n_{\sigma, p} n_{\tau, q}."
                     )
             else:
                 raise ValueError(
@@ -194,23 +211,34 @@ class DiagonalCoulombHamiltonian(
     def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
         """Return the diagonal entries of the Hamiltonian."""
         assert isinstance(nelec, tuple)
-        if np.iscomplexobj(self.one_body_tensor):
-            raise NotImplementedError(
-                "Computing diagonal of complex diagonal Coulomb Hamiltonian is not yet "
-                "supported."
-            )
-        two_body_tensor_aa = np.zeros((self.norb, self.norb, self.norb, self.norb))
-        two_body_tensor_ab = np.zeros((self.norb, self.norb, self.norb, self.norb))
-        diag_coulomb_mat_aa, diag_coulomb_mat_ab = self.diag_coulomb_mats
-        for p, q in itertools.product(range(self.norb), repeat=2):
-            two_body_tensor_aa[p, p, q, q] = diag_coulomb_mat_aa[p, q]
-            two_body_tensor_ab[p, p, q, q] = diag_coulomb_mat_ab[p, q]
-        one_body_tensor = self.one_body_tensor + 0.5 * np.einsum(
-            "prqr", two_body_tensor_aa
-        )
-        h1e = (one_body_tensor, one_body_tensor)
-        h2e = (two_body_tensor_aa, two_body_tensor_ab, two_body_tensor_aa)
-        return make_hdiag(h1e, h2e, norb=norb, nelec=nelec) + self.constant
+        n_alpha, n_beta = nelec
+        mat_aa, mat_ab = self.diag_coulomb_mats
+
+        # Build occupation vectors from occupied orbital lists
+        occslst_a = cistring.gen_occslst(range(norb), n_alpha)
+        occslst_b = cistring.gen_occslst(range(norb), n_beta)
+        occ_a = np.zeros((len(occslst_a), norb))
+        occ_b = np.zeros((len(occslst_b), norb))
+        occ_a[np.arange(len(occslst_a))[:, None], occslst_a] = 1
+        occ_b[np.arange(len(occslst_b))[:, None], occslst_b] = 1
+
+        # One-body
+        diag = np.diag(self.one_body_tensor).real
+        vals_a = occ_a @ diag
+        vals_b = occ_b @ diag
+
+        # Same-spin two-body
+        vals_a += 0.5 * np.sum((occ_a @ mat_aa) * occ_a, axis=1)
+        vals_b += 0.5 * np.sum((occ_b @ mat_aa) * occ_b, axis=1)
+
+        # Opposit-spin two-body
+        result = occ_a @ mat_ab @ occ_b.T
+
+        # Combine
+        result += vals_a[:, None]
+        result += vals_b[None, :]
+        result += self.constant
+        return result.reshape(-1)
 
     def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
         if isinstance(other, DiagonalCoulombHamiltonian):

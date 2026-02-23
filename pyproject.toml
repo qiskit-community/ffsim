@@ -4,8 +4,8 @@ build-backend = "maturin"
 
 [project]
 name = "ffsim"
-requires-python = ">=3.9"
-version = "0.0.61.dev"
+requires-python = ">=3.10"
+version = "0.0.68.dev"
 description = "Faster simulations of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -13,11 +13,11 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Rust",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Physics",
@@ -25,11 +25,13 @@ classifiers = [
 ]
 dependencies = [
     "jax",
-    "numpy",
+    # restrict Numpy version due to https://github.com/pyscf/pyscf/issues/3079
+    # TODO remove this when it's fixed
+    "numpy <= 2.3",
     "opt_einsum",
     "orjson",
     "pyscf >= 2.9",
-    "qiskit >= 1.3",
+    "qiskit >= 2.0",
     "scipy",
     "typing-extensions",
 ]
@@ -50,7 +52,7 @@ dev = [
     "pytest",
     "qiskit[visualization]",
     "qiskit-sphinx-theme",
-    "ruff == 0.9.9",
+    "ruff == 0.14.13",
     "sphinx",
     "sphinx-autodoc-typehints",
 ]
@@ -82,10 +84,10 @@ include = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "NPY", "NPY201"]
+select = ["E", "F", "I", "N", "NPY", "NPY201", "RUF"]
 
 [tool.cibuildwheel]
-build = "cp39-macosx* cp39-manylinux_x86_64 cp39-manylinux_aarch64"
+build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
 test-requires = "pytest"
 test-command = "pytest {project}/tests"
 

@@ -59,6 +59,10 @@ print(energy)  # prints -104.17181289596
 
 <!-- end code-example -->
 
+## Multithreading
+
+Some ffsim functions implemented in Rust use multithreading. The number of threads can be set using the environment variable `RAYON_NUM_THREADS`. For example, to disable multithreading, set this variable as `RAYON_NUM_THREADS=1`.
+
 ## Citing ffsim
 
 <!-- start citing -->
@@ -66,10 +70,10 @@ print(energy)  # prints -104.17181289596
 You can cite ffsim using the following BibTeX:
 
 ```bibtex
-@software{ffsim,
+@misc{ffsim,
   author = {{The ffsim developers}},
-  title = {{ffsim: Faster simulations of fermionic quantum circuits.}},
-  url = {https://github.com/qiskit-community/ffsim}
+  title = {ffsim: Faster simulations of fermionic quantum circuits},
+  howpublished = {\url{https://github.com/qiskit-community/ffsim}},
 }
 ```
 

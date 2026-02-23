@@ -238,3 +238,18 @@ def test_apply_orbital_rotation_no_side_effects_special_case():
     assert ffsim.linalg.is_unitary(original_mat)
     assert ffsim.linalg.is_unitary(mat)
     np.testing.assert_allclose(mat, original_mat, atol=1e-12)
+
+
+def test_apply_orbital_rotation_large_spinful_regression():
+    """Regression test for slice index panic in orbital rotation."""
+    norb = 12
+    nelec = 6, 6
+    dim = ffsim.dim(norb, nelec)
+
+    rng = np.random.default_rng(123)
+    vec = ffsim.random.random_state_vector(dim, seed=rng)
+    mat_a = ffsim.random.random_unitary(norb, seed=rng)
+    mat_b = ffsim.random.random_unitary(norb, seed=rng)
+
+    result = ffsim.apply_orbital_rotation(vec, (mat_a, mat_b), norb, nelec)
+    np.testing.assert_allclose(np.linalg.norm(result), 1.0)

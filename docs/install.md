@@ -26,7 +26,7 @@ Installing ffsim from source requires the following system dependencies:
     - Arch Linux:
 
       ```bash
-      sudo pacman -S blas-openblas
+      sudo pacman -S openblas
       ```
 
     - Fedora:

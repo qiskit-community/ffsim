@@ -50,6 +50,7 @@ See :func:`pre_init_passes` for a description of the transpiler passes included 
 pass manager.
 """
 __all__ = [
+    "PRE_INIT",
     "DiagCoulombEvolutionJW",
     "DiagCoulombEvolutionSpinlessJW",
     "DropNegligible",
@@ -62,7 +63,6 @@ __all__ = [
     "NumOpSumEvolutionSpinlessJW",
     "OrbitalRotationJW",
     "OrbitalRotationSpinlessJW",
-    "PRE_INIT",
     "PrepareHartreeFockJW",
     "PrepareHartreeFockSpinlessJW",
     "PrepareSlaterDeterminantJW",

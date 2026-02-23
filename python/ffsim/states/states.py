@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Optional, cast
+from typing import cast
 
 import numpy as np
 import scipy.linalg
@@ -122,7 +122,7 @@ def sample_state_vector(
             vec,
             norb=norb,
             nelec=nelec,
-            orbs=cast(Optional[Sequence[int]], orbs),
+            orbs=cast(Sequence[int] | None, orbs),
             shots=shots,
             bitstring_type=bitstring_type,
             seed=seed,
@@ -131,7 +131,7 @@ def sample_state_vector(
         vec,
         norb=norb,
         nelec=nelec,
-        orbs=cast(Optional[tuple[Sequence[int], Sequence[int]]], orbs),
+        orbs=cast(tuple[Sequence[int], Sequence[int]] | None, orbs),
         shots=shots,
         concatenate=concatenate,
         bitstring_type=bitstring_type,

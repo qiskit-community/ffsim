@@ -76,14 +76,17 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     np.testing.assert_allclose(energy_ferm, t1_energy + scf.e_tot)
 
     # Test doubles energy
-    cc_doubles = ffsim.doubles_excitations_restricted(ccsd.t2)
+    # Add a constant to test rmatvec
+    cc_doubles = ffsim.doubles_excitations_restricted(ccsd.t2) + ffsim.FermionOperator(
+        {(): 1.0}
+    )
     cc_doubles_linop = ffsim.linear_operator(cc_doubles, norb=norb, nelec=nelec)
     energy_ferm = ccsd_energy(cc_doubles_linop, ham_linop, norb=norb, nelec=nelec)
     nocc, _ = ccsd.t1.shape
     two_body_tensor = np.zeros((norb, norb, norb, norb))
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = ccsd.t2.transpose(2, 0, 3, 1)
     two_body_linop = ffsim.contract.two_body_linop(
-        two_body_tensor, norb=norb, nelec=nelec
+        two_body_tensor.astype(complex), norb=norb, nelec=nelec, constant=1.0
     )
     energy_contract = ccsd_energy(two_body_linop, ham_linop, norb=norb, nelec=nelec)
     np.testing.assert_allclose(energy_ferm, energy_contract)
@@ -125,6 +128,38 @@ def test_ccsd_generator_restricted():
     np.testing.assert_allclose(energy, ccsd.e_tot)
 
 
+def test_ccsd_generator_unrestricted():
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[
+            ("H", (0, 0, 0)),
+            ("H", (0, 0, 1)),
+            ("H", (0, 0, 2)),
+            ("H", (0, 0, 3)),
+            ("H", (0, 0, 4)),
+        ],
+        basis="sto-6g",
+        spin=1,
+        symmetry="Coov",
+    )
+    scf = pyscf.scf.ROHF(mol)
+    # Prevent SCF convergence so that the Fock operator is not diagonal and we can
+    # test the sign of the singles operator
+    scf.max_cycle = 2
+    scf.kernel()
+    mol_data = ffsim.MolecularData.from_scf(scf)
+    norb = mol_data.norb
+    nelec = mol_data.nelec
+    ham_linop = ffsim.linear_operator(mol_data.hamiltonian, norb=norb, nelec=nelec)
+    ccsd = pyscf.cc.UCCSD(scf)
+    ccsd.kernel()
+
+    ccsd_gen = ffsim.ccsd_generator_unrestricted(t1=ccsd.t1, t2=ccsd.t2)
+    ccsd_gen_linop = ffsim.linear_operator(ccsd_gen, norb=norb, nelec=nelec)
+    energy = ccsd_energy(ccsd_gen_linop, ham_linop, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(energy, ccsd.e_tot)
+
+
 def test_uccsd_generator_restricted_real():
     norb = 4
     nocc = 2
@@ -132,6 +167,25 @@ def test_uccsd_generator_restricted_real():
 
     uccsd_op = ffsim.random.random_uccsd_op_restricted_real(norb, nocc, seed=RNG)
     uccsd_gen = ffsim.uccsd_generator_restricted(t1=uccsd_op.t1, t2=uccsd_op.t2)
+    uccsd_gen_linop = ffsim.linear_operator(uccsd_gen, norb=norb, nelec=nelec)
+
+    dim = ffsim.dim(norb, nelec)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
+    result_ferm = scipy.sparse.linalg.expm_multiply(uccsd_gen_linop, vec, traceA=0.0)
+    result_contract = ffsim.apply_unitary(vec, uccsd_op, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(np.linalg.norm(result_ferm), 1.0)
+    np.testing.assert_allclose(np.linalg.norm(result_contract), 1.0)
+    np.testing.assert_allclose(result_ferm, result_contract)
+
+
+def test_uccsd_generator_unrestricted_real():
+    norb = 4
+    nocc_a = 2
+    nocc_b = 2
+    nelec = (nocc_a, nocc_b)
+
+    uccsd_op = ffsim.random.random_uccsd_op_unrestricted_real(norb, nelec, seed=RNG)
+    uccsd_gen = ffsim.uccsd_generator_unrestricted(t1=uccsd_op.t1, t2=uccsd_op.t2)
     uccsd_gen_linop = ffsim.linear_operator(uccsd_gen, norb=norb, nelec=nelec)
 
     dim = ffsim.dim(norb, nelec)

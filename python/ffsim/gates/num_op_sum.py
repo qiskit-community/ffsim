@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import math
-from typing import Optional, cast, overload
+from typing import cast, overload
 
 import numpy as np
 
@@ -127,7 +127,7 @@ def apply_num_op_sum_evolution(
             time=time,
             norb=norb,
             nelec=nelec,
-            orbital_rotation=cast(Optional[np.ndarray], orbital_rotation),
+            orbital_rotation=cast(np.ndarray | None, orbital_rotation),
         )
     return _apply_num_op_sum_evolution_spinful(
         vec=vec,

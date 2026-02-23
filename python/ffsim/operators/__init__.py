@@ -13,9 +13,13 @@
 from ffsim.operators.common_operators import number_operator
 from ffsim.operators.coupled_cluster import (
     ccsd_generator_restricted,
+    ccsd_generator_unrestricted,
     doubles_excitations_restricted,
+    doubles_excitations_unrestricted,
     singles_excitations_restricted,
+    singles_excitations_unrestricted,
     uccsd_generator_restricted,
+    uccsd_generator_unrestricted,
 )
 from ffsim.operators.fermi_hubbard import fermi_hubbard_1d, fermi_hubbard_2d
 from ffsim.operators.fermion_action import (
@@ -33,6 +37,7 @@ __all__ = [
     "FermionAction",
     "FermionOperator",
     "ccsd_generator_restricted",
+    "ccsd_generator_unrestricted",
     "cre",
     "cre_a",
     "cre_b",
@@ -40,9 +45,12 @@ __all__ = [
     "des_a",
     "des_b",
     "doubles_excitations_restricted",
+    "doubles_excitations_unrestricted",
     "fermi_hubbard_1d",
     "fermi_hubbard_2d",
     "number_operator",
     "singles_excitations_restricted",
+    "singles_excitations_unrestricted",
     "uccsd_generator_restricted",
+    "uccsd_generator_unrestricted",
 ]

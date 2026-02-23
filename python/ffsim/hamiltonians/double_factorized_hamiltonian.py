@@ -40,7 +40,7 @@ class DoubleFactorizedHamiltonian(
 
         H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
         + \frac12 \sum_t \sum_{\sigma\tau, ij}
-        Z^{(t)}_{ij} n^{(t)}_{\sigma, i} n^{(t)}_{\tau, j}
+        J^{(t)}_{ij} n^{(t)}_{\sigma, i} n^{(t)}_{\tau, j}
         + \text{constant}'.
 
     where
@@ -48,9 +48,9 @@ class DoubleFactorizedHamiltonian(
     .. math::
 
         n^{(t)}_{\sigma, i} = \sum_{pq} U^{(t)}_{pi}
-        a^\dagger_{\sigma, p} a_{\sigma, q} U^{(t)}_{qi}.
+        a^\dagger_{\sigma, p} a_{\sigma, q} U^{(t)*}_{qi}.
 
-    Here each :math:`U^{(t)}` is a unitary matrix and each :math:`Z^{(t)}`
+    Here each :math:`U^{(t)}` is a unitary matrix and each :math:`J^{(t)}`
     is a real symmetric matrix.
 
     **"Z" representation**
@@ -72,7 +72,7 @@ class DoubleFactorizedHamiltonian(
 
         H = \sum_{\sigma, pq} \kappa'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
         + \frac18 \sum_t \sum_{\sigma\tau, ij}^*
-        Z^{(t)}_{ij} z^{(t)}_{\sigma, i} z^{(t)}_{\tau, j}
+        J^{(t)}_{ij} z^{(t)}_{\sigma, i} z^{(t)}_{\tau, j}
         + \text{constant}''
 
     where the asterisk denotes summation over indices :math:`\sigma\tau, ij`
@@ -197,7 +197,7 @@ class DoubleFactorizedHamiltonian(
             The double-factorized Hamiltonian.
         """
         one_body_tensor = hamiltonian.one_body_tensor - 0.5 * np.einsum(
-            "prqr", hamiltonian.two_body_tensor
+            "prrq", hamiltonian.two_body_tensor
         )
 
         diag_coulomb_mats, orbital_rotations = double_factorized(
@@ -235,7 +235,7 @@ class DoubleFactorizedHamiltonian(
             df_hamiltonian.orbital_rotations.conj(),
         )
         one_body_tensor = df_hamiltonian.one_body_tensor + 0.5 * np.einsum(
-            "prqr", two_body_tensor
+            "prrq", two_body_tensor
         )
         return MolecularHamiltonian(
             one_body_tensor=one_body_tensor,

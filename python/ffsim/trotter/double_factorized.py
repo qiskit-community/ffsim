@@ -17,11 +17,7 @@ import cmath
 import numpy as np
 import scipy.linalg
 
-from ffsim.gates import (
-    apply_diag_coulomb_evolution,
-    apply_num_op_sum_evolution,
-    apply_orbital_rotation,
-)
+from ffsim.gates import apply_diag_coulomb_evolution, apply_orbital_rotation
 from ffsim.hamiltonians import DoubleFactorizedHamiltonian
 from ffsim.trotter._util import simulate_trotter_step_iterator
 
@@ -68,18 +64,13 @@ def simulate_trotter_double_factorized(
     if n_steps == 0:
         return vec
 
-    one_body_energies, one_body_basis_change = scipy.linalg.eigh(
-        hamiltonian.one_body_tensor
-    )
     step_time = time / n_steps
-
     current_basis = np.eye(norb, dtype=complex)
     for _ in range(n_steps):
         vec, current_basis = _simulate_trotter_step_double_factorized(
             vec,
             current_basis,
-            one_body_energies,
-            one_body_basis_change,
+            hamiltonian.one_body_tensor,
             hamiltonian.diag_coulomb_mats,
             hamiltonian.orbital_rotations,
             step_time,
@@ -97,8 +88,7 @@ def simulate_trotter_double_factorized(
 def _simulate_trotter_step_double_factorized(
     vec: np.ndarray,
     current_basis: np.ndarray,
-    one_body_energies: np.ndarray,
-    one_body_basis_change: np.ndarray,
+    one_body_tensor: np.ndarray,
     diag_coulomb_mats: np.ndarray,
     orbital_rotations: np.ndarray,
     time: float,
@@ -111,22 +101,9 @@ def _simulate_trotter_step_double_factorized(
         1 + len(diag_coulomb_mats), time, order
     ):
         if term_index == 0:
-            vec = apply_orbital_rotation(
-                vec,
-                one_body_basis_change.T.conj() @ current_basis,
-                norb=norb,
-                nelec=nelec,
-                copy=False,
+            current_basis = (
+                scipy.linalg.expm(-1j * time * one_body_tensor) @ current_basis
             )
-            vec = apply_num_op_sum_evolution(
-                vec,
-                one_body_energies,
-                time,
-                norb=norb,
-                nelec=nelec,
-                copy=False,
-            )
-            current_basis = one_body_basis_change
         else:
             orbital_rotation = orbital_rotations[term_index - 1]
             vec = apply_orbital_rotation(

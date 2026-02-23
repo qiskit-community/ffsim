@@ -12,11 +12,11 @@
 
 from __future__ import annotations
 
-import itertools
 from collections.abc import Sequence
-from typing import cast
+from typing import cast, overload
 
 import numpy as np
+import scipy.linalg
 
 from ffsim.states.bitstring import (
     BitstringType,
@@ -26,10 +26,38 @@ from ffsim.states.bitstring import (
 )
 
 
-def sample_slater_determinant(
-    rdm: np.ndarray | tuple[np.ndarray, np.ndarray],
+@overload
+def sample_slater(
     norb: int,
-    nelec: int | tuple[int, int],
+    occupied_orbitals: Sequence[int],
+    orbital_rotation: np.ndarray | None = None,
+    *,
+    orbs: Sequence[int] | None = None,
+    shots: int = 1,
+    concatenate: bool = True,
+    bitstring_type: BitstringType = BitstringType.STRING,
+    seed: np.random.Generator | int | None = None,
+) -> Sequence[int] | Sequence[str] | np.ndarray: ...
+@overload
+def sample_slater(
+    norb: int,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
+    *,
+    orbs: tuple[Sequence[int], Sequence[int]] | None = None,
+    shots: int = 1,
+    concatenate: bool = True,
+    bitstring_type: BitstringType = BitstringType.STRING,
+    seed: np.random.Generator | int | None = None,
+) -> Sequence[int] | Sequence[str] | np.ndarray: ...
+def sample_slater(
+    norb: int,
+    occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
+    orbital_rotation: np.ndarray
+    | tuple[np.ndarray | None, np.ndarray | None]
+    | None = None,
     *,
     orbs: Sequence[int] | tuple[Sequence[int], Sequence[int]] | None = None,
     shots: int = 1,
@@ -39,49 +67,63 @@ def sample_slater_determinant(
 ) -> Sequence[int] | Sequence[str] | np.ndarray:
     """Collect samples of electronic configurations from a Slater determinant.
 
-    The Slater determinant is defined by its one-body reduced density matrix (RDM).
-    The sampler uses a determinantal point process to auto-regressively produce
-    uncorrelated samples.
-
-    This sampling strategy is known as
-    `determinantal point processes <https://arxiv.org/abs/1207.6083>`
+    The Slater determinant is specified as an orbital rotation applied to the
+    reference electronic configuration given by `occupied_orbitals`. The sampler
+    draws independent samples from the corresponding determinantal point process
+    using the projection-based sequential sampling algorithm of *Fermion Sampling
+    Made More Efficient* (Phys. Rev. B 107, 035119, 2023).
 
     Args:
-        rdm: The one-body reduced density matrix that defines the Slater determinant
-            This is either a single Numpy array specifying the 1-RDM of a
-            spin-polarized system, or a pair of Numpy arrays where each element
-            of the pair contains the 1-RDM for each spin sector.
         norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
+        occupied_orbitals: The occupied orbitals in the electronic configuration.
+            This is either a list of integers specifying spinless orbitals, or a
+            pair of lists, where the first list specifies the spin alpha orbitals and
+            the second list specifies the spin beta orbitals.
+        orbital_rotation: The optional orbital rotation.
+            Either a single Numpy array specifying the orbital rotation to apply to
+            both spin sectors, or a pair of Numpy arrays specifying independent orbital
+            rotations for spin alpha and spin beta. In the paired form, ``None``
+            indicates that the identity operation is applied to the corresponding spin
+            sector.
+        orbs: The orbitals to sample.
+            In the spinless case, this is a list of integers in ``range(norb)``.
+            In the spinful case, this is a pair of such lists, where the first list
+            stores spin-alpha orbitals and the second list stores spin-beta orbitals.
+            If not specified, then all orbitals are sampled.
         shots: The number of bitstrings to sample.
         concatenate: Whether to concatenate the spin-alpha and spin-beta parts of the
             bitstrings. If True, then a single list of concatenated bitstrings is
             returned. The strings are concatenated in the order :math:`s_b s_a`,
             that is, the alpha string appears on the right.
-            If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
-            the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
+            If False, then two lists are returned, ``(strings_a, strings_b)``, with the
+            alpha strings listed first.
+            In the spinless case (when `occupied_orbitals` is a sequence of integers),
+            this argument is ignored.
         bitstring_type: The desired type of bitstring output.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
     Returns:
-        A 2D Numpy array with samples of electronic configurations.
-        Each row is a sample.
+        The sampled bitstrings.
     """
     rng = np.random.default_rng(seed)
 
-    if isinstance(nelec, int):
+    if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
-        rdm = cast(np.ndarray, rdm)
-        norb, _ = rdm.shape
+        nelec = len(occupied_orbitals)
         if orbs is None:
             orbs = range(norb)
-        orbs = cast(Sequence[int], orbs)
-        strings = _sample_slater_spinless(rdm, nelec, shots, rng)
-        strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
+        strings = _sample_strings(
+            norb,
+            nelec,
+            cast(Sequence[int], occupied_orbitals),
+            cast(np.ndarray | None, orbital_rotation),
+            shots,
+            rng,
+        )
+        strings = restrict_bitstrings(
+            strings, cast(Sequence[int], orbs), bitstring_type=BitstringType.INT
+        )
         return convert_bitstring_type(
             strings,
             BitstringType.INT,
@@ -90,16 +132,30 @@ def sample_slater_determinant(
         )
 
     # Spinful case
-    rdm_a, rdm_b = rdm
-    n_a, n_b = nelec
-    norb, _ = rdm_a.shape
     if orbs is None:
         orbs = (range(norb), range(norb))
-    orbs_a, orbs_b = orbs
-    orbs_a = cast(Sequence[int], orbs_a)
-    orbs_b = cast(Sequence[int], orbs_b)
-    strings_a = _sample_slater_spinless(rdm_a, n_a, shots, rng)
-    strings_b = _sample_slater_spinless(rdm_b, n_b, shots, rng)
+    orbs_a, orbs_b = cast(tuple[Sequence[int], Sequence[int]], orbs)
+    occupied_orbitals_a, occupied_orbitals_b = cast(
+        tuple[Sequence[int], Sequence[int]], occupied_orbitals
+    )
+    n_a = len(occupied_orbitals_a)
+    n_b = len(occupied_orbitals_b)
+
+    if orbital_rotation is None:
+        orbital_rotation_a = None
+        orbital_rotation_b = None
+    elif isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
+        orbital_rotation_a = orbital_rotation
+        orbital_rotation_b = orbital_rotation
+    else:
+        orbital_rotation_a, orbital_rotation_b = orbital_rotation
+
+    strings_a = _sample_strings(
+        norb, n_a, occupied_orbitals_a, orbital_rotation_a, shots, rng
+    )
+    strings_b = _sample_strings(
+        norb, n_b, occupied_orbitals_b, orbital_rotation_b, shots, rng
+    )
     strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=BitstringType.INT)
     strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=BitstringType.INT)
 
@@ -130,84 +186,121 @@ def sample_slater_determinant(
     )
 
 
-def _sample_slater_spinless(
-    rdm: np.ndarray,
-    nelec: int,
-    shots: int,
-    seed: np.random.Generator | int | None = None,
-) -> list[int]:
-    """Collect samples of electronic configurations from a Slater determinant.
-
-    The Slater determinant is defined by its one-body reduced density matrix (RDM).
-    The sampler uses a determinantal point process to auto-regressively produce
-    uncorrelated samples.
-
-    Args:
-        rdm: The one-body reduced density matrix that defines the Slater determinant.
-        shots: Number of samples to collect.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
-
-    Returns:
-        The sampled bitstrings in integer format.
-    """
-    norb, _ = rdm.shape
-
-    if nelec == 0:
-        return [0] * shots
-
-    if nelec == norb:
-        return [(1 << norb) - 1] * shots
-
-    rng = np.random.default_rng(seed)
-    samples = [_autoregressive_slater(rdm, norb, nelec, rng) for _ in range(shots)]
-    return [sum(1 << orb for orb in sample) for sample in samples]
-
-
-def _autoregressive_slater(
-    rdm: np.ndarray,
+def _sample_strings(
     norb: int,
-    nelec: int,
-    seed: np.random.Generator | int | None = None,
-) -> set[int]:
-    """Autoregressively sample occupied orbitals for a Slater determinant.
+    nocc: int,
+    occupied_orbitals: Sequence[int],
+    orbital_rotation: np.ndarray | None,
+    shots: int,
+    rng: np.random.Generator,
+) -> list[int]:
+    if nocc == 0:
+        return [0] * shots
+    if nocc == norb:
+        return [(1 << norb) - 1] * shots
+    if orbital_rotation is None:
+        orbital_rotation = np.eye(norb)
+    if 2 * nocc > norb:
+        # high filling: sample holes instead of particles
+        occupied_orbitals_set = set(occupied_orbitals)
+        unoccupied = [i for i in range(norb) if i not in occupied_orbitals_set]
+        orbitals = orbital_rotation.conj()[:, unoccupied]
+        normals = _compute_projection_normals(orbitals)
+        full_mask = (1 << norb) - 1
+        return [
+            full_mask ^ _sample_from_projection_normals(normals, rng)
+            for _ in range(shots)
+        ]
+    else:
+        orbitals = orbital_rotation.conj()[:, occupied_orbitals]
+        normals = _compute_projection_normals(orbitals)
+        return [_sample_from_projection_normals(normals, rng) for _ in range(shots)]
+
+
+def _compute_projection_normals(orbitals: np.ndarray, tol: float = 1e-12) -> np.ndarray:
+    """Compute the normal vectors needed for fast projection sampling.
+
+    Given an orthonormal orbital matrix for a projector 1-RDM, precomputes dual
+    normal vectors via reduced QR factorization and triangular solves for reuse
+    during sampling.
 
     Args:
-        rdm: The one-body reduced density matrix.
-        norb: The number of orbitals.
-        nelec: The number of electrons.
-        seed: A seed to initialize the pseudorandom number generator.
-            Should be a valid input to ``np.random.default_rng``.
+        orbitals: A 2D array whose columns are orthonormal orbitals spanning the
+            occupied subspace. Shape ``(norb, nelec)``.
+        tol: Tolerance for detecting ill-conditioned QR factorizations.
 
     Returns:
-        A set containing the occupied orbitals.
+        A 2D array of normal vectors with shape ``(norb, nelec)``.
+
+    Raises:
+        ValueError: If the input is not 2D, has zero occupied orbitals, or is
+            ill-conditioned for the QR-based precomputation.
     """
-    rng = np.random.default_rng(seed)
-    orb = rng.choice(norb, p=np.diag(rdm).real / nelec)
-    sample = {orb}
-    for i in range(nelec - 1):
-        index = rng.choice(norb - 1 - i, p=_generate_probs(rdm, sample, norb))
-        empty_orbitals = (orb for orb in range(norb) if orb not in sample)
-        sample.add(next(itertools.islice(empty_orbitals, index, None)))
-    return sample
+    if orbitals.ndim != 2:
+        raise ValueError("Projector orbitals must be a 2D array.")
+    _, nelec = orbitals.shape
+    if nelec == 0:
+        raise ValueError("Fast sampler requires at least one occupied orbital.")
+    q, r = np.linalg.qr(orbitals, mode="reduced")
+    diag = np.abs(np.diag(r))
+    if np.any(diag <= tol):
+        raise ValueError(
+            "Projector factorization is ill-conditioned for fast sampling."
+        )
+    inv_rt = scipy.linalg.solve_triangular(
+        r.T, np.eye(nelec), lower=True, check_finite=False
+    )
+    return q @ inv_rt
 
 
-def _generate_probs(rdm: np.ndarray, sample: set[int], norb: int) -> np.ndarray:
-    """Computes the probabilities for the next occupied orbital.
+def _sample_from_projection_normals(
+    normals: np.ndarray, rng: np.random.Generator, tol: float = 1e-12
+) -> int:
+    """Draw one configuration using cached projection normals and supplied RNG.
 
-    This is a step of the autoregressive sampling, and uses Bayes's rule.
+    Permutes the precomputed normal vectors, then iteratively picks an orbital
+    with probability proportional to the squared magnitude of the leading normal,
+    performs a Gaussian-elimination pivot to update the remaining normals, and
+    repeats until all electrons are placed.
 
     Args:
-        rdm: A Numpy array with the one-body reduced density matrix.
-        sample: The list of already occupied orbitals.
-        norb: The number of orbitals.
+        normals: A 2D array of precomputed normal vectors with shape ``(norb, nelec)``.
+        rng: NumPy Generator to use for randomness.
+        tol: Tolerance for detecting pivot breakdown in elimination.
 
     Returns:
-        The probabilities for the next empty orbital to occupy.
+        Integer-encoded bitstring for the sampled configuration.
     """
-    probs = np.zeros(norb - len(sample))
-    empty_orbitals = (orb for orb in range(norb) if orb not in sample)
-    for i, orb in enumerate(empty_orbitals):
-        indices = list(sample | {orb})
-        probs[i] = np.linalg.det(rdm[indices][:, indices]).real
-    return probs / np.sum(probs)
+    if np.isrealobj(normals):
+        blas_ger = scipy.linalg.blas.dger
+    else:
+        blas_ger = scipy.linalg.blas.zgeru
+    norb, nelec = normals.shape
+    perm = rng.permutation(nelec)
+    # Working set of normals after applying the random permutation.
+    active_normals = np.asfortranarray(normals[:, perm])
+    selected: list[int] = []
+    active = nelec
+    # Iterate until all electrons are placed
+    while active:
+        # Pivot column used for sampling and elimination.
+        pivot_normal = active_normals[:, 0]
+        probs = np.abs(pivot_normal) ** 2
+        probs /= probs.sum()
+        orb = rng.choice(norb, p=probs)
+        selected.append(orb)
+        if active == 1:
+            # No further elimination needed
+            break
+        pivot_val = pivot_normal[orb]
+        # Update remaining normals via Gaussian elimination (rank-1 update)
+        active_normals[:, 1:active] = blas_ger(
+            -1 / pivot_val,
+            pivot_normal,
+            active_normals[orb, 1:active],
+            a=active_normals[:, 1:active],
+        )
+        # Drop the first normal vector
+        active_normals = active_normals[:, 1:active]
+        active -= 1
+    return sum(1 << orb for orb in selected)

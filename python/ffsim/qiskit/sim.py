@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import Sequence, Union, cast
+from typing import Sequence, cast
 
 import numpy as np
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
@@ -29,8 +29,13 @@ from qiskit.circuit.library import (
     CZGate,
     DiagonalGate,
     GlobalPhaseGate,
+    IGate,
+    InnerProductGate,
+    MCPhaseGate,
     Measure,
+    PermutationGate,
     PhaseGate,
+    PhaseOracleGate,
     RZGate,
     RZZGate,
     SdgGate,
@@ -38,6 +43,7 @@ from qiskit.circuit.library import (
     SwapGate,
     TdgGate,
     TGate,
+    UCRZGate,
     XGate,
     XXPlusYYGate,
     ZGate,
@@ -157,7 +163,7 @@ def _prepare_state_vector(
         return states.StateVector(
             vec=vec,
             norb=cast(int, norb),
-            nelec=cast(Union[int, tuple[int, int]], nelec),
+            nelec=cast(int | tuple[int, int], nelec),
         ), remaining_circuit
 
     else:
@@ -237,7 +243,7 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, Barrier):
+    if isinstance(op, (Barrier, IGate)):
         return state_vector
 
     if isinstance(op, Measure):
@@ -258,6 +264,19 @@ def _evolve_state_vector_spinless(
         vec = gates.apply_num_num_interaction(
             vec, math.pi, target_orbs=(i, j), norb=norb, nelec=nelec, copy=False
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, InnerProductGate):
+        n = op.num_qubits // 2
+        for i in range(n):
+            vec = gates.apply_num_num_interaction(
+                vec,
+                math.pi,
+                target_orbs=(qubit_indices[i], qubit_indices[n + i]),
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, CSGate):
@@ -302,6 +321,21 @@ def _evolve_state_vector_spinless(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, UCRZGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            [
+                phase
+                for theta in op.params
+                for phase in (cmath.rect(1, -0.5 * theta), cmath.rect(1, 0.5 * theta))
+            ],
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, CCZGate):
         i, j, k = qubit_indices
         vec = gates.apply_num_op_prod_interaction(
@@ -312,6 +346,29 @@ def _evolve_state_vector_spinless(
             nelec=(cast(int, nelec), 0),
             copy=False,
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, MCPhaseGate):
+        (theta,) = op.params
+        if op.ctrl_state == (1 << op.num_ctrl_qubits) - 1:
+            vec = gates.apply_num_op_prod_interaction(
+                vec,
+                theta,
+                target_orbs=(qubit_indices, []),
+                norb=norb,
+                nelec=(cast(int, nelec), 0),
+                copy=False,
+            )
+        else:
+            strings = states.addresses_to_strings(
+                np.arange(len(vec)),
+                norb=norb,
+                nelec=nelec,
+            )
+            restricted = restrict_bitstrings(strings, qubit_indices, BitstringType.INT)
+            vec[np.equal(restricted, op.ctrl_state + (1 << op.num_ctrl_qubits))] *= (
+                cmath.exp(1j * theta)
+            )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, RZZGate):
@@ -379,6 +436,16 @@ def _evolve_state_vector_spinless(
         vec = _apply_iswap(vec, (i, j), norb=norb, nelec=nelec, copy=False)
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PermutationGate):
+        vec = _apply_permutation_gate(
+            vec,
+            qubit_indices,
+            op.pattern,
+            norb=norb,
+            nelec=nelec,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         theta, beta = op.params
@@ -390,6 +457,17 @@ def _evolve_state_vector_spinless(
     if isinstance(op, DiagonalGate):
         vec = _apply_diagonal_gate(
             vec, op.params, qubit_indices, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, PhaseOracleGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            np.where(op.boolean_expression.truth_table.values, -1, 1),
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -476,7 +554,7 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
-    if isinstance(op, Barrier):
+    if isinstance(op, (Barrier, IGate)):
         return state_vector
 
     if isinstance(op, Measure):
@@ -503,6 +581,23 @@ def _evolve_state_vector_spinful(
         vec = gates.apply_num_op_prod_interaction(
             vec, math.pi, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, InnerProductGate):
+        n = op.num_qubits // 2
+        for i in range(n):
+            p, q = qubit_indices[i], qubit_indices[n + i]
+            target_orbs = ([], [])
+            target_orbs[p >= norb].append(p % norb)
+            target_orbs[q >= norb].append(q % norb)
+            vec = gates.apply_num_op_prod_interaction(
+                vec,
+                math.pi,
+                target_orbs=target_orbs,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, CSGate):
@@ -574,6 +669,21 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, UCRZGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            [
+                phase
+                for theta in op.params
+                for phase in (cmath.rect(1, -0.5 * theta), cmath.rect(1, 0.5 * theta))
+            ],
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, CCZGate):
         i, j, k = qubit_indices
         target_orbs = ([], [])
@@ -583,6 +693,27 @@ def _evolve_state_vector_spinful(
         vec = gates.apply_num_op_prod_interaction(
             vec, math.pi, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
         )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, MCPhaseGate):
+        (theta,) = op.params
+        if op.ctrl_state == (1 << op.num_ctrl_qubits) - 1:
+            target_orbs = ([], [])
+            for i in qubit_indices:
+                target_orbs[i >= norb].append(i % norb)
+            vec = gates.apply_num_op_prod_interaction(
+                vec, theta, target_orbs=target_orbs, norb=norb, nelec=nelec, copy=False
+            )
+        else:
+            strings = states.addresses_to_strings(
+                np.arange(len(vec)),
+                norb=norb,
+                nelec=nelec,
+            )
+            restricted = restrict_bitstrings(strings, qubit_indices, BitstringType.INT)
+            vec[np.equal(restricted, op.ctrl_state + (1 << op.num_ctrl_qubits))] *= (
+                cmath.exp(1j * theta)
+            )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     if isinstance(op, RZZGate):
@@ -715,6 +846,16 @@ def _evolve_state_vector_spinful(
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
+    if isinstance(op, PermutationGate):
+        vec = _apply_permutation_gate(
+            vec,
+            qubit_indices,
+            op.pattern,
+            norb=norb,
+            nelec=nelec,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, XXPlusYYGate):
         i, j = qubit_indices
         if (i < norb) != (j < norb):
@@ -739,6 +880,17 @@ def _evolve_state_vector_spinful(
     if isinstance(op, DiagonalGate):
         vec = _apply_diagonal_gate(
             vec, op.params, qubit_indices, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, PhaseOracleGate):
+        vec = _apply_diagonal_gate(
+            vec,
+            np.where(op.boolean_expression.truth_table.values, -1, 1),
+            qubit_indices,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -767,9 +919,97 @@ def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit
     return indices, remaining_circuit
 
 
+def _permute_bitstrings(
+    bits: np.ndarray, pairs: Sequence[tuple[int, int]]
+) -> np.ndarray:
+    """Return bitstrings with bits moved according to (src, dest) pairs."""
+    if not pairs:
+        return bits
+    mask = sum(1 << dest for _, dest in pairs)
+    permuted = bits.copy()
+    if mask:
+        permuted &= ~mask
+    for src, dest in pairs:
+        permuted |= ((bits >> src) & 1) << dest
+    return permuted
+
+
+def _apply_permutation_gate(
+    vec: np.ndarray,
+    qubit_indices: Sequence[int],
+    perm: Sequence[int],
+    *,
+    norb: int,
+    nelec: int | tuple[int, int],
+) -> np.ndarray:
+    """Apply a permutation gate by clearing and refilling the selected occupations.
+
+    The qubits listed in ``qubit_indices`` are permuted according to ``perm``, so the
+    routine converts the pull rule y[q_t] = x[q_{pi(t)}] into push assignments with
+    destinations d_t = q_{perm^{-1}(t)}. It constructs a destination mask
+    M = sum(2 ** d_t) to clear all targets in one operation, reads each source bit via
+    (x >> q_t) & 1, and accumulates the shifted bits (b_t << d_t) to restore the
+    permuted bitstrings. For spinful systems the clear-and-fill steps run separately
+    on the alpha and beta halves before recombining the addresses, which preserves
+    N_alpha and N_beta.
+    """
+    inverse_perm = np.empty_like(perm)
+    inverse_perm[perm] = np.arange(len(perm))
+    dests = [qubit_indices[i] for i in inverse_perm]
+    if not isinstance(nelec, int) and any(
+        (src < norb) != (dest < norb) for src, dest in zip(qubit_indices, dests)
+    ):
+        raise ValueError(
+            "Gate of type 'PermutationGate' must be applied on orbitals "
+            "of the same spin."
+        )
+
+    pairs = list(zip(qubit_indices, dests))
+    addresses = range(len(vec))
+    if isinstance(nelec, int):
+        # Spinless case
+        bitstrings = np.asarray(
+            states.addresses_to_strings(
+                addresses,
+                norb=norb,
+                nelec=nelec,
+                bitstring_type=BitstringType.INT,
+            )
+        )
+        permuted = _permute_bitstrings(bitstrings, pairs)
+        indices = states.strings_to_addresses(permuted, norb=norb, nelec=nelec)
+    else:
+        # Spinful case
+        strings_a, strings_b = states.addresses_to_strings(
+            addresses,
+            norb=norb,
+            nelec=nelec,
+            bitstring_type=BitstringType.INT,
+            concatenate=False,
+        )
+        alpha_bits = np.asarray(strings_a)
+        beta_bits = np.asarray(strings_b)
+        alpha_pairs = [(src, dest) for src, dest in pairs if src < norb]
+        beta_pairs = [(src - norb, dest - norb) for src, dest in pairs if src >= norb]
+
+        permuted_alpha = _permute_bitstrings(alpha_bits, alpha_pairs)
+        permuted_beta = _permute_bitstrings(beta_bits, beta_pairs)
+
+        n_alpha, n_beta = nelec
+        addrs_alpha = states.strings_to_addresses(
+            permuted_alpha, norb=norb, nelec=n_alpha
+        )
+        addrs_beta = states.strings_to_addresses(permuted_beta, norb=norb, nelec=n_beta)
+        dim_beta = math.comb(norb, n_beta)
+        indices = addrs_alpha * dim_beta + addrs_beta
+    permuted_vec = np.empty_like(vec)
+    permuted_vec[indices] = vec
+    return permuted_vec
+
+
 def _apply_diagonal_gate(
     vec: np.ndarray,
-    diag: Sequence[complex],
+    diag: Sequence[complex] | np.ndarray,
     qubit_indices: Sequence[int],
     norb: int,
     nelec: int | tuple[int, int],

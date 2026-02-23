@@ -36,6 +36,12 @@ def gen_linkstr_index(orbitals: range, nocc: int) -> np.ndarray:
     return cistring.gen_linkstr_index(orbitals, nocc)
 
 
+@cache
+def gen_linkstr_index_trilidx(orbitals: range, nocc: int) -> np.ndarray:
+    """Cached version of pyscf.fci.cistring.gen_linkstr_index_trilidx."""
+    return cistring.gen_linkstr_index_trilidx(orbitals, nocc)
+
+
 def init_cache(norb: int, nelec: tuple[int, int]) -> None:
     """Initialize cached objects.
 
@@ -52,3 +58,4 @@ def init_cache(norb: int, nelec: tuple[int, int]) -> None:
         make_strings(range(norb), nocc)
         gen_occslst(range(norb), nocc)
         gen_linkstr_index(range(norb), nocc)
+        gen_linkstr_index_trilidx(range(norb), nocc)

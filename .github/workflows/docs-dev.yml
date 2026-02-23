@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.13"
+          python-version: "3.14"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -30,3 +30,4 @@ jobs:
         with:
           folder: docs/_build/html/
           target-folder: dev/
+          single-commit: true
