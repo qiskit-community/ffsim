@@ -110,15 +110,20 @@ def sample_slater(
 
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
-        occupied_orbitals = cast(Sequence[int], occupied_orbitals)
         nelec = len(occupied_orbitals)
         if orbs is None:
             orbs = range(norb)
-        orbs = cast(Sequence[int], orbs)
         strings = _sample_strings(
-            norb, nelec, occupied_orbitals, orbital_rotation, shots, rng
+            norb,
+            nelec,
+            cast(Sequence[int], occupied_orbitals),
+            cast(np.ndarray | None, orbital_rotation),
+            shots,
+            rng,
         )
-        strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
+        strings = restrict_bitstrings(
+            strings, cast(Sequence[int], orbs), bitstring_type=BitstringType.INT
+        )
         return convert_bitstring_type(
             strings,
             BitstringType.INT,
@@ -127,13 +132,9 @@ def sample_slater(
         )
 
     # Spinful case
-    orbs = cast(tuple[Sequence[int], Sequence[int]] | None, orbs)
     if orbs is None:
         orbs = (range(norb), range(norb))
     orbs_a, orbs_b = cast(tuple[Sequence[int], Sequence[int]], orbs)
-    orbs_a = cast(Sequence[int], orbs_a)
-    orbs_b = cast(Sequence[int], orbs_b)
-
     occupied_orbitals_a, occupied_orbitals_b = cast(
         tuple[Sequence[int], Sequence[int]], occupied_orbitals
     )
@@ -147,9 +148,7 @@ def sample_slater(
         orbital_rotation_a = orbital_rotation
         orbital_rotation_b = orbital_rotation
     else:
-        orbital_rotation_a, orbital_rotation_b = cast(
-            tuple[np.ndarray | None, np.ndarray | None], orbital_rotation
-        )
+        orbital_rotation_a, orbital_rotation_b = orbital_rotation
 
     strings_a = _sample_strings(
         norb, n_a, occupied_orbitals_a, orbital_rotation_a, shots, rng
