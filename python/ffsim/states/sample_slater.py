@@ -193,7 +193,7 @@ def _sample_strings(
     orbital_rotation: np.ndarray | None,
     shots: int,
     rng: np.random.Generator,
-):
+) -> list[int]:
     if nocc == 0:
         return [0] * shots
     if nocc == norb:
