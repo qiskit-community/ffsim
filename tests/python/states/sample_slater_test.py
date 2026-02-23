@@ -211,12 +211,16 @@ def test_sample_slater_spinless(norb: int, nelec: int, bitstring_type: Bitstring
         assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
 
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (6, (3, 2)),
+        (6, (5, 4)),  # high filling, triggers hole trick
+    ],
+)
 @pytest.mark.parametrize("real", [True, False])
-def test_sample_slater_large(real: bool):
+def test_sample_slater_large(norb: int, nelec: tuple[int, int], real: bool):
     """Test sample Slater for a larger number of orbitals."""
-    norb = 6
-    nelec = (3, 2)
-
     rng = np.random.default_rng(1234)
     shots = 5000
     random_unitary = (
@@ -224,7 +228,7 @@ def test_sample_slater_large(real: bool):
     )
     rotation_a = random_unitary(norb, seed=rng)
     rotation_b = random_unitary(norb, seed=rng)
-    occupied_orbitals = ((0, 2, 3), (2, 4))
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
     vec = ffsim.slater_determinant(norb, occupied_orbitals, (rotation_a, rotation_b))
     test_distribution = np.abs(vec) ** 2
     samples = ffsim.sample_slater(
@@ -238,13 +242,24 @@ def test_sample_slater_large(real: bool):
     assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
 
-def test_sample_slater_restrict():
+@pytest.mark.parametrize(
+    "norb, nelec, orbs",
+    [
+        (8, (4, 3), ([1, 2, 5], [3, 4, 5])),
+        (8, (6, 5), ([0, 3, 6], [2, 4, 7])),  # high filling, triggers hole trick
+    ],
+)
+def test_sample_slater_restrict(
+    norb: int, nelec: tuple[int, int], orbs: tuple[list[int], list[int]]
+):
     """Test sample Slater with subset of orbitals."""
-    norb = 8
-
+    rng = np.random.default_rng(1234)
     shots = 10
-    occupied_orbitals = ((0, 2, 3, 5), (2, 3, 4))
-    samples = ffsim.sample_slater(
-        norb, occupied_orbitals, orbs=([1, 2, 5], [3, 4, 5]), shots=shots
-    )
-    assert samples == ["011110"] * 10
+    orbs_a, orbs_b = orbs
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    occ_a, occ_b = occupied_orbitals
+    alpha_str = "".join("1" if o in occ_a else "0" for o in reversed(orbs_a))
+    beta_str = "".join("1" if o in occ_b else "0" for o in reversed(orbs_b))
+    expected = f"{beta_str}{alpha_str}"
+    samples = ffsim.sample_slater(norb, occupied_orbitals, orbs=orbs, shots=shots)
+    assert samples == [expected] * shots
