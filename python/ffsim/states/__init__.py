@@ -17,7 +17,7 @@ from ffsim.states.bitstring import (
 )
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import ReducedDensityMatrix, rdms
-from ffsim.states.sample_slater import sample_slater, sample_slater_determinant
+from ffsim.states.sample_slater import sample_slater
 from ffsim.states.slater import (
     hartree_fock_state,
     slater_determinant,
@@ -45,7 +45,6 @@ __all__ = [
     "hartree_fock_state",
     "rdms",
     "sample_slater",
-    "sample_slater_determinant",
     "sample_state_vector",
     "slater_determinant",
     "slater_determinant_amplitudes",
