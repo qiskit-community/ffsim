@@ -115,36 +115,9 @@ def sample_slater(
         if orbs is None:
             orbs = range(norb)
         orbs = cast(Sequence[int], orbs)
-        if nelec == 0:
-            strings = [0] * shots
-        elif nelec == norb:
-            strings = [(1 << norb) - 1] * shots
-        elif 2 * nelec > norb:
-            # high filling: sample holes instead of particles
-            unoccupied_orbitals = [
-                i for i in range(norb) if i not in set(occupied_orbitals)
-            ]
-            if orbital_rotation is None:
-                orbitals = np.eye(norb, dtype=complex)[:, unoccupied_orbitals]
-            else:
-                orbital_rotation = cast(np.ndarray, orbital_rotation)
-                orbitals = orbital_rotation.conj()[:, unoccupied_orbitals]
-            normals = _compute_projection_normals(orbitals)
-            full_mask = (1 << norb) - 1
-            strings = [
-                full_mask ^ _sample_from_projection_normals(normals, rng)
-                for _ in range(shots)
-            ]
-        else:
-            if orbital_rotation is None:
-                orbitals = np.eye(norb, dtype=complex)[:, occupied_orbitals]
-            else:
-                orbital_rotation = cast(np.ndarray, orbital_rotation)
-                orbitals = orbital_rotation.conj()[:, occupied_orbitals]
-            normals = _compute_projection_normals(orbitals)
-            strings = [
-                _sample_from_projection_normals(normals, rng) for _ in range(shots)
-            ]
+        strings = _sample_strings(
+            norb, nelec, occupied_orbitals, orbital_rotation, shots, rng
+        )
         strings = restrict_bitstrings(strings, orbs, bitstring_type=BitstringType.INT)
         return convert_bitstring_type(
             strings,
@@ -178,60 +151,12 @@ def sample_slater(
             tuple[np.ndarray | None, np.ndarray | None], orbital_rotation
         )
 
-    if n_a == 0:
-        strings_a = [0] * shots
-    elif n_a == norb:
-        strings_a = [(1 << norb) - 1] * shots
-    elif 2 * n_a > norb:
-        # high filling: sample holes instead of particles
-        unoccupied_a = [i for i in range(norb) if i not in set(occupied_orbitals_a)]
-        if orbital_rotation_a is None:
-            orbitals_a = np.eye(norb, dtype=complex)[:, unoccupied_a]
-        else:
-            orbitals_a = orbital_rotation_a.conj()[:, unoccupied_a]
-        normals_a = _compute_projection_normals(orbitals_a)
-        full_mask = (1 << norb) - 1
-        strings_a = [
-            full_mask ^ _sample_from_projection_normals(normals_a, rng)
-            for _ in range(shots)
-        ]
-    else:
-        if orbital_rotation_a is None:
-            orbitals_a = np.eye(norb, dtype=complex)[:, occupied_orbitals_a]
-        else:
-            orbitals_a = orbital_rotation_a.conj()[:, occupied_orbitals_a]
-        normals_a = _compute_projection_normals(orbitals_a)
-        strings_a = [
-            _sample_from_projection_normals(normals_a, rng) for _ in range(shots)
-        ]
-
-    if n_b == 0:
-        strings_b = [0] * shots
-    elif n_b == norb:
-        strings_b = [(1 << norb) - 1] * shots
-    elif 2 * n_b > norb:
-        # high filling: sample holes instead of particles
-        unoccupied_b = [i for i in range(norb) if i not in set(occupied_orbitals_b)]
-        if orbital_rotation_b is None:
-            orbitals_b = np.eye(norb, dtype=complex)[:, unoccupied_b]
-        else:
-            orbitals_b = orbital_rotation_b.conj()[:, unoccupied_b]
-        normals_b = _compute_projection_normals(orbitals_b)
-        full_mask = (1 << norb) - 1
-        strings_b = [
-            full_mask ^ _sample_from_projection_normals(normals_b, rng)
-            for _ in range(shots)
-        ]
-    else:
-        if orbital_rotation_b is None:
-            orbitals_b = np.eye(norb, dtype=complex)[:, occupied_orbitals_b]
-        else:
-            orbitals_b = orbital_rotation_b.conj()[:, occupied_orbitals_b]
-        normals_b = _compute_projection_normals(orbitals_b)
-        strings_b = [
-            _sample_from_projection_normals(normals_b, rng) for _ in range(shots)
-        ]
-
+    strings_a = _sample_strings(
+        norb, n_a, occupied_orbitals_a, orbital_rotation_a, shots, rng
+    )
+    strings_b = _sample_strings(
+        norb, n_b, occupied_orbitals_b, orbital_rotation_b, shots, rng
+    )
     strings_a = restrict_bitstrings(strings_a, orbs_a, bitstring_type=BitstringType.INT)
     strings_b = restrict_bitstrings(strings_b, orbs_b, bitstring_type=BitstringType.INT)
 
@@ -260,6 +185,37 @@ def sample_slater(
         bitstring_type,
         length=len(orbs_b),
     )
+
+
+def _sample_strings(
+    norb: int,
+    nocc: int,
+    occupied_orbitals: Sequence[int],
+    orbital_rotation: np.ndarray | None,
+    shots: int,
+    rng: np.random.Generator,
+):
+    if nocc == 0:
+        return [0] * shots
+    if nocc == norb:
+        return [(1 << norb) - 1] * shots
+    if orbital_rotation is None:
+        orbital_rotation = np.eye(norb)
+    if 2 * nocc > norb:
+        # high filling: sample holes instead of particles
+        occupied_orbitals_set = set(occupied_orbitals)
+        unoccupied_a = [i for i in range(norb) if i not in occupied_orbitals_set]
+        orbitals_a = orbital_rotation.conj()[:, unoccupied_a]
+        normals_a = _compute_projection_normals(orbitals_a)
+        full_mask = (1 << norb) - 1
+        return [
+            full_mask ^ _sample_from_projection_normals(normals_a, rng)
+            for _ in range(shots)
+        ]
+    else:
+        orbitals_a = orbital_rotation.conj()[:, occupied_orbitals]
+        normals_a = _compute_projection_normals(orbitals_a)
+        return [_sample_from_projection_normals(normals_a, rng) for _ in range(shots)]
 
 
 def _compute_projection_normals(orbitals: np.ndarray, tol: float = 1e-12) -> np.ndarray:
