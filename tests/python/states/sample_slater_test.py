@@ -211,15 +211,19 @@ def test_sample_slater_spinless(norb: int, nelec: int, bitstring_type: Bitstring
         assert np.sum(np.sqrt(test_distribution * empirical_distribution)) > 0.99
 
 
-def test_sample_slater_large():
+@pytest.mark.parametrize("real", [True, False])
+def test_sample_slater_large(real: bool):
     """Test sample Slater for a larger number of orbitals."""
     norb = 6
     nelec = (3, 2)
 
     rng = np.random.default_rng(1234)
     shots = 5000
-    rotation_a = ffsim.random.random_unitary(norb, seed=rng)
-    rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+    random_unitary = (
+        ffsim.random.random_orthogonal if real else ffsim.random.random_unitary
+    )
+    rotation_a = random_unitary(norb, seed=rng)
+    rotation_b = random_unitary(norb, seed=rng)
     occupied_orbitals = ((0, 2, 3), (2, 4))
     vec = ffsim.slater_determinant(norb, occupied_orbitals, (rotation_a, rotation_b))
     test_distribution = np.abs(vec) ** 2

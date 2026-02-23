@@ -276,10 +276,14 @@ def _sample_from_projection_normals(
     Returns:
         Integer-encoded bitstring for the sampled configuration.
     """
+    if np.isrealobj(normals):
+        blas_ger = scipy.linalg.blas.dger
+    else:
+        blas_ger = scipy.linalg.blas.zgeru
     norb, nelec = normals.shape
     perm = rng.permutation(nelec)
     # Working set of normals after applying the random permutation.
-    active_normals = normals[:, perm].copy()
+    active_normals = np.asfortranarray(normals[:, perm])
     selected: list[int] = []
     active = nelec
     # Iterate until all electrons are placed
@@ -299,12 +303,13 @@ def _sample_from_projection_normals(
         pivot_val = pivot_normal[orb]
         if np.abs(pivot_val) <= tol:
             raise ValueError("Numerical pivot breakdown in fast sampler.")
-        # Update remaining normals via Gaussian elimination (O(N^2))
-        for j in range(1, active):
-            active_normals[:, j] = (
-                active_normals[:, j]
-                - (active_normals[orb, j] / pivot_val) * pivot_normal
-            )
+        # Update remaining normals via Gaussian elimination (rank-1 update)
+        active_normals[:, 1:active] = blas_ger(
+            -1 / pivot_val,
+            pivot_normal,
+            active_normals[orb, 1:active],
+            a=active_normals[:, 1:active],
+        )
         # Drop the first normal vector
         active_normals = active_normals[:, 1:active]
         active -= 1
