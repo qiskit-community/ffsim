@@ -203,18 +203,18 @@ def _sample_strings(
     if 2 * nocc > norb:
         # high filling: sample holes instead of particles
         occupied_orbitals_set = set(occupied_orbitals)
-        unoccupied_a = [i for i in range(norb) if i not in occupied_orbitals_set]
-        orbitals_a = orbital_rotation.conj()[:, unoccupied_a]
-        normals_a = _compute_projection_normals(orbitals_a)
+        unoccupied = [i for i in range(norb) if i not in occupied_orbitals_set]
+        orbitals = orbital_rotation.conj()[:, unoccupied]
+        normals = _compute_projection_normals(orbitals)
         full_mask = (1 << norb) - 1
         return [
-            full_mask ^ _sample_from_projection_normals(normals_a, rng)
+            full_mask ^ _sample_from_projection_normals(normals, rng)
             for _ in range(shots)
         ]
     else:
-        orbitals_a = orbital_rotation.conj()[:, occupied_orbitals]
-        normals_a = _compute_projection_normals(orbitals_a)
-        return [_sample_from_projection_normals(normals_a, rng) for _ in range(shots)]
+        orbitals = orbital_rotation.conj()[:, occupied_orbitals]
+        normals = _compute_projection_normals(orbitals)
+        return [_sample_from_projection_normals(normals, rng) for _ in range(shots)]
 
 
 def _compute_projection_normals(orbitals: np.ndarray, tol: float = 1e-12) -> np.ndarray:
