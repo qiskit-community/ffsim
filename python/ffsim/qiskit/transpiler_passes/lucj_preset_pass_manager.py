@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import warnings
-from typing import Any, Sequence
+from typing import Any, Literal, Sequence
 
 import rustworkx
 from qiskit.passmanager.flow_controllers import ConditionalController
@@ -12,27 +12,30 @@ from qiskit.transpiler import (
     generate_preset_pass_manager,
 )
 from qiskit.transpiler.passes import ApplyLayout, VF2PostLayout
+from qiskit_ibm_runtime.models.exceptions import BackendPropertyError
 from rustworkx import NoEdgeBetweenNodes, PyGraph
 
 import ffsim
 
+IBM_TWO_Q_GATES = {"cx", "ecr", "cz", "rzz"}
+VF2_CALL_LIMIT = 30_000_000
+
 
 def _create_two_linear_chains(num_orbitals: int) -> PyGraph:
-    """In zig-zag layout, there are two linear chains (with connecting qubits
-    between the chains). This function creates those two linear chains which is
-    a rustworkx.
+    """Creates two disconnected linear chains.
 
-    PyGraph with two disconnected linear chains. Each chain contains `num_orbitals`
-    number of nodes, i.e., in the final graph there are `2 * num_orbitals` number of
-    nodes.
+    Each chain has ``num_orbitals`` number of nodes (qubits). One represents,
+    the alpha chain, and the other represents the beta chain. Later alpha-beta
+    qubit connections will be added between these disconneted chains to create
+    a complete LUCJ layout.
 
     Args:
         num_orbitals: Number orbitals or nodes in each linear chain. They are
-            also known as alpha-alpha interaction qubits.
+            also known as alpha-alpha (beta-beta) interaction qubits.
 
     Returns:
-        A rustworkx.PyGraph with two disconnected linear chains each with `num_orbitals`
-            number of nodes.
+        A rustworkx.PyGraph with two disconnected linear chains each with
+            ``num_orbitals`` number of nodes.
     """
     graph = rustworkx.PyGraph()
 
@@ -54,65 +57,74 @@ def _create_two_linear_chains(num_orbitals: int) -> PyGraph:
 def _get_layout_graph_and_allowed_alpha_beta_indices(
     num_orbitals: int,
     backend_coupling_graph: PyGraph,
+    backend_topology: Literal["heavy-hex", "grid"],
     alpha_beta_indices: list[tuple[int, int]],
 ) -> tuple[PyGraph, list[tuple[int, int]]]:
-    """This function creates the complete zigzag graph that _can be mapped_ to
-    a IBM QPU with heavy-hex connectivity (i.e., the zigzag pattern is an
-    isomorphic sub-graph to the QPU/backend coupling graph). The zigzag pattern
-    includes both linear chains (alpha-alpha/beta-beta interactions) and
-    connecting qubits between the linear chains (alpha-beta interactions).
-    The algorithm works as follows: It starts with an interm graph (`graph_new`)
-    that has two linear chains with connecting nodes between two nodes (qubits)
-    specified by `alpha_beta_indices` list. The algorithm checks if the starting
-    graph is an isomorphic subgraph to the larger `backend_cpupling_graph`. If yes,
-    the routine ends and returns the `graph_new`. If not, it removes an alpha-beta
-    interaction pair from the end of list `alpha_beta_indices` and checks for
-    subgraph isomorphism again. It cycle continues, until a isomorhic subgraph is
-    found.
+    """Creates a complete LUCJ layout graph with alpha-beta connections.
+
+    The complete layout _can be mapped_ to an IBM QPU with heavy-hex or grid topology.
+    The logic follows slightly different strategies for heavy-hex and grid.
+
+        1. For both topologies, it starts with two disconnected linear chains, one for
+            alpha qubits and one for beta qubits.
+        2. For heavy-hex, the code adds ancillae qubits (nodes). The number of
+            ancillae nodes is equal to the lenght of ```alpha_beta_indices`.
+            After adding ancillae nodes, edges are established between corresponding
+            alpha, ancilla, and beta nodes to create a candidate layout graph.
+        3. For grid, no ancilla qubit is added. Edges are established directly between
+            specified (in ``alpha_beta_indices``) alpha and beta nodes.
+        4. Then, an isomorphism check is performed, whether the candidate layout graph
+            (``graph_new``) is an isomorphic subgraph to the backend coupling graph.
+                - If the candidate is not an isomorphic subgraph, one alpha-beta
+                    interaction is removed _from the end_ of the ``alpha_beta_indices``
+                    list, and steps 2 (or 3) and 4 are repeated.
+                - If the candidate is an isomorphic subgraph, the routine ends and
+                    returns the ``graph_new`` and ``alpha_beta_indices``.
 
     Args:
         num_orbitals: Number of orbitals, i.e., number of nodes in each alpha-alpha
-            linear chain.
+            (beta-beta) linear chain.
         backend_coupling_graph: The coupling graph of the backend on which the LUCJ
             ansatz will be mapped and run. This function takes the coupling graph as
             a undirected `rustworkx.PyGraph` where there is only one 'undirected' edge
-            between two nodes, i.e., qubits. Usually, the coupling graph of a IBM
+            between two nodes, i.e., qubits. Usually, the coupling graph of an IBM
             backend is directed (e.g., Eagle devices such as `ibm_brisbane`) or may
             have two edges between same two nodes (e.g., Heron `ibm_torino`). This
             function is only compatible with undirected graphs where there is only
             a single undirected edge between same two nodes.
 
     Returns:
-        graph_new: A graph that has the _zigzag_ pattern and is an isomorphic subgraph
-            to an a heavy-hex IBM backend.
-        num_alpha_beta_qubits: Number of connecting qubits between the linear chains
-            in the zigzag pattern. While we want as many connecting (alpha-beta) qubits
-            between the linear (alpha-alpha) chains, we cannot accomodate all due to
-            connectivity constraints of backends. This is the maximum number of
-            connecting qubits the zigzag pattern can have while being backend compliant
-            (i.e., isomorphic subgraph to the backend coupling graph).
+        - A layout graph with alpha-alpha (beta-beta) and alpha-beta connections
+            that is an isomorphic subgraph to an IBM backend.
+        - Number of connecting qubits (alpha-beta interactions) between the linear
+            chains. While we want as many connecting (alpha-beta) qubits
+            between the linear (alpha-alpha/beta-beta) chains, we cannot accomodate
+            all due to connectivity constraints of backends.
     """
     isomorphic = False
     graph = _create_two_linear_chains(num_orbitals=num_orbitals)
 
     graph_new = copy.deepcopy(graph)  # to avoid not bound warning
-    while not isomorphic:
+    while (not isomorphic) and alpha_beta_indices:
         graph_new = copy.deepcopy(graph)
 
-        if not alpha_beta_indices:
-            break
-
         # add new nodes and edges
-        for i, (a, b) in enumerate(sorted(alpha_beta_indices, key=lambda x: x[0])):
-            new_node = 2 * num_orbitals + i
-            graph_new.add_node(new_node)
-            graph_new.add_edge(a, new_node, None)
-            graph_new.add_edge(new_node, b + num_orbitals, None)
+        if backend_topology == "heavy-hex":
+            for i, (a, b) in enumerate(sorted(alpha_beta_indices, key=lambda x: x[0])):
+                new_node = 2 * num_orbitals + i
+                graph_new.add_node(new_node)
+                graph_new.add_edge(a, new_node, None)
+                graph_new.add_edge(new_node, b + num_orbitals, None)
+        elif backend_topology == "grid":
+            for i, (a, b) in enumerate(sorted(alpha_beta_indices, key=lambda x: x[0])):
+                graph_new.add_edge(a, b + num_orbitals, None)
+        else:
+            ValueError(f"backend_topology={backend_topology} not supported.")
 
         isomorphic = rustworkx.is_subgraph_isomorphic(
             backend_coupling_graph,
             graph_new,
-            call_limit=1_000_000,
+            call_limit=VF2_CALL_LIMIT,
             id_order=False,
             induced=False,
         )
@@ -127,9 +139,14 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
     return graph_new, alpha_beta_indices
 
 
-def _make_backend_cmap_pygraph(backend: BackendV2) -> PyGraph:
-    """Converts an IBM backend coupling map to an undirected rustworkx.PyGraph
-    where there is only a single edge between same two nodes.
+def _make_backend_cmap_pygraph(
+    backend: BackendV2,
+    thresh_two_q: float,
+    thresh_meas: float,
+) -> PyGraph:
+    """Converts a backend coupling map to a rustworkx.PyGraph.
+
+    The PyGraph has only a single edge between any two nodes.
 
     Args:
         backend: An IBM backend.
@@ -137,7 +154,12 @@ def _make_backend_cmap_pygraph(backend: BackendV2) -> PyGraph:
     Returns:
         A rustworkx.PyGraph with a single undirected edge between same two nodes.
     """
-    graph = backend.coupling_map.graph
+    props = backend.properties()
+    two_q_gate_name = IBM_TWO_Q_GATES.intersection(
+        backend.configuration().basis_gates
+    ).pop()
+    graph = copy.deepcopy(backend.coupling_map.graph)
+
     if not graph.is_symmetric():
         graph.make_symmetric()
     backend_coupling_graph = graph.to_undirected()
@@ -153,13 +175,36 @@ def _make_backend_cmap_pygraph(backend: BackendV2) -> PyGraph:
         except NoEdgeBetweenNodes:
             pass
 
+    # remove bad nodes
+    node_indices = backend_coupling_graph.node_indices()
+    for node_id in node_indices:
+        re = props.readout_error(node_id)
+        if re >= thresh_meas:
+            backend_coupling_graph.remove_node(node_id)
+
+    # remove bad edges
+    edge_list = backend_coupling_graph.edge_list()
+    for edge in edge_list:
+        try:
+            ge = props.gate_error(two_q_gate_name, edge)
+        except BackendPropertyError:
+            ge = props.gate_error(two_q_gate_name, edge[::-1])
+
+        if ge >= thresh_two_q:
+            backend_coupling_graph.remove_edge(edge[0], edge[1])
+
+    edge_list = backend_coupling_graph.edge_list()
+
     return backend_coupling_graph
 
 
 def _get_placeholder_layout_and_allowed_interactions(
     backend: BackendV2,
     num_orbitals: int,
+    backend_topology: Literal["heavy-hex", "grid"],
     requested_alpha_beta_indices: Sequence[tuple[int, int]],
+    thresh_two_q: float,
+    thresh_meas: float,
 ) -> tuple[list[int], list[tuple[int, int]]]:
     """The main function that generates the zigzag pattern with physical qubits
     that can be used as an `intial_layout` in a preset passmanager/transpiler.
@@ -177,18 +222,29 @@ def _get_placeholder_layout_and_allowed_interactions(
         A tuple of device compliant layout (`list[int]`) with zigzag pattern and an
         `int` representing number of alpha-beta-interactions.
     """
-    backend_coupling_graph = _make_backend_cmap_pygraph(backend=backend)
+    backend_coupling_graph = _make_backend_cmap_pygraph(
+        backend=backend, thresh_two_q=thresh_two_q, thresh_meas=thresh_meas
+    )
 
-    (graph, allowed_alpha_beta_indices) = (
+    (layout_graph, allowed_alpha_beta_indices) = (
         _get_layout_graph_and_allowed_alpha_beta_indices(
             num_orbitals=num_orbitals,
             backend_coupling_graph=backend_coupling_graph,
+            backend_topology=backend_topology,
             alpha_beta_indices=list(requested_alpha_beta_indices),
         )
     )
     num_allowed_alpha_beta_indices = len(allowed_alpha_beta_indices)
+    if num_allowed_alpha_beta_indices == 0:
+        raise RuntimeError("No alpha-beta interaction can be accomodated. Terminating.")
+
     isomorphic_mappings = rustworkx.vf2_mapping(
-        backend_coupling_graph, graph, subgraph=True, id_order=False, induced=False
+        backend_coupling_graph,
+        layout_graph,
+        subgraph=True,
+        id_order=False,
+        induced=False,
+        call_limit=VF2_CALL_LIMIT,
     )
 
     mapping = next(isomorphic_mappings)
@@ -197,20 +253,26 @@ def _get_placeholder_layout_and_allowed_interactions(
     for key, value in mapping.items():
         initial_layout[value] = key
 
-    if -1 in initial_layout:
+    # as grids do not have ancillae qubits, the trailing items
+    # in the ``initial_layout`` will remain as ``-1``. Therefore,
+    # we are ignoring last several qubits in this check.
+    if -1 in initial_layout[:-num_allowed_alpha_beta_indices]:
         raise ValueError(
             f"Not all qubits in the placeholder `initial_layout` is properly set."
             f"Negative qubit index in `initial_layout`. "
-            f"intial_layout={initial_layout}"
+            f"intial_layout={initial_layout[:-num_allowed_alpha_beta_indices]}"
         )
 
     return initial_layout[:-num_allowed_alpha_beta_indices], allowed_alpha_beta_indices
 
 
-def generate_pm_and_interactions_lucj_heavy_hex(
+def generate_lucj_pass_manager(
     backend: BackendV2,
     num_orbitals: int,
+    backend_topology: Literal["heavy-hex", "grid"],
     requested_alpha_beta_indices: Sequence[tuple[int, int]] | None = None,
+    thresh_two_q: float = 1.0,
+    thresh_meas: float = 0.10,
     **qiskit_pm_kwargs,
 ) -> tuple[StagedPassManager, list[tuple[int, int]]]:
     """Generates a Qiskit preset pass manager that adheres to local
@@ -221,7 +283,7 @@ def generate_pm_and_interactions_lucj_heavy_hex(
     hardware compatible alpha-beta interactions.
 
     Args:
-        backend: An IBM backend.
+        backend: A Qiskit BackendV2.
         num_orbitals: The number of _spatial_ orbitals of the molecule to be
             mapped using the LUCJ ansatz. The number of qubits in the LUCJ
             ansatz will be 2 * num_orbitals + ancilae qubits.
@@ -235,12 +297,14 @@ def generate_pm_and_interactions_lucj_heavy_hex(
             sequential alpha-beta interactions, i.e., [(0, 0), (4, 4), ... up to
             allowed by backend connectivity].
             Default: `None`.
+        thresh_two_q (float): Removes edges from the backend coupling graph that has
+            ``2Q gate error >= thresh_two_q``. Default: `1.0` (faulty edge).
+        thresh_meas (float): Removes nodes from the backend coupling graph that has
+            ``measurement error >= thresh_meas``. Default: `0.10`.
         **qiskit_pm_kwargs: The function accepts full list of arguments from
             `qiskit.transpiler.generate_preset_pass_manager <https://quantum.cloud.ibm.com/docs/en/api/qiskit/qiskit.transpiler.generate_preset_pass_manager>`_
             except `initial_layout` and `layout_method` as they are conflicting with this
-            routine's functionality.
-
-            If specified, they will be deleted with a warning.
+            routine's functionality. If specified, they will be deleted with a warning.
 
     Returns:
         - A preset pass manager.
@@ -262,16 +326,28 @@ def generate_pm_and_interactions_lucj_heavy_hex(
                     f"range for maximum spatial orbital index of {num_orbitals - 1}."
                 )
 
+    if backend_topology.lower() not in ["heavy-hex", "grid"]:
+        raise ValueError(
+            f"backend_topology={backend_topology} is not supported. "
+            f"Only supported topologies are either 'heavy-hex' or 'grid'"
+        )
+
     if requested_alpha_beta_indices is None:
-        requested_alpha_beta_indices = [
-            (p, p) for p in range(num_orbitals) if p % 4 == 0
-        ]
+        if backend_topology.lower() == "heavy-hex":
+            requested_alpha_beta_indices = [
+                (p, p) for p in range(num_orbitals) if p % 4 == 0
+            ]
+        elif backend_topology.lower() == "grid":
+            requested_alpha_beta_indices = [(p, p) for p in range(num_orbitals)]
 
     (placeholder_initial_layout, allowed_alpha_beta_indices) = (
         _get_placeholder_layout_and_allowed_interactions(
             backend=backend,
             num_orbitals=num_orbitals,
+            backend_topology=backend_topology,
             requested_alpha_beta_indices=requested_alpha_beta_indices,
+            thresh_two_q=thresh_two_q,
+            thresh_meas=thresh_meas,
         )
     )
 
@@ -288,7 +364,11 @@ def generate_pm_and_interactions_lucj_heavy_hex(
     def _custom_apply_post_layout_condition(property_set: dict[str, Any]) -> bool:
         return property_set["post_layout"] is not None
 
-    pm.routing.append(VF2PostLayout(target=backend.target, strict_direction=False))
+    pm.routing.append(
+        VF2PostLayout(
+            target=backend.target, strict_direction=False, call_limit=VF2_CALL_LIMIT
+        )
+    )
     pm.routing.append(
         ConditionalController(
             ApplyLayout(), condition=_custom_apply_post_layout_condition
