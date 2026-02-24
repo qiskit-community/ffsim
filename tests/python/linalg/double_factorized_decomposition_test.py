@@ -432,6 +432,13 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     )
 
 
+def test_double_factorized_t2_amplitudes_max_terms_error():
+    """Test double_factorized_t2 raises error on invalid max terms."""
+    t2 = ffsim.random.random_t2_amplitudes(4, 2, dtype=float)
+    with pytest.raises(ValueError, match="max_terms"):
+        _, _ = ffsim.linalg.double_factorized_t2(t2, max_terms=0)
+
+
 def test_double_factorized_t2_tol_max_terms():
     """Test double-factorized decomposition error threshold and max terms."""
     mol = pyscf.gto.Mole()
@@ -745,6 +752,14 @@ def test_double_factorized_t2_alpha_beta_random():
         orbital_rotations[index_0, 0], orbital_rotations[index_3, 0].conj(), atol=1e-8
     )
     # TODO add the rest of the relations
+
+
+def test_double_factorized_t2_alpha_beta_max_terms_error():
+    """Test double_factorized_t2_alpha_beta raises error on invalid max terms."""
+    shape = (3, 6, 7, 4)
+    t2ab = RNG.standard_normal(shape)
+    with pytest.raises(ValueError, match="max_terms"):
+        _, _ = ffsim.linalg.double_factorized_t2_alpha_beta(t2ab, max_terms=0)
 
 
 def test_double_factorized_t2_alpha_beta_tol_max_terms():
