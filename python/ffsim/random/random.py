@@ -63,10 +63,10 @@ def random_density_matrix(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         ValueError: Dimension must be at least one.
 
     References:
-        - `arXiv:0909.5094`_
+        - `Osipov, Sommers, and Zyczkowski, "Random Bures mixed states and the distribution of their purity" (2010)`_
 
-    .. _arXiv:0909.5094: https://arxiv.org/abs/0909.5094
-    """
+    .. _Osipov, Sommers, and Zyczkowski, "Random Bures mixed states and the distribution of their purity" (2010): https://arxiv.org/abs/0909.5094
+    """  # noqa: E501
     if dim < 1:
         raise ValueError("Dimension must be at least one.")
 
@@ -93,10 +93,10 @@ def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         The sampled unitary matrix.
 
     References:
-        - `arXiv:math-ph/0609050`_
+        - `Mezzadri, "How to generate random matrices from the classical compact groups" (2007)`_
 
-    .. _arXiv:math-ph/0609050: https://arxiv.org/abs/math-ph/0609050
-    """
+    .. _Mezzadri, "How to generate random matrices from the classical compact groups" (2007): https://arxiv.org/abs/math-ph/0609050
+    """  # noqa: E501
     rng = np.random.default_rng(seed)
     z = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     z += 1j * rng.standard_normal((dim, dim)).astype(dtype, copy=False)
@@ -118,10 +118,10 @@ def random_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
         The sampled orthogonal matrix.
 
     References:
-        - `arXiv:math-ph/0609050`_
+        - `Mezzadri, "How to generate random matrices from the classical compact groups" (2007)`_
 
-    .. _arXiv:math-ph/0609050: https://arxiv.org/abs/math-ph/0609050
-    """
+    .. _Mezzadri, "How to generate random matrices from the classical compact groups" (2007): https://arxiv.org/abs/math-ph/0609050
+    """  # noqa: E501
     rng = np.random.default_rng(seed)
     m = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     q, r = np.linalg.qr(m)

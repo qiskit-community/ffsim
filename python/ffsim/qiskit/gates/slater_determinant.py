@@ -122,10 +122,11 @@ class PrepareSlaterDeterminantJW(Gate):
     correspond to the alpha orbitals and the last `norb` qubits correspond to the
     beta orbitals.
 
-    Reference: `arXiv:1711.05395`_
+    References:
+        - `Jiang et al., "Quantum algorithms to simulate many-body physics of correlated fermions" (2018)`_
 
-    .. _arXiv:1711.05395: https://arxiv.org/abs/1711.05395
-    """
+    .. _Jiang et al., "Quantum algorithms to simulate many-body physics of correlated fermions" (2018): https://arxiv.org/abs/1711.05395
+    """  # noqa: E501
 
     def __init__(
         self,

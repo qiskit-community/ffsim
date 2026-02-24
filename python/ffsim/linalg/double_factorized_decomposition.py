@@ -86,7 +86,7 @@ def modified_cholesky(
     error threshold.
 
     References:
-        - `arXiv:1711.02242`_
+        - `Motta and Zhang, "Ab initio computations of molecular systems by the auxiliary-field quantum Monte Carlo method" (2017)`_
 
     Args:
         mat: The matrix to decompose.
@@ -100,8 +100,8 @@ def modified_cholesky(
         The Cholesky vectors v_i assembled into a 2-dimensional Numpy array
         whose columns are the vectors.
 
-    .. _arXiv:1711.02242: https://arxiv.org/abs/1711.02242
-    """
+    .. _Motta and Zhang, "Ab initio computations of molecular systems by the auxiliary-field quantum Monte Carlo method" (2017): https://arxiv.org/abs/1711.02242
+    """  # noqa: E501
     dim, _ = mat.shape
 
     if not dim:
@@ -190,8 +190,8 @@ def double_factorized(
     pairs :math:`(i, j)` where :math:`i \leq j`.
 
     References:
-        - `arXiv:1808.02625`_
-        - `arXiv:2104.08957`_
+        - `Motta et al., "Low rank representations for quantum simulation of electronic structure" (2021)`_
+        - `Cohn, Motta, and Parrish, "Quantum Filter Diagonalization with Double-Factorized Hamiltonians" (2021)`_
 
     Note: Currently, only real-valued two-body tensors are supported.
 
@@ -239,11 +239,11 @@ def double_factorized(
     Raises:
         ValueError: diag_coulomb_indices contains lower triangular indices.
 
-    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
-    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
+    .. _Motta et al., "Low rank representations for quantum simulation of electronic structure" (2021): https://arxiv.org/abs/1808.02625
+    .. _Cohn, Motta, and Parrish, "Quantum Filter Diagonalization with Double-Factorized Hamiltonians" (2021): https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
-    """
+    """  # noqa: E501
     if np.iscomplexobj(two_body_tensor):
         raise ValueError(
             "Double factorization of complex two-body tensors is not supported."

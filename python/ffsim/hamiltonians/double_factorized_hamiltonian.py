@@ -79,8 +79,8 @@ class DoubleFactorizedHamiltonian(
     where :math:`\sigma \neq \tau` or :math:`i \neq j`.
 
     References:
-        - `Low rank representations for quantum simulation of electronic structure`_
-        - `Quantum Filter Diagonalization with Double-Factorized Hamiltonians`_
+        - `Motta et al., "Low rank representations for quantum simulation of electronic structure" (2021)`_
+        - `Cohn, Motta, and Parrish, "Quantum Filter Diagonalization with Double-Factorized Hamiltonians" (2021)`_
 
     Attributes:
         one_body_tensor (np.ndarray): The one-body tensor :math:`\kappa`.
@@ -90,10 +90,10 @@ class DoubleFactorizedHamiltonian(
         z_representation (bool): Whether the Hamiltonian is in the "Z" representation
             rather than the "number" representation.
 
-    .. _Low rank representations for quantum simulation of electronic structure: https://arxiv.org/abs/1808.02625
-    .. _Quantum Filter Diagonalization with Double-Factorized Hamiltonians: https://arxiv.org/abs/2104.08957
+    .. _Motta et al., "Low rank representations for quantum simulation of electronic structure" (2021): https://arxiv.org/abs/1808.02625
+    .. _Cohn, Motta, and Parrish, "Quantum Filter Diagonalization with Double-Factorized Hamiltonians" (2021): https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    """
+    """  # noqa: E501
 
     one_body_tensor: np.ndarray
     diag_coulomb_mats: np.ndarray

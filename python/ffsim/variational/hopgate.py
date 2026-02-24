@@ -32,7 +32,8 @@ class HopGateAnsatzOperator(
     The hop gate ansatz consists of a sequence of `hop gates`_.
 
     Note that this ansatz does not implement any interactions between spin alpha and
-    spin beta orbitals. It was designed to be used with `entanglement forging`_.
+    spin beta orbitals. It was designed to be used with entanglement forging (see
+    the references).
 
     Attributes:
         norb (int): The number of spatial orbitals.
@@ -42,9 +43,12 @@ class HopGateAnsatzOperator(
         final_orbital_rotation (np.ndarray): An optional final orbital rotation to
             append to the ansatz, used to optimize the orbital basis.
 
+    References:
+        - `Eddins et al., "Doubling the Size of Quantum Simulators by Entanglement Forging" (2022)`_
+
     .. _hop gates: ffsim.html#ffsim.apply_hop_gate
-    .. _entanglement forging: https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309
-    """
+    .. _Eddins et al., "Doubling the Size of Quantum Simulators by Entanglement Forging" (2022): https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309
+    """  # noqa: E501
 
     norb: int
     interaction_pairs: list[tuple[int, int]]

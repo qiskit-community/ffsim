@@ -54,7 +54,7 @@ def fermi_hubbard_1d(
     "ring with two edges".
 
     References:
-        - `The Hubbard Model`_
+        - `Arovas et al., "The Hubbard Model" (2022)`_
 
     Args:
         norb: The number of spatial orbitals :math:`N`.
@@ -68,7 +68,7 @@ def fermi_hubbard_1d(
     Returns:
         The one-dimensional Fermi-Hubbard model Hamiltonian.
 
-    .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
+    .. _Arovas et al., "The Hubbard Model" (2022): https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
@@ -135,7 +135,7 @@ def fermi_hubbard_2d(
     the connection along that dimension to be counted twice.
 
     References:
-        - `The Hubbard Model`_
+        - `Arovas et al., "The Hubbard Model" (2022)`_
 
     Args:
         norb_x: The number of spatial orbitals in the x-direction :math:`N_x`.
@@ -153,7 +153,7 @@ def fermi_hubbard_2d(
     Returns:
         The two-dimensional Fermi-Hubbard model Hamiltonian.
 
-    .. _The Hubbard Model: https://doi.org/10.1146/annurev-conmatphys-031620-102024
+    .. _Arovas et al., "The Hubbard Model" (2022): https://doi.org/10.1146/annurev-conmatphys-031620-102024
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(float)
 
