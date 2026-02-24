@@ -186,7 +186,7 @@ def test_t_amplitudes_random_n_reps():
     nvrt_b = norb - nocc_b
 
     n_reps: int | tuple[int, int]
-    for n_reps in [5, 50, (10, 5)]:  # type: ignore
+    for n_reps in [5, 50, (10, 5), (0, 1)]:  # type: ignore
         t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
         t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
         t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)

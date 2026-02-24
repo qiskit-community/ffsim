@@ -541,22 +541,30 @@ class UCJOpSpinUnbalanced(
             n_reps_ab = n_reps
         else:
             n_reps_ab, _ = n_reps
-        diag_coulomb_mats_ab, orbital_rotations_ab = (
-            linalg.double_factorized_t2_alpha_beta(
-                t2ab,
-                tol=tol,
-                max_terms=n_reps_ab,
-                optimize=optimize,
-                method=method,
-                callback=callback,
-                options=options,
-                diag_coulomb_indices=interaction_pairs,
-                regularization=regularization,
-                multi_stage_start=multi_stage_start,
-                multi_stage_step=multi_stage_step,
-                return_optimize_result=False,
+        if n_reps_ab is None or n_reps_ab >= 1:
+            diag_coulomb_mats_ab, orbital_rotations_ab = (
+                linalg.double_factorized_t2_alpha_beta(
+                    t2ab,
+                    tol=tol,
+                    max_terms=n_reps_ab,
+                    optimize=optimize,
+                    method=method,
+                    callback=callback,
+                    options=options,
+                    diag_coulomb_indices=interaction_pairs,
+                    regularization=regularization,
+                    multi_stage_start=multi_stage_start,
+                    multi_stage_step=multi_stage_step,
+                    return_optimize_result=False,
+                )
             )
-        )
+        elif n_reps_ab == 0:
+            diag_coulomb_mats_ab = np.empty((0, 3, norb, norb))
+            orbital_rotations_ab = np.empty((0, 2, norb, norb))
+        else:
+            raise ValueError(
+                f"Number of alpha-beta repetitions must be at least 1. Got {n_reps_ab}."
+            )
         n_reps_ab, _, _, _ = diag_coulomb_mats_ab.shape
         # alpha-alpha and beta-beta
         if n_reps is None:
@@ -616,9 +624,14 @@ class UCJOpSpinUnbalanced(
             else:
                 diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
                 orbital_rotations_same_spin = np.empty((0, 2, norb, norb))
-        else:
+        elif n_reps_aa == 0:
             diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
             orbital_rotations_same_spin = np.empty((0, 2, norb, norb))
+        else:
+            raise ValueError(
+                f"Number of alpha-alpha repetitions must be at least 1. "
+                f"Got {n_reps_aa}."
+            )
         # concatenate
         if n_reps is None or isinstance(n_reps, int):
             diag_coulomb_mats = np.concatenate(

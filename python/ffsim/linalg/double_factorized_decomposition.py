@@ -630,6 +630,8 @@ def double_factorized_t2(
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
+    if max_terms is not None and max_terms < 1:
+        raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
     if optimize:
         return _double_factorized_t2_compressed(
             t2_amplitudes,
@@ -943,6 +945,8 @@ def double_factorized_t2_alpha_beta(
           indexes the spin sector of the orbital rotation: first alpha, then beta.
           The first axis indexes the terms of the decomposition.
     """
+    if max_terms is not None and max_terms < 1:
+        raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
     if optimize:
         return _double_factorized_t2_alpha_beta_compressed(
             t2_amplitudes,
