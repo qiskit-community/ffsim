@@ -1,3 +1,15 @@
+# (C) Copyright IBM 2024.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""Tests for LUCJ preset pass manager."""
+
 import pytest
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit_ibm_runtime.fake_provider import FakeMarrakesh, FakeNighthawk, FakeTorino
@@ -5,7 +17,7 @@ from qiskit_ibm_runtime.fake_provider import FakeMarrakesh, FakeNighthawk, FakeT
 import ffsim
 from ffsim.qiskit import generate_lucj_pass_manager
 
-backend_no_ab = FakeTorino()
+backend_no_ab = FakeTorino()  # Pruned Torino graph accomodates zero alpha-beta pairs
 backend_heavy_hex = FakeMarrakesh()
 backend_grid = FakeNighthawk()
 num_orbitals = 36
@@ -15,9 +27,9 @@ num_orbitals = 36
     "topology_and_backend", [("heavy-hex", backend_heavy_hex), ("grid", backend_grid)]
 )
 def test_raise_warning1(topology_and_backend):
-    """Tests UserWarning raised when `initial_layout` is specified and ignored."""
+    """Tests UserWarning raised when ``initial_layout`` is specified and ignored."""
     topology, backend = topology_and_backend
-    with pytest.warns(UserWarning, match="Argument `initial_layout` is ignored."):
+    with pytest.warns(UserWarning, match="Argument ``initial_layout`` is ignored."):
         _, _ = generate_lucj_pass_manager(
             backend=backend,
             num_orbitals=num_orbitals,
@@ -32,9 +44,9 @@ def test_raise_warning1(topology_and_backend):
     "topology_and_backend", [("heavy-hex", backend_heavy_hex), ("grid", backend_grid)]
 )
 def test_raise_warning2(topology_and_backend):
-    """Tests UserWarning raised when `layout_method` is specified and ignored."""
+    """Tests UserWarning raised when ``layout_method`` is specified and ignored."""
     topology, backend = topology_and_backend
-    with pytest.warns(UserWarning, match="Argument `layout_method` is ignored."):
+    with pytest.warns(UserWarning, match="Argument ``layout_method`` is ignored."):
         _, _ = generate_lucj_pass_manager(
             backend=backend,
             num_orbitals=num_orbitals,

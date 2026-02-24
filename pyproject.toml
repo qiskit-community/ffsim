@@ -50,6 +50,7 @@ dev = [
     "nbsphinx",
     "pre-commit",
     "pytest",
+    "qiskit-ibm-runtime",
     "qiskit[visualization]",
     "qiskit-sphinx-theme",
     "ruff == 0.14.13",
