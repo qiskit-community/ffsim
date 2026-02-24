@@ -24,7 +24,6 @@ from qiskit.transpiler import (
     generate_preset_pass_manager,
 )
 from qiskit.transpiler.passes import ApplyLayout, VF2PostLayout
-from qiskit_ibm_runtime.models.exceptions import BackendPropertyError
 from rustworkx import NoEdgeBetweenNodes, PyGraph
 
 import ffsim
@@ -203,9 +202,9 @@ def _make_backend_cmap_pygraph(
     # remove bad edges
     edge_list = backend_coupling_graph.edge_list()
     for edge in edge_list:
-        try:
+        if edge in target[two_q_gate_name]:
             ge = target[two_q_gate_name][edge].error
-        except BackendPropertyError:
+        else:
             ge = target[two_q_gate_name][edge[::-1]].error
 
         if ge >= thresh_two_q:

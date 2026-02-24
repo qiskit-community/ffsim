@@ -12,13 +12,19 @@
 
 import pytest
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_ibm_runtime.fake_provider import FakeMarrakesh, FakeNighthawk, FakeTorino
+from qiskit_ibm_runtime.fake_provider import (
+    FakeBrisbane,
+    FakeMarrakesh,
+    FakeNighthawk,
+    FakeTorino,
+)
 
 import ffsim
 from ffsim.qiskit import generate_lucj_pass_manager
 
 backend_no_ab = FakeTorino()  # Pruned Torino graph accomodates zero alpha-beta pairs
 backend_heavy_hex = FakeMarrakesh()
+backend_heavy_hex_directed = FakeBrisbane()
 backend_grid = FakeNighthawk()
 num_orbitals = 36
 
@@ -102,7 +108,12 @@ def test_raise_runtime_error():
 
 
 @pytest.mark.parametrize(
-    "topology_and_backend", [("heavy-hex", backend_heavy_hex), ("grid", backend_grid)]
+    "topology_and_backend",
+    [
+        ("heavy-hex", backend_heavy_hex),
+        ("heavy-hex", backend_heavy_hex_directed),
+        ("grid", backend_grid),
+    ],
 )
 @pytest.mark.parametrize(
     "requested_alpha_beta_indices",
