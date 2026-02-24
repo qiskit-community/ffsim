@@ -10,8 +10,12 @@
 
 """Tests for LUCJ preset pass manager."""
 
+from typing import Literal, cast
+
 import pytest
 from qiskit import QuantumCircuit, QuantumRegister
+from qiskit.providers.fake_provider import GenericBackendV2
+from qiskit.transpiler import CouplingMap
 from qiskit_ibm_runtime.fake_provider import (
     FakeBrisbane,
     FakeMarrakesh,
@@ -26,6 +30,11 @@ backend_no_ab = FakeTorino()  # Pruned Torino graph accomodates zero alpha-beta 
 backend_heavy_hex = FakeMarrakesh()
 backend_heavy_hex_directed = FakeBrisbane()
 backend_grid = FakeNighthawk()
+cmap = CouplingMap.from_grid(num_rows=12, num_columns=10)
+backend_noise_info_none = GenericBackendV2(
+    num_qubits=cmap.size(), coupling_map=cmap, noise_info=False
+)  # creates a backend with ``None`` as error rates
+
 num_orbitals = 36
 
 
@@ -33,7 +42,7 @@ num_orbitals = 36
     "topology_and_backend", [("heavy-hex", backend_heavy_hex), ("grid", backend_grid)]
 )
 def test_raise_warning1(topology_and_backend):
-    """Tests UserWarning raised when ``initial_layout`` is specified and ignored."""
+    """Test UserWarning raised when ``initial_layout`` is specified and ignored."""
     topology, backend = topology_and_backend
     with pytest.warns(UserWarning, match="Argument ``initial_layout`` is ignored."):
         _, _ = generate_lucj_pass_manager(
@@ -50,7 +59,7 @@ def test_raise_warning1(topology_and_backend):
     "topology_and_backend", [("heavy-hex", backend_heavy_hex), ("grid", backend_grid)]
 )
 def test_raise_warning2(topology_and_backend):
-    """Tests UserWarning raised when ``layout_method`` is specified and ignored."""
+    """Test UserWarning raised when ``layout_method`` is specified and ignored."""
     topology, backend = topology_and_backend
     with pytest.warns(UserWarning, match="Argument ``layout_method`` is ignored."):
         _, _ = generate_lucj_pass_manager(
@@ -71,7 +80,7 @@ def test_raise_warning2(topology_and_backend):
     [[(num_orbitals + 1, num_orbitals + 1)], [(num_orbitals, num_orbitals)]],
 )
 def test_raise_value_error1(requested_alpha_beta_indices, topology_and_backend):
-    """Tests ValueError raised when requested alpha-beta > num orbitals."""
+    """Test ValueError raised when requested alpha-beta > num orbitals."""
     topology, backend = topology_and_backend
     with pytest.raises(ValueError):
         _, _ = generate_lucj_pass_manager(
@@ -84,19 +93,21 @@ def test_raise_value_error1(requested_alpha_beta_indices, topology_and_backend):
 
 
 def test_raise_value_error2():
-    """Tests ValueError raised when topology is neither 'heavy-hex' nor 'grid'."""
+    """Test ValueError raised when topology is neither 'heavy-hex' nor 'grid'."""
     with pytest.raises(ValueError):
         _, _ = generate_lucj_pass_manager(
             backend=backend_heavy_hex,
             num_orbitals=num_orbitals,
-            backend_topology="line",
+            backend_topology=cast(
+                Literal["heavy-hex", "grid"], "line"
+            ),  # to avoid mypy error
             requested_alpha_beta_indices=None,
             optimization_level=3,
         )
 
 
 def test_raise_runtime_error():
-    """Tests RuntimeError raised when there are zero alpha-beta interactions."""
+    """Test RuntimeError raised when there are zero alpha-beta interactions."""
     with pytest.raises(RuntimeError):
         _, _ = generate_lucj_pass_manager(
             backend=backend_no_ab,
@@ -105,6 +116,19 @@ def test_raise_runtime_error():
             requested_alpha_beta_indices=None,
             optimization_level=3,
         )
+
+
+def test_backend_with_none_noise_info():
+    """Test handling of backend with no noise info."""
+    _, _ = generate_lucj_pass_manager(
+        backend=backend_noise_info_none,
+        num_orbitals=num_orbitals,
+        backend_topology="grid",
+        requested_alpha_beta_indices=None,
+        optimization_level=1,
+    )
+
+    assert True
 
 
 @pytest.mark.parametrize(
@@ -120,7 +144,7 @@ def test_raise_runtime_error():
     [None, [(32, 32), (4, 4), (8, 8), (24, 24), (16, 16), (28, 28)]],
 )
 def test_generate_lucj_pass_manager(requested_alpha_beta_indices, topology_and_backend):
-    """Tests whether the transpiled LUCJ ansatz retains correct a-b interactions.
+    """Test whether the transpiled LUCJ ansatz retains correct a-b interactions.
 
     On heavy-hex, it should alpha - ancilla - beta, and on grid, it must
     be alpha - beta, i.e.,

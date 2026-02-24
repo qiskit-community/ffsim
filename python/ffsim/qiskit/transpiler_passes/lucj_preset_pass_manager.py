@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Pass manager for LUCJ ansatz with backend complaint layout."""
+"""Pass manager for LUCJ ansatz with backend compliant layout."""
 
 from __future__ import annotations
 
@@ -35,11 +35,12 @@ VF2_CALL_LIMIT = 30_000_000
 def _create_two_linear_chains(num_orbitals: int) -> PyGraph:
     """Create two disconnected linear qubit chains for the LUCJ ansatz.
 
-    Constructs a ``rustworkx.PyGraph`` with two disconnected linear chains
+    Construct a ``rustworkx.PyGraph`` with two disconnected linear chains
     representing the alpha (nodes ``0`` to ``num_orbitals - 1``) and beta
     (nodes ``num_orbitals`` to ``2 * num_orbitals - 1``) qubits. This graph
     serves as the base structure for the LUCJ layout; alpha-beta connections
-    are added separately by ``_get_layout_graph_and_allowed_alpha_beta_indices``.
+    between chains are added separately by
+    ``_get_layout_graph_and_allowed_alpha_beta_indices``.
 
     Args:
         num_orbitals: Number of nodes (qubits) in each linear chain.
@@ -74,16 +75,16 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
 ) -> tuple[PyGraph, list[tuple[int, int]]]:
     """Build a LUCJ layout graph and determine accommodated alpha-beta interactions.
 
-    Constructs a candidate layout graph representing the LUCJ ansatz - two linear
-    qubit chains (alpha and beta) connected by alpha-beta interactions - and
-    verifies that it can be embedded as an isomorphic subgraph on the target
+    This routine constructs a candidate layout graph representing the LUCJ ansatz
+    - two linear qubit chains (alpha and beta) connected by alpha-beta interactions
+    - and verifies that it can be embedded as an isomorphic subgraph on the target
     backend. If the full set of requested alpha-beta pairs cannot be accommodated,
     pairs are dropped one-by-one from the end of ``alpha_beta_indices`` until a
     valid embedding is found.
 
     The construction strategy differs by topology:
 
-    - **heavy-hex**: Ancillae qubits are inserted as intermediate nodes between
+    - **heavy-hex**: Ancilla qubits are inserted as intermediate nodes between
       each alpha-beta pair, reflecting the limited connectivity of heavy-hex
       devices. The number of ancilla nodes equals ``len(alpha_beta_indices)``.
     - **grid**: Alpha and beta nodes are connected directly with no ancilla qubits,
@@ -108,9 +109,9 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
 
     Returns:
         - The LUCJ layout graph - two linear chains with
-          alpha-beta connections (and ancilla nodes for heavy-hex) - that is
-          a valid isomorphic subgraph of ``backend_coupling_graph``.
-        - The subset of ``alpha_beta_indices`` that could
+          alpha-beta connections (and ancilla nodes for heavy-hex topologies)
+          - that is a valid isomorphic subgraph of ``backend_coupling_graph``.
+        - The subset of ``alpha_beta_indices`` that can
           be accommodated given the backend's connectivity constraints.
     """
     isomorphic = False
@@ -158,9 +159,11 @@ def _make_backend_cmap_pygraph(
 ) -> PyGraph:
     """Convert a backend coupling map to a filtered ``rustworkx.PyGraph``.
 
-    Constructs an undirected graph from the backend's coupling map, removes
-    duplicate edges so that at most one edge exists between any two nodes, then
-    prunes nodes and edges that exceed the specified error thresholds.
+    This function constructs an undirected graph from the backend's coupling map,
+    removes duplicate edges so that at most one edge exists between any two nodes,
+    then prunes nodes and edges that exceed the specified error thresholds. Nodes
+    and edges with missing instruction properties (``None``) are skipped from
+    pruning.
 
     Args:
         backend: The target Qiskit backend.
@@ -195,19 +198,26 @@ def _make_backend_cmap_pygraph(
     # remove bad nodes
     node_indices = backend_coupling_graph.node_indices()
     for node_id in node_indices:
-        re = target["measure"][(node_id,)].error
-        if re >= thresh_meas:
+        meas_prop = target["measure"][(node_id,)]
+        if meas_prop is None:
+            continue
+
+        if meas_prop.error >= thresh_meas:
             backend_coupling_graph.remove_node(node_id)
 
     # remove bad edges
     edge_list = backend_coupling_graph.edge_list()
     for edge in edge_list:
         if edge in target[two_q_gate_name]:
-            ge = target[two_q_gate_name][edge].error
+            found_edge = edge
         else:
-            ge = target[two_q_gate_name][edge[::-1]].error
+            found_edge = edge[::-1]
 
-        if ge >= thresh_two_q:
+        gate_prop = target[two_q_gate_name][found_edge]
+        if gate_prop is None:
+            continue
+
+        if gate_prop.error >= thresh_two_q:
             backend_coupling_graph.remove_edge(edge[0], edge[1])
 
     return backend_coupling_graph
@@ -217,15 +227,15 @@ def _get_placeholder_layout_and_allowed_interactions(
     backend: BackendV2,
     num_orbitals: int,
     backend_topology: Literal["heavy-hex", "grid"],
-    requested_alpha_beta_indices: Sequence[tuple[int, int]],
+    requested_alpha_beta_indices: list[tuple[int, int]],
     thresh_two_q: float,
     thresh_meas: float,
 ) -> tuple[list[int], list[tuple[int, int]]]:
     """Generate a placeholder layout and the accommodated alpha-beta interactions.
 
-    Builds a filtered backend coupling graph, finds a subgraph isomorphic to the
-    LUCJ layout graph, and returns the corresponding physical qubit indices
-    as an ``initial_layout`` for use in a Qiskit preset pass manager or transpiler.
+    Build a filtered backend coupling graph, find a subgraph isomorphic to the
+    LUCJ layout graph, and return the corresponding physical qubit indices
+    as an ``initial_layout`` for use in a Qiskit preset pass manager.
     If the backend cannot accommodate all requested alpha-beta pairs, pairs are
     dropped from the end of the list until a valid isomorphic subgraph is found.
 
@@ -247,7 +257,7 @@ def _get_placeholder_layout_and_allowed_interactions(
     Returns:
         - Physical qubit indices forming a heavy-hex or grid topology
           compliant layout, suitable for use as ``initial_layout`` in
-          a Qiskit pass manager.
+          a Qiskit preset pass manager.
         - The subset of requested alpha-beta pairs that
           could be accommodated given the backend's connectivity and error
           constraints.
@@ -317,7 +327,7 @@ def generate_lucj_pass_manager(
 ) -> tuple[StagedPassManager, list[tuple[int, int]]]:
     """Generate a Qiskit preset pass manager for the LUCJ ansatz.
 
-    Constructs a pass manager that maps a local unitary cluster Jastrow (LUCJ)
+    Construct a pass manager that maps a local unitary cluster Jastrow (LUCJ)
     ansatz circuit onto a target backend using layout strategies, as described
     in Motta et al. (2023) (https://pubs.rsc.org/en/content/articlehtml/2023/sc/d3sc02516k).
     The layout is optimized for heavy-hex or grid backend topologies, subject to
@@ -356,10 +366,10 @@ def generate_lucj_pass_manager(
             ignored with a warning if provided.
 
     Returns:
-        - A configured Qiskit staged pass manager with the
+        - A configured Qiskit preset pass manager with the
           LUCJ layout and a ``VF2PostLayout`` pass enabled.
         - The subset of requested alpha-beta pairs that
-          could be accommodated given the backend's connectivity and error
+          can be accommodated given the backend's connectivity and error
           constraints.
 
     Raises:
@@ -398,18 +408,20 @@ def generate_lucj_pass_manager(
 
     if requested_alpha_beta_indices is None:
         if backend_topology.lower() == "heavy-hex":
-            requested_alpha_beta_indices = [
+            resolved_alpha_beta_indices = [
                 (p, p) for p in range(num_orbitals) if p % 4 == 0
             ]
         elif backend_topology.lower() == "grid":
-            requested_alpha_beta_indices = [(p, p) for p in range(num_orbitals)]
+            resolved_alpha_beta_indices = [(p, p) for p in range(num_orbitals)]
+    else:
+        resolved_alpha_beta_indices = list(requested_alpha_beta_indices)
 
     (placeholder_initial_layout, allowed_alpha_beta_indices) = (
         _get_placeholder_layout_and_allowed_interactions(
             backend=backend,
             num_orbitals=num_orbitals,
             backend_topology=backend_topology,
-            requested_alpha_beta_indices=requested_alpha_beta_indices,
+            requested_alpha_beta_indices=resolved_alpha_beta_indices,
             thresh_two_q=thresh_two_q,
             thresh_meas=thresh_meas,
         )
