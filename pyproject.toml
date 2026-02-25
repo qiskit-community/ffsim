@@ -55,6 +55,7 @@ dev = [
     "ruff == 0.14.13",
     "sphinx",
     "sphinx-autodoc-typehints",
+    "typos",
 ]
 
 [tool.maturin]
