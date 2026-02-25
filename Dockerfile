@@ -8,8 +8,11 @@ RUN rm -rf work
 
 # Install apt dependencies
 USER root
-RUN apt update && apt install -y libssl-dev rustc cargo libopenblas-dev pkg-config
+RUN apt update && apt install -y libssl-dev libopenblas-dev pkg-config
 USER ${NB_UID}
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
 
 # Copy files
 COPY . .src/ffsim
