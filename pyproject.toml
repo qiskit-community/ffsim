@@ -101,4 +101,4 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
 [tool.cibuildwheel.linux]
-before-all = "dnf install -y cargo openblas-devel openssl-devel rust"
+before-all = "dnf install -y openblas-devel openssl-devel"
