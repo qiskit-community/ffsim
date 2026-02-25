@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/minimal-notebook:python-3.11
+FROM quay.io/jupyter/minimal-notebook:python-3.13
 
 LABEL maintainer="Kevin J. Sung <kevinsung@ibm.com>"
 
@@ -8,7 +8,7 @@ RUN rm -rf work
 
 # Install apt dependencies
 USER root
-RUN apt update && apt install -y libssl-dev rustc cargo libopenblas-dev pkg-config
+RUN apt update && apt install -y gcc libssl-dev libopenblas-dev pkg-config
 USER ${NB_UID}
 
 # Copy files
