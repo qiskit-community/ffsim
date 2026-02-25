@@ -145,7 +145,7 @@ class PrepareSlaterDeterminantJW(Gate):
 
         Args:
             norb: The number of spatial orbitals.
-            occupied_orbitals: The occupied orbitals in the electonic configuration.
+            occupied_orbitals: The occupied orbitals in the electronic configuration.
                 This is a pair of lists of integers, where the first list specifies the
                 spin alpha orbitals and the second list specifies the spin beta
                 orbitals.
@@ -243,7 +243,7 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
 
         Args:
             norb: The number of spatial orbitals.
-            occupied_orbitals: The occupied orbitals in the electonic configuration.
+            occupied_orbitals: The occupied orbitals in the electronic configuration.
             orbital_rotation: The optional orbital rotation.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary

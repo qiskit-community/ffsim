@@ -87,6 +87,14 @@ include = [
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "NPY", "NPY201", "RUF"]
 
+[tool.typos.default]
+# Jupyter notebook cell IDs
+extend-ignore-re = ["[0-9a-f]{8,}"]
+
+[tool.typos.default.extend-words]
+datas = "datas"
+ket = "ket"
+
 [tool.cibuildwheel]
 build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
 test-requires = "pytest"
