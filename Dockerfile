@@ -8,7 +8,7 @@ RUN rm -rf work
 
 # Install apt dependencies
 USER root
-RUN apt update && apt install -y libssl-dev libopenblas-dev pkg-config
+RUN apt update && apt install -y build-essential libssl-dev libopenblas-dev pkg-config
 USER ${NB_UID}
 
 # Install Rust
