@@ -19,7 +19,7 @@ jobs:
       matrix:
         tox-env: ["coverage", "type", "lint", "format", "spell", "docs"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           sudo apt install -y libopenblas-dev pandoc
