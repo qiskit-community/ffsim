@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/minimal-notebook:python-3.11
+FROM quay.io/jupyter/minimal-notebook:python-3.13
 
 LABEL maintainer="Kevin J. Sung <kevinsung@ibm.com>"
 
