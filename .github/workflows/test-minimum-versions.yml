@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt install -y libopenblas-dev
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install tox
