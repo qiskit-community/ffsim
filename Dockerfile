@@ -13,6 +13,7 @@ USER ${NB_UID}
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+ENV PATH="/home/jovyan/.cargo/bin:${PATH}"
 
 # Copy files
 COPY . .src/ffsim
