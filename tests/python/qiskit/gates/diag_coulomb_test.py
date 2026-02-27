@@ -16,6 +16,7 @@ import itertools
 
 import numpy as np
 import pytest
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -167,6 +168,62 @@ def test_random_diag_coulomb_mat_spinless(norb: int, nelec: int):
             nelec=nelec,
         )
         np.testing.assert_allclose(result, expected)
+
+
+def test_circuit_depth_spinful_all_to_all():
+    """Test gate depth for spinful gate decomposition with all-to-all connectivity."""
+    norb = 10
+    mat = np.ones((norb, norb))
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionJW(norb, (mat, np.eye(norb), mat), time)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 100
+    assert circuit.depth() == 19
+
+
+def test_circuit_depth_spinless_all_to_all():
+    """Test gate depth for spinless gate decomposition with all-to-all connectivity."""
+    norb = 10
+    mat = np.ones((norb, norb))
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, time)
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 45
+    assert circuit.depth() == 18
+
+
+def test_circuit_depth_spinful_linear():
+    """Test gate depth for spinful gate decomposition with linear connectivity."""
+    norb = 10
+    mat = np.diag(np.ones(norb - 1), k=1) + np.diag(np.ones(norb - 1), k=-1)
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionJW(norb, (mat, np.eye(norb), mat), time)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 28
+    assert circuit.depth() == 10
+
+
+def test_circuit_depth_spinless_linear():
+    """Test gate depth for spinless gate decomposition with linear connectivity."""
+    norb = 10
+    mat = np.diag(np.ones(norb - 1), k=1) + np.diag(np.ones(norb - 1), k=-1)
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, time)
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 9
+    assert circuit.depth() == 9
 
 
 @pytest.mark.parametrize(
