@@ -181,7 +181,7 @@ def test_circuit_depth_spinful_all_to_all():
     circuit.append(gate, qubits)
     circuit = circuit.decompose()
     assert circuit.count_ops()["cp"] == 100
-    assert circuit.depth() == 19
+    assert circuit.depth() == 16
 
 
 def test_circuit_depth_spinless_all_to_all():
@@ -195,7 +195,7 @@ def test_circuit_depth_spinless_all_to_all():
     circuit.append(gate, qubits)
     circuit = circuit.decompose()
     assert circuit.count_ops()["cp"] == 45
-    assert circuit.depth() == 18
+    assert circuit.depth() == 15
 
 
 def test_circuit_depth_spinful_linear():
@@ -209,7 +209,7 @@ def test_circuit_depth_spinful_linear():
     circuit.append(gate, qubits)
     circuit = circuit.decompose()
     assert circuit.count_ops()["cp"] == 28
-    assert circuit.depth() == 10
+    assert circuit.depth() == 3
 
 
 def test_circuit_depth_spinless_linear():
@@ -223,7 +223,7 @@ def test_circuit_depth_spinless_linear():
     circuit.append(gate, qubits)
     circuit = circuit.decompose()
     assert circuit.count_ops()["cp"] == 9
-    assert circuit.depth() == 9
+    assert circuit.depth() == 2
 
 
 @pytest.mark.parametrize(
