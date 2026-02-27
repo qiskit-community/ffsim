@@ -144,7 +144,7 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
 
         if not isomorphic:
             warnings.warn(
-                f"Backend cannot accomodate alpha_beta_incides {alpha_beta_indices}.\n "
+                f"Backend cannot accommodate alpha_beta_indices={alpha_beta_indices}.\n"
                 f"Removing interaction {alpha_beta_indices[-1]} from the end."
             )
             del alpha_beta_indices[-1]
@@ -283,7 +283,9 @@ def _get_placeholder_layout_and_allowed_interactions(
     )
     num_allowed_alpha_beta_indices = len(allowed_alpha_beta_indices)
     if num_allowed_alpha_beta_indices == 0:
-        raise RuntimeError("No alpha-beta interaction can be accomodated. Terminating.")
+        raise RuntimeError(
+            "No alpha-beta interaction can be accommodated. Terminating."
+        )
 
     isomorphic_mappings = rustworkx.vf2_mapping(
         backend_coupling_graph,
